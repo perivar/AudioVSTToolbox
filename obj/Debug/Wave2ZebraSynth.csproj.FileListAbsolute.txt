@@ -1,0 +1,12 @@
+C:\Users\perivar.nerseth\Documents\CSScripts\Duplicate songs detector via audio fingerprinting\Wave2ZebraSynth\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\perivar.nerseth\Documents\CSScripts\Duplicate songs detector via audio fingerprinting\Wave2ZebraSynth\bin\Debug\Wave2ZebraSynth.exe
+C:\Users\perivar.nerseth\Documents\CSScripts\Duplicate songs detector via audio fingerprinting\Wave2ZebraSynth\bin\Debug\Wave2ZebraSynth.pdb
+C:\Users\perivar.nerseth\Documents\CSScripts\Duplicate songs detector via audio fingerprinting\Wave2ZebraSynth\bin\Debug\Bass.Net.dll
+C:\Users\perivar.nerseth\Documents\CSScripts\Duplicate songs detector via audio fingerprinting\Wave2ZebraSynth\obj\Debug\Wave2ZebraSynth.exe
+C:\Users\perivar.nerseth\Documents\CSScripts\Duplicate songs detector via audio fingerprinting\Wave2ZebraSynth\obj\Debug\Wave2ZebraSynth.pdb
+C:\Users\perivar.nerseth\My Projects\Wave2ZebraSynth\bin\Debug\Wave2ZebraSynth.exe
+C:\Users\perivar.nerseth\My Projects\Wave2ZebraSynth\bin\Debug\Wave2ZebraSynth.pdb
+C:\Users\perivar.nerseth\My Projects\Wave2ZebraSynth\bin\Debug\Bass.Net.dll
+C:\Users\perivar.nerseth\My Projects\Wave2ZebraSynth\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\perivar.nerseth\My Projects\Wave2ZebraSynth\obj\Debug\Wave2ZebraSynth.exe
+C:\Users\perivar.nerseth\My Projects\Wave2ZebraSynth\obj\Debug\Wave2ZebraSynth.pdb

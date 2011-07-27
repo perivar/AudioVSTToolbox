@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{A7036556-4E99-414D-B4F8-B9A90B7F66D8}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>PIN-AudioAnalyzer</RootNamespace>
+    <AssemblyName>Wave2ZebraSynth</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Bass.Net">
+      <HintPath>NativeLibs\Bass.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Audio\BassProxy.cs" />
+    <Compile Include="Audio\IAudio.cs" />
+    <Compile Include="DataAccess\Hashes.cs" />
+    <Compile Include="DataAccess\HashType.cs" />
+    <Compile Include="DataAccess\IPermutations.cs" />
+    <Compile Include="DataAccess\IStorage.cs" />
+    <Compile Include="DataAccess\LocalPermutations.cs" />
+    <Compile Include="DataAccess\RamStorage.cs" />
+    <Compile Include="DataAccess\Repository.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="Fingerprinting\CSVWriter.cs" />
+    <Compile Include="Fingerprinting\FingerprintManager.cs" />
+    <Compile Include="Fingerprinting\IncrementalRandomStride.cs" />
+    <Compile Include="Fingerprinting\IncrementalStaticStride.cs" />
+    <Compile Include="Fingerprinting\IStride.cs" />
+    <Compile Include="Fingerprinting\MathUtils\Complex.cs" />
+    <Compile Include="Fingerprinting\MathUtils\ComplexF.cs" />
+    <Compile Include="Fingerprinting\MathUtils\Fourier.cs" />
+    <Compile Include="Fingerprinting\MathUtils\FourierDirection.cs" />
+    <Compile Include="Fingerprinting\MathUtils\HaarWavelet.cs" />
+    <Compile Include="Fingerprinting\MathUtils\HanningWindow.cs" />
+    <Compile Include="Fingerprinting\MathUtils\IWaveletDecomposition.cs" />
+    <Compile Include="Fingerprinting\MathUtils\IWindowFunction.cs" />
+    <Compile Include="Fingerprinting\MinHash.cs" />
+    <Compile Include="Fingerprinting\RandomStride.cs" />
+    <Compile Include="Fingerprinting\StaticStride.cs" />
+    <Compile Include="Model\HashSignature.cs" />
+    <Compile Include="Model\Item.cs" />
+    <Compile Include="Model\ResultItem.cs" />
+    <Compile Include="Model\Track.cs" />
+    <Compile Include="RepositoryGateway.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Audio" />
+    <Folder Include="DataAccess" />
+    <Folder Include="Fingerprinting" />
+    <Folder Include="Fingerprinting\MathUtils" />
+    <Folder Include="Model" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+</Project>
