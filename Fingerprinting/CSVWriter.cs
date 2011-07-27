@@ -19,7 +19,7 @@ namespace Wave2ZebraSynth.Fingerprinting
         /// <summary>
         ///   Separator used while writing to CVS
         /// </summary>
-        private const char SEPARATOR = ',';
+        private const char SEPARATOR = ';';
 
         /// <summary>
         ///   Carriage return line feed

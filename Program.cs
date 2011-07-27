@@ -48,7 +48,22 @@ namespace Wave2ZebraSynth
                 // Addition of MIN_VALUE prevents log from returning minus infinity if mag is zero
                 m_mag[i] = 20 * (float) Math.Log10( (float) spectrogram[0][i] );
             }
-            float[] m_freq = new float[spectrogram[0].Length + 1];
+			exportCSV (@"c:\test-mag.txt", m_mag);
+									
+	  	    int SAMPLE_RATE = 22050;   
+	        int LOGN = 11;              // Log2 FFT length
+	        int N = 1 << LOGN;         	// FFT Length			
+	        
+		    // Vector with frequencies for each bin number. Used
+	        // in the graphing code (not in the analysis itself).
+	        //float[] m_freq = new float[spectrogram[0].Length + 1];
+	        float[] m_freq = new float[N/2];
+			for ( int i = 0; i < N/2; i++ )
+			{
+				m_freq[i] = i*SAMPLE_RATE/N;
+			}
+			exportCSV (@"c:\test-freq.txt", m_freq);
+
 			repositoryGateway.drawSpectrum("TestSpectrogram", fileName, m_mag, m_freq);
 						
 			float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
@@ -61,6 +76,23 @@ namespace Wave2ZebraSynth
 			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
+		}
+		
+		private static void exportCSV(string filenameToSave, float[] data) {
+	        object[][] arr = new object[data.Length][];
+	        
+	        int count = 1;
+	        for (int i = 0; i < data.Length; i++)
+	        {
+            	arr[i] = new object[2] { 
+	        		count, 
+	        		data[i]
+	        	};
+	        	count++;
+		    };
+	        
+	        CSVWriter csv = new CSVWriter(filenameToSave);
+	        csv.Write(arr);
 		}
 	}
 	
