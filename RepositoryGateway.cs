@@ -1,11 +1,8 @@
-﻿/*
- * Created by SharpDevelop.
- * User: perivar.nerseth
- * Date: 27.07.2011
- * Time: 12:33
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
+﻿// Based on Sound Fingerprinting framework
+// https://code.google.com/p/soundfingerprinting/
+// Code license: GNU General Public License v2
+// ciumac.sergiu@gmail.com
+
 using System;
 using System.Collections.Generic;
 
