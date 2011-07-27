@@ -256,22 +256,7 @@ namespace Wave2ZebraSynth
 				Bitmap bmp = new Bitmap( WIDTH+150, HEIGHT+150, PixelFormat.Format32bppArgb );
 	    		Color c = Color.FromArgb( 67, 133, 54 );
 	    		Graphics newGraphics = Graphics.FromImage(bmp);            
-	    		
-	    		/*
-	    		
-	dcMem.TextOut(rcClient.right-280,20,"The fundamental frequency is:");
-	dcMem.TextOut(rcClient.right-50,20,buffer);
-	int x,y, x_temp, y_temp;
-	for(x=0 ; x<rcClient.right; x++)
-	{
-		//this temp variables are used to ajust the sign to the wiindow
-		//if you want to see more of the signal ajust these fields
-		x_temp=((x*(sample_rate/2))/rcClient.right);
-		y_temp=(int)((rcClient.bottom*(pow(fft.vector[2*x_temp],2)+pow(fft.vector[2*x_temp+1],2)))/((double)pow(fft.vector[2*fft.fundamental_frequency],2)+pow(fft.vector[2*fft.fundamental_frequency+1],2)));
-		dcMem.MoveTo(x,rcClient.bottom);
-		y=rcClient.bottom-y_temp;
-		dcMem.LineTo(x,y);
-	}	    		
+	    		    		
 	            int numPoints = mag.Length;
 	            if ( mag.Length != freq.Length )
 	                System.Diagnostics.Debug.WriteLine( "mag.length != freq.length" );
@@ -360,14 +345,36 @@ namespace Wave2ZebraSynth
 	 
 	                newGraphics.DrawEllipse(blackPen, x, y, 5, 5);
 	            }
-	            */
+	            
 				bmp.Save(filenameToSave);		
     			newGraphics.Dispose();
         	} catch (Exception ex) {
         		System.Diagnostics.Debug.WriteLine(ex);
         	}
         }
-        
+
+        public void drawSpectrum2( string prefix, string filename, float[] spectrum )
+        {
+        	try {
+	            //-----------------------     
+				String filenameToSave = String.Format("C:\\{0}-{1}.bmp", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
+				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
+	            
+				Bitmap bmp = new Bitmap( spectrum.Length, 400, PixelFormat.Format32bppArgb );
+	    		Graphics newGraphics = Graphics.FromImage(bmp);   
+    			Pen bluePen = new Pen(Color.LightBlue, 1);
+	
+	    		for (int i=0; i < spectrum.Length; i++) {
+    				//  rect(i+10,390,1,myfft.spectrum[i]*-400);
+    				newGraphics.DrawRectangle(bluePen, i+10, 390, 1, spectrum[i]*-400);
+  				}
+	    		
+				bmp.Save(filenameToSave);		
+    			newGraphics.Dispose();
+        	} catch (Exception ex) {
+        		System.Diagnostics.Debug.WriteLine(ex);
+        	}
+        }
         
         public void writeImage(String prefix, String filename, float[][] data) {
         	try {

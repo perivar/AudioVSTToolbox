@@ -39,7 +39,7 @@ namespace Wave2ZebraSynth
 			FingerprintManager manager = new FingerprintManager();
 			float[][] spectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
 			repositoryGateway.writeImage("Spectrogram", fileName, spectrogram);
-			exportCSV (@"c:\test-full-spectrogram.txt", spectrogram);
+			exportCSV (@"c:\test-full-spectrogram.csv", spectrogram);
 
 			System.Diagnostics.Debug.WriteLine("Spectrogram Length: " + spectrogram[0].Length);
 			
@@ -48,7 +48,7 @@ namespace Wave2ZebraSynth
 			 * db = 20 * log10(fft[index]);
 			 */
 			
-			exportCSV (@"c:\test-spectrogram.txt", spectrogram[0]);
+			exportCSV (@"c:\test-spectrogram.csv", spectrogram[0]);
             float[] m_mag = new float[spectrogram[0].Length + 1];       
 			for (int i = 0; i < spectrogram[0].Length; i++)
             {	
@@ -56,7 +56,7 @@ namespace Wave2ZebraSynth
                 // Addition of MIN_VALUE prevents log from returning minus infinity if mag is zero
                 m_mag[i] = 20 * (float) Math.Log10( (float) spectrogram[0][i] );
             }
-			exportCSV (@"c:\test-mag.txt", m_mag);
+			exportCSV (@"c:\test-mag.csv", m_mag);
 									
 	  	    int SAMPLE_RATE = 22050;   
 	        int LOGN = 11;              // Log2 FFT length
@@ -70,9 +70,10 @@ namespace Wave2ZebraSynth
 			{
 				m_freq[i] = i*SAMPLE_RATE/N;
 			}
-			exportCSV (@"c:\test-freq.txt", m_freq);
+			exportCSV (@"c:\test-freq.csv", m_freq);
 
-			repositoryGateway.drawSpectrum("TestSpectrogram", fileName, m_mag, m_freq);
+			//repositoryGateway.drawSpectrum2("Test2Spectrogram", fileName, spectrogram[0]);
+			repositoryGateway.drawSpectrum2("Test3Spectrogram", fileName, m_mag);			
 						
 			float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
 			repositoryGateway.writeImage("LogSpectrogram", fileName, logSpectrogram);

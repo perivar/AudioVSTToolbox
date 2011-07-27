@@ -250,7 +250,7 @@ namespace Wave2ZebraSynth.Fingerprinting
         {
             //read 5512 Hz, Mono, PCM, with a specific proxy
             float[] samples = proxy.ReadMonoFromFile(filename, SampleRate, milliseconds, startmilliseconds);                   
-            //NormalizeInPlace(samples);
+            NormalizeInPlace(samples);
             int overlap = Overlap;
             int wdftSize = WdftSize;
             int width = (samples.Length - wdftSize)/overlap; /*width of the image*/
