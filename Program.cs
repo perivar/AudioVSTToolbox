@@ -39,7 +39,18 @@ namespace Wave2ZebraSynth
 			FingerprintManager manager = new FingerprintManager();
 			float[][] spectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
 			repositoryGateway.writeImage("Spectrogram", fileName, spectrogram);
-			
+
+			System.Diagnostics.Debug.WriteLine("Spectrogram Length: " + spectrogram[0].Length);
+            float[] m_mag = new float[spectrogram[0].Length + 1];       
+			for (int i = 0; i < spectrogram[0].Length; i++)
+            {
+                // 20 log10(mag) => 20/ln(10) ln(mag)
+                // Addition of MIN_VALUE prevents log from returning minus infinity if mag is zero
+                m_mag[i] = 20 * (float) Math.Log10( (float) spectrogram[0][i] );
+            }
+            float[] m_freq = new float[spectrogram[0].Length + 1];
+			repositoryGateway.drawSpectrum("TestSpectrogram", fileName, m_mag, m_freq);
+						
 			float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
 			repositoryGateway.writeImage("LogSpectrogram", fileName, logSpectrogram);
 			
