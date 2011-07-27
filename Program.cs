@@ -39,11 +39,19 @@ namespace Wave2ZebraSynth
 			FingerprintManager manager = new FingerprintManager();
 			float[][] spectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
 			repositoryGateway.writeImage("Spectrogram", fileName, spectrogram);
+			exportCSV (@"c:\test-full-spectrogram.txt", spectrogram);
 
 			System.Diagnostics.Debug.WriteLine("Spectrogram Length: " + spectrogram[0].Length);
+			
+			/*
+			 * freq = index * samplerate / fftsize;
+			 * db = 20 * log10(fft[index]);
+			 */
+			
+			exportCSV (@"c:\test-spectrogram.txt", spectrogram[0]);
             float[] m_mag = new float[spectrogram[0].Length + 1];       
 			for (int i = 0; i < spectrogram[0].Length; i++)
-            {
+            {	
                 // 20 log10(mag) => 20/ln(10) ln(mag)
                 // Addition of MIN_VALUE prevents log from returning minus infinity if mag is zero
                 m_mag[i] = 20 * (float) Math.Log10( (float) spectrogram[0][i] );
@@ -94,6 +102,23 @@ namespace Wave2ZebraSynth
 	        CSVWriter csv = new CSVWriter(filenameToSave);
 	        csv.Write(arr);
 		}
+
+		private static void exportCSV(string filenameToSave, float[][] data) {	        
+			object[][] arr = new object[data.Length][];
+
+	        for (int i = 0; i < data.Length; i++)
+	        {
+            	arr[i] = new object[data[i].Length];  
+	        	for (int j = 0; j < data[i].Length; j++)
+	        	{
+	        		arr[i][j] = data[i][j];
+	        	}
+		    };
+	        
+	        CSVWriter csv = new CSVWriter(filenameToSave);
+	        csv.Write(arr);
+		}
+
 	}
 	
 }
