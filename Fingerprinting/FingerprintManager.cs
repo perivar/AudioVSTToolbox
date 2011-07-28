@@ -93,11 +93,11 @@ namespace Wave2ZebraSynth.Fingerprinting
             FingerprintLength = 128;
             Overlap = 64;
             SamplesPerFingerprint = FingerprintLength*Overlap;
-            WdftSize = 2048;
-            MinFrequency = 318;
-            MaxFrequency = 2000; 
+            WdftSize = 2048;//2048; 	//manager.WdftSize = 8192 * 10; // 16384;
+            MinFrequency = 318;//318;
+            MaxFrequency = 2000;//2000; 
             TopWavelets = 200;
-            SampleRate = 5512;	
+            SampleRate = 5512;//5512;	
             LogBase = Math.E;
             _logFrequenciesIndex = GetLogFrequenciesIndex(SampleRate, MinFrequency, MaxFrequency, LogBins, WdftSize, LogBase);
             _windowArray = WindowFunction.GetWindow(WdftSize);
@@ -252,17 +252,18 @@ namespace Wave2ZebraSynth.Fingerprinting
             float[] samples = proxy.ReadMonoFromFile(filename, SampleRate, milliseconds, startmilliseconds);                   
             if (doNormalise) NormalizeInPlace(samples);
             int overlap = Overlap;
-            int wdftSize = WdftSize;
+            int wdftSize = WdftSize; // aka N = FFT Length
             int width = (samples.Length - wdftSize)/overlap; /*width of the image*/
             float[][] frames = new float[width][];
             float[] complexSignal = new float[2*wdftSize]; /*even - Re, odd - Img*/
             for (int i = 0; i < width; i++)
             {
                 //take 371 ms each 11.6 ms (2048 samples each 64 samples)
+                // apply Hanning Window
                 for (int j = 0; j < wdftSize /*2048*/; j++)
                 {
                     complexSignal[2*j] = (float) (_windowArray[j]*samples[i*overlap + j]); /*Weight by Hann Window*/
-                    complexSignal[2*j + 1] = 0; // Zero out the imaginary component ?
+                    complexSignal[2*j + 1] = 0;  // need to clear out as fft modifies buffer
                 }
                 //FFT transform for gathering the spectrum
                 Fourier.FFT(complexSignal, wdftSize, FourierDirection.Forward);
@@ -270,7 +271,8 @@ namespace Wave2ZebraSynth.Fingerprinting
                 for (int j = 0; j < wdftSize/2 + 1; j++)
                 {
                     double re = complexSignal[2*j];
-                    double img = complexSignal[2*j + 1];
+                    double img = complexSignal[2*j + 1]; 
+                    //double img = 0.0; // TODO: Zero out the imaginary component (phase) ? / need to clear out as fft modifies buffer
                     band[j] = (float) Math.Sqrt(re*re + img*img);
                 }
                 frames[i] = band;

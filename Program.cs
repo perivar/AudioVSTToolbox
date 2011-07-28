@@ -27,55 +27,55 @@ namespace Wave2ZebraSynth
 		public static void Main(string[] args)
 		{
 			String fileName = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl\01. Only Girl (In The World).mp3";
+			//String fileName = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
+			
 			String path = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl";
 			
 			Console.WriteLine("Analyzer starting ...");
 			
 			RepositoryGateway repositoryGateway = new RepositoryGateway();
 			FingerprintManager manager = new FingerprintManager();
-
+			//manager.SampleRate = 44100;
+			//manager.WdftSize = 8192 * 10; // 16384;
+	
 			TAG_INFO tag = repositoryGateway._proxy.GetTagInfoFromFile(fileName);
-			
+				
 			//read 5512 Hz, Mono, PCM, with a specific proxy
             float[] samples = repositoryGateway._proxy.ReadMonoFromFile(fileName, manager.SampleRate, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);     
-			exportCSV (@"c:\test-samples.csv", samples);
-        	repositoryGateway.drawWaveform("Waveform", fileName, samples);
+			exportCSV (@"c:\samples.csv", samples);
+        	repositoryGateway.drawWaveform("Waveform", fileName, samples, true);
 
             FingerprintManager.NormalizeInPlace(samples);
-			exportCSV (@"c:\test-samples-normalized.csv", samples);
-        	repositoryGateway.drawWaveform("Waveform-Normalized", fileName, samples);
+			exportCSV (@"c:\samples-normalized.csv", samples);
+        	repositoryGateway.drawWaveform("Waveform-Normalized", fileName, samples, true);
 			
 			float[][] spectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START, false);
 			repositoryGateway.writeImage("Spectrogram", fileName, spectrogram);
-			exportCSV (@"c:\test-full-spectrogram-not-normalized.csv", spectrogram);
+			//exportCSV (@"c:\spectrogram-full-not-normalized.csv", spectrogram);
 
-			System.Diagnostics.Debug.WriteLine("Spectrogram Length of first band: " + spectrogram[0].Length);
-			exportCSV (@"c:\test-spectrogram.csv", spectrogram[0]);
+			//System.Diagnostics.Debug.WriteLine("Spectrogram Length of first band: " + spectrogram[0].Length);
+			//exportCSV (@"c:\spectrogram.csv", spectrogram[0]);
 			
 			/*
 			 * freq = index * samplerate / fftsize;
 			 * db = 20 * log10(fft[index]);
+             * 20 log10 (mag) => 20/ ln(10) ln(mag)
 			 */
-	       	float[] m_mag = new float[spectrogram[0].Length + 1];       
-			for (int i = 0; i < spectrogram[0].Length; i++)
+			int spectrogramLength = spectrogram[0].Length;
+	       	float[] m_mag = new float[spectrogramLength];       
+	        float[] m_freq = new float[spectrogramLength];
+			for (int i = 0; i < spectrogramLength; i++)
             {	
-                // 20 log10(mag) => 20/ln(10) ln(mag)
                 // Addition of MIN_VALUE prevents log from returning minus infinity if mag is zero
+                // int.MinValue
                 m_mag[i] = 20 * (float) Math.Log10( (float) spectrogram[0][i] );
+                m_freq[i] = ( i + 1 ) * (float) manager.SampleRate / manager.WdftSize;
             }
-			exportCSV (@"c:\test-mag.csv", m_mag);
-									
-		    // Vector with frequencies for each bin number. Used
-	        // in the graphing code (not in the analysis itself).
-	        float[] m_freq = new float[m_mag.Length + 1];
-			for ( int i = 0; i < m_mag.Length; i++ )
-			{
-				m_freq[i] = i * (float) manager.SampleRate / manager.WdftSize;
-			}
-			exportCSV (@"c:\test-freq.csv", m_freq);
+			//exportCSV (@"c:\mag.csv", m_mag);
+			//exportCSV (@"c:\freq.csv", m_freq);
+			exportCSV (@"c:\spectrogram-mag-freq.csv", spectrogram[0], m_mag, m_freq);
 
-			repositoryGateway.drawWaveform("Test2Spectrogram", fileName, spectrogram[0]);
-			repositoryGateway.drawSpectrum("Test3Spectrogram", fileName, m_mag, m_freq);			
+			repositoryGateway.drawSpectrum("Spectrogram", fileName, m_mag, m_freq);			
 						
 			float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
 			repositoryGateway.writeImage("LogSpectrogram", fileName, logSpectrogram);
@@ -122,6 +122,48 @@ namespace Wave2ZebraSynth
 	        csv.Write(arr);
 		}
 
+		private static void exportCSV(string filenameToSave, float[] column1, float[] column2) {	        
+			if (column1.Length != column2.Length) return;
+			
+			object[][] arr = new object[column1.Length][];
+
+	        int count = 1;
+	        for (int i = 0; i < column1.Length; i++)
+	        {
+            	arr[i] = new object[3] { 
+	        		count, 
+	        		column1[i],
+	        		column2[i]
+	        	};
+	        	count++;
+		    };
+	        
+	        CSVWriter csv = new CSVWriter(filenameToSave);
+	        csv.Write(arr);
+		}		
+
+		private static void exportCSV(string filenameToSave, float[] column1, float[] column2, float[] column3) {	        
+			if (column1.Length != column2.Length || column1.Length != column3.Length) return;
+			
+			object[][] arr = new object[column1.Length][];
+
+	        int count = 1;
+	        for (int i = 0; i < column1.Length; i++)
+	        {
+            	arr[i] = new object[4] { 
+	        		count, 
+	        		column1[i],
+	        		column2[i],
+	        		column3[i]
+	        	};
+	        	count++;
+		    };
+	        
+	        CSVWriter csv = new CSVWriter(filenameToSave);
+	        csv.Write(arr);
+		}		
+
+		
 	}
 	
 }

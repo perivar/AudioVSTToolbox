@@ -171,11 +171,11 @@ namespace Wave2ZebraSynth
             return _repository.FindDuplicates(_storage.GetAllTracks(), THRESHOLD_VOTES, THRESHOLD_PERCENTAGE, callback);
         }
         
-        public void drawWaveform( string prefix, string filename, float[] samples )
+        public void drawWaveform( string prefix, string filename, float[] samples, bool startDrawingAtMiddle )
         {
         	try {
 	            //-----------------------     
-				String filenameToSave = String.Format("C:\\{0}-{1}.bmp", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
+				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
 				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
 				
 				int numberOfSamples = samples.Length;
@@ -186,8 +186,8 @@ namespace Wave2ZebraSynth
 				double horizontalScaleFactor = (double) width / numberOfSamples;
 				double verticalScaleFactor = 150; 
 				
-				Bitmap bmp = new Bitmap( width, height, PixelFormat.Format32bppArgb );
-	    		Graphics g = Graphics.FromImage(bmp);   
+				Bitmap png = new Bitmap( width, height, PixelFormat.Format32bppArgb );
+	    		Graphics g = Graphics.FromImage(png);   
     			Pen linePen = new Pen(Color.DarkGray, 2);
     			Pen wavePen = new Pen(Color.DarkBlue, 1);
 	    		Pen boxPen = new Pen(Color.Black, 2);
@@ -198,7 +198,12 @@ namespace Wave2ZebraSynth
 
     			// Mark the origin to start drawing at 0,0:
 				int oldX = 0;
-				int oldY = (int) (height / 2);
+				int oldY = 0;
+				if (startDrawingAtMiddle) {
+					oldY = (int) (height / 2);					
+				} else {
+					oldY = (int) (height);									
+				}
 				int xIndex = 0;
 	
     			// Start by drawing the center line at 0:
@@ -228,7 +233,7 @@ namespace Wave2ZebraSynth
 					oldY = y;
 				}
 					    		
-				bmp.Save(filenameToSave);		
+				png.Save(filenameToSave);		
     			g.Dispose();
         	} catch (Exception ex) {
         		System.Diagnostics.Debug.WriteLine(ex);
@@ -237,13 +242,13 @@ namespace Wave2ZebraSynth
         
         public void writeImage(String prefix, String filename, float[] data) {
         	try {
-				String filenameToSave = String.Format("C:\\{0}-{1}.bmp", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
+				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
 				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
 
 				int width = data.Length;
 				int wdftSize = 2048;
 				int height = wdftSize/2 + 1;
-			  	System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
+			  	System.Drawing.Bitmap png = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
 			  	
 				for (int x = 0; x < data.Length; x++)
 				{
@@ -257,9 +262,9 @@ namespace Wave2ZebraSynth
     				int c1 = (int) (data[x] * 255f);
     				int c2 = Math.Min( 255, Math.Max( 0, c1) );
     				System.Drawing.Color c = System.Drawing.Color.FromArgb( c2, c2, c2 );
-   					bmp.SetPixel(x, 255, c);
+   					png.SetPixel(x, 255, c);
 			  	}
-				bmp.Save(filenameToSave);		
+				png.Save(filenameToSave);		
         	} catch (Exception ex) {
         		System.Diagnostics.Debug.WriteLine(ex);
         	}
@@ -290,19 +295,19 @@ namespace Wave2ZebraSynth
 	     * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 	     * IN THE SOFTWARE.
 	     */        
-        public void drawSpectrum( string prefix, string filename, float[] mag, float[] freq)
+        public void drawSpectrum( string prefix, string filename, float[] mag, float[] freq )
         {
             // Basic constants
             float MIN_FREQ = 0;                 // Minimum frequency (Hz) on horizontal axis.
-            float MAX_FREQ = 4000;           	// Maximum frequency (Hz) on horizontal axis.
+            float MAX_FREQ = 5512;           	// Maximum frequency (Hz) on horizontal axis.
             float FREQ_STEP = 500;             	// Interval between ticks (Hz) on horizontal axis.
             float MAX_DB = -0.0f;           	// Maximum dB magnitude on vertical axis.
-            float MIN_DB = -60.0f;            	// Minimum dB magnitude on vertical axis.
-            float DB_STEP = 10;                 	// Interval between ticks (dB) on vertical axis.
+            float MIN_DB = -120.0f; //-60       // Minimum dB magnitude on vertical axis.
+            float DB_STEP = 30;                	// Interval between ticks (dB) on vertical axis.
             int TOP = 50;                     	// Top of graph
             int LEFT = 60;                    	// Left edge of graph
-            int HEIGHT = 300;                 	// Height of graph
-            int WIDTH = 500;                  	// Width of graph
+            int HEIGHT = 400;                 	// Height of graph
+            int WIDTH = 1200;                  	// Width of graph
             int TICK_LEN = 10;                	// Length of tick in pixels
             String LABEL_X = "Frequency (Hz)"; 	// Label for X axis
            	String LABEL_Y = "dB";             	// Label for Y axis
@@ -314,24 +319,25 @@ namespace Wave2ZebraSynth
  	
         	try {
 	            //-----------------------     
-				String filenameToSave = String.Format("C:\\{0}-{1}.bmp", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
+				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
 				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
 	            
-				Bitmap bmp = new Bitmap( WIDTH+150, HEIGHT+150, PixelFormat.Format32bppArgb );
-	    		Graphics g = Graphics.FromImage(bmp);            
+				Bitmap png = new Bitmap( WIDTH+150, HEIGHT+150, PixelFormat.Format32bppArgb );
+	    		Graphics g = Graphics.FromImage(png);            
 	    		    		
 	            int numPoints = mag.Length;
 	            if ( mag.Length != freq.Length )
 	                System.Diagnostics.Debug.WriteLine( "mag.length != freq.length" );
 	  
 	            // Draw a rectangular box marking the boundaries of the graph
-	    		Pen boxPen = new Pen(Color.DarkGray, 1);
-	    		Pen linePen = new Pen(Color.Black, 1);
-	    		Pen samplePen = new Pen(Color.DarkBlue, 2);
+	    		Pen linePen = new Pen(Color.DarkGray, 0.5f);
+	    		Pen textPen = new Pen(Color.Black, 1);
+	    		Pen samplePen = new Pen(Color.DarkBlue, 1);
 	
 	    		// Create rectangle.
 	    		Rectangle rect = new Rectangle(LEFT, TOP, WIDTH, HEIGHT);
-	    		g.DrawRectangle(boxPen, rect);
+	    		g.FillRectangle(Brushes.White, rect);
+	    		g.DrawRectangle(linePen, rect);
 	 
 	            //--------------------------------------------
 	 
@@ -342,12 +348,13 @@ namespace Wave2ZebraSynth
 	            for ( float dBTick = MIN_DB; dBTick <= MAX_DB; dBTick += DB_STEP )
 	            {
 	                y = BOTTOM - DBTOPIXEL*(dBTick-MIN_DB);
-	                g.DrawLine(linePen, LEFT-TICK_LEN/2, y, LEFT+TICK_LEN/2, y);
+	                //g.DrawLine(linePen, LEFT-TICK_LEN/2, y, LEFT+TICK_LEN/2, y);
+	                g.DrawLine(linePen, LEFT-TICK_LEN/2, y, LEFT+WIDTH, y);
 	                if ( m_tickTextAdded == false )
 	                {
 	                    // Numbers on the tick marks
-	    				Font drawFont = new Font("Arial", 10);
-	    				SolidBrush drawBrush = new SolidBrush(linePen.Color);
+	    				Font drawFont = new Font("Arial", 8);
+	    				SolidBrush drawBrush = new SolidBrush(textPen.Color);
 	    				g.DrawString("" + dBTick, drawFont, drawBrush, LEFT-20, y - drawFont.GetHeight(g)/2);
 	                }
 	            }
@@ -355,8 +362,8 @@ namespace Wave2ZebraSynth
 	            // Label for vertical axis
 	            if ( m_tickTextAdded == false )
 	            {
-					Font drawFont = new Font("Arial", 12);
-					SolidBrush drawBrush = new SolidBrush(linePen.Color);
+					Font drawFont = new Font("Arial", 10);
+					SolidBrush drawBrush = new SolidBrush(textPen.Color);
 					g.DrawString(LABEL_Y, drawFont, drawBrush, (float) LEFT-50, (float) TOP + HEIGHT/2 - drawFont.GetHeight(g)/2);
 	            }
 	 
@@ -366,12 +373,13 @@ namespace Wave2ZebraSynth
 	            for ( float f = MIN_FREQ; f <= MAX_FREQ; f += FREQ_STEP )
 	            {
 	                x = LEFT + FREQTOPIXEL*(f-MIN_FREQ);
-	                g.DrawLine(linePen, x, BOTTOM - TICK_LEN/2, x, BOTTOM + TICK_LEN/2);
+	                //g.DrawLine(linePen, x, BOTTOM - TICK_LEN/2, x, BOTTOM + TICK_LEN/2);
+	                g.DrawLine(linePen, x, BOTTOM + TICK_LEN/2, x, TOP);
 	                if ( m_tickTextAdded == false )
 	                {
 	                    // Numbers on the tick marks
-	    				Font drawFont = new Font("Arial", 10);
-	    				SolidBrush drawBrush = new SolidBrush(linePen.Color);
+	    				Font drawFont = new Font("Arial", 8);
+	    				SolidBrush drawBrush = new SolidBrush(textPen.Color);
 	    				g.DrawString("" + f, drawFont, drawBrush, x, BOTTOM+7);                    
 	                }
 	            }
@@ -379,8 +387,8 @@ namespace Wave2ZebraSynth
 	            // Label for horizontal axis
 	            if ( m_tickTextAdded == false )
 	            {
-					Font drawFont = new Font("Arial", 12);
-					SolidBrush drawBrush = new SolidBrush(linePen.Color);
+					Font drawFont = new Font("Arial", 10);
+					SolidBrush drawBrush = new SolidBrush(textPen.Color);
 					g.DrawString(LABEL_X, drawFont, drawBrush, LEFT+WIDTH/2, BOTTOM+30);                    
 	            }
 	 
@@ -430,7 +438,7 @@ namespace Wave2ZebraSynth
 	                }	                
 	            }
 	            
-				bmp.Save(filenameToSave);		
+				png.Save(filenameToSave);		
     			g.Dispose();
         	} catch (Exception ex) {
         		System.Diagnostics.Debug.WriteLine(ex);
@@ -439,12 +447,12 @@ namespace Wave2ZebraSynth
         
         public void writeImage(String prefix, String filename, float[][] data) {
         	try {
-				String filenameToSave = String.Format("C:\\{0}-{1}.bmp", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
+				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
 				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
 				int width = data.Length;
 				int wdftSize = 2048;
 				int height = wdftSize/2 + 1;
-			  	System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
+			  	System.Drawing.Bitmap png = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
 			  	
 				for (int x = 0; x < data.Length; x++)
 				{
@@ -453,10 +461,10 @@ namespace Wave2ZebraSynth
 	    				int c1 = (int) (data[x][y] * 255f);
 	    				int c2 = Math.Min( 255, Math.Max( 0, c1) );
 	    				System.Drawing.Color c = System.Drawing.Color.FromArgb( c2, c2, c2 );
-	   					bmp.SetPixel(x, y, c);
+	   					png.SetPixel(x, y, c);
 			    	}
 			  	}
-				bmp.Save(filenameToSave);		
+				png.Save(filenameToSave);		
         	} catch (Exception ex) {
         		System.Diagnostics.Debug.WriteLine(ex);
         	}
@@ -464,13 +472,13 @@ namespace Wave2ZebraSynth
         	
         public void writeImage(String prefix, String filename, bool[] data) {
         	try {
-				String filenameToSave = String.Format("C:\\{0}-{1}.bmp", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
+				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
 				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
 
             	int width = 128; /*128*/
             	int height = 32; /*32*/
             
-			  	System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
+			  	System.Drawing.Bitmap png = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
 			  	
 				for (int x = 0; x < width; x++)
 				{
@@ -478,10 +486,10 @@ namespace Wave2ZebraSynth
 				    {
 	    				int i = data[x + y * width] ? 255 : 0;	    				             
 	    				System.Drawing.Color c = System.Drawing.Color.FromArgb( i, i, i );
-	   					bmp.SetPixel(x, y, c);
+	   					png.SetPixel(x, y, c);
 			    	}
 			  	}
-				bmp.Save(filenameToSave);		
+				png.Save(filenameToSave);		
         	} catch (Exception ex) {
         		System.Diagnostics.Debug.WriteLine(ex);
         	}
