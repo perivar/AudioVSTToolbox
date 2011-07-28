@@ -31,24 +31,29 @@ namespace Wave2ZebraSynth
 			
 			Console.WriteLine("Analyzer starting ...");
 			
-			// TODO: Implement Functionality Here
 			RepositoryGateway repositoryGateway = new RepositoryGateway();
+			FingerprintManager manager = new FingerprintManager();
 
 			TAG_INFO tag = repositoryGateway._proxy.GetTagInfoFromFile(fileName);
 			
-			FingerprintManager manager = new FingerprintManager();
-			float[][] spectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
-			repositoryGateway.writeImage("Spectrogram", fileName, spectrogram);
-			exportCSV (@"c:\test-full-spectrogram.csv", spectrogram);
+			//read 5512 Hz, Mono, PCM, with a specific proxy
+            float[] samples = repositoryGateway._proxy.ReadMonoFromFile(fileName, manager.SampleRate, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);     
+			exportCSV (@"c:\test-samples.csv", samples);
 
-			System.Diagnostics.Debug.WriteLine("Spectrogram Length: " + spectrogram[0].Length);
+            FingerprintManager.NormalizeInPlace(samples);
+			exportCSV (@"c:\test-samples-normalized.csv", samples);
+			
+			float[][] spectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START, false);
+			repositoryGateway.writeImage("Spectrogram", fileName, spectrogram);
+			exportCSV (@"c:\test-full-spectrogram-not-normalized.csv", spectrogram);
+
+			System.Diagnostics.Debug.WriteLine("Spectrogram Length of first band: " + spectrogram[0].Length);
+			exportCSV (@"c:\test-spectrogram.csv", spectrogram[0]);
 			
 			/*
 			 * freq = index * samplerate / fftsize;
 			 * db = 20 * log10(fft[index]);
 			 */
-			
-			exportCSV (@"c:\test-spectrogram.csv", spectrogram[0]);
             float[] m_mag = new float[spectrogram[0].Length + 1];       
 			for (int i = 0; i < spectrogram[0].Length; i++)
             {	
@@ -58,7 +63,7 @@ namespace Wave2ZebraSynth
             }
 			exportCSV (@"c:\test-mag.csv", m_mag);
 									
-	  	    int SAMPLE_RATE = 22050;   
+	  	    int SAMPLE_RATE = manager.SampleRate;
 	        int LOGN = 11;              // Log2 FFT length
 	        int N = 1 << LOGN;         	// FFT Length			
 	        

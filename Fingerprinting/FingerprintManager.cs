@@ -214,7 +214,7 @@ namespace Wave2ZebraSynth.Fingerprinting
         ///   Normalizing the input power (volume)
         /// </summary>
         /// <param name = "samples">Samples of a song to be normalized</param>
-        private static void NormalizeInPlace(float[] samples)
+        public static void NormalizeInPlace(float[] samples)
         {
             double squares = 0;
             int nsamples = samples.Length;
@@ -246,11 +246,11 @@ namespace Wave2ZebraSynth.Fingerprinting
         /// <param name = "milliseconds">Milliseconds to process</param>
         /// <param name = "startmilliseconds">Starting point of the processing</param>
         /// <returns>Spectrogram</returns>
-        public float[][] CreateSpectrogram(IAudio proxy, string filename, int milliseconds, int startmilliseconds)
+        public float[][] CreateSpectrogram(IAudio proxy, string filename, int milliseconds, int startmilliseconds, bool doNormalise)
         {
             //read 5512 Hz, Mono, PCM, with a specific proxy
             float[] samples = proxy.ReadMonoFromFile(filename, SampleRate, milliseconds, startmilliseconds);                   
-            NormalizeInPlace(samples);
+            if (doNormalise) NormalizeInPlace(samples);
             int overlap = Overlap;
             int wdftSize = WdftSize;
             int width = (samples.Length - wdftSize)/overlap; /*width of the image*/
@@ -262,7 +262,7 @@ namespace Wave2ZebraSynth.Fingerprinting
                 for (int j = 0; j < wdftSize /*2048*/; j++)
                 {
                     complexSignal[2*j] = (float) (_windowArray[j]*samples[i*overlap + j]); /*Weight by Hann Window*/
-                    complexSignal[2*j + 1] = 0;
+                    complexSignal[2*j + 1] = 0; // Zero out the imaginary component ?
                 }
                 //FFT transform for gathering the spectrum
                 Fourier.FFT(complexSignal, wdftSize, FourierDirection.Forward);
