@@ -170,7 +170,71 @@ namespace Wave2ZebraSynth
         {
             return _repository.FindDuplicates(_storage.GetAllTracks(), THRESHOLD_VOTES, THRESHOLD_PERCENTAGE, callback);
         }
+        
+        public void drawWaveform( string prefix, string filename, float[] samples )
+        {
+        	try {
+	            //-----------------------     
+				String filenameToSave = String.Format("C:\\{0}-{1}.bmp", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
+				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
+				
+				int numberOfSamples = samples.Length;
+				int width = 1200;
+				int height = 300;
+				
+				// horizontalScaleFactor between 0.25 and 0.5 is quite good
+				double horizontalScaleFactor = (double) width / numberOfSamples;
+				double verticalScaleFactor = 150; 
+				
+				Bitmap bmp = new Bitmap( width, height, PixelFormat.Format32bppArgb );
+	    		Graphics g = Graphics.FromImage(bmp);   
+    			Pen linePen = new Pen(Color.DarkGray, 2);
+    			Pen wavePen = new Pen(Color.DarkBlue, 1);
+	    		Pen boxPen = new Pen(Color.Black, 2);
+	
+	            // Draw a rectangular box marking the boundaries of the graph
+	    		Rectangle rect = new Rectangle(0, 0, width, height);
+	    		g.DrawRectangle(boxPen, rect);
 
+    			// Mark the origin to start drawing at 0,0:
+				int oldX = 0;
+				int oldY = (int) (height / 2);
+				int xIndex = 0;
+	
+    			// Start by drawing the center line at 0:
+				g.DrawLine(linePen, oldX, oldY, width, oldY); 
+				
+				// Now, you need to figure out the incremental jump between samples to adjust for the scale factor. This works out to be:
+				int increment = (int) (numberOfSamples / (numberOfSamples * horizontalScaleFactor));
+				if (increment == 0) increment = 1;
+				
+				// The following code grabs the increment and paints a line from the origin to the first sample:
+				int t = 0;			
+				for (t = 0; t < increment; t += increment) {
+					g.DrawLine(wavePen, oldX, oldY, xIndex, oldY);
+					xIndex++;
+					oldX = xIndex;
+				}				
+
+				// Finish up by iterating through the audio and drawing lines to the scaled samples:
+				for (; t < numberOfSamples; t += increment) {
+					double scaleFactor = verticalScaleFactor;
+					double scaledSample = samples[t] * scaleFactor;
+					int y = (int) ((height / 2) - (scaledSample));
+					g.DrawLine(wavePen, oldX, oldY, xIndex, y);
+			
+					xIndex++;
+					oldX = xIndex;
+					oldY = y;
+				}
+					    		
+				bmp.Save(filenameToSave);		
+    			g.Dispose();
+        	} catch (Exception ex) {
+        		System.Diagnostics.Debug.WriteLine(ex);
+        	}
+        }        
+        
         public void writeImage(String prefix, String filename, float[] data) {
         	try {
 				String filenameToSave = String.Format("C:\\{0}-{1}.bmp", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
@@ -229,23 +293,23 @@ namespace Wave2ZebraSynth
         public void drawSpectrum( string prefix, string filename, float[] mag, float[] freq)
         {
             // Basic constants
-            int MIN_FREQ = 0;                 // Minimum frequency (Hz) on horizontal axis.
-            int MAX_FREQ = 4000;           	// Maximum frequency (Hz) on horizontal axis.
-            int FREQ_STEP = 500;             	// Interval between ticks (Hz) on horizontal axis.
+            float MIN_FREQ = 0;                 // Minimum frequency (Hz) on horizontal axis.
+            float MAX_FREQ = 4000;           	// Maximum frequency (Hz) on horizontal axis.
+            float FREQ_STEP = 500;             	// Interval between ticks (Hz) on horizontal axis.
             float MAX_DB = -0.0f;           	// Maximum dB magnitude on vertical axis.
-            float MIN_DB = -60.0f;            // Minimum dB magnitude on vertical axis.
-            int DB_STEP = 10;                 // Interval between ticks (dB) on vertical axis.
-            int TOP = 50;                     // Top of graph
-            int LEFT = 60;                    // Left edge of graph
-            int HEIGHT = 300;                 // Height of graph
-            int WIDTH = 500;                  // Width of graph
-            int TICK_LEN = 10;                // Length of tick in pixels
-            String LABEL_X = "Frequency (Hz)";    // Label for X axis
-           	String LABEL_Y = "dB";                // Label for Y axis
+            float MIN_DB = -60.0f;            	// Minimum dB magnitude on vertical axis.
+            float DB_STEP = 10;                 	// Interval between ticks (dB) on vertical axis.
+            int TOP = 50;                     	// Top of graph
+            int LEFT = 60;                    	// Left edge of graph
+            int HEIGHT = 300;                 	// Height of graph
+            int WIDTH = 500;                  	// Width of graph
+            int TICK_LEN = 10;                	// Length of tick in pixels
+            String LABEL_X = "Frequency (Hz)"; 	// Label for X axis
+           	String LABEL_Y = "dB";             	// Label for Y axis
  
             // Derived constants
-            int BOTTOM = TOP+HEIGHT;                   		// Bottom of graph
-            float DBTOPIXEL = HEIGHT/(MAX_DB-MIN_DB);    	// Pixels/tick
+            int BOTTOM = TOP+HEIGHT;                   				// Bottom of graph
+            float DBTOPIXEL = (float) HEIGHT/(MAX_DB-MIN_DB);    	// Pixels/tick
             float FREQTOPIXEL = (float) WIDTH/(MAX_FREQ-MIN_FREQ);	// Pixels/Hz
  	
         	try {
@@ -254,19 +318,20 @@ namespace Wave2ZebraSynth
 				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
 	            
 				Bitmap bmp = new Bitmap( WIDTH+150, HEIGHT+150, PixelFormat.Format32bppArgb );
-	    		Color c = Color.FromArgb( 67, 133, 54 );
-	    		Graphics newGraphics = Graphics.FromImage(bmp);            
+	    		Graphics g = Graphics.FromImage(bmp);            
 	    		    		
 	            int numPoints = mag.Length;
 	            if ( mag.Length != freq.Length )
 	                System.Diagnostics.Debug.WriteLine( "mag.length != freq.length" );
 	  
 	            // Draw a rectangular box marking the boundaries of the graph
-	    		Pen blackPen = new Pen(Color.Black, 2);
+	    		Pen boxPen = new Pen(Color.DarkGray, 1);
+	    		Pen linePen = new Pen(Color.Black, 1);
+	    		Pen samplePen = new Pen(Color.DarkBlue, 2);
 	
 	    		// Create rectangle.
 	    		Rectangle rect = new Rectangle(LEFT, TOP, WIDTH, HEIGHT);
-	    		newGraphics.DrawRectangle(blackPen, rect);
+	    		g.DrawRectangle(boxPen, rect);
 	 
 	            //--------------------------------------------
 	 
@@ -277,100 +342,96 @@ namespace Wave2ZebraSynth
 	            for ( float dBTick = MIN_DB; dBTick <= MAX_DB; dBTick += DB_STEP )
 	            {
 	                y = BOTTOM - DBTOPIXEL*(dBTick-MIN_DB);
-	                newGraphics.DrawLine(blackPen, LEFT-TICK_LEN/2, y, LEFT+TICK_LEN/2, y);
+	                g.DrawLine(linePen, LEFT-TICK_LEN/2, y, LEFT+TICK_LEN/2, y);
 	                if ( m_tickTextAdded == false )
 	                {
 	                    // Numbers on the tick marks
-	    				Font drawFont = new Font("Arial", 12);
-	    				SolidBrush drawBrush = new SolidBrush(Color.Black);
-	    				newGraphics.DrawString("" + dBTick, drawFont, drawBrush, LEFT-20, y - drawFont.GetHeight(newGraphics)/2);
+	    				Font drawFont = new Font("Arial", 10);
+	    				SolidBrush drawBrush = new SolidBrush(linePen.Color);
+	    				g.DrawString("" + dBTick, drawFont, drawBrush, LEFT-20, y - drawFont.GetHeight(g)/2);
 	                }
 	            }
 	 
 	            // Label for vertical axis
 	            if ( m_tickTextAdded == false )
 	            {
-					Font drawFont = new Font("Arial", 16);
-					SolidBrush drawBrush = new SolidBrush(Color.Black);
-					newGraphics.DrawString(LABEL_Y, drawFont, drawBrush, (float) LEFT-50, (float) TOP + HEIGHT/2 - drawFont.GetHeight(newGraphics)/2);
+					Font drawFont = new Font("Arial", 12);
+					SolidBrush drawBrush = new SolidBrush(linePen.Color);
+					g.DrawString(LABEL_Y, drawFont, drawBrush, (float) LEFT-50, (float) TOP + HEIGHT/2 - drawFont.GetHeight(g)/2);
 	            }
 	 
 	            //--------------------------------------------
 	 
 	            // Tick marks on the horizontal axis
-	            for ( int f = MIN_FREQ; f <= MAX_FREQ; f += FREQ_STEP )
+	            for ( float f = MIN_FREQ; f <= MAX_FREQ; f += FREQ_STEP )
 	            {
 	                x = LEFT + FREQTOPIXEL*(f-MIN_FREQ);
-	                newGraphics.DrawLine(blackPen, x, BOTTOM - TICK_LEN/2, x, BOTTOM + TICK_LEN/2);
+	                g.DrawLine(linePen, x, BOTTOM - TICK_LEN/2, x, BOTTOM + TICK_LEN/2);
 	                if ( m_tickTextAdded == false )
 	                {
 	                    // Numbers on the tick marks
-	    				Font drawFont = new Font("Arial", 12);
-	    				SolidBrush drawBrush = new SolidBrush(Color.Black);
-	    				newGraphics.DrawString("" + f, drawFont, drawBrush, x, BOTTOM+7);                    
+	    				Font drawFont = new Font("Arial", 10);
+	    				SolidBrush drawBrush = new SolidBrush(linePen.Color);
+	    				g.DrawString("" + f, drawFont, drawBrush, x, BOTTOM+7);                    
 	                }
 	            }
 	 
 	            // Label for horizontal axis
 	            if ( m_tickTextAdded == false )
 	            {
-					Font drawFont = new Font("Arial", 16);
-					SolidBrush drawBrush = new SolidBrush(Color.Black);
-					newGraphics.DrawString(LABEL_X, drawFont, drawBrush, LEFT+WIDTH/2, BOTTOM+30);                    
+					Font drawFont = new Font("Arial", 12);
+					SolidBrush drawBrush = new SolidBrush(linePen.Color);
+					g.DrawString(LABEL_X, drawFont, drawBrush, LEFT+WIDTH/2, BOTTOM+30);                    
 	            }
 	 
 	            m_tickTextAdded = true;
 	 
 	            // -------------------------------------------------
 	            // The line in the graph
-	 
+	 			int i = 0;
+	            
 	            // Ignore points that are too far to the left
-	            for ( int i = 0; i < numPoints && freq[i] < MIN_FREQ; i++ )
+	            for ( i = 0; i < numPoints && freq[i] < MIN_FREQ; i++ )
 	            {
 	            }
 	 
 	            // For all remaining points within range of x-axis
-	            for ( int i = 0; i < numPoints && freq[i] <= MAX_FREQ; i++ )
+				float oldX = 0;
+				float oldY = TOP;
+				bool firstPoint = true;
+	            for ( ; i < numPoints && freq[i] <= MAX_FREQ; i++ )
 	            {
 	                // Compute horizontal position
 	                x = LEFT + FREQTOPIXEL*(freq[i]-MIN_FREQ);
-	 					
+	                
 	                // Compute vertical position of point
 	                // and clip at top/bottom.
 	                y = BOTTOM - DBTOPIXEL*(mag[i]-MIN_DB);
+	                
 	                if ( y < TOP )
 	                    y = TOP;
 	                else if ( y > BOTTOM )
 	                    y = BOTTOM;
-	 
-	                newGraphics.DrawEllipse(blackPen, x, y, 5, 5);
+				
+	                // If it's the first point
+	                if ( firstPoint )
+	                {
+	                    // Move to the point
+						oldX = x;
+						oldY = y;
+	                    firstPoint = false;
+	                }
+	                else
+	                {
+	                    // Otherwise, draw line from the previous point
+						g.DrawLine(samplePen, oldX, oldY, x, y);
+						oldX = x;
+						oldY = y;
+	                }	                
 	            }
 	            
 				bmp.Save(filenameToSave);		
-    			newGraphics.Dispose();
-        	} catch (Exception ex) {
-        		System.Diagnostics.Debug.WriteLine(ex);
-        	}
-        }
-
-        public void drawSpectrum2( string prefix, string filename, float[] spectrum )
-        {
-        	try {
-	            //-----------------------     
-				String filenameToSave = String.Format("C:\\{0}-{1}.bmp", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
-				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
-	            
-				Bitmap bmp = new Bitmap( spectrum.Length, 400, PixelFormat.Format32bppArgb );
-	    		Graphics newGraphics = Graphics.FromImage(bmp);   
-    			Pen bluePen = new Pen(Color.LightBlue, 1);
-	
-	    		for (int i=0; i < spectrum.Length; i++) {
-    				//  rect(i+10,390,1,myfft.spectrum[i]*-400);
-    				newGraphics.DrawRectangle(bluePen, i+10, 390, 1, spectrum[i]*-400);
-  				}
-	    		
-				bmp.Save(filenameToSave);		
-    			newGraphics.Dispose();
+    			g.Dispose();
         	} catch (Exception ex) {
         		System.Diagnostics.Debug.WriteLine(ex);
         	}

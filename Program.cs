@@ -39,9 +39,11 @@ namespace Wave2ZebraSynth
 			//read 5512 Hz, Mono, PCM, with a specific proxy
             float[] samples = repositoryGateway._proxy.ReadMonoFromFile(fileName, manager.SampleRate, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);     
 			exportCSV (@"c:\test-samples.csv", samples);
+        	repositoryGateway.drawWaveform("Waveform", fileName, samples);
 
             FingerprintManager.NormalizeInPlace(samples);
 			exportCSV (@"c:\test-samples-normalized.csv", samples);
+        	repositoryGateway.drawWaveform("Waveform-Normalized", fileName, samples);
 			
 			float[][] spectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START, false);
 			repositoryGateway.writeImage("Spectrogram", fileName, spectrogram);
@@ -54,7 +56,7 @@ namespace Wave2ZebraSynth
 			 * freq = index * samplerate / fftsize;
 			 * db = 20 * log10(fft[index]);
 			 */
-            float[] m_mag = new float[spectrogram[0].Length + 1];       
+	       	float[] m_mag = new float[spectrogram[0].Length + 1];       
 			for (int i = 0; i < spectrogram[0].Length; i++)
             {	
                 // 20 log10(mag) => 20/ln(10) ln(mag)
@@ -63,22 +65,17 @@ namespace Wave2ZebraSynth
             }
 			exportCSV (@"c:\test-mag.csv", m_mag);
 									
-	  	    int SAMPLE_RATE = manager.SampleRate;
-	        int LOGN = 11;              // Log2 FFT length
-	        int N = 1 << LOGN;         	// FFT Length			
-	        
 		    // Vector with frequencies for each bin number. Used
 	        // in the graphing code (not in the analysis itself).
-	        //float[] m_freq = new float[spectrogram[0].Length + 1];
-	        float[] m_freq = new float[N/2];
-			for ( int i = 0; i < N/2; i++ )
+	        float[] m_freq = new float[m_mag.Length + 1];
+			for ( int i = 0; i < m_mag.Length; i++ )
 			{
-				m_freq[i] = i*SAMPLE_RATE/N;
+				m_freq[i] = i * (float) manager.SampleRate / manager.WdftSize;
 			}
 			exportCSV (@"c:\test-freq.csv", m_freq);
 
-			//repositoryGateway.drawSpectrum2("Test2Spectrogram", fileName, spectrogram[0]);
-			repositoryGateway.drawSpectrum2("Test3Spectrogram", fileName, m_mag);			
+			repositoryGateway.drawWaveform("Test2Spectrogram", fileName, spectrogram[0]);
+			repositoryGateway.drawSpectrum("Test3Spectrogram", fileName, m_mag, m_freq);			
 						
 			float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
 			repositoryGateway.writeImage("LogSpectrogram", fileName, logSpectrogram);
