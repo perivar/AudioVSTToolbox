@@ -93,7 +93,7 @@ namespace Wave2ZebraSynth.Fingerprinting
             FingerprintLength = 128;
             Overlap = 64;
             SamplesPerFingerprint = FingerprintLength*Overlap;
-            WdftSize = 2048;//2048; 	//manager.WdftSize = 8192 * 10; // 16384;
+            WdftSize = 2048;//2048; 	
             MinFrequency = 318;//318;
             MaxFrequency = 2000;//2000; 
             TopWavelets = 200;
@@ -262,7 +262,7 @@ namespace Wave2ZebraSynth.Fingerprinting
                 // apply Hanning Window
                 for (int j = 0; j < wdftSize /*2048*/; j++)
                 {
-                    complexSignal[2*j] = (float) (_windowArray[j]*samples[i*overlap + j]); /*Weight by Hann Window*/
+                    complexSignal[2*j] = (float) ((4.0/(wdftSize - 1)) * _windowArray[j]*samples[i*overlap + j]); /*Weight by Hann Window*/
                     complexSignal[2*j + 1] = 0;  // need to clear out as fft modifies buffer
                 }
                 //FFT transform for gathering the spectrum

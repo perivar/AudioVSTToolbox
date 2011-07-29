@@ -75,6 +75,7 @@
     <Compile Include="Fingerprinting\MinHash.cs" />
     <Compile Include="Fingerprinting\RandomStride.cs" />
     <Compile Include="Fingerprinting\StaticStride.cs" />
+    <Compile Include="LomontFFT.cs" />
     <Compile Include="Model\HashSignature.cs" />
     <Compile Include="Model\Item.cs" />
     <Compile Include="Model\ResultItem.cs" />

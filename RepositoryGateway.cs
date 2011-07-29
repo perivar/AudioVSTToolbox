@@ -252,13 +252,6 @@ namespace Wave2ZebraSynth
 			  	
 				for (int x = 0; x < data.Length; x++)
 				{
-	 		     	// Compute horizontal position
-	                //x = LEFT + FREQTOPIXEL*(freq[i]-MIN_FREQ);
-	 
-	                // Compute vertical position of point
-	                // and clip at top/bottom.
-	                //y = BOTTOM - DBTOPIXEL*(mag[i]-MIN_DB);
-
     				int c1 = (int) (data[x] * 255f);
     				int c2 = Math.Min( 255, Math.Max( 0, c1) );
     				System.Drawing.Color c = System.Drawing.Color.FromArgb( c2, c2, c2 );
@@ -302,7 +295,7 @@ namespace Wave2ZebraSynth
             float MAX_FREQ = 5512;           	// Maximum frequency (Hz) on horizontal axis.
             float FREQ_STEP = 500;             	// Interval between ticks (Hz) on horizontal axis.
             float MAX_DB = -0.0f;           	// Maximum dB magnitude on vertical axis.
-            float MIN_DB = -120.0f; //-60       // Minimum dB magnitude on vertical axis.
+            float MIN_DB = -180.0f; //-60       // Minimum dB magnitude on vertical axis.
             float DB_STEP = 30;                	// Interval between ticks (dB) on vertical axis.
             int TOP = 50;                     	// Top of graph
             int LEFT = 60;                    	// Left edge of graph
@@ -458,9 +451,41 @@ namespace Wave2ZebraSynth
 				{
 	    			for (int y = 0; y < data[x].Length; y++)
 				    {
+	    				// the loudest 1/3 are RED
+	    				// the medium 1/3 volume are GREEN
+	    				// the most silent 1/3 volume are BLUE
+	    				
+						/* Color conversion
+						 * byte[] values = BitConverter.GetBytes(number);
+						if (!BitConverter.IsLittleEndian) Array.Reverse(values);
+						
+						The array will have four bytes. The first three bytes contain your number:
+						
+						byte b = values[0];
+						byte g = values[1];
+						byte r = values[2];
+						
+						 * */
+	    				
+	    				Color c = new Color();
+	    				/*
+	    				int dataValue = (int) data[x][y];
+	    				if (0 <= dataValue && dataValue < 100) {
+	    					int c1 = (int) (dataValue * 255f);
+	    					int c2 = Math.Min( 255, Math.Max( 0, c1) );	    					
+	    					c = Color.FromArgb( c2, 0, 0 );
+	    				} else if (100 <= dataValue && dataValue < 200) {
+	    					c = Color.FromArgb( 0, dataValue, 0 );	    						    				
+	    				} else if (200 <= dataValue && dataValue < 300) {
+	    					c = Color.FromArgb( 0, 0, (int) (dataValue*0.75) );
+	    				} else {
+	    					c = Color.FromArgb( 255, 255, 255 );	    						    					    						    					
+	    				}
+	    				*/
+	    				
 	    				int c1 = (int) (data[x][y] * 255f);
 	    				int c2 = Math.Min( 255, Math.Max( 0, c1) );
-	    				System.Drawing.Color c = System.Drawing.Color.FromArgb( c2, c2, c2 );
+	    				c = Color.FromArgb( c2, c2, c2 );
 	   					png.SetPixel(x, y, c);
 			    	}
 			  	}
