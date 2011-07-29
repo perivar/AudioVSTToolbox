@@ -170,7 +170,7 @@ namespace Wave2ZebraSynth
         {
             return _repository.FindDuplicates(_storage.GetAllTracks(), THRESHOLD_VOTES, THRESHOLD_PERCENTAGE, callback);
         }
-        
+               
         public void drawWaveform( string prefix, string filename, float[] samples, bool startDrawingAtMiddle )
         {
         	try {
@@ -239,6 +239,106 @@ namespace Wave2ZebraSynth
         		System.Diagnostics.Debug.WriteLine(ex);
         	}
         }        
+        
+		/*
+		 * Converted from a Java Class forom jMusic API version 1.4, February 2003.
+		 * 
+		 * Copyright (C) 2000 Andrew Sorensen & Andrew Brown
+		 * 
+		 * This program is free software; you can redistribute it and/or modify
+		 * it under the terms of the GNU General Public License as published by
+		 * the Free Software Foundation; either version 2 of the License, or any
+		 * later version.
+		 * 
+		 * This program is distributed in the hope that it will be useful, but
+		 * WITHOUT ANY WARRANTY; without even the implied warranty of
+		 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+		 * GNU General Public License for more details.
+		 * 
+		 * You should have received a copy of the GNU General Public License
+		 * along with this program; if not, write to the Free Software
+		 * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+		 * 
+		 */        
+		public void drawWaveform( string prefix, string filename, float[] data ) 
+		{
+        	try {
+	            //-----------------------     
+				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
+				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
+				
+				int numberOfSamples = data.Length;
+				int width = 1200;
+				int height = 200;
+				int resolution = 2; //125 // low resolution (2+) means to zoom into the waveform
+				int amplitude = 1;
+
+				float max = 0.0f;
+		    	float min = 0.0f;
+
+		    	float drawMax, drawMin, currData;
+
+		    	int h2 = height/2 - 1;
+		    	int position = 0;
+				int sampleStart = 0;
+				
+				Bitmap png = new Bitmap( width, height, PixelFormat.Format32bppArgb );
+	    		Graphics g = Graphics.FromImage(png);   
+    			Pen linePen = new Pen(Color.DarkGray, 2);
+    			Pen wavePen = new Pen(Color.DarkBlue, 1);
+	    		Pen boxPen = new Pen(Color.Black, 2);
+	
+	            // Draw a rectangular box marking the boundaries of the graph
+	    		Rectangle rect = new Rectangle(0, 0, width, height);
+	    		g.DrawRectangle(boxPen, rect);
+		     
+		     	// mid line
+		     	g.DrawLine(linePen, 0, h2, width, h2);
+
+		     	// draw wave
+				int pixCount = Math.Min(data.Length - resolution, width * resolution);
+		     	if (resolution == 1) {
+					for (int i = sampleStart; i < sampleStart + pixCount; i += resolution) {
+		            	currData = data[i];
+		                g.DrawLine(linePen, position, (int)(h2 - currData * h2 * amplitude), position, (int)(h2 - currData * h2 * amplitude));
+		                position++;
+					}
+		     	} else {      
+		            for (int i = sampleStart; i < sampleStart + pixCount; i += resolution) {
+						if( i < numberOfSamples ) {
+							currData = data[i];
+							
+		                    // max and min
+		                    max = 0.0f;
+		                    min = 0.0f;
+		                    for( int j=0; j< resolution; j++) {
+		                         if (data[i+j] > max) max = data[i+j];
+		                         if (data[i+j] < min) min = data[i+j];
+							}
+		                    
+							// highest and lowest curve values
+		                    if (resolution > 8) {
+		                    	drawMax = Math.Max(currData, data[i+resolution]);
+		                        drawMin = Math.Min(currData, data[i+resolution]);
+		                        
+		                        if (max > 0.0f) g.DrawLine(wavePen, position, (int)(h2 - drawMax * h2 * amplitude), position, (int)(h2 - max * h2 * amplitude));
+		                        
+		                        if (min < 0.0f) g.DrawLine(wavePen, position, (int)(h2 - drawMin * h2 * amplitude), position, (int)(h2 - min * h2 * amplitude));
+							}
+							
+		                    // draw wave
+		                    g.DrawLine(wavePen, position++, (int)(h2 - currData * h2 * amplitude), position, (int)(h2 - data[i+resolution] * h2 * amplitude));
+						}
+					}
+		     	}
+				
+				// base line
+				png.Save(filenameToSave);		
+    			g.Dispose();
+        	} catch (Exception ex) {
+        		System.Diagnostics.Debug.WriteLine(ex);
+        	}		     
+        }
         
         public void writeImage(String prefix, String filename, float[] data) {
         	try {
@@ -446,6 +546,10 @@ namespace Wave2ZebraSynth
 				int wdftSize = 2048;
 				int height = wdftSize/2 + 1;
 			  	System.Drawing.Bitmap png = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
+	    		Graphics g = Graphics.FromImage(png);            
+
+			  	Rectangle rect = new Rectangle(0, 0, width, height);
+	    		g.FillRectangle(Brushes.White, rect);
 			  	
 				for (int x = 0; x < data.Length; x++)
 				{
@@ -454,7 +558,18 @@ namespace Wave2ZebraSynth
 	    				// the loudest 1/3 are RED
 	    				// the medium 1/3 volume are GREEN
 	    				// the most silent 1/3 volume are BLUE
-	    				
+	    			
+	    				float MinDb = -60f;
+            			float MaxDb = 18f;
+
+		                double db = 20 * (double) Math.Log10(data[x][y]);
+            			if (db < MinDb) db = MinDb;
+            			if (db > MaxDb) db = MaxDb;
+            			double percent = (db - MinDb) / (MaxDb - MinDb);
+            			if (percent > 0) {
+            				bool yes = true;
+            			}
+            			
 						/* Color conversion
 						 * byte[] values = BitConverter.GetBytes(number);
 						if (!BitConverter.IsLittleEndian) Array.Reverse(values);
@@ -464,6 +579,9 @@ namespace Wave2ZebraSynth
 						byte b = values[0];
 						byte g = values[1];
 						byte r = values[2];
+						
+						// new idea?
+						pen.Color = Color.FromArgb(0, 0, (int)amplitude % 255);
 						
 						 * */
 	    				
@@ -483,17 +601,56 @@ namespace Wave2ZebraSynth
 	    				}
 	    				*/
 	    				
-	    				int c1 = (int) (data[x][y] * 255f);
-	    				int c2 = Math.Min( 255, Math.Max( 0, c1) );
-	    				c = Color.FromArgb( c2, c2, c2 );
-	   					png.SetPixel(x, y, c);
+	    				if (y >= 0 && y < height && x >= 0 && x < width) {
+		    				//int c1 = (int) (data[x][y] * 255f);
+		    				//int c2 = Math.Min( 255, Math.Max( 0, c1) );
+		    				//c = Color.FromArgb( c2, c2, c2 );
+	    					//png.SetPixel(x, y, c);
+
+	    					int black = Convert.ToInt32(Color.Black.ToArgb());
+	    					c = Color.FromArgb( (int)(black*percent) );
+	    					png.SetPixel(x, y, c);
+	    				}
+	    				
 			    	}
 			  	}
-				png.Save(filenameToSave);		
+				png.Save(filenameToSave);	
+    			g.Dispose();			
         	} catch (Exception ex) {
         		System.Diagnostics.Debug.WriteLine(ex);
         	}
         }
+        
+        /*
+         *  Volume Meter
+         * 
+         *  MinDb = -60;
+            MaxDb = 18;
+            Amplitude = 0;
+
+			pe.Graphics.DrawRectangle(Pens.Black, 0, 0, this.Width - 1, this.Height - 1);
+            
+            double db = 20 * Math.Log10(Amplitude);
+            if (db < MinDb)
+                db = MinDb;
+            if (db > MaxDb)
+                db = MaxDb;
+            double percent = (db - MinDb) / (MaxDb - MinDb);
+
+            int width = this.Width - 2;
+            int height = this.Height - 2;
+            if (Orientation == Orientation.Horizontal)
+            {
+                width = (int)(width * percent);
+
+                pe.Graphics.FillRectangle(foregroundBrush, 1, 1, width, height);
+            }
+            else
+            {
+                height = (int)(height * percent);
+                pe.Graphics.FillRectangle(foregroundBrush, 1, this.Height - 1 - height, width, height);
+            }
+         */
         	
         public void writeImage(String prefix, String filename, bool[] data) {
         	try {

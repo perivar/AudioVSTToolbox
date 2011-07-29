@@ -41,15 +41,6 @@ namespace Wave2ZebraSynth
 
 			// extract tags			
 			TAG_INFO tag = repositoryGateway._proxy.GetTagInfoFromFile(fileName);
-				
-			// read 5512 Hz, Mono, PCM, with a specific proxy
-            float[] samples = repositoryGateway._proxy.ReadMonoFromFile(fileName, manager.SampleRate, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);     
-			exportCSV (@"c:\samples.csv", samples);
-        	repositoryGateway.drawWaveform("Waveform", fileName, samples, true);
-
-            FingerprintManager.NormalizeInPlace(samples);
-			exportCSV (@"c:\samples-normalized.csv", samples);
-        	repositoryGateway.drawWaveform("Waveform-Normalized", fileName, samples, true);
 			
         	// Lomont FFT
         	double sampleRate = 44100;//5512; // 44100; 
@@ -57,17 +48,25 @@ namespace Wave2ZebraSynth
 			int fftOverlap = 64;
 			float[] wavData = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, 2*1000, 20*1000 );
 			float[][] lomontSpectrogram = CreateSpectrogram(wavData, sampleRate, fftSize, fftOverlap);
-			//repositoryGateway.writeImage("LomontSpectrogram", fileName, lomontSpectrogram);
+			repositoryGateway.writeImage("LomontSpectrogram", fileName, lomontSpectrogram);
 			//exportCSV (@"c:\LomontSpectrogram-full-not-normalized.csv", lomontSpectrogram);
 			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Lomont", fileName, lomontSpectrogram, sampleRate, fftSize);
+
+			// draw waveform
+			exportCSV (String.Format("c:\\{0}-samples-{1}-{2}.csv", System.IO.Path.GetFileNameWithoutExtension(fileName), sampleRate, fftSize), wavData);
+			repositoryGateway.drawWaveform("Waveform", fileName, wavData);
+            FingerprintManager.NormalizeInPlace(wavData);
+			exportCSV (String.Format("c:\\{0}-samples-normalized-{1}-{2}.csv", System.IO.Path.GetFileNameWithoutExtension(fileName), sampleRate, fftSize), wavData);
+        	repositoryGateway.drawWaveform("Waveform-Normalized", fileName, wavData);
 	
-        	// Exocortex.DSP
-			float[][] exoSpectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START, false);
-			//repositoryGateway.writeImage("ExoSpectrogram", fileName, exoSpectrogram);
-			exportCSV (@"c:\ExoSpectrogram-full-not-normalized.csv", exoSpectrogram);
+        	// Exocortex.DSP FFT
+			// read 5512 Hz, Mono, PCM, with a specific proxy
+        	float[][] exoSpectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START, false);
+			repositoryGateway.writeImage("ExoSpectrogram", fileName, exoSpectrogram);
+			//exportCSV (@"c:\ExoSpectrogram-full-not-normalized.csv", exoSpectrogram);
 			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Exo", fileName, exoSpectrogram, manager.SampleRate, manager.WdftSize);
 			
-			/*			
+			/*
 			float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
 			repositoryGateway.writeImage("LogSpectrogram", fileName, logSpectrogram);
 			
