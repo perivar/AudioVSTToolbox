@@ -170,7 +170,8 @@ namespace Wave2ZebraSynth
         {
             return _repository.FindDuplicates(_storage.GetAllTracks(), THRESHOLD_VOTES, THRESHOLD_PERCENTAGE, callback);
         }
-               
+        
+        #region Waveform
         public void drawWaveform( string prefix, string filename, float[] samples, bool startDrawingAtMiddle )
         {
         	try {
@@ -208,7 +209,7 @@ namespace Wave2ZebraSynth
 	
     			// Start by drawing the center line at 0:
 				g.DrawLine(linePen, oldX, oldY, width, oldY); 
-				
+								
 				// Now, you need to figure out the incremental jump between samples to adjust for the scale factor. This works out to be:
 				int increment = (int) (numberOfSamples / (numberOfSamples * horizontalScaleFactor));
 				if (increment == 0) increment = 1;
@@ -339,15 +340,17 @@ namespace Wave2ZebraSynth
         		System.Diagnostics.Debug.WriteLine(ex);
         	}		     
         }
+        #endregion
         
-        public void writeImage(String prefix, String filename, float[] data) {
+        #region spectrum
+        public void drawSpectrum(String prefix, String filename, float[] data) {
         	try {
 				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
 				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
 
 				int width = data.Length;
-				int wdftSize = 2048;
-				int height = wdftSize/2 + 1;
+				int fftWindowsSize = 2048;
+				int height = fftWindowsSize/2 + 1;
 			  	System.Drawing.Bitmap png = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
 			  	
 				for (int x = 0; x < data.Length; x++)
@@ -388,7 +391,7 @@ namespace Wave2ZebraSynth
 	     * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 	     * IN THE SOFTWARE.
 	     */        
-        public void drawSpectrum( string prefix, string filename, float[] mag, float[] freq )
+        public void drawSpectrumAnalysis( string prefix, string filename, float[] mag, float[] freq )
         {
             // Basic constants
             float MIN_FREQ = 0;                 // Minimum frequency (Hz) on horizontal axis.
@@ -538,69 +541,48 @@ namespace Wave2ZebraSynth
         	}
         }
         
-        public void writeImage(String prefix, String filename, float[][] data) {
+        public void drawSpectrum(String prefix, String filename, float[][] data) {
         	try {
 				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
 				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
-				int width = data.Length;
-				int wdftSize = 2048;
-				int height = wdftSize/2 + 1;
-			  	System.Drawing.Bitmap png = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
+				int width = 1200;
+				int height = 600;
+	    		float amplitude;
+	    		int numberOfSamples = data.Length;
+
+				// horizontalScaleFactor between 0.25 and 0.5 is quite good
+				double horizontalScaleFactor = (double) width / numberOfSamples;
+	    		
+				// Now, you need to figure out the incremental jump between samples to adjust for the scale factor. This works out to be:
+				int increment = (int) (numberOfSamples / (numberOfSamples * horizontalScaleFactor));
+				if (increment == 0) increment = 1;
+									    		
+				System.Drawing.Bitmap png = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
 	    		Graphics g = Graphics.FromImage(png);            
 
 			  	Rectangle rect = new Rectangle(0, 0, width, height);
 	    		g.FillRectangle(Brushes.White, rect);
-			  	
-				for (int x = 0; x < data.Length; x++)
+
+				int x = 0;			
+				for (x = 0; x < numberOfSamples; x += increment)
+				//for (int x = 0; x < data.Length; x++)
 				{
 	    			for (int y = 0; y < data[x].Length; y++)
 				    {
+	    				amplitude = data[x][y];
 	    				// the loudest 1/3 are RED
 	    				// the medium 1/3 volume are GREEN
 	    				// the most silent 1/3 volume are BLUE
 	    			
-	    				float MinDb = -60f;
-            			float MaxDb = 18f;
+	    				float MinDb = -60.0f;
+            			float MaxDb = 18.0f;
 
-		                double db = 20 * (double) Math.Log10(data[x][y]);
+		                double db = 20 * (double) Math.Log10(amplitude);
             			if (db < MinDb) db = MinDb;
             			if (db > MaxDb) db = MaxDb;
             			double percent = (db - MinDb) / (MaxDb - MinDb);
-            			if (percent > 0) {
-            				bool yes = true;
-            			}
-            			
-						/* Color conversion
-						 * byte[] values = BitConverter.GetBytes(number);
-						if (!BitConverter.IsLittleEndian) Array.Reverse(values);
-						
-						The array will have four bytes. The first three bytes contain your number:
-						
-						byte b = values[0];
-						byte g = values[1];
-						byte r = values[2];
-						
-						// new idea?
-						pen.Color = Color.FromArgb(0, 0, (int)amplitude % 255);
-						
-						 * */
-	    				
-	    				Color c = new Color();
-	    				/*
-	    				int dataValue = (int) data[x][y];
-	    				if (0 <= dataValue && dataValue < 100) {
-	    					int c1 = (int) (dataValue * 255f);
-	    					int c2 = Math.Min( 255, Math.Max( 0, c1) );	    					
-	    					c = Color.FromArgb( c2, 0, 0 );
-	    				} else if (100 <= dataValue && dataValue < 200) {
-	    					c = Color.FromArgb( 0, dataValue, 0 );	    						    				
-	    				} else if (200 <= dataValue && dataValue < 300) {
-	    					c = Color.FromArgb( 0, 0, (int) (dataValue*0.75) );
-	    				} else {
-	    					c = Color.FromArgb( 255, 255, 255 );	    						    					    						    					
-	    				}
-	    				*/
-	    				
+            				    				
+	    				Color c = new Color();	    				
 	    				if (y >= 0 && y < height && x >= 0 && x < width) {
 		    				//int c1 = (int) (data[x][y] * 255f);
 		    				//int c2 = Math.Min( 255, Math.Max( 0, c1) );
@@ -609,6 +591,7 @@ namespace Wave2ZebraSynth
 
 	    					int black = Convert.ToInt32(Color.Black.ToArgb());
 	    					c = Color.FromArgb( (int)(black*percent) );
+	    					//c = Color.FromArgb(0, 0, (int)amplitude % 255);
 	    					png.SetPixel(x, y, c);
 	    				}
 	    				
@@ -652,7 +635,7 @@ namespace Wave2ZebraSynth
             }
          */
         	
-        public void writeImage(String prefix, String filename, bool[] data) {
+        public void drawSpectrum(String prefix, String filename, bool[] data) {
         	try {
 				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
 				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
@@ -667,7 +650,7 @@ namespace Wave2ZebraSynth
 	    			for (int y = 0; y < height; y++)
 				    {
 	    				int i = data[x + y * width] ? 255 : 0;	    				             
-	    				System.Drawing.Color c = System.Drawing.Color.FromArgb( i, i, i );
+	    				Color c = Color.FromArgb( i, i, i );
 	   					png.SetPixel(x, y, c);
 			    	}
 			  	}
@@ -676,6 +659,24 @@ namespace Wave2ZebraSynth
         		System.Diagnostics.Debug.WriteLine(ex);
         	}
         }	       
+        #endregion
+        
+        // Color conversion
+        public static Color IntToColor(int number) {
+			byte[] values = BitConverter.GetBytes(number);
+			
+			if (!BitConverter.IsLittleEndian) Array.Reverse(values);
+						
+			// The array will have four bytes. The first three bytes contain your number:				
+			byte b = values[0];
+			byte g = values[1];
+			byte r = values[2];        	
+			
+	    	Color c = Color.FromArgb( r, g, b );
+	    	return c;
+        }
+						
+						        
 		
 	}
 }

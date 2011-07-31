@@ -252,23 +252,23 @@ namespace Wave2ZebraSynth.Fingerprinting
             float[] samples = proxy.ReadMonoFromFile(filename, SampleRate, milliseconds, startmilliseconds);                   
             if (doNormalise) NormalizeInPlace(samples);
             int overlap = Overlap;
-            int wdftSize = WdftSize; // aka N = FFT Length
-            int width = (samples.Length - wdftSize)/overlap; /*width of the image*/
+            int fftWindowsSize = WdftSize; // aka N = FFT Length
+            int width = (samples.Length - fftWindowsSize)/overlap; /*width of the image*/
             float[][] frames = new float[width][];
-            float[] complexSignal = new float[2*wdftSize]; /*even - Re, odd - Img*/
+            float[] complexSignal = new float[2*fftWindowsSize]; /*even - Re, odd - Img*/
             for (int i = 0; i < width; i++)
             {
                 //take 371 ms each 11.6 ms (2048 samples each 64 samples)
                 // apply Hanning Window
-                for (int j = 0; j < wdftSize /*2048*/; j++)
+                for (int j = 0; j < fftWindowsSize /*2048*/; j++)
                 {
-                    complexSignal[2*j] = (float) ((4.0/(wdftSize - 1)) * _windowArray[j]*samples[i*overlap + j]); /*Weight by Hann Window*/
+                    complexSignal[2*j] = (float) ((4.0/(fftWindowsSize - 1)) * _windowArray[j]*samples[i*overlap + j]); /*Weight by Hann Window*/
                     complexSignal[2*j + 1] = 0;  // need to clear out as fft modifies buffer
                 }
                 //FFT transform for gathering the spectrum
-                Fourier.FFT(complexSignal, wdftSize, FourierDirection.Forward);
-                float[] band = new float[wdftSize/2 + 1];
-                for (int j = 0; j < wdftSize/2 + 1; j++)
+                Fourier.FFT(complexSignal, fftWindowsSize, FourierDirection.Forward);
+                float[] band = new float[fftWindowsSize/2 + 1];
+                for (int j = 0; j < fftWindowsSize/2 + 1; j++)
                 {
                     double re = complexSignal[2*j];
                     double img = complexSignal[2*j + 1]; 
@@ -295,20 +295,20 @@ namespace Wave2ZebraSynth.Fingerprinting
             float[] samples = proxy.ReadMonoFromFile(filename, SampleRate, milliseconds, startmilliseconds);
             NormalizeInPlace(samples);
             int overlap = Overlap;
-            int wdftSize = WdftSize;
-            int width = (samples.Length - wdftSize)/overlap; /*width of the image*/
+            int fftWindowsSize = WdftSize;
+            int width = (samples.Length - fftWindowsSize)/overlap; /*width of the image*/
             float[][] frames = new float[width][];
-            float[] complexSignal = new float[2*wdftSize]; /*even - Re, odd - Img*/
+            float[] complexSignal = new float[2*fftWindowsSize]; /*even - Re, odd - Img*/
             for (int i = 0; i < width; i++)
             {
                 //take 371 ms each 11.6 ms (2048 samples each 64 samples)
-                for (int j = 0; j < wdftSize /*2048*/; j++)
+                for (int j = 0; j < fftWindowsSize /*2048*/; j++)
                 {
                     complexSignal[2*j] = (float) (_windowArray[j]*samples[i*overlap + j]); /*Weight by Hann Window*/
                     complexSignal[2*j + 1] = 0;
                 }
                 //FFT transform for gathering the spectrum
-                Fourier.FFT(complexSignal, wdftSize, FourierDirection.Forward);
+                Fourier.FFT(complexSignal, fftWindowsSize, FourierDirection.Forward);
                 frames[i] = ExtractLogBins(complexSignal);
             }
             return frames;
@@ -505,9 +505,9 @@ namespace Wave2ZebraSynth.Fingerprinting
         /// <param name = "minFreq">Min frequency</param>
         /// <param name = "maxFreq">Max frequency</param>
         /// <param name = "logBins">Number of logarithmically spaced bins</param>
-        /// <param name = "fftSize">FFT Size</param>
+        /// <param name = "fftWindowsSize">FFT Size</param>
         /// <param name = "logarithmicBase">Logarithm base</param>
-        private void GenerateLogFrequencies(int sampleRate, int minFreq, int maxFreq, int logBins, int fftSize, double logarithmicBase)
+        private void GenerateLogFrequencies(int sampleRate, int minFreq, int maxFreq, int logBins, int fftWindowsSize, double logarithmicBase)
         {
             if (_logFrequenciesIndex == null)
             {
@@ -521,7 +521,7 @@ namespace Wave2ZebraSynth.Fingerprinting
                 {
                     float freq = (float) Math.Pow(logarithmicBase, logMin + accDelta);
                     accDelta += delta; // accDelta = delta * i
-                    indexes[i] = FreqToIndex(freq, sampleRate, fftSize); /*Find the start index in array from which to start the summation*/
+                    indexes[i] = FreqToIndex(freq, sampleRate, fftWindowsSize); /*Find the start index in array from which to start the summation*/
                 }
                 _logFrequenciesIndex = indexes;
             }
@@ -534,13 +534,13 @@ namespace Wave2ZebraSynth.Fingerprinting
         /// <param name = "minFreq">Min frequency</param>
         /// <param name = "maxFreq">Max frequency</param>
         /// <param name = "logBins">Number of logarithmically spaced bins</param>
-        /// <param name = "fftSize">FFT Size</param>
+        /// <param name = "fftWindowsSize">FFT Size</param>
         /// <param name = "logBase">Log base of the logarithm to be spaced</param>
         /// <returns>Gets an array of indexes</returns>
-        public int[] GetLogFrequenciesIndex(int sampleRate, int minFreq, int maxFreq, int logBins, int fftSize, double logBase)
+        public int[] GetLogFrequenciesIndex(int sampleRate, int minFreq, int maxFreq, int logBins, int fftWindowsSize, double logBase)
         {
             if (_logFrequenciesIndex == null)
-                GenerateLogFrequencies(sampleRate, minFreq, maxFreq, logBins, fftSize, logBase);
+                GenerateLogFrequencies(sampleRate, minFreq, maxFreq, logBins, fftWindowsSize, logBase);
             return _logFrequenciesIndex;
         }
 

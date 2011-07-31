@@ -44,31 +44,31 @@ namespace Wave2ZebraSynth
 			
         	// Lomont FFT
         	double sampleRate = 44100;//5512; // 44100; 
-			int fftSize = 16384;//2048; //8192 * 10; or 16384;
+			int fftWindowsSize = 16384; // default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
 			int fftOverlap = 64;
 			float[] wavData = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, 2*1000, 20*1000 );
-			float[][] lomontSpectrogram = CreateSpectrogram(wavData, sampleRate, fftSize, fftOverlap);
-			repositoryGateway.writeImage("LomontSpectrogram", fileName, lomontSpectrogram);
+			float[][] lomontSpectrogram = CreateSpectrogram(wavData, sampleRate, fftWindowsSize, fftOverlap);
+			repositoryGateway.drawSpectrum("LomontSpectrum", fileName, lomontSpectrogram);
 			//exportCSV (@"c:\LomontSpectrogram-full-not-normalized.csv", lomontSpectrogram);
-			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Lomont", fileName, lomontSpectrogram, sampleRate, fftSize);
+			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Lomont", fileName, lomontSpectrogram, sampleRate, fftWindowsSize);
 
 			// draw waveform
-			exportCSV (String.Format("c:\\{0}-samples-{1}-{2}.csv", System.IO.Path.GetFileNameWithoutExtension(fileName), sampleRate, fftSize), wavData);
+			exportCSV (String.Format("c:\\{0}-samples-{1}-{2}.csv", System.IO.Path.GetFileNameWithoutExtension(fileName), sampleRate, fftWindowsSize), wavData);
 			repositoryGateway.drawWaveform("Waveform", fileName, wavData);
             FingerprintManager.NormalizeInPlace(wavData);
-			exportCSV (String.Format("c:\\{0}-samples-normalized-{1}-{2}.csv", System.IO.Path.GetFileNameWithoutExtension(fileName), sampleRate, fftSize), wavData);
+			exportCSV (String.Format("c:\\{0}-samples-normalized-{1}-{2}.csv", System.IO.Path.GetFileNameWithoutExtension(fileName), sampleRate, fftWindowsSize), wavData);
         	repositoryGateway.drawWaveform("Waveform-Normalized", fileName, wavData);
 	
         	// Exocortex.DSP FFT
 			// read 5512 Hz, Mono, PCM, with a specific proxy
         	float[][] exoSpectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START, false);
-			repositoryGateway.writeImage("ExoSpectrogram", fileName, exoSpectrogram);
+			repositoryGateway.drawSpectrum("ExoSpectrum", fileName, exoSpectrogram);
 			//exportCSV (@"c:\ExoSpectrogram-full-not-normalized.csv", exoSpectrogram);
 			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Exo", fileName, exoSpectrogram, manager.SampleRate, manager.WdftSize);
 			
 			/*
 			float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
-			repositoryGateway.writeImage("LogSpectrogram", fileName, logSpectrogram);
+			repositoryGateway.drawSpectrum("LogSpectrogram", fileName, logSpectrogram);
 			
 			List<bool[]> dbFingers = manager.CreateFingerprints(logSpectrogram, repositoryGateway._createStride);
 			
@@ -79,7 +79,8 @@ namespace Wave2ZebraSynth
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
 		}
-		
+
+		#region exportCSV
 		private static void exportCSV(string filenameToSave, float[] data) {
 	        object[][] arr = new object[data.Length][];
 	        
@@ -153,30 +154,33 @@ namespace Wave2ZebraSynth
 	        CSVWriter csv = new CSVWriter(filenameToSave);
 	        csv.Write(arr);
 		}		
+		#endregion
 		
-		public static float[][] CreateSpectrogram(float[] samples, double sampleRate, int fftSize, int fftOverlap)
+		public static float[][] CreateSpectrogram(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
         {
 			HanningWindow window = new HanningWindow();
-        	double[] windowArray = window.GetWindow(fftSize);
+        	//double[] windowArray = window.GetWindow(fftWindowsSize);
+        	double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
         	LomontFFT fft = new LomontFFT();
 
-            int width = (samples.Length - fftSize)/fftOverlap; /*width of the image*/
+            int width = (samples.Length - fftWindowsSize)/fftOverlap; /*width of the image*/
             float[][] frames = new float[width][];
-            double[] complexSignal = new double[2*fftSize]; /*even - Re, odd - Img*/
+            double[] complexSignal = new double[2*fftWindowsSize]; /*even - Re, odd - Img*/
             for (int i = 0; i < width; i++)
             {
                 // apply Hanning Window
-                for (int j = 0; j < fftSize; j++)
+                for (int j = 0; j < fftWindowsSize; j++)
                 {
-                    complexSignal[2*j] = (double) ((4.0/(fftSize - 1)) * windowArray[j]*samples[i*fftOverlap + j]); /*Weight by Hann Window*/
+                	// add window with (4.0 / (fftWindowsSize - 1)
+                    complexSignal[2*j] = (double) ((4.0/(fftWindowsSize - 1)) * windowArray[j]*samples[i*fftOverlap + j]); /*Weight by Hann Window*/
                     //complexSignal[2*j] = (double) (windowArray[j]*samples[i*fftOverlap + j]); /*Weight by Hann Window*/
                     complexSignal[2*j + 1] = 0;  // need to clear out as fft modifies buffer
                 }
 
                 // FFT transform for gathering the spectrum
                 fft.FFT(complexSignal, true);
-                float[] band = new float[fftSize/2 + 1];
-                for (int j = 0; j < fftSize/2 + 1; j++)
+                float[] band = new float[fftWindowsSize/2 + 1];
+                for (int j = 0; j < fftWindowsSize/2 + 1; j++)
                 {
                     double re = complexSignal[2*j];
                     double img = complexSignal[2*j + 1]; 
@@ -188,7 +192,7 @@ namespace Wave2ZebraSynth
             return frames;
         }
 		
-		public static void prepareAndDrawSpectrumAnalysis(RepositoryGateway repositoryGateway, String prefix, String fileName, float[][] spectrogramData, double sampleRate, int fftSize) {
+		public static void prepareAndDrawSpectrumAnalysis(RepositoryGateway repositoryGateway, String prefix, String fileName, float[][] spectrogramData, double sampleRate, int fftWindowsSize) {
 			/*
 			 * freq = index * samplerate / fftsize;
 			 * db = 20 * log10(fft[index]);
@@ -202,11 +206,11 @@ namespace Wave2ZebraSynth
                 // TODO: Addition of MIN_VALUE prevents log from returning minus infinity if mag is zero
                 // c# int.MinValue ?
                 m_mag[i] = 20 * (float) Math.Log10( (float) spectrogramData[0][i] );
-                m_freq[i] = ( i + 1 ) * (float) sampleRate / fftSize;
+                m_freq[i] = ( i + 1 ) * (float) sampleRate / fftWindowsSize;
             }
 			exportCSV ("c:\\" + prefix + "-spectrogram-mag-freq.csv", spectrogramData[0], m_mag, m_freq);
 
-			repositoryGateway.drawSpectrum(prefix + "SpectrumAnalysis", fileName, m_mag, m_freq);						
+			repositoryGateway.drawSpectrumAnalysis(prefix + "SpectrumAnalysis", fileName, m_mag, m_freq);						
 		}
 		
 	}
