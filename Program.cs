@@ -48,7 +48,7 @@ namespace Wave2ZebraSynth
 			int fftOverlap = 64;
 			float[] wavData = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, 20*1000, 20*1000 );
 			float[][] lomontSpectrogram = CreateSpectrogram(wavData, sampleRate, fftWindowsSize, fftOverlap);
-			repositoryGateway.drawSpectrum2("LomontSpectrum", fileName, lomontSpectrogram);
+			repositoryGateway.drawSpectrogram("LomontSpectrum", fileName, lomontSpectrogram);
 			//exportCSV (@"c:\LomontSpectrogram-full-not-normalized.csv", lomontSpectrogram);
 			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Lomont", fileName, lomontSpectrogram, sampleRate, fftWindowsSize);
 
@@ -62,7 +62,7 @@ namespace Wave2ZebraSynth
         	// Exocortex.DSP FFT
 			// read 5512 Hz, Mono, PCM, with a specific proxy
         	float[][] exoSpectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START, false);
-			repositoryGateway.drawSpectrum2("ExoSpectrum", fileName, exoSpectrogram);
+			repositoryGateway.drawSpectrogram("ExoSpectrum", fileName, exoSpectrogram);
 			//exportCSV (@"c:\ExoSpectrogram-full-not-normalized.csv", exoSpectrogram);
 			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Exo", fileName, exoSpectrogram, manager.SampleRate, manager.WdftSize);
 			

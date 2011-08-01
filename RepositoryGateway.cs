@@ -546,7 +546,11 @@ namespace Wave2ZebraSynth
 		    return Math.Floor(number * Math.Pow(10, decimalPlaces)) / Math.Pow(10, decimalPlaces);
 		}
 		
-		public void drawSpectrum2(String prefix, String filename, float[][] data) {
+		
+		
+		
+		// see https://code.google.com/p/jstk/source/browse/trunk/jstk/src/de/fau/cs/jstk/?r=154#jstk%2Fvc
+		public void drawSpectrogram(String prefix, String filename, float[][] data) {
 			try {
 				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
 				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
@@ -616,8 +620,9 @@ namespace Wave2ZebraSynth
 						//spectrogram.setRGB(i, maxYIndex - j, cmap.getColor(grey));
 						//Color c = Color.FromArgb((int)d,(int)d,(int)d);
 						//Color c = AColor.GetColorGradient((float)d/0xff);
-						ColorRGB rgb = AColor.HSL2RGB(d/0xff,0.5,0.5);
-						Color c = Color.FromArgb(rgb.R, rgb.G, rgb.B);
+						//ColorRGB rgb = AColor.HSL2RGB(d/0xff,0.5,0.5);
+						//Color c = Color.FromArgb(rgb.R, rgb.G, rgb.B);
+						Color c = AColor.DetermineColor((int)d, false);
 						png.SetPixel(x, maxYIndex - y, c);
 					}
 				}
