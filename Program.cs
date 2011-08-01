@@ -43,12 +43,12 @@ namespace Wave2ZebraSynth
 			TAG_INFO tag = repositoryGateway._proxy.GetTagInfoFromFile(fileName);
 			
         	// Lomont FFT
-        	double sampleRate = 44100;//5512; // 44100; 
-			int fftWindowsSize = 16384; // default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
+        	double sampleRate = 5512;// 44100  default 5512 
+			int fftWindowsSize = 2048; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
 			int fftOverlap = 64;
-			float[] wavData = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, 2*1000, 20*1000 );
+			float[] wavData = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, 20*1000, 20*1000 );
 			float[][] lomontSpectrogram = CreateSpectrogram(wavData, sampleRate, fftWindowsSize, fftOverlap);
-			repositoryGateway.drawSpectrum("LomontSpectrum", fileName, lomontSpectrogram);
+			repositoryGateway.drawSpectrum2("LomontSpectrum", fileName, lomontSpectrogram);
 			//exportCSV (@"c:\LomontSpectrogram-full-not-normalized.csv", lomontSpectrogram);
 			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Lomont", fileName, lomontSpectrogram, sampleRate, fftWindowsSize);
 
@@ -62,7 +62,7 @@ namespace Wave2ZebraSynth
         	// Exocortex.DSP FFT
 			// read 5512 Hz, Mono, PCM, with a specific proxy
         	float[][] exoSpectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START, false);
-			repositoryGateway.drawSpectrum("ExoSpectrum", fileName, exoSpectrogram);
+			repositoryGateway.drawSpectrum2("ExoSpectrum", fileName, exoSpectrogram);
 			//exportCSV (@"c:\ExoSpectrogram-full-not-normalized.csv", exoSpectrogram);
 			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Exo", fileName, exoSpectrogram, manager.SampleRate, manager.WdftSize);
 			
@@ -159,8 +159,8 @@ namespace Wave2ZebraSynth
 		public static float[][] CreateSpectrogram(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
         {
 			HanningWindow window = new HanningWindow();
-        	//double[] windowArray = window.GetWindow(fftWindowsSize);
-        	double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
+        	double[] windowArray = window.GetWindow(fftWindowsSize);
+        	//double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
         	LomontFFT fft = new LomontFFT();
 
             int width = (samples.Length - fftWindowsSize)/fftOverlap; /*width of the image*/

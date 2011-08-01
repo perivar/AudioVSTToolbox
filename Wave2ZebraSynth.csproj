@@ -49,6 +49,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AColor.cs" />
     <Compile Include="FFTWindows.cs" />
     <Compile Include="Audio\BassProxy.cs" />
     <Compile Include="Audio\IAudio.cs" />
