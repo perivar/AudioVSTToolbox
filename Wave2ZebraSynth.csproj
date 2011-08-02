@@ -85,6 +85,8 @@
     <Compile Include="RepositoryGateway.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VB6Fourier.cs" />
+    <Compile Include="VB6Spectrogram.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Audio" />

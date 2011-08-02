@@ -162,6 +162,21 @@ namespace Wave2ZebraSynth
 			}
 
 		}
+
+		public static long ColorToLong(Color color)
+		{
+			return (long)((color.A << 24) | (color.R << 16) |
+			              (color.G << 8)  | (color.B << 0));
+		}
+		
+		public static Color LongToColor(long color)
+		{
+			byte a = (byte)(color >> 24);
+			byte r = (byte)(color >> 16);
+			byte g = (byte)(color >> 8);
+			byte b = (byte)(color >> 0);
+			return Color.FromArgb(a, r, g, b);
+		}
 		
 		public static uint ColorToUInt(Color color)
 		{
@@ -192,6 +207,7 @@ namespace Wave2ZebraSynth
 				c = gradient_preloaded[idx];
 			} catch (Exception e) {
 				System.Diagnostics.Debug.WriteLine("Error looking up color id: " + idx);
+				System.Diagnostics.Debug.WriteLine(e);
 			}
 			return c;
 		}

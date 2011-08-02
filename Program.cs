@@ -15,8 +15,14 @@ using Wave2ZebraSynth.DataAccess;
 using Wave2ZebraSynth.Model;
 using Wave2ZebraSynth.Fingerprinting.MathUtils;
 
-using Un4seen.Bass.AddOn.Tags;
 using Lomont;
+
+using Un4seen.Bass;
+using Un4seen.Bass.AddOn.Fx;
+using Un4seen.Bass.AddOn.Mix;
+using Un4seen.Bass.AddOn.Tags;
+using Un4seen.Bass.Misc;
+
 
 namespace Wave2ZebraSynth
 {
@@ -32,7 +38,7 @@ namespace Wave2ZebraSynth
 			String fileName = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl\01. Only Girl (In The World).mp3";
 			//String fileName = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
 			
-			String path = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl";
+			//String path = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl";
 			
 			Console.WriteLine("Analyzer starting ...");
 			
@@ -42,11 +48,19 @@ namespace Wave2ZebraSynth
 			// extract tags			
 			TAG_INFO tag = repositoryGateway._proxy.GetTagInfoFromFile(fileName);
 			
+			// VB6 FFT
+        	//double sampleRate = 5512;// 44100  default 5512 
+			//int fftWindowsSize = 2048; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
+			//float fftOverlapPercentage = 0.10f;
+			//float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, 20*1000, 20*1000 );
+			//double[] magnitude = VB6Spectrogram.Compute(wavDataVB6, 1, sampleRate, fftWindowsSize, fftOverlapPercentage);
+			//exportCSV (@"c:\VB6-magnitude.csv", magnitude);
+						
         	// Lomont FFT
         	double sampleRate = 5512;// 44100  default 5512 
 			int fftWindowsSize = 2048; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
 			int fftOverlap = 64;
-			float[] wavData = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, 20*1000, 20*1000 );
+			float[] wavData = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, 15*1000, 20*1000 );
 			float[][] lomontSpectrogram = CreateSpectrogram(wavData, sampleRate, fftWindowsSize, fftOverlap);
 			repositoryGateway.drawSpectrogram("LomontSpectrum", fileName, lomontSpectrogram);
 			//exportCSV (@"c:\LomontSpectrogram-full-not-normalized.csv", lomontSpectrogram);
@@ -98,6 +112,23 @@ namespace Wave2ZebraSynth
 	        csv.Write(arr);
 		}
 
+		private static void exportCSV(string filenameToSave, double[] data) {
+	        object[][] arr = new object[data.Length][];
+	        
+	        int count = 1;
+	        for (int i = 0; i < data.Length; i++)
+	        {
+            	arr[i] = new object[2] { 
+	        		count, 
+	        		data[i]
+	        	};
+	        	count++;
+		    };
+	        
+	        CSVWriter csv = new CSVWriter(filenameToSave);
+	        csv.Write(arr);
+		}
+		
 		private static void exportCSV(string filenameToSave, float[][] data) {	        
 			object[][] arr = new object[data.Length][];
 
@@ -213,6 +244,32 @@ namespace Wave2ZebraSynth
 			repositoryGateway.drawSpectrumAnalysis(prefix + "SpectrumAnalysis", fileName, m_mag, m_freq);						
 		}
 		
+		public static void GetAudioInformation(string filename) 
+		{        
+           	float lFrequency = 0;
+            float lVolume = 0;
+            float lPan = 0;
+    
+			int stream = Bass.BASS_StreamCreateFile(filename, 0L, 0L, BASSFlag.BASS_STREAM_DECODE);
+
+			// the info members will contain most of it...
+			BASS_CHANNELINFO info = Bass.BASS_ChannelGetInfo(stream);
+
+			if (Bass.BASS_ChannelGetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, ref lVolume))
+				System.Diagnostics.Debug.WriteLine("Volume: " + lVolume);				
+				
+			if (Bass.BASS_ChannelGetAttribute(stream, BASSAttribute.BASS_ATTRIB_PAN, ref lPan))
+				System.Diagnostics.Debug.WriteLine("Pan: " + lPan);				
+
+			if (Bass.BASS_ChannelGetAttribute(stream, BASSAttribute.BASS_ATTRIB_FREQ, ref lFrequency))
+				System.Diagnostics.Debug.WriteLine("Frequency: " + lFrequency);				
+  			                              
+            int nChannels = info.chans;
+			System.Diagnostics.Debug.WriteLine("Channels: " + nChannels);				
+
+			int nSamplesPerSec = info.freq;
+			System.Diagnostics.Debug.WriteLine("SamplesPerSec: " + nSamplesPerSec);				
+		}
 	}
 	
 }
