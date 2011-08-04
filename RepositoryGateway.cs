@@ -608,28 +608,14 @@ namespace Wave2ZebraSynth
 					{
 						int x = (int) RoundDown(i*horizontalScaleFactor,0);
 						int y = (int) RoundDown(j*verticalScaleFactor,0);
-					
-						/* Adjust the grey value to make a value of 0 to mean
-						 * white and a value of 0xff to mean black.
-						 */
+
 						float f = data[i][j];
 						double d = (f + minIntensity) * scaleFactor;
-						//int grey = (int)((data[i][j] + minIntensity) * scaleFactor - offsetFactor);
-						
-						// use grey as an index into the colormap;
-						//spectrogram.setRGB(i, maxYIndex - j, cmap.getColor(grey));
-						//Color c = Color.FromArgb((int)d,(int)d,(int)d);
-						//Color c = AColor.GetColorGradient((float)d/0xff);
-						//ColorRGB rgb = AColor.HSL2RGB(d/0xff,0.5,0.5);
-						//Color c = Color.FromArgb(rgb.R, rgb.G, rgb.B);						
-						//Color c = AColor.DetermineColor((int)d, false);
-						
+												
 						Color c = Color.White;
 						int RangedB = 100;
 						int RangePaletteIndex = 255;
 						byte vb6Index = (byte) VB6Spectrogram.MapToPixelindex(f, RangedB, RangePaletteIndex);
-						//long color = vb6Spectrogram.LevelPalette[vb6Index];
-						//c = AColor.LongToColor(color);
 						c = vb6Spectrogram.LevelPalette2[vb6Index];
 						png.SetPixel(x, maxYIndex - y, c);
 					}
@@ -642,6 +628,49 @@ namespace Wave2ZebraSynth
 			}
 		}
 
+		public void drawSpectrogram2(String prefix, String filename, float[][] data) {
+			try {
+				VB6Spectrogram vb6Spectrogram = new VB6Spectrogram();
+				vb6Spectrogram.ComputeColorPalette();
+				
+				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
+				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
+				int width = 1000;
+				int height = 600;
+				float numberOfSamplesX = data.Length;
+				float numberOfSamplesY = data[0].Length;			
+
+				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+				Graphics g = Graphics.FromImage(png);
+
+				Axis.drawAxis(Axis.X_AXIS, 10, 5, 1, numberOfSamplesX+1, 50, width-50, 50, false, height, g);
+				Axis.drawAxis(Axis.Y_AXIS, 10, 5, 1, numberOfSamplesY+1, 50, height-50, 50, true, height, g);
+				
+				for(int x = 0; x < numberOfSamplesX; x++)
+				{
+					for(int y = 0; y < numberOfSamplesY; y++)
+					{
+						float f = data[x][y];
+						int x1 = Axis.plotValue(x+1, 1, numberOfSamplesX+1, 50, width-50, false, height);
+						int y1 = Axis.plotValue(y+1, 1, numberOfSamplesY+1, 50, height-50, true, height);
+
+						Color c = Color.White;
+						int RangedB = 100;
+						int RangePaletteIndex = 255;
+						byte vb6Index = (byte) VB6Spectrogram.MapToPixelindex(f, RangedB, RangePaletteIndex);
+						c = vb6Spectrogram.LevelPalette2[vb6Index];
+						if (x1 > 0 && x1 < width && y1 > 0 && y1 < height) 
+							png.SetPixel(x1+50, height - y1 - 50, c);
+					}
+				}
+				
+				png.Save(filenameToSave);
+				g.Dispose();
+			} catch (Exception ex) {
+				System.Diagnostics.Debug.WriteLine(ex);
+			}
+		}
+		
 		public void drawSpectrum(String prefix, String filename, float[][] data) {
 			try {
 				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));

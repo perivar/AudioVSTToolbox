@@ -57,12 +57,12 @@ namespace Wave2ZebraSynth
 			//exportCSV (@"c:\VB6-magnitude.csv", magnitude);
 						
         	// Lomont FFT
-        	double sampleRate = 5512;// 44100  default 5512 
-			int fftWindowsSize = 2048; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
+        	double sampleRate = 44100;// 44100  default 5512 
+			int fftWindowsSize = 4096; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
 			int fftOverlap = 64;
 			float[] wavData = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, 15*1000, 20*1000 );
 			float[][] lomontSpectrogram = CreateSpectrogram(wavData, sampleRate, fftWindowsSize, fftOverlap);
-			repositoryGateway.drawSpectrogram("LomontSpectrum", fileName, lomontSpectrogram);
+			repositoryGateway.drawSpectrogram2("LomontSpectrum", fileName, lomontSpectrogram);
 			//exportCSV (@"c:\LomontSpectrogram-full-not-normalized.csv", lomontSpectrogram);
 			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Lomont", fileName, lomontSpectrogram, sampleRate, fftWindowsSize);
 
