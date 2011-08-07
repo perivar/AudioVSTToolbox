@@ -122,7 +122,7 @@ namespace Wave2ZebraSynth
 
 		#endregion
 		
-		private bool _aborted;
+		private bool _aborted = false;
 		
 		public RepositoryGateway()
 		{
@@ -351,7 +351,7 @@ namespace Wave2ZebraSynth
 				int width = data.Length;
 				int fftWindowsSize = 2048;
 				int height = fftWindowsSize/2 + 1;
-				System.Drawing.Bitmap png = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
+				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
 				
 				for (int x = 0; x < data.Length; x++)
 				{
@@ -693,7 +693,7 @@ namespace Wave2ZebraSynth
 				int incrementY = (int) (numberOfSamplesY / (numberOfSamplesY * verticalScaleFactor));
 				if (incrementY == 0) incrementY = 1;
 				
-				System.Drawing.Bitmap png = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
+				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
 				Graphics g = Graphics.FromImage(png);
 
 				Rectangle rect = new Rectangle(0, 0, width, height);
@@ -772,7 +772,7 @@ namespace Wave2ZebraSynth
 				int width = 128; /*128*/
 				int height = 32; /*32*/
 				
-				System.Drawing.Bitmap png = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
+				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
 				
 				for (int x = 0; x < width; x++)
 				{

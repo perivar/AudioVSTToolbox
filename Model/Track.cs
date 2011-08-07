@@ -12,7 +12,7 @@ namespace Wave2ZebraSynth.Model
     ///   Track entity object
     /// </summary>
     [Serializable]
-    [CLSCompliant(true)]
+    
     [DebuggerDisplay("Id={_id}, Title={_title}, Artist={_artist}, Path={_path}")]
     public class Track
     {

@@ -12,7 +12,7 @@ namespace Wave2ZebraSynth.Model
     ///   Class for folder representation in the UI element
     /// </summary>
     [Serializable]
-    [CLSCompliant(true)]
+    
     public class Item : INotifyPropertyChanged
     {
         /// <summary>

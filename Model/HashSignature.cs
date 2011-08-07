@@ -12,7 +12,7 @@ namespace Wave2ZebraSynth.Model
     /// Hash signature
     /// </summary>
     [Serializable]
-    [CLSCompliant(true)]
+    
     [DebuggerDisplay("Id={_id}")]
     public class HashSignature
     {

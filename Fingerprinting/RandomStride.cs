@@ -10,7 +10,7 @@ namespace Wave2ZebraSynth.Fingerprinting
     ///   Random stride object. [min - max Samples stride]
     /// </summary>
     [Serializable]
-    [CLSCompliant(true)]
+    
     public class RandomStride : IStride
     {
         private static readonly Random Random = new Random(unchecked((int) DateTime.Now.Ticks));

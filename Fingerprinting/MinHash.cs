@@ -22,11 +22,11 @@ namespace Wave2ZebraSynth.Fingerprinting
         /// <summary>
         ///   The smallest Prime number that exceeds (D / 2)
         ///   <remarks>
-        ///     D - domain of values. D = 2^(8*nrKeys)
-        ///     5 Keys - 549755813911
-        ///     4 Keys - 2147483659
-        ///     3 Keys - 8388617
-        ///     2 Keys - 32771
+        /// D - domain of values. D = 2^(8*nrKeys)
+        /// 5 Keys - 549755813911
+        /// 4 Keys - 2147483659
+        /// 3 Keys - 8388617
+        /// 2 Keys - 32771
         ///   </remarks>
         /// </summary>
         private const long PRIME_P = 2147483659;

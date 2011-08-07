@@ -41,7 +41,7 @@ namespace Wave2ZebraSynth.Fingerprinting.MathUtils
     public enum FourierDirection
     {
         /// <summary>
-        ///   Forward direction.  Usually in reference to moving from temporal
+        ///   Forward direction. Usually in reference to moving from temporal
         ///   representation to frequency representation
         /// </summary>
         Forward = 1,

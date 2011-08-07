@@ -41,7 +41,7 @@ namespace Wave2ZebraSynth
 	/// 
 	public class Axis
 	{
-		private const bool DEBUG = false;
+		private static bool DEBUG = false;
 		public const int X_AXIS = 0, Y_AXIS = 1;
 		
 		// For use in calculating log base 10. A log times this is a log base 10.
@@ -66,17 +66,17 @@ namespace Wave2ZebraSynth
 		}
 
 
-		///     <summary> * this is the central method of this class.
-		///     * takes axis range parameters and produces a list of string
-		///     * representations of nicely rounded numbers within the given range.
-		///     * these strings are intended for use as axis tic labels.
-		///     * note: to find out where to plot each tic label simply
-		///     * use <br><code>float ticval = Float.parseFloat(ticstring);</code> </summary>
-		///     * <param name="ticMinVal"> no tics will be created for less than this value. </param>
-		///     * <param name="ticMaxVal"> no tics will be created for greater than this value. </param>
-		///     * <param name="maxTics"> returned vector will contain no more labels than this number. </param>
-		///     * <returns> a Vector containing formatted label strings which should also
-		///     * be parsable into floating point numbers (in order to plot them). </returns>
+		/// <summary> * this is the central method of this class.
+		/// * takes axis range parameters and produces a list of string
+		/// * representations of nicely rounded numbers within the given range.
+		/// * these strings are intended for use as axis tic labels.
+		/// * note: to find out where to plot each tic label simply
+		/// * use <br><code>float ticval = Float.parseFloat(ticstring);</code> </summary>
+		/// * <param name="ticMinVal"> no tics will be created for less than this value. </param>
+		/// * <param name="ticMaxVal"> no tics will be created for greater than this value. </param>
+		/// * <param name="maxTics"> returned vector will contain no more labels than this number. </param>
+		/// * <returns> a Vector containing formatted label strings which should also
+		/// * be parsable into floating point numbers (in order to plot them). </returns>
 		///
 		public static ArrayList computeTicks(double ticMinVal, double ticMaxVal, int maxTicks)
 		{
@@ -85,9 +85,8 @@ namespace Wave2ZebraSynth
 
 			// Compute x starting point so it is a multiple of xStep.
 			double xStart = xStep*Math.Ceiling(ticMinVal/xStep);
-			ArrayList xgrid = null;
 			ArrayList labels = new ArrayList();
-			// Label the axis.  The labels are quantized so that
+			// Label the axis. The labels are quantized so that
 			// they don't have excess resolution.
 			for (double xpos=xStart; xpos<=ticMaxVal; xpos+=xStep)
 			{
@@ -96,30 +95,30 @@ namespace Wave2ZebraSynth
 			return labels;
 		}
 
-		///     <summary> * high-level method for drawing a chart axis line plus labeled tic marks.
-		///     * introduces a dependancy on AWT because it takes a Graphics parameter.
-		///     * perhaps this method belongs in some higher-level class but i added it
-		///     * here since it's highly related with the tic lable generation code.
-		///     * 
-		///     * @author Melinda Green
-		///     * </summary>
-		///     * <param name="axis"> is one of Axis.X_AXIS or Axis.Y_AXIS. </param>
-		///     * <param name="maxTics"> is the maximum number of labeled tics to draw.
-		///     * note: the actual number drawn may be less. </param>
-		///     * <param name="lowVal"> is the smallest value tic mark that may be drawn.
-		///     * note: the lowest valued tic label may be greater than this limit. </param>
-		///     * <param name="highVal"> is the largest value tic mark that may be drawn.
-		///     * note: the highest valued tic label may be less than this limit. </param>
-		///     * <param name="screenStart"> is the coordinate in the low valued direction. </param>
-		///     * <param name="screenEnd"> is the coordinate in the high valued direction. </param>
-		///     * <param name="offset"> is the coordinate in the direction perpendicular to
-		///     * the specified direction. </param>
-		///     * <param name="logScale"> is true if a log scale axis is to be drawn,
-		///     * false for a linear scale. </param>
-		///     * <param name="screenHeight"> is needed to flip Y coordinates. </param>
-		///     * <param name="g"> is the AWT Graphics object to draw into.
-		///     * note: all drawing will be done in the current color of the given
-		///     * Graphics object. </param>
+		/// <summary> * high-level method for drawing a chart axis line plus labeled tic marks.
+		/// * introduces a dependancy on AWT because it takes a Graphics parameter.
+		/// * perhaps this method belongs in some higher-level class but i added it
+		/// * here since it's highly related with the tic lable generation code.
+		/// * 
+		/// * @author Melinda Green
+		/// * </summary>
+		/// * <param name="axis"> is one of Axis.X_AXIS or Axis.Y_AXIS. </param>
+		/// * <param name="maxTics"> is the maximum number of labeled tics to draw.
+		/// * note: the actual number drawn may be less. </param>
+		/// * <param name="lowVal"> is the smallest value tic mark that may be drawn.
+		/// * note: the lowest valued tic label may be greater than this limit. </param>
+		/// * <param name="highVal"> is the largest value tic mark that may be drawn.
+		/// * note: the highest valued tic label may be less than this limit. </param>
+		/// * <param name="screenStart"> is the coordinate in the low valued direction. </param>
+		/// * <param name="screenEnd"> is the coordinate in the high valued direction. </param>
+		/// * <param name="offset"> is the coordinate in the direction perpendicular to
+		/// * the specified direction. </param>
+		/// * <param name="logScale"> is true if a log scale axis is to be drawn,
+		/// * false for a linear scale. </param>
+		/// * <param name="screenHeight"> is needed to flip Y coordinates. </param>
+		/// * <param name="g"> is the AWT Graphics object to draw into.
+		/// * note: all drawing will be done in the current color of the given
+		/// * Graphics object. </param>
 		///
 		public static void drawAxis(int axis, int maxTics, int ticLength, float lowVal, float highVal, int screenStart, int screenEnd, int screenOffset, bool logScale, int screenHeight, Graphics g)
 		{
@@ -181,16 +180,16 @@ namespace Wave2ZebraSynth
 		} // end drawAxis
 
 		///
-		///     <summary> * lower level method to determine a screen location where a given value
-		///     * should be plotted given range, type, and screen information.
-		///     * the "val" parameter is the data value to be plotted
-		///     * @author Melinda Green </summary>
-		///     * <param name="val"> is a data value to be plotted. </param>
-		///     * <returns> pixel offset (row or column) to draw a screen representation
-		///     * of the given data value. i.e. <i>where</i>  along an axis
-		///     * in screen coordinates the caller should draw a representation of
-		///     * the given value. </returns>
-		///     * <seealso cref= drawAxis(int,int,int,float,float,int,int,int,boolean,int,Graphics) </seealso>
+		/// <summary> * lower level method to determine a screen location where a given value
+		/// * should be plotted given range, type, and screen information.
+		/// * the "val" parameter is the data value to be plotted
+		/// * @author Melinda Green </summary>
+		/// * <param name="val"> is a data value to be plotted. </param>
+		/// * <returns> pixel offset (row or column) to draw a screen representation
+		/// * of the given data value. i.e. <i>where</i>  along an axis
+		/// * in screen coordinates the caller should draw a representation of
+		/// * the given value. </returns>
+		/// * <seealso cref= drawAxis(int,int,int,float,float,int,int,int,boolean,int,Graphics) </seealso>
 		///
 		public static int plotValue(float val, float lowVal, float highVal, int screenStart, int screenEnd, bool logScale, int screenHeight)
 		{
@@ -242,7 +241,7 @@ namespace Wave2ZebraSynth
 
 		/*
 		 * Return the number of fractional digits required to display the
-		 * given number.  No number larger than 15 is returned (if
+		 * given number. No number larger than 15 is returned (if
 		 * more than 15 digits are required, 15 is returned).
 		 */
 		private static int numFracDigits(double num)
@@ -266,9 +265,9 @@ namespace Wave2ZebraSynth
 		}
 
 		///
-		///     <summary> * handy little utility for determining the length in pixels the
-		///     * given string will use if drawn into the given Graphics object.
-		///     * Note: perhaps belongs in some utility package. </summary>
+		/// <summary> * handy little utility for determining the length in pixels the
+		/// * given string will use if drawn into the given Graphics object.
+		/// * Note: perhaps belongs in some utility package. </summary>
 		///
 		public static SizeF stringSize(string str, Font stringFont, Graphics g)
 		{
@@ -338,7 +337,7 @@ namespace Wave2ZebraSynth
 		}
 
 		///
-		///     <summary> * simple example program for Axis class. </summary>
+		/// <summary> * simple example program for Axis class. </summary>
 		///
 		static void Main(string[] args)
 		{

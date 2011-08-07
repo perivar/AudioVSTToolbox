@@ -22,7 +22,6 @@ namespace Wave2ZebraSynth.Audio
     ///   MOD music (XM, IT, S3M, MOD, MTM, UMX), MO3 music (MP3/OGG compressed MODs), and recording functions. 
     ///   All in a tiny DLL, under 100KB* in size.
     /// </remarks>
-    [CLSCompliant(false)]
     public class BassProxy : IAudio
     {
         /// <summary>
@@ -216,12 +215,12 @@ namespace Wave2ZebraSynth.Audio
         /// <remarks>
         ///   The tags can be extracted using the following code:
         ///   <code>
-        ///     tags.album
-        ///     tags.albumartist
-        ///     tags.artist
-        ///     tags.title
-        ///     tags.duration
-        ///     tags.genre, and so on.
+        /// tags.album
+        /// tags.albumartist
+        /// tags.artist
+        /// tags.title
+        /// tags.duration
+        /// tags.genre, and so on.
         ///   </code>
         /// </remarks>
         public TAG_INFO GetTagInfoFromFile(string filename)

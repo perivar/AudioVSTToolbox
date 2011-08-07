@@ -23,6 +23,7 @@ using Un4seen.Bass.AddOn.Mix;
 using Un4seen.Bass.AddOn.Tags;
 using Un4seen.Bass.Misc;
 
+using Wave2ZebraSynth.HermitGauges;
 
 namespace Wave2ZebraSynth
 {
@@ -35,8 +36,13 @@ namespace Wave2ZebraSynth
         
 		public static void Main(string[] args)
 		{
-			String fileName = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl\01. Only Girl (In The World).mp3";
+			InstrumentPanel panel = new InstrumentPanel(800, 600);
+			panel.Instrument = InstrumentPanel.Instruments.SONAGRAM;
+			AudioAnalyser analyser = panel.AudioAnalyser;
+			
+			//String fileName = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl\01. Only Girl (In The World).mp3";
 			//String fileName = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
+			String fileName = @"G:\Cubase and Nuendo Projects\Music To Copy Learn\Britney Spears - Hold It Against Me\02 Hold It Against Me (Instrumental) 1.mp3";
 			
 			//String path = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl";
 			
@@ -57,10 +63,18 @@ namespace Wave2ZebraSynth
 			//exportCSV (@"c:\VB6-magnitude.csv", magnitude);
 						
         	// Lomont FFT
-        	double sampleRate = 44100;// 44100  default 5512 
-			int fftWindowsSize = 4096; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
+        	double sampleRate = 5512;// 44100  default 5512 
+			int fftWindowsSize = 2048; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
 			int fftOverlap = 64;
 			float[] wavData = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, 15*1000, 20*1000 );
+			short[] shortData = new short[wavData.Length];
+			for (int z = 0; z < wavData.Length; z++) {
+				float f = wavData[z];
+				double d = f * 32768.0;
+				short s = (short) d;
+				shortData[z] = s; 
+			}
+			analyser.ProcessAudio(shortData);
 			float[][] lomontSpectrogram = CreateSpectrogram(wavData, sampleRate, fftWindowsSize, fftOverlap);
 			repositoryGateway.drawSpectrogram2("LomontSpectrum", fileName, lomontSpectrogram);
 			//exportCSV (@"c:\LomontSpectrogram-full-not-normalized.csv", lomontSpectrogram);
@@ -190,8 +204,8 @@ namespace Wave2ZebraSynth
 		public static float[][] CreateSpectrogram(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
         {
 			HanningWindow window = new HanningWindow();
-        	double[] windowArray = window.GetWindow(fftWindowsSize);
-        	//double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
+        	//double[] windowArray = window.GetWindow(fftWindowsSize);
+        	double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
         	LomontFFT fft = new LomontFFT();
 
             int width = (samples.Length - fftWindowsSize)/fftOverlap; /*width of the image*/

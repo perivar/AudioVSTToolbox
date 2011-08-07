@@ -10,7 +10,7 @@ namespace Wave2ZebraSynth.Fingerprinting
     ///   StaticStride class
     /// </summary>
     [Serializable]
-    [CLSCompliant(true)]
+    
     public class StaticStride : IStride
     {
         /// <summary>

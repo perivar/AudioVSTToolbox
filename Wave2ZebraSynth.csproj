@@ -10,17 +10,25 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
     <PlatformTarget>x86</PlatformTarget>
+    <FileAlignment>4096</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>bin\Debug\</OutputPath>
-    <DebugSymbols>True</DebugSymbols>
+    <DebugSymbols>true</DebugSymbols>
     <DebugType>Full</DebugType>
     <Optimize>False</Optimize>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <StartAction>Project</StartAction>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -78,6 +86,18 @@
     <Compile Include="Fingerprinting\MinHash.cs" />
     <Compile Include="Fingerprinting\RandomStride.cs" />
     <Compile Include="Fingerprinting\StaticStride.cs" />
+    <Compile Include="HermitGauges\AudioAnalyser.cs" />
+    <Compile Include="HermitGauges\FFTTransformer.cs" />
+    <Compile Include="HermitGauges\Gauge.cs" />
+    <Compile Include="HermitGauges\Instrument.cs" />
+    <Compile Include="HermitGauges\InstrumentPanel.cs" />
+    <Compile Include="HermitGauges\PowerGauge.cs" />
+    <Compile Include="HermitGauges\SignalPower.cs" />
+    <Compile Include="HermitGauges\SonagramGauge.cs" />
+    <Compile Include="HermitGauges\SpectrumGauge.cs" />
+    <Compile Include="HermitGauges\TextGauge.cs" />
+    <Compile Include="HermitGauges\WaveformGauge.cs" />
+    <Compile Include="HermitGauges\Window.cs" />
     <Compile Include="LomontFFT.cs" />
     <Compile Include="Model\HashSignature.cs" />
     <Compile Include="Model\Item.cs" />
@@ -94,6 +114,7 @@
     <Folder Include="DataAccess" />
     <Folder Include="Fingerprinting" />
     <Folder Include="Fingerprinting\MathUtils" />
+    <Folder Include="HermitGauges" />
     <Folder Include="Model" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />

@@ -136,7 +136,7 @@ namespace Wave2ZebraSynth
 			int c2_b = colorHighlightedSignal.B;
 
 			if (colorSpectrogram) {
-				Color c = HSBtoRGB((255 - f) / 360.0f, 1.0f,
+				Color c = HSBtoColor((255 - f) / 360.0f, 1.0f,
 				                   (float) (brightness + (1.0 - brightness) * f / 255.0));
 
 				if (selected) {
@@ -171,11 +171,7 @@ namespace Wave2ZebraSynth
 		
 		public static Color LongToColor(long color)
 		{
-			byte a = (byte)(color >> 24);
-			byte r = (byte)(color >> 16);
-			byte g = (byte)(color >> 8);
-			byte b = (byte)(color >> 0);
-			return Color.FromArgb(a, r, g, b);
+			return UIntToColor((uint) color);
 		}
 		
 		public static uint ColorToUInt(Color color)
@@ -184,15 +180,17 @@ namespace Wave2ZebraSynth
 			              (color.G << 8)  | (color.B << 0));
 		}
 		
+		// white = 0xFFFFFFFF, black = 0xFF000000
 		public static Color UIntToColor(uint color)
 		{
-			byte a = (byte)(color >> 24);
-			byte r = (byte)(color >> 16);
-			byte g = (byte)(color >> 8);
-			byte b = (byte)(color >> 0);
-			return Color.FromArgb(a, r, g, b);
+			uint transparency = (color & 0xff000000) >> 24;
+			uint red = (color & 0xff0000) >> 16;
+			uint green = (color & 0x00ff00) >> 8;
+			uint blue = color & 0x0000ff;
+			
+			return Color.FromArgb((int)transparency, (int)red, (int)green, (int)blue);
 		}
-
+		
 		public static Color GetColorGradient(float percentage)
 		{
 			if (!AColor.gradient_inited) {
@@ -332,6 +330,7 @@ namespace Wave2ZebraSynth
 		
 		// Given H,S,L in range of 0-1
 		// Returns a Color (RGB struct) in range of 0-255
+		// HSV stands for hue, saturation, and value, and is also often called HSB (B for brightness).
 		public static ColorRGB HSL2RGB(double h, double sl, double l)
 		{
 			double v;
@@ -453,13 +452,31 @@ namespace Wave2ZebraSynth
 			h /= 6.0;
 		}
 		
-		public static Color AHSBtoRGB(byte a, double h, double s, double b)
-		{
-			var color = HSBtoRGB(h, s, b);
-			return Color.FromArgb(a, color.R, color.G, color.B);
+		//public static Color AHSBtoRGB(byte a, double h, double s, double b)
+		//{
+		//	var color = HSBtoColor(h, s, b);
+		//	return Color.FromArgb(a, color.R, color.G, color.B);
+		//}
+		
+		// HSV stands for hue, saturation, and value, 
+		// and is also often called HSB (B for brightness).
+		public static Color HSVToColor(float[] paintColor) {
+			if (paintColor.Length == 3) {
+				return HSBtoColor(paintColor[0], paintColor[1], paintColor[2]);
+			} else {
+				return Color.DeepPink;
+			}
 		}
 		
-		public static Color HSBtoRGB(double h, double s, double b)
+		// HSV stands for hue, saturation, and value, 
+		// and is also often called HSB (B for brightness).
+		public static Color HSVToColor(double h, double s, double b) {
+			return HSBtoColor(h, s, b);
+		}
+		
+		// HSV stands for hue, saturation, and value, 
+		// and is also often called HSB (B for brightness).
+		public static Color HSBtoColor(double h, double s, double b)
 		{
 			if (s == 0)
 				return RawRgbToRgb(b, b, b);
