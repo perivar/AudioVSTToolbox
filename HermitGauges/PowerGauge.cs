@@ -18,7 +18,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Drawing.Drawing2D;  
+using System.Drawing.Drawing2D;
 
 namespace Wave2ZebraSynth.HermitGauges
 {
@@ -121,12 +121,12 @@ namespace Wave2ZebraSynth.HermitGauges
 			set
 			{
 				base.Geometry = value;
-								
+				
 				// Create the bitmap for the background,
 				// and the Canvas for drawing into it.
 				Bitmap bitmap = new Bitmap( value.Width, value.Height, PixelFormat.Format32bppArgb );
 				Graphics canvas = Graphics.FromImage(bitmap);
-			
+				
 				Pen pen = DrawPen;
 				
 				dispX = value.Left;
@@ -171,13 +171,13 @@ namespace Wave2ZebraSynth.HermitGauges
 					meterTextSize = (th - Split) * 0.9f;
 					//pen.TextSize = meterTextSize;
 					
-					float tw = measureText(canvas, "-100.0dB");
+					float tw = MeasureString(canvas, "-100.0dB");
 					meterTextX = (mw - tw) / 2f;
 					//meterTextY = mh - Split - pen.descent();
 					
 					meterSubTextSize = (th - meterTextSize) * 0.9f;
 					//pen.TextSize = meterSubTextSize;
-					float pw = measureText(canvas, "-100.0dB peak");
+					float pw = MeasureString(canvas, "-100.0dB peak");
 					meterSubTextX = (mw - pw) / 2f;
 					//meterSubTextY = mh - pen.descent();
 				}
@@ -222,7 +222,8 @@ namespace Wave2ZebraSynth.HermitGauges
 			float gw = bw / 10f;
 			graphics.DrawRectangle(pen, mx, by, mx + bw, by + bh);
 			for (int i = 1; i < 10; ++i)
-			{				float x = (float) i * (float) bw / 10f;
+			{
+				float x = (float) i * (float) bw / 10f;
 				graphics.DrawLine(pen, mx + x, by, mx + x, by + bh);
 			}
 
@@ -230,11 +231,11 @@ namespace Wave2ZebraSynth.HermitGauges
 			float ly = dispY + meterLabY;
 			float ls = labelSize;
 			//pen.TextSize = ls;
-			int step = (int)(measureText(graphics, "-99")) > bw / 10f - 1 ? 2 : 1;
+			int step = (int)(MeasureString(graphics, "-99")) > bw / 10f - 1 ? 2 : 1;
 			for (int i = 0; i <= 10; i += step)
 			{
 				string text = "" + (i * 10 - 100);
-				float tw = measureText(graphics, text);
+				float tw = MeasureString(graphics, text);
 				float lx = mx + i * gw + 1 - (tw / 2);
 				graphics.DrawString(text, TextFont, TextBrush, lx, ly);
 			}
@@ -497,8 +498,5 @@ namespace Wave2ZebraSynth.HermitGauges
 		// Buffer for displayed average and peak dB value texts.
 		private String dbBuffer = null;
 		private String pkBuffer = null;
-
 	}
-
-
 }

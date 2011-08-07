@@ -218,8 +218,6 @@ namespace Wave2ZebraSynth.HermitGauges
 			}
 		}
 		
-		public event EventHandler CanvasChanged;
-		
 		///
 		/// <summary> * Set the default font for all text.
 		/// *  </summary>
@@ -851,11 +849,16 @@ namespace Wave2ZebraSynth.HermitGauges
 			//graphics.restore();
 		}
 
-		/// helper function to measure number of pixles a specific string will take
-		protected float measureText(Graphics graphics, string template)
+		/// helper function to measure number of pixels a specific string will take
+		protected float MeasureString(Graphics graphics, string template)
 		{
 			return graphics.MeasureString(template, TextFont).Width;
 		}
+
+		protected System.Drawing.SizeF MeasureString(string text, System.Drawing.Font font)
+		{    
+    		return System.Drawing.Graphics.FromImage(new Bitmap(1, 1)).MeasureString(text, font);
+		}		
 
 		/// convert uint on format 0x1000001E to actual uint
 		public static uint Hex2Dec(String hexNumber) {

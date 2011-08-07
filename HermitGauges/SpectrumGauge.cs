@@ -67,7 +67,7 @@ namespace Wave2ZebraSynth.HermitGauges
 				// to show the new frequency scale.
 				if (haveBounds())
 				{
-					drawBg(bgCanvas, DrawPen);
+					drawBg(bgCanvas, bgBitmap, DrawPen);
 				}
 			}
 		}
@@ -146,7 +146,7 @@ namespace Wave2ZebraSynth.HermitGauges
 				bgBitmap = new Bitmap( dispWidth, dispHeight, PixelFormat.Format32bppArgb );
 				bgCanvas = Graphics.FromImage(bgBitmap);
 				
-				drawBg(bgCanvas, DrawPen);
+				drawBg(bgCanvas, bgBitmap, DrawPen);
 			}
 		}
 
@@ -169,10 +169,11 @@ namespace Wave2ZebraSynth.HermitGauges
 		/// * <param name="graphics"> Canvas to draw into. </param>
 		/// * <param name="pen">  The Graphics which was set up in initializePen(). </param>
 		///
-		private void drawBg(Graphics graphics, Pen pen)
+		private void drawBg(Graphics graphics, Bitmap bitmap, Pen pen)
 		{
+			graphics.Clear(Color.LightBlue);
 			SolidBrush drawBrush = new SolidBrush(AColor.UIntToColor(0xff000000));
-			graphics.FillRectangle(drawBrush, Bounds);
+			graphics.FillRectangle(drawBrush, spectGraphX, spectGraphY, spectGraphWidth, spectGraphHeight);
 			pen.Color = AColor.UIntToColor(0xffffff00);
 			pen.DashStyle = DashStyle.Dash;
 
@@ -183,7 +184,8 @@ namespace Wave2ZebraSynth.HermitGauges
 			float ey = sy + spectGraphHeight - 1;
 			float bw = spectGraphWidth - 1;
 			float bh = spectGraphHeight - 1;
-			graphics.DrawRectangle(pen, sx, sy, ex, ey);
+			//graphics.DrawRectangle(pen, sx, sy, ex, ey);
+			graphics.DrawRectangle(pen, sx, sy, bw, bh);
 			for (int i = 1; i < 10; ++i)
 			{
 				float x = (float) i * (float) bw / 10f;
@@ -198,15 +200,18 @@ namespace Wave2ZebraSynth.HermitGauges
 			// Draw the labels below the grid.
 			float ly = 0 + spectLabY;
 			//pen.TextSize = labelSize;
-			int step = measureText(graphics, "8.8k") > bw / 10f - 1 ? 2 : 1;
+			int step = MeasureString(graphics, "8.8k") > bw / 10f - 1 ? 2 : 1;
 			for (int i = 0; i <= 10; i += step)
 			{
 				int f = nyquistFreq * i / 10;
 				string text = f >= 10000 ? "" + (f / 1000) + "k" : f >= 1000 ? "" + (f / 1000) + "." + (f / 100 % 10) + "k" : "" + f;
-				float tw = measureText(graphics, text);
+				float tw = MeasureString(graphics, text);
 				float lx = sx + i * (float) bw / 10f + 1 - (tw / 2);
-				graphics.DrawString(text, TextFont, TextBrush, lx, ly);
+				//graphics.DrawString(text, TextFont, TextBrush, lx, ly);
+				graphics.DrawString(text, TextFont, TextBrush, lx, ly-20);
 			}
+
+			//bitmap.Save(@"c:\SpectrumGauge-drawBg.png");			
 		}
 
 
@@ -223,21 +228,22 @@ namespace Wave2ZebraSynth.HermitGauges
 		///
 		internal void Update(float[] data)
 		{
-			Graphics graphics = specCanvas;
-			Pen pen = DrawPen;
-
 			// Now actually do the drawing.
 			lock (this)
 			{
-				graphics.DrawImage((Image)bgBitmap, 0, 0);
+				specCanvas.DrawImage((Image)bgBitmap, 0, 0);
 				if (logFreqScale)
 				{
-					logGraph(data, graphics, pen);
+					logGraph(data, specCanvas, DrawPen);
 				}
 				else
 				{
-					linearGraph(data, graphics, pen);
+					linearGraph(data, specCanvas, DrawPen);
 				}
+				
+				// TODO : Remove temp images
+				specBitmap.Save(@"c:\SpectrumGauge-specBitmap.png");
+				bgBitmap.Save(@"c:\SpectrumGauge-bgBitmap.png");				
 			}
 		}
 
@@ -271,7 +277,7 @@ namespace Wave2ZebraSynth.HermitGauges
 			// Calculate the base frequency for the graph, which isn't lf.
 			float bf = rf / (float) Math.Pow(2, octaves);
 
-			// Element 0 isn't a frequency bucket; skip it.
+			// TODO: Old Java: Element 0 isn't a frequency bucket; skip it.
 			for (int i = 1; i < len; ++i)
 			{
 				// Cycle the hue angle from 0° to 300°; i.e. red to purple.
@@ -300,7 +306,8 @@ namespace Wave2ZebraSynth.HermitGauges
 				}
 				else
 				{
-					graphics.DrawRectangle(pen, x, y, x + bw, be);
+					//graphics.DrawRectangle(pen, x, y, bw, be-y);
+					graphics.FillRectangle(new SolidBrush(pen.Color), x, y, bw, be-y);
 				}
 			}
 		}
@@ -322,7 +329,6 @@ namespace Wave2ZebraSynth.HermitGauges
 		///
 		private void linearGraph(float[] data, Graphics graphics, Pen pen)
 		{
-			//pen.Style = Graphics.Style.FILL;
 			paintColor[1] = 1f;
 			paintColor[2] = 1f;
 			int len = data.Length;
@@ -330,7 +336,7 @@ namespace Wave2ZebraSynth.HermitGauges
 			float bh = spectGraphHeight - 2;
 			float be = spectGraphY + spectGraphHeight - 1;
 
-			// Element 0 isn't a frequency bucket; skip it.
+			// TODO: Java: Element 0 isn't a frequency bucket; skip it.
 			for (int i = 1; i < len; ++i)
 			{
 				// Cycle the hue angle from 0° to 300°; i.e. red to purple.
@@ -338,8 +344,8 @@ namespace Wave2ZebraSynth.HermitGauges
 				pen.Color = AColor.HSVToColor(paintColor);
 
 				// Draw the bar.
-				float x = spectGraphX + i * bw + 1;
-				float y = be - (float)(Math.Log10(data[i]) / RANGE_BELS + 1f) * bh;
+				float x = spectGraphX + (i * bw + 1); //  + (i * bw + 1)
+				float y = be - (float) (Math.Log10(data[i]) / RANGE_BELS + 1f) * bh;
 				if (y > be)
 				{
 					y = be;
@@ -354,7 +360,9 @@ namespace Wave2ZebraSynth.HermitGauges
 				}
 				else
 				{
-					graphics.DrawRectangle(pen, x, y, x + bw, be);
+					// canvas.drawRect(x, y, x + bw, be, paint);
+					// graphics.DrawRectangle(pen, x, y, bw, be-y);
+					graphics.FillRectangle(new SolidBrush(pen.Color), x, y, bw, be-y);
 				}
 			}
 		}

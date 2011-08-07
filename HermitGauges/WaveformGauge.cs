@@ -18,7 +18,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Drawing.Drawing2D;  
+using System.Drawing.Drawing2D;
 
 namespace Wave2ZebraSynth.HermitGauges
 {
@@ -113,8 +113,7 @@ namespace Wave2ZebraSynth.HermitGauges
 			// Now actually do the drawing.
 			lock (this)
 			{
-				SolidBrush drawBrush = new SolidBrush(AColor.UIntToColor(0xff000000));
-				graphics.FillRectangle(drawBrush, Bounds);
+				graphics.Clear(AColor.UIntToColor(0xff000000));
 
 				// Draw the axes.
 				pen.Color = AColor.UIntToColor(0xffffff00);
@@ -132,6 +131,9 @@ namespace Wave2ZebraSynth.HermitGauges
 					float y = baseY - (buffer[off + i] - bias) * scale;
 					graphics.DrawLine(pen, x, baseY, x, y);
 				}
+				
+				// TODO : Remove temp images
+				waveBitmap.Save(@"c:\WaveformGauge-waveBitmap.png");
 			}
 		}
 
@@ -166,10 +168,7 @@ namespace Wave2ZebraSynth.HermitGauges
 		// ******************************************************************** //
 
 		// Debugging tag.
-		//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-		//ORIGINAL LINE: @SuppressWarnings("unused") private static final String TAG = "instrument";
 		private const string TAG = "instrument";
-
 
 		// ******************************************************************** //
 		// Private Data.
@@ -187,6 +186,5 @@ namespace Wave2ZebraSynth.HermitGauges
 		private Graphics waveCanvas = null;
 
 	}
-
 
 }

@@ -88,7 +88,7 @@ namespace Wave2ZebraSynth.HermitGauges
 				// to show the new frequency scale.
 				if (haveBounds())
 				{
-					drawBg(bgCanvas, DrawPen);
+					drawBg(bgCanvas, bgBitmap, DrawPen);
 				}
 			}
 		}
@@ -147,6 +147,7 @@ namespace Wave2ZebraSynth.HermitGauges
 				int mh = dispHeight;
 				if (labelSize == 0f)
 				{
+					// TODO: converted from java - why 24f?
 					labelSize = mw / 24f;
 				}
 				
@@ -170,7 +171,7 @@ namespace Wave2ZebraSynth.HermitGauges
 				bgBitmap = new Bitmap( dispWidth, dispHeight, PixelFormat.Format32bppArgb );
 				bgCanvas = Graphics.FromImage(bgBitmap);
 				
-				drawBg(bgCanvas, DrawPen);
+				drawBg(bgCanvas, bgBitmap, DrawPen);
 			}
 		}
 
@@ -193,12 +194,13 @@ namespace Wave2ZebraSynth.HermitGauges
 		/// * <param name="graphics"> Canvas to draw into. </param>
 		/// * <param name="pen">  The Graphics which was set up in initializePen(). </param>
 		///
-		private void drawBg(Graphics graphics, Pen pen)
+		private void drawBg(Graphics graphics, Bitmap bitmap, Pen pen)
 		{			
 			float lx;
 			float ly;
+			graphics.Clear(Color.LightBlue);
 			SolidBrush drawBrush = new SolidBrush(AColor.UIntToColor(0xff000000));
-			graphics.FillRectangle(drawBrush, Bounds);
+			graphics.FillRectangle(drawBrush, sonaGraphX, sonaGraphY, sonaGraphWidth, sonaGraphHeight);
 
 			pen.Color = AColor.UIntToColor(0xffffff00);
 			pen.DashStyle = DashStyle.Dash;
@@ -216,22 +218,31 @@ namespace Wave2ZebraSynth.HermitGauges
 				int f = nyquistFreq * i / 10;
 				string text = f >= 10000 ? "" + (f / 1000) + "k" : f >= 1000 ? "" + (f / 1000) + "." + (f / 100 % 10) + "k" : "" + f;
 				ly = sy + bh - i * (float) bh / 10f + 1;
+				// label
 				graphics.DrawString(text, TextFont, TextBrush, lx + 7, ly + labelSize/3);			
+				// ticks
 				graphics.DrawLine(pen, lx, ly, lx+3, ly);
 			}
 
 			// Draw time.
-			ly = sy + bh + labelSize + 1;
+			//ly = sy + bh + labelSize + 1; // OLD java version - draws offscreen?!
+			ly = sy + bh + (labelSize/2);
 			float totaltime =(float)Math.Floor(bw*period);
 			for (int i = 0; i <= 9; i += 1)
 			{
 				float time = totaltime * i / 10;
 				string text = "" + time + "s";
-				float tw = measureText(graphics, text);
+				float tw = MeasureString(graphics, text);
 				lx = sx + i * (float) bw / 10f + 1;
-				graphics.DrawString(text, TextFont, TextBrush, lx - (tw / 2), ly);
-				graphics.DrawLine(pen, lx, sy + bh-1, lx, sy + bh + 2);
+				// label string x position
+				float lxs = lx - (tw / 2); // OLD java version - draws offscreen?!
+				if (lxs < 0) lxs = 0;
+				graphics.DrawString(text, TextFont, TextBrush, lxs, ly);
+				//graphics.DrawString(text, TextFont, TextBrush, lx - (tw / 2), ly);
+				graphics.DrawLine(pen, lx, sy + bh - 1, lx, sy + bh + 2);
 			}
+			
+			//bitmap.Save(@"c:\SonogramGauge-drawBg.png");			
 		}
 
 
@@ -248,21 +259,23 @@ namespace Wave2ZebraSynth.HermitGauges
 		///
 		internal void Update(float[] data)
 		{
-			Graphics graphics = finalCanvas;
-			Pen pen = DrawPen;
-
 			// Now actually do the drawing.
 			lock (this)
 			{
 				//Background
-				graphics.DrawImage((Image)bgBitmap, 0, 0);
+				finalCanvas.DrawImage((Image)bgBitmap, 0, 0);
 				
 				//Scroll
 				sonaCanvas.DrawImage((Image)sonaBitmap, 1, 0);
 
 				//Add Current Data
-				linearGraph(data, sonaCanvas, pen);
-				graphics.DrawImage((Image)sonaBitmap, sonaGraphX, sonaGraphY);
+				linearGraph(data, sonaCanvas, DrawPen);
+				finalCanvas.DrawImage((Image)sonaBitmap, sonaGraphX, sonaGraphY);
+				
+				// TODO : Remove temp images
+				finalBitmap.Save(@"c:\SonogramGauge-finalBitmap.png");
+				sonaBitmap.Save(@"c:\SonogramGauge-sonaBitmap.png");
+				bgBitmap.Save(@"c:\SonogramGauge-bgBitmap.png");
 			}
 		}
 
@@ -277,6 +290,7 @@ namespace Wave2ZebraSynth.HermitGauges
 		private void linearGraph(float[] data, Graphics graphics, Pen pen)
 		{
 			//pen.Style = Graphics.Style.FILL;
+			pen.DashStyle = DashStyle.Solid;
 			int len = data.Length;
 			float bh = (float) sonaGraphHeight / (float) len;
 
@@ -301,7 +315,7 @@ namespace Wave2ZebraSynth.HermitGauges
 
 				if (bh <= 1.0f)
 				{
-					graphics.DrawEllipse(pen, 0, y, 1, 1);
+					graphics.DrawEllipse(pen, 0, y, 2, 2);
 				}
 				else
 				{

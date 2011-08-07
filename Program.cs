@@ -37,7 +37,7 @@ namespace Wave2ZebraSynth
 		public static void Main(string[] args)
 		{
 			InstrumentPanel panel = new InstrumentPanel(800, 600);
-			panel.Instrument = InstrumentPanel.Instruments.SONAGRAM;
+			panel.Instrument = InstrumentPanel.Instruments.SPECTRUM_P_W;
 			AudioAnalyser analyser = panel.AudioAnalyser;
 			
 			//String fileName = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl\01. Only Girl (In The World).mp3";
@@ -63,7 +63,7 @@ namespace Wave2ZebraSynth
 			//exportCSV (@"c:\VB6-magnitude.csv", magnitude);
 						
         	// Lomont FFT
-        	double sampleRate = 5512;// 44100  default 5512 
+        	double sampleRate = 44100;// 44100  default 5512 
 			int fftWindowsSize = 2048; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
 			int fftOverlap = 64;
 			float[] wavData = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, 15*1000, 20*1000 );
@@ -74,7 +74,9 @@ namespace Wave2ZebraSynth
 				short s = (short) d;
 				shortData[z] = s; 
 			}
+			analyser.SampleRate = (int) sampleRate;
 			analyser.ProcessAudio(shortData);
+			return;
 			float[][] lomontSpectrogram = CreateSpectrogram(wavData, sampleRate, fftWindowsSize, fftOverlap);
 			repositoryGateway.drawSpectrogram2("LomontSpectrum", fileName, lomontSpectrogram);
 			//exportCSV (@"c:\LomontSpectrogram-full-not-normalized.csv", lomontSpectrogram);

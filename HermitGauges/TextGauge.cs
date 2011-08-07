@@ -266,7 +266,7 @@ namespace Wave2ZebraSynth.HermitGauges
 			int x = bounds.Left;
 			for (int i = 0; i < nf; ++i)
 			{
-				int len = (int) Math.Ceiling(measureText(canvas, fieldTemplate[i]));
+				int len = (int) Math.Ceiling(MeasureString(canvas, fieldTemplate[i]));
 				int lp = i > 0 ? textPadLeft : marginLeft;
 				int rp = i < nf - 1 ? textPadRight : marginRight;
 				colsX[i] = x + lp;
