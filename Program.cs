@@ -1,11 +1,8 @@
 ﻿/*
- * Created by SharpDevelop.
- * User: perivar.nerseth
+ * The goal of this project is to be able to take a wave sample and create a synth preset for u-he Zebra 2 synth from that
  * Date: 27.07.2011
  * Time: 12:13
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
+*/
 using System;
 using System.Collections.Generic;
 
