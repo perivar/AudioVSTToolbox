@@ -267,15 +267,15 @@ namespace Wave2ZebraSynth.HermitGauges
 			float be = spectGraphY + spectGraphHeight - 1;
 
 			// Determine the first and last frequencies we have.
-			float lf = nyquistFreq / len;
-			float rf = nyquistFreq;
+			float leftFrequency = nyquistFreq / len;
+			float rightFrequency = nyquistFreq;
 
 			// Now, how many octaves is that. Round down. Calculate pixels/oct.
-			int octaves = (int) Math.Floor(log2(rf / lf)) - 2;
+			int octaves = (int) Math.Floor(log2(rightFrequency / leftFrequency)) - 2;
 			float octWidth = (float)(spectGraphWidth - 2) / (float) octaves;
 
-			// Calculate the base frequency for the graph, which isn't lf.
-			float bf = rf / (float) Math.Pow(2, octaves);
+			// Calculate the base frequency for the graph, which isn't leftFrequency.
+			float baseFrequency = rightFrequency / (float) Math.Pow(2, octaves);
 
 			// TODO: Old Java: Element 0 isn't a frequency bucket; skip it.
 			for (int i = 1; i < len; ++i)
@@ -285,10 +285,10 @@ namespace Wave2ZebraSynth.HermitGauges
 				pen.Color = AColor.HSVToColor(paintColor);
 
 				// What frequency bucket are we in.
-				float f = lf * i;
+				float f = leftFrequency * i;
 
 				// For freq f, calculate x.
-				float x = spectGraphX + (float)(log2(f) - log2(bf)) * octWidth;
+				float x = spectGraphX + (float)(log2(f) - log2(baseFrequency)) * octWidth;
 
 				// Draw the bar.
 				float y = be - (float)(Math.Log10(data[i]) / RANGE_BELS + 1f) * bh;
@@ -418,7 +418,7 @@ namespace Wave2ZebraSynth.HermitGauges
 		private int nyquistFreq = 0;
 
 		// If true, draw a logarithmic frequency scale. Otherwise linear.
-		private bool logFreqScale = false;
+		private bool logFreqScale = true;
 
 		// Display position and size within the parent view.
 		private int dispX = 0;

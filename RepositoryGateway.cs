@@ -628,7 +628,7 @@ namespace Wave2ZebraSynth
 			}
 		}
 
-		public void drawSpectrogram2(String prefix, String filename, float[][] data) {
+		public void drawSpectrogram2(String prefix, String filename, float[][] data, double sampleRate, double fftWindowsSize) {
 			try {
 				VB6Spectrogram vb6Spectrogram = new VB6Spectrogram();
 				vb6Spectrogram.ComputeColorPalette();
@@ -643,8 +643,8 @@ namespace Wave2ZebraSynth
 				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
 				Graphics g = Graphics.FromImage(png);
 
-				Axis.drawAxis(Axis.X_AXIS, 10, 5, 1, numberOfSamplesX+1, 50, width-50, 50, false, height, g);
-				Axis.drawAxis(Axis.Y_AXIS, 10, 5, 1, numberOfSamplesY+1, 50, height-50, 50, true, height, g);
+				Axis.drawAxis(Axis.X_AXIS, 10, 5, 0, (float)Program.ConvertIndexToTime(sampleRate, (int)numberOfSamplesX), 50, width-50, 50, false, height, g);
+				Axis.drawAxis(Axis.Y_AXIS, 10, 5, 0, (float)(sampleRate/2), 50, height-50, 50, true, height, g);
 				
 				for(int x = 0; x < numberOfSamplesX; x++)
 				{
@@ -789,23 +789,6 @@ namespace Wave2ZebraSynth
 			}
 		}
 		#endregion
-		
-		// Color conversion
-		public static Color IntToColor(int number) {
-			byte[] values = BitConverter.GetBytes(number);
-			
-			if (!BitConverter.IsLittleEndian) Array.Reverse(values);
-			
-			// The array will have four bytes. The first three bytes contain your number:
-			byte b = values[0];
-			byte g = values[1];
-			byte r = values[2];
-			
-			Color c = Color.FromArgb( r, g, b );
-			return c;
-		}
-		
-		
-		
+				
 	}
 }

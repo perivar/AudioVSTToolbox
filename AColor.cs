@@ -163,6 +163,7 @@ namespace Wave2ZebraSynth
 
 		}
 
+		// HELPER FUNCTIONS
 		public static long ColorToLong(Color color)
 		{
 			return (long)((color.A << 24) | (color.R << 16) |
@@ -190,6 +191,23 @@ namespace Wave2ZebraSynth
 			
 			return Color.FromArgb((int)transparency, (int)red, (int)green, (int)blue);
 		}
+		
+		// Color conversion
+		public static Color IntToColor(int number) {
+			byte[] values = BitConverter.GetBytes(number);
+			
+			if (!BitConverter.IsLittleEndian) Array.Reverse(values);
+			
+			// The array will have four bytes. The first three bytes contain your number:
+			byte b = values[0];
+			byte g = values[1];
+			byte r = values[2];
+			
+			Color c = Color.FromArgb( r, g, b );
+			return c;
+		}
+
+		
 		
 		public static Color GetColorGradient(float percentage)
 		{
