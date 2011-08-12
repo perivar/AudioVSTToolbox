@@ -98,7 +98,7 @@ namespace Wave2ZebraSynth
 						// set up one column of the spectrogram
 						for (c = 0; c < fftWindowsSize / 2.0; c++)
 						{
-								Pixelmatrix[c, col] = (byte) MapToPixelindex(magnitude[c], RangedB, RangePaletteIndex);
+							Pixelmatrix[c, col] = (byte) MapToPixelindex(magnitude[c], RangedB, RangePaletteIndex);
 						}
 					}
 

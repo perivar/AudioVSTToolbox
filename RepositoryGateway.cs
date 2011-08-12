@@ -340,6 +340,77 @@ namespace Wave2ZebraSynth
 				System.Diagnostics.Debug.WriteLine(ex);
 			}
 		}
+		
+		public void drawWaveform2( string prefix, string filename, float[] data, bool sampleBitMono) {
+			try {
+				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
+				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
+				
+				int width = 1200;
+				int height = 200;
+				int numberOfSamples = data.Length;
+				
+				Bitmap png = new Bitmap( width, height, PixelFormat.Format32bppArgb );
+				Graphics g = Graphics.FromImage(png);
+				
+				Pen pen = new Pen(Color.LightGreen, 1);
+				
+				float X_Slot = (float) (0.8 * width / 10);
+				float Y_Slot = (float) (0.8 * height / 10);
+				float X = 0;
+				float Y = 0;
+				float X_0 = (float) (width * 0.1);
+				float X_1 = (float) (width * 0.9);
+				float Y_0 = (float) (height * 0.1);
+				float Y_1 = (float) (height * 0.9);
+				float X_Unit = 1;
+				float Y_Unit = 0;
+				
+				if (sampleBitMono) {
+					Y_Unit = (float) (0.8 * height / 256);
+					for (int i = 0; i < data.Length; i++) {
+						data[i] = data[i] + 128;
+					}
+				} else {
+					Y_Unit = (float) (0.8 * height / 65536);
+					for (int i = 0; i < data.Length; i++) {
+						data[i] = data[i] + 32768;
+					}
+				}
+
+				g.Clear(Color.LightGray);
+				g.DrawLine(Pens.Black, X_0, Y_0, X_0, Y_1);
+				g.DrawLine(Pens.Black, X_0, Y_1, X_1, Y_1);
+				
+				for (int i = 1; i < 10; i++) {
+					g.DrawLine(Pens.DarkGray, X_0, Y_0 + (i * Y_Slot), X_1, Y_0 + (i * Y_Slot));
+					g.DrawLine(Pens.DarkGray, X_0 + (i * X_Slot), Y_0, X_0 + (i * X_Slot), Y_1);
+				}
+
+				pen.Width = 2.0F;
+				g.DrawLine(pen, X_0, Y_0 + (5 * Y_Slot), X_1, Y_0 + (5 * Y_Slot));
+				g.DrawLine(pen, X_0 + (5 * X_Slot), Y_0, X_0 + (5 * X_Slot), Y_1);
+					
+				X_Unit = (float) (0.8 * width / data.Length);
+				
+				PointF[] pointArray = new PointF[data.Length];
+				for (int i = 0; i < data.Length; i++) {
+					X = X_0 + (i * X_Unit);
+					Y = Y_1 - (data[i] * Y_Unit);
+					pointArray[i] = new PointF(X, Y);
+				}
+				
+				g.DrawLines(Pens.DarkBlue, pointArray);
+				g.Flush();
+
+				// base line
+				png.Save(filenameToSave);
+				g.Dispose();
+			} catch (Exception ex) {
+				System.Diagnostics.Debug.WriteLine(ex);
+			}
+		}
+		
 		#endregion
 		
 		#region spectrum
@@ -541,9 +612,9 @@ namespace Wave2ZebraSynth
 			}
 		}
 
-		public double RoundDown(double number, int decimalPlaces)
+		public static double RoundDown(double number, int decimalPlaces)
 		{
-		    return Math.Floor(number * Math.Pow(10, decimalPlaces)) / Math.Pow(10, decimalPlaces);
+			return Math.Floor(number * Math.Pow(10, decimalPlaces)) / Math.Pow(10, decimalPlaces);
 		}
 		
 		// see https://code.google.com/p/jstk/source/browse/trunk/jstk/src/de/fau/cs/jstk/?r=154#jstk%2Fvc
@@ -558,7 +629,7 @@ namespace Wave2ZebraSynth
 				int height = 600;
 				int maxYIndex = height - 1;
 				double numberOfSamplesX = data.Length;
-				double numberOfSamplesY = data[0].Length;			
+				double numberOfSamplesY = data[0].Length;
 				
 				double horizontalScaleFactor = (double) width / numberOfSamplesX;
 				double verticalScaleFactor = (double) height/ numberOfSamplesY;
@@ -569,7 +640,7 @@ namespace Wave2ZebraSynth
 				
 				int incrementY = (int) (numberOfSamplesY / (numberOfSamplesY * verticalScaleFactor));
 				if (incrementY == 0) incrementY = 1;
-								
+				
 				// prepare the data:
 				double maxVal = double.MinValue;
 				double minVal = double.MaxValue;
@@ -587,7 +658,7 @@ namespace Wave2ZebraSynth
 
 				double minIntensity = Math.Abs(minVal);
 				double maxIntensity = maxVal + minIntensity;
-								
+				
 				/* Create the image for displaying the data.
 				 */
 				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
@@ -611,7 +682,7 @@ namespace Wave2ZebraSynth
 
 						float f = data[i][j];
 						double d = (f + minIntensity) * scaleFactor;
-												
+						
 						Color c = Color.White;
 						int RangedB = 100;
 						int RangePaletteIndex = 255;
@@ -638,7 +709,7 @@ namespace Wave2ZebraSynth
 				int width = 1000;
 				int height = 600;
 				float numberOfSamplesX = data.Length;
-				float numberOfSamplesY = data[0].Length;			
+				float numberOfSamplesY = data[0].Length;
 
 				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
 				Graphics g = Graphics.FromImage(png);
@@ -659,7 +730,7 @@ namespace Wave2ZebraSynth
 						int RangePaletteIndex = 255;
 						byte vb6Index = (byte) VB6Spectrogram.MapToPixelindex(f, RangedB, RangePaletteIndex);
 						c = vb6Spectrogram.LevelPalette2[vb6Index];
-						if (x1 > 0 && x1 < width && y1 > 0 && y1 < height) 
+						if (x1 > 0 && x1 < width && y1 > 0 && y1 < height)
 							png.SetPixel(x1+50, height - y1 - 50, c);
 					}
 				}
@@ -789,6 +860,6 @@ namespace Wave2ZebraSynth
 			}
 		}
 		#endregion
-				
+		
 	}
 }

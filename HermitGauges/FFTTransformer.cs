@@ -357,7 +357,7 @@ namespace Wave2ZebraSynth.HermitGauges
 			return count;
 		}
 
-		private bool IsPowerOf2(int num) {
+		public static bool IsPowerOf2(int num) {
 			return num > 0 && (num & (num - 1)) == 0;
 		}
 
