@@ -1,10 +1,11 @@
 ﻿/*
- * Created by SharpDevelop.
- * User: perivar.nerseth
- * Date: 02.08.2011
- * Time: 19:30
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
+// -----------------------------------------------------------------------
+// Fourier.bas
+// Fourier transform and related operations
+// 
+// This file is part of the DynaPlot sample application Spectrogram
+// Wilhelm Kurz, 2001
+// -----------------------------------------------------------------------
  */
 using System;
 
@@ -24,16 +25,17 @@ namespace Wave2ZebraSynth
         public const double W0Hamming = 0.54;
         public const double W0Blackman = 0.42;
         
-        public static void MagnitudeSpectrum(double[] real, double[] imag, long arraysize, double W0, double[] magnitude)
+        public static void MagnitudeSpectrum(double[] real, double[] imag, long arraysize, double W0, out float[] magnitude)
         {
-            long i = 0;
+			magnitude = new float[arraysize / 2];
+        	long i = 0;
 
-            magnitude[0] = Math.Sqrt(SquareSum(real[0], imag[0]));
+            magnitude[0] = (float) Math.Sqrt(SquareSum(real[0], imag[0]));
             for(i = 1;
                 i <= arraysize / 2.0 - 1.0;
                 i = Convert.ToInt64(i + 1))
             {
-                magnitude[i] = (Math.Sqrt(SquareSum(real[i], imag[i]) + SquareSum(real[arraysize - i], imag[arraysize - i]))) / W0;
+            	magnitude[i] = (float)((Math.Sqrt(SquareSum(real[i], imag[i]) + SquareSum(real[arraysize - i], imag[arraysize - i]))) / W0);
             }
         }
 

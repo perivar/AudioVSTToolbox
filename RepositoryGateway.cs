@@ -687,7 +687,7 @@ namespace Wave2ZebraSynth
 						int RangedB = 100;
 						int RangePaletteIndex = 255;
 						byte vb6Index = (byte) VB6Spectrogram.MapToPixelindex(f, RangedB, RangePaletteIndex);
-						c = vb6Spectrogram.LevelPalette2[vb6Index];
+						c = vb6Spectrogram.LevelPaletteDictionary[vb6Index];
 						png.SetPixel(x, maxYIndex - y, c);
 					}
 				}
@@ -729,7 +729,7 @@ namespace Wave2ZebraSynth
 						int RangedB = 100;
 						int RangePaletteIndex = 255;
 						byte vb6Index = (byte) VB6Spectrogram.MapToPixelindex(f, RangedB, RangePaletteIndex);
-						c = vb6Spectrogram.LevelPalette2[vb6Index];
+						c = vb6Spectrogram.LevelPaletteDictionary[vb6Index];
 						if (x1 > 0 && x1 < width && y1 > 0 && y1 < height)
 							png.SetPixel(x1+50, height - y1 - 50, c);
 					}

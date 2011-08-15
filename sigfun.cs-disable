@@ -1,0 +1,369 @@
+﻿/*
+ * 
+ *  Implementation of signal processing functions
+ *  Tony Ottosson, Thomas Eriksson, Pal Frenger, and Tobias Ringstrom
+ *
+ * -------------------------------------------------------------------------
+ *
+ * Copyright (C) 1995-2010  (see AUTHORS file for a list of contributors)
+ *
+ * This file is part of IT++ - a C++ library of mathematical, signal
+ * processing, speech processing, and communications classes and functions.
+ *
+ * IT++ is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * IT++ is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with IT++.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * -------------------------------------------------------------------------
+ */
+using System;
+
+namespace Wave2ZebraSynth.HermitGauges
+{
+	
+	public static class sigfun
+	{
+		
+		/*!
+		  \brief Cross-correlation calculation
+		
+		  \c z=xcorr(x,y,max_lag), where \a x and \a y are length \a M vectors \a (M>1), returns the length \c 2*max_lag+1
+		  cross-correlation sequence \a z. (lags: \c -max_lag,...,0,...,max_lag)
+		
+		  For \c max_lag=-1 the cross-correlation sequence is of length \c 2*M-1, i.e., the cross-correlation for all possible lags.
+		
+		  Scaling options \a scaleopt:
+		  \arg \a none \c => No scaling of the cross-correlation vector
+		  \arg \a biased \c => Scales the cross-correlation vector by \c 1/M
+		  \arg \a unbiased \c => Scales the cross-correlation vector by \c 1/(M-abs(lag))
+		  \arg \a coeff \c => Normalises the cross-correlation to 1 for zero lag.
+		
+		  \note \c max_lag \c <= \c M-1
+		  \note If \c x and \c y are of different length, the shortest one is zero-padded
+		
+		  \param x (Input) Vector of samples
+		  \param y (Input) Vector of samples
+		  \param out (Output) The cross correlation between \a x and \a y.
+		  \param max_lag (Input) Maximum lag for which the cross-correlation is calculated. The output vector is of size \c 2*maxlag+1.
+		  Default value: \c max_lag=-1 calculates the cross-correlations for all possible lags
+		  \param scaleopt (Input) Indicates how the cross-correlation function should be scaled. Default value: \c "none" indicates that no scaling is done
+		 */
+		public static double[] xcorr(double[] x, int max_lag, string scaleopt)
+		{
+			double[] outArray = new double[2 * x.Length - 1] ; //Initial size does ont matter, it will get adjusted
+			xcorr(x, x, ref outArray, max_lag, scaleopt, true);
+			return outArray;
+		}
+
+		/*!
+		  \brief Cross-correlation calculation
+		
+		  \c z=xcorr(x,y,max_lag), where \a x and \a y are length \a M vectors \a (M>1), returns the length \c 2*max_lag+1
+		  cross-correlation sequence \a z. (lags: \c -max_lag,...,0,...,max_lag)
+		
+		  For \c max_lag=-1 the cross-correlation sequence is of length \c 2*M-1, i.e., the cross-correlation for all possible lags.
+		
+		  Scaling options \a scaleopt:
+		  \arg \a none \c => No scaling of the cross-correlation vector
+		  \arg \a biased \c => Scales the cross-correlation vector by \c 1/M
+		  \arg \a unbiased \c => Scales the cross-correlation vector by \c 1/(M-abs(lag))
+		  \arg \a coeff \c => Normalises the cross-correlation to 1 for zero lag.
+		
+		  \note \c max_lag \c <= \c M-1
+		  \note If \c x and \c y are of different length, the shortest one is zero-padded
+		
+		  \param x (Input) Vector of samples
+		  \param y (Input) Vector of samples
+		  \param max_lag (Input) Maximum lag for which the cross-correlation is calculated. The output vector is of size \c 2*maxlag+1.
+		  Default value: \c max_lag=-1 calculates the cross-correlations for all possible lags
+		  \param scaleopt (Input) Indicates how the cross-correlation function should be scaled. Default
+		  value: \c "none" indicates that no scaling is done
+		  \returns The cross correlation between \a x and \a y.
+		 */
+		public static double[] xcorr(double[] x, double[] y, int max_lag, string scaleopt)
+		{
+			double[] outArray = new double[2 * x.Length - 1] ; //Initial size does ont matter, it will get adjusted
+			xcorr(x, y, ref outArray, max_lag, scaleopt, false);
+			return outArray;
+		}
+		
+		/*!
+		  \brief Auto-correlation calculation
+		
+		  \c z=xcorr(x,max_lag), where \a x and is a length \a M vector \a (M>1), returns the length \c 2*max_lag+1 auto-correlation
+		  sequence \a z. (lags: \c -max_lag,...,0,...,max_lag)
+		
+		  For \c max_lag=-1 the auto-correlation sequence is of length \c 2*M-1, i.e., the cross correlation for all possible lags.
+		
+		  Scaling options \a scaleopt:
+		  \arg \a none \c => No scaling of the auto-correlation vector
+		  \arg \a biased \c => Scales the auto-correlation vector by \c 1/M
+		  \arg \a unbiased \c => Scales the auto-correlation vector by \c 1/(M-abs(lag))
+		  \arg \a coeff \c => Normalises the auto-correlation so that \c acf(x)=1 for zero lag.
+		
+		  \note \c max_lag \c <= \c M-1
+		
+		  \param x (Input) Vector of samples
+		  \param max_lag (Input) Maximum lag for which the auto-correlation is calculated. The output vector is of size \c 2*maxlag+1.
+		  Default value \c max_lag=-1 calculates the auto-correlations for all possible lags.
+		  \param scaleopt (Input) Indicates how the auto-correlation function should be scaled.
+		  Default value: \c "none" indicates that no scaling is done.
+		  \returns The auto-correlation of \a x.
+		 */
+		public static void xcorr(double[] x, double[] y, ref double[] outArray, int max_lag, string scaleopt)
+		{
+			xcorr(x, y, ref outArray, max_lag, scaleopt, false);
+		}
+
+		//Correlation
+		public static void xcorr(double[] x, double[] y, ref double[] outArray, int max_lag, string scaleopt, bool autoflag)
+		{
+			int N = Math.Max(x.Length, y.Length);
+
+			//Compute the FFT size as the "next power of 2" of the input vector's length (max)
+			int b = ceil_i(global::log2(2.0 * N - 1));
+			int fftsize = pow2i(b);
+
+			int end = fftsize - 1;
+
+			double[] temp2 = new double[];
+			if (autoflag == true)
+			{
+				//Take FFT of input vector
+				double[] X = GlobalMembersTransforms.fft(zero_pad(x, fftsize));
+
+				//Compute the abs(X).^2 and take the inverse FFT.
+				temp2 = GlobalMembersTransforms.ifft(elem_mult(X, conj(X)));
+			}
+			else
+			{
+				//Take FFT of input vectors
+				double[] X = GlobalMembersTransforms.fft(zero_pad(x, fftsize));
+				double[] Y = GlobalMembersTransforms.fft(zero_pad(y, fftsize));
+
+				//Compute the crosscorrelation
+				temp2 = GlobalMembersTransforms.ifft(elem_mult(X, conj(Y)));
+			}
+
+			// Compute the total number of lags to keep. We truncate the maximum number of lags to N-1.
+			int maxlag;
+			if ((max_lag == -1) || (max_lag >= N))
+				maxlag = N - 1;
+			else
+				maxlag = max_lag;
+
+
+			//Move negative lags to the beginning of the vector. Drop extra values from the FFT/IFFt
+			if (maxlag == 0)
+			{
+				outArray.set_size(1, false);
+				outArray = temp2(0);
+			}
+			else
+				outArray = concat(temp2(end - maxlag + 1, end), temp2(0, maxlag));
+
+
+			//Scale data
+			if (scaleopt == "biased")
+				//out = out / static_cast<double_complex>(N);
+				outArray = @out / (std.complex<double>)(N);
+			else if (scaleopt == "unbiased")
+			{
+				//Total lag vector
+				double[] lags = linspace(-maxlag, maxlag, 2 * maxlag + 1);
+				double[] scale = to_cvec((double)(N) - Math.Abs(lags));
+				outArray /= scale;
+			}
+			else if (scaleopt == "coeff")
+			{
+				if (autoflag == true) // Normalize by Rxx(0)
+					outArray /= out(maxlag);
+				else //Normalize by sqrt(Rxx(0)*Ryy(0))
+				{
+					double rxx0 = sum(Math.Abs(elem_mult(x, x)));
+					double ryy0 = sum(Math.Abs(elem_mult(y, y)));
+					outArray /= Math.Sqrt(rxx0 * ryy0);
+				}
+			}
+			else if (scaleopt == "none")
+			{
+			}
+			else
+				it_warning("Unknow scaling option in XCORR, defaulting to <none> ");
+
+		}
+
+		/*!
+		  \brief Covariance matrix calculation
+		
+		  Calculates the covariance matrix of the observations in the matrix \f$X\f$. Each
+		  row is an observation and each column represents a variable.
+		
+		  The covariance is normalized with the number of observations \f$N\f$.
+		  The mean value is removed before calculation.
+		
+		  Set is_zero_mean if X already has zero mean.
+		 */
+		/*
+		public static mat cov(mat X, bool is_zero_mean)
+		{
+			int d = X.cols();
+			int n = X.rows();
+			mat R = new mat(d, d);
+			mat m2 = new mat(n, d);
+			double[] tmp = new double[]();
+
+			R = 0.0;
+
+			if (!is_zero_mean)
+			{
+				// Compute and remove mean
+				for (int i = 0; i < d; i++)
+				{
+					tmp = X.get_col(i);
+					m2.set_col(i, tmp - mean(tmp));
+				}
+
+				// Calc corr matrix
+				for (int i = 0; i < d; i++)
+				{
+					for (int j = 0; j <= i; j++)
+					{
+						for (int k = 0; k < n; k++)
+						{
+							R(i, j) += m2(k, i) * m2(k, j);
+						}
+						R(j, i) = R(i, j); // When i=j this is unnecassary work
+					}
+				}
+			}
+			else
+			{
+				// Calc corr matrix
+				for (int i = 0; i < d; i++)
+				{
+					for (int j = 0; j <= i; j++)
+					{
+						for (int k = 0; k < n; k++)
+						{
+							R(i, j) += X(k, i) * X(k, j);
+						}
+						R(j, i) = R(i, j); // When i=j this is unnecassary work
+					}
+				}
+			}
+			R /= n;
+
+			return R;
+		}
+		*/
+
+		/*!
+		  \brief Power spectrum calculation
+		
+		  Calculates the power spectrum using the Welch method and a Hanning window.
+		 */
+		public static double[] spectrum(double[] v, int nfft, int noverlap)
+		{
+			System.Diagnostics.Debug.Assert(HermitGauges.FFTTransformer.IsPowerOf2(nfft), "The window size (nfft) must be a power of two in spectrum()!");
+
+			double[] P = new double[nfft / 2 + 1];
+			double[] w = new double[nfft];
+			double[] wd = new double[nfft];
+
+			//P = 0.0;
+			w = GlobalMembersWindow.hanning(nfft);
+			double w_energy = nfft == 1 ? 1 : (nfft + 1) * .375; // Hanning energy
+
+			if (nfft > v.Length)
+			{
+				//P = sqr(Math.Abs(GlobalMembersTransforms.fft(to_cvec(elem_mult(zero_pad(v, nfft), w)))(0, nfft / 2)));
+				//P /= w_energy;
+			}
+			else
+			{
+				int k = (v.Length - noverlap) / (nfft - noverlap);
+				int idx = 0;
+				for (int i = 0; i < k; i++)
+				{
+					wd = elem_mult(v(idx, idx + nfft - 1), w);
+					P += sqr(Math.Abs(GlobalMembersTransforms.fft(to_cvec(wd))(0, nfft / 2)));
+					idx += nfft - noverlap;
+				}
+				//P /= k * w_energy;
+			}
+
+			Array.Resize<double>(P, nfft / 2 + 1);
+			return P;
+		}
+
+		/*!
+		  \brief Power spectrum calculation
+		  Calculates the power spectrum using using the Welch method and the supplied window w.
+		 */
+		public static double[] spectrum(double[] v, double[] w, int noverlap)
+		{
+			int nfft = w.Length;
+			System.Diagnostics.Debug.Assert(HermitGauges.FFTTransformer.IsPowerOf2(nfft), "The window size must be a power of two in spectrum()!");
+
+			double[] P = new double[nfft / 2 + 1];
+			double[] wd = new double[nfft];
+
+			//P = 0.0;
+			//double w_energy = energy(w);
+
+			if (nfft > v.Length)
+			{
+				//P = sqr(Math.Abs(GlobalMembersTransforms.fft(to_cvec(elem_mult(zero_pad(v, nfft), w)))(0, nfft / 2)));
+				//P /= w_energy;
+			}
+			else
+			{
+				int k = (v.Length - noverlap) / (nfft - noverlap);
+				int idx = 0;
+				for (int i = 0; i < k; i++)
+				{
+					wd = elem_mult(v(idx, idx + nfft - 1), w);
+					P += sqr(Math.Abs(GlobalMembersTransforms.fft(to_cvec(wd))(0, nfft / 2)));
+					idx += nfft - noverlap;
+				}
+				//P /= k * w_energy;
+			}
+
+			P.set_size(nfft / 2 + 1, true);
+			return P;
+		}
+
+		/*!
+		  \brief Power spectrum calculation of a filter
+		  Calculates the power spectrum of a filter with transfer function a(z)
+		 */
+		public static double[] filter_spectrum(double[] a, int nfft)
+		{
+			double[] s = sqr(Math.Abs(GlobalMembersTransforms.fft(to_cvec(a), nfft)));
+			s.set_size(nfft / 2 + 1, true);
+			return s;
+		}
+
+		/*!
+		  \brief Power spectrum calculation of a filter
+		  Calculates the power spectrum of a filter with transfer function a(z)/b(z)
+		 */
+		public static double[] filter_spectrum(double[] a, double[] b, int nfft)
+		{
+			double[] s = sqr(Math.Abs(elem_div(GlobalMembersTransforms.fft(to_cvec(a), nfft), GlobalMembersTransforms.fft(to_cvec(b), nfft))));
+			s.set_size(nfft / 2 + 1, true);
+			return s;
+		}
+	}
+
+}

@@ -1,13 +1,18 @@
-﻿/*
- * Created by SharpDevelop.
- * User: perivar.nerseth
- * Date: 02.08.2011
- * Time: 19:59
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
+﻿//*****************************************************************************
+//*
+//* Copyright (c) 2002, Wilhelm Kurz.  All Rights Reserved.
+//* wkurz@foni.net
+//*
+//* This file is provided for demonstration and educational uses only.
+//* Permission to use, copy, modify and distribute this file for
+//* any purpose and without fee is hereby granted.
+//*
+//* Sample application for DynaPlot3
+//*****************************************************************************
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
+
 using System.Collections.Generic;
 
 namespace Wave2ZebraSynth
@@ -17,110 +22,130 @@ namespace Wave2ZebraSynth
 	/// </summary>
 	public class VB6Spectrogram
 	{
-		private const int RangedB = 100;
+		private const int RangedB = 100; // used for color calculations, maps from -RangedB to 0 dB
 		private const int RangePaletteIndex = 255;
 		private static double Log10 = Math.Log(10); //2.30258509299405;
 
 		//public long[] LevelPalette = new long[RangePaletteIndex];
-		public Dictionary<long, Color> LevelPalette2 = new Dictionary<long, Color>();
+		public Dictionary<long, Color> LevelPaletteDictionary = new Dictionary<long, Color>();
 		
 		// computes the color palette for the pseudocolor display
 		// creates a bitmap with the palette and loads it into chart #3
 		public void ComputeColorPalette()
 		{
 			long col = 0;
+			byte[,] Legendpixelmatrix = new byte[100, RangePaletteIndex];
+			
 			for (col = 0; col < RangePaletteIndex; col++)
 			{
 				//LevelPalette[col] = PaletteValue(col, RangePaletteIndex);
-				LevelPalette2.Add(col, PaletteValue2(col, RangePaletteIndex));
+				LevelPaletteDictionary.Add(col, PaletteValueColor(col, RangePaletteIndex));
+				for (int i = 0; i < 100; i++) {
+					Legendpixelmatrix[i, col] = (byte) col;					
+				}
 			}
+			
+			SaveBitmap("VB6", "Colorpalette", Legendpixelmatrix, 8, LevelPaletteDictionary);
 		}
 
 		// loads a wav-file and displays the recorded signal in chart #1
 		// computes the spectrogram of the signal
 		// converts the pixelarray to a bmp-file
 		// saves this file to disk and loads it into chart #2
-		public static double[] Compute(float[] data, int numChannels, double sampleRate, int fftWindowsSize, float fftOverlapPercentage)
+		//
+		// fftOverlapPercentage is a number between 0 and 100
+		// fftWindowsSize aka NFFT (width of FFT window)
+		public float[][] Compute(float[] data, double sampleRate, int fftWindowsSize, float fftOverlapPercentage)
 		{
 			long NumSamples = 0;
-			long NumCols = 0;			
-			long ColIncrement = 0;
-					
-			long col;
-			int c;
-			if (true)
+			long NumCols = 0;
+			long ColSampleWidth = 0;
+
+			long col = 0;
+			int c = 0;
+			
+			NumSamples = data.Length;
+
+			//DynaPlot1.Axes.XAxis.From = 0;
+			//DynaPlot1.Axes.XAxis.To = NumSamples / (double)SampleRate;
+
+			fftOverlapPercentage = fftOverlapPercentage / 100;
+			// calculate the number of samples one column will make up using the actual overlap
+			ColSampleWidth = (long)(fftWindowsSize * (1 - fftOverlapPercentage));
+			double fftOverlapSamples = fftWindowsSize * fftOverlapPercentage;
+			// calculate the number of columns when each column which has the specified sample width
+			NumCols = NumSamples / ColSampleWidth;
+
+			System.Diagnostics.Debug.WriteLine(String.Format("Samples: {0}, Sample Rate {1}, Seconds: {2}.", NumSamples, sampleRate, NumSamples/sampleRate));
+			System.Diagnostics.Debug.WriteLine(String.Format("NFFT (fftWindowsSize): {0}, Overlap percentage: {1}%, Overlap samples (NOverlap): {2:n2}.", fftWindowsSize, fftOverlapPercentage*100, fftOverlapSamples ));
+			System.Diagnostics.Debug.WriteLine(String.Format("Dividing the samples into {0} columns with width {1}.", NumCols, ColSampleWidth));
+			System.Diagnostics.Debug.WriteLine(String.Format("Max magnitude: {0}.", fftWindowsSize/2));
+
+			System.Diagnostics.Debug.WriteLine(String.Format("Width: {0}.", NumCols));
+			System.Diagnostics.Debug.WriteLine(String.Format("Height: {0}.", fftWindowsSize/2));
+			
+			double[] real = new double[fftWindowsSize];
+			double[] imag = new double[fftWindowsSize];
+			float[] magnitude = new float[fftWindowsSize / 2];
+			byte[,] Pixelmatrix = new byte[fftWindowsSize / 2, NumCols];
+			float[][] frames = new float[NumCols][];
+
+			long sampleIndex = 0;	
+			for (col = 0; col < NumCols; col++)
 			{
-				NumSamples = data.Length;
-
-				//DynaPlot1.Axes.XAxis.From = 0;
-				//DynaPlot1.Axes.XAxis.To = NumSamples / (double)SampleRate;
-
-				// Add the new recorded signal
-				for (c = 0; c < numChannels; c++)
+				// read a segment of the audio file
+				for (c = 0; c < fftWindowsSize; c++)
 				{
-					//DynaPlot1.DataCurves.AddParametricCpp "Channel " + (c + 1), 0, 1 / SampleRate, Y(0, c), NumSamples;
-				}
-
-				ColIncrement = (long)(fftWindowsSize * (1 - fftOverlapPercentage));
-				NumCols = NumSamples / ColIncrement;
-				
-				double[] real = new double[fftWindowsSize];
-				double[] imag = new double[fftWindowsSize];
-				double[] magnitude = new double[(int)(fftWindowsSize / 2.0)];
-				byte[,] Pixelmatrix = new byte[fftWindowsSize / 2, NumCols];
-
-				// make sure we don't step beyond the end of the recording
-				while (NumCols * ColIncrement + fftWindowsSize > NumSamples)
-				{
-					NumCols = NumCols - 1;
-					long sampleIndex = 0;
-					for (col = 0; col < NumCols; col++)
-					{
-						// read a segment of the recorded signal
-						for (c = 0; c < fftWindowsSize-1; c++)
-						{
-							imag[c] = 0;
-							try {
-								sampleIndex = col * ColIncrement + c;
-								//real[c] = Y[col * ColIncrement + c, 0] * VB6Fourier.Hanning(fftWindowsSize, c);
-								real[c] = data[sampleIndex] * VB6Fourier.Hanning(fftWindowsSize, c);
-							} catch (System.IndexOutOfRangeException e) {
-								// err
-							}
-						}
-
-						// transform to the frequency domain
-						VB6Fourier.FourierTransform(real, imag, fftWindowsSize, true);
-
-						// and compute the magnitude spectrum
-						VB6Fourier.MagnitudeSpectrum(real, imag, fftWindowsSize, VB6Fourier.W0Hanning, magnitude);
-
-						// set up one column of the spectrogram
-						for (c = 0; c < fftWindowsSize / 2.0; c++)
-						{
-							Pixelmatrix[c, col] = (byte) MapToPixelindex(magnitude[c], RangedB, RangePaletteIndex);
-						}
+					sampleIndex = col * ColSampleWidth + c;
+					// make sure we don't step beyond the end of the recording
+					if (sampleIndex < NumSamples) {
+						real[c] = data[sampleIndex] * VB6Fourier.Hanning(fftWindowsSize, c);
+						imag[c] = 0; // clear the phase
+					} else {
+						//System.Diagnostics.Debug.WriteLine(String.Format("Outside boundries: col: {0} c: {1}", col, c));
 					}
-
-					// save the Pixelmatrix as a bitmap file to disk
-					//SaveBitmap BitmapFilename, Pixelmatrix, 8, LevelPalette;
-
-					//DynaPlot2.Axes.XAxis.From = DynaPlot1.Axes.XAxis.From;
-					//DynaPlot2.Axes.XAxis.To = DynaPlot1.Axes.XAxis.To;
-
-					//DynaPlot2.Axes.YAxis.From = 0;
-					//DynaPlot2.Axes.YAxis.To = SampleRate / 2.0;
-
-					// load the bitmap
-					//TimeslotWidth = fftWindowsSize / (double)SampleRate;
-					//TimeslotIncrement = ColIncrement / (double)SampleRate;
-					//DynaPlot2.DataBitmaps.Add "Channel 1", BitmapFilename, TimeslotWidth / 2, 0, 1 / TimeslotIncrement, TimeslotWidth;
-					
 				}
-				// double[] magnitude
-				// byte[,] Pixelmatrix
-				return magnitude;
+
+				// transform to the frequency domain
+				VB6Fourier.FourierTransform(real, imag, fftWindowsSize, true);
+
+				// and compute the magnitude spectrum
+				VB6Fourier.MagnitudeSpectrum(real, imag, fftWindowsSize, VB6Fourier.W0Hanning, out magnitude);
+
+				// set up one column of the spectrogram
+				for (c = 0; c < fftWindowsSize / 2; c++)
+				{
+					Pixelmatrix[c, col] = (byte) MapToPixelindex(magnitude[c], RangedB, RangePaletteIndex);
+				}
+
+				frames[col] = magnitude;
 			}
+
+			// the sampleRate / 2 (nyquistFreq) has a total of fftWindowsSize / 2 unique frequencies 
+			double nyquistFreq = sampleRate / 2;
+			float[] F = new float[fftWindowsSize/2];
+			for (int i = 1; i < fftWindowsSize/2 + 1; i++) {
+				F[i-1] = (float) ((double)i / fftWindowsSize * sampleRate); // in hz
+			}
+			
+			// the total time NumSamples / sampleRate * 1000 (ms) must be divided by numColumns
+			//double TimeslotWidth = (fftWindowsSize / (double) sampleRate) * 1000;
+			//double TimeslotIncrement = (ColSampleWidth / (double) sampleRate) * 1000;
+			//System.Diagnostics.Debug.WriteLine(String.Format("TimeslotWidth: {0}, TimeslotIncrement: {1}.", TimeslotWidth, TimeslotIncrement));
+			double timeIncrement = (NumSamples/sampleRate*1000) / NumCols;
+			double[] T = new double[NumCols];
+			for (int i = 1; i < NumCols + 1; i++) {
+				T[i-1] = (double) i * timeIncrement; // in milliseconds
+			}
+					
+			Program.exportCSV(@"c:\VB-magnitude-freq.csv", frames[0], F);
+
+			//System.Diagnostics.Debug.WriteLine(String.Format("TimeslotWidth: {0}, TimeslotIncrement: {1}.", TimeslotWidth, TimeslotIncrement));
+
+			// save the Pixelmatrix as a bitmap file to disk
+			SaveBitmap ("VB6", String.Format("C:\\Spectrogram-{0}x{1}", NumCols, fftWindowsSize / 2), Pixelmatrix, 8, LevelPaletteDictionary);
+			
+			return frames;
 		}
 
 		// Maps magnitudes in the range [-RangedB .. 0] dB to palette index values in the range [0 .. Rangeindex-1]
@@ -176,7 +201,7 @@ namespace Wave2ZebraSynth
 				}
 			}
 		}
-		*/
+		 */
 		
 		// return pseudo color value for a value x in range [0...range-1]
 		// colors go from black - blue - green - red - violet - blue
@@ -230,7 +255,7 @@ namespace Wave2ZebraSynth
 		// return pseudo color value for a value x in range [0...range-1]
 		// colors go from black - blue - green - red - violet - blue
 		// this is just one of many possible palettes
-		public static Color PaletteValue2(long x, long range)
+		public static Color PaletteValueColor(long x, long range)
 		{
 			double R = 0;
 			double G = 0;
@@ -296,6 +321,86 @@ namespace Wave2ZebraSynth
 			Blue = col & 0XFF;
 
 			return Red + Green * 0X100 + Blue * 0X10000;
+		}
+		
+		public static void SaveBitmap(string prefix, string filename, byte[,] Pixelmatrix, int BitsPerPixel, Dictionary<long, Color> PaletteDictionary)
+		{
+			int width = 0;
+			int height = 0;
+			int row = 0;
+			int col = 0;
+			long palettesize = 0;
+			long NumQuadsPerRow = 0;
+			
+			height = Pixelmatrix.GetUpperBound(0) + 1;
+			width = Pixelmatrix.GetUpperBound(1) + 1;
+			palettesize = PaletteDictionary.Count;
+			
+			if (palettesize == 1)
+			{
+				palettesize = 0;
+			}
+
+			switch (BitsPerPixel)
+			{
+				case 24:
+					NumQuadsPerRow = 3 * width / 4;
+					if (4 * NumQuadsPerRow / 3 < width)
+					{
+						NumQuadsPerRow = NumQuadsPerRow + 1;
+					}
+
+					break;
+				case 8:
+					NumQuadsPerRow = width / 4;
+					if (width % 4 > 0)
+					{
+						NumQuadsPerRow = NumQuadsPerRow + 1;
+					}
+
+					break;
+				case 4:
+					NumQuadsPerRow = width / 8;
+					if (width % 8 > 0)
+					{
+						NumQuadsPerRow = NumQuadsPerRow + 1;
+					}
+
+					break;
+				case 1:
+					NumQuadsPerRow = width / 32;
+					if (width % 32 > 0)
+					{
+						NumQuadsPerRow = NumQuadsPerRow + 1;
+					}
+					break;
+			}
+			
+			try {
+				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
+				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
+
+				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+				Graphics g = Graphics.FromImage(png);
+				byte[] OneRow = new byte[(int)(4 * NumQuadsPerRow - 1) + 1];
+				
+				for(row = 0; row <= height - 1; row += 1)
+				{
+					for(col = 0; col <= width - 1; col += 1)
+					{
+						OneRow[col] = Convert.ToByte(Convert.ToInt32(Pixelmatrix[row, col]) & 0xFF);
+						Color c = PaletteDictionary[OneRow[col]];
+						//Pen pen = new Pen(c);
+						//g.DrawLine(pen, col, 0, col, row);
+						png.SetPixel(col, height-row-1, c);
+					}
+				}
+				
+				png.Save(filenameToSave);
+			} catch (Exception ex) {
+				System.Diagnostics.Debug.WriteLine(ex);
+			}
+			
 		}
 	}
 }

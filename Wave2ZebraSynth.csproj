@@ -98,6 +98,7 @@
     <Compile Include="HermitGauges\TextGauge.cs" />
     <Compile Include="HermitGauges\WaveformGauge.cs" />
     <Compile Include="HermitGauges\Window.cs" />
+    <Compile Include="LogPlotter.cs" />
     <Compile Include="LomontFFT.cs" />
     <Compile Include="Model\HashSignature.cs" />
     <Compile Include="Model\Item.cs" />

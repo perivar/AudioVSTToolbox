@@ -1,12 +1,4 @@
-﻿/*
- * Created by SharpDevelop.
- * User: perivar.nerseth
- * Date: 04.08.2011
- * Time: 09:51
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.Collections;
 using System.Drawing;
 
@@ -158,7 +150,7 @@ namespace Wave2ZebraSynth
 					g.DrawLine(pen, tic_coord, screenHeight-screenOffset, tic_coord, screenHeight-screenOffset+ticLength);
 					if (tic_coord-str_size.Width/2 > last_label_end)
 					{
-						g.DrawString(ticstr, font, brush, tic_coord-str_size.Width/2, screenHeight-screenOffset+str_size.Height+5);					
+						g.DrawString(ticstr, font, brush, tic_coord-str_size.Width/2, screenHeight-screenOffset+str_size.Height+5);
 						last_label_end = (int)(tic_coord + str_size.Width/2 + str_size.Height/2);
 					}
 				}
@@ -274,7 +266,7 @@ namespace Wave2ZebraSynth
 			SizeF size = new SizeF();
 			if (g != null)
 			{
-			    size = g.MeasureString(str, stringFont);
+				size = g.MeasureString(str, stringFont);
 			}
 			return size;
 		}
@@ -418,5 +410,5 @@ namespace Wave2ZebraSynth
 		} // end main
 	}
 
-*/
+	 */
 }

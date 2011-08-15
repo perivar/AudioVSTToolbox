@@ -52,18 +52,25 @@ namespace Wave2ZebraSynth
 			TAG_INFO tag = repositoryGateway._proxy.GetTagInfoFromFile(fileName);
 			
 			// VB6 FFT
-			//double sampleRate = 5512;// 44100  default 5512
-			//int fftWindowsSize = 2048; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
-			//float fftOverlapPercentage = 0.10f;
-			//float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, 20*1000, 20*1000 );
-			//double[] magnitude = VB6Spectrogram.Compute(wavDataVB6, 1, sampleRate, fftWindowsSize, fftOverlapPercentage);
-			//exportCSV (@"c:\VB6-magnitude.csv", magnitude);
+			double sampleRate = 44100 ;// 44100  default 5512
+			int fftWindowsSize = 4096; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
+			float fftOverlapPercentage = 95.0f; // number between 0 and 100
+			int secondsToSample = 15; //15;
+			float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 20*1000 );
+			VB6Spectrogram vb6Spect = new VB6Spectrogram();
+			vb6Spect.ComputeColorPalette();
+			float[][] vb6Spectrogram = vb6Spect.Compute(wavDataVB6, sampleRate, fftWindowsSize, fftOverlapPercentage);
+			//exportCSV (@"c:\VB6Spectrogram-full.csv", vb6Spectrogram);
+			
+			LogPlotter logPlotter = new LogPlotter();
+			logPlotter.Render( new double[] {1, 2, 4, 8, 16, 32}, new double[] {1, 2, 3, 4, 5, 6}, @"c:\logplot.png" );
+			return;
 			
 			// Lomont FFT
-			double sampleRate = 5512;// 44100  default 5512
-			int fftWindowsSize = 2048; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
+			//double sampleRate = 5512;// 44100  default 5512
+			//int fftWindowsSize = 2048; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
 			// overlap must be an integer smaller than the window size
-			// half the windows size is quite normal
+			// half the windows size is quite normal, sometimes 80% is best?!
 			int fftOverlap = fftWindowsSize / 2; //64;
 			float[] wavData = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, 15*1000, 20*1000 );
 			
@@ -92,7 +99,7 @@ namespace Wave2ZebraSynth
 			analyser.ProcessAudio(shortData);
 			//return;
 
-			float[][] lomontSpectrogram = CreateSpectrogram(wavData, sampleRate, fftWindowsSize, fftOverlap);
+			float[][] lomontSpectrogram = CreateSpectrogram2(wavData, sampleRate, fftWindowsSize, fftOverlap);
 			repositoryGateway.drawSpectrogram2("LomontSpectrum", fileName, lomontSpectrogram, sampleRate, fftWindowsSize);
 			//exportCSV (@"c:\LomontSpectrogram-full-not-normalized.csv", lomontSpectrogram);
 			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Lomont", fileName, lomontSpectrogram, sampleRate, fftWindowsSize, fftOverlap);
@@ -127,7 +134,7 @@ namespace Wave2ZebraSynth
 		}
 
 		#region exportCSV
-		private static void exportCSV(string filenameToSave, float[] data) {
+		public static void exportCSV(string filenameToSave, float[] data) {
 			object[][] arr = new object[data.Length][];
 			
 			int count = 1;
@@ -144,7 +151,7 @@ namespace Wave2ZebraSynth
 			csv.Write(arr);
 		}
 
-		private static void exportCSV(string filenameToSave, double[] data) {
+		public static void exportCSV(string filenameToSave, double[] data) {
 			object[][] arr = new object[data.Length][];
 			
 			int count = 1;
@@ -161,7 +168,7 @@ namespace Wave2ZebraSynth
 			csv.Write(arr);
 		}
 		
-		private static void exportCSV(string filenameToSave, float[][] data) {
+		public static void exportCSV(string filenameToSave, float[][] data) {
 			object[][] arr = new object[data.Length][];
 
 			for (int i = 0; i < data.Length; i++)
@@ -177,7 +184,7 @@ namespace Wave2ZebraSynth
 			csv.Write(arr);
 		}
 
-		private static void exportCSV(string filenameToSave, float[] column1, float[] column2) {
+		public static void exportCSV(string filenameToSave, float[] column1, float[] column2) {
 			if (column1.Length != column2.Length) return;
 			
 			object[][] arr = new object[column1.Length][];
@@ -197,7 +204,7 @@ namespace Wave2ZebraSynth
 			csv.Write(arr);
 		}
 
-		private static void exportCSV(string filenameToSave, float[] column1, float[] column2, float[] column3) {
+		public static void exportCSV(string filenameToSave, float[] column1, float[] column2, float[] column3) {
 			if (column1.Length != column2.Length || column1.Length != column3.Length) return;
 			
 			object[][] arr = new object[column1.Length][];
@@ -218,7 +225,7 @@ namespace Wave2ZebraSynth
 			csv.Write(arr);
 		}
 
-		private static void exportCSV(string filenameToSave, object[] column1, object[] column2, object[] column3, object[] column4) {
+		public static void exportCSV(string filenameToSave, object[] column1, object[] column2, object[] column3, object[] column4) {
 			if (column1.Length != column2.Length || column1.Length != column3.Length || column1.Length != column4.Length) return;
 			
 			object[][] arr = new object[column1.Length][];
@@ -240,7 +247,7 @@ namespace Wave2ZebraSynth
 			csv.Write(arr);
 		}
 
-		private static void exportCSV(string filenameToSave, float[] column1, float[] column2, float[] column3, float[] column4, string[] column5) {
+		public static void exportCSV(string filenameToSave, float[] column1, float[] column2, float[] column3, float[] column4, string[] column5) {
 			if (column1.Length != column2.Length || column1.Length != column3.Length || column1.Length != column4.Length || column1.Length != column5.Length) return;
 			
 			object[][] arr = new object[column1.Length][];
@@ -254,7 +261,7 @@ namespace Wave2ZebraSynth
 					column2[i],
 					column3[i],
 					column4[i],
-					column5[i],					
+					column5[i],
 				};
 				count++;
 			};
@@ -268,9 +275,11 @@ namespace Wave2ZebraSynth
 		{
 			// overlap must be an integer smaller than the window size
 			// half the windows size is quite normal
+			
 			//HanningWindow window = new HanningWindow();
 			//double[] windowArray = window.GetWindow(fftWindowsSize);
 			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
+			
 			LomontFFT fft = new LomontFFT();
 			int numberOfSamples = samples.Length;
 			double seconds = numberOfSamples / sampleRate;
@@ -307,72 +316,107 @@ namespace Wave2ZebraSynth
 		// R Kakarala, PhD
 		// U C Berkeley Extesion
 		// last rev: 5 Oct 2003
-		// http://aug.ment.org/synthbilder/paper/
+		// see also: http://aug.ment.org/synthbilder/paper/
 		public static float[][] CreateSpectrogram2(float[] y, double fs, int fftWindowsSize, int fftOverlap)
 		{
-			//Fs = 8192;                    % Sampling frequency
-			//T = 1/Fs;                     % Sample time
-			//L = 1000;                     % Length of signal
-			//t = (0:L-1)*T;                % Time vector
+			// fs = 8192;                    // Sampling frequency
+			// T = 1/fs;                     // Sample time
 			
 			// compute the spectrogram
 			// assume a 256 point sliding Hamming window, with an overlap of 128 samples
 			// is applied to the data.
 			int Ly = y.Length;
 			// if the length < 256, add zeros to increase length to match window
-			if (Ly < 256) {
-				Array.Resize<float>(ref y, 256);
+			if (Ly < fftWindowsSize) {
+				Array.Resize<float>(ref y, fftWindowsSize);
 			}
 
-			int fftWindowSize = 256;
-			//int fftOverlap = 256;  // this, the max overlap, is adjusted below
+			int L = fftWindowsSize;//256;
+			int Nfft = fftWindowsSize;//256;
+			int Noverlap = fftWindowsSize; //256;  // this, the max overlap, is adjusted below
 			int num_segs = 1025;
+			int shift = 0;
 			while (num_segs > 1024) {
-				fftOverlap = fftOverlap - 10;
-				double shift = Math.Abs(fftWindowSize - fftOverlap); // returns always positive value
-				num_segs = (int) (1 + RepositoryGateway.RoundDown( (Ly-fftWindowSize) / shift, 0 ));
+				Noverlap = Noverlap - 10;
+				shift = Math.Abs( L - Noverlap);
+				// num_segs = 1 + fix( (Ly-L)/shift );
+				num_segs = (int) (1 + Fix( (Ly-L) / shift ));
 			}
-
-			double[] window = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HAMMING, fftWindowsSize);
+			
+			// window = 0.54 - 0.46  *      cos (2     * pi * (0:L-1) / (L-1) );  // Hamming window
+			// for (i = 0; i < fftWindowsSize; i++)
+			//  window = (0.54 - 0.46 * Math.Cos(2 * Math.PI *      i / (fftWindowsSize - 1)));
+			double[] window = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HAMMING, Nfft);
+			LomontFFT fft = new LomontFFT();
 
 			// the following idea is from The DSP FIRST Toolbox, by McClellan, Shafer
 			// and Yoder. Basically, it divides the input into segments, each of length
-			// fftWindowSize and takes the windowed fft of each one
-			LomontFFT fft = new LomontFFT();
-			int width = (y.Length - fftWindowsSize)/fftOverlap; /*width of the image*/
-			float[][] frames = new float[width][];
-			double[] complexSignal = new double[2*fftWindowsSize]; /*even - Re, odd - Img*/
-			for (int i = 0; i < width; i++)
-			{
+			// L and takes the windowed fft of each one
+			
+			// B = zeros( Nfft/2+1, num_segs );
+			// float[][] frames = new float[numberOfSegments][];
+			// double[][] B = new double[Nfft/2+1][num_segs];     //- Pre-allocate the matrix
+			float[][] B = new float[num_segs][];
+			
+			int nstart = 0;
+			double[] ysegw = new double[2*Nfft]; 		// even - Re, odd - Img
+			for (int iseg = 0; iseg < num_segs; iseg++) {
+				nstart = 1 + iseg * shift;
+
 				// apply Hanning Window
-				for (int j = 0; j < fftWindowsSize; j++)
+				// ysegw = window .* y( nstart:nstart + L-1);
+				
+				// Matlab Vector Functions:
+				// v 	= [1   	 2 	  3]'
+				// b 	= [2 	 4 	  6]'
+				// v+b 	= [3 	 6 	  9]
+				// v-b 	= [-1   -2   -3]
+				// v*b' = [2     4    6
+				//         4     8   12
+				//         6    12   18]
+				// v'*b = 28
+				// v.*b = [2 	 8   18]
+				// v./b = [0.5 0.5  0.5]
+				
+				for (int j = 0; j < Nfft; j++)
+					//for (int j = nstart; j < nstart + L-1; j++)
 				{
-					complexSignal[2*j] = (double) (window[j] * y[i*fftOverlap + j]);
-					complexSignal[2*j + 1] = 0;  // need to clear out as fft modifies buffer
+					//ysegw[2*j] = (double) (window[j] * y[i*fftOverlap + j]);
+					ysegw[2*j] = (double) (window[j] * y[nstart + j]);
+					ysegw[2*j + 1] = 0;  // need to clear out as fft modifies buffer
 				}
 
 				// FFT transform for gathering the spectrum
-				fft.FFT(complexSignal, true);
-				float[] band = new float[fftWindowsSize/2 + 1];
-				for (int j = 0; j < fftWindowsSize/2 + 1; j++)
+				// YF = fft( ysegw, Nfft );
+				fft.FFT(ysegw, true);
+				float[] YF = new float[Nfft/2 + 1];
+				for (int j = 0; j < Nfft/2 + 1; j++)
 				{
-					double re = complexSignal[2*j];
-					double img = complexSignal[2*j + 1];
-					band[j] = (float) Math.Sqrt(re*re + img*img);
+					double re = ysegw[2*j];
+					double img = ysegw[2*j + 1];
+					YF[j] = (float) Math.Sqrt(re*re + img*img);
 				}
-				frames[i] = band;
+				//frames[i] = band;
+				//B(:,iseg) = YF(1:Nfft/2+1);
+				B[iseg] = YF;
 			}
-
-			//F = (0:(fftWindowSize / 2))/fftWindowsSize * fs;
-			//T = ( fftWindowSize/2 + shift*(0:num_segs-1) ) / fs;
-			// imagesc(T,F,20*log10(abs(B)+eps));
-			// axis xy;
-			// colormap(jet);
-			// ylabel('frequency (Hz)'); xlabel('time (sec)'); title('Spectrogram (dB)');
-
-			// plot time signal, trying to align time axes for both plots
 			
-			return frames;
+			// use imagesc -- image scaled to show the histogram in dB
+			//F = (0:(Nfft/2))/Nfft * fs;
+			//T = ( L/2 + shift*(0:num_segs-1) ) / fs;
+			//subplot(2,1,1);
+			// dB = 20 * log10 (abs(B) + eps);
+			//imagesc(T,F,20*log10(abs(B)+eps)); axis xy; colormap(jet);
+			//ylabel('frequency (Hz)'); xlabel('time (sec)'); title('Spectrogram (dB)');
+			
+			// plot time signal, trying to align time axes for both plots
+			//maxsampleused = nstart+L-2;
+			//subplot(2,1,2);
+			//plot((0:maxsampleused)/fs,y(1:maxsampleused+1));
+			//axis([min(T),max(T),min(y),max(y)]);
+			//xlabel('time (sec)'); ylabel('signal');
+			
+			return B;
 		}
 		
 		public static void prepareAndDrawSpectrumAnalysis(RepositoryGateway repositoryGateway, String prefix, String fileName, float[][] spectrogramData, double sampleRate, int fftWindowsSize, int fftOverlap) {
@@ -390,16 +434,16 @@ namespace Wave2ZebraSynth
 				fftOverlap * numberOfSegments = numberOfSamples - fftWindowsSize
 				numberOfSamples = (fftOverlap * numberOfSegments) + fftWindowsSize
 			 */
-			 	
+			
 			int numberOfSegments = spectrogramData.Length; // i.e. 78 images which containt a spectrum which is half the fftWindowsSize (2048)
 			int spectrogramLength = spectrogramData[0].Length; // 1024 - half the fftWindowsSize (2048)
 			double numberOfSamples = (fftOverlap * numberOfSegments) + fftWindowsSize;
-			double seconds = numberOfSamples / sampleRate;		
-						
+			double seconds = numberOfSamples / sampleRate;
+			
 			float[] m_mag = new float[spectrogramLength];
 			float[] m_freq = new float[spectrogramLength];
 			float[] m_freqV2 = new float[spectrogramLength];
-			string[] m_time = new string[spectrogramLength];			
+			string[] m_time = new string[spectrogramLength];
 			for (int i = 0; i < spectrogramLength; i++)
 			{
 				m_mag[i] = ConvertAmplitudeToDB((float) spectrogramData[0][i], -120.0f, 18.0f);
@@ -445,17 +489,17 @@ namespace Wave2ZebraSynth
 		public static float[] ConvertRangeAndMainainRatioLog(float[] oldValueArray, float oldMin, float oldMax, float newMin, float newMax) {
 			float[] newValueArray = new float[oldValueArray.Length];
 			
-			// TODO: Addition of MIN_VALUE prevents log from returning minus infinity if value is zero
+			// TODO: Addition of Epsilon prevents log from returning minus infinity if value is zero
 			float newRange = (newMax - newMin);
-			float log_oldMin = Axis.flog10(Math.Abs(oldMin) + float.MinValue);
-			float log_oldMax = Axis.flog10(oldMax + float.MinValue);
+			float log_oldMin = Axis.flog10(Math.Abs(oldMin) + float.Epsilon);
+			float log_oldMax = Axis.flog10(oldMax + float.Epsilon);
 			float oldRange = (oldMax - oldMin);
 			float log_oldRange = (log_oldMax - log_oldMin);
 			float data_per_log_unit = newRange / log_oldRange;
 			
 			for(int x = 0; x < oldValueArray.Length; x++)
 			{
-				float log_oldValue = Axis.flog10(oldValueArray[x] + float.MinValue);
+				float log_oldValue = Axis.flog10(oldValueArray[x] + float.Epsilon);
 				float newValue = (((log_oldValue - log_oldMin) * newRange) / log_oldRange) + newMin;
 				newValueArray[x] = newValue;
 			}
@@ -569,8 +613,9 @@ namespace Wave2ZebraSynth
 			//float MinDb = -120.0f;
 			//float MaxDb = 18.0f;
 
-			// TODO: Addition of MIN_VALUE prevents log from returning minus infinity if mag is zero
-			float db = 20 * (float) Math.Log10( (float) amplitude + float.MinValue);
+			// TODO: Addition of the smallest positive number (Epsilon) prevents log from returning minus infinity if value is zero
+			float smallestNumber = float.Epsilon;
+			float db = 20 * (float) Math.Log10( (float) (amplitude + smallestNumber) );
 			
 			if (db < MinDb) db = MinDb;
 			if (db > MaxDb) db = MaxDb;
@@ -586,7 +631,7 @@ namespace Wave2ZebraSynth
 			// frequency = ( i + 1 ) * (float) sampleRate / fftWindowsSize;
 			
 			// or
-			// ( i + 1 ) * ((sampleRate / 2) / numberOfSamples)		
+			// ( i + 1 ) * ((sampleRate / 2) / numberOfSamples)
 			double nyquistFreq = sampleRate / 2;
 			double firstFrequency = nyquistFreq / numberOfSamples;
 			double frequency = firstFrequency * ( i + 1 );
@@ -624,6 +669,21 @@ namespace Wave2ZebraSynth
 			DateTime date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, h % 100, m % 60, s % 60, msecs % 1000);
 			return String.Format("{0:HH:mm:ss.fff}", date);
 		}
+		
+		// MATLAB:
+		// B = fix(A) rounds the elements of A toward zero, resulting in an array of integers.
+		// For complex A, the imaginary and real parts are rounded independently
+		// if we have data with value :
+		// X = [-1.9, -0.2	, 3.4	, 5.6, 7.0]
+		// Y = [   1, 	 0	,   3	,   5,   7]
+		public static int Fix(float a)
+		{
+			int sign = a < 0 ? -1 : 1;
+			double dout = Math.Abs(a);
+			double output = RepositoryGateway.RoundDown(dout, 0);
+			//float output = (float) (Math.Floor(a) * sign);
+			return (int)output;
+		}		
 		
 	}
 	
