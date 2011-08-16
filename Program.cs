@@ -25,8 +25,7 @@ using Wave2ZebraSynth.HermitGauges;
 namespace Wave2ZebraSynth
 {
 	class Program
-	{
-		
+	{		
 		///   Music file filters
 		/// </summary>
 		private static readonly string[] _musicFileFilters = new[] {"*.mp3", "*.ogg", "*.flac", "*.wav"};
