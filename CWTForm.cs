@@ -1,6 +1,7 @@
 ﻿//  Continuous Wavelet Transform Spectrogram program
 //  By Chris Lang and Kyle Forinash
 //  1997 - 2004
+
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
@@ -25,8 +26,7 @@ namespace CWT
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			Application.Run(new CWTForm());
-		}
-		
+		}	
 	}
 
 	//*********************************************************
@@ -102,7 +102,6 @@ namespace CWT
 			upperfreqBox.Text = System.Convert.ToString(upperfreq);
 			Controls.Add(upperfreqLabel);
 			Controls.Add(upperfreqBox);
-
 		}
 
 		public void setSigma(double sigmaval)
@@ -192,7 +191,7 @@ namespace CWT
 
 			mathMenu = new MenuItem("&Math");
 			menuBar.MenuItems.Add(mathMenu);
-			spectrogramMenuItem = new MenuItem("Compute Spectrogram");
+			spectrogramMenuItem = new MenuItem("&Compute Spectrogram");
 			mathMenu.MenuItems.Add(spectrogramMenuItem);
 			waveletMenuItem = new MenuItem("Wavelet Parameters ...");
 			mathMenu.MenuItems.Add(waveletMenuItem);
@@ -237,12 +236,16 @@ namespace CWT
 					signal_samplerate = Double.Parse(signal_file_line, CultureInfo.InvariantCulture);
 					//signal_samplerate = System.Convert.ToDouble(signal_file_line);
 					dt = 1.0/signal_samplerate;
-					signal_length = System.Convert.ToDouble(signal_size)/signal_samplerate;
+					signal_length = System.Convert.ToDouble(signal_size)/signal_samplerate; // seconds
 					for (i = 0;i<signal_size;i++)
 					{
+						try {
 						signal_file_line = sr.ReadLine();
 						//signal_data[i] = System.Convert.ToDouble(signal_file_line);
 						signal_data[i] = Double.Parse(signal_file_line, CultureInfo.InvariantCulture);
+						} catch (Exception e) {
+							System.Diagnostics.Debug.WriteLine(e);
+						}
 					}
 					sf.Close();
 					this.Invalidate();
@@ -288,15 +291,16 @@ namespace CWT
 		//*******************************************************
 		//   Mathematics Functions
 		//*******************************************************
-
-		public double RealWavelet(double x)
+		public static double RealWavelet(double t, double sigma = 4)
 		{
-			return Math.Cos(6.283185 *x)* Math.Exp(-1.0 *x *x/(2.0 *sigma *sigma))/(sigma *2.5066);
+			//return Math.Cos(6.283185 *x)* Math.Exp(-1.0 *x *x/(2.0 *sigma *sigma))/(sigma *2.5066);
+			return Math.Cos(2.0*Math.PI*t)* Math.Exp(-1.0*t*t/(2.0*sigma*sigma)) / (sigma*Math.Sqrt(2.0*Math.PI));
 		}
 
-		public double ImagWavelet(double x)
+		public static double ImagWavelet(double t, double sigma = 4)
 		{
-			return Math.Sin(6.283185 *x)* Math.Exp(-1.0 *x *x/(2.0 *sigma *sigma))/(sigma *2.5066);
+			//return Math.Sin(6.283185 *x)* Math.Exp(-1.0 *x *x/(2.0 *sigma *sigma))/(sigma *2.5066);
+			return Math.Sin(2.0*Math.PI*t)* Math.Exp(-1.0*t*t/(2.0*sigma*sigma)) / (sigma*Math.Sqrt(2.0*Math.PI));
 		}
 
 		public void ComputeSpectrogram()
@@ -314,40 +318,43 @@ namespace CWT
 			int col;
 			int k;
 			int loc;
-			double[] realkernel = new double[16384];
-			double[] imagkernel = new double[16384];
+			double[] realkernel = new double[signal_size*2];//16384];
+			double[] imagkernel = new double[signal_size*2];//16384];
 
-			df = Math.Pow(upper_freq/lower_freq,1.0/256.0);
+			df = Math.Pow(upper_freq/lower_freq, 1.0/256.0);
 			max = 0.0001;
 			f = lower_freq;
-			for (row = 0;row<256;row++)
+			for (row = 0; row < 256 ; row++)
 			{
 				// compute new kernels for current frequency
-				t = -8192.0 *dt;
-				for (i = 0; i<16384; i++)
+				//t = -8192.0 * dt;
+				t = -1.0 * signal_size * dt;
+				for (i = 0; i < signal_size*2; i++) //16384
 				{
-					realkernel[i] = RealWavelet(t *f);
-					imagkernel[i] = ImagWavelet(t *f);
+					realkernel[i] = RealWavelet(t * f);
+					imagkernel[i] = ImagWavelet(t * f);
 					t = t + dt;
 				}
 				// compute values of CWT across row
-				for (col = 0;col<512;col++)
+				for (col = 0; col < 512; col++)
 				{
 					realval = 0.0;
 					imagval = 0.0;
-					loc = (col *signal_size)/512;
-					for (i = 0;i<signal_size;i++)
+					loc = (col * signal_size) / 512;
+					for (i = 0; i < signal_size; i++)
 					{
-						realval = realval + signal_data[i]*realkernel[8192-loc+i];
-						imagval = imagval + signal_data[i]*imagkernel[8192-loc+i];
+						realval = realval + signal_data[i]*realkernel[signal_size-loc+i]; // 8192-loc+i
+						imagval = imagval + signal_data[i]*imagkernel[signal_size-loc+i]; // 8192-loc+i
 					}
-					x = Math.Sqrt(realval *realval+imagval *imagval);
-					k = 512 *row+col;
+					x = Math.Sqrt(realval * realval + imagval * imagval);
+					k = 512 * row + col;
 					image_data[k] = x;
+
+					// store max value					
 					if (max<x)
 						max = x;
 				}
-				f = f *df;
+				f = f * df;
 			}
 
 			// put computed wavelet data, scaled, into bitmap image
@@ -749,11 +756,6 @@ namespace CWT
 		//*********************************************************
 		public CWTForm()
 		{
-			//
-			// The InitializeComponent() call is required for Windows Forms designer support.
-			//
-			//InitializeComponent();
-
 			Text = "CWT";
 			FormBorderStyle = FormBorderStyle.FixedDialog;
 			Size = new System.Drawing.Size(600, 600);
@@ -762,10 +764,11 @@ namespace CWT
 			image_height = 256;
 			sigma = 4.0;
 			omega = 1.0;
-			upper_freq = 128.0;
-			lower_freq = 4.0;
-			signal_data = new Double[16384];
-			image_data = new Double[131072];
+			upper_freq = 5000;//128.0;
+			lower_freq = 20;//4.0;
+			//signal_data = new Double[16384]; 
+			signal_data = new Double[55120]; 
+			image_data = new Double[image_width*image_height]; //131072
 			bmp = new Bitmap(image_width,image_height,System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
 
 			Setup_Menu();

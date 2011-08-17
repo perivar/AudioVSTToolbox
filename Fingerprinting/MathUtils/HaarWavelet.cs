@@ -64,9 +64,12 @@ namespace Wave2ZebraSynth.Fingerprinting.MathUtils
             for (int col = 0; col < cols /*32*/; col++) /*Decomposition of each column*/
             {
                 float[] column = new float[rows]; /*Length of each column is equal to number of rows*/
+                
                 for (int row = 0; row < rows; row++)
                     column[row] = image[row][col]; /*Copying Column vector*/
+                
                 DecomposeArray(column);
+                
                 for (int row = 0; row < rows; row++)
                     image[row][col] = column[row];
             }

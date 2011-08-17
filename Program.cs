@@ -4,6 +4,7 @@
  * Time: 12:13
  */
 using System;
+using System.IO;
 using System.Collections.Generic;
 
 using Wave2ZebraSynth.Audio;
@@ -51,15 +52,24 @@ namespace Wave2ZebraSynth
 			TAG_INFO tag = repositoryGateway._proxy.GetTagInfoFromFile(fileName);
 			
 			// VB6 FFT
-			double sampleRate = 44100 ;// 44100  default 5512
-			int fftWindowsSize = 4096; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
+			double sampleRate = 5512;// 44100  default 5512
+			int fftWindowsSize = 4096; //4096  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
 			float fftOverlapPercentage = 95.0f; // number between 0 and 100
-			int secondsToSample = 15; //15;
+			int secondsToSample = 5; //15;
 			float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 20*1000 );
 			VB6Spectrogram vb6Spect = new VB6Spectrogram();
 			vb6Spect.ComputeColorPalette();
 			float[][] vb6Spectrogram = vb6Spect.Compute(wavDataVB6, sampleRate, fftWindowsSize, fftOverlapPercentage);
 			//exportCSV (@"c:\VB6Spectrogram-full.csv", vb6Spectrogram);
+	
+			StreamWriter writer = File.CreateText(@"C:\audiofile.dat"); 
+			writer.WriteLine(wavDataVB6.Length);
+			writer.WriteLine(sampleRate);
+			for (int i = 0; i < wavDataVB6.Length; i++) {
+				writer.WriteLine(wavDataVB6[i]);
+			}
+			writer.Flush();
+			writer.Close();
 			
 			LogPlotter logPlotter = new LogPlotter();
 			logPlotter.Render( new double[] {1, 2, 4, 8, 16, 32}, new double[] {1, 2, 3, 4, 5, 6}, @"c:\logplot.png" );

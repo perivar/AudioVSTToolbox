@@ -21,7 +21,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <FileAlignment>4096</FileAlignment>
     <SourceAnalysisOverrideSettingsFile>C:\Users\perivar.nerseth\AppData\Roaming\ICSharpCode/SharpDevelop4.0\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
-    <StartupObject>Wave2ZebraSynth.Program</StartupObject>
+    <StartupObject>CWT.Program</StartupObject>
     <RunCodeAnalysis>False</RunCodeAnalysis>
     <RunSourceAnalysis>False</RunSourceAnalysis>
   </PropertyGroup>
@@ -65,6 +65,7 @@
     <Compile Include="AColor.cs" />
     <Compile Include="Axis.cs" />
     <Compile Include="CWT.cs" />
+    <Compile Include="CWTForm.cs" />
     <Compile Include="FFTWindows.cs" />
     <Compile Include="Audio\BassProxy.cs" />
     <Compile Include="Audio\IAudio.cs" />
