@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-using NAudio.Wave;
-using NAudio;
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Framework;
 using Jacobi.Vst.Interop.Host;
+
+using NAudio;
+using NAudio.Wave;
 
 // http://vstnet.codeplex.com/discussions/228692
 // daniel_s

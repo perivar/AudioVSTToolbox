@@ -8,7 +8,7 @@ using Jacobi.Vst.Core.Host;
 using ProcessVSTPlugin;
 using NAudio.Wave;
 
-namespace Jacobi.Vst.Samples.Host
+namespace ProcessVSTPlugin
 {
 	partial class PluginForm : Form
 	{
@@ -154,7 +154,7 @@ namespace Jacobi.Vst.Samples.Host
 
 			VstHost host = VstHost.Instance;
 			host.PluginContext = this.PluginContext;			
-			host.SetInputWave(@"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl\Intro.wav");
+			host.InputWave = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl\Intro.wav";
 			// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
 			// tblock = 0.15 makes blocksize = 6615.
 			int sampleRate = 44100;

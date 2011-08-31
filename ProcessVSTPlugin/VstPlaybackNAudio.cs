@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Threading;
-
-using NAudio.Wave;
+//using System.Linq;
 
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Interop.Host;
+
+using NAudio.Wave;
 
 namespace ProcessVSTPlugin
 {
@@ -52,8 +53,7 @@ namespace ProcessVSTPlugin
 			 */
 			
 			// CALL VST PROCESS HERE WITH BLOCK SIZE OF sampleCount
-			//float[] tempBuffer = Host.ProcessReplacing(sampleCount);
-			Host.ProcessReplacing((uint)sampleCount);
+			int processedCount = Host.ProcessReplacing((uint)sampleCount);
 
 			/*
 			// Copying Vst buffer inside Audio buffer, no conversion needed for WaveProvider32
@@ -81,8 +81,9 @@ namespace ProcessVSTPlugin
 					j++;
 				}
 			}
-
-			return sampleCount;
+			
+			//return sampleCount;
+			return processedCount;
 		}
 	}
 
@@ -101,6 +102,14 @@ namespace ProcessVSTPlugin
 			Init();
 		}
 
+		public virtual IWavePlayer PlaybackDevice
+		{
+			get
+			{
+				return this.playbackDevice;
+			}
+		}
+		
 		public void Init()
 		{
 			vstStream = new VstStreamNAudio(Host);

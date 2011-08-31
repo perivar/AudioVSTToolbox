@@ -2,11 +2,12 @@
 // YuryK
 
 using System;
+
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Interop.Host;
+
 using PortAudioSharp;
-using ProcessVSTPlugin;
 
 namespace ProcessVSTPlugin
 {

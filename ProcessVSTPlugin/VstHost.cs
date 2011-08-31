@@ -1,16 +1,13 @@
 ﻿using System;
+using System.Windows.Forms;
+using System.Collections.Generic;
+
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Interop.Host;
 
-// for the host command stub
-using Jacobi.Vst.Samples.Host;
-
-using System.Windows.Forms;
-using System.Collections.Generic;
-
-using NAudio.Wave;
 using NAudio;
+using NAudio.Wave;
 
 namespace ProcessVSTPlugin
 {
@@ -19,6 +16,8 @@ namespace ProcessVSTPlugin
 	/// </summary>
 	public sealed class VstHost
 	{
+		private int count = 0;
+		
 		private static readonly VstHost instance = new VstHost();
 
 		public VstAudioBuffer[] vstInputBuffers = null;
@@ -30,6 +29,9 @@ namespace ProcessVSTPlugin
 		public int Channels { get; set; }
 		
 		private WaveChannel32 wavStream;
+		private WaveFileReader wavFileReader;
+		
+		private int tailWaitForNumberOfSeconds = 5;
 		
 	    // Explicit static constructor to tell C# compiler
 	    // not to mark type as beforefieldinit
@@ -48,13 +50,30 @@ namespace ProcessVSTPlugin
 	            return instance;
 	        }
 	    }
+	    
+	    public string InputWave
+	    {
+	        set
+	        {
+				// 4 bytes per sample (32 bit)
+				this.wavFileReader = new WaveFileReader(value);
+				this.wavStream = new WaveChannel32(this.wavFileReader);
+				this.wavStream.Volume = 1f;    	
+	        }
+	    }	    
 
-	    public void SetInputWave(string waveFile) {
-			// 4 bytes per sample (32 bit)
-			this.wavStream = new WaveChannel32(new WaveFileReader(waveFile));
-			this.wavStream.Volume = 1f;    	
-	    }
-    
+	    public int TailWaitForNumberOfSeconds
+	    {
+	        get
+	        {
+	            return this.tailWaitForNumberOfSeconds;
+	        }
+	        set
+	        {
+				this.tailWaitForNumberOfSeconds = value;
+	        }
+	    }	    
+	    
 		public void OpenPlugin(string pluginPath)
 		{
 			try
@@ -110,7 +129,7 @@ namespace ProcessVSTPlugin
 		}
 		
 		// This function fills vstOutputBuffers with audio processed by a plugin			
-		public void ProcessReplacing(uint sampleCount) {
+		public int ProcessReplacing(uint sampleCount) {
 		
 			int sampleCountx4 = (int) sampleCount * 4;
 			int loopSize = (int) sampleCount / Channels;
@@ -118,6 +137,11 @@ namespace ProcessVSTPlugin
 			// 4 bytes per sample (32 bit)
 			byte[] naudioBuf = new byte[sampleCountx4];
 			int bytesRead = wavStream.Read(naudioBuf, 0, sampleCountx4);
+
+			//System.Diagnostics.Debug.WriteLine(String.Format("{0} - Position: {1}, Time: {2}, Total Time: {3}", count, wavStream.Position, wavStream.CurrentTime, wavStream.TotalTime));
+			if (wavStream.CurrentTime > wavStream.TotalTime.Add(TimeSpan.FromSeconds(tailWaitForNumberOfSeconds))) {
+				return 0;
+			}
 			
 			unsafe
 			{
@@ -140,24 +164,13 @@ namespace ProcessVSTPlugin
 			//PluginContext.PluginCommandStub.StartProcess();
 
 			PluginContext.PluginCommandStub.ProcessReplacing(vstInputBuffers, vstOutputBuffers);
-
-			/*
-			for (int i = 0; i < this.vstOutputBuffers.Length; i++)
-			{
-			   for (int j = 0; j < blockSize; j++)
-			   {
-			      if (this.vstOutputBuffers[i][j] != 0.0)
-			      {
-			          // IF THIS LINE IS HIT YOU HAVE SOMETHING PLAYING
-			          float v = this.vstOutputBuffers[i][j];
-			      }
-			   }
-			}
-			*/
-
+			
 			// Close resources
 			//PluginContext.PluginCommandStub.StopProcess();
 			//PluginContext.PluginCommandStub.MainsChanged(false);
+			
+			count++;
+			return (int) sampleCount;
 		}
 		
 		public void SaveWavFile(string fileName) {
@@ -254,5 +267,14 @@ namespace ProcessVSTPlugin
 			return "Nothing";
 		}
 		
+		public void ShowPluginEditor()
+		{
+			EditorFrame dlg = new EditorFrame();
+			dlg.PluginCommandStub = PluginContext.PluginCommandStub;
+
+			PluginContext.PluginCommandStub.MainsChanged(true);
+			dlg.ShowDialog();
+			PluginContext.PluginCommandStub.MainsChanged(false);
+		}		
 	}
 }

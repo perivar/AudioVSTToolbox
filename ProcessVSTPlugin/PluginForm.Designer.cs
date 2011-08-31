@@ -1,4 +1,4 @@
-﻿namespace Jacobi.Vst.Samples.Host
+﻿namespace ProcessVSTPlugin
 {
     partial class PluginForm
     {

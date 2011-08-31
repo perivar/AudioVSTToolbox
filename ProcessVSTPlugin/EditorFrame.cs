@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 
-namespace Jacobi.Vst.Samples.Host
+namespace ProcessVSTPlugin
 {
     /// <summary>
     /// The frame in which a custom plugin editor UI is displayed.
