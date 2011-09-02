@@ -49,7 +49,8 @@ namespace ProcessVSTPlugin
 			}
 			*/
 			
-			String pluginPath = "../../TAL-Reverb-2.dll";
+			//String pluginPath = "../../TAL-Reverb-2.dll";
+			String pluginPath = "../../SIR2.dll";
 			VstHost host = VstHost.Instance;
 			host.OpenPlugin(pluginPath);
 			host.InputWave = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl\Intro.wav";
@@ -60,22 +61,29 @@ namespace ProcessVSTPlugin
 			int channels = 2;
 			host.Init(blockSize, sampleRate, channels);
 			System.Diagnostics.Debug.WriteLine(host.getPluginInfo());
-			
+
+			/*			
 			VstPlaybackNAudio playback = new VstPlaybackNAudio(host);		
 			playback.Play();
-			Thread.Sleep(100);		
 
  			Console.WriteLine("Started");
 
+ 			// make sure to play while the stream is playing
  			while (playback.PlaybackDevice.PlaybackState == PlaybackState.Playing)
 			{
-            	Thread.Sleep(10 * 1000);
+				Thread.Sleep(100);		
  			}
             
             Console.WriteLine("Ending");
             playback.Stop();
             Console.WriteLine("Stopped");
             playback.Dispose();
+			*/
+            
+			host.LoadFXP(@"..\..\Scoring Stages (Orchestral Studios)_Todd-AO - California US_st to st wide mics at 18m90.fxp");
+			
+           VstFileWriter fileWriter = new VstFileWriter(host);
+           fileWriter.CreateWaveFile("test.wav");            
 		}
 	}
 }

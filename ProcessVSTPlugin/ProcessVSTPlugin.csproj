@@ -63,13 +63,16 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AudioOutput.cs" />
+    <Compile Include="BinaryFile.cs" />
     <Compile Include="EditorFrame.cs" />
     <Compile Include="EditorFrame.Designer.cs">
       <DependentUpon>EditorFrame.cs</DependentUpon>
     </Compile>
+    <Compile Include="FXP.cs" />
     <Compile Include="HostCommandStub.cs" />
     <Compile Include="MainForm.cs" />
     <Compile Include="MainForm.Designer.cs">
