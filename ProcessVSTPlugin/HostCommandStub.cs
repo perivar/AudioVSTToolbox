@@ -3,7 +3,7 @@
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Interop.Host;
 
-namespace Jacobi.Vst.Samples.Host
+namespace ProcessVSTPlugin
 {
     /// <summary>
     /// The HostCommandStub class represents the part of the host that a plugin can call.

@@ -53,14 +53,7 @@
     <Reference Include="NAudio">
       <HintPath>_SharedAssemblies\NAudio.dll</HintPath>
     </Reference>
-    <Reference Include="PortAudio">
-      <HintPath>_SharedAssemblies\PortAudio.dll</HintPath>
-    </Reference>
-    <Reference Include="PortAudioSharp">
-      <HintPath>_SharedAssemblies\PortAudioSharp.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Windows.Forms" />
@@ -68,10 +61,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AudioOutput.cs" />
+    <Compile Include="BinaryFile.cs" />
     <Compile Include="EditorFrame.cs" />
     <Compile Include="EditorFrame.Designer.cs">
       <DependentUpon>EditorFrame.cs</DependentUpon>
     </Compile>
+    <Compile Include="FXP.cs" />
     <Compile Include="HostCommandStub.cs" />
     <Compile Include="MainForm.cs" />
     <Compile Include="MainForm.Designer.cs">
@@ -84,7 +79,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VstHost.cs" />
-    <Compile Include="VstPlaybackPortAudio.cs" />
     <Compile Include="VstPlaybackNAudio.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +91,9 @@
     <EmbeddedResource Include="PluginForm.resx">
       <DependentUpon>PluginForm.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>

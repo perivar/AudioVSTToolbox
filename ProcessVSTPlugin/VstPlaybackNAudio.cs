@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Threading;
-
-using NAudio.Wave;
+//using System.Linq;
 
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Interop.Host;
+
+using NAudio.Wave;
 
 namespace ProcessVSTPlugin
 {
@@ -14,10 +15,8 @@ namespace ProcessVSTPlugin
 	// converting the Vst buffer to the NAudio buffer.
 	public class VstStreamNAudio : WaveProvider32
 	{
-		//int sample;
-		//public float Frequency { get; set; }
-		//public float Amplitude { get; set; }
-		//public int BlockSize { get; set; }
+		public long Length { get { throw new System.NotSupportedException(); } }
+		public long Position { get { throw new System.NotSupportedException(); } set { throw new System.NotSupportedException(); } }
 		
 		// Pointer to VstHost singleton
 		public VstHost Host  { get; set; }
@@ -33,40 +32,14 @@ namespace ProcessVSTPlugin
 		
 		public override int Read(float[] buffer, int offset, int sampleCount)
 		{
-			// 	Right I've got it! I changed the blockSize when initializing the output managers 
+			// 	Right I've got it! I changed the blockSize when initializing the output managers
 			// to match the buffer.Length attribute in the read function.
 			// The sound is now continuous wahoo! Still not sure if this is the best way to do this but it works!
-			int bufferLength = buffer.Length;							
+			int bufferLength = buffer.Length;
 			int loopSize = sampleCount / Host.Channels;
 			
-			// generate sine wave
-			/*
-			int sampleRate = WaveFormat.SampleRate;
-			for (int n = 0; n < sampleCount; n++)
-			{
-				buffer[n+offset] = (float)(Amplitude * Math.Sin((2 * Math.PI * sample * Frequency) / sampleRate));
-				sample++;
-				if (sample >= sampleRate) sample = 0;
-			}
-			return sampleCount;
-			 */
-			
 			// CALL VST PROCESS HERE WITH BLOCK SIZE OF sampleCount
-			//float[] tempBuffer = Host.ProcessReplacing(sampleCount);
-			Host.ProcessReplacing((uint)sampleCount);
-
-			/*
-			// Copying Vst buffer inside Audio buffer, no conversion needed for WaveProvider32
-			// this does not work for stereo!!
-			for (int i = 0; i < Host.vstOutputBuffers.Length; i++) // i < inputBuffers.Length &&
-			{
-				for (int j = 0; j < loopSize; j++)
-				{
-					float value = Host.vstOutputBuffers[i][j];
-					buffer[i] = value;
-				}
-			}
-			 */
+			int processedCount = Host.ProcessReplacing((uint)sampleCount);
 			
 			unsafe
 			{
@@ -81,16 +54,15 @@ namespace ProcessVSTPlugin
 					j++;
 				}
 			}
-
-			return sampleCount;
+			
+			return processedCount;
 		}
 	}
 
 	public class VstPlaybackNAudio : IDisposable
 	{
 		private IWavePlayer playbackDevice = null;
-		//private IWaveProvider vstStream = null;
-		private WaveProvider32 vstStream = null;
+		private IWaveProvider vstStream = null;
 
 		// Pointer to VstHost singleton
 		public VstHost Host  { get; set; }
@@ -101,6 +73,14 @@ namespace ProcessVSTPlugin
 			Init();
 		}
 
+		public virtual IWavePlayer PlaybackDevice
+		{
+			get
+			{
+				return this.playbackDevice;
+			}
+		}
+		
 		public void Init()
 		{
 			vstStream = new VstStreamNAudio(Host);
@@ -111,19 +91,6 @@ namespace ProcessVSTPlugin
 			playbackDevice = new WaveOut(WaveCallbackInfo.FunctionCallback());
 			//playbackDevice = new WaveOut();
 			playbackDevice.Init(vstStream);
-			
-			/*
-			using (var playbackDevice =  new WaveOut(WaveCallbackInfo.FunctionCallback()))
-			{
-				playbackDevice.Init(vstStream);
-				playbackDevice.Play();
-				while (playbackDevice.PlaybackState == PlaybackState.Playing)
-				{
-					Thread.Sleep(100);
-				}
-			}
-			*/
-			
 		}
 
 		public static WaveStream CreateInputStream(string name)
@@ -174,9 +141,113 @@ namespace ProcessVSTPlugin
 		{
 			if (playbackDevice != null)
 			{
+				playbackDevice.Pause();
+				playbackDevice.Stop();
 				playbackDevice.Dispose();
 				playbackDevice = null;
 			}
 		}
 	}
+	
+	public class VstFileWriter
+	{
+		private IWaveProvider vstStream = null;
+		private int blocksize;
+		
+		// Pointer to VstHost singleton
+		public VstHost Host  { get; set; }
+
+		public VstFileWriter(VstHost host)
+		{
+			Host = host;
+			this.blocksize = 32768; // 16384 8192 4096
+			vstStream = new VstStreamNAudio(Host);
+		}
+
+		public virtual int BlockSize
+		{
+			set
+			{
+				this.blocksize = value;
+			}	
+			get
+			{
+				return this.blocksize;
+			}
+		}
+
+		public virtual IWaveProvider VstStream
+		{
+			get
+			{
+				return this.vstStream;
+			}
+		}
+		
+		public void CreateWaveFile(string outputFile) {
+			//using (WaveStream pcmStream = new WaveProviderToWaveStream(this.VstStream))
+			//{
+			//	WaveFileWriter.CreateWaveFile(outputFile, pcmStream);
+			//}
+	
+ 			Console.WriteLine("Saving wav file: " + outputFile);			
+			using (WaveFileWriter writer = new WaveFileWriter(outputFile, this.VstStream.WaveFormat))
+			{
+				byte[] buf = new byte[this.blocksize];
+				for (; ;)
+				{
+					int cnt = this.VstStream.Read(buf, 0, buf.Length);
+					if (cnt == 0) break;
+					writer.WriteData(buf, 0, cnt);
+				}
+			}
+		}
+	}
+	
+	public class WaveProviderToWaveStream : WaveStream
+	{
+		private readonly IWaveProvider source;
+		private long position;
+
+		public WaveProviderToWaveStream(IWaveProvider source)
+		{
+			this.source = source;
+		}
+
+		public override WaveFormat WaveFormat
+		{
+			get { return source.WaveFormat;  }
+		}
+
+		/// <summary>
+		/// Don't know the real length of the source, just return a big number
+		/// </summary>
+		public override long Length
+		{
+			get { return Int32.MaxValue; }
+		}
+
+		public override long Position
+		{
+			get
+			{
+				// we'll just return the number of bytes read so far
+				return position;
+			}
+			set
+			{
+				// can't set position on the source
+				// n.b. could alternatively ignore this
+				throw new NotImplementedException();
+			}
+		}
+
+		public override int Read(byte[] buffer, int offset, int count)
+		{
+			int read = source.Read(buffer, offset, count);
+			position += read;
+			return read;
+		}
+	}
+	
 }

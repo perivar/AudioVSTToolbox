@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 
-namespace Jacobi.Vst.Samples.Host
+namespace ProcessVSTPlugin
 {
     partial class MainForm : Form
     {
