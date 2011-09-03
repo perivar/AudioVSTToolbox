@@ -162,8 +162,17 @@ namespace ProcessVSTPlugin
 			int channels = 2;
 			host.Init(blockSize, sampleRate, channels);
 
-			if (playback == null) playback = new VstPlaybackNAudio(host);
-			playback.Play();
+			if (playback == null) { 
+				playback = new VstPlaybackNAudio(host);
+				playback.Play();
+			} else {
+				// toogle start or stop
+				if (playback.PlaybackDevice.PlaybackState == PlaybackState.Playing) {
+					playback.Stop();
+				} else if (playback.PlaybackDevice.PlaybackState == PlaybackState.Stopped) {
+					playback.Play();
+				}
+			}
 		}
 				
 		private void GenerateNoiseBtn_Click(object sender, EventArgs e)
@@ -239,5 +248,33 @@ namespace ProcessVSTPlugin
 			dlg.ShowDialog(this);
 			PluginContext.PluginCommandStub.MainsChanged(false);
 		}
+        
+        void LoadFXPBtnClick(object sender, EventArgs e)
+        {
+        	OpenFileDialog dialog = new OpenFileDialog();
+        	if (dialog.ShowDialog(this) == DialogResult.OK)
+            {
+            	string fxpFilePath = dialog.FileName;
+				VstHost host = VstHost.Instance;
+				host.PluginContext = this.PluginContext;			
+            	
+				host.LoadFXP(fxpFilePath);
+				FillParameterList();				
+            }        	
+        }
+        
+        void SaveFXPBtnClick(object sender, EventArgs e)
+        {
+        	SaveFileDialog dialog = new SaveFileDialog();
+        	if (dialog.ShowDialog(this) == DialogResult.OK)
+            {
+            	string fxpFilePath = dialog.FileName;
+				VstHost host = VstHost.Instance;
+				host.PluginContext = this.PluginContext;			
+            	
+				host.SaveFXP(fxpFilePath);
+				FillParameterList();				
+            }        	        	
+        }
 	}
 }

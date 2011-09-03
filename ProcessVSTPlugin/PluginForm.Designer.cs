@@ -33,6 +33,8 @@
         	this.PluginPropertyListVw = new System.Windows.Forms.ListView();
         	this.PropertyNameHdr = new System.Windows.Forms.ColumnHeader();
         	this.PropertyValueHdr = new System.Windows.Forms.ColumnHeader();
+        	this.SaveFXPBtn = new System.Windows.Forms.Button();
+        	this.LoadFXPBtn = new System.Windows.Forms.Button();
         	this.PluginParameterListVw = new System.Windows.Forms.ListView();
         	this.ParameterNameHdr = new System.Windows.Forms.ColumnHeader();
         	this.ParameterValueHdr = new System.Windows.Forms.ColumnHeader();
@@ -95,6 +97,8 @@
         	// 
         	groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
         	        	        	| System.Windows.Forms.AnchorStyles.Right)));
+        	groupBox2.Controls.Add(this.SaveFXPBtn);
+        	groupBox2.Controls.Add(this.LoadFXPBtn);
         	groupBox2.Controls.Add(this.PluginParameterListVw);
         	groupBox2.Controls.Add(this.ProgramNameTxt);
         	groupBox2.Controls.Add(this.ProgramIndexNud);
@@ -104,6 +108,26 @@
         	groupBox2.TabIndex = 1;
         	groupBox2.TabStop = false;
         	groupBox2.Text = "Programs && Parameters";
+        	// 
+        	// SaveFXPBtn
+        	// 
+        	this.SaveFXPBtn.Location = new System.Drawing.Point(349, 20);
+        	this.SaveFXPBtn.Name = "SaveFXPBtn";
+        	this.SaveFXPBtn.Size = new System.Drawing.Size(40, 23);
+        	this.SaveFXPBtn.TabIndex = 4;
+        	this.SaveFXPBtn.Text = "Save";
+        	this.SaveFXPBtn.UseVisualStyleBackColor = true;
+        	this.SaveFXPBtn.Click += new System.EventHandler(this.SaveFXPBtnClick);
+        	// 
+        	// LoadFXPBtn
+        	// 
+        	this.LoadFXPBtn.Location = new System.Drawing.Point(301, 20);
+        	this.LoadFXPBtn.Name = "LoadFXPBtn";
+        	this.LoadFXPBtn.Size = new System.Drawing.Size(42, 23);
+        	this.LoadFXPBtn.TabIndex = 3;
+        	this.LoadFXPBtn.Text = "Load";
+        	this.LoadFXPBtn.UseVisualStyleBackColor = true;
+        	this.LoadFXPBtn.Click += new System.EventHandler(this.LoadFXPBtnClick);
         	// 
         	// PluginParameterListVw
         	// 
@@ -148,7 +172,7 @@
         	// 
         	this.ProgramNameTxt.Location = new System.Drawing.Point(54, 20);
         	this.ProgramNameTxt.Name = "ProgramNameTxt";
-        	this.ProgramNameTxt.Size = new System.Drawing.Size(226, 20);
+        	this.ProgramNameTxt.Size = new System.Drawing.Size(241, 20);
         	this.ProgramNameTxt.TabIndex = 1;
         	// 
         	// ProgramIndexNud
@@ -196,9 +220,9 @@
         	// 
         	this.ProcessAudioBtn.Location = new System.Drawing.Point(110, 362);
         	this.ProcessAudioBtn.Name = "ProcessAudioBtn";
-        	this.ProcessAudioBtn.Size = new System.Drawing.Size(75, 23);
+        	this.ProcessAudioBtn.Size = new System.Drawing.Size(100, 23);
         	this.ProcessAudioBtn.TabIndex = 6;
-        	this.ProcessAudioBtn.Text = "Process Sound";
+        	this.ProcessAudioBtn.Text = "Listen Start/Stop";
         	this.ProcessAudioBtn.UseVisualStyleBackColor = true;
         	this.ProcessAudioBtn.Click += new System.EventHandler(this.ProcessAudioBtnClick);
         	// 
@@ -226,6 +250,8 @@
         	((System.ComponentModel.ISupportInitialize)(this.ProgramIndexNud)).EndInit();
         	this.ResumeLayout(false);
         }
+        private System.Windows.Forms.Button LoadFXPBtn;
+        private System.Windows.Forms.Button SaveFXPBtn;
         private System.Windows.Forms.Button ProcessAudioBtn;
 
         #endregion

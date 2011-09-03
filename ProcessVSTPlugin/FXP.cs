@@ -36,12 +36,17 @@ public class FXP {
 
 		BinaryFile bf = new BinaryFile(filePath, BinaryFile.ByteOrder.BigEndian, true);
 
-		StringWriter stringWriter = new StringWriter();
-		XmlTextWriter xmlTextWriter = new XmlTextWriter(stringWriter);
-		xmlDocument.WriteTo(xmlTextWriter);
-		xmlTextWriter.Flush();
-		string xmlChunkData = stringWriter.ToString().Replace("'", "&apos;");
-		chunkSize = xmlChunkData.Length;
+		string xmlChunkData = "";
+		if (xmlDocument != null) {
+			StringWriter stringWriter = new StringWriter();
+			XmlTextWriter xmlTextWriter = new XmlTextWriter(stringWriter);
+			xmlDocument.WriteTo(xmlTextWriter);
+			xmlTextWriter.Flush();
+			xmlChunkData = stringWriter.ToString().Replace("'", "&apos;");
+			chunkSize = xmlChunkData.Length;
+		} else {
+			xmlChunkData = this.chunkData;
+		}
 		byteSize = 52 + chunkSize;
 		
 		Console.Out.WriteLine("Writing FXP to {0} ...", filePath);
@@ -85,7 +90,11 @@ public class FXP {
 		
 		// read the xml chunk into memory
 		xmlDocument = new XmlDocument();
-		xmlDocument.LoadXml(chunkData);
+		try {
+			xmlDocument.LoadXml(chunkData);
+		} catch (XmlException xe) {
+			Console.Out.WriteLine("No XML found");
+		}
 	}
 	
 	public FXP(byte[] values) {
@@ -105,6 +114,10 @@ public class FXP {
 		
 		// read the xml chunk into memory
 		xmlDocument = new XmlDocument();
-		xmlDocument.LoadXml(chunkData);
+		try {
+			xmlDocument.LoadXml(chunkData);
+		} catch (XmlException xe) {
+			Console.Out.WriteLine("No XML found");
+		}
 	}
 }

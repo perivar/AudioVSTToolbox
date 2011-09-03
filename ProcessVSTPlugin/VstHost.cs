@@ -159,12 +159,28 @@ namespace ProcessVSTPlugin
 				}
 			}
 			
+			// The calls to Mainschanged and Start/Stop Process should be made only once, not for every cycle in the audio processing.
+			// So it should look something like:
+			// 
+			// [plugin.Open()]
+			// plugin.MainsChanged(true) // turn on 'power' on plugin.
+			// plugin.StartProcess() // let the plugin know the audio engine has started
+			// PluginContext.PluginCommandStub.ProcessEvents(ve); // process events (like VstMidiEvent)
+			// 
+			// while(audioEngineIsRunning)
+			// {
+			//     plugin.ProcessReplacing(inputBuffers, outputBuffers)  // letplugin process audio stream
+			// }
+			// 
+			// plugin.StopProcess()
+			// plugin.MainsChanged(false)
+			// 
+			// [plugin.Close()]
+			
 			// Open Resources
 			//PluginContext.PluginCommandStub.MainsChanged(true);
 			//PluginContext.PluginCommandStub.StartProcess();
-
 			PluginContext.PluginCommandStub.ProcessReplacing(vstInputBuffers, vstOutputBuffers);
-			
 			// Close resources
 			//PluginContext.PluginCommandStub.StopProcess();
 			//PluginContext.PluginCommandStub.MainsChanged(false);
@@ -183,37 +199,6 @@ namespace ProcessVSTPlugin
 			{
 				PluginContext.PluginCommandStub.SetProgram(programNumber);
 			}
-		}
-
-		public void LoadFXP(string fileName) {
-			/*
-			 VstPatchChunkInfo structure:			
-			 struct VstPatchChunkInfo
-			 {
-				  VstInt32 version;         // Format Version (should be 1)
-				  VstInt32 pluginUniqueID;  // UniqueID of the plug-in
-				  VstInt32 pluginVersion;   // Plug-in Version
-				  VstInt32 numElements;     // Number of Programs (Bank) or Parameters (Program)
-				  char future[48];          // Reserved for future use
-			 };
-			 */
-			FXP fxp = new FXP();
-			fxp.ReadFile(fileName);
-			int version = fxp.version;
-			int pluginId = 1; // fxp.fxID;
-			int pluginVersion = fxp.fxVersion;
-			int elementCount = fxp.numPrograms;
-			VstPatchChunkInfo chunkInfo = new VstPatchChunkInfo(version, pluginId, pluginVersion, elementCount);
-				
-			// Called before a Program is loaded. (called before BeginSetProgram).
-			VstCanDoResult beginLoadProgramReturn = PluginContext.PluginCommandStub.BeginLoadProgram(chunkInfo);
-			bool beginSetProgramReturn = PluginContext.PluginCommandStub.BeginSetProgram();
-			
-			byte[] chunkData = BinaryFile.StringToByteArray(fxp.chunkData);
-			bool isPreset = true;
-			int setChunkReturn = PluginContext.PluginCommandStub.SetChunk(chunkData, isPreset);
-			
-			//byte[] chunkData2 = PluginContext.PluginCommandStub.GetChunk(isPreset);
 		}
 		
 		public void SendMidiNoteWithProcessEvent() {
@@ -326,5 +311,65 @@ namespace ProcessVSTPlugin
 			dlg.ShowDialog();
 			PluginContext.PluginCommandStub.MainsChanged(false);
 		}
+		
+		public void LoadFXP(string filePath) {
+			/*
+			 VstPatchChunkInfo structure:
+			 struct VstPatchChunkInfo
+			 {
+				  VstInt32 version;         // Format Version (should be 1)
+				  VstInt32 pluginUniqueID;  // UniqueID of the plug-in
+				  VstInt32 pluginVersion;   // Plug-in Version
+				  VstInt32 numElements;     // Number of Programs (Bank) or Parameters (Program)
+				  char future[48];          // Reserved for future use
+			 };
+			 */
+			FXP fxp = new FXP();
+			fxp.ReadFile(filePath);
+			int version = fxp.version;
+			int pluginId = 1; // fxp.fxID;
+			int pluginVersion = fxp.fxVersion;
+			int elementCount = fxp.numPrograms;
+			VstPatchChunkInfo chunkInfo = new VstPatchChunkInfo(version, pluginId, pluginVersion, elementCount);
+			
+			// Called before a Program is loaded. (called before BeginSetProgram).
+			VstCanDoResult beginLoadProgramReturn = PluginContext.PluginCommandStub.BeginLoadProgram(chunkInfo);
+			bool beginSetProgramReturn = PluginContext.PluginCommandStub.BeginSetProgram();
+			
+			byte[] chunkData = BinaryFile.StringToByteArray(fxp.chunkData);
+			bool isPreset = true;
+			int setChunkReturn = PluginContext.PluginCommandStub.SetChunk(chunkData, isPreset);
+			
+			//byte[] chunkData2 = PluginContext.PluginCommandStub.GetChunk(isPreset);
+		}
+
+		public void SaveFXP(string filePath) {
+			/*
+			 VstPatchChunkInfo structure:
+			 struct VstPatchChunkInfo
+			 {
+				  VstInt32 version;         // Format Version (should be 1)
+				  VstInt32 pluginUniqueID;  // UniqueID of the plug-in
+				  VstInt32 pluginVersion;   // Plug-in Version
+				  VstInt32 numElements;     // Number of Programs (Bank) or Parameters (Program)
+				  char future[48];          // Reserved for future use
+			 };
+			 */
+			FXP fxp = new FXP();
+			fxp.chunkMagic = "CcnK";
+			fxp.byteSize = 0; // will be set correctly by FXP class
+			fxp.fxMagic = "FPCh";
+			fxp.version = 1; // Format Version (should be 1)
+			fxp.fxID = PluginContext.PluginInfo.PluginID.ToString();
+			fxp.fxVersion = PluginContext.PluginInfo.PluginVersion;
+			fxp.numPrograms = 0; // don't know what to do...
+			fxp.name = ""; // don't know what to do...
+			
+			byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);					
+			fxp.chunkSize = chunkData.Length;
+			fxp.chunkData = BinaryFile.ByteArrayToString(chunkData);
+			
+			fxp.WriteFile(filePath);
+		}		
 	}
 }

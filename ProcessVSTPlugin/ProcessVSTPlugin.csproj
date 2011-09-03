@@ -53,12 +53,6 @@
     <Reference Include="NAudio">
       <HintPath>_SharedAssemblies\NAudio.dll</HintPath>
     </Reference>
-    <Reference Include="PortAudio">
-      <HintPath>_SharedAssemblies\PortAudio.dll</HintPath>
-    </Reference>
-    <Reference Include="PortAudioSharp">
-      <HintPath>_SharedAssemblies\PortAudioSharp.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Design" />
@@ -85,7 +79,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VstHost.cs" />
-    <Compile Include="VstPlaybackPortAudio.cs" />
     <Compile Include="VstPlaybackNAudio.cs" />
   </ItemGroup>
   <ItemGroup>

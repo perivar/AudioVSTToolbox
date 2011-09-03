@@ -15,6 +15,9 @@ namespace ProcessVSTPlugin
 	// converting the Vst buffer to the NAudio buffer.
 	public class VstStreamNAudio : WaveProvider32
 	{
+		public long Length { get { throw new System.NotSupportedException(); } }
+		public long Position { get { throw new System.NotSupportedException(); } set { throw new System.NotSupportedException(); } }
+		
 		// Pointer to VstHost singleton
 		public VstHost Host  { get; set; }
 		
@@ -138,6 +141,8 @@ namespace ProcessVSTPlugin
 		{
 			if (playbackDevice != null)
 			{
+				playbackDevice.Pause();
+				playbackDevice.Stop();
 				playbackDevice.Dispose();
 				playbackDevice = null;
 			}
