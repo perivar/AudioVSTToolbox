@@ -305,7 +305,8 @@ namespace ProcessVSTPlugin
 		public void ShowPluginEditor()
 		{
 			EditorFrame dlg = new EditorFrame();
-			dlg.PluginCommandStub = PluginContext.PluginCommandStub;
+			//dlg.PluginCommandStub = PluginContext.PluginCommandStub;
+			dlg.PluginContext = PluginContext;
 
 			PluginContext.PluginCommandStub.MainsChanged(true);
 			dlg.ShowDialog();
@@ -324,23 +325,27 @@ namespace ProcessVSTPlugin
 				  char future[48];          // Reserved for future use
 			 };
 			 */
-			FXP fxp = new FXP();
+			FXP fxp = new FXP(); 
 			fxp.ReadFile(filePath);
 			int version = fxp.version;
-			int pluginId = 1; // fxp.fxID;
+			byte[] pluginIdArray = BinaryFile.StringToByteArray(fxp.fxID); //; // 58h8 = 946354229
+			int pluginId = BitConverter.ToInt32(pluginIdArray, 0);
 			int pluginVersion = fxp.fxVersion;
 			int elementCount = fxp.numPrograms;
 			VstPatchChunkInfo chunkInfo = new VstPatchChunkInfo(version, pluginId, pluginVersion, elementCount);
 			
+			 // Called before a Program is loaded, points to VstPatchChunkInfo structure
+			 // return -1 if the Program can not be loaded, return 1 if it can be loaded else 0 (for compatibility)
 			// Called before a Program is loaded. (called before BeginSetProgram).
-			VstCanDoResult beginLoadProgramReturn = PluginContext.PluginCommandStub.BeginLoadProgram(chunkInfo);
+			VstCanDoResult beginLoadProgramReturn = PluginContext.PluginCommandStub.BeginLoadProgram(chunkInfo);		
 			bool beginSetProgramReturn = PluginContext.PluginCommandStub.BeginSetProgram();
 			
 			byte[] chunkData = BinaryFile.StringToByteArray(fxp.chunkData);
 			bool isPreset = true;
 			int setChunkReturn = PluginContext.PluginCommandStub.SetChunk(chunkData, isPreset);
 			
-			//byte[] chunkData2 = PluginContext.PluginCommandStub.GetChunk(isPreset);
+			// called when the program is loaded
+			bool endSetProgramReturn = PluginContext.PluginCommandStub.EndSetProgram();
 		}
 
 		public void SaveFXP(string filePath) {
@@ -359,11 +364,15 @@ namespace ProcessVSTPlugin
 			fxp.chunkMagic = "CcnK";
 			fxp.byteSize = 0; // will be set correctly by FXP class
 			fxp.fxMagic = "FPCh";
-			fxp.version = 1; // Format Version (should be 1)
-			fxp.fxID = PluginContext.PluginInfo.PluginID.ToString();
+			fxp.version = 0; // Format Version (should be 1)
+			int pluginId = PluginContext.PluginInfo.PluginID;
+			byte[] fxIdArray = BitConverter.GetBytes(pluginId);
+			Array.Reverse(fxIdArray);
+			string fxIdString = BinaryFile.ByteArrayToString(fxIdArray);
+			fxp.fxID = fxIdString;
 			fxp.fxVersion = PluginContext.PluginInfo.PluginVersion;
-			fxp.numPrograms = 0; // don't know what to do...
-			fxp.name = ""; // don't know what to do...
+			fxp.numPrograms = PluginContext.PluginInfo.ProgramCount;			
+			fxp.name = PluginContext.PluginCommandStub.GetProgramName();
 			
 			byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);					
 			fxp.chunkSize = chunkData.Length;

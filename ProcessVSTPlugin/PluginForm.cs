@@ -242,11 +242,13 @@ namespace ProcessVSTPlugin
 		private void EditorBtn_Click(object sender, EventArgs e)
 		{
 			EditorFrame dlg = new EditorFrame();
-			dlg.PluginCommandStub = PluginContext.PluginCommandStub;
-
+			//dlg.PluginCommandStub = PluginContext.PluginCommandStub;
+			dlg.PluginContext = PluginContext;
+			
 			PluginContext.PluginCommandStub.MainsChanged(true);
 			dlg.ShowDialog(this);
 			PluginContext.PluginCommandStub.MainsChanged(false);
+			FillParameterList();				
 		}
         
         void LoadFXPBtnClick(object sender, EventArgs e)

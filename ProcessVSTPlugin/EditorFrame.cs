@@ -23,8 +23,10 @@ namespace ProcessVSTPlugin
         /// <summary>
         /// Gets or sets the Plugin Command Stub.
         /// </summary>
-        public Jacobi.Vst.Core.Host.IVstPluginCommandStub PluginCommandStub { get; set; }
-
+        //public Jacobi.Vst.Core.Host.IVstPluginCommandStub PluginCommandStub { get; set; }
+       
+		public VstPluginContext PluginContext { get; set; }
+		
         /// <summary>
         /// Shows the custom plugin editor UI.
         /// </summary>
@@ -34,12 +36,12 @@ namespace ProcessVSTPlugin
         {
             Rectangle wndRect = new Rectangle();
 
-            this.Text = PluginCommandStub.GetEffectName();
+            this.Text = PluginContext.PluginCommandStub.GetEffectName();
 
-            if (PluginCommandStub.EditorGetRect(out wndRect))
+            if (PluginContext.PluginCommandStub.EditorGetRect(out wndRect))
             {
                 this.Size = this.SizeFromClientSize(new Size(wndRect.Width, wndRect.Height));
-                PluginCommandStub.EditorOpen(this.Handle);
+                PluginContext.PluginCommandStub.EditorOpen(this.Handle);
             }
 
             return base.ShowDialog(owner);
@@ -51,8 +53,28 @@ namespace ProcessVSTPlugin
 
             if (e.Cancel == false)
             {
-                PluginCommandStub.EditorClose();
+                PluginContext.PluginCommandStub.EditorClose();
             }
+        }
+        
+
+        void SaveBtnClick(object sender, EventArgs e)
+        {
+        	
+        }
+        
+        void LoadBtnClick(object sender, EventArgs e)
+        {
+        	OpenFileDialog dialog = new OpenFileDialog();
+        	if (dialog.ShowDialog(this) == DialogResult.OK)
+            {
+            	string fxpFilePath = dialog.FileName;
+				VstHost host = VstHost.Instance;
+				host.PluginContext = this.PluginContext;			
+            	
+				host.LoadFXP(fxpFilePath);
+				this.Refresh();
+            }        	        	
         }
     }
 }
