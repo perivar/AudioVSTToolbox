@@ -87,6 +87,17 @@ public class FXP {
 		chunkSize = bf.ReadInt32();
 		chunkData = bf.ReadString(chunkSize);
 		bf.Close();
+
+		Console.Out.WriteLine("Loading FXP from {0} ...", filePath);
+		Console.Out.WriteLine(">chunkMagic: {0}", chunkMagic);
+		Console.Out.WriteLine(">byteSize: {0}", byteSize);
+		Console.Out.WriteLine(">fxMagic: {0}", fxMagic);
+		Console.Out.WriteLine(">version: {0}", version);
+		Console.Out.WriteLine(">fxID: {0}", fxID);
+		Console.Out.WriteLine(">fxVersion: {0}", fxVersion);
+		Console.Out.WriteLine(">numPrograms: {0}", numPrograms);
+		Console.Out.WriteLine(">name: {0}", name);
+		Console.Out.WriteLine(">chunkSize: {0}", chunkSize);
 		
 		// read the xml chunk into memory
 		xmlDocument = new XmlDocument();
