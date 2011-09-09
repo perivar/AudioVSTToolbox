@@ -61,16 +61,17 @@ namespace ProcessVSTPlugin
 		
 		private void FillProgram()
 		{
+			presetComboBox.Items.Clear();
 			string[] programs = new String[PluginContext.PluginInfo.ProgramCount];
 			for (int i = 0; i < PluginContext.PluginInfo.ProgramCount; i++) {
 				PluginContext.PluginCommandStub.SetProgram(i);
-				int count = PluginContext.PluginCommandStub.GetProgram();
+				//int count = PluginContext.PluginCommandStub.GetProgram();
 				string name = PluginContext.PluginCommandStub.GetProgramName();
 				programs[i] = name;
 			}
 			presetComboBox.Items.AddRange(programs);
-			presetComboBox.DataSource = programs;
-			presetComboBox.SelectedIndex = 0;
+			//presetComboBox.DataSource = programs;
+			//presetComboBox.SelectedIndex = 0;
 			
 			/*
 			 * comboBox1.DataSource = myArray;
@@ -94,6 +95,7 @@ namespace ProcessVSTPlugin
 		void SaveBtnClick(object sender, EventArgs e)
 		{
 			SaveFileDialog dialog = new SaveFileDialog();
+			dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|All Files|*.*||";
 			if (dialog.ShowDialog(this) == DialogResult.OK)
 			{
 				string fxpFilePath = dialog.FileName;
@@ -107,6 +109,7 @@ namespace ProcessVSTPlugin
 		void LoadBtnClick(object sender, EventArgs e)
 		{
 			OpenFileDialog dialog = new OpenFileDialog();
+			dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|All Files|*.*||";
 			if (dialog.ShowDialog(this) == DialogResult.OK)
 			{
 				string fxpFilePath = dialog.FileName;
@@ -115,9 +118,9 @@ namespace ProcessVSTPlugin
 				
 				host.LoadFXP(fxpFilePath);
 				//this.Refresh();
-				
+				FillProgram();
 				PluginContext.PluginCommandStub.EditorIdle();
-				presetComboBox.SelectedIndex = 0;
+				//presetComboBox.SelectedIndex = 0;
 			}
 		}
 		

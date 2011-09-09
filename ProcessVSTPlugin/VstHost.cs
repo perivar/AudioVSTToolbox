@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 
 using Jacobi.Vst.Core;
+using Jacobi.Vst.Core.Plugin;
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Interop.Host;
 
@@ -314,42 +315,126 @@ namespace ProcessVSTPlugin
 		}
 		
 		public void LoadFXP(string filePath) {
+			// How does the GetChunk/SetChunk interface work? What information should be in those chunks?
+			// How does the BeginLoadProgram and BeginLoadBank work?
+			// There doesn't seem to be any restriction on what data is put in the chunks.
+			// The beginLoadBank/Program methods are also part of the persistence call sequence.
+			// GetChunk returns a buffer with program information of either the current/active program
+			// or all programs.
+			// SetChunk should read this information back in and initialize either the current/active program
+			// or all programs.
+			// Before SetChunk is called, the beginLoadBank/Program method is called
+			// passing information on the version of the plugin that wrote the data.
+			// This will allow you to support older data versions of your plugin's data or
+			// even support reading other plugin's data.
+			// Some hosts will call GetChunk before calling beginLoadBakn/Program and SetChunk.
+			// This is an optimazation of the host to determine if the information to load is
+			// actually different than the state your plugin program(s) (are) in.
+			
+			bool UseChunk = false;
+			// read nineth byte to check, whether chunk are used here
+			// Stream.Seek(9, 0);
+			// Stream.Read(b, 1);
+			// UseChunk := (b <> #$78);
+			// Stream.Seek(0, 0);
+			
 			FXP fxp = new FXP();
 			fxp.ReadFile(filePath);
-			int version = fxp.version;
-			int pluginId = PluginIDStringToIDNumber(fxp.fxID);
+			int pluginUniqueID = PluginIDStringToIDNumber(fxp.fxID);
 			int currentPluginID = PluginContext.PluginInfo.PluginID;
 			
-			if (pluginId != currentPluginID) {
+			if (pluginUniqueID != currentPluginID) {
 				Console.Out.WriteLine("Error - Cannot Load. Loaded preset has another ID!");
 			} else {
-				int pluginVersion = fxp.fxVersion;
-				int elementCount = fxp.numPrograms;
-				VstPatchChunkInfo chunkInfo = new VstPatchChunkInfo(version, pluginId, pluginVersion, elementCount);
-				
-				// BeginLoadProgram - Called before a Program is loaded, points to VstPatchChunkInfo structure
-				// return -1 if the Program can not be loaded, return 1 if it can be loaded else 0 (for compatibility)
-				// Called before a Program is loaded. (called before BeginSetProgram).
-				VstCanDoResult beginLoadProgramReturn = PluginContext.PluginCommandStub.BeginLoadProgram(chunkInfo);
-				if (beginLoadProgramReturn != Jacobi.Vst.Core.VstCanDoResult.No) {
-					bool beginSetProgramReturn = PluginContext.PluginCommandStub.BeginSetProgram();					
-					if (beginSetProgramReturn) {
-						byte[] chunkData = BinaryFile.StringToByteArray(fxp.chunkData);
-						bool isPreset = true;
-						int setChunkReturn = PluginContext.PluginCommandStub.SetChunk(chunkData, isPreset);
-						
-						// called when the program is loaded
-						bool endSetProgramReturn = PluginContext.PluginCommandStub.EndSetProgram();
-						if (endSetProgramReturn) {
-							int index = PluginContext.PluginCommandStub.GetProgram();								
-						} else {
-							Console.Out.WriteLine("Error - Cannot Load. EndSetProgram failed");											
-						}						
+				if (UseChunk) {
+					// If your plug-in is configured to use chunks @see AudioEffect::programsAreChunks, the Host will ask for a block of memory describing the current plug-in state for saving.
+					// To restore the state at a later stage, the same data is passed back to AudioEffect::setChunk.
+					// Alternatively, when not using chunk, the Host will simply save all parameter values.
+					
+					//PluginContext.PluginCommandStub.SetProgramName(fxp.name);
+					
+					byte[] chunkData = BinaryFile.StringToByteArray(fxp.chunkData);
+					//byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);
+					
+					// SetChunk()
+					/// <summary>
+					/// Called by the host to load in a previously serialized program buffer.
+					/// </summary>
+					/// <param name="data">The buffer provided by the host that contains the program data.</param>
+					/// <param name="isPreset">True if only the current/active program should be deserialized,
+					/// otherwise (false) the complete program bank should be deserialized.</param>
+					/// <returns>Returns the number of bytes read from the <paramref name="data"/> buffer or
+					/// zero if the plugin does not implement the <see cref="IVstPluginPersistence"/>
+					/// and/or <see cref="IVstPluginPrograms"/> interfaces.</returns>
+					bool isPreset = true;
+					
+					int setChunkReturn = PluginContext.PluginCommandStub.SetChunk(chunkData, isPreset);
+					byte[] newChunkData = PluginContext.PluginCommandStub.GetChunk(isPreset);
+					
+					BinaryFile bfBefore = new BinaryFile(@"chunkBefore.hex", BinaryFile.ByteOrder.LittleEndian, true);
+					bfBefore.Write(chunkData);
+					bfBefore.Close();
+					
+					BinaryFile bfAfter = new BinaryFile(@"chunkAfter.hex", BinaryFile.ByteOrder.LittleEndian, true);
+					bfAfter.Write(newChunkData);
+					bfAfter.Close();
+
+					if (newChunkData.Length == chunkData.Length) {
+						for (int i = 0; i < chunkData.Length; i++) {
+							if (newChunkData[i] != chunkData[i]) {
+								Console.Out.WriteLine("Error - Could not set new chunk (verifying failed!");
+								break;
+							}
+						}
 					} else {
-						Console.Out.WriteLine("Error - Cannot Load. BeginSetProgram failed");											
+						Console.Out.WriteLine("Error - Could not set new chunk!");
 					}
 				} else {
-					Console.Out.WriteLine("Error - Cannot Load. BeginLoadProgram failed");					
+					int version = fxp.version; // should be 1
+					int pluginVersion = fxp.fxVersion;
+					int numElements = fxp.numPrograms;
+					VstPatchChunkInfo chunkInfo = new VstPatchChunkInfo(version, pluginUniqueID, pluginVersion, numElements);
+					
+					// BeginLoadProgram()
+					// Called before a Program is loaded, points to VstPatchChunkInfo structure
+					// return -1 if the Program can not be loaded, return 1 if it can be loaded else 0 (for compatibility)
+					// Called before BeginSetProgram.
+					VstCanDoResult beginLoadProgramReturn = PluginContext.PluginCommandStub.BeginLoadProgram(chunkInfo);
+					if (beginLoadProgramReturn == Jacobi.Vst.Core.VstCanDoResult.Yes) {
+						// BeginSetProgram()
+						// Host calls this before a new program (SetProgram) is loaded
+						// x[return]: 1 = the plug-in took the notification into account
+						bool beginSetProgramReturn = PluginContext.PluginCommandStub.BeginSetProgram();
+						if (beginSetProgramReturn) {
+							
+							// SetProgram()
+							// host has changed the current program number
+							// host must call this inside a beginSetProgram() ... endSetProgram() sequence
+							// e[value]: program number
+							for (int i = 0; i < fxp.numPrograms; i++) {
+								PluginContext.PluginCommandStub.SetProgram(i);
+								PluginContext.PluginCommandStub.SetProgramName(fxp.name);
+								
+								int numParm = 0;
+								for (int j = 0; j < numParm; i++) {
+									int parameterValue = 10;
+									PluginContext.PluginCommandStub.SetParameter(j, parameterValue);
+								}
+							}
+							
+							// called when the program is loaded
+							bool endSetProgramReturn = PluginContext.PluginCommandStub.EndSetProgram();
+							if (endSetProgramReturn) {
+								int index = PluginContext.PluginCommandStub.GetProgram();
+							} else {
+								Console.Out.WriteLine("Error - Cannot Load. EndSetProgram failed");
+							}
+						} else {
+							Console.Out.WriteLine("Error - Cannot Load. BeginSetProgram failed");
+						}
+					} else {
+						Console.Out.WriteLine("Error - Cannot Load. BeginLoadProgram failed");
+					}
 				}
 			}
 		}
@@ -358,33 +443,33 @@ namespace ProcessVSTPlugin
 			FXP fxp = new FXP();
 			fxp.chunkMagic = "CcnK";
 			fxp.byteSize = 0; // will be set correctly by FXP class
-			fxp.fxMagic = "FPCh";
+			fxp.fxMagic = "FPCh"; // FPCh = FXP (preset), FBCh = FXB (bank)
 			fxp.version = 0; // Format Version (should be 1)
 			fxp.fxID = PluginIDNumberToIDString(PluginContext.PluginInfo.PluginID);
 			fxp.fxVersion = PluginContext.PluginInfo.PluginVersion;
 			fxp.numPrograms = PluginContext.PluginInfo.ProgramCount;
 			fxp.name = PluginContext.PluginCommandStub.GetProgramName();
 			
-			byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);
+			bool isPreset = true;
+			byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(isPreset);
 			fxp.chunkSize = chunkData.Length;
 			fxp.chunkData = BinaryFile.ByteArrayToString(chunkData);
 			
 			fxp.WriteFile(filePath);
 		}
 		
-		private static string PluginIDNumberToIDString(int pluginId) {
-			//int pluginId = PluginContext.PluginInfo.PluginID;
-			byte[] fxIdArray = BitConverter.GetBytes(pluginId);
+		private static string PluginIDNumberToIDString(int pluginUniqueID) {
+			byte[] fxIdArray = BitConverter.GetBytes(pluginUniqueID);
 			Array.Reverse(fxIdArray);
 			string fxIdString = BinaryFile.ByteArrayToString(fxIdArray);
 			return fxIdString;
 		}
 
 		private static int PluginIDStringToIDNumber(string fxIdString) {
-			byte[] pluginIdArray = BinaryFile.StringToByteArray(fxIdString); // 58h8 = 946354229
-			Array.Reverse(pluginIdArray);
-			int pluginId = BitConverter.ToInt32(pluginIdArray, 0);
-			return pluginId;
+			byte[] pluginUniqueIDArray = BinaryFile.StringToByteArray(fxIdString); // 58h8 = 946354229
+			Array.Reverse(pluginUniqueIDArray);
+			int pluginUniqueID = BitConverter.ToInt32(pluginUniqueIDArray, 0);
+			return pluginUniqueID;
 		}
 	}
 }
