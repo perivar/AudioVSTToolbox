@@ -41,15 +41,6 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Jacobi.Vst.Core">
-      <HintPath>_SharedAssemblies\Jacobi.Vst.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Jacobi.Vst.Framework">
-      <HintPath>_SharedAssemblies\Jacobi.Vst.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Jacobi.Vst.Interop">
-      <HintPath>_SharedAssemblies\Jacobi.Vst.Interop.dll</HintPath>
-    </Reference>
     <Reference Include="NAudio">
       <HintPath>_SharedAssemblies\NAudio.dll</HintPath>
     </Reference>
@@ -62,17 +53,23 @@
   <ItemGroup>
     <Compile Include="AudioOutput.cs" />
     <Compile Include="BinaryFile.cs" />
-    <Compile Include="EditorFrame.cs" />
+    <Compile Include="EditorFrame.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="EditorFrame.Designer.cs">
       <DependentUpon>EditorFrame.cs</DependentUpon>
     </Compile>
     <Compile Include="FXP.cs" />
     <Compile Include="HostCommandStub.cs" />
-    <Compile Include="MainForm.cs" />
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PluginForm.cs" />
+    <Compile Include="PluginForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="PluginForm.Designer.cs">
       <DependentUpon>PluginForm.cs</DependentUpon>
     </Compile>
@@ -84,19 +81,37 @@
   <ItemGroup>
     <EmbeddedResource Include="EditorFrame.resx">
       <DependentUpon>EditorFrame.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="PluginForm.resx">
       <DependentUpon>PluginForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Visual Studio 2008\Projects\vstnet-57910\Source\Code\Jacobi.Vst.Core\Jacobi.Vst.Core.csproj">
+      <Project>{5950F8A9-F413-4ACE-B6E0-6F458B4C26F9}</Project>
+      <Name>Jacobi.Vst.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Visual Studio 2008\Projects\vstnet-57910\Source\Code\Jacobi.Vst.Framework\Jacobi.Vst.Framework.csproj">
+      <Project>{F9F64E8A-8739-4DA0-B0E0-8E3CA106CD6F}</Project>
+      <Name>Jacobi.Vst.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Visual Studio 2008\Projects\vstnet-57910\Source\Code\Jacobi.Vst.Interop\Jacobi.Vst.Interop.vcproj">
+      <Project>{E0CC0CCF-A40D-4A53-8FAC-B6AF7E76EB08}</Project>
+      <Name>Jacobi.Vst.Interop</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)\_SharedAssemblies\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

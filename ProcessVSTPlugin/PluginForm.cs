@@ -253,30 +253,35 @@ namespace ProcessVSTPlugin
         
         void LoadFXPBtnClick(object sender, EventArgs e)
         {
-        	OpenFileDialog dialog = new OpenFileDialog();
-        	if (dialog.ShowDialog(this) == DialogResult.OK)
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|Effect Bank Files (.fxb)|*.fxb|All Files|*.*||";
+            if (dialog.ShowDialog(this) == DialogResult.OK)
             {
-            	string fxpFilePath = dialog.FileName;
-				VstHost host = VstHost.Instance;
-				host.PluginContext = this.PluginContext;			
-            	
-				host.LoadFXP(fxpFilePath);
-				FillParameterList();				
-            }        	
+                string fxpFilePath = dialog.FileName;
+                VstHost host = VstHost.Instance;
+                host.PluginContext = this.PluginContext;
+
+                host.LoadFXP(fxpFilePath);
+                FillProgram();
+                FillParameterList();
+            }
         }
         
         void SaveFXPBtnClick(object sender, EventArgs e)
         {
-        	SaveFileDialog dialog = new SaveFileDialog();
-        	if (dialog.ShowDialog(this) == DialogResult.OK)
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|Effect Bank Files (.fxb)|*.fxb|All Files|*.*||";
+            if (dialog.ShowDialog(this) == DialogResult.OK)
             {
-            	string fxpFilePath = dialog.FileName;
-				VstHost host = VstHost.Instance;
-				host.PluginContext = this.PluginContext;			
-            	
-				host.SaveFXP(fxpFilePath);
-				FillParameterList();				
-            }        	        	
+                string comboBoxStringValue = ProgramNameTxt.Text;
+                this.PluginContext.PluginCommandStub.SetProgramName(comboBoxStringValue);
+                string fxpFilePath = dialog.FileName;
+                VstHost host = VstHost.Instance;
+                host.PluginContext = this.PluginContext;
+                host.SaveFXP(fxpFilePath);
+                FillProgram();
+                FillParameterList();
+            }
         }
 	}
 }

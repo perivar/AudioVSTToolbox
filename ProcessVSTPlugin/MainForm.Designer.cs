@@ -98,7 +98,7 @@
             // 
             // AssemblyHdr
             // 
-            this.AssemblyHdr.Text = "Assemlby";
+            this.AssemblyHdr.Text = "Assembly";
             this.AssemblyHdr.Width = 120;
             // 
             // PluginPathTxt

@@ -1,17 +1,20 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 
 public class BinaryFile {
 
-	/*
-	(UInt32) IPAddress.HostToNetworkOrder(byteSize)
-	longValue = IPAddress.HostToNetworkOrder(longValue);
-	
-	It's overloaded to handle shorts, ints, and longs. Or use:
-	BitConverter.ToInt32(ReadBytes(reader, 4, ByteOrder.BigEndian), 0);
-	 */
-	
-	public enum ByteOrder : int
+    /*
+     * Class for reading and writing binary files.
+     * 
+     * An alternative for the conversion in this file is to use:
+     * (UInt32) IPAddress.HostToNetworkOrder(byteSize)
+     * longValue = IPAddress.HostToNetworkOrder(longValue);
+	 * 
+     * It's overloaded to handle shorts, ints, and longs. Or use:
+     * BitConverter.ToInt32(ReadBytes(reader, 4, ByteOrder.BigEndian), 0);
+     */
+    public enum ByteOrder : int
 	{
 		LittleEndian,
 		BigEndian
@@ -28,15 +31,14 @@ public class BinaryFile {
 
 	public BinaryFile(string filePath, ByteOrder byteOrder) : this(filePath, byteOrder, false) {}
 	
-	// throws FileNotFoundException
 	public BinaryFile(string filePath, ByteOrder byteOrder, bool createFile) {
 		if (createFile) {
 			fs = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite);
 		} else {
 			fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
 		}
-		binaryWriter = new BinaryWriter(fs);
-		binaryReader = new BinaryReader(fs);
+        binaryWriter = new BinaryWriter(fs, Encoding.Default);
+        binaryReader = new BinaryReader(fs, Encoding.Default);
 		this.byteOrder = byteOrder;
 	}
 
@@ -278,13 +280,12 @@ public class BinaryFile {
 		return true;
 	}
 	
-	
 	/********************************
 	 *
 	 * 		UTILITY METHODS
 	 * 
 	 ********************************/
-	
+
 	public static byte[] HexStringToByteArray(string s)
 	{
 		var r = new byte[s.Length / 2];
@@ -415,25 +416,33 @@ public class BinaryFile {
 		return Convert.ToInt32(sHexString, 16);
 	}
 	
-	public static byte[] StringToByteArray(string StringToConvert, int length) {
-		char[] CharArray = StringToConvert.ToCharArray();
-		byte[] ByteArray = new byte[length];
-		for (int i = 0; i <length; i++) {
-			if (i < CharArray.Length) ByteArray[i] = Convert.ToByte(CharArray[i]);
-		}
-		return ByteArray;
-	}
-	
+    public static byte[] CharArrayToByteArray(char[] charArray)
+	{
+        //System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
+        return Encoding.Default.GetBytes(charArray);
+    }
+
+    public static byte[] StringToByteArray(string StringToConvert, int length)
+    {
+        char[] CharArray = StringToConvert.ToCharArray();
+        byte[] ByteArray = new byte[length];
+        for (int i = 0; i < length; i++)
+        {
+            if (i < CharArray.Length) ByteArray[i] = Convert.ToByte(CharArray[i]);
+        }
+        return ByteArray;
+    }
+
 	public static byte[] StringToByteArray(string str)
 	{
-		System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
-		return encoding.GetBytes(str);
+		//System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
+        return Encoding.Default.GetBytes(str);
 	}
 
 	public static string ByteArrayToString(byte[] byteArray)
 	{
-		System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
-		return encoding.GetString(byteArray);
+        //System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
+        return Encoding.Default.GetString(byteArray);
 	}
 	
 	public static byte[] AppendArrays(byte[] a, byte[] b)
@@ -443,6 +452,4 @@ public class BinaryFile {
 		Buffer.BlockCopy(b, 0, c, a.Length, b.Length);
 		return c;
 	}
-
 }
-

@@ -313,7 +313,47 @@ namespace ProcessVSTPlugin
 			dlg.ShowDialog();
 			PluginContext.PluginCommandStub.MainsChanged(false);
 		}
-		
+
+		private int EffSetChunk(byte[] data, bool isPreset) {
+            // SetChunk()
+			/// <summary>
+			/// Called by the host to load in a previously serialized program buffer.
+			/// </summary>
+			/// <param name="data">The buffer provided by the host that contains the program data.</param>
+			/// <param name="isPreset">True if only the current/active program should be deserialized,
+			/// otherwise (false) the complete program bank should be deserialized.</param>
+			/// <returns>Returns the number of bytes read from the <paramref name="data"/> buffer or
+			/// zero if the plugin does not implement the <see cref="IVstPluginPersistence"/>
+			/// and/or <see cref="IVstPluginPrograms"/> interfaces.</returns>
+
+            bool beginSetProgramResult = PluginContext.PluginCommandStub.BeginSetProgram();
+            int iResult = PluginContext.PluginCommandStub.SetChunk(data, isPreset);
+            bool endSetProgramResult = PluginContext.PluginCommandStub.EndSetProgram();
+            return iResult;
+
+            /*byte[] newChunkData = PluginContext.PluginCommandStub.GetChunk(isPreset);
+					
+            BinaryFile bfBefore = new BinaryFile(@"chunkBefore.hex", BinaryFile.ByteOrder.LittleEndian, true);
+            bfBefore.Write(chunkData);
+            bfBefore.Close();
+					
+            BinaryFile bfAfter = new BinaryFile(@"chunkAfter.hex", BinaryFile.ByteOrder.LittleEndian, true);
+            bfAfter.Write(newChunkData);
+            bfAfter.Close();
+
+            if (newChunkData.Length == chunkData.Length) {
+                for (int i = 0; i < chunkData.Length; i++) {
+                    if (newChunkData[i] != chunkData[i]) {
+                        Console.Out.WriteLine("Error - Could not set new chunk (verifying failed!");
+                        break;
+                    }
+                }
+            } else {
+                Console.Out.WriteLine("Error - Could not set new chunk!");
+            }
+             */
+        }
+
 		public void LoadFXP(string filePath) {
 			// How does the GetChunk/SetChunk interface work? What information should be in those chunks?
 			// How does the BeginLoadProgram and BeginLoadBank work?
@@ -330,65 +370,53 @@ namespace ProcessVSTPlugin
 			// Some hosts will call GetChunk before calling beginLoadBakn/Program and SetChunk.
 			// This is an optimazation of the host to determine if the information to load is
 			// actually different than the state your plugin program(s) (are) in.
-			
-			bool UseChunk = false;
-			// read nineth byte to check, whether chunk are used here
-			// Stream.Seek(9, 0);
-			// Stream.Read(b, 1);
-			// UseChunk := (b <> #$78);
-			// Stream.Seek(0, 0);
-			
+
+            bool UseChunk = false;
+            if ((PluginContext.PluginInfo.Flags & VstPluginFlags.ProgramChunks) == 0)
+            {
+                // Chunks not supported.
+                UseChunk = false;
+            }
+            else
+            {
+                // Chunks supported.
+                UseChunk = true;
+            }
 			FXP fxp = new FXP();
 			fxp.ReadFile(filePath);
+            if (fxp.chunkMagic != "CcnK")
+            {
+                // not a fxp or fxb file
+                Console.Out.WriteLine("Error - Cannot Load. Loaded preset is not a fxp or fxb file");
+                return;
+            }
+
 			int pluginUniqueID = PluginIDStringToIDNumber(fxp.fxID);
-			int currentPluginID = PluginContext.PluginInfo.PluginID;
-			
+			int currentPluginID = PluginContext.PluginInfo.PluginID;			
 			if (pluginUniqueID != currentPluginID) {
 				Console.Out.WriteLine("Error - Cannot Load. Loaded preset has another ID!");
 			} else {
+                // Preset (Program) (.fxp) with chunk (magic = 'FPCh')
+                // Bank (.fxb) with chunk (magic = 'FBCh')
+                if (fxp.fxMagic == "FPCh" || fxp.fxMagic == "FBCh") {
+                    UseChunk = true;
+                } else {
+                    UseChunk = false;
+                }
 				if (UseChunk) {
-					// If your plug-in is configured to use chunks @see AudioEffect::programsAreChunks, the Host will ask for a block of memory describing the current plug-in state for saving.
-					// To restore the state at a later stage, the same data is passed back to AudioEffect::setChunk.
-					// Alternatively, when not using chunk, the Host will simply save all parameter values.
+					// If your plug-in is configured to use chunks 
+                    // the Host will ask for a block of memory describing the current 
+                    // plug-in state for saving.
+					// To restore the state at a later stage, the same data is passed 
+                    // back to setChunk.
+					// Alternatively, when not using chunk, the Host will simply 
+                    // save all parameter values.
 					
 					//PluginContext.PluginCommandStub.SetProgramName(fxp.name);
+                    byte[] chunkData = BinaryFile.StringToByteArray(fxp.chunkData);
 					
-					byte[] chunkData = BinaryFile.StringToByteArray(fxp.chunkData);
-					//byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);
-					
-					// SetChunk()
-					/// <summary>
-					/// Called by the host to load in a previously serialized program buffer.
-					/// </summary>
-					/// <param name="data">The buffer provided by the host that contains the program data.</param>
-					/// <param name="isPreset">True if only the current/active program should be deserialized,
-					/// otherwise (false) the complete program bank should be deserialized.</param>
-					/// <returns>Returns the number of bytes read from the <paramref name="data"/> buffer or
-					/// zero if the plugin does not implement the <see cref="IVstPluginPersistence"/>
-					/// and/or <see cref="IVstPluginPrograms"/> interfaces.</returns>
 					bool isPreset = true;
-					
-					int setChunkReturn = PluginContext.PluginCommandStub.SetChunk(chunkData, isPreset);
-					byte[] newChunkData = PluginContext.PluginCommandStub.GetChunk(isPreset);
-					
-					BinaryFile bfBefore = new BinaryFile(@"chunkBefore.hex", BinaryFile.ByteOrder.LittleEndian, true);
-					bfBefore.Write(chunkData);
-					bfBefore.Close();
-					
-					BinaryFile bfAfter = new BinaryFile(@"chunkAfter.hex", BinaryFile.ByteOrder.LittleEndian, true);
-					bfAfter.Write(newChunkData);
-					bfAfter.Close();
-
-					if (newChunkData.Length == chunkData.Length) {
-						for (int i = 0; i < chunkData.Length; i++) {
-							if (newChunkData[i] != chunkData[i]) {
-								Console.Out.WriteLine("Error - Could not set new chunk (verifying failed!");
-								break;
-							}
-						}
-					} else {
-						Console.Out.WriteLine("Error - Could not set new chunk!");
-					}
+                    int setChunkResult = EffSetChunk(chunkData, isPreset);
 				} else {
 					int version = fxp.version; // should be 1
 					int pluginVersion = fxp.fxVersion;
@@ -444,7 +472,7 @@ namespace ProcessVSTPlugin
 			fxp.chunkMagic = "CcnK";
 			fxp.byteSize = 0; // will be set correctly by FXP class
 			fxp.fxMagic = "FPCh"; // FPCh = FXP (preset), FBCh = FXB (bank)
-			fxp.version = 0; // Format Version (should be 1)
+			fxp.version = 1; // Format Version (should be 1)
 			fxp.fxID = PluginIDNumberToIDString(PluginContext.PluginInfo.PluginID);
 			fxp.fxVersion = PluginContext.PluginInfo.PluginVersion;
 			fxp.numPrograms = PluginContext.PluginInfo.ProgramCount;

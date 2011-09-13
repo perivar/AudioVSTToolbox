@@ -45,7 +45,7 @@ namespace ProcessVSTPlugin
 				PluginContext.PluginCommandStub.EditorOpen(this.pluginPanel.Handle);
 			}
 
-			FillProgram();
+			FillProgram(0);
 			return base.ShowDialog(owner);
 		}
 
@@ -59,7 +59,7 @@ namespace ProcessVSTPlugin
 			}
 		}
 		
-		private void FillProgram()
+		private void FillProgram(int selectedIndex)
 		{
 			presetComboBox.Items.Clear();
 			string[] programs = new String[PluginContext.PluginInfo.ProgramCount];
@@ -71,7 +71,7 @@ namespace ProcessVSTPlugin
 			}
 			presetComboBox.Items.AddRange(programs);
 			//presetComboBox.DataSource = programs;
-			//presetComboBox.SelectedIndex = 0;
+            presetComboBox.SelectedIndex = selectedIndex;
 			
 			/*
 			 * comboBox1.DataSource = myArray;
@@ -95,32 +95,31 @@ namespace ProcessVSTPlugin
 		void SaveBtnClick(object sender, EventArgs e)
 		{
 			SaveFileDialog dialog = new SaveFileDialog();
-			dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|All Files|*.*||";
+            dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|Effect Bank Files (.fxb)|*.fxb|All Files|*.*||";
 			if (dialog.ShowDialog(this) == DialogResult.OK)
 			{
-				string fxpFilePath = dialog.FileName;
+                string comboBoxStringValue = presetComboBox.Text;
+                this.PluginContext.PluginCommandStub.SetProgramName(comboBoxStringValue);
+                string fxpFilePath = dialog.FileName;
 				VstHost host = VstHost.Instance;
 				host.PluginContext = this.PluginContext;
-				
 				host.SaveFXP(fxpFilePath);
-			}
+                FillProgram(PluginContext.PluginCommandStub.GetProgram());
+            }
 		}
 		
 		void LoadBtnClick(object sender, EventArgs e)
 		{
 			OpenFileDialog dialog = new OpenFileDialog();
-			dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|All Files|*.*||";
+            dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|Effect Bank Files (.fxb)|*.fxb|All Files|*.*||";
 			if (dialog.ShowDialog(this) == DialogResult.OK)
 			{
 				string fxpFilePath = dialog.FileName;
 				VstHost host = VstHost.Instance;
 				host.PluginContext = this.PluginContext;
 				
-				host.LoadFXP(fxpFilePath);
-				//this.Refresh();
-				FillProgram();
-				PluginContext.PluginCommandStub.EditorIdle();
-				//presetComboBox.SelectedIndex = 0;
+				host.LoadFXP(fxpFilePath);          
+				FillProgram(PluginContext.PluginCommandStub.GetProgram());
 			}
 		}
 		
