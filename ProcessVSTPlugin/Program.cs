@@ -9,10 +9,13 @@ using Jacobi.Vst.Core;
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Interop.Host;
 
+using CommandLine.Utility;
+
 namespace ProcessVSTPlugin
 {
 	static class Program
 	{
+		static string _version = "1.0";
 		
 		static void StartGUI() {
 			Application.EnableVisualStyles();
@@ -20,7 +23,7 @@ namespace ProcessVSTPlugin
 			Application.Run(new MainForm());
 		}
 
-		static void StartAudioOutput(string pluginPath) {
+		static void StartAudioOutput(string pluginPath, string waveFilePath) {
 			try
 			{
 				HostCommandStub hostCmdStub = new HostCommandStub();
@@ -33,7 +36,9 @@ namespace ProcessVSTPlugin
 				// actually open the plugin itself
 				ctx.PluginCommandStub.Open();
 				
-				AudioOutput audioOut = new AudioOutput(new List<IVstPluginCommandStub>() {ctx.PluginCommandStub});
+				AudioOutput audioOut = new AudioOutput(
+					new List<IVstPluginCommandStub>() {ctx.PluginCommandStub},
+					waveFilePath);
 				Thread.Sleep(100);
 			}
 			catch (Exception ex)
@@ -42,11 +47,11 @@ namespace ProcessVSTPlugin
 			}
 		}
 
-		static void StartVstHost(string pluginPath, bool doPlay) {
+		static void StartVstHost(string pluginPath, string waveInputFilePath, string fxpFilePath, string waveOutputFilePath, bool doPlay) {
 
 			VstHost host = VstHost.Instance;
 			host.OpenPlugin(pluginPath);
-			host.InputWave = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl\Intro.wav";
+			host.InputWave = waveInputFilePath;
 			// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
 			// tblock = 0.15 makes blocksize = 6615.
 			int sampleRate = 44100;
@@ -54,6 +59,7 @@ namespace ProcessVSTPlugin
 			int channels = 2;
 			host.Init(blockSize, sampleRate, channels);
 			System.Diagnostics.Debug.WriteLine(host.getPluginInfo());
+			host.LoadFXP(fxpFilePath);			
 
 			if (doPlay) {
 				VstPlaybackNAudio playback = new VstPlaybackNAudio(host);
@@ -72,26 +78,76 @@ namespace ProcessVSTPlugin
 				Console.WriteLine("Stopped");
 				playback.Dispose();
 			}
-			
-			host.LoadFXP(@"..\..\Scoring Stages (Orchestral Studios)_Todd-AO - California US_st to st wide mics at 18m90.fxp");
-			VstFileWriter fileWriter = new VstFileWriter(host);
-			fileWriter.CreateWaveFile("test.wav");
+						
+			if (waveOutputFilePath != "") {
+				VstFileWriter fileWriter = new VstFileWriter(host);
+				fileWriter.CreateWaveFile(waveOutputFilePath);
+			}
 		}
 		
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
 		[STAThread]
-		static void Main()
+		static void Main(string[] args)
 		{
-			StartGUI();
+			string pluginPath = "";
+			string waveInputFilePath = "";
+			string waveOutputFilePath = "";
+			string fxpFilePath = "";
+			bool doPlay = false;
+			bool useGui = false;
 
-			String pluginPath = "../../TAL-Reverb-2.dll";
-			//String pluginPath = "../../Fre(a)koscope.dll";
-			//String pluginPath = "../../SIR2.dll";
+			// Command line parsing
+			Arguments CommandLine = new Arguments(args);
+			if(CommandLine["plugin"] != null) {
+				pluginPath = CommandLine["plugin"];
+			}
+			if(CommandLine["wavein"] != null) {
+				waveInputFilePath = CommandLine["wavein"];
+			}
+			if(CommandLine["waveout"] != null) {
+				waveOutputFilePath = CommandLine["waveout"];
+			}
+			if(CommandLine["fxp"] != null) {
+				fxpFilePath = CommandLine["fxp"];
+			}
+			if(CommandLine["play"] != null) {
+				doPlay = true;
+			}
+			if(CommandLine["gui"] != null) {
+				useGui = true;
+			}
+						
+			if ((!useGui && pluginPath == "" && waveInputFilePath == "") || (!useGui && waveOutputFilePath == "" && !doPlay)) {
+				PrintUsage();
+				return;
+			}
 			
-			//StartAudioOutput(pluginPath);
-			//StartVstHost(pluginPath, false);
+			if (useGui) {
+				StartGUI();
+			} else {
+				//StartAudioOutput(pluginPath);
+				StartVstHost(pluginPath, waveInputFilePath, fxpFilePath, waveOutputFilePath, doPlay );
+			}
 		}
+		
+		public static void PrintUsage() {
+			Console.WriteLine("Process VST Plugin. Version {0}.", _version);
+			Console.WriteLine("Copyright (C) 2009-2011 Per Ivar Nerseth.");
+			Console.WriteLine();
+			Console.WriteLine("Usage: ProcessVSTPlugin.exe <Arguments>");
+			Console.WriteLine();
+			Console.WriteLine("Mandatory Arguments:");
+			Console.WriteLine("\t-plugin=<path to the vst plugin to use (.dll)>");
+			Console.WriteLine("\t-wavein=<path to the wave file to use (.wav)>");
+			Console.WriteLine();
+			Console.WriteLine("Optional Arguments:");
+			Console.WriteLine("\t-fxp=<path to the vst preset file to use (.fxp or .fxb)>");
+			Console.WriteLine("\t-play=<should we play the wave file, or only process it?>");
+			Console.WriteLine("\t-gui=<Use GUI instead>");
+			Console.WriteLine("\t-waveout=<path to the wave file to create (.wav)>");
+		}
+		
 	}
 }

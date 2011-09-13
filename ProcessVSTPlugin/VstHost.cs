@@ -139,7 +139,6 @@ namespace ProcessVSTPlugin
 			byte[] naudioBuf = new byte[sampleCountx4];
 			int bytesRead = wavStream.Read(naudioBuf, 0, sampleCountx4);
 
-			//System.Diagnostics.Debug.WriteLine(String.Format("{0} - Position: {1}, Time: {2}, Total Time: {3}", count, wavStream.Position, wavStream.CurrentTime, wavStream.TotalTime));
 			if (wavStream.CurrentTime > wavStream.TotalTime.Add(TimeSpan.FromSeconds(tailWaitForNumberOfSeconds))) {
 				return 0;
 			}
@@ -195,8 +194,7 @@ namespace ProcessVSTPlugin
 		}
 		
 		public void SetProgram(int programNumber) {
-			if (programNumber < PluginContext.PluginInfo.ProgramCount &&
-			    programNumber >= 0)
+			if (programNumber < PluginContext.PluginInfo.ProgramCount && programNumber >= 0)
 			{
 				PluginContext.PluginCommandStub.SetProgram(programNumber);
 			}
@@ -306,7 +304,6 @@ namespace ProcessVSTPlugin
 		public void ShowPluginEditor()
 		{
 			EditorFrame dlg = new EditorFrame();
-			//dlg.PluginCommandStub = PluginContext.PluginCommandStub;
 			dlg.PluginContext = PluginContext;
 
 			PluginContext.PluginCommandStub.MainsChanged(true);
@@ -315,46 +312,16 @@ namespace ProcessVSTPlugin
 		}
 
 		private int EffSetChunk(byte[] data, bool isPreset) {
-            // SetChunk()
-			/// <summary>
-			/// Called by the host to load in a previously serialized program buffer.
-			/// </summary>
-			/// <param name="data">The buffer provided by the host that contains the program data.</param>
-			/// <param name="isPreset">True if only the current/active program should be deserialized,
-			/// otherwise (false) the complete program bank should be deserialized.</param>
-			/// <returns>Returns the number of bytes read from the <paramref name="data"/> buffer or
-			/// zero if the plugin does not implement the <see cref="IVstPluginPersistence"/>
-			/// and/or <see cref="IVstPluginPrograms"/> interfaces.</returns>
-
             bool beginSetProgramResult = PluginContext.PluginCommandStub.BeginSetProgram();
             int iResult = PluginContext.PluginCommandStub.SetChunk(data, isPreset);
             bool endSetProgramResult = PluginContext.PluginCommandStub.EndSetProgram();
             return iResult;
-
-            /*byte[] newChunkData = PluginContext.PluginCommandStub.GetChunk(isPreset);
-					
-            BinaryFile bfBefore = new BinaryFile(@"chunkBefore.hex", BinaryFile.ByteOrder.LittleEndian, true);
-            bfBefore.Write(chunkData);
-            bfBefore.Close();
-					
-            BinaryFile bfAfter = new BinaryFile(@"chunkAfter.hex", BinaryFile.ByteOrder.LittleEndian, true);
-            bfAfter.Write(newChunkData);
-            bfAfter.Close();
-
-            if (newChunkData.Length == chunkData.Length) {
-                for (int i = 0; i < chunkData.Length; i++) {
-                    if (newChunkData[i] != chunkData[i]) {
-                        Console.Out.WriteLine("Error - Could not set new chunk (verifying failed!");
-                        break;
-                    }
-                }
-            } else {
-                Console.Out.WriteLine("Error - Could not set new chunk!");
-            }
-             */
         }
 
 		public void LoadFXP(string filePath) {
+			if (filePath == null || filePath == "") {
+				return;
+			}
 			// How does the GetChunk/SetChunk interface work? What information should be in those chunks?
 			// How does the BeginLoadProgram and BeginLoadBank work?
 			// There doesn't seem to be any restriction on what data is put in the chunks.
@@ -414,10 +381,12 @@ namespace ProcessVSTPlugin
 					
 					//PluginContext.PluginCommandStub.SetProgramName(fxp.name);
                     byte[] chunkData = BinaryFile.StringToByteArray(fxp.chunkData);
-					
-					bool isPreset = true;
-                    int setChunkResult = EffSetChunk(chunkData, isPreset);
+                    int setChunkResult = EffSetChunk(chunkData, true);
 				} else {
+					// NB! non chunk presets are not supported yet!
+					Console.Out.WriteLine("Presets with non-chunk data is not yet supported! Loading preset failed!");
+					return;
+					
 					int version = fxp.version; // should be 1
 					int pluginVersion = fxp.fxVersion;
 					int numElements = fxp.numPrograms;
@@ -433,8 +402,7 @@ namespace ProcessVSTPlugin
 						// Host calls this before a new program (SetProgram) is loaded
 						// x[return]: 1 = the plug-in took the notification into account
 						bool beginSetProgramReturn = PluginContext.PluginCommandStub.BeginSetProgram();
-						if (beginSetProgramReturn) {
-							
+						if (beginSetProgramReturn) {							
 							// SetProgram()
 							// host has changed the current program number
 							// host must call this inside a beginSetProgram() ... endSetProgram() sequence
@@ -478,8 +446,7 @@ namespace ProcessVSTPlugin
 			fxp.numPrograms = PluginContext.PluginInfo.ProgramCount;
 			fxp.name = PluginContext.PluginCommandStub.GetProgramName();
 			
-			bool isPreset = true;
-			byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(isPreset);
+			byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);
 			fxp.chunkSize = chunkData.Length;
 			fxp.chunkData = BinaryFile.ByteArrayToString(chunkData);
 			

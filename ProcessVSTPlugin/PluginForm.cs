@@ -13,6 +13,7 @@ namespace ProcessVSTPlugin
 	partial class PluginForm : Form
 	{
 		VstPlaybackNAudio playback;
+		string waveInputFilePath = "";
 		
 		public PluginForm()
 		{
@@ -151,26 +152,28 @@ namespace ProcessVSTPlugin
 				MessageBox.Show(this, "This plugin does not process any audio.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;
 			}
-
+                
 			VstHost host = VstHost.Instance;
 			host.PluginContext = this.PluginContext;			
-			host.InputWave = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl\Intro.wav";
-			// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
-			// tblock = 0.15 makes blocksize = 6615.
-			int sampleRate = 44100;
-			int blockSize = (int) (sampleRate * 0.15f); //6615;
-			int channels = 2;
-			host.Init(blockSize, sampleRate, channels);
-
-			if (playback == null) { 
-				playback = new VstPlaybackNAudio(host);
-				playback.Play();
-			} else {
-				// toogle start or stop
-				if (playback.PlaybackDevice.PlaybackState == PlaybackState.Playing) {
-					playback.Stop();
-				} else if (playback.PlaybackDevice.PlaybackState == PlaybackState.Stopped) {
+			if (waveInputFilePath != "") {
+				host.InputWave = waveInputFilePath;
+				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
+				// tblock = 0.15 makes blocksize = 6615.
+				int sampleRate = 44100;
+				int blockSize = (int) (sampleRate * 0.15f); //6615;
+				int channels = 2;
+				host.Init(blockSize, sampleRate, channels);
+	
+				if (playback == null) { 
+					playback = new VstPlaybackNAudio(host);
 					playback.Play();
+				} else {
+					// toogle start or stop
+					if (playback.PlaybackDevice.PlaybackState == PlaybackState.Playing) {
+						playback.Stop();
+					} else if (playback.PlaybackDevice.PlaybackState == PlaybackState.Stopped) {
+						playback.Play();
+					}
 				}
 			}
 		}
@@ -282,6 +285,17 @@ namespace ProcessVSTPlugin
                 FillProgram();
                 FillParameterList();
             }
+        }
+        
+        void BtnChooseWavefileClick(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Wave files (.wav)|*.wav|All Files|*.*||";
+            if (waveInputFilePath != "") dialog.FileName = waveInputFilePath;
+            if (dialog.ShowDialog(this) == DialogResult.OK)
+            {
+                this.waveInputFilePath = dialog.FileName;
+            }        	
         }
 	}
 }

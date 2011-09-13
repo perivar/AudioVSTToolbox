@@ -22,21 +22,21 @@ namespace ProcessVSTPlugin
 		private VSTStream vstStream = null;
 		private List<IVstPluginCommandStub> plugins;
 		
-		public AudioOutput(List<IVstPluginCommandStub> plugins)
+		public AudioOutput(List<IVstPluginCommandStub> plugins, string waveFilePath)
 		{
 			this.plugins = plugins;
-			Init();
+			Init(waveFilePath);
 			Play();
 		}
 		
-		public void Init()
+		public void Init(string waveFilePath)
 		{
 			// 4410 samples == 100 milliseconds
 			int sampleRate = 44100;			
 			int blockSize = (int) (sampleRate * 0.15f); //6615;
 			int channels = 2;			
 			
-			vstStream = new VSTStream(sampleRate, channels, blockSize, this.plugins); //blocksize 4410 samples gave stuttering? 6615 was perfect, 8820 was OK (small glitches)!
+			vstStream = new VSTStream(sampleRate, channels, blockSize, this.plugins, waveFilePath); //blocksize 4410 samples gave stuttering? 6615 was perfect, 8820 was OK (small glitches)!
 			playbackDevice = new WaveOut(WaveCallbackInfo.FunctionCallback());
 			playbackDevice.Init(vstStream);
 		}
@@ -85,14 +85,16 @@ namespace ProcessVSTPlugin
 		private byte[] naudioBuf;
 		private int sampleRate, channels, blockSize;
 		private WaveChannel32 wavStream;
+		private string waveFilePath;
 		
-		public VSTStream(int sampleRate, int channels, int blockSize, List<IVstPluginCommandStub> plugins)
+		public VSTStream(int sampleRate, int channels, int blockSize, List<IVstPluginCommandStub> plugins, string waveFilePath)
 			: base(sampleRate, channels)
 		{
 			this.plugins = plugins;
 			this.sampleRate = sampleRate;
 			this.channels = channels;
 			this.blockSize = blockSize;
+			this.waveFilePath = waveFilePath;
 			
 			plugins[0].SetBlockSize(blockSize);
 			plugins[0].SetSampleRate((float)sampleRate);
@@ -107,9 +109,8 @@ namespace ProcessVSTPlugin
 			// 4 bytes per sample (32 bit)
 			naudioBuf = new byte[blockSize * channels * 4];
 			
-			wavStream = new WaveChannel32(new WaveFileReader(@"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl\Intro.wav"));
+			wavStream = new WaveChannel32(new WaveFileReader(waveFilePath));
 			wavStream.Volume = 1f;
-			
 		}
 		
 		public static float[] ConvertByteToFloat(byte[] array) {
