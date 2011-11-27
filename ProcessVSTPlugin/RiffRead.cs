@@ -285,7 +285,7 @@ public class RiffRead {
 							}
 						} //------- end iteration over LIST chunk ------------
 						
-					} catch (Exception e) {;
+					} catch (Exception) {;
 						// don't care about these?
 						//Console.WriteLine("Error: {0}", e.ToString());
 					}

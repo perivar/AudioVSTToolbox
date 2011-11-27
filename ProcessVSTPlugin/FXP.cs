@@ -198,7 +198,7 @@ public class FXP {
 		xmlDocument = new XmlDocument();
 		try {
 			xmlDocument.LoadXml(chunkData);
-		} catch (XmlException xe) {
+		} catch (XmlException) {
 			Console.Out.WriteLine("No XML found");
 		}
 	}
@@ -249,7 +249,7 @@ public class FXP {
 		xmlDocument = new XmlDocument();
 		try {
 			xmlDocument.LoadXml(chunkData);
-		} catch (XmlException xe) {
+		} catch (XmlException) {
 			Console.Out.WriteLine("No XML found");
 		}
 	}
