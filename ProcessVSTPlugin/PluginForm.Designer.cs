@@ -219,6 +219,7 @@
         	// 
         	// ProcessAudioBtn
         	// 
+        	this.ProcessAudioBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
         	this.ProcessAudioBtn.Location = new System.Drawing.Point(110, 362);
         	this.ProcessAudioBtn.Name = "ProcessAudioBtn";
         	this.ProcessAudioBtn.Size = new System.Drawing.Size(100, 23);
@@ -229,6 +230,7 @@
         	// 
         	// btnChooseWavefile
         	// 
+        	this.btnChooseWavefile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
         	this.btnChooseWavefile.Location = new System.Drawing.Point(216, 362);
         	this.btnChooseWavefile.Name = "btnChooseWavefile";
         	this.btnChooseWavefile.Size = new System.Drawing.Size(21, 23);
