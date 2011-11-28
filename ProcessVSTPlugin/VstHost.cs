@@ -131,30 +131,33 @@ namespace ProcessVSTPlugin
 		
 		// This function fills vstOutputBuffers with audio processed by a plugin
 		public int ProcessReplacing(uint sampleCount) {
-			
-			int sampleCountx4 = (int) sampleCount * 4;
-			int loopSize = (int) sampleCount / Channels;
-			
-			// 4 bytes per sample (32 bit)
-			byte[] naudioBuf = new byte[sampleCountx4];
-			int bytesRead = wavStream.Read(naudioBuf, 0, sampleCountx4);
 
-			if (wavStream.CurrentTime > wavStream.TotalTime.Add(TimeSpan.FromSeconds(tailWaitForNumberOfSeconds))) {
-				return 0;
-			}
-			
-			unsafe
-			{
-				fixed (byte* byteBuf = &naudioBuf[0])
+			// check if we are processing a wavestrem or if this is audio outputting only (VSTi?)
+			if (wavStream != null) {
+				int sampleCountx4 = (int) sampleCount * 4;
+				int loopSize = (int) sampleCount / Channels;
+				
+				// 4 bytes per sample (32 bit)
+				byte[] naudioBuf = new byte[sampleCountx4];
+				int bytesRead = wavStream.Read(naudioBuf, 0, sampleCountx4);
+
+				if (wavStream.CurrentTime > wavStream.TotalTime.Add(TimeSpan.FromSeconds(tailWaitForNumberOfSeconds))) {
+					return 0;
+				}
+				
+				unsafe
 				{
-					float* floatBuf = (float*)byteBuf;
-					int j = 0;
-					for (int i = 0; i < loopSize; i++)
+					fixed (byte* byteBuf = &naudioBuf[0])
 					{
-						vstInputBuffers[0][i] = *(floatBuf + j);
-						j++;
-						vstInputBuffers[1][i] = *(floatBuf + j);
-						j++;
+						float* floatBuf = (float*)byteBuf;
+						int j = 0;
+						for (int i = 0; i < loopSize; i++)
+						{
+							vstInputBuffers[0][i] = *(floatBuf + j);
+							j++;
+							vstInputBuffers[1][i] = *(floatBuf + j);
+							j++;
+						}
 					}
 				}
 			}
@@ -177,10 +180,13 @@ namespace ProcessVSTPlugin
 			// 
 			// [plugin.Close()]
 			
+			
 			// Open Resources
 			//PluginContext.PluginCommandStub.MainsChanged(true);
 			//PluginContext.PluginCommandStub.StartProcess();
+			
 			PluginContext.PluginCommandStub.ProcessReplacing(vstInputBuffers, vstOutputBuffers);
+			
 			// Close resources
 			//PluginContext.PluginCommandStub.StopProcess();
 			//PluginContext.PluginCommandStub.MainsChanged(false);
@@ -200,37 +206,44 @@ namespace ProcessVSTPlugin
 			}
 		}
 		
-		public void SendMidiNoteWithProcessEvent() {
+		private VstEvent[] CreateMidiEvent(byte midiNote, byte midiVelocity) {
 			/* 
 			 * Just a small note on the code for setting up a midi event:
 			 * You can use the VstEventCollection class (Framework) to setup one or more events
 			 * and then call the ToArray() method on the collection when passing it to
 			 * ProcessEvents. This will save you the hassle of dealing with arrays explicitly.
+			 * http://computermusicresource.com/MIDI.Commands.html
 			 */
 			byte[] midiData = new byte[4];
-			midiData[0] = 144; // Send note on midi channel 1
-			midiData[1] = 72;   // Midi note
-			midiData[2] = 127; // Note strike velocity
-			midiData[3] = 0;    // Reserved, unused
 			
-			VstMidiEvent vse = new VstMidiEvent(/*DeltaFrames*/ 0,
-			                                    /*NoteLength*/ 	0,
-			                                    /*NoteOffset*/ 	0,
-			                                    midiData,
-			                                    /*Detune*/    	0,
-			                                    /*NoteOffVelocity*/ 127);
+			midiData[0] = 144; 			// Send note on midi channel 1
+			midiData[1] = midiNote;   	// Midi note
+			midiData[2] = midiVelocity; // Note strike velocity
+			midiData[3] = 0;    		// Reserved, unused
+			
+			VstMidiEvent vse1 = new VstMidiEvent(/*DeltaFrames*/ 	0,
+			                                     /*NoteLength*/ 	0,
+			                                     /*NoteOffset*/ 	0,
+			                                     midiData,
+			                                     /*Detune*/    		0,
+			                                     /*NoteOffVelocity*/ 0);
 			
 			VstEvent[] ve = new VstEvent[1];
-			ve[0] = vse;
-			
-			PluginContext.PluginCommandStub.ProcessEvents(ve);
+			ve[0] = vse1;
+			return ve;
 		}
-		
-		private void processMidiOnce(int volume, int pitch)
-		{
+
+		public void SendMidiNote(byte midiNote, byte midiVelocity) {
+			
+			//PluginContext.PluginCommandStub.MainsChanged(true);
 			//PluginContext.PluginCommandStub.StartProcess();
-			//VstEvent[] vEvent = createEvent(volume, pitch);
-			//PluginContext.PluginCommandStub.ProcessEvents(vEvent);
+			
+			VstEvent[] vEvent = CreateMidiEvent(midiNote, midiVelocity);
+			PluginContext.PluginCommandStub.ProcessEvents(vEvent);
+			//PluginContext.PluginCommandStub.ProcessReplacing(vstInputBuffers, vstOutputBuffers);
+			
+			//PluginContext.PluginCommandStub.StopProcess();
+			//PluginContext.PluginCommandStub.MainsChanged(false);
 		}
 		
 		public string getPluginInfo() {
@@ -312,11 +325,11 @@ namespace ProcessVSTPlugin
 		}
 
 		private int EffSetChunk(byte[] data, bool isPreset) {
-            bool beginSetProgramResult = PluginContext.PluginCommandStub.BeginSetProgram();
-            int iResult = PluginContext.PluginCommandStub.SetChunk(data, isPreset);
-            bool endSetProgramResult = PluginContext.PluginCommandStub.EndSetProgram();
-            return iResult;
-        }
+			bool beginSetProgramResult = PluginContext.PluginCommandStub.BeginSetProgram();
+			int iResult = PluginContext.PluginCommandStub.SetChunk(data, isPreset);
+			bool endSetProgramResult = PluginContext.PluginCommandStub.EndSetProgram();
+			return iResult;
+		}
 
 		public void LoadFXP(string filePath) {
 			if (filePath == null || filePath == "") {
@@ -338,50 +351,50 @@ namespace ProcessVSTPlugin
 			// This is an optimazation of the host to determine if the information to load is
 			// actually different than the state your plugin program(s) (are) in.
 
-            bool UseChunk = false;
-            if ((PluginContext.PluginInfo.Flags & VstPluginFlags.ProgramChunks) == 0)
-            {
-                // Chunks not supported.
-                UseChunk = false;
-            }
-            else
-            {
-                // Chunks supported.
-                UseChunk = true;
-            }
+			bool UseChunk = false;
+			if ((PluginContext.PluginInfo.Flags & VstPluginFlags.ProgramChunks) == 0)
+			{
+				// Chunks not supported.
+				UseChunk = false;
+			}
+			else
+			{
+				// Chunks supported.
+				UseChunk = true;
+			}
 			FXP fxp = new FXP();
 			fxp.ReadFile(filePath);
-            if (fxp.chunkMagic != "CcnK")
-            {
-                // not a fxp or fxb file
-                Console.Out.WriteLine("Error - Cannot Load. Loaded preset is not a fxp or fxb file");
-                return;
-            }
+			if (fxp.chunkMagic != "CcnK")
+			{
+				// not a fxp or fxb file
+				Console.Out.WriteLine("Error - Cannot Load. Loaded preset is not a fxp or fxb file");
+				return;
+			}
 
 			int pluginUniqueID = PluginIDStringToIDNumber(fxp.fxID);
-			int currentPluginID = PluginContext.PluginInfo.PluginID;			
+			int currentPluginID = PluginContext.PluginInfo.PluginID;
 			if (pluginUniqueID != currentPluginID) {
 				Console.Out.WriteLine("Error - Cannot Load. Loaded preset has another ID!");
 			} else {
-                // Preset (Program) (.fxp) with chunk (magic = 'FPCh')
-                // Bank (.fxb) with chunk (magic = 'FBCh')
-                if (fxp.fxMagic == "FPCh" || fxp.fxMagic == "FBCh") {
-                    UseChunk = true;
-                } else {
-                    UseChunk = false;
-                }
+				// Preset (Program) (.fxp) with chunk (magic = 'FPCh')
+				// Bank (.fxb) with chunk (magic = 'FBCh')
+				if (fxp.fxMagic == "FPCh" || fxp.fxMagic == "FBCh") {
+					UseChunk = true;
+				} else {
+					UseChunk = false;
+				}
 				if (UseChunk) {
-					// If your plug-in is configured to use chunks 
-                    // the Host will ask for a block of memory describing the current 
-                    // plug-in state for saving.
-					// To restore the state at a later stage, the same data is passed 
-                    // back to setChunk.
-					// Alternatively, when not using chunk, the Host will simply 
-                    // save all parameter values.
+					// If your plug-in is configured to use chunks
+					// the Host will ask for a block of memory describing the current
+					// plug-in state for saving.
+					// To restore the state at a later stage, the same data is passed
+					// back to setChunk.
+					// Alternatively, when not using chunk, the Host will simply
+					// save all parameter values.
 					
 					//PluginContext.PluginCommandStub.SetProgramName(fxp.name);
-                    byte[] chunkData = BinaryFile.StringToByteArray(fxp.chunkData);
-                    int setChunkResult = EffSetChunk(chunkData, true);
+					byte[] chunkData = BinaryFile.StringToByteArray(fxp.chunkData);
+					int setChunkResult = EffSetChunk(chunkData, true);
 				} else {
 					// NB! non chunk presets are not supported yet!
 					Console.Out.WriteLine("Presets with non-chunk data is not yet supported! Loading preset failed!");
@@ -402,7 +415,7 @@ namespace ProcessVSTPlugin
 						// Host calls this before a new program (SetProgram) is loaded
 						// x[return]: 1 = the plug-in took the notification into account
 						bool beginSetProgramReturn = PluginContext.PluginCommandStub.BeginSetProgram();
-						if (beginSetProgramReturn) {							
+						if (beginSetProgramReturn) {
 							// SetProgram()
 							// host has changed the current program number
 							// host must call this inside a beginSetProgram() ... endSetProgram() sequence

@@ -3,6 +3,11 @@ using System.Xml;
 using System.IO;
 
 public class FXP {
+    /*
+     * Class for reading and writing Steinberg Preset files and Bank files (fxp and fxb files).
+     * Per Ivar Nerseth, 2011
+     */
+	
     // Preset (Program) (.fxp) without chunk (magic = 'FxCk')
     // Preset (Program) (.fxp) with chunk (magic = 'FPCh')
     /*

@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 
 public class BinaryFile {
-
     /*
      * Class for reading and writing binary files.
      * 
@@ -13,6 +12,8 @@ public class BinaryFile {
 	 * 
      * It's overloaded to handle shorts, ints, and longs. Or use:
      * BitConverter.ToInt32(ReadBytes(reader, 4, ByteOrder.BigEndian), 0);
+     * 
+     * Per Ivar Nerseth, 2011
      */
     public enum ByteOrder : int
 	{

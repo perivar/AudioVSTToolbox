@@ -95,6 +95,9 @@
         	this.Name = "EditorFrame";
         	this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
         	this.Text = "EditorFrame";
+        	this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditorFrameFormClosing);
+        	this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyDown);
+        	this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyUp);
         	this.ResumeLayout(false);
         }
         private System.Windows.Forms.Panel pluginPanel;
