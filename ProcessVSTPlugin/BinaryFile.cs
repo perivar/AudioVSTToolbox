@@ -3,19 +3,19 @@ using System.IO;
 using System.Text;
 
 public class BinaryFile {
-    /*
-     * Class for reading and writing binary files.
-     * 
-     * An alternative for the conversion in this file is to use:
-     * (UInt32) IPAddress.HostToNetworkOrder(byteSize)
-     * longValue = IPAddress.HostToNetworkOrder(longValue);
+	/*
+	 * Class for reading and writing binary files.
 	 * 
-     * It's overloaded to handle shorts, ints, and longs. Or use:
-     * BitConverter.ToInt32(ReadBytes(reader, 4, ByteOrder.BigEndian), 0);
-     * 
-     * Per Ivar Nerseth, 2011
-     */
-    public enum ByteOrder : int
+	 * An alternative for the conversion in this file is to use:
+	 * (UInt32) IPAddress.HostToNetworkOrder(byteSize)
+	 * longValue = IPAddress.HostToNetworkOrder(longValue);
+	 * 
+	 * It's overloaded to handle shorts, ints, and longs. Or use:
+	 * BitConverter.ToInt32(ReadBytes(reader, 4, ByteOrder.BigEndian), 0);
+	 * 
+	 * Per Ivar Nerseth, 2011
+	 */
+	public enum ByteOrder : int
 	{
 		LittleEndian,
 		BigEndian
@@ -38,8 +38,8 @@ public class BinaryFile {
 		} else {
 			fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
 		}
-        binaryWriter = new BinaryWriter(fs, Encoding.Default);
-        binaryReader = new BinaryReader(fs, Encoding.Default);
+		binaryWriter = new BinaryWriter(fs, Encoding.Default);
+		binaryReader = new BinaryReader(fs, Encoding.Default);
 		this.byteOrder = byteOrder;
 	}
 
@@ -417,33 +417,33 @@ public class BinaryFile {
 		return Convert.ToInt32(sHexString, 16);
 	}
 	
-    public static byte[] CharArrayToByteArray(char[] charArray)
+	public static byte[] CharArrayToByteArray(char[] charArray)
 	{
-        //System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
-        return Encoding.Default.GetBytes(charArray);
-    }
+		//System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
+		return Encoding.Default.GetBytes(charArray);
+	}
 
-    public static byte[] StringToByteArray(string StringToConvert, int length)
-    {
-        char[] CharArray = StringToConvert.ToCharArray();
-        byte[] ByteArray = new byte[length];
-        for (int i = 0; i < length; i++)
-        {
-            if (i < CharArray.Length) ByteArray[i] = Convert.ToByte(CharArray[i]);
-        }
-        return ByteArray;
-    }
+	public static byte[] StringToByteArray(string StringToConvert, int length)
+	{
+		char[] CharArray = StringToConvert.ToCharArray();
+		byte[] ByteArray = new byte[length];
+		for (int i = 0; i < length; i++)
+		{
+			if (i < CharArray.Length) ByteArray[i] = Convert.ToByte(CharArray[i]);
+		}
+		return ByteArray;
+	}
 
 	public static byte[] StringToByteArray(string str)
 	{
 		//System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
-        return Encoding.Default.GetBytes(str);
+		return Encoding.Default.GetBytes(str);
 	}
 
 	public static string ByteArrayToString(byte[] byteArray)
 	{
-        //System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
-        return Encoding.Default.GetString(byteArray);
+		//System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
+		return Encoding.Default.GetString(byteArray);
 	}
 	
 	public static byte[] AppendArrays(byte[] a, byte[] b)
@@ -453,4 +453,36 @@ public class BinaryFile {
 		Buffer.BlockCopy(b, 0, c, a.Length, b.Length);
 		return c;
 	}
+	
+	/// <summary>
+	/// Function to save byte array to a file
+	/// </summary>
+	/// <param name="_FileName">File name to save byte array</param>
+	/// <param name="_ByteArray">Byte array to save to external file</param>
+	/// <returns>Return true if byte array save successfully, if not return false</returns>
+	public static bool ByteArrayToFile(string _FileName, byte[] _ByteArray)
+	{
+		try
+		{
+			// Open file for reading
+			System.IO.FileStream _FileStream = new System.IO.FileStream(_FileName, System.IO.FileMode.Create, System.IO.FileAccess.Write);
+
+			// Writes a block of bytes to this stream using data from a byte array.
+			_FileStream.Write(_ByteArray, 0, _ByteArray.Length);
+
+			// close file stream
+			_FileStream.Close();
+
+			return true;
+		}
+		catch (Exception _Exception)
+		{
+			// Error
+			Console.WriteLine("Exception caught in process: {0}", _Exception.ToString());
+		}
+
+		// error occured, return false
+		return false;
+	}
+	
 }

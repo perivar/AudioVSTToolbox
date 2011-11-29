@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="Arguments.cs" />
     <Compile Include="AudioOutput.cs" />
+    <Compile Include="SimpleBinaryDiff.cs" />
     <Compile Include="BinaryFile.cs" />
     <Compile Include="EditorFrame.cs">
       <SubType>Form</SubType>
