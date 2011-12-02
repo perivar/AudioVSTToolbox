@@ -175,6 +175,8 @@ namespace ProcessVSTPlugin
 						playback.Play();
 					}
 				}
+			} else {
+				MessageBox.Show(this, "Please choose an audio file to process.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);				
 			}
 		}
 				
@@ -245,12 +247,12 @@ namespace ProcessVSTPlugin
 		private void EditorBtn_Click(object sender, EventArgs e)
 		{
 			EditorFrame dlg = new EditorFrame();
-			//dlg.PluginCommandStub = PluginContext.PluginCommandStub;
 			dlg.PluginContext = PluginContext;
 			
-			PluginContext.PluginCommandStub.MainsChanged(true);
+			// TODO: Commenting out these disables all sound - due to Sylenth bug?
+			//PluginContext.PluginCommandStub.MainsChanged(true);
 			dlg.ShowDialog(this);
-			PluginContext.PluginCommandStub.MainsChanged(false);
+			//PluginContext.PluginCommandStub.MainsChanged(false);
 			FillParameterList();				
 		}
         

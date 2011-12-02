@@ -37,7 +37,7 @@ namespace ProcessVSTPlugin
 				//loop through the List to get all the items
 				string concat = "";
 				foreach (DiffPoint point in Points) {
-					concat += string.Format(",[index {0}: {1}=>{2}]", point.Index, point.OldValue, point.NewValue);
+					concat += string.Format("[{0}]:{1}=>{2} ", point.Index, point.OldValue, point.NewValue);
 				}
 				return concat;
 			}

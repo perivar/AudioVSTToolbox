@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Interop.Host;
@@ -10,8 +12,31 @@ namespace ProcessVSTPlugin
 	/// </summary>
 	class HostCommandStub : IVstHostCommandStub
 	{
+		// these three variables are used to track changes to a preset file content, in order to reverse engineer the binary content
 		byte[] previousChunkData;
+		bool investigatePluginPresetFileFormat = false;
+		List<InvestigatedPluginPresetFileFormat> investigatedPluginPresetFileFormatList = new List<InvestigatedPluginPresetFileFormat>();
+		
+		public bool InvestigatePluginPresetFileFormat {
+			set {
+				investigatePluginPresetFileFormat = value;
+			}
+			get {
+				return investigatePluginPresetFileFormat;
+			}
+		}
 
+		public List<InvestigatedPluginPresetFileFormat> InvestigatedPluginPresetFileFormatList {
+			set {
+				investigatedPluginPresetFileFormatList = value;
+			}
+			get {
+				return investigatedPluginPresetFileFormatList;
+			}
+		}
+		
+		Jacobi.Vst.Core.VstTimeInfo vstTimeInfo = new Jacobi.Vst.Core.VstTimeInfo();
+		
 		/// <summary>
 		/// Raised when one of the methods is called.
 		/// </summary>
@@ -132,7 +157,22 @@ namespace ProcessVSTPlugin
 		public Jacobi.Vst.Core.VstTimeInfo GetTimeInfo(Jacobi.Vst.Core.VstTimeInfoFlags filterFlags)
 		{
 			RaisePluginCalled("GetTimeInfo(" + filterFlags + ")");
-			return null;
+			vstTimeInfo.SamplePosition = 0.0;
+			vstTimeInfo.SampleRate = 44100;
+			vstTimeInfo.NanoSeconds = 0.0;
+			vstTimeInfo.PpqPosition = 0.0;
+			vstTimeInfo.Tempo = 120.0;
+			vstTimeInfo.BarStartPosition = 0.0;
+			vstTimeInfo.CycleStartPosition = 0.0;
+			vstTimeInfo.CycleEndPosition = 0.0;
+			vstTimeInfo.TimeSignatureNumerator = 4;
+			vstTimeInfo.TimeSignatureDenominator = 4;
+			vstTimeInfo.SmpteOffset = 0;
+			vstTimeInfo.SmpteFrameRate = new Jacobi.Vst.Core.VstSmpteFrameRate();
+			vstTimeInfo.SamplesToNearestClock = 0;
+			vstTimeInfo.Flags = 0;
+
+			return vstTimeInfo;
 		}
 
 		/// <inheritdoc />
@@ -213,21 +253,34 @@ namespace ProcessVSTPlugin
 		{
 			RaisePluginCalled("SetParameterAutomated(" + index + ", " + value + ")");
 			
-			bool investigatePluginPresetFileFormat = true;
-			if (investigatePluginPresetFileFormat) {
-				// read in the preset chunk and do a
-				// binary comparison between what changed before and after this method was called
+			string name = PluginContext.PluginCommandStub.GetParameterName(index);
+			string label = PluginContext.PluginCommandStub.GetParameterLabel(index);
+			string display = PluginContext.PluginCommandStub.GetParameterDisplay(index);
+			System.Diagnostics.Debug.WriteLine("{0}{1},{2}", name, label, display);
+			
+			if (InvestigatePluginPresetFileFormat) {
+				// read in the preset chunk and
+				// do a binary comparison between what changed before and after this method was called
 				byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);
-				int chunkLength = chunkData.Length;
 				
-				// binary comparison
-				if (previousChunkData != null && previousChunkData.Length > 0) {					
-					SimpleBinaryDiff.Diff diff = SimpleBinaryDiff.GetDiff(previousChunkData, chunkData);
-					//Console.Out.WriteLine("{0}", diff);
-					BinaryFile.ByteArrayToFile("perivar-previousChunkData.dat", previousChunkData);
-					BinaryFile.ByteArrayToFile("perivar-chunkData.dat", chunkData);					
+				if (chunkData != null && chunkData.Length > 0) {
+					int chunkLength = chunkData.Length;
+					
+					// binary comparison to find out where the chunk has changed
+					if (previousChunkData != null && previousChunkData.Length > 0) {
+						SimpleBinaryDiff.Diff diff = SimpleBinaryDiff.GetDiff(previousChunkData, chunkData);
+						System.Diagnostics.Debug.WriteLine("{0}", diff);
+						//BinaryFile.ByteArrayToFile("perivar-previousChunkData.dat", previousChunkData);
+						//BinaryFile.ByteArrayToFile("perivar-chunkData.dat", chunkData);
+						
+						// store each of the chunk differences in a list
+						foreach (SimpleBinaryDiff.DiffPoint point in diff.Points) {
+							investigatedPluginPresetFileFormatList.Add(
+								new InvestigatedPluginPresetFileFormat(point.Index, point.NewValue, name, label, display));
+						}
+					}
+					previousChunkData = chunkData;
 				}
-				previousChunkData = chunkData;
 			}
 		}
 

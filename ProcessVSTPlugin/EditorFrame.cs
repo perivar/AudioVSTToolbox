@@ -23,12 +23,10 @@ namespace ProcessVSTPlugin
 			InitializeComponent();
 			KeyPreview = true;
 		}
-
-		/// <summary>
-		/// Gets or sets the Plugin Command Stub.
-		/// </summary>
-		//public Jacobi.Vst.Core.Host.IVstPluginCommandStub PluginCommandStub { get; set; }
 		
+		/// <summary>
+		/// Gets or sets the Plugin Contex.
+		/// </summary>
 		public VstPluginContext PluginContext { get; set; }
 		
 		/// <summary>
@@ -45,7 +43,6 @@ namespace ProcessVSTPlugin
 			if (PluginContext.PluginCommandStub.EditorGetRect(out wndRect))
 			{
 				this.pluginPanel.Size = this.SizeFromClientSize(new Size(wndRect.Width, wndRect.Height));
-				//PluginContext.PluginCommandStub.EditorOpen(this.Handle);
 				PluginContext.PluginCommandStub.EditorOpen(this.pluginPanel.Handle);
 			}
 
@@ -199,6 +196,76 @@ namespace ProcessVSTPlugin
 						// B3
 						midiNote = 59;
 						break;
+
+					case Keys.Q:
+						// C4
+						midiNote = 60;
+						break;
+					case Keys.D2:
+						// C#4
+						midiNote = 61;
+						break;
+					case Keys.W:
+						// D4
+						midiNote = 62;
+						break;
+					case Keys.D3:
+						// D#4
+						midiNote = 63;
+						break;
+					case Keys.E:
+						// E4
+						midiNote = 64;
+						break;
+					case Keys.R:
+						// F4
+						midiNote = 65;
+						break;
+					case Keys.D5:
+						// F#4
+						midiNote = 66;
+						break;
+					case Keys.T:
+						// G4
+						midiNote = 67;
+						break;
+					case Keys.D6:
+						// G#4
+						midiNote = 68;
+						break;
+					case Keys.Y:
+						// A4
+						midiNote = 69;
+						break;
+					case Keys.D7:
+						// A#4
+						midiNote = 70;
+						break;
+					case Keys.U:
+						// B4
+						midiNote = 71;
+						break;
+
+					case Keys.I:
+						// C4
+						midiNote = 72;
+						break;
+					case Keys.D9:
+						// C#4
+						midiNote = 73;
+						break;
+					case Keys.O:
+						// D4
+						midiNote = 74;
+						break;
+					case Keys.D0:
+						// D#4
+						midiNote = 75;
+						break;
+					case Keys.P:
+						// E4
+						midiNote = 76;
+						break;
 				}
 				
 			} catch (Exception ex) {
@@ -222,26 +289,30 @@ namespace ProcessVSTPlugin
 					
 					System.Diagnostics.Debug.WriteLine("Key Down Event Detected: {0}, {1}, {2}", e.KeyCode, midiNote, midiVelocity);
 					
-					VstHost host = VstHost.Instance;
-					host.PluginContext = this.PluginContext;
-					
-					// if first keypress setup audio
-					if (playback == null) {
-						// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
-						// tblock = 0.15 makes blocksize = 6615.
-						int sampleRate = 44100;
-						int blockSize = (int) (sampleRate * 0.15f); //6615;
-						int channels = 2;
-						host.Init(blockSize, sampleRate, channels);
+					// only bother with the keys that trigger midi notes
+					if (midiNote != 0) {
+						VstHost host = VstHost.Instance;
+						host.PluginContext = this.PluginContext;
 						
-						playback = new VstPlaybackNAudio(host);
-						playback.Play();
+						// if first keypress setup audio
+						if (playback == null) {
+							// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
+							// tblock = 0.15 makes blocksize = 6615.
+							int sampleRate = 44100;
+							int blockSize = (int) (sampleRate * 0.15f); //6615;
+							int channels = 2;
+							host.Init(blockSize, sampleRate, channels);
+							
+							playback = new VstPlaybackNAudio(host);
+							playback.Play();
+						}
+						
+						host.SendMidiNote(midiNote, midiVelocity);
+						
+						hasNoKeyDown = false; // Set to False to disable keyboard Auto Repeat
 					}
-					
-					if (midiNote != 0) host.SendMidiNote(midiNote, midiVelocity);
-					
-					hasNoKeyDown = false; // Set to False to disable keyboard Auto Repeat
 				} catch (Exception ex) {
+					System.Diagnostics.Debug.WriteLine(ex.StackTrace);
 					MessageBox.Show(ex.Message);
 				}
 			} else {
@@ -265,11 +336,13 @@ namespace ProcessVSTPlugin
 				
 				System.Diagnostics.Debug.WriteLine("Key Up Event Detected: {0}, {1}, {2}", e.KeyCode, midiNote, midiVelocity);
 				
-				VstHost host = VstHost.Instance;
-				host.PluginContext = this.PluginContext;
-				
-				if (midiNote != 0) host.SendMidiNote(midiNote, midiVelocity);
-				
+				// only bother with the keys that trigger midi notes
+				if (midiNote != 0) {
+					VstHost host = VstHost.Instance;
+					host.PluginContext = this.PluginContext;
+					
+					host.SendMidiNote(midiNote, midiVelocity);
+				}
 			} catch (Exception ex) {
 				MessageBox.Show(ex.Message);
 			}
@@ -280,6 +353,31 @@ namespace ProcessVSTPlugin
 			if (playback != null) {
 				playback.Stop();
 			}
+		}
+		
+		void InvestigatePluginPresetFileCheckboxCheckedChanged(object sender, EventArgs e)
+		{
+			CheckBox check = (CheckBox) sender;
+			if(check.Checked)
+			{
+				((HostCommandStub) PluginContext.HostCommandStub).InvestigatePluginPresetFileFormat = true;
+			} else {
+				((HostCommandStub) PluginContext.HostCommandStub).InvestigatePluginPresetFileFormat = false;
+			}
+		}
+		
+		void PresetContentBtnClick(object sender, System.EventArgs e)
+		{
+			InvestigatedPluginPresetDetailsForm dlg = new InvestigatedPluginPresetDetailsForm();
+			dlg.PluginContext = this.PluginContext;
+			dlg.InvestigatedPluginPresetFileFormatList = ((HostCommandStub) PluginContext.HostCommandStub).InvestigatedPluginPresetFileFormatList;
+			//dlg.ShowDialog(this); // modal
+			dlg.Show(); // modeless
+
+			//SortableBindingList<InvestigatedPluginPresetFileFormat> list = ((HostCommandStub) PluginContext.HostCommandStub).InvestigatedPluginPresetFileFormatList;
+			//foreach (InvestigatedPluginPresetFileFormat li in list) {
+			//	Console.WriteLine("{0},{1},{2}", li.IndexInFile, li.ParameterName, li.ParameterDisplay);
+			//}
 		}
 	}
 }

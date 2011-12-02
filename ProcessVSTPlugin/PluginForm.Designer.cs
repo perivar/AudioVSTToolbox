@@ -30,6 +30,7 @@
         {
         	System.Windows.Forms.GroupBox groupBox1;
         	System.Windows.Forms.GroupBox groupBox2;
+        	System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PluginForm));
         	this.PluginPropertyListVw = new System.Windows.Forms.ListView();
         	this.PropertyNameHdr = new System.Windows.Forms.ColumnHeader();
         	this.PropertyValueHdr = new System.Windows.Forms.ColumnHeader();
@@ -63,7 +64,7 @@
         	groupBox1.Location = new System.Drawing.Point(13, 13);
         	groupBox1.Name = "groupBox1";
         	groupBox1.Padding = new System.Windows.Forms.Padding(5);
-        	groupBox1.Size = new System.Drawing.Size(395, 158);
+        	groupBox1.Size = new System.Drawing.Size(470, 158);
         	groupBox1.TabIndex = 0;
         	groupBox1.TabStop = false;
         	groupBox1.Text = "Plugin Properties";
@@ -79,7 +80,7 @@
         	this.PluginPropertyListVw.Location = new System.Drawing.Point(5, 18);
         	this.PluginPropertyListVw.MultiSelect = false;
         	this.PluginPropertyListVw.Name = "PluginPropertyListVw";
-        	this.PluginPropertyListVw.Size = new System.Drawing.Size(385, 135);
+        	this.PluginPropertyListVw.Size = new System.Drawing.Size(460, 135);
         	this.PluginPropertyListVw.TabIndex = 0;
         	this.PluginPropertyListVw.UseCompatibleStateImageBehavior = false;
         	this.PluginPropertyListVw.View = System.Windows.Forms.View.Details;
@@ -87,12 +88,12 @@
         	// PropertyNameHdr
         	// 
         	this.PropertyNameHdr.Text = "Property Name";
-        	this.PropertyNameHdr.Width = 180;
+        	this.PropertyNameHdr.Width = 224;
         	// 
         	// PropertyValueHdr
         	// 
         	this.PropertyValueHdr.Text = "Property Value";
-        	this.PropertyValueHdr.Width = 180;
+        	this.PropertyValueHdr.Width = 210;
         	// 
         	// groupBox2
         	// 
@@ -105,7 +106,7 @@
         	groupBox2.Controls.Add(this.ProgramIndexNud);
         	groupBox2.Location = new System.Drawing.Point(13, 177);
         	groupBox2.Name = "groupBox2";
-        	groupBox2.Size = new System.Drawing.Size(395, 178);
+        	groupBox2.Size = new System.Drawing.Size(470, 178);
         	groupBox2.TabIndex = 1;
         	groupBox2.TabStop = false;
         	groupBox2.Text = "Programs && Parameters";
@@ -145,7 +146,7 @@
         	this.PluginParameterListVw.Location = new System.Drawing.Point(7, 47);
         	this.PluginParameterListVw.MultiSelect = false;
         	this.PluginParameterListVw.Name = "PluginParameterListVw";
-        	this.PluginParameterListVw.Size = new System.Drawing.Size(382, 125);
+        	this.PluginParameterListVw.Size = new System.Drawing.Size(457, 125);
         	this.PluginParameterListVw.TabIndex = 2;
         	this.PluginParameterListVw.UseCompatibleStateImageBehavior = false;
         	this.PluginParameterListVw.View = System.Windows.Forms.View.Details;
@@ -153,21 +154,22 @@
         	// ParameterNameHdr
         	// 
         	this.ParameterNameHdr.Text = "Parameter Name";
-        	this.ParameterNameHdr.Width = 120;
+        	this.ParameterNameHdr.Width = 138;
         	// 
         	// ParameterValueHdr
         	// 
         	this.ParameterValueHdr.Text = "Value";
-        	this.ParameterValueHdr.Width = 50;
+        	this.ParameterValueHdr.Width = 77;
         	// 
         	// ParameterLabelHdr
         	// 
         	this.ParameterLabelHdr.Text = "Label";
-        	this.ParameterLabelHdr.Width = 80;
+        	this.ParameterLabelHdr.Width = 100;
         	// 
         	// ParameterShortLabelHdr
         	// 
         	this.ParameterShortLabelHdr.Text = "Short Lbl";
+        	this.ParameterShortLabelHdr.Width = 82;
         	// 
         	// ProgramNameTxt
         	// 
@@ -188,9 +190,9 @@
         	// 
         	this.OKBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
         	this.OKBtn.DialogResult = System.Windows.Forms.DialogResult.OK;
-        	this.OKBtn.Location = new System.Drawing.Point(333, 361);
+        	this.OKBtn.Location = new System.Drawing.Point(427, 362);
         	this.OKBtn.Name = "OKBtn";
-        	this.OKBtn.Size = new System.Drawing.Size(75, 23);
+        	this.OKBtn.Size = new System.Drawing.Size(56, 23);
         	this.OKBtn.TabIndex = 3;
         	this.OKBtn.Text = "Close";
         	this.OKBtn.UseVisualStyleBackColor = true;
@@ -198,7 +200,7 @@
         	// GenerateNoiseBtn
         	// 
         	this.GenerateNoiseBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-        	this.GenerateNoiseBtn.Location = new System.Drawing.Point(20, 362);
+        	this.GenerateNoiseBtn.Location = new System.Drawing.Point(13, 362);
         	this.GenerateNoiseBtn.Name = "GenerateNoiseBtn";
         	this.GenerateNoiseBtn.Size = new System.Drawing.Size(84, 23);
         	this.GenerateNoiseBtn.TabIndex = 4;
@@ -209,9 +211,9 @@
         	// EditorBtn
         	// 
         	this.EditorBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-        	this.EditorBtn.Location = new System.Drawing.Point(252, 362);
+        	this.EditorBtn.Location = new System.Drawing.Point(368, 362);
         	this.EditorBtn.Name = "EditorBtn";
-        	this.EditorBtn.Size = new System.Drawing.Size(75, 23);
+        	this.EditorBtn.Size = new System.Drawing.Size(53, 23);
         	this.EditorBtn.TabIndex = 5;
         	this.EditorBtn.Text = "Editor...";
         	this.EditorBtn.UseVisualStyleBackColor = true;
@@ -220,22 +222,26 @@
         	// ProcessAudioBtn
         	// 
         	this.ProcessAudioBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-        	this.ProcessAudioBtn.Location = new System.Drawing.Point(110, 362);
+        	this.ProcessAudioBtn.Location = new System.Drawing.Point(102, 362);
         	this.ProcessAudioBtn.Name = "ProcessAudioBtn";
-        	this.ProcessAudioBtn.Size = new System.Drawing.Size(100, 23);
+        	this.ProcessAudioBtn.Size = new System.Drawing.Size(139, 23);
         	this.ProcessAudioBtn.TabIndex = 6;
-        	this.ProcessAudioBtn.Text = "Listen Start/Stop";
+        	this.ProcessAudioBtn.Text = "Process Audio Start/Stop";
         	this.ProcessAudioBtn.UseVisualStyleBackColor = true;
         	this.ProcessAudioBtn.Click += new System.EventHandler(this.ProcessAudioBtnClick);
         	// 
         	// btnChooseWavefile
         	// 
         	this.btnChooseWavefile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-        	this.btnChooseWavefile.Location = new System.Drawing.Point(216, 362);
+        	this.btnChooseWavefile.Image = ((System.Drawing.Image)(resources.GetObject("btnChooseWavefile.Image")));
+        	this.btnChooseWavefile.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+        	this.btnChooseWavefile.Location = new System.Drawing.Point(247, 362);
         	this.btnChooseWavefile.Name = "btnChooseWavefile";
-        	this.btnChooseWavefile.Size = new System.Drawing.Size(21, 23);
+        	this.btnChooseWavefile.Size = new System.Drawing.Size(109, 23);
         	this.btnChooseWavefile.TabIndex = 7;
-        	this.btnChooseWavefile.Text = "..";
+        	this.btnChooseWavefile.Text = "Open Audio File";
+        	this.btnChooseWavefile.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+        	this.btnChooseWavefile.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
         	this.btnChooseWavefile.UseVisualStyleBackColor = true;
         	this.btnChooseWavefile.Click += new System.EventHandler(this.BtnChooseWavefileClick);
         	// 
@@ -243,7 +249,7 @@
         	// 
         	this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
         	this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        	this.ClientSize = new System.Drawing.Size(421, 394);
+        	this.ClientSize = new System.Drawing.Size(496, 394);
         	this.Controls.Add(this.btnChooseWavefile);
         	this.Controls.Add(this.ProcessAudioBtn);
         	this.Controls.Add(this.EditorBtn);

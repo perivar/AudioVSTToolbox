@@ -34,6 +34,8 @@ namespace ProcessVSTPlugin
 		
 		private int tailWaitForNumberOfSeconds = 5;
 		
+		private bool initialisedMainOut = false;
+		
 		// Explicit static constructor to tell C# compiler
 		// not to mark type as beforefieldinit
 		static VstHost()
@@ -90,6 +92,7 @@ namespace ProcessVSTPlugin
 
 				// actually open the plugin itself
 				ctx.PluginCommandStub.Open();
+				doPluginOpen();
 
 				PluginContext = ctx;
 			}
@@ -101,6 +104,9 @@ namespace ProcessVSTPlugin
 
 		private void ReleasePlugin()
 		{
+			doPluginClose();
+			PluginContext.PluginCommandStub.Close();
+
 			// dispose of all (unmanaged) resources
 			PluginContext.Dispose();
 		}
@@ -129,39 +135,7 @@ namespace ProcessVSTPlugin
 			this.PluginContext.PluginCommandStub.SetProcessPrecision(VstProcessPrecision.Process32);
 		}
 		
-		// This function fills vstOutputBuffers with audio processed by a plugin
-		public int ProcessReplacing(uint sampleCount) {
-
-			// check if we are processing a wavestrem or if this is audio outputting only (VSTi?)
-			if (wavStream != null) {
-				int sampleCountx4 = (int) sampleCount * 4;
-				int loopSize = (int) sampleCount / Channels;
-				
-				// 4 bytes per sample (32 bit)
-				byte[] naudioBuf = new byte[sampleCountx4];
-				int bytesRead = wavStream.Read(naudioBuf, 0, sampleCountx4);
-
-				if (wavStream.CurrentTime > wavStream.TotalTime.Add(TimeSpan.FromSeconds(tailWaitForNumberOfSeconds))) {
-					return 0;
-				}
-				
-				unsafe
-				{
-					fixed (byte* byteBuf = &naudioBuf[0])
-					{
-						float* floatBuf = (float*)byteBuf;
-						int j = 0;
-						for (int i = 0; i < loopSize; i++)
-						{
-							vstInputBuffers[0][i] = *(floatBuf + j);
-							j++;
-							vstInputBuffers[1][i] = *(floatBuf + j);
-							j++;
-						}
-					}
-				}
-			}
-			
+		void doPluginOpen() {
 			// The calls to Mainschanged and Start/Stop Process should be made only once, not for every cycle in the audio processing.
 			// So it should look something like:
 			// 
@@ -179,19 +153,81 @@ namespace ProcessVSTPlugin
 			// plugin.MainsChanged(false)
 			// 
 			// [plugin.Close()]
-			
-			
-			// Open Resources
-			//PluginContext.PluginCommandStub.MainsChanged(true);
-			//PluginContext.PluginCommandStub.StartProcess();
-			
-			PluginContext.PluginCommandStub.ProcessReplacing(vstInputBuffers, vstOutputBuffers);
-			
-			// Close resources
-			//PluginContext.PluginCommandStub.StopProcess();
-			//PluginContext.PluginCommandStub.MainsChanged(false);
-			
-			count++;
+
+			if (initialisedMainOut == false)
+			{
+				// Open Resources
+				PluginContext.PluginCommandStub.MainsChanged(true);
+				PluginContext.PluginCommandStub.StartProcess();
+				initialisedMainOut = true;
+			}
+		}
+
+		void doPluginClose() {
+			// The calls to Mainschanged and Start/Stop Process should be made only once, not for every cycle in the audio processing.
+			// So it should look something like:
+			// 
+			// [plugin.Open()]
+			// plugin.MainsChanged(true) // turn on 'power' on plugin.
+			// plugin.StartProcess() // let the plugin know the audio engine has started
+			// PluginContext.PluginCommandStub.ProcessEvents(ve); // process events (like VstMidiEvent)
+			// 
+			// while(audioEngineIsRunning)
+			// {
+			//     plugin.ProcessReplacing(inputBuffers, outputBuffers)  // letplugin process audio stream
+			// }
+			// 
+			// plugin.StopProcess()
+			// plugin.MainsChanged(false)
+			// 
+			// [plugin.Close()]
+
+			PluginContext.PluginCommandStub.StopProcess();
+			PluginContext.PluginCommandStub.MainsChanged(false);
+		}
+		
+		// This function fills vstOutputBuffers with audio processed by a plugin
+		public int ProcessReplacing(uint sampleCount) {
+			lock (this)
+			{
+
+				// check if we are processing a wavestream (VST) or if this is audio outputting only (VSTi)
+				if (wavStream != null) {
+					int sampleCountx4 = (int) sampleCount * 4;
+					int loopSize = (int) sampleCount / Channels;
+					
+					// 4 bytes per sample (32 bit)
+					byte[] naudioBuf = new byte[sampleCountx4];
+					int bytesRead = wavStream.Read(naudioBuf, 0, sampleCountx4);
+
+					if (wavStream.CurrentTime > wavStream.TotalTime.Add(TimeSpan.FromSeconds(tailWaitForNumberOfSeconds))) {
+						return 0;
+					}
+					
+					// populate the inputbuffers with the incoming wave stream
+					unsafe
+					{
+						fixed (byte* byteBuf = &naudioBuf[0])
+						{
+							float* floatBuf = (float*)byteBuf;
+							int j = 0;
+							for (int i = 0; i < loopSize; i++)
+							{
+								vstInputBuffers[0][i] = *(floatBuf + j);
+								j++;
+								vstInputBuffers[1][i] = *(floatBuf + j);
+								j++;
+							}
+						}
+					}
+				}
+				
+				// make sure the plugin has been opened.
+				doPluginOpen();
+				PluginContext.PluginCommandStub.ProcessReplacing(vstInputBuffers, vstOutputBuffers);
+				
+				count++;
+			}
 			return (int) sampleCount;
 		}
 		
@@ -234,16 +270,10 @@ namespace ProcessVSTPlugin
 		}
 
 		public void SendMidiNote(byte midiNote, byte midiVelocity) {
-			
-			//PluginContext.PluginCommandStub.MainsChanged(true);
-			//PluginContext.PluginCommandStub.StartProcess();
-			
+			// make sure the plugin has been opened.
+			doPluginOpen();
 			VstEvent[] vEvent = CreateMidiEvent(midiNote, midiVelocity);
 			PluginContext.PluginCommandStub.ProcessEvents(vEvent);
-			//PluginContext.PluginCommandStub.ProcessReplacing(vstInputBuffers, vstOutputBuffers);
-			
-			//PluginContext.PluginCommandStub.StopProcess();
-			//PluginContext.PluginCommandStub.MainsChanged(false);
 		}
 		
 		public string getPluginInfo() {
@@ -398,52 +428,7 @@ namespace ProcessVSTPlugin
 				} else {
 					// NB! non chunk presets are not supported yet!
 					Console.Out.WriteLine("Presets with non-chunk data is not yet supported! Loading preset failed!");
-					return;
-					
-					int version = fxp.version; // should be 1
-					int pluginVersion = fxp.fxVersion;
-					int numElements = fxp.numPrograms;
-					VstPatchChunkInfo chunkInfo = new VstPatchChunkInfo(version, pluginUniqueID, pluginVersion, numElements);
-					
-					// BeginLoadProgram()
-					// Called before a Program is loaded, points to VstPatchChunkInfo structure
-					// return -1 if the Program can not be loaded, return 1 if it can be loaded else 0 (for compatibility)
-					// Called before BeginSetProgram.
-					VstCanDoResult beginLoadProgramReturn = PluginContext.PluginCommandStub.BeginLoadProgram(chunkInfo);
-					if (beginLoadProgramReturn == Jacobi.Vst.Core.VstCanDoResult.Yes) {
-						// BeginSetProgram()
-						// Host calls this before a new program (SetProgram) is loaded
-						// x[return]: 1 = the plug-in took the notification into account
-						bool beginSetProgramReturn = PluginContext.PluginCommandStub.BeginSetProgram();
-						if (beginSetProgramReturn) {
-							// SetProgram()
-							// host has changed the current program number
-							// host must call this inside a beginSetProgram() ... endSetProgram() sequence
-							// e[value]: program number
-							for (int i = 0; i < fxp.numPrograms; i++) {
-								PluginContext.PluginCommandStub.SetProgram(i);
-								PluginContext.PluginCommandStub.SetProgramName(fxp.name);
-								
-								int numParm = 0;
-								for (int j = 0; j < numParm; i++) {
-									int parameterValue = 10;
-									PluginContext.PluginCommandStub.SetParameter(j, parameterValue);
-								}
-							}
-							
-							// called when the program is loaded
-							bool endSetProgramReturn = PluginContext.PluginCommandStub.EndSetProgram();
-							if (endSetProgramReturn) {
-								int index = PluginContext.PluginCommandStub.GetProgram();
-							} else {
-								Console.Out.WriteLine("Error - Cannot Load. EndSetProgram failed");
-							}
-						} else {
-							Console.Out.WriteLine("Error - Cannot Load. BeginSetProgram failed");
-						}
-					} else {
-						Console.Out.WriteLine("Error - Cannot Load. BeginLoadProgram failed");
-					}
+					throw new System.NotSupportedException("Presets with non-chunk data is not yet supported! Loading preset failed!");
 				}
 			}
 		}

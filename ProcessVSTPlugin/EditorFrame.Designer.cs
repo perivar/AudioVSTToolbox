@@ -33,11 +33,15 @@
         	this.presetComboBox = new System.Windows.Forms.ComboBox();
         	this.presetLabel = new System.Windows.Forms.Label();
         	this.pluginPanel = new System.Windows.Forms.Panel();
+        	this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+        	this.InvestigatePluginPresetFileCheckbox = new System.Windows.Forms.CheckBox();
+        	this.PresetContentBtn = new System.Windows.Forms.Button();
+        	this.pluginPanel.SuspendLayout();
         	this.SuspendLayout();
         	// 
         	// LoadBtn
         	// 
-        	this.LoadBtn.Location = new System.Drawing.Point(372, 4);
+        	this.LoadBtn.Location = new System.Drawing.Point(364, 4);
         	this.LoadBtn.Name = "LoadBtn";
         	this.LoadBtn.Size = new System.Drawing.Size(46, 23);
         	this.LoadBtn.TabIndex = 0;
@@ -47,7 +51,7 @@
         	// 
         	// SaveBtn
         	// 
-        	this.SaveBtn.Location = new System.Drawing.Point(423, 4);
+        	this.SaveBtn.Location = new System.Drawing.Point(413, 4);
         	this.SaveBtn.Name = "SaveBtn";
         	this.SaveBtn.Size = new System.Drawing.Size(46, 23);
         	this.SaveBtn.TabIndex = 1;
@@ -58,7 +62,7 @@
         	// presetComboBox
         	// 
         	this.presetComboBox.FormattingEnabled = true;
-        	this.presetComboBox.Location = new System.Drawing.Point(50, 6);
+        	this.presetComboBox.Location = new System.Drawing.Point(42, 6);
         	this.presetComboBox.Name = "presetComboBox";
         	this.presetComboBox.Size = new System.Drawing.Size(316, 21);
         	this.presetComboBox.TabIndex = 2;
@@ -74,17 +78,50 @@
         	// 
         	// pluginPanel
         	// 
+        	this.pluginPanel.Controls.Add(this.statusStrip1);
         	this.pluginPanel.Location = new System.Drawing.Point(1, 36);
         	this.pluginPanel.Name = "pluginPanel";
-        	this.pluginPanel.Size = new System.Drawing.Size(469, 231);
+        	this.pluginPanel.Size = new System.Drawing.Size(740, 231);
         	this.pluginPanel.TabIndex = 4;
+        	// 
+        	// statusStrip1
+        	// 
+        	this.statusStrip1.Location = new System.Drawing.Point(0, 209);
+        	this.statusStrip1.Name = "statusStrip1";
+        	this.statusStrip1.Size = new System.Drawing.Size(740, 22);
+        	this.statusStrip1.TabIndex = 0;
+        	this.statusStrip1.Text = "statusStrip1";
+        	// 
+        	// InvestigatePluginPresetFileCheckbox
+        	// 
+        	this.InvestigatePluginPresetFileCheckbox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+        	this.InvestigatePluginPresetFileCheckbox.Location = new System.Drawing.Point(579, 4);
+        	this.InvestigatePluginPresetFileCheckbox.Name = "InvestigatePluginPresetFileCheckbox";
+        	this.InvestigatePluginPresetFileCheckbox.Size = new System.Drawing.Size(162, 24);
+        	this.InvestigatePluginPresetFileCheckbox.TabIndex = 5;
+        	this.InvestigatePluginPresetFileCheckbox.Text = "Investigate Plugin Preset File\r\n";
+        	this.InvestigatePluginPresetFileCheckbox.UseVisualStyleBackColor = true;
+        	this.InvestigatePluginPresetFileCheckbox.CheckedChanged += new System.EventHandler(this.InvestigatePluginPresetFileCheckboxCheckedChanged);
+        	// 
+        	// PresetContentBtn
+        	// 
+        	this.PresetContentBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+        	this.PresetContentBtn.Location = new System.Drawing.Point(464, 4);
+        	this.PresetContentBtn.Name = "PresetContentBtn";
+        	this.PresetContentBtn.Size = new System.Drawing.Size(111, 23);
+        	this.PresetContentBtn.TabIndex = 6;
+        	this.PresetContentBtn.Text = "PresetFile Content";
+        	this.PresetContentBtn.UseVisualStyleBackColor = true;
+        	this.PresetContentBtn.Click += new System.EventHandler(this.PresetContentBtnClick);
         	// 
         	// EditorFrame
         	// 
         	this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
         	this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         	this.AutoSize = true;
-        	this.ClientSize = new System.Drawing.Size(471, 266);
+        	this.ClientSize = new System.Drawing.Size(740, 266);
+        	this.Controls.Add(this.PresetContentBtn);
+        	this.Controls.Add(this.InvestigatePluginPresetFileCheckbox);
         	this.Controls.Add(this.pluginPanel);
         	this.Controls.Add(this.presetLabel);
         	this.Controls.Add(this.presetComboBox);
@@ -98,8 +135,13 @@
         	this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditorFrameFormClosing);
         	this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyDown);
         	this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyUp);
+        	this.pluginPanel.ResumeLayout(false);
+        	this.pluginPanel.PerformLayout();
         	this.ResumeLayout(false);
         }
+        private System.Windows.Forms.CheckBox InvestigatePluginPresetFileCheckbox;
+        private System.Windows.Forms.Button PresetContentBtn;
+        private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.Panel pluginPanel;
         private System.Windows.Forms.Label presetLabel;
         private System.Windows.Forms.ComboBox presetComboBox;
@@ -107,5 +149,6 @@
         private System.Windows.Forms.Button SaveBtn;
 
         #endregion
+        
     }
 }

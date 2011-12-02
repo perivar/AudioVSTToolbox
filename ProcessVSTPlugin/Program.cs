@@ -15,7 +15,7 @@ namespace ProcessVSTPlugin
 {
 	static class Program
 	{
-		static string _version = "1.0";
+		static string _version = "1.1";
 		
 		static void StartGUI() {
 			Application.EnableVisualStyles();
@@ -65,7 +65,7 @@ namespace ProcessVSTPlugin
 				VstPlaybackNAudio playback = new VstPlaybackNAudio(host);
 				playback.Play();
 				
-				Console.WriteLine("Started");
+				Console.WriteLine("Started Audio Playback");
 				
 				// make sure to play while the stream is playing
 				while (playback.PlaybackDevice.PlaybackState == PlaybackState.Playing)
@@ -73,9 +73,9 @@ namespace ProcessVSTPlugin
 					Thread.Sleep(100);
 				}
 				
-				Console.WriteLine("Ending");
+				Console.WriteLine("Ending Audio Playback");
 				playback.Stop();
-				Console.WriteLine("Stopped");
+				Console.WriteLine("Stopped Audio Playback");
 				playback.Dispose();
 			}
 						

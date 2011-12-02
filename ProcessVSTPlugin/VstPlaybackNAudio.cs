@@ -41,6 +41,7 @@ namespace ProcessVSTPlugin
 			// CALL VST PROCESS HERE WITH BLOCK SIZE OF sampleCount
 			int processedCount = Host.ProcessReplacing((uint)sampleCount);
 			
+			// read from the vstOutputBuffers
 			unsafe
 			{
 				float* tmpBufL = ((IDirectBufferAccess32)Host.vstOutputBuffers[0]).Buffer;

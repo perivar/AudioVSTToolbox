@@ -45,6 +45,9 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Equin.ApplicationFramework.BindingListView">
+      <HintPath>_SharedAssemblies\Equin.ApplicationFramework.BindingListView.dll</HintPath>
+    </Reference>
     <Reference Include="Jacobi.Vst.Core">
       <HintPath>_SharedAssemblies\Jacobi.Vst.Core.dll</HintPath>
     </Reference>
@@ -72,6 +75,11 @@
   <ItemGroup>
     <Compile Include="Arguments.cs" />
     <Compile Include="AudioOutput.cs" />
+    <Compile Include="InvestigatedPluginPresetDetailsForm.cs" />
+    <Compile Include="InvestigatedPluginPresetDetailsForm.Designer.cs">
+      <DependentUpon>InvestigatedPluginPresetDetailsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="InvestigatedPluginPresetFileFormat.cs" />
     <Compile Include="SimpleBinaryDiff.cs" />
     <Compile Include="BinaryFile.cs" />
     <Compile Include="EditorFrame.cs">
@@ -104,6 +112,9 @@
     <EmbeddedResource Include="EditorFrame.resx">
       <DependentUpon>EditorFrame.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="InvestigatedPluginPresetDetailsForm.resx">
+      <DependentUpon>InvestigatedPluginPresetDetailsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
