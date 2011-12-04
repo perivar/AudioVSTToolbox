@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
+
 using Equin.ApplicationFramework;
 
 using Jacobi.Vst.Core;
@@ -39,7 +41,7 @@ namespace ProcessVSTPlugin
 			//
 			InitializeComponent();
 			
-			
+			// add filter clause
 			FilterTextBox.TextChanged += delegate {
 				this.investigatedPluginPresetFileFormatView.ApplyFilter(
 					delegate(InvestigatedPluginPresetFileFormat format) {

@@ -13,6 +13,7 @@ namespace ProcessVSTPlugin
 		private int _indexInFile;
 		private byte _byteValue;
 		private string _parameterName;
+		private string _parameterNameFormatted;
 		private string _parameterLabel;
 		private string _parameterDisplay;
 		
@@ -25,6 +26,7 @@ namespace ProcessVSTPlugin
 			_indexInFile = indexInFile;
 			_byteValue = byteValue;
 			_parameterName = parameterName;
+			_parameterNameFormatted = StringUtils.ConvertCaseString(_parameterName, StringUtils.Case.PascalCase);
 			_parameterLabel = parameterLabel;
 			_parameterDisplay = parameterDisplay;
 		}
@@ -56,6 +58,15 @@ namespace ProcessVSTPlugin
 			}
 		}
 
+		public string ParameterNameFormatted
+		{
+			get { return _parameterNameFormatted; }
+			set {
+				_parameterNameFormatted = value;
+				this.NotifyPropertyChanged("ParameterNameFormatted");
+			}
+		}		
+		
 		public string ParameterLabel
 		{
 			get { return _parameterLabel; }

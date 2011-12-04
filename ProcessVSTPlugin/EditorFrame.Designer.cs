@@ -99,7 +99,7 @@
         	this.InvestigatePluginPresetFileCheckbox.Name = "InvestigatePluginPresetFileCheckbox";
         	this.InvestigatePluginPresetFileCheckbox.Size = new System.Drawing.Size(162, 24);
         	this.InvestigatePluginPresetFileCheckbox.TabIndex = 5;
-        	this.InvestigatePluginPresetFileCheckbox.Text = "Investigate Plugin Preset File\r\n";
+        	this.InvestigatePluginPresetFileCheckbox.Text = "Track Preset File Changes";
         	this.InvestigatePluginPresetFileCheckbox.UseVisualStyleBackColor = true;
         	this.InvestigatePluginPresetFileCheckbox.CheckedChanged += new System.EventHandler(this.InvestigatePluginPresetFileCheckboxCheckedChanged);
         	// 
@@ -110,7 +110,7 @@
         	this.PresetContentBtn.Name = "PresetContentBtn";
         	this.PresetContentBtn.Size = new System.Drawing.Size(111, 23);
         	this.PresetContentBtn.TabIndex = 6;
-        	this.PresetContentBtn.Text = "PresetFile Content";
+        	this.PresetContentBtn.Text = "PresetFile Changes";
         	this.PresetContentBtn.UseVisualStyleBackColor = true;
         	this.PresetContentBtn.Click += new System.EventHandler(this.PresetContentBtnClick);
         	// 
