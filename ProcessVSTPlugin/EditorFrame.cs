@@ -360,9 +360,9 @@ namespace ProcessVSTPlugin
 			CheckBox check = (CheckBox) sender;
 			if(check.Checked)
 			{
-				((HostCommandStub) PluginContext.HostCommandStub).InvestigatePluginPresetFileFormat = true;
+				((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
 			} else {
-				((HostCommandStub) PluginContext.HostCommandStub).InvestigatePluginPresetFileFormat = false;
+				((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= false;
 			}
 		}
 		
@@ -371,13 +371,9 @@ namespace ProcessVSTPlugin
 			InvestigatedPluginPresetDetailsForm dlg = new InvestigatedPluginPresetDetailsForm();
 			dlg.PluginContext = this.PluginContext;
 			dlg.InvestigatedPluginPresetFileFormatList = ((HostCommandStub) PluginContext.HostCommandStub).InvestigatedPluginPresetFileFormatList;
+			
 			//dlg.ShowDialog(this); // modal
 			dlg.Show(); // modeless
-
-			//SortableBindingList<InvestigatedPluginPresetFileFormat> list = ((HostCommandStub) PluginContext.HostCommandStub).InvestigatedPluginPresetFileFormatList;
-			//foreach (InvestigatedPluginPresetFileFormat li in list) {
-			//	Console.WriteLine("{0},{1},{2}", li.IndexInFile, li.ParameterName, li.ParameterDisplay);
-			//}
 		}
 	}
 }

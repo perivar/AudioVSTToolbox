@@ -33,10 +33,8 @@
         	this.presetComboBox = new System.Windows.Forms.ComboBox();
         	this.presetLabel = new System.Windows.Forms.Label();
         	this.pluginPanel = new System.Windows.Forms.Panel();
-        	this.statusStrip1 = new System.Windows.Forms.StatusStrip();
         	this.InvestigatePluginPresetFileCheckbox = new System.Windows.Forms.CheckBox();
         	this.PresetContentBtn = new System.Windows.Forms.Button();
-        	this.pluginPanel.SuspendLayout();
         	this.SuspendLayout();
         	// 
         	// LoadBtn
@@ -78,19 +76,10 @@
         	// 
         	// pluginPanel
         	// 
-        	this.pluginPanel.Controls.Add(this.statusStrip1);
         	this.pluginPanel.Location = new System.Drawing.Point(1, 36);
         	this.pluginPanel.Name = "pluginPanel";
         	this.pluginPanel.Size = new System.Drawing.Size(740, 231);
         	this.pluginPanel.TabIndex = 4;
-        	// 
-        	// statusStrip1
-        	// 
-        	this.statusStrip1.Location = new System.Drawing.Point(0, 209);
-        	this.statusStrip1.Name = "statusStrip1";
-        	this.statusStrip1.Size = new System.Drawing.Size(740, 22);
-        	this.statusStrip1.TabIndex = 0;
-        	this.statusStrip1.Text = "statusStrip1";
         	// 
         	// InvestigatePluginPresetFileCheckbox
         	// 
@@ -135,13 +124,10 @@
         	this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditorFrameFormClosing);
         	this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyDown);
         	this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyUp);
-        	this.pluginPanel.ResumeLayout(false);
-        	this.pluginPanel.PerformLayout();
         	this.ResumeLayout(false);
         }
         private System.Windows.Forms.CheckBox InvestigatePluginPresetFileCheckbox;
         private System.Windows.Forms.Button PresetContentBtn;
-        private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.Panel pluginPanel;
         private System.Windows.Forms.Label presetLabel;
         private System.Windows.Forms.ComboBox presetComboBox;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel; // for BindingList
 
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Interop.Host;
@@ -13,25 +14,66 @@ namespace ProcessVSTPlugin
 	class HostCommandStub : IVstHostCommandStub
 	{
 		// these three variables are used to track changes to a preset file content, in order to reverse engineer the binary content
-		byte[] previousChunkData;
-		bool investigatePluginPresetFileFormat = false;
-		List<InvestigatedPluginPresetFileFormat> investigatedPluginPresetFileFormatList = new List<InvestigatedPluginPresetFileFormat>();
+		private byte[] previousChunkData;
+		private bool investigatePluginPresetFileFormat = false; // determine if we are tracking the preset file chunk at all
+		private BindingList<InvestigatedPluginPresetFileFormat> investigatedPluginPresetFileFormatList = new BindingList<InvestigatedPluginPresetFileFormat>();
 		
-		public bool InvestigatePluginPresetFileFormat {
+		private bool trackPluginPresetFileFormat = false; // track specific number of bytes from a specific position
+		private int trackPluginPresetFilePosition = -1;
+		private int trackPluginPresetFileNumberOfBytes = 0;
+		private byte[] trackPluginPresetFileBytes;
+		
+		public bool DoTrackPluginPresetFileFormat {
 			set {
-				investigatePluginPresetFileFormat = value;
+				this.trackPluginPresetFileFormat = value;
 			}
 			get {
-				return investigatePluginPresetFileFormat;
+				return this.trackPluginPresetFileFormat;
 			}
 		}
 
-		public List<InvestigatedPluginPresetFileFormat> InvestigatedPluginPresetFileFormatList {
+		public int TrackPluginPresetFilePosition {
 			set {
-				investigatedPluginPresetFileFormatList = value;
+				this.trackPluginPresetFilePosition = value;
 			}
 			get {
-				return investigatedPluginPresetFileFormatList;
+				return this.trackPluginPresetFilePosition;
+			}
+		}
+
+		public int TrackPluginPresetFileNumberOfBytes {
+			set {
+				this.trackPluginPresetFileNumberOfBytes = value;
+			}
+			get {
+				return this.trackPluginPresetFileNumberOfBytes;
+			}
+		}
+
+		public byte[] TrackPluginPresetFileBytes {
+			set {
+				this.trackPluginPresetFileBytes = value;
+			}
+			get {
+				return this.trackPluginPresetFileBytes;
+			}
+		}
+		
+		public bool DoInvestigatePluginPresetFileFormat {
+			set {
+				this.investigatePluginPresetFileFormat = value;
+			}
+			get {
+				return this.investigatePluginPresetFileFormat;
+			}
+		}
+
+		public BindingList<InvestigatedPluginPresetFileFormat> InvestigatedPluginPresetFileFormatList {
+			set {
+				this.investigatedPluginPresetFileFormatList = value;
+			}
+			get {
+				return this.investigatedPluginPresetFileFormatList;
 			}
 		}
 		
@@ -253,15 +295,25 @@ namespace ProcessVSTPlugin
 		{
 			RaisePluginCalled("SetParameterAutomated(" + index + ", " + value + ")");
 			
+			// This chunk of code handles investigation of a binary preset format in order to be able to
+			// reverse engineer where the different changes to the parameters are stored within the preset file.
 			string name = PluginContext.PluginCommandStub.GetParameterName(index);
 			string label = PluginContext.PluginCommandStub.GetParameterLabel(index);
 			string display = PluginContext.PluginCommandStub.GetParameterDisplay(index);
 			System.Diagnostics.Debug.WriteLine("{0}{1},{2}", name, label, display);
 			
-			if (InvestigatePluginPresetFileFormat) {
+			if (DoInvestigatePluginPresetFileFormat) {
 				// read in the preset chunk and
 				// do a binary comparison between what changed before and after this method was called
 				byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);
+				
+				if (DoTrackPluginPresetFileFormat) {
+					if (TrackPluginPresetFilePosition > -1 && TrackPluginPresetFileNumberOfBytes > 0) {
+						byte[] trackedChunkData = new byte[TrackPluginPresetFileNumberOfBytes];
+						Array.Copy(chunkData, TrackPluginPresetFilePosition, trackedChunkData, 0, TrackPluginPresetFileNumberOfBytes);
+						TrackPluginPresetFileBytes = trackedChunkData;
+					}
+				}
 				
 				if (chunkData != null && chunkData.Length > 0) {
 					int chunkLength = chunkData.Length;
@@ -275,7 +327,7 @@ namespace ProcessVSTPlugin
 						
 						// store each of the chunk differences in a list
 						foreach (SimpleBinaryDiff.DiffPoint point in diff.Points) {
-							investigatedPluginPresetFileFormatList.Add(
+							this.investigatedPluginPresetFileFormatList.Add(
 								new InvestigatedPluginPresetFileFormat(point.Index, point.NewValue, name, label, display));
 						}
 					}

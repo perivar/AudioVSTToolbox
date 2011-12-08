@@ -5,6 +5,7 @@ namespace ProcessVSTPlugin
 {
 	/// <summary>
 	/// InvestigatedPluginPresetFileFormat is used to store information about what binary content that changes in a preset file.
+	/// http://www.switchonthecode.com/tutorials/csharp-tutorial-binding-a-datagridview-to-a-collection
 	/// </summary>
 	public class InvestigatedPluginPresetFileFormat : INotifyPropertyChanged
 	{
@@ -12,6 +13,7 @@ namespace ProcessVSTPlugin
 		
 		private int _indexInFile;
 		private byte _byteValue;
+		private string _byteValueHexString;
 		private string _parameterName;
 		private string _parameterNameFormatted;
 		private string _parameterLabel;
@@ -25,6 +27,7 @@ namespace ProcessVSTPlugin
 		{
 			_indexInFile = indexInFile;
 			_byteValue = byteValue;
+			_byteValueHexString = StringUtils.ToHexString(byteValue);
 			_parameterName = parameterName;
 			_parameterNameFormatted = StringUtils.ConvertCaseString(_parameterName, StringUtils.Case.PascalCase);
 			_parameterLabel = parameterLabel;
@@ -49,6 +52,15 @@ namespace ProcessVSTPlugin
 			}
 		}
 
+		public string ByteValueHexString
+		{
+			get { return _byteValueHexString; }
+			set {
+				_byteValueHexString = value;
+				this.NotifyPropertyChanged("ByteValueHexString");
+			}
+		}
+				
 		public string ParameterName
 		{
 			get { return _parameterName; }

@@ -52,5 +52,33 @@ namespace ProcessVSTPlugin
 			PascalCase,
 			CamelCase
 		}
+		
+		public static string ToHexString(byte b) {
+			char c = (char) b;
+			string s = String.Format("{0,0:X2} ", (int) c);
+			return s;
+		}
+		
+		public static string ToHexAndAsciiString(byte[] b) {
+			StringBuilder strb = new StringBuilder();
+			StringBuilder text = new StringBuilder();
+			if (b != null) {
+				char [] ch = new char [1];
+				for (int x = 0; x < b.Length; x++)
+				{
+					ch[0] = (char) b[x];
+					strb.AppendFormat ("{0,0:X2} ", (int) ch[0]);
+					
+					if (((int) ch[0] < 32) || ((int) ch[0] > 127))
+						ch[0] = '.';
+					text.Append (ch);
+				}
+				
+				// append the text chunk after the hex chunk
+				strb.Append ("    ");
+				strb.Append (text.ToString());
+			}
+			return strb.ToString();
+		}
 	}
 }
