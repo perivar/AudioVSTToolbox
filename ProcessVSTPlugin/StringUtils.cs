@@ -55,7 +55,7 @@ namespace ProcessVSTPlugin
 		
 		public static string ToHexString(byte b) {
 			char c = (char) b;
-			string s = String.Format("{0,0:X2} ", (int) c);
+			string s = String.Format("{0,0:X2}", (int) c);
 			return s;
 		}
 		
