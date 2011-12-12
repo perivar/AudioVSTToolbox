@@ -73,18 +73,6 @@ public class BinaryFile {
 		}
 	}
 	
-	public static byte[] ReadBytes(BinaryReader reader, int fieldSize, ByteOrder byteOrder)
-	{
-		byte[] bytes = new byte[fieldSize];
-		if (byteOrder == ByteOrder.LittleEndian) {
-			return reader.ReadBytes(fieldSize);
-		} else {
-			for (int i = fieldSize - 1; i > -1; i--)
-				bytes[i] = reader.ReadByte();
-			return bytes;
-		}
-	}
-
 	public byte ReadByte()
 	{
 		return binaryReader.ReadByte();
@@ -109,40 +97,19 @@ public class BinaryFile {
 			return bytes;
 		}
 	}
-	
-	public static short ReadInt16(BinaryReader reader, ByteOrder byteOrder)
-	{
-		if (byteOrder == ByteOrder.LittleEndian)
-		{
-			return (short)reader.ReadInt16();
-		}
-		else // Big-Endian
-		{
-			return BitConverter.ToInt16(ReadBytes(reader, 2, ByteOrder.BigEndian), 0);
-		}
-	}
-	
-	public static int ReadInt32(BinaryReader reader, ByteOrder byteOrder)
-	{
-		if (byteOrder == ByteOrder.LittleEndian)
-		{
-			return (int)reader.ReadInt32();
-		}
-		else // Big-Endian
-		{
-			return BitConverter.ToInt32(ReadBytes(reader, 4, ByteOrder.BigEndian), 0);
-		}
-	}
 
-	public static long ReadInt64(BinaryReader reader, ByteOrder byteOrder)
+	public byte[] ReadBytes(int offset, int size, ByteOrder byteOrder)
 	{
-		if (byteOrder == ByteOrder.LittleEndian)
-		{
-			return (int)reader.ReadInt64();
-		}
-		else // Big-Endian
-		{
-			return BitConverter.ToInt64(ReadBytes(reader, 8, ByteOrder.BigEndian), 0);
+		if (size <= 0) return new byte[0];
+		
+		byte[] bytes = new byte[size];
+		if (byteOrder == ByteOrder.LittleEndian) {
+			int numBytesRead = binaryReader.Read(bytes, offset, size);
+			return bytes;
+		} else {
+			int numBytesRead = binaryReader.Read(bytes, offset, size);
+			Array.Reverse(bytes);
+			return bytes;
 		}
 	}
 
@@ -263,6 +230,19 @@ public class BinaryFile {
 		return true;
 	}
 
+	public bool Write(byte[] value, ByteOrder byteOrder) {
+		if (byteOrder == ByteOrder.LittleEndian)
+		{
+			binaryWriter.Write(value);
+		}
+		else // Big-Endian
+		{
+			Array.Reverse( value );
+			binaryWriter.Write( value );
+		}
+		return true;
+	}
+	
 	public bool Write(char value) {
 		binaryWriter.Write(value);
 		return true;
@@ -279,6 +259,60 @@ public class BinaryFile {
 		binaryWriter.Close();
 		fs.Close();
 		return true;
+	}
+
+	/********************************
+	 *
+	 * 		STATIC READ METHODS
+	 * 
+	 ********************************/
+
+	public static byte[] ReadBytes(BinaryReader reader, int fieldSize, ByteOrder byteOrder)
+	{
+		byte[] bytes = new byte[fieldSize];
+		if (byteOrder == ByteOrder.LittleEndian) {
+			return reader.ReadBytes(fieldSize);
+		} else {
+			for (int i = fieldSize - 1; i > -1; i--)
+				bytes[i] = reader.ReadByte();
+			return bytes;
+		}
+	}
+	
+	public static short ReadInt16(BinaryReader reader, ByteOrder byteOrder)
+	{
+		if (byteOrder == ByteOrder.LittleEndian)
+		{
+			return (short)reader.ReadInt16();
+		}
+		else // Big-Endian
+		{
+			return BitConverter.ToInt16(ReadBytes(reader, 2, ByteOrder.BigEndian), 0);
+		}
+	}
+	
+	public static int ReadInt32(BinaryReader reader, ByteOrder byteOrder)
+	{
+		if (byteOrder == ByteOrder.LittleEndian)
+		{
+			return (int)reader.ReadInt32();
+		}
+		else // Big-Endian
+		{
+			return BitConverter.ToInt32(ReadBytes(reader, 4, ByteOrder.BigEndian), 0);
+		}
+	}
+
+	public static long ReadInt64(BinaryReader reader, ByteOrder byteOrder)
+	{
+		if (byteOrder == ByteOrder.LittleEndian)
+		{
+			return (int)reader.ReadInt64();
+		}
+		else // Big-Endian
+		{
+			return BitConverter.ToInt64(ReadBytes(reader, 8, ByteOrder.BigEndian), 0);
+		}
 	}
 	
 	/********************************

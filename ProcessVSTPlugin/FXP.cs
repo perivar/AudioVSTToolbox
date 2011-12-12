@@ -3,15 +3,15 @@ using System.Xml;
 using System.IO;
 
 public class FXP {
-    /*
-     * Class for reading and writing Steinberg Preset files and Bank files (fxp and fxb files).
-     * Per Ivar Nerseth, 2011
-     */
+	/*
+	 * Class for reading and writing Steinberg Preset files and Bank files (fxp and fxb files).
+	 * Per Ivar Nerseth, 2011
+	 */
 	
-    // Preset (Program) (.fxp) without chunk (magic = 'FxCk')
-    // Preset (Program) (.fxp) with chunk (magic = 'FPCh')
-    /*
-    typedef struct 
+	// Preset (Program) (.fxp) without chunk (magic = 'FxCk')
+	// Preset (Program) (.fxp) with chunk (magic = 'FPCh')
+	/*
+    typedef struct
     {
         char chunkMagic[4];     // 'CcnK'
         long byteSize;          // of this chunk, excl. magic + byteSize
@@ -22,13 +22,13 @@ public class FXP {
         long numPrograms;
         char name[28];
         long chunkSize;
-        unsigned char chunkData[chunkSize];           
+        unsigned char chunkData[chunkSize];
     } fxProgramSet;
-    */      
-    // Bank (.fxb) without chunk (magic = 'FxBk')
-    // Bank (.fxb) with chunk (magic = 'FBCh')
-    /*
-    typedef struct 
+	 */
+	// Bank (.fxb) without chunk (magic = 'FxBk')
+	// Bank (.fxb) with chunk (magic = 'FBCh')
+	/*
+    typedef struct
     {
         char chunkMagic[4];     // 'CcnK'
         long byteSize;          // of this chunk, excl. magic + byteSize
@@ -39,23 +39,24 @@ public class FXP {
         long numPrograms;
         char future[128];
         long chunkSize;
-        unsigned char chunkData[chunkSize];          
+        unsigned char chunkData[chunkSize];
     } fxChunkSet;
-*/
+	 */
 
-    private string m_chunkMagic;    // 'CcnK'
+	private string m_chunkMagic;    // 'CcnK'
 	private int m_byteSize;         // of this chunk, excl. magic + byteSize
-    private string m_fxMagic;       // 'FxCk', 'FxBk', 'FBCh' or 'FPCh' 
+	private string m_fxMagic;       // 'FxCk', 'FxBk', 'FBCh' or 'FPCh'
 	private int m_version;
 	private string m_fxID;
 	private int m_fxVersion;
-    private int m_numPrograms;      // FPCh = numProgams, FxCk = numParams 
+	private int m_numPrograms;      // FPCh = numProgams, FxCk = numParams
 	private string m_name;          // if FPCh
-    private string m_future;        // if FBCh
-    private int m_chunkSize;        
+	private string m_future;        // if FBCh
+	private int m_chunkSize;
+	
 	private string m_chunkData;
-    private char[] m_chunkDataCharArray;
-    private XmlDocument m_xmlDocument;
+	private byte[] m_chunkDataByteArray;
+	private XmlDocument m_xmlDocument;
 
 	public string chunkMagic { get { return m_chunkMagic;  } set { m_chunkMagic = value; } }
 	public int byteSize { get { return m_byteSize;  } set { m_byteSize = value; } }
@@ -65,11 +66,34 @@ public class FXP {
 	public int fxVersion { get { return m_fxVersion;  } set { m_fxVersion = value; } }
 	public int numPrograms { get { return m_numPrograms;  } set { m_numPrograms = value; } }
 	public string name { get { return m_name;  } set { m_name = value; } }
-    public string future { get { return m_future; } set { m_future = value; } }
-    public int chunkSize { get { return m_chunkSize; } set { m_chunkSize = value; } }
-	public string chunkData { get { return m_chunkData;  } set { m_chunkData = value; } }
-	public char[] chunkDataCharArray { get { return m_chunkDataCharArray;  } set { m_chunkDataCharArray = value; } }
-    public XmlDocument xmlDocument { get { return m_xmlDocument; } set { m_xmlDocument = value; } }
+	public string future { get { return m_future; } set { m_future = value; } }
+	public int chunkSize { get { return m_chunkSize; } set { m_chunkSize = value; } }
+	
+	public string chunkData {
+		get {
+			return m_chunkData;
+		} set {
+			m_chunkData = value;
+		}
+	}
+	
+	public byte[] chunkDataByteArray {
+		get {
+			return m_chunkDataByteArray;
+		}
+		set {
+			m_chunkDataByteArray = value;
+		}
+	}
+	
+	public XmlDocument xmlDocument {
+		get {
+			return m_xmlDocument;
+		}
+		set {
+			m_xmlDocument = value;
+		}
+	}
 
 	public FXP() {
 		
@@ -79,6 +103,8 @@ public class FXP {
 
 		BinaryFile bf = new BinaryFile(filePath, BinaryFile.ByteOrder.BigEndian, true);
 
+		// determine if the chunkdata is saved as XML
+		bool writeXMLChunkData = false;
 		string xmlChunkData = "";
 		if (xmlDocument != null) {
 			StringWriter stringWriter = new StringWriter();
@@ -87,61 +113,72 @@ public class FXP {
 			xmlTextWriter.Flush();
 			xmlChunkData = stringWriter.ToString().Replace("'", "&apos;");
 			chunkSize = xmlChunkData.Length;
-		} else {
-			xmlChunkData = this.chunkData;
+			writeXMLChunkData = true;
 		}
 
-        if (chunkMagic != "CcnK")
-        {
-            Console.Out.WriteLine("Cannot save the preset file. Missing preset header information.");
-            return;
-        }
+		if (chunkMagic != "CcnK")
+		{
+			Console.Out.WriteLine("Cannot save the preset file. Missing preset header information.");
+			return;
+		}
 
-        Console.Out.WriteLine("Writing FXP to {0} ...", filePath);
-        Console.Out.WriteLine(">chunkMagic: {0}", chunkMagic);
-        Console.Out.WriteLine(">byteSize: {0}", byteSize);
-        Console.Out.WriteLine(">fxMagic: {0}", fxMagic);
-        Console.Out.WriteLine(">version: {0}", version);
-        Console.Out.WriteLine(">fxID: {0}", fxID);
-        Console.Out.WriteLine(">fxVersion: {0}", fxVersion);
-        Console.Out.WriteLine(">numPrograms: {0}", numPrograms);
-        Console.Out.WriteLine(">name: {0}", name);
-        Console.Out.WriteLine(">future: {0}", future);
-        Console.Out.WriteLine(">chunkSize: {0}", chunkSize);
+		Console.Out.WriteLine("Writing FXP to {0} ...", filePath);
+		Console.Out.WriteLine(">chunkMagic: {0}", chunkMagic);
+		Console.Out.WriteLine(">byteSize: {0}", byteSize);
+		Console.Out.WriteLine(">fxMagic: {0}", fxMagic);
+		Console.Out.WriteLine(">version: {0}", version);
+		Console.Out.WriteLine(">fxID: {0}", fxID);
+		Console.Out.WriteLine(">fxVersion: {0}", fxVersion);
+		Console.Out.WriteLine(">numPrograms: {0}", numPrograms);
+		Console.Out.WriteLine(">name: {0}", name);
+		Console.Out.WriteLine(">future: {0}", future);
+		Console.Out.WriteLine(">chunkSize: {0}", chunkSize);
 
-        bf.Write(chunkMagic);							// chunkMagic, 4
+		bf.Write(chunkMagic);							// chunkMagic, 4
 
-        // check what preset type we are saving
-        if (fxMagic == "FBCh")
-        {
-            // Bank with Chunk Data
-            byteSize = 152 + chunkSize;
+		// check what preset type we are saving
+		if (fxMagic == "FBCh")
+		{
+			// Bank with Chunk Data
+			byteSize = 152 + chunkSize;
 
-            bf.Write(byteSize);							// byteSize = 4
-            bf.Write(fxMagic);							// fxMagic, 4
-            bf.Write(version);							// version, 4
-            bf.Write(fxID);								// fxID, 4
-            bf.Write(fxVersion);						// fxVersion, 4
-            bf.Write(numPrograms);						// numPrograms, 4
-            bf.Write(future, 128);						// future, 128
-            bf.Write(chunkSize);						// chunkSize, 4
-            bf.Write(xmlChunkData);						// chunkData, <chunkSize>
-        }
-        else if (fxMagic == "FPCh")
-        {
-            // Preset with Chunk Data
-            byteSize = 52 + chunkSize;
+			bf.Write(byteSize);							// byteSize = 4
+			bf.Write(fxMagic);							// fxMagic, 4
+			bf.Write(version);							// version, 4
+			bf.Write(fxID);								// fxID, 4
+			bf.Write(fxVersion);						// fxVersion, 4
+			bf.Write(numPrograms);						// numPrograms, 4
+			bf.Write(future, 128);						// future, 128
+			bf.Write(chunkSize);						// chunkSize, 4
+			
+			if (writeXMLChunkData) {
+				bf.Write(xmlChunkData);						// chunkData, <chunkSize>
+			} else {
+				// Even though the main FXP is BigEndian format the preset chunk is saved in LittleEndian format
+				bf.Write(m_chunkDataByteArray, BinaryFile.ByteOrder.LittleEndian);
+			}
+		}
+		else if (fxMagic == "FPCh")
+		{
+			// Preset with Chunk Data
+			byteSize = 52 + chunkSize;
 
-            bf.Write(byteSize);							// byteSize = 4
-            bf.Write(fxMagic);							// fxMagic, 4
-            bf.Write(version);							// version, 4
-            bf.Write(fxID);								// fxID, 4
-            bf.Write(fxVersion);						// fxVersion, 4
-            bf.Write(numPrograms);						// numPrograms, 4
-            bf.Write(name, 28);							// name, 28
-            bf.Write(chunkSize);						// chunkSize, 4
-            bf.Write(xmlChunkData);						// chunkData, <chunkSize>
-        }
+			bf.Write(byteSize);							// byteSize = 4
+			bf.Write(fxMagic);							// fxMagic, 4
+			bf.Write(version);							// version, 4
+			bf.Write(fxID);								// fxID, 4
+			bf.Write(fxVersion);						// fxVersion, 4
+			bf.Write(numPrograms);						// numPrograms, 4
+			bf.Write(name, 28);							// name, 28
+			bf.Write(chunkSize);						// chunkSize, 4
+
+			if (writeXMLChunkData) {
+				bf.Write(xmlChunkData);						// chunkData, <chunkSize>
+			} else {
+				// Even though the main FXP is BigEndian format the preset chunk is saved in LittleEndian format
+				bf.Write(m_chunkDataByteArray, BinaryFile.ByteOrder.LittleEndian);
+			}
+		}
 		
 		bf.Close();
 	}
@@ -150,41 +187,45 @@ public class FXP {
 		BinaryFile bf = new BinaryFile(filePath, BinaryFile.ByteOrder.BigEndian);
 		
 		chunkMagic = bf.ReadString(4);
-        if (chunkMagic != "CcnK")
-        {
-            Console.Out.WriteLine("Error reading file. Missing preset header information.");
-        }
+		if (chunkMagic != "CcnK")
+		{
+			Console.Out.WriteLine("Error reading file. Missing preset header information.");
+		}
 
-        byteSize = bf.ReadInt32();
+		byteSize = bf.ReadInt32();
 		fxMagic = bf.ReadString(4);
 
-        if (fxMagic == "FBCh")
-        {
-            // Bank with Chunk Data
-            version = bf.ReadInt32();
-		    fxID = bf.ReadString(4);
-		    fxVersion = bf.ReadInt32();
-		    numPrograms = bf.ReadInt32();
-		    future = bf.ReadString(128);
-		    chunkSize = bf.ReadInt32();
-            m_chunkDataCharArray = new char[chunkSize];
-            m_chunkDataCharArray = bf.ReadChars(chunkSize);
-            chunkData = new String(m_chunkDataCharArray); 
-        }
-        else if (fxMagic == "FPCh")
-        {
-            // Preset with Chunk Data
-            version = bf.ReadInt32();
-		    fxID = bf.ReadString(4);
-		    fxVersion = bf.ReadInt32();
-		    numPrograms = bf.ReadInt32();
-		    name = bf.ReadString(28);
-            chunkSize = bf.ReadInt32();
-            m_chunkDataCharArray = new char[chunkSize];
-            m_chunkDataCharArray = bf.ReadChars(chunkSize);
-            chunkData = new String(m_chunkDataCharArray);
-        }
-        
+		if (fxMagic == "FBCh")
+		{
+			// Bank with Chunk Data
+			version = bf.ReadInt32();
+			fxID = bf.ReadString(4);
+			fxVersion = bf.ReadInt32();
+			numPrograms = bf.ReadInt32();
+			future = bf.ReadString(128);
+			chunkSize = bf.ReadInt32();
+
+			// Even though the main FXP is BigEndian format the preset chunk is saved in LittleEndian format
+			m_chunkDataByteArray = new byte[chunkSize];
+			m_chunkDataByteArray = bf.ReadBytes(0, chunkSize, BinaryFile.ByteOrder.LittleEndian);
+			chunkData = BinaryFile.ByteArrayToString(m_chunkDataByteArray);
+		}
+		else if (fxMagic == "FPCh")
+		{
+			// Preset with Chunk Data
+			version = bf.ReadInt32();
+			fxID = bf.ReadString(4);
+			fxVersion = bf.ReadInt32();
+			numPrograms = bf.ReadInt32();
+			name = bf.ReadString(28);
+			chunkSize = bf.ReadInt32();
+
+			// Even though the main FXP is BigEndian format the preset chunk is saved in LittleEndian format
+			m_chunkDataByteArray = new byte[chunkSize];
+			m_chunkDataByteArray = bf.ReadBytes(0, chunkSize, BinaryFile.ByteOrder.LittleEndian);
+			chunkData = BinaryFile.ByteArrayToString(m_chunkDataByteArray);
+		}
+		
 		bf.Close();
 
 		Console.Out.WriteLine("Loading FXP from {0} ...", filePath);
@@ -196,8 +237,8 @@ public class FXP {
 		Console.Out.WriteLine(">fxVersion: {0}", fxVersion);
 		Console.Out.WriteLine(">numPrograms: {0}", numPrograms);
 		Console.Out.WriteLine(">name: {0}", name);
-        Console.Out.WriteLine(">future: {0}", future);
-        Console.Out.WriteLine(">chunkSize: {0}", chunkSize);
+		Console.Out.WriteLine(">future: {0}", future);
+		Console.Out.WriteLine(">chunkSize: {0}", chunkSize);
 		
 		// read the xml chunk into memory
 		xmlDocument = new XmlDocument();
@@ -212,43 +253,47 @@ public class FXP {
 
 		BinaryFile bf = new BinaryFile(values, BinaryFile.ByteOrder.BigEndian);
 
-        chunkMagic = bf.ReadString(4);
-        if (chunkMagic != "CcnK")
-        {
-            Console.Out.WriteLine("Error reading file. Missing preset header information.");
-        }
+		chunkMagic = bf.ReadString(4);
+		if (chunkMagic != "CcnK")
+		{
+			Console.Out.WriteLine("Error reading file. Missing preset header information.");
+		}
 
-        byteSize = bf.ReadInt32();
-        fxMagic = bf.ReadString(4);
+		byteSize = bf.ReadInt32();
+		fxMagic = bf.ReadString(4);
 
-        if (fxMagic == "FBCh")
-        {
-            // Bank with Chunk Data
-            version = bf.ReadInt32();
-            fxID = bf.ReadString(4);
-            fxVersion = bf.ReadInt32();
-            numPrograms = bf.ReadInt32();
-            future = bf.ReadString(128);
-            chunkSize = bf.ReadInt32();
-            m_chunkDataCharArray = new char[chunkSize];
-            m_chunkDataCharArray = bf.ReadChars(chunkSize);
-            chunkData = new String(m_chunkDataCharArray);
-        }
-        else if (fxMagic == "FPCh")
-        {
-            // Preset with Chunk Data
-            version = bf.ReadInt32();
-            fxID = bf.ReadString(4);
-            fxVersion = bf.ReadInt32();
-            numPrograms = bf.ReadInt32();
-            name = bf.ReadString(28);
-            chunkSize = bf.ReadInt32();
-            m_chunkDataCharArray = new char[chunkSize];
-            m_chunkDataCharArray = bf.ReadChars(chunkSize);
-            chunkData = new String(m_chunkDataCharArray);
-        }
+		if (fxMagic == "FBCh")
+		{
+			// Bank with Chunk Data
+			version = bf.ReadInt32();
+			fxID = bf.ReadString(4);
+			fxVersion = bf.ReadInt32();
+			numPrograms = bf.ReadInt32();
+			future = bf.ReadString(128);
+			chunkSize = bf.ReadInt32();
+			
+			// Even though the main FXP is BigEndian format the preset chunk is saved in LittleEndian format
+			m_chunkDataByteArray = new byte[chunkSize];
+			m_chunkDataByteArray = bf.ReadBytes(0, chunkSize, BinaryFile.ByteOrder.LittleEndian);
+			chunkData = BinaryFile.ByteArrayToString(m_chunkDataByteArray);
+		}
+		else if (fxMagic == "FPCh")
+		{
+			// Preset with Chunk Data
+			version = bf.ReadInt32();
+			fxID = bf.ReadString(4);
+			fxVersion = bf.ReadInt32();
+			numPrograms = bf.ReadInt32();
+			name = bf.ReadString(28);
+			chunkSize = bf.ReadInt32();
+			
+			// Even though the main FXP is BigEndian format the preset chunk is saved in LittleEndian format
+			m_chunkDataByteArray = new byte[chunkSize];
+			m_chunkDataByteArray = bf.ReadBytes(0, chunkSize, BinaryFile.ByteOrder.LittleEndian);
+			chunkData = BinaryFile.ByteArrayToString(m_chunkDataByteArray);
+		}
 
-        bf.Close();
+		bf.Close();
 		
 		// read the xml chunk into memory
 		xmlDocument = new XmlDocument();

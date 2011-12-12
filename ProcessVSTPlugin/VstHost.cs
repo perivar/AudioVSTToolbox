@@ -422,8 +422,8 @@ namespace ProcessVSTPlugin
 					// Alternatively, when not using chunk, the Host will simply
 					// save all parameter values.
 					
-					//PluginContext.PluginCommandStub.SetProgramName(fxp.name);
-					byte[] chunkData = BinaryFile.StringToByteArray(fxp.chunkData);
+					//PluginContext.PluginCommandStub.SetProgramName(fxp.name);					
+					byte[] chunkData = fxp.chunkDataByteArray;
 					int setChunkResult = EffSetChunk(chunkData, true);
 				} else {
 					// NB! non chunk presets are not supported yet!
@@ -446,8 +446,7 @@ namespace ProcessVSTPlugin
 			
 			byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);
 			fxp.chunkSize = chunkData.Length;
-			fxp.chunkData = BinaryFile.ByteArrayToString(chunkData);
-			
+			fxp.chunkDataByteArray = chunkData;			
 			fxp.WriteFile(filePath);
 		}
 		
