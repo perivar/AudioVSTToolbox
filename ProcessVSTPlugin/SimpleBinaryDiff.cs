@@ -26,7 +26,7 @@ namespace ProcessVSTPlugin
 
 			public List<DiffPoint> Points { get; private set; }
 
-			public int PointsCount { 
+			public int PointsCount {
 				get {
 					return Points.Count;
 				}
@@ -62,7 +62,9 @@ namespace ProcessVSTPlugin
 			Diff diff = new Diff();
 			if (a.Length != b.Length) {
 				// cannot use this binary diff method
-				return diff;
+				// since the lengths have changes
+				// assume this means we are dealing with text instead							
+				return null;
 			}
 			
 			for (int i = 0; i < a.Length; i++)

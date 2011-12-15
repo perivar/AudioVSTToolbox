@@ -45,6 +45,9 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DiffPlex">
+      <HintPath>_SharedAssemblies\DiffPlex.dll</HintPath>
+    </Reference>
     <Reference Include="Equin.ApplicationFramework.BindingListView">
       <HintPath>_SharedAssemblies\Equin.ApplicationFramework.BindingListView.dll</HintPath>
     </Reference>
@@ -108,6 +111,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RiffRead.cs" />
     <Compile Include="StringUtils.cs" />
+    <Compile Include="Sylenth1Preset.cs" />
+    <Compile Include="UnidiffSeqFormatter.cs" />
     <Compile Include="VstHost.cs" />
     <Compile Include="VstPlaybackNAudio.cs" />
   </ItemGroup>

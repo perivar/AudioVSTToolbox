@@ -11,6 +11,9 @@ using Jacobi.Vst.Interop.Host;
 
 using CommandLine.Utility;
 
+using DiffPlex;
+using DiffPlex.Model;
+
 namespace ProcessVSTPlugin
 {
 	static class Program
@@ -59,7 +62,7 @@ namespace ProcessVSTPlugin
 			int channels = 2;
 			host.Init(blockSize, sampleRate, channels);
 			System.Diagnostics.Debug.WriteLine(host.getPluginInfo());
-			host.LoadFXP(fxpFilePath);			
+			host.LoadFXP(fxpFilePath);
 
 			if (doPlay) {
 				VstPlaybackNAudio playback = new VstPlaybackNAudio(host);
@@ -78,7 +81,7 @@ namespace ProcessVSTPlugin
 				Console.WriteLine("Stopped Audio Playback");
 				playback.Dispose();
 			}
-						
+			
 			if (waveOutputFilePath != "") {
 				VstFileWriter fileWriter = new VstFileWriter(host);
 				fileWriter.CreateWaveFile(waveOutputFilePath);
@@ -118,7 +121,7 @@ namespace ProcessVSTPlugin
 			if(CommandLine["gui"] != null) {
 				useGui = true;
 			}
-						
+			
 			if ((!useGui && pluginPath == "" && waveInputFilePath == "") || (!useGui && waveOutputFilePath == "" && !doPlay)) {
 				PrintUsage();
 				return;

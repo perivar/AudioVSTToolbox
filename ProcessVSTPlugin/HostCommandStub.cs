@@ -6,6 +6,9 @@ using System.ComponentModel; // for BindingList
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Interop.Host;
 
+using DiffPlex;
+using DiffPlex.Model;
+
 namespace ProcessVSTPlugin
 {
 	/// <summary>
@@ -321,14 +324,36 @@ namespace ProcessVSTPlugin
 					// binary comparison to find out where the chunk has changed
 					if (previousChunkData != null && previousChunkData.Length > 0) {
 						SimpleBinaryDiff.Diff diff = SimpleBinaryDiff.GetDiff(previousChunkData, chunkData);
-						System.Diagnostics.Debug.WriteLine("{0}", diff);
-						//BinaryFile.ByteArrayToFile("perivar-previousChunkData.dat", previousChunkData);
-						//BinaryFile.ByteArrayToFile("perivar-chunkData.dat", chunkData);
-						
-						// store each of the chunk differences in a list
-						foreach (SimpleBinaryDiff.DiffPoint point in diff.Points) {
+						if (diff != null) {
+							System.Diagnostics.Debug.WriteLine("{0}", diff);
+							//BinaryFile.ByteArrayToFile("perivar-previousChunkData.dat", previousChunkData);
+							//BinaryFile.ByteArrayToFile("perivar-chunkData.dat", chunkData);
+							
+							// store each of the chunk differences in a list
+							foreach (SimpleBinaryDiff.DiffPoint point in diff.Points) {
+								this.investigatedPluginPresetFileFormatList.Add(
+									new InvestigatedPluginPresetFileFormat(point.Index, point.NewValue, name, label, display));
+							}
+						} else {
+							// assume we are dealing with text and not binary data
+							// assume that this mean that we are
+							// dealing with text instead.
+							var d = new Differ();
+							string OldText = BinaryFile.ByteArrayToString(previousChunkData);
+							string NewText = BinaryFile.ByteArrayToString(chunkData);
+							
+							//DiffResult res = d.CreateWordDiffs(OldText, NewText, true, true, new[] {' ', '\r', '\n'});
+							DiffResult res = d.CreateCharacterDiffs(OldText, NewText, true, true);
+							//string x = UnidiffSeqFormater.GenerateSeq(res);
+							string x = UnidiffSeqFormater.GenerateSeq(res,
+							                                          "[+",
+							                                          "+]",
+							                                          "[-",
+							                                          "-]");
+							
+							System.Diagnostics.Debug.WriteLine(x);
 							this.investigatedPluginPresetFileFormatList.Add(
-								new InvestigatedPluginPresetFileFormat(point.Index, point.NewValue, name, label, display));
+								new InvestigatedPluginPresetFileFormat(-1, 0, name, label, display, x));
 						}
 					}
 					previousChunkData = chunkData;

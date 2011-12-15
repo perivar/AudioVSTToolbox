@@ -3,16 +3,14 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 
+using Equin.ApplicationFramework; // for BindingListView
 using System.ComponentModel; // for BindingList
 using System.Data; // for DataTable
 
 using System.Linq;
-//using System.Data;
 using System.Text;
 using System.IO;
 using System.Xml;
-
-using Equin.ApplicationFramework;
 
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;

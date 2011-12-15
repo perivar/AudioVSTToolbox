@@ -18,6 +18,8 @@ namespace ProcessVSTPlugin
 		private string _parameterNameFormatted;
 		private string _parameterLabel;
 		private string _parameterDisplay;
+
+		private string _textChanges;
 		
 		public InvestigatedPluginPresetFileFormat(int indexInFile,
 		                                          byte byteValue,
@@ -32,6 +34,17 @@ namespace ProcessVSTPlugin
 			_parameterNameFormatted = StringUtils.ConvertCaseString(_parameterName, StringUtils.Case.PascalCase);
 			_parameterLabel = parameterLabel;
 			_parameterDisplay = parameterDisplay;
+		}
+		
+		public InvestigatedPluginPresetFileFormat(int indexInFile,
+		                                          byte byteValue,
+		                                          string parameterName,
+		                                          string parameterLabel,
+		                                          string parameterDisplay,
+		                                          string textChanges)
+			: this (indexInFile, byteValue, parameterName, parameterLabel, parameterDisplay)
+		{
+			_textChanges = textChanges;
 		}
 		
 		public int IndexInFile
@@ -60,7 +73,7 @@ namespace ProcessVSTPlugin
 				this.NotifyPropertyChanged("ByteValueHexString");
 			}
 		}
-				
+		
 		public string ParameterName
 		{
 			get { return _parameterName; }
@@ -77,7 +90,7 @@ namespace ProcessVSTPlugin
 				_parameterNameFormatted = value;
 				this.NotifyPropertyChanged("ParameterNameFormatted");
 			}
-		}		
+		}
 		
 		public string ParameterLabel
 		{
@@ -97,6 +110,15 @@ namespace ProcessVSTPlugin
 			}
 		}
 
+		public string TextChanges
+		{
+			get { return _textChanges; }
+			set {
+				_textChanges = value;
+				this.NotifyPropertyChanged("TextChanges");
+			}
+		}
+		
 		private void NotifyPropertyChanged(string name)
 		{
 			if(PropertyChanged != null)
