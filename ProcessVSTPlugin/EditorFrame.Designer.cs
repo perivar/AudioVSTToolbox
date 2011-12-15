@@ -35,6 +35,7 @@
         	this.pluginPanel = new System.Windows.Forms.Panel();
         	this.InvestigatePluginPresetFileCheckbox = new System.Windows.Forms.CheckBox();
         	this.PresetContentBtn = new System.Windows.Forms.Button();
+        	this.TextDiffCheckbox = new System.Windows.Forms.CheckBox();
         	this.SuspendLayout();
         	// 
         	// LoadBtn
@@ -78,24 +79,22 @@
         	// 
         	this.pluginPanel.Location = new System.Drawing.Point(1, 36);
         	this.pluginPanel.Name = "pluginPanel";
-        	this.pluginPanel.Size = new System.Drawing.Size(740, 231);
+        	this.pluginPanel.Size = new System.Drawing.Size(742, 231);
         	this.pluginPanel.TabIndex = 4;
         	// 
         	// InvestigatePluginPresetFileCheckbox
         	// 
-        	this.InvestigatePluginPresetFileCheckbox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-        	this.InvestigatePluginPresetFileCheckbox.Location = new System.Drawing.Point(579, 4);
+        	this.InvestigatePluginPresetFileCheckbox.Location = new System.Drawing.Point(593, 4);
         	this.InvestigatePluginPresetFileCheckbox.Name = "InvestigatePluginPresetFileCheckbox";
-        	this.InvestigatePluginPresetFileCheckbox.Size = new System.Drawing.Size(162, 24);
+        	this.InvestigatePluginPresetFileCheckbox.Size = new System.Drawing.Size(96, 24);
         	this.InvestigatePluginPresetFileCheckbox.TabIndex = 5;
-        	this.InvestigatePluginPresetFileCheckbox.Text = "Track Preset File Changes";
+        	this.InvestigatePluginPresetFileCheckbox.Text = "Track Preset";
         	this.InvestigatePluginPresetFileCheckbox.UseVisualStyleBackColor = true;
         	this.InvestigatePluginPresetFileCheckbox.CheckedChanged += new System.EventHandler(this.InvestigatePluginPresetFileCheckboxCheckedChanged);
         	// 
         	// PresetContentBtn
         	// 
-        	this.PresetContentBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-        	this.PresetContentBtn.Location = new System.Drawing.Point(464, 4);
+        	this.PresetContentBtn.Location = new System.Drawing.Point(476, 4);
         	this.PresetContentBtn.Name = "PresetContentBtn";
         	this.PresetContentBtn.Size = new System.Drawing.Size(111, 23);
         	this.PresetContentBtn.TabIndex = 6;
@@ -103,12 +102,23 @@
         	this.PresetContentBtn.UseVisualStyleBackColor = true;
         	this.PresetContentBtn.Click += new System.EventHandler(this.PresetContentBtnClick);
         	// 
+        	// TextDiffCheckbox
+        	// 
+        	this.TextDiffCheckbox.Location = new System.Drawing.Point(680, 4);
+        	this.TextDiffCheckbox.Name = "TextDiffCheckbox";
+        	this.TextDiffCheckbox.Size = new System.Drawing.Size(63, 24);
+        	this.TextDiffCheckbox.TabIndex = 7;
+        	this.TextDiffCheckbox.Text = "TextDiff";
+        	this.TextDiffCheckbox.UseVisualStyleBackColor = true;
+        	this.TextDiffCheckbox.CheckedChanged += new System.EventHandler(this.TextDiffCheckboxCheckedChanged);
+        	// 
         	// EditorFrame
         	// 
         	this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
         	this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         	this.AutoSize = true;
-        	this.ClientSize = new System.Drawing.Size(740, 266);
+        	this.ClientSize = new System.Drawing.Size(745, 266);
+        	this.Controls.Add(this.TextDiffCheckbox);
         	this.Controls.Add(this.PresetContentBtn);
         	this.Controls.Add(this.InvestigatePluginPresetFileCheckbox);
         	this.Controls.Add(this.pluginPanel);
@@ -126,6 +136,7 @@
         	this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyUp);
         	this.ResumeLayout(false);
         }
+        private System.Windows.Forms.CheckBox TextDiffCheckbox;
         private System.Windows.Forms.CheckBox InvestigatePluginPresetFileCheckbox;
         private System.Windows.Forms.Button PresetContentBtn;
         private System.Windows.Forms.Panel pluginPanel;

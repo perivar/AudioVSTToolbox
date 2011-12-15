@@ -11,6 +11,12 @@ using DiffPlex.Model;
 
 namespace ProcessVSTPlugin
 {
+	public enum DiffType : int
+	{
+		Binary,
+		Text
+	}
+
 	/// <summary>
 	/// The HostCommandStub class represents the part of the host that a plugin can call.
 	/// </summary>
@@ -25,6 +31,16 @@ namespace ProcessVSTPlugin
 		private int trackPluginPresetFilePosition = -1;
 		private int trackPluginPresetFileNumberOfBytes = 0;
 		private byte[] trackPluginPresetFileBytes;
+		private DiffType investigatePluginPresetFileFormatDiffType = DiffType.Binary;
+
+		public DiffType InvestigatePluginPresetFileFormatDiffType {
+			set {
+				this.investigatePluginPresetFileFormatDiffType = value;
+			}
+			get {
+				return this.investigatePluginPresetFileFormatDiffType;
+			}
+		}
 		
 		public bool DoTrackPluginPresetFileFormat {
 			set {
@@ -302,7 +318,7 @@ namespace ProcessVSTPlugin
 			string name = PluginContext.PluginCommandStub.GetParameterName(index);
 			string label = PluginContext.PluginCommandStub.GetParameterLabel(index);
 			string display = PluginContext.PluginCommandStub.GetParameterDisplay(index);
-			System.Diagnostics.Debug.WriteLine("SetParameterAutomated. Name: {0} Label: {1} Value: {2}", name, label, display);
+			System.Diagnostics.Debug.WriteLine("SetParameterAutomated. Name: {0}, Label: {1}, Value: {2}", name, label, display);
 			
 			if (DoInvestigatePluginPresetFileFormat) {
 				// read in the preset chunk and
@@ -318,7 +334,7 @@ namespace ProcessVSTPlugin
 					}
 				}
 
-				// if the chunk is not empty, try to detect what has changed				
+				// if the chunk is not empty, try to detect what has changed
 				if (chunkData != null && chunkData.Length > 0) {
 					int chunkLength = chunkData.Length;
 					
@@ -328,38 +344,35 @@ namespace ProcessVSTPlugin
 						//BinaryFile.ByteArrayToFile("perivar-previousChunkData.dat", previousChunkData);
 						//BinaryFile.ByteArrayToFile("perivar-chunkData.dat", chunkData);
 
-						SimpleBinaryDiff.Diff diff = SimpleBinaryDiff.GetDiff(previousChunkData, chunkData);
-						if (diff != null) {
-							System.Diagnostics.Debug.WriteLine("{0}", diff);
-							
-							// store each of the chunk differences in a list
-							foreach (SimpleBinaryDiff.DiffPoint point in diff.Points) {
-								this.investigatedPluginPresetFileFormatList.Add(
-									new InvestigatedPluginPresetFileFormat(point.Index, point.NewValue, name, label, display));
+						if (InvestigatePluginPresetFileFormatDiffType == DiffType.Binary) {
+							SimpleBinaryDiff.Diff diff = SimpleBinaryDiff.GetDiff(previousChunkData, chunkData);
+							if (diff != null) {
+								System.Diagnostics.Debug.WriteLine("BinDiff: {0}", diff);
+								
+								// store each of the chunk differences in a list
+								foreach (SimpleBinaryDiff.DiffPoint point in diff.Points) {
+									this.investigatedPluginPresetFileFormatList.Add(
+										new InvestigatedPluginPresetFileFormat(point.Index, point.NewValue, name, label, display));
+								}
 							}
-						} else {
+						} else if (InvestigatePluginPresetFileFormatDiffType == DiffType.Text) {
 							// assume we are dealing with text and not binary data
-							// assume that this mean that we are
-							// dealing with text instead.
-							bool doTextDiff = false;
-							if (doTextDiff) {
-								var d = new Differ();
-								string OldText = BinaryFile.ByteArrayToString(previousChunkData);
-								string NewText = BinaryFile.ByteArrayToString(chunkData);
-								
-								DiffResult res = d.CreateWordDiffs(OldText, NewText, true, true, new[] {' ', '\r', '\n'});
-								//DiffResult res = d.CreateCharacterDiffs(OldText, NewText, true, true);
-								//string x = UnidiffSeqFormater.GenerateSeq(res);
-								string x = UnidiffSeqFormater.GenerateSeq(res,
-								                                          "[+",
-								                                          "+]",
-								                                          "[-",
-								                                          "-]");
-								
-								System.Diagnostics.Debug.WriteLine(x);
-								//this.investigatedPluginPresetFileFormatList.Add(
-								//	new InvestigatedPluginPresetFileFormat(-1, 0, name, label, display, x));
-							}
+							var d = new Differ();
+							string OldText = BinaryFile.ByteArrayToString(previousChunkData);
+							string NewText = BinaryFile.ByteArrayToString(chunkData);
+							
+							DiffResult res = d.CreateWordDiffs(OldText, NewText, true, true, new[] {' ', '\r', '\n'});
+							//DiffResult res = d.CreateCharacterDiffs(OldText, NewText, true, true);
+							string diff = UnidiffSeqFormater.GenerateOnlyChangedSeq(res,
+							                                                        "[+",
+							                                                        "]",
+							                                                        "[-",
+							                                                        "]");
+							diff = diff.Replace("\n", "");							
+							System.Diagnostics.Debug.WriteLine(String.Format("TextDiff: {0}", diff));
+							
+							this.investigatedPluginPresetFileFormatList.Add(
+								new InvestigatedPluginPresetFileFormat(-1, 0, name, label, display, diff));
 						}
 					}
 					previousChunkData = chunkData;

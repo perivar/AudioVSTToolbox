@@ -127,5 +127,57 @@ namespace ProcessVSTPlugin
 			}
 			return outputSb.ToString();
 		}
+		
+		public static string GenerateOnlyChangedSeq (DiffResult diffresult, string insertSymbolS, string insertSymbolE, string deleteSymbolS, string deleteSymbolE)
+		{
+			List<string> result = Generate(diffresult);
+			var outputSb = new StringBuilder();
+			while (result.Count > 0)
+			{
+				if (result[0].StartsWith(DeleteSymbol))
+				{
+					int dix = 0;
+					outputSb.Append(deleteSymbolS);
+					while (dix < result.Count &&  result.Count > 0 && !result[dix].StartsWith(NoChangeSymbol))
+					{
+						if (result[dix].StartsWith(DeleteSymbol))
+						{
+							outputSb.Append(result[dix].Substring(1));
+							result.RemoveAt(dix);
+						}
+						else
+						{
+							++dix;
+						}
+					}
+					outputSb.Append(deleteSymbolE);
+				}
+				else if (result[0].StartsWith(InsertSymbol))
+				{
+					int dix = 0;
+					outputSb.Append(insertSymbolS);
+					while (dix < result.Count &&  result.Count > 0 && !result[dix].StartsWith(NoChangeSymbol))
+					{
+						if (result[dix].StartsWith(InsertSymbol))
+						{
+							outputSb.Append(result[dix].Substring(1));
+							result.RemoveAt(dix);
+						}
+						else
+						{
+							++dix;
+						}
+					}
+					outputSb.Append(insertSymbolE);
+				}
+				else
+				{
+					//outputSb.Append(result[0].Substring(1));
+					result.RemoveAt(0);
+				}
+			}
+			return outputSb.ToString();
+		}
+		
 	}
 }

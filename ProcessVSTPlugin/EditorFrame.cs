@@ -376,5 +376,16 @@ namespace ProcessVSTPlugin
 			//dlg.ShowDialog(this); // modal
 			dlg.Show(); // modeless
 		}
+        
+        void TextDiffCheckboxCheckedChanged(object sender, EventArgs e)
+        {
+			CheckBox check = (CheckBox) sender;
+			if(check.Checked)
+			{
+				((HostCommandStub) PluginContext.HostCommandStub).InvestigatePluginPresetFileFormatDiffType = DiffType.Text;
+			} else {
+				((HostCommandStub) PluginContext.HostCommandStub).InvestigatePluginPresetFileFormatDiffType = DiffType.Binary;
+			}        	
+        }
 	}
 }
