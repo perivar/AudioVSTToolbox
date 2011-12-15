@@ -302,7 +302,7 @@ namespace ProcessVSTPlugin
 			string name = PluginContext.PluginCommandStub.GetParameterName(index);
 			string label = PluginContext.PluginCommandStub.GetParameterLabel(index);
 			string display = PluginContext.PluginCommandStub.GetParameterDisplay(index);
-			System.Diagnostics.Debug.WriteLine("{0}{1},{2}", name, label, display);
+			System.Diagnostics.Debug.WriteLine("SetParameterAutomated. Name: {0} Label: {1} Value: {2}", name, label, display);
 			
 			if (DoInvestigatePluginPresetFileFormat) {
 				// read in the preset chunk and
