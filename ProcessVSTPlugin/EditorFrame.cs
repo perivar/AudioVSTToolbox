@@ -44,6 +44,7 @@ namespace ProcessVSTPlugin
 			{
 				this.pluginPanel.Size = this.SizeFromClientSize(new Size(wndRect.Width, wndRect.Height));
 				PluginContext.PluginCommandStub.EditorOpen(this.pluginPanel.Handle);
+				PluginContext.PluginCommandStub.EditorIdle();
 			}
 
 			FillProgram(0);

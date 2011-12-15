@@ -110,7 +110,6 @@ namespace ProcessVSTPlugin
 		public bool BeginEdit(int index)
 		{
 			RaisePluginCalled("BeginEdit(" + index + ")");
-
 			return false;
 		}
 
@@ -298,7 +297,7 @@ namespace ProcessVSTPlugin
 		{
 			RaisePluginCalled("SetParameterAutomated(" + index + ", " + value + ")");
 			
-			// This chunk of code handles investigation of a binary preset format in order to be able to
+			// This chunk of code handles investigation of a preset format in order to be able to
 			// reverse engineer where the different changes to the parameters are stored within the preset file.
 			string name = PluginContext.PluginCommandStub.GetParameterName(index);
 			string label = PluginContext.PluginCommandStub.GetParameterLabel(index);
@@ -310,6 +309,7 @@ namespace ProcessVSTPlugin
 				// do a binary comparison between what changed before and after this method was called
 				byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);
 				
+				// if we are tracking a specific number of bytes from the chunk, store those
 				if (DoTrackPluginPresetFileFormat) {
 					if (TrackPluginPresetFilePosition > -1 && TrackPluginPresetFileNumberOfBytes > 0) {
 						byte[] trackedChunkData = new byte[TrackPluginPresetFileNumberOfBytes];
@@ -317,17 +317,20 @@ namespace ProcessVSTPlugin
 						TrackPluginPresetFileBytes = trackedChunkData;
 					}
 				}
-				
+
+				// if the chunk is not empty, try to detect what has changed				
 				if (chunkData != null && chunkData.Length > 0) {
 					int chunkLength = chunkData.Length;
 					
 					// binary comparison to find out where the chunk has changed
 					if (previousChunkData != null && previousChunkData.Length > 0) {
+
+						//BinaryFile.ByteArrayToFile("perivar-previousChunkData.dat", previousChunkData);
+						//BinaryFile.ByteArrayToFile("perivar-chunkData.dat", chunkData);
+
 						SimpleBinaryDiff.Diff diff = SimpleBinaryDiff.GetDiff(previousChunkData, chunkData);
 						if (diff != null) {
 							System.Diagnostics.Debug.WriteLine("{0}", diff);
-							//BinaryFile.ByteArrayToFile("perivar-previousChunkData.dat", previousChunkData);
-							//BinaryFile.ByteArrayToFile("perivar-chunkData.dat", chunkData);
 							
 							// store each of the chunk differences in a list
 							foreach (SimpleBinaryDiff.DiffPoint point in diff.Points) {
@@ -338,22 +341,25 @@ namespace ProcessVSTPlugin
 							// assume we are dealing with text and not binary data
 							// assume that this mean that we are
 							// dealing with text instead.
-							var d = new Differ();
-							string OldText = BinaryFile.ByteArrayToString(previousChunkData);
-							string NewText = BinaryFile.ByteArrayToString(chunkData);
-							
-							//DiffResult res = d.CreateWordDiffs(OldText, NewText, true, true, new[] {' ', '\r', '\n'});
-							DiffResult res = d.CreateCharacterDiffs(OldText, NewText, true, true);
-							//string x = UnidiffSeqFormater.GenerateSeq(res);
-							string x = UnidiffSeqFormater.GenerateSeq(res,
-							                                          "[+",
-							                                          "+]",
-							                                          "[-",
-							                                          "-]");
-							
-							System.Diagnostics.Debug.WriteLine(x);
-							this.investigatedPluginPresetFileFormatList.Add(
-								new InvestigatedPluginPresetFileFormat(-1, 0, name, label, display, x));
+							bool doTextDiff = false;
+							if (doTextDiff) {
+								var d = new Differ();
+								string OldText = BinaryFile.ByteArrayToString(previousChunkData);
+								string NewText = BinaryFile.ByteArrayToString(chunkData);
+								
+								DiffResult res = d.CreateWordDiffs(OldText, NewText, true, true, new[] {' ', '\r', '\n'});
+								//DiffResult res = d.CreateCharacterDiffs(OldText, NewText, true, true);
+								//string x = UnidiffSeqFormater.GenerateSeq(res);
+								string x = UnidiffSeqFormater.GenerateSeq(res,
+								                                          "[+",
+								                                          "+]",
+								                                          "[-",
+								                                          "-]");
+								
+								System.Diagnostics.Debug.WriteLine(x);
+								//this.investigatedPluginPresetFileFormatList.Add(
+								//	new InvestigatedPluginPresetFileFormat(-1, 0, name, label, display, x));
+							}
 						}
 					}
 					previousChunkData = chunkData;
