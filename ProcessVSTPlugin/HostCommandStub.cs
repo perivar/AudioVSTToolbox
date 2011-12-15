@@ -9,6 +9,8 @@ using Jacobi.Vst.Interop.Host;
 using DiffPlex;
 using DiffPlex.Model;
 
+using System.Linq;
+
 namespace ProcessVSTPlugin
 {
 	public enum DiffType : int
@@ -363,16 +365,30 @@ namespace ProcessVSTPlugin
 							
 							DiffResult res = d.CreateWordDiffs(OldText, NewText, true, true, new[] {' ', '\r', '\n'});
 							//DiffResult res = d.CreateCharacterDiffs(OldText, NewText, true, true);
+							
+							/*
 							string diff = UnidiffSeqFormater.GenerateOnlyChangedSeq(res,
 							                                                        "[+",
 							                                                        "]",
 							                                                        "[-",
 							                                                        "]");
-							diff = diff.Replace("\n", "");							
+							diff = diff.Replace("\n", "");
 							System.Diagnostics.Debug.WriteLine(String.Format("TextDiff: {0}", diff));
 							
 							this.investigatedPluginPresetFileFormatList.Add(
 								new InvestigatedPluginPresetFileFormat(-1, 0, name, label, display, diff));
+							 */
+							List<UnidiffEntry> diffList = UnidiffSeqFormater.GenerateWithLineNumbers(res);
+							var queryTextDiffs = from dl in diffList
+								where dl.Type != UnidiffType.NoChange
+								select dl;
+							
+							foreach (var e in queryTextDiffs) {
+								System.Diagnostics.Debug.WriteLine(String.Format("TextDiff: {0} {1}", e.Index, e.Text));
+								
+								this.investigatedPluginPresetFileFormatList.Add(
+									new InvestigatedPluginPresetFileFormat(e.Index, 0, name, label, display, e.Text));
+							}
 						}
 					}
 					previousChunkData = chunkData;
