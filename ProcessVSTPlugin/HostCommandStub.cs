@@ -24,6 +24,9 @@ namespace ProcessVSTPlugin
 	/// </summary>
 	class HostCommandStub : IVstHostCommandStub
 	{
+		// should we store the chunk files on every paramater change when investigating the preset format?
+		private bool debugChunkFiles = true;
+
 		// these three variables are used to track changes to a preset file content, in order to reverse engineer the binary content
 		private byte[] previousChunkData;
 		private bool investigatePluginPresetFileFormat = false; // determine if we are tracking the preset file chunk at all
@@ -33,6 +36,7 @@ namespace ProcessVSTPlugin
 		private int trackPluginPresetFilePosition = -1;
 		private int trackPluginPresetFileNumberOfBytes = 0;
 		private byte[] trackPluginPresetFileBytes;
+		
 		private DiffType investigatePluginPresetFileFormatDiffType = DiffType.Binary;
 
 		public DiffType InvestigatePluginPresetFileFormatDiffType {
@@ -342,10 +346,12 @@ namespace ProcessVSTPlugin
 					
 					// binary comparison to find out where the chunk has changed
 					if (previousChunkData != null && previousChunkData.Length > 0) {
-
-						//BinaryFile.ByteArrayToFile("perivar-previousChunkData.dat", previousChunkData);
-						//BinaryFile.ByteArrayToFile("perivar-chunkData.dat", chunkData);
-
+						
+						if (debugChunkFiles) {
+							BinaryFile.ByteArrayToFile("Preset Chunk Data - previousChunkData.dat", previousChunkData);
+							BinaryFile.ByteArrayToFile("Preset Chunk Data - chunkData.dat", chunkData);
+						}
+						
 						if (InvestigatePluginPresetFileFormatDiffType == DiffType.Binary) {
 							SimpleBinaryDiff.Diff diff = SimpleBinaryDiff.GetDiff(previousChunkData, chunkData);
 							if (diff != null) {
@@ -365,29 +371,21 @@ namespace ProcessVSTPlugin
 							
 							DiffResult res = d.CreateWordDiffs(OldText, NewText, true, true, new[] {' ', '\r', '\n'});
 							//DiffResult res = d.CreateCharacterDiffs(OldText, NewText, true, true);
-							
-							/*
-							string diff = UnidiffSeqFormater.GenerateOnlyChangedSeq(res,
-							                                                        "[+",
-							                                                        "]",
-							                                                        "[-",
-							                                                        "]");
-							diff = diff.Replace("\n", "");
-							System.Diagnostics.Debug.WriteLine(String.Format("TextDiff: {0}", diff));
-							
-							this.investigatedPluginPresetFileFormatList.Add(
-								new InvestigatedPluginPresetFileFormat(-1, 0, name, label, display, diff));
-							 */
+
 							List<UnidiffEntry> diffList = UnidiffSeqFormater.GenerateWithLineNumbers(res);
 							var queryTextDiffs = from dl in diffList
-								where dl.Type != UnidiffType.NoChange
+								where dl.Type == UnidiffType.Insert
 								select dl;
 							
 							foreach (var e in queryTextDiffs) {
-								System.Diagnostics.Debug.WriteLine(String.Format("TextDiff: {0} {1}", e.Index, e.Text));
-								
-								this.investigatedPluginPresetFileFormatList.Add(
-									new InvestigatedPluginPresetFileFormat(e.Index, 0, name, label, display, e.Text));
+								string text = e.Text;
+								text = text.Replace("\n", "");
+								if (text != "") {
+									System.Diagnostics.Debug.WriteLine(String.Format("TextDiff: {0} {1}", e.Index, text));
+									
+									this.investigatedPluginPresetFileFormatList.Add(
+										new InvestigatedPluginPresetFileFormat(e.Index, 0, name, label, display, text));
+								}
 							}
 						}
 					}
