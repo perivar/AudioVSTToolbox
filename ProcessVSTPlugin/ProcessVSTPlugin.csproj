@@ -91,7 +91,6 @@
       <DependentUpon>InvestigatedPluginPresetDetailsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="InvestigatedPluginPresetFileFormat.cs" />
-    <Compile Include="ObjectDumper.cs" />
     <Compile Include="SimpleBinaryDiff.cs" />
     <Compile Include="BinaryFile.cs" />
     <Compile Include="EditorFrame.cs">
@@ -122,6 +121,7 @@
     <Compile Include="UnidiffSeqFormatter.cs" />
     <Compile Include="VstHost.cs" />
     <Compile Include="VstPlaybackNAudio.cs" />
+    <Compile Include="Zebra2Preset.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="EditorFrame.resx">

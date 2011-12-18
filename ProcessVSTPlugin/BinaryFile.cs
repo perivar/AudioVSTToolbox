@@ -113,19 +113,34 @@ public class BinaryFile {
 		}
 	}
 
-	public short ReadInt16(ByteOrder byteOrder)
+	public UInt16 ReadUInt16()
 	{
-		return ReadInt16(binaryReader, byteOrder);
+		return ReadUInt16(byteOrder);
+	}
+
+	public UInt16 ReadUInt16(ByteOrder byteOrder)
+	{
+		return ReadUInt16(binaryReader, byteOrder);
 	}
 	
-	public int ReadInt32(ByteOrder byteOrder)
+	public UInt32 ReadUInt32()
 	{
-		return ReadInt32(binaryReader, byteOrder);
+		return ReadUInt32(byteOrder);
+	}
+
+	public UInt32 ReadUInt32(ByteOrder byteOrder)
+	{
+		return ReadUInt32(binaryReader, byteOrder);
 	}
 	
-	public long ReadInt64(ByteOrder byteOrder)
+	public UInt64 ReadUInt64()
 	{
-		return ReadInt64(binaryReader, byteOrder);
+		return ReadUInt64(byteOrder);
+	}
+
+	public UInt64 ReadUInt64(ByteOrder byteOrder)
+	{
+		return ReadUInt64(binaryReader, byteOrder);
 	}
 	
 	public short ReadInt16()
@@ -133,14 +148,49 @@ public class BinaryFile {
 		return ReadInt16(byteOrder);
 	}
 
+	public short ReadInt16(ByteOrder byteOrder)
+	{
+		return ReadInt16(binaryReader, byteOrder);
+	}
+	
 	public int ReadInt32()
 	{
 		return ReadInt32(byteOrder);
 	}
 
+	public int ReadInt32(ByteOrder byteOrder)
+	{
+		return ReadInt32(binaryReader, byteOrder);
+	}
+	
 	public long ReadInt64()
 	{
 		return ReadInt64(byteOrder);
+	}
+
+	public long ReadInt64(ByteOrder byteOrder)
+	{
+		return ReadInt64(binaryReader, byteOrder);
+	}
+	
+	public float ReadSingle()
+	{
+		return ReadSingle(byteOrder);
+	}
+
+	public float ReadSingle(ByteOrder byteOrder)
+	{
+		return ReadSingle(binaryReader, byteOrder);
+	}
+
+	public double ReadDouble()
+	{
+		return ReadDouble(byteOrder);
+	}
+
+	public double ReadDouble(ByteOrder byteOrder)
+	{
+		return ReadDouble(binaryReader, byteOrder);
 	}
 	
 	public char[] ReadChars(int size) {
@@ -283,7 +333,7 @@ public class BinaryFile {
 	{
 		if (byteOrder == ByteOrder.LittleEndian)
 		{
-			return (short)reader.ReadInt16();
+			return reader.ReadInt16();
 		}
 		else // Big-Endian
 		{
@@ -295,25 +345,86 @@ public class BinaryFile {
 	{
 		if (byteOrder == ByteOrder.LittleEndian)
 		{
-			return (int)reader.ReadInt32();
+			return reader.ReadInt32();
 		}
 		else // Big-Endian
 		{
 			return BitConverter.ToInt32(ReadBytes(reader, 4, ByteOrder.BigEndian), 0);
 		}
 	}
-
+	
 	public static long ReadInt64(BinaryReader reader, ByteOrder byteOrder)
 	{
 		if (byteOrder == ByteOrder.LittleEndian)
 		{
-			return (int)reader.ReadInt64();
+			return reader.ReadInt64();
 		}
 		else // Big-Endian
 		{
 			return BitConverter.ToInt64(ReadBytes(reader, 8, ByteOrder.BigEndian), 0);
 		}
 	}
+
+	public static UInt16 ReadUInt16(BinaryReader reader, ByteOrder byteOrder)
+	{
+		if (byteOrder == ByteOrder.LittleEndian)
+		{
+			return reader.ReadUInt16();
+		}
+		else // Big-Endian
+		{
+			return BitConverter.ToUInt16(ReadBytes(reader, 2, ByteOrder.BigEndian), 0);
+		}
+	}
+
+	public static UInt32 ReadUInt32(BinaryReader reader, ByteOrder byteOrder)
+	{
+		if (byteOrder == ByteOrder.LittleEndian)
+		{
+			return reader.ReadUInt32();
+		}
+		else // Big-Endian
+		{
+			return BitConverter.ToUInt32(ReadBytes(reader, 4, ByteOrder.BigEndian), 0);
+		}
+	}
+	
+	public static UInt64 ReadUInt64(BinaryReader reader, ByteOrder byteOrder)
+	{
+		if (byteOrder == ByteOrder.LittleEndian)
+		{
+			return reader.ReadUInt64();
+		}
+		else // Big-Endian
+		{
+			return BitConverter.ToUInt64(ReadBytes(reader, 8, ByteOrder.BigEndian), 0);
+		}
+	}
+	
+	public static float ReadSingle(BinaryReader reader, ByteOrder byteOrder)
+	{
+		if (byteOrder == ByteOrder.LittleEndian)
+		{
+			return reader.ReadSingle();
+		}
+		else // Big-Endian
+		{
+			return BitConverter.ToSingle(ReadBytes(reader, 4, ByteOrder.BigEndian), 0);
+		}
+	}
+
+	public static double ReadDouble(BinaryReader reader, ByteOrder byteOrder)
+	{
+		if (byteOrder == ByteOrder.LittleEndian)
+		{
+			return reader.ReadDouble();
+		}
+		else // Big-Endian
+		{
+			return BitConverter.ToDouble(ReadBytes(reader, 8, ByteOrder.BigEndian), 0);
+		}
+	}
+	
 	
 	/********************************
 	 *
