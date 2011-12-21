@@ -1,6 +1,0 @@
-C:\Users\perivar.nerseth\Documents\CSScripts\Duplicate songs detector via audio fingerprinting\PIN-AudioAnalyzer\bin\Debug\PIN-AudioAnalyzer.exe
-C:\Users\perivar.nerseth\Documents\CSScripts\Duplicate songs detector via audio fingerprinting\PIN-AudioAnalyzer\bin\Debug\PIN-AudioAnalyzer.pdb
-C:\Users\perivar.nerseth\Documents\CSScripts\Duplicate songs detector via audio fingerprinting\PIN-AudioAnalyzer\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\perivar.nerseth\Documents\CSScripts\Duplicate songs detector via audio fingerprinting\PIN-AudioAnalyzer\obj\x86\Debug\PIN-AudioAnalyzer.exe
-C:\Users\perivar.nerseth\Documents\CSScripts\Duplicate songs detector via audio fingerprinting\PIN-AudioAnalyzer\obj\x86\Debug\PIN-AudioAnalyzer.pdb
-C:\Users\perivar.nerseth\Documents\CSScripts\Duplicate songs detector via audio fingerprinting\PIN-AudioAnalyzer\bin\Debug\Bass.Net.dll
