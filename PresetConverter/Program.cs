@@ -9,10 +9,12 @@ namespace PresetConverter
 		
 		public static void Main(string[] args)
 		{
-			string sylenthPreset = @"C:\Users\perivar.nerseth\My Projects\Wave2ZebraSynth\ProcessVSTPlugin\Per Ivar - Test Preset (Zebra vs Sylenth).fxp";
-			//string zebraPreset = @"C:\Users\perivar.nerseth\My Projects\Wave2ZebraSynth\ProcessVSTPlugin\Per Ivar - Test Preset (Zebra vs Sylenth).h2p";
-			string zebraPreset = @"C:\Users\perivar.nerseth\My Projects\Wave2ZebraSynth\ProcessVSTPlugin\Zebra2.data\Presets\Zebra2\initialize-extended.h2p";
-			string zebraGeneratedPreset = @"C:\Users\perivar.nerseth\My Projects\Wave2ZebraSynth\ProcessVSTPlugin\Generated-Zebra2-Preset.h2p";
+			string sylenthPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\Per Ivar - Test Preset (Zebra vs Sylenth).fxp";
+			//string zebraPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\Per Ivar - Test Preset (Zebra vs Sylenth).h2p";
+			//string zebraPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\Zebra2.data\Presets\Zebra2\initialize-extended.h2p";
+			string zebraPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter\initialize-extended2.h2p";
+			
+			string zebraGeneratedPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter\Generated-Zebra2-Preset.h2p";
 			
 			Sylenth1Preset sylenth1 = new Sylenth1Preset(sylenthPreset);
 			//sylenth1.TransformToZebra2("");
