@@ -94,23 +94,6 @@ namespace ProcessVSTPlugin
 		[STAThread]
 		static void Main(string[] args)
 		{
-			/*
-			string sylenthPreset = @"C:\Users\perivar.nerseth\My Projects\Wave2ZebraSynth\ProcessVSTPlugin\Per Ivar - Test Preset (Zebra vs Sylenth).fxp";
-			string zebraPreset = @"C:\Users\perivar.nerseth\My Projects\Wave2ZebraSynth\ProcessVSTPlugin\Per Ivar - Test Preset (Zebra vs Sylenth).h2p";
-			string zebraGeneratedPreset = @"C:\Users\perivar.nerseth\My Projects\Wave2ZebraSynth\ProcessVSTPlugin\Generated-Zebra2-Preset.h2p";
-			
-			Sylenth1Preset sylenth1 = new Sylenth1Preset(sylenthPreset);
-			//sylenth1.TransformToZebra2("");
-			//Console.Out.WriteLine(sylenth1);
-			
-			//Zebra2Preset zebra2 = new Zebra2Preset(zebraPreset);
-			Zebra2Preset zebra2 = new Zebra2Preset();
-			zebra2.Write(zebraGeneratedPreset);
-			
-			Console.ReadKey();
-			return;
-			*/
-			
 			string pluginPath = "";
 			string waveInputFilePath = "";
 			string waveOutputFilePath = "";

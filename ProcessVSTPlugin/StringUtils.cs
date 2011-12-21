@@ -1,17 +1,25 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+
 using System.Text;
+using System.Text.RegularExpressions;
+
+using System.Linq;
 
 namespace ProcessVSTPlugin
 {
 	/// <summary>
 	/// Description of StringUtils.
 	/// </summary>
-	public class StringUtils
+	public static class StringUtils
 	{
-		public StringUtils()
-		{
+		public enum Case {
+			PascalCase,
+			CamelCase
 		}
-		
+
+	
 		/// <summary>
 		/// Converts the phrase to specified convention.
 		/// </summary>
@@ -47,11 +55,6 @@ namespace ProcessVSTPlugin
 			}
 			return sb.ToString();
 		}
-
-		public enum Case {
-			PascalCase,
-			CamelCase
-		}
 		
 		public static string ToHexString(byte b) {
 			char c = (char) b;
@@ -80,5 +83,29 @@ namespace ProcessVSTPlugin
 			}
 			return strb.ToString();
 		}
+		
+		public static string RemoveInvalidCharacters(string strIn) {
+			// Replace invalid characters with empty strings.
+			return Regex.Replace(strIn, @"[^\w\.@-]", "");
+		}
+		
+		public static IEnumerable<string> Split(string str, int chunkSize)
+		{
+			return Enumerable.Range(0, str.Length / chunkSize)
+				.Select(i => str.Substring(i * chunkSize, chunkSize));
+		}
+
+		public static IEnumerable<string> SplitByLength(this string str, int maxLength) {
+			int index = 0;
+			while(true) {
+				if (index + maxLength >= str.Length) {
+					yield return str.Substring(index);
+					yield break;
+				}
+				yield return str.Substring(index, maxLength);
+				index += maxLength;
+			}
+		}
+
 	}
 }

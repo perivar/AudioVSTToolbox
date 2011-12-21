@@ -6,183 +6,182 @@ using System.Runtime.InteropServices;
 // http://stackoverflow.com/questions/2871/reading-a-c-c-data-structure-in-c-sharp-from-a-byte-array
 namespace ProcessVSTPlugin
 {
-	
-	public enum ARPMODE : uint {
-		Chord      = 0x00003F80,
-		Down       = 0x3DE38E39,
-		Down_Up    = 0x3EE38E39,
-		Down_Up2   = 0x3F0E38E4,
-		Ordered    = 0x3F471C72,
-		Random     = 0x3F2AAAAB,
-		Step       = 0x3F638E39,
-		Up         = 0x00000000,
-		Up_Down    = 0x3E638E39,
-		Up_Down2   = 0x3EAAAAAB
-	}
-
-	public enum ARPVELO : uint {
-		VEL_Hold       = 0x3E800000,
-		VEL_Key        = 0x00000000,
-		VEL_Step       = 0x3F000000,
-		VEL_StepHold   = 0x3F800000,
-		VEL_StepKey    = 0x3F400000
-	}
-
-	public enum CHORUSMODE : uint {
-		Dual    = 0x3F800000,
-		Single  = 0x00000000
-	}
-
-	// will not work this only works in ranges,
-	// i.e. use float instead
-	// logarithmic
-	public enum COMPRATIO : uint {
-		COMPRATIO___1_00_1 = 0x00000000,
-		COMPRATIO___1_01_1 = 0x3C6A0EA2,
-		COMPRATIO___1_02_1 = 0x3C9C09C1,
-		COMPRATIO___1_03_1 = 0x3CEA0EA2,
-		// logarithmic ...
-		COMPRATIO_100_00_1 = 0x800000
-	}
-
-	public enum DISTORTTYPE : uint {
-		BitCrush= 0x3F800000,
-		Clip    = 0x3F000000,
-		Decimate= 0x3F400000,
-		FoldBack= 0x3E800000,
-		OverDrv = 0x00000000
-	}
-
-	public enum FILTERINPUT : uint {
-		FILTER_B     = 0x00000000,
-		FILTER_A     = 0x00000000,
-		FILTER_B_A   = 0x3F000000,
-		FILTER_A_B   = 0x3F000000,
-		FILTER_None  = 0x3F800000
-	}
-
-	public enum FILTERTYPE : uint {
-		Highpass= 0x3F800000,
-		Bandpass= 0x3F2AAAAB,
-		Lowpass = 0x3EAAAAAB,
-		Bypass  = 0x00000000,
-	}
-
-	public enum LFOWAVE : uint {
-		LFO_HPulse    = 0x3F000000,
-		LFO_Lorenz    = 0x3F4CCCCD,
-		LFO_Pulse     = 0x3ECCCCCD,
-		LFO_QPulse    = 0x3F19999A,
-		LFO_Ramp      = 0x844445CC,
-		LFO_Ramp2     = 0xCCCD3E4C,
-		LFO_Random    = 0x3F800000,
-		LFO_Saw       = 0x3DCCCCCD,
-		LFO_Sine      = 0x00000000,
-		LFO_SmpHold   = 0x3F666666,
-		LFO_Triangle  = 0x3E99999A,
-		LFO_TriSaw    = 0x3F333333
-	}
-
-	public enum OSCWAVE : uint {
-		OSC_HPulse   = 0x3F124925,
-		OSC_Noise    = 0x3F800000,
-		OSC_Pulse    = 0x3EDB6DB7,
-		OSC_QPulse   = 0x3F36DB6E,
-		OSC_Saw      = 0x3E124925,
-		OSC_Sine     = 0x00000000,
-		OSC_Triangle = 0x3E924925,
-		OSC_TriSaw   = 0x3F5B6DB7
-	}
-
-	public enum PORTAMODE : uint {
-		Normal   = 0x3F800000,
-		Slide    = 0x00000000
-	}
-
-	public enum ONOFF : uint {
-		Off = 0x00000000,
-		On  = 0x3F800000
-	}
-
-	public enum XMODSOURCE : uint {
-		SOURCE_None     = 0x00000000,
-		SOURCE_Velocity = 0x3DBA2E8C,
-		SOURCE_ModWheel = 0x3E3A2E8C,
-		SOURCE_KeyTrack = 0x3E8BA2E9,
-		SOURCE_AmpEnv_A = 0x3EBA2E8C,
-		SOURCE_AmpEnv_B = 0x3EE8BA2F,
-		SOURCE_ModEnv_1 = 0x3F0BA2E9,
-		SOURCE_ModEnv_2 = 0x3F22E8BA,
-		SOURCE_LFO_1    = 0x3F3A2E8C,
-		SOURCE_LFO_2    = 0x3F51745D,
-		SOURCE_Aftertch = 0x3F68BA2F,
-		SOURCE_StepVlty = 0x3F800000,
-	}
-
-	public enum YMODDEST : uint {
-		None        = 0x00000000,
-
-		// Oscillators
-		Volume_A    = 0x3D000000,
-		Volume_B    = 0x3D800000,
-		VolumeAB    = 0x3DC00000,
-		Pitch_A     = 0x3E000000,
-		Pitch_B     = 0x3E200000,
-		Pitch_AB    = 0x3E400000,
-		Phase_A     = 0x3E600000,
-		Phase_B     = 0x3E800000,
-		Phase_AB    = 0x3E900000,
-		Pan_A       = 0x3EA00000,
-		Pan_B       = 0x3EB00000,
-		Pan_AB      = 0x3EC00000,
-
-		// Filters
-		Cutoff_A    = 0x3ED00000,
-		Cutoff_B    = 0x3EE00000,
-		CutoffAB    = 0x3EF00000,
-		Reso_A      = 0x3F000000,
-		Reso_B      = 0x3F080000,
-		Reso_AB     = 0x3F100000,
-
-		// Misc
-		PhsrFreq    = 0x3F180000,
-		Mix_A       = 0x3F200000,
-		Mix_B       = 0x3F280000,
-		Mix_AB      = 0x3F300000,
-		LFO1Rate    = 0x3F380000,
-		LFO1Gain    = 0x3F400000,
-		LFO2Rate    = 0x3F480000,
-		LFO2Gain    = 0x3F500000,
-		DistAmnt    = 0x3F580000
-	}
-
-	public enum YPARTSELECT : uint {
-		Part_A = 0x00000000,
-		Part_B = 0x3F800000
-	}
-
-	public enum ZEQMODE : uint {
-		MODE_1_Pole = 0x00000000,
-		MODE_2_Pole = 0x3F800000
-	}
-	
-	public enum VOICES : uint {
-		VOICES_0       = 0x00000000,
-		VOICES_1       = 0x3E000000,
-		VOICES_2       = 0x3E800000,
-		VOICES_3       = 0x3EC00000,
-		VOICES_4       = 0x3F000000,
-		VOICES_5       = 0x3F200000,
-		VOICES_6       = 0x3F400000,
-		VOICES_7       = 0x3F600000,
-		VOICES_8       = 0x3F800000
-	}
-	
 	/// <summary>
 	/// Description of Sylenth1Preset.
 	/// </summary>
 	public class Sylenth1Preset
 	{
+		public enum ARPMODE : uint {
+			Chord      = 0x00003F80,
+			Down       = 0x3DE38E39,
+			Down_Up    = 0x3EE38E39,
+			Down_Up2   = 0x3F0E38E4,
+			Ordered    = 0x3F471C72,
+			Random     = 0x3F2AAAAB,
+			Step       = 0x3F638E39,
+			Up         = 0x00000000,
+			Up_Down    = 0x3E638E39,
+			Up_Down2   = 0x3EAAAAAB
+		}
+
+		public enum ARPVELO : uint {
+			VEL_Hold       = 0x3E800000,
+			VEL_Key        = 0x00000000,
+			VEL_Step       = 0x3F000000,
+			VEL_StepHold   = 0x3F800000,
+			VEL_StepKey    = 0x3F400000
+		}
+
+		public enum CHORUSMODE : uint {
+			Dual    = 0x3F800000,
+			Single  = 0x00000000
+		}
+
+		// will not work this only works in ranges,
+		// i.e. use float instead
+		// logarithmic
+		public enum COMPRATIO : uint {
+			COMPRATIO___1_00_1 = 0x00000000,
+			COMPRATIO___1_01_1 = 0x3C6A0EA2,
+			COMPRATIO___1_02_1 = 0x3C9C09C1,
+			COMPRATIO___1_03_1 = 0x3CEA0EA2,
+			// logarithmic ...
+			COMPRATIO_100_00_1 = 0x800000
+		}
+
+		public enum DISTORTTYPE : uint {
+			BitCrush= 0x3F800000,
+			Clip    = 0x3F000000,
+			Decimate= 0x3F400000,
+			FoldBack= 0x3E800000,
+			OverDrv = 0x00000000
+		}
+
+		public enum FILTERINPUT : uint {
+			FILTER_B     = 0x00000000,
+			FILTER_A     = 0x00000000,
+			FILTER_B_A   = 0x3F000000,
+			FILTER_A_B   = 0x3F000000,
+			FILTER_None  = 0x3F800000
+		}
+
+		public enum FILTERTYPE : uint {
+			Highpass= 0x3F800000,
+			Bandpass= 0x3F2AAAAB,
+			Lowpass = 0x3EAAAAAB,
+			Bypass  = 0x00000000,
+		}
+
+		public enum LFOWAVE : uint {
+			LFO_HPulse    = 0x3F000000,
+			LFO_Lorenz    = 0x3F4CCCCD,
+			LFO_Pulse     = 0x3ECCCCCD,
+			LFO_QPulse    = 0x3F19999A,
+			LFO_Ramp      = 0x844445CC,
+			LFO_Ramp2     = 0xCCCD3E4C,
+			LFO_Random    = 0x3F800000,
+			LFO_Saw       = 0x3DCCCCCD,
+			LFO_Sine      = 0x00000000,
+			LFO_SmpHold   = 0x3F666666,
+			LFO_Triangle  = 0x3E99999A,
+			LFO_TriSaw    = 0x3F333333
+		}
+
+		public enum OSCWAVE : uint {
+			OSC_HPulse   = 0x3F124925,
+			OSC_Noise    = 0x3F800000,
+			OSC_Pulse    = 0x3EDB6DB7,
+			OSC_QPulse   = 0x3F36DB6E,
+			OSC_Saw      = 0x3E124925,
+			OSC_Sine     = 0x00000000,
+			OSC_Triangle = 0x3E924925,
+			OSC_TriSaw   = 0x3F5B6DB7
+		}
+
+		public enum PORTAMODE : uint {
+			Normal   = 0x3F800000,
+			Slide    = 0x00000000
+		}
+
+		public enum ONOFF : uint {
+			Off = 0x00000000,
+			On  = 0x3F800000
+		}
+
+		public enum XMODSOURCE : uint {
+			SOURCE_None     = 0x00000000,
+			SOURCE_Velocity = 0x3DBA2E8C,
+			SOURCE_ModWheel = 0x3E3A2E8C,
+			SOURCE_KeyTrack = 0x3E8BA2E9,
+			SOURCE_AmpEnv_A = 0x3EBA2E8C,
+			SOURCE_AmpEnv_B = 0x3EE8BA2F,
+			SOURCE_ModEnv_1 = 0x3F0BA2E9,
+			SOURCE_ModEnv_2 = 0x3F22E8BA,
+			SOURCE_LFO_1    = 0x3F3A2E8C,
+			SOURCE_LFO_2    = 0x3F51745D,
+			SOURCE_Aftertch = 0x3F68BA2F,
+			SOURCE_StepVlty = 0x3F800000,
+		}
+
+		public enum YMODDEST : uint {
+			None        = 0x00000000,
+
+			// Oscillators
+			Volume_A    = 0x3D000000,
+			Volume_B    = 0x3D800000,
+			VolumeAB    = 0x3DC00000,
+			Pitch_A     = 0x3E000000,
+			Pitch_B     = 0x3E200000,
+			Pitch_AB    = 0x3E400000,
+			Phase_A     = 0x3E600000,
+			Phase_B     = 0x3E800000,
+			Phase_AB    = 0x3E900000,
+			Pan_A       = 0x3EA00000,
+			Pan_B       = 0x3EB00000,
+			Pan_AB      = 0x3EC00000,
+
+			// Filters
+			Cutoff_A    = 0x3ED00000,
+			Cutoff_B    = 0x3EE00000,
+			CutoffAB    = 0x3EF00000,
+			Reso_A      = 0x3F000000,
+			Reso_B      = 0x3F080000,
+			Reso_AB     = 0x3F100000,
+
+			// Misc
+			PhsrFreq    = 0x3F180000,
+			Mix_A       = 0x3F200000,
+			Mix_B       = 0x3F280000,
+			Mix_AB      = 0x3F300000,
+			LFO1Rate    = 0x3F380000,
+			LFO1Gain    = 0x3F400000,
+			LFO2Rate    = 0x3F480000,
+			LFO2Gain    = 0x3F500000,
+			DistAmnt    = 0x3F580000
+		}
+
+		public enum YPARTSELECT : uint {
+			Part_A = 0x00000000,
+			Part_B = 0x3F800000
+		}
+
+		public enum ZEQMODE : uint {
+			MODE_1_Pole = 0x00000000,
+			MODE_2_Pole = 0x3F800000
+		}
+		
+		public enum VOICES : uint {
+			VOICES_0       = 0x00000000,
+			VOICES_1       = 0x3E000000,
+			VOICES_2       = 0x3E800000,
+			VOICES_3       = 0x3EC00000,
+			VOICES_4       = 0x3F000000,
+			VOICES_5       = 0x3F200000,
+			VOICES_6       = 0x3F400000,
+			VOICES_7       = 0x3F600000,
+			VOICES_8       = 0x3F800000
+		}		
+		
 		public Syl1PresetContent Content { set; get; }
 		public string PresetName { set; get; }
 		
