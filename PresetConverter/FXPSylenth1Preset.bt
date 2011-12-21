@@ -1,0 +1,590 @@
+//--------------------------------------
+//--- 010 Editor v3.1 Binary Template
+//
+// File: Sylenth 1 Preset Format
+// Author: Per Ivar Nerseth
+// Revision: 1.0
+// Purpose: Read Sylenth1 Preset Files (FXP)
+//--------------------------------------
+
+typedef struct {
+    char presetType[4];     // '1lys' = 'syl1' backwards
+    long UNKNOWN1;          
+    long fxVersion;         
+    long numPrograms;       
+    long UNKNOWN2;          
+} syl1PresetHEADER;
+
+typedef struct {
+    char presetName[36];     
+} syl1PresetFOOTER;
+
+typedef enum <int> {
+	Chord      = 0x00003F80,
+	Down       = 0x3DE38E39,
+	Down_Up    = 0x3EE38E39,
+	Down_Up2   = 0x3F0E38E4,
+	Ordered    = 0x3F471C72,
+	Random     = 0x3F2AAAAB,
+	Step       = 0x3F638E39,
+	Up         = 0x00000000,
+	Up_Down    = 0x3E638E39,
+	Up_Down2   = 0x3EAAAAAB
+} ARPMODE <format=hex>;
+
+typedef enum <int> {
+	VEL_Hold       = 0x3E800000,
+	VEL_Key        = 0x00000000,
+	VEL_Step       = 0x3F000000,
+	VEL_StepHold   = 0x3F800000,
+	VEL_StepKey    = 0x3F400000
+} ARPVELO <format=hex>;
+
+typedef enum <int> {
+	Dual    = 0x3F800000,
+	Single  = 0x00000000
+} CHORUSMODE <format=hex>;
+
+// will not work this only works in ranges,
+// i.e. use float instead
+// logarithmic
+typedef enum <long> {
+	COMPRATIO___1_00_1 = 0x00000000,
+	COMPRATIO___1_01_1 = 0x3C6A0EA2,     
+	COMPRATIO___1_02_1 = 0x3C9C09C1,
+	COMPRATIO___1_03_1 = 0x3CEA0EA2,
+    // logarithmic ...
+	COMPRATIO_100_00_1 = 0x800000
+} COMPRATIO <format=hex>;
+
+typedef enum <int> {
+	BitCrush= 0x3F800000,
+	Clip    = 0x3F000000,
+	Decimate= 0x3F400000,
+	FoldBack= 0x3E800000,
+	OverDrv = 0x00000000
+} DISTORTTYPE <format=hex>;
+
+typedef enum <int> {
+	FILTER_B     = 0x00000000,
+	FILTER_A     = 0x00000000,
+	FILTER_B_A   = 0x3F000000,
+	FILTER_A_B   = 0x3F000000,
+	FILTER_None  = 0x3F800000
+} FILTERINPUT <format=hex>;
+
+typedef enum <int> {
+	Highpass= 0x3F800000,
+	Bandpass= 0x3F2AAAAB,
+	Lowpass = 0x3EAAAAAB,
+	Bypass  = 0x00000000,
+} FILTERTYPE <format=hex>;
+
+typedef enum <int> {
+	LFO_HPulse    = 0x3F000000,
+	LFO_Lorenz    = 0x3F4CCCCD,
+	LFO_Pulse     = 0x3ECCCCCD,
+	LFO_QPulse    = 0x3F19999A,
+	LFO_Ramp      = 0x844445CC,
+	LFO_Ramp2     = 0xCCCD3E4C,
+	LFO_Random    = 0x3F800000,
+	LFO_Saw       = 0x3DCCCCCD,
+	LFO_Sine      = 0x00000000,
+	LFO_SmpHold   = 0x3F666666,
+	LFO_Triangle  = 0x3E99999A,
+	LFO_TriSaw    = 0x3F333333
+} LFOWAVE <format=hex>;
+
+typedef enum <int> {
+	OSC_HPulse   = 0x3F124925,
+	OSC_Noise    = 0x3F800000,
+	OSC_Pulse    = 0x3EDB6DB7,
+	OSC_QPulse   = 0x3F36DB6E,
+	OSC_Saw      = 0x3E124925, 
+	OSC_Sine     = 0x00000000,
+	OSC_Triangle = 0x3E924925,
+	OSC_TriSaw   = 0x3F5B6DB7
+} OSCWAVE <format=hex>;
+
+typedef enum <int> {
+	Normal   = 0x3F800000,
+	Slide    = 0x00000000
+} PORTAMODE <format=hex>;
+
+typedef enum <int> {
+	Off = 0x00000000,
+	On  = 0x3F800000
+} ONOFF <format=hex>;
+
+typedef enum <int> {
+	SOURCE_None     = 0x00000000,
+	SOURCE_Velocity = 0x3DBA2E8C,
+	SOURCE_ModWheel = 0x3E3A2E8C,
+	SOURCE_KeyTrack = 0x3E8BA2E9,
+	SOURCE_AmpEnv_A = 0x3EBA2E8C,
+	SOURCE_AmpEnv_B = 0x3EE8BA2F,
+	SOURCE_ModEnv_1 = 0x3F0BA2E9,
+	SOURCE_ModEnv_2 = 0x3F22E8BA,
+	SOURCE_LFO_1    = 0x3F3A2E8C,
+	SOURCE_LFO_2    = 0x3F51745D,
+	SOURCE_Aftertch = 0x3F68BA2F,
+	SOURCE_StepVlty = 0x3F800000,
+} XMODSOURCE <format=hex>;
+
+typedef enum <int> {
+	None        = 0x00000000,
+
+    // Oscillators
+	Volume_A    = 0x3D000000,
+	Volume_B    = 0x3D800000,
+	VolumeAB    = 0x3DC00000,  
+	Pitch_A     = 0x3E000000,
+	Pitch_B     = 0x3E200000,
+	Pitch_AB    = 0x3E400000,
+	Phase_A     = 0x3E600000,
+	Phase_B     = 0x3E800000,
+	Phase_AB    = 0x3E900000,
+	Pan_A       = 0x3EA00000,
+	Pan_B       = 0x3EB00000,
+	Pan_AB      = 0x3EC00000,
+
+    // Filters
+	Cutoff_A    = 0x3ED00000,
+	Cutoff_B    = 0x3EE00000,
+	CutoffAB    = 0x3EF00000,
+	Reso_A      = 0x3F000000, 
+	Reso_B      = 0x3F080000,
+	Reso_AB     = 0x3F100000,
+
+    // Misc
+	PhsrFreq    = 0x3F180000,
+	Mix_A       = 0x3F200000,
+	Mix_B       = 0x3F280000,
+	Mix_AB      = 0x3F300000,
+	LFO1Rate    = 0x3F380000,
+	LFO1Gain    = 0x3F400000,
+	LFO2Rate    = 0x3F480000,
+	LFO2Gain    = 0x3F500000,
+	DistAmnt    = 0x3F580000
+} YMODDEST <format=hex>;
+
+typedef enum <int> {
+	Part_A = 0x00000000,
+	Part_B = 0x3F800000
+} YPARTSELECT <format=hex>;
+
+typedef enum <int> {
+	MODE_1_Pole = 0x00000000,
+	MODE_2_Pole = 0x3F800000
+} ZEQMODE <format=hex>;
+
+typedef struct {
+	float AmpEnvAAttack;              // index 20:23 (value range 0 -> 10)
+	float AmpEnvADecay;               // index 24:27 (value range 0 -> 10)
+	float AmpEnvARelease;             // index 28:31 (value range 0 -> 10)
+	float AmpEnvASustain;             // index 32:35 (value range 0 -> 10)
+	float AmpEnvBAttack;              // index 36:39 (value range 0 -> 10)
+	float AmpEnvBDecay;               // index 40:43 (value range 0 -> 10)
+	float AmpEnvBRelease;             // index 44:47 (value range 0 -> 10)
+	float AmpEnvBSustain;             // index 48:51 (value range 0 -> 10)
+	float ArpGate;                    // index 52:55 (value range 0 -> 100)
+	ARPMODE ArpMode;                  // index 56:59 
+	float ArpOctave;                  // index 60:63 (value range 1 -> 4)
+	float ArpTime;                    // index 64:67 (value range 1/1 -> 1/64)
+	ARPVELO ArpVelo;                  // index 70:71 
+	float ArpWrap;                    // index 72:75 (value range 0 -> 16)
+	float ChorusDelay;                // index 76:79 (value range 1 -> 40)
+	float ChorusDepth;                // index 80:83 (value range 0 -> 100)
+	float ChorusDry_Wet;              // index 84:87 (value range 0 -> 100)
+	float ChorusFeedback;             // index 88:91 (value range 0 -> 100)
+	CHORUSMODE ChorusMode;            // index 94:95 
+	float ChorusRate;                 // index 96:99 (value range 0,01 -> 27,5)
+	float ChorusWidth;                // index 100:103 (value range 0 -> 100)
+	float CompAttack;                 // index 104:107 (value range 0,1 -> 300)
+	float CompRatio;                  // index 108:111 (value range 1.00:1 -> 100.00:1)
+	float CompRelease;                // index 112:115 (value range 1 -> 500)
+	float CompThreshold;              // index 116:119 (value range -30 -> 0)
+	float DelayDry_Wet;               // index 120:123 (value range 0 -> 100)
+	float DelayFeedback;              // index 124:127 (value range 0 -> 100)
+	float DelayHighCut;               // index 128:131 (value range 82,5 -> 21120)
+	float DelayLowCut;                // index 132:135 (value range 3,23 -> 26483,12)
+	ONOFF DelayPingPong;              // index 138:139 
+	float DelaySmear;                 // index 140:143 (value range 0 -> 10)
+	float DelaySpread;                // index 144:147 (value range 0 -> 100)
+    float DelayTimeLeft;              // index 148:151 (value range 1/64 -> 1/2)
+    float DelayTimeRight;             // index 152:155 (value range 1/64 -> 1/2)
+	float DelayWidth;                 // index 156:159 (value range 0 -> 100)
+	float DistortAmount;              // index 160:163 (value range 0 -> 10)
+	float DistortDryWet;              // index 164:167 (value range 0 -> 100)
+	DISTORTTYPE DistortType;          // index 170:171 
+	float EQBass;                     // index 172:175 (value range 0 -> 15)
+	float EQBassFreq;                 // index 176:179 (value range 13,75 -> 880)
+	float EQTreble;                   // index 180:183 (value range 0 -> 15)
+	float EQTrebleFreq;               // index 184:187 (value range 440 -> 28160)
+	float FilterACutoff;              // index 188:191 (value range 1 -> 21341,28)
+	float FilterADrive;               // index 192:195 (value range 0 -> 10)
+	FILTERINPUT FilterAInput;         // index 198:199 
+	float FilterAReso;                // index 200:203 (value range 0 -> 10)
+	FILTERTYPE FilterAType;           // index 204:207 
+	float FilterADB;                  // index 210:211 (value range 12 -> 12)
+	float FilterBCutoff;              // index 212:215 (value range 1 -> 21341,28)
+	float FilterBDrive;               // index 216:219 (value range 0 -> 10)
+	FILTERINPUT FilterBInput;         // index 222:223 
+	float FilterBReso;                // index 224:227 (value range 0 -> 10)
+	FILTERTYPE FilterBType;           // index 228:231 
+    float FilterBDB;                  // index 234:235 (value range 12 -> 24)
+	float FilterCtlCutoff;            // index 236:239 (value range 1 -> 21341,28)
+	float FilterCtlKeyTrk;            // index 240:243 (value range 0 -> 10)
+	float FilterCtlReso;              // index 244:247 (value range 0 -> 10)
+	ONOFF FilterCtlWarmDrive;         // index 250:251 
+	ONOFF LFO1Free;                   // index 254:255 
+	float LFO1Gain;                   // index 256:259 (value range 0 -> 10)
+	float LFO1Offset;                 // index 260:263 (value range -10 -> 10)
+	float LFO1Rate;                   // index 264:267 (value range 8/1D -> 1/256T)
+	LFOWAVE LFO1Wave;                 // index 268:271 
+	ONOFF LFO2Free;                   // index 274:275 
+	float LFO2Gain;                   // index 276:279 (value range 0 -> 10)
+	float LFO2Offset;                 // index 280:283 (value range -10 -> 10)
+	float LFO2Rate;                   // index 284:287 (value range 8/1D -> 1/256T)
+	LFOWAVE LFO2Wave;                 // index 288:291 
+	float MainVolume;                 // index 292:295 (value range 0 -> 10)
+	float MixA;                       // index 296:299 (value range 0 -> 10)
+	float MixB;                       // index 300:303 (value range 0 -> 10)
+	float ModEnv1Attack;              // index 304:307 (value range 0 -> 10)
+	float ModEnv1Decay;               // index 308:311 (value range 0 -> 10)
+	float ModEnv1Release;             // index 312:315 (value range 0 -> 10)
+	float ModEnv1Sustain;             // index 316:319 (value range 0 -> 10)
+	float ModEnv2Attack;              // index 320:323 (value range 0 -> 10)
+	float ModEnv2Decay;               // index 324:327 (value range 0 -> 10)
+	float ModEnv2Release;             // index 328:331 (value range 0 -> 10)
+	float ModEnv2Sustain;             // index 332:335 (value range 0 -> 10)
+	float ModWheel;                   // index 336:339 (value range 0 -> 10)
+	ONOFF MonoLegato;                 // index 342:343 
+	float OscA1Detune;                // index 344:347 (value range 0 -> 10)
+	float OscA1Fine;                  // index 348:351 (value range -1 -> 1)
+	ONOFF OscA1Invert;                // index 354:355 
+	float OscA1Note;                  // index 356:359 (value range -7 -> 7)
+	float OscA1Octave;                // index 360:363 (value range -3 -> 3)
+	float OscA1Pan;                   // index 364:367 (value range -10 -> 10)
+	float OscA1Phase;                 // index 368:371 (value range 0 -> 360)
+	ONOFF OscA1Retrig;                // index 374:375 
+	float OscA1Stereo;                // index 376:379 (value range 0 -> 10)
+	float OscA1Voices;                // index 382:383 (value range 0 -> 8)
+	float OscA1Volume;                // index 384:387 (value range 0 -> 10)
+	OSCWAVE OscA1Wave;                // index 388:391 
+	float OscA2Detune;                // index 392:395 (value range 0 -> 10)
+	float OscA2Fine;                  // index 396:399 (value range -1 -> 1)
+	ONOFF OscA2Invert;                // index 402:403 
+	float OscA2Note;                  // index 404:407 (value range -7 -> 7)
+	float OscA2Octave;                // index 408:411 (value range -3 -> 3)
+	float OscA2Pan;                   // index 412:415 (value range -10 -> 10)
+	float OscA2Phase;                 // index 416:419 (value range 0 -> 360)
+	ONOFF OscA2Retrig;                // index 422:423 
+	float OscA2Stereo;                // index 424:427 (value range 0 -> 10)
+	float OscA2Voices;                // index 430:431 (value range 0 -> 8)
+	float OscA2Volume;                // index 432:435 (value range 0 -> 10)
+	OSCWAVE OscA2Wave;                // index 436:439 
+	float OscB1Detune;                // index 440:443 (value range 0 -> 10)
+	float OscB1Fine;                  // index 444:447 (value range -1 -> 1)
+	ONOFF OscB1Invert;                // index 450:451 
+	float OscB1Note;                  // index 452:455 (value range -7 -> 7)
+	float OscB1Octave;                // index 456:459 (value range -3 -> 3)
+	float OscB1Pan;                   // index 460:463 (value range -10 -> 10)
+	float OscB1Phase;                 // index 464:467 (value range 0 -> 360)
+	ONOFF OscB1Retrig;                // index 470:471 
+	float OscB1Stereo;                // index 472:475 (value range 0 -> 10)
+	float OscB1Voices;                // index 478:479 (value range 0 -> 8)
+	float OscB1Volume;                // index 480:483 (value range 0 -> 10)
+	OSCWAVE OscB1Wave;                // index 484:487 
+	float OscB2Detune;                // index 488:491 (value range 0 -> 10)
+	float OscB2Fine;                  // index 492:495 (value range -1 -> 1)
+	ONOFF OscB2Invert;                // index 498:499 
+	float OscB2Note;                  // index 500:503 (value range -7 -> 7)
+	float OscB2Octave;                // index 504:507 (value range -3 -> 3)
+	float OscB2Pan;                   // index 508:511 (value range -10 -> 10)
+	float OscB2Phase;                 // index 512:515 (value range 0 -> 360)
+	ONOFF OscB2Retrig;                // index 518:519 
+	float OscB2Stereo;                // index 520:523 (value range 0 -> 10)
+	float OscB2Voices;                // index 526:527 (value range 0 -> 8)
+	float OscB2Volume;                // index 528:531 (value range 0 -> 10)
+	OSCWAVE OscB2Wave;                // index 532:535 
+	float PhaserCenterFreq;           // index 536:539 (value range 0 -> 10)
+	float PhaserDry_Wet;              // index 540:543 (value range 0 -> 100)
+	float PhaserFeedback;             // index 544:547 (value range 0 -> 100)
+	float PhaserLFOGain;              // index 548:551 (value range 0 -> 10)
+	float PhaserLFORate;              // index 552:555 (value range 8/1D -> 1/256T))
+	float PhaserLROffset;             // index 556:559 (value range -10 -> 10)
+	float PhaserSpread;               // index 560:563 (value range 0 -> 10)
+	float PhaserWidth;                // index 564:567 (value range 0 -> 100)
+	float PitchBend;                  // index 568:571 (value range -10 -> 10)
+	float PitchBendRange;             // index 572:575 (value range 1 -> 24)
+	float Polyphony;                  // index 578:579 (value range 0 -> 16)
+	PORTAMODE PortaMode;              // index 582:583 
+	float PortaTime;                  // index 584:587 (value range 0 -> 10)
+	float ReverbDamp;                 // index 588:591 (value range 0 -> 10)
+	float ReverbDry_Wet;              // index 592:595 (value range 0 -> 100)
+	float ReverbPredelay;             // index 596:599 (value range 0 -> 200)
+	float ReverbSize;                 // index 600:603 (value range 0 -> 10)
+	float ReverbWidth;                // index 604:607 (value range 0 -> 100)
+	ONOFF Solo;                       // index 610:611 
+	ONOFF Sync;                       // index 614:615 
+	ONOFF XArpHold01;                 // index 618:619 
+	ONOFF XArpHold02;                 // index 622:623 
+	ONOFF XArpHold03;                 // index 626:627 
+	ONOFF XArpHold04;                 // index 630:631 
+	ONOFF XArpHold05;                 // index 634:635 
+	ONOFF XArpHold06;                 // index 638:639 
+	ONOFF XArpHold07;                 // index 642:643 
+	ONOFF XArpHold08;                 // index 646:647 
+	ONOFF XArpHold09;                 // index 650:651 
+	ONOFF XArpHold10;                 // index 654:655 
+	ONOFF XArpHold11;                 // index 658:659 
+	ONOFF XArpHold12;                 // index 662:663 
+	ONOFF XArpHold13;                 // index 666:667 
+	ONOFF XArpHold14;                 // index 670:671 
+	ONOFF XArpHold15;                 // index 674:675 
+	ONOFF XArpHold16;                 // index 678:679 
+	float XArpTransp01;               // index 680:684 (value range -24 -> 24)
+	float XArpTransp02;               // (value range -24 -> 24)
+	float XArpTransp03;               // (value range -24 -> 24)
+	float XArpTransp04;               // (value range -24 -> 24)
+	float XArpTransp05;               // (value range -24 -> 24)
+	float XArpTransp06;               // (value range -24 -> 24)
+	float XArpTransp07;               // (value range -24 -> 24)
+	float XArpTransp08;               // (value range -24 -> 14)
+	float XArpTransp09;               // index 712:715 (value range -24 -> 24)
+	float XArpTransp10;               // index 716:719 (value range -24 -> 24)
+	float XArpTransp11;               // index 720:723 (value range -24 -> 24)
+	float XArpTransp12;               // index 724:727 (value range -24 -> 24)
+	float XArpTransp13;               // index 728:731 (value range -24 -> 24)
+	float XArpTransp14;               // index 732:735 (value range -24 -> 24)
+	float XArpTransp15;               // index 736:739 (value range -24 -> 24)
+	float XArpTransp16;               // index 740:743 (value range -24 -> 14)
+	float XArpVelo01;                 // (value range 0 -> 127)
+	float XArpVelo02;                 // (value range 0 -> 127)
+	float XArpVelo03;                 // (value range 0 -> 127)
+	float XArpVelo04;                 // (value range 0 -> 127)
+	float XArpVelo05;                 // (value range 0 -> 127)
+	float XArpVelo06;                 // (value range 0 -> 127)
+	float XArpVelo07;                 // (value range 0 -> 127)
+	float XArpVelo08;                 // (value range 0 -> 127)
+	float XArpVelo09;                 // index 776:779 (value range 0 -> 127)
+	float XArpVelo10;                 // index 780:783 (value range 0 -> 127)
+	float XArpVelo11;                 // index 784:787 (value range 0 -> 127)
+	float XArpVelo12;                 // index 788:791 (value range 0 -> 127)
+	float XArpVelo13;                 // index 792:795 (value range 0 -> 127)
+	float XArpVelo14;                 // index 796:799 (value range 0 -> 127)
+	float XArpVelo15;                 // index 800:803 (value range 0 -> 127)
+	float XArpVelo16;                 // index 804:807 (value range 0 -> 127)
+	float XModEnv1Dest1Am;            // index 808:811 (value range -10 -> 10)
+	float XModEnv1Dest2Am;            // index 812:815 (value range -10 -> 10)
+	float XModEnv2Dest1Am;            // index 816:819 (value range -10 -> 10)
+	float XModEnv2Dest2Am;            // index 820:823 (value range -10 -> 10)
+	float XModLFO1Dest1Am;            // index 824:827 (value range -10 -> 10)
+	float XModLFO1Dest2Am;            // index 828:831 (value range -10 -> 10)
+	float XModLFO2Dest1Am;            // index 832:835 (value range -10 -> 10)
+	float XModLFO2Dest2Am;            // index 836:839 (value range -10 -> 10)
+	float XModMisc1ADest1Am;          // index 840:843 (value range -10 -> 10)
+	float XModMisc1ADest2Am;          // index 844:847 (value range -10 -> 10)
+	XMODSOURCE XModMisc1ASource;      // index 848:851 
+	float XModMisc1BDest1Am;          // index 852:855 (value range -10 -> 10)
+	float XModMisc1BDest2Am;          // index 856:859 (value range -10 -> 10)
+	XMODSOURCE XModMisc1BSource;      // index 860:863 
+	float XModMisc2ADest1Am;          // index 864:867 (value range -10 -> 10)
+	float XModMisc2ADest2Am;          // index 868:871 (value range -10 -> 10)
+	XMODSOURCE XModMisc2ASource;      // index 872:875 
+	float XModMisc2BDest1Am;          // index 876:879 (value range -10 -> 10)
+	float XModMisc2BDest2Am;          // index 880:883 (value range -10 -> 10)
+	XMODSOURCE XModMisc2BSource;      // index 884:887 
+	ONOFF XSwArpOnOff;                // index 890:891 
+	ONOFF XSwChorusOnOff;             // index 894:895 
+	ONOFF XSwCompOnOff;               // index 898:899 
+	ONOFF XSwDelayOnOff;              // index 902:903 
+	ONOFF XSwDistOnOff;               // index 906:907 
+	ONOFF XSwEQOnOff;                 // index 910:911 
+	ONOFF XSwPhaserOnOff;             // index 914:915 
+	ONOFF XSwReverbOnOff;             // index 918:919 
+	YMODDEST YModEnv1Dest1;           // index 922:923 
+	YMODDEST YModEnv1Dest2;           // index 926:927 
+	YMODDEST YModEnv2Dest1;           // index 930:931 
+	YMODDEST YModEnv2Dest2;           // index 934:935 
+	YMODDEST YModLFO1Dest1;          // index 939:939 
+	YMODDEST YModLFO1Dest2;          // index 942:943 
+	YMODDEST YModLFO2Dest1;          // index 946:947 
+	YMODDEST YModLFO2Dest2;          // index 950:951 
+	YMODDEST YModMisc1ADest1;        // index 954:955 
+	YMODDEST YModMisc1ADest2;        // index 958:959 
+	YMODDEST YModMisc1BDest1;        // index 962:963 
+	YMODDEST YModMisc1BDest2;        // index 966:967 
+	YMODDEST YModMisc2ADest1;        // index 970:971 
+	YMODDEST YModMisc2ADest2;        // index 974:975 
+	YMODDEST YModMisc2BDest1;        // index 978:979 
+	YMODDEST YModMisc2BDest2;        // index 982:983 
+	YPARTSELECT YPartSelect;         // index 986:987 
+	ZEQMODE ZEQMode;                 // index 990:991 
+} syl1PresetCONTENT;
+
+typedef struct {
+    char chunkMagic[4];     // 'CcnK'
+    long byteSize;          // of this chunk, excl. magic + byteSize
+    char fxMagic[4];        // 'FxCk', 'FxBk', 'FBCh' or 'FPCh'
+} fxHEADER;
+
+//--------------------------------------------------------------------
+// For Preset (Program) (.fxp) without chunk (magic = 'FxCk')
+//--------------------------------------------------------------------
+typedef struct {
+    char chunkMagic[4];     // 'CcnK'
+    long byteSize;          // of this chunk, excl. magic + byteSize
+    char fxMagic[4];        // 'FxCk'
+    long version;
+    char fxID[4];           // fx unique id
+    long fxVersion;
+    long numParams;
+    char prgName[28];
+    float params[numParams];        // variable no. of parameters
+} fxProgram;
+typedef struct {
+    long version;
+    char fxID[4];           // fx unique id
+    long fxVersion;
+    long numParams;
+    char prgName[28];
+    float params[numParams];        // variable no. of parameters
+} fxProgramPart;
+
+//--------------------------------------------------------------------
+// For Bank (.fxb) without chunk (magic = 'FxBk')
+//--------------------------------------------------------------------
+typedef struct {
+    char chunkMagic[4];     // 'CcnK'
+    long byteSize;          // of this chunk, excl. magic + byteSize
+    char fxMagic[4];        // 'FxBk'
+    long version;
+    char fxID[4];           // fx unique id
+    long fxVersion;
+    long numPrograms;
+    char future[128];
+    fxProgram programs[numPrograms];  // variable no. of programs
+} fxSet;
+typedef struct {
+    SetBackColor( cLtGray );
+    long version;
+    char fxID[4];           // fx unique id
+    long fxVersion;
+    long numPrograms;
+    char future[128];
+    fxProgram programs[numPrograms];  // variable no. of programs
+} fxSetPart;
+
+//--------------------------------------------------------------------
+// For Bank (.fxb) with chunk (magic = 'FBCh')
+//--------------------------------------------------------------------
+typedef struct 
+{
+    char chunkMagic[4];     // 'CcnK'
+    long byteSize;          // of this chunk, excl. magic + byteSize
+    char fxMagic[4];        // 'FBCh'
+    long version;
+    char fxID[4];           // fx unique id
+    long fxVersion;
+    long numPrograms;
+    char future[128];
+    long chunkSize;
+    unsigned char chunkData[chunkSize];          
+} fxChunkSet;
+typedef struct 
+{
+    SetBackColor( cLtGray );
+    long version;
+    char fxID[4];           // fx unique id
+    long fxVersion;
+    long numPrograms;
+    char future[128];
+    long chunkSize;
+    SetBackColor( cLtBlue );
+    unsigned char chunkData[chunkSize];          
+} fxChunkSetPart;
+
+//--------------------------------------------------------------------
+// For Preset (Program) (.fxp) with chunk (magic = 'FPCh')
+//--------------------------------------------------------------------
+typedef struct 
+{
+    char chunkMagic[4];     // 'CcnK'
+    long byteSize;          // of this chunk, excl. magic + byteSize
+    char fxMagic[4];        // 'FPCh'
+    long version;
+    char fxID[4];           // fx unique id
+    long fxVersion;
+    long numPrograms;
+    char name[28];
+    long chunkSize;
+    unsigned char chunkData[chunkSize];           
+} fxProgramSet;
+typedef struct 
+{
+    SetBackColor( cLtGray );
+    long version;
+    char fxID[4];           // fx unique id
+    long fxVersion;
+    long numPrograms;
+    char name[28];
+    long chunkSize;
+
+	// if Sylenth 1 preset format
+	if (fxID == "syl1") { 
+		LittleEndian();
+        SetBackColor( cLtBlue );
+		syl1PresetHEADER header;
+		SetBackColor( cLtYellow );
+		syl1PresetCONTENT content;
+		SetBackColor( cLtGray );
+		syl1PresetFOOTER footer;
+	} else {
+		SetBackColor( cLtBlue );	
+		unsigned char chunkData[chunkSize];           	
+	}
+} fxProgramSetPart;
+
+BigEndian(); 
+
+SetBackColor( cLtYellow );
+fxHEADER header;
+
+if (header.fxMagic == "FxCk") {
+    fxProgramPart chunk;
+} else if (header.fxMagic == "FPCh") {
+    fxProgramSetPart chunk;
+} else if (header.fxMagic == "FxBk") {
+    fxSetPart chunk;
+} else if (header.fxMagic == "FBCh") {
+    //fxChunkSetPart chunk; 
+    SetBackColor( cLtGray );
+    long version;
+    char fxID[4];           // fx unique id (CVFS)
+    long fxVersion;
+    long numPrograms;
+    char future[128];
+    long chunkSize;
+
+    // if CVFS format
+    if (fxID == "CVFS") {
+        SetBackColor( cLtBlue );
+        LittleEndian();
+        long chunkSize;
+        long version;
+        long fxVersion;
+        char id[4];             // SFVC
+        long version2;
+        long dataSize;
+        char id2[4];            // tsPX
+        unsigned char chunkData[dataSize]; // PresetChunkXMLTree   
+        long end;
+    } else {
+        SetBackColor( cLtBlue );
+        unsigned char chunkData[chunkSize];
+    }
+}
+
+
