@@ -19,7 +19,7 @@ namespace ProcessVSTPlugin
 			CamelCase
 		}
 
-	
+		
 		/// <summary>
 		/// Converts the phrase to specified convention.
 		/// </summary>
@@ -62,14 +62,18 @@ namespace ProcessVSTPlugin
 			return s;
 		}
 		
-		public static string ToHexAndAsciiString(byte[] b) {
+		public static string ToHexAndAsciiString(byte[] b, bool invert) {
 			StringBuilder strb = new StringBuilder();
 			StringBuilder text = new StringBuilder();
 			if (b != null) {
+				byte [] bClone = (byte[])b.Clone();
+				if (invert) {
+					Array.Reverse(bClone);
+				}
 				char [] ch = new char [1];
-				for (int x = 0; x < b.Length; x++)
+				for (int x = 0; x < bClone.Length; x++)
 				{
-					ch[0] = (char) b[x];
+					ch[0] = (char) bClone[x];
 					strb.AppendFormat ("{0,0:X2} ", (int) ch[0]);
 					
 					if (((int) ch[0] < 32) || ((int) ch[0] > 127))

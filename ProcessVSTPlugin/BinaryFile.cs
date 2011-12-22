@@ -6,10 +6,6 @@ public class BinaryFile {
 	/*
 	 * Class for reading and writing binary files.
 	 * 
-	 * An alternative for the conversion in this file is to use:
-	 * (UInt32) IPAddress.HostToNetworkOrder(byteSize)
-	 * longValue = IPAddress.HostToNetworkOrder(longValue);
-	 * 
 	 * It's overloaded to handle shorts, ints, and longs. Or use:
 	 * BitConverter.ToInt32(ReadBytes(reader, 4, ByteOrder.BigEndian), 0);
 	 * 
@@ -447,7 +443,6 @@ public class BinaryFile {
     int16/System.Int16    short    Signed 16-bit integer
     int32/System.Int32    int      Signed 32-bit integer
     int64/System.Int64    long     Signed 64-bit integer
-	 */
 	public static byte[] ShortToByteArray(short value, bool invert) {
 		if (invert) {
 			return new byte[] {
@@ -531,24 +526,24 @@ public class BinaryFile {
 		}
 		return l;
 	}
-	
-	/**
-	 * Convert the byte array to an int.
-	 *
-	 * @param b The byte array
-	 * @return The integer
-	 */
+
+	//
+	// Convert the byte array to an int.
+	//
+	// @param b The byte array
+	// @return The integer
+	//
 	public static int FourByteArrayToInt(byte[] b) {
 		return FourByteArrayToInt(b, 0);
 	}
 
-	/**
-	 * Convert the byte array to an int starting from the given offset.
-	 *
-	 * @param b The byte array
-	 * @param offset The array offset
-	 * @return The integer
-	 */
+	 //
+	 // Convert the byte array to an int starting from the given offset.
+	 //
+	 // @param b The byte array
+	 // @param offset The array offset
+	 // @return The integer
+	 //
 	public static int FourByteArrayToInt(byte[] b, int offset) {
 		int value = 0;
 		for (int i = 0; i < 4; i++) {
@@ -557,7 +552,69 @@ public class BinaryFile {
 		}
 		return value;
 	}
+	 */
+	
+	public static float ByteArrayToSingle(byte [] b, ByteOrder byteOrder) {
+		if (b == null || b.Length < 4) return -1;
+		
+		if (byteOrder == ByteOrder.LittleEndian)
+		{
+			return BitConverter.ToSingle(b, 0);
+		}
+		else // Big-Endian
+		{
+			byte [] bClone = (byte[])b.Clone();
+			Array.Reverse(bClone);
+			return BitConverter.ToSingle(bClone, 0);
+		}
+	}
 
+	public static Int16 ByteArrayToInt16(byte [] b, ByteOrder byteOrder) {
+		if (b == null || b.Length < 2) return -1;
+
+		if (byteOrder == ByteOrder.LittleEndian)
+		{
+			return BitConverter.ToInt16(b, 0);
+		}
+		else // Big-Endian
+		{
+			byte [] bClone = (byte[])b.Clone();
+			Array.Reverse(bClone);
+			return BitConverter.ToInt16(bClone, 0);
+		}
+	}
+
+	public static Int32 ByteArrayToInt32(byte [] b, ByteOrder byteOrder) {
+		if (b == null || b.Length < 4) return -1;
+
+		if (byteOrder == ByteOrder.LittleEndian)
+		{
+			return BitConverter.ToInt32(b, 0);
+		}
+		else // Big-Endian
+		{
+			byte [] bClone = (byte[])b.Clone();
+			Array.Reverse(bClone);
+			return BitConverter.ToInt32(bClone, 0);
+		}
+	}
+	
+	public static Int64 ByteArrayToInt64(byte [] b, ByteOrder byteOrder) {
+		if (b == null || b.Length < 8) return -1;
+
+		if (byteOrder == ByteOrder.LittleEndian)
+		{
+			return BitConverter.ToInt64(b, 0);
+		}
+		else // Big-Endian
+		{
+			byte [] bClone = (byte[])b.Clone();
+			Array.Reverse(bClone);
+			return BitConverter.ToInt64(bClone, 0);
+		}
+	}
+
+	
 	public static int HexToInt(string sHexString) {
 		return Convert.ToInt32(sHexString, 16);
 	}

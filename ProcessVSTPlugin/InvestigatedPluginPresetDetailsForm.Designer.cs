@@ -42,6 +42,8 @@ namespace ProcessVSTPlugin
 			this.checkBox1 = new System.Windows.Forms.CheckBox();
 			this.label3 = new System.Windows.Forms.Label();
 			this.TrackPresetTextBox = new System.Windows.Forms.TextBox();
+			this.ValueTextBox = new System.Windows.Forms.TextBox();
+			this.LittleEndianCheckBox = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -58,9 +60,10 @@ namespace ProcessVSTPlugin
 			this.dataGridView1.Location = new System.Drawing.Point(0, 33);
 			this.dataGridView1.Name = "dataGridView1";
 			this.dataGridView1.ReadOnly = true;
-			this.dataGridView1.Size = new System.Drawing.Size(745, 282);
+			this.dataGridView1.Size = new System.Drawing.Size(774, 282);
 			this.dataGridView1.TabIndex = 0;
 			this.dataGridView1.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.DataGridView1RowsAdded);
+			this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellDoubleClick);			
 			// 
 			// UpdateBtn
 			// 
@@ -74,7 +77,7 @@ namespace ProcessVSTPlugin
 			// 
 			// CSVDumpBtn
 			// 
-			this.CSVDumpBtn.Location = new System.Drawing.Point(515, 6);
+			this.CSVDumpBtn.Location = new System.Drawing.Point(552, 6);
 			this.CSVDumpBtn.Name = "CSVDumpBtn";
 			this.CSVDumpBtn.Size = new System.Drawing.Size(106, 23);
 			this.CSVDumpBtn.TabIndex = 2;
@@ -100,7 +103,7 @@ namespace ProcessVSTPlugin
 			// 
 			// XMLDumpBtn
 			// 
-			this.XMLDumpBtn.Location = new System.Drawing.Point(627, 6);
+			this.XMLDumpBtn.Location = new System.Drawing.Point(664, 6);
 			this.XMLDumpBtn.Name = "XMLDumpBtn";
 			this.XMLDumpBtn.Size = new System.Drawing.Size(106, 23);
 			this.XMLDumpBtn.TabIndex = 5;
@@ -111,7 +114,7 @@ namespace ProcessVSTPlugin
 			// label2
 			// 
 			this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.label2.Location = new System.Drawing.Point(300, 326);
+			this.label2.Location = new System.Drawing.Point(242, 326);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(70, 18);
 			this.label2.TabIndex = 8;
@@ -120,7 +123,7 @@ namespace ProcessVSTPlugin
 			// label4
 			// 
 			this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.label4.Location = new System.Drawing.Point(413, 325);
+			this.label4.Location = new System.Drawing.Point(353, 325);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(41, 18);
 			this.label4.TabIndex = 10;
@@ -129,20 +132,20 @@ namespace ProcessVSTPlugin
 			// TrackPositionTextBox
 			// 
 			this.TrackPositionTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.TrackPositionTextBox.Location = new System.Drawing.Point(228, 324);
+			this.TrackPositionTextBox.Location = new System.Drawing.Point(185, 324);
 			this.TrackPositionTextBox.MaxLength = 8;
 			this.TrackPositionTextBox.Name = "TrackPositionTextBox";
-			this.TrackPositionTextBox.Size = new System.Drawing.Size(66, 20);
+			this.TrackPositionTextBox.Size = new System.Drawing.Size(54, 20);
 			this.TrackPositionTextBox.TabIndex = 11;
 			this.TrackPositionTextBox.TextChanged += new System.EventHandler(this.TrackPositionTextBoxTextChanged);
 			// 
 			// NumberOfBytesTextBox
 			// 
 			this.NumberOfBytesTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.NumberOfBytesTextBox.Location = new System.Drawing.Point(377, 323);
+			this.NumberOfBytesTextBox.Location = new System.Drawing.Point(319, 323);
 			this.NumberOfBytesTextBox.MaxLength = 2;
 			this.NumberOfBytesTextBox.Name = "NumberOfBytesTextBox";
-			this.NumberOfBytesTextBox.Size = new System.Drawing.Size(30, 20);
+			this.NumberOfBytesTextBox.Size = new System.Drawing.Size(28, 20);
 			this.NumberOfBytesTextBox.TabIndex = 12;
 			this.NumberOfBytesTextBox.TextChanged += new System.EventHandler(this.NumberOfBytesTextBoxTextChanged);
 			// 
@@ -151,16 +154,16 @@ namespace ProcessVSTPlugin
 			this.checkBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.checkBox1.Location = new System.Drawing.Point(12, 324);
 			this.checkBox1.Name = "checkBox1";
-			this.checkBox1.Size = new System.Drawing.Size(129, 18);
+			this.checkBox1.Size = new System.Drawing.Size(94, 18);
 			this.checkBox1.TabIndex = 13;
-			this.checkBox1.Text = "Track Preset Chunk?";
+			this.checkBox1.Text = "Track Chunk?";
 			this.checkBox1.UseVisualStyleBackColor = true;
 			this.checkBox1.CheckedChanged += new System.EventHandler(this.CheckBox1CheckedChanged);
 			// 
 			// label3
 			// 
 			this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.label3.Location = new System.Drawing.Point(147, 326);
+			this.label3.Location = new System.Drawing.Point(104, 326);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(78, 18);
 			this.label3.TabIndex = 9;
@@ -169,17 +172,38 @@ namespace ProcessVSTPlugin
 			// TrackPresetTextBox
 			// 
 			this.TrackPresetTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.TrackPresetTextBox.Location = new System.Drawing.Point(459, 321);
+			this.TrackPresetTextBox.Location = new System.Drawing.Point(399, 321);
 			this.TrackPresetTextBox.Name = "TrackPresetTextBox";
 			this.TrackPresetTextBox.ReadOnly = true;
-			this.TrackPresetTextBox.Size = new System.Drawing.Size(274, 20);
+			this.TrackPresetTextBox.Size = new System.Drawing.Size(106, 20);
 			this.TrackPresetTextBox.TabIndex = 14;
+			// 
+			// ValueTextBox
+			// 
+			this.ValueTextBox.Location = new System.Drawing.Point(511, 321);
+			this.ValueTextBox.Name = "ValueTextBox";
+			this.ValueTextBox.ReadOnly = true;
+			this.ValueTextBox.Size = new System.Drawing.Size(169, 20);
+			this.ValueTextBox.TabIndex = 15;
+			// 
+			// LittleEndianCheckBox
+			// 
+			this.LittleEndianCheckBox.Checked = true;
+			this.LittleEndianCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.LittleEndianCheckBox.Location = new System.Drawing.Point(686, 321);
+			this.LittleEndianCheckBox.Name = "LittleEndianCheckBox";
+			this.LittleEndianCheckBox.Size = new System.Drawing.Size(84, 24);
+			this.LittleEndianCheckBox.TabIndex = 16;
+			this.LittleEndianCheckBox.Text = "Little Endian";
+			this.LittleEndianCheckBox.UseVisualStyleBackColor = true;
 			// 
 			// InvestigatedPluginPresetDetailsForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(745, 348);
+			this.ClientSize = new System.Drawing.Size(774, 348);
+			this.Controls.Add(this.LittleEndianCheckBox);
+			this.Controls.Add(this.ValueTextBox);
 			this.Controls.Add(this.TrackPresetTextBox);
 			this.Controls.Add(this.checkBox1);
 			this.Controls.Add(this.NumberOfBytesTextBox);
@@ -199,6 +223,8 @@ namespace ProcessVSTPlugin
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.CheckBox LittleEndianCheckBox;
+		private System.Windows.Forms.TextBox ValueTextBox;
 		private System.Windows.Forms.TextBox TrackPresetTextBox;
 		private System.Windows.Forms.CheckBox checkBox1;
 		private System.Windows.Forms.TextBox NumberOfBytesTextBox;

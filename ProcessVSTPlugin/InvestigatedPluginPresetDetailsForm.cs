@@ -153,7 +153,18 @@ namespace ProcessVSTPlugin
 				if (((HostCommandStub) PluginContext.HostCommandStub).DoTrackPluginPresetFileFormat) {
 					TrackPresetTextBox.Text = "";
 					byte[] trackedBytes = ((HostCommandStub) PluginContext.HostCommandStub).TrackPluginPresetFileBytes;
-					TrackPresetTextBox.Text = StringUtils.ToHexAndAsciiString(trackedBytes);
+					
+					BinaryFile.ByteOrder bOrder = BinaryFile.ByteOrder.BigEndian;
+					bool invert = false;
+					if (LittleEndianCheckBox.Checked) {
+						bOrder = BinaryFile.ByteOrder.LittleEndian;
+						invert = true;
+					}
+					TrackPresetTextBox.Text = StringUtils.ToHexAndAsciiString(trackedBytes, invert);
+					
+					int i = BinaryFile.ByteArrayToInt32(trackedBytes, bOrder);
+					float f = BinaryFile.ByteArrayToSingle(trackedBytes, bOrder);
+					ValueTextBox.Text = String.Format("int: {0} float: {1:00.0000}", i, f);
 				}
 			}
 		}
@@ -182,9 +193,34 @@ namespace ProcessVSTPlugin
 			int.TryParse(this.NumberOfBytesTextBox.Text, out numBytes);
 			((HostCommandStub) PluginContext.HostCommandStub).TrackPluginPresetFileNumberOfBytes = numBytes;
 		}
+
+		private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+		{
+			try
+			{
+				checkBox1.Checked = true;
+				((HostCommandStub) PluginContext.HostCommandStub).DoTrackPluginPresetFileFormat = true;
+				
+				if (NumberOfBytesTextBox.Text == "") {
+					NumberOfBytesTextBox.Text = "4";
+					int numBytes = 0;
+					int.TryParse(this.NumberOfBytesTextBox.Text, out numBytes);
+					((HostCommandStub) PluginContext.HostCommandStub).TrackPluginPresetFileNumberOfBytes = numBytes;					
+				}
+				
+				string sindex = dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells["IndexInFile"].Value.ToString();
+				this.TrackPositionTextBox.Text = sindex;
+				
+				int pos = 0;
+				int.TryParse(this.TrackPositionTextBox.Text, out pos);
+				((HostCommandStub) PluginContext.HostCommandStub).TrackPluginPresetFilePosition = pos;
+			}
+			catch (Exception)
+			{
+			}
+			
+		}
 	}
 }
-
-
 
 
