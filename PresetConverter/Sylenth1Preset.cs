@@ -9,6 +9,7 @@ namespace PresetConverter
 	/// </summary>
 	public class Sylenth1Preset
 	{
+		#region Sylenth Enums
 		public enum ARPMODE : uint {
 			Chord      = 0x00003F80,
 			Down       = 0x3DE38E39,
@@ -55,14 +56,18 @@ namespace PresetConverter
 			OverDrv = 0x00000000
 		}
 
-		public enum FILTERINPUT : uint {
-			FILTER_B     = 0x00000000,
+		public enum FILTERAINPUT : uint {
 			FILTER_A     = 0x00000000,
-			FILTER_B_A   = 0x3F000000,
 			FILTER_A_B   = 0x3F000000,
 			FILTER_None  = 0x3F800000
 		}
 
+		public enum FILTERBINPUT : uint {
+			FILTER_B     = 0x00000000,
+			FILTER_B_A   = 0x3F000000,
+			FILTER_None  = 0x3F800000
+		}
+		
 		public enum FILTERTYPE : uint {
 			Highpass= 0x3F800000,
 			Bandpass= 0x3F2AAAAB,
@@ -179,6 +184,7 @@ namespace PresetConverter
 			VOICES_7       = 0x3F600000,
 			VOICES_8       = 0x3F800000
 		}		
+		#endregion 
 		
 		public Syl1PresetContent Content { set; get; }
 		public string PresetName { set; get; }
@@ -566,13 +572,13 @@ namespace PresetConverter
 			public float EQTrebleFreq;               // index 184:187 (value range 440 -> 28160)
 			public float FilterACutoff;              // index 188:191 (value range 1 -> 21341,28)
 			public float FilterADrive;               // index 192:195 (value range 0 -> 10)
-			public FILTERINPUT FilterAInput;         // index 198:199
+			public FILTERAINPUT FilterAInput;         // index 198:199
 			public float FilterAReso;                // index 200:203 (value range 0 -> 10)
 			public FILTERTYPE FilterAType;           // index 204:207
 			public float FilterADB;                  // index 210:211 (value range 12 -> 12)
 			public float FilterBCutoff;              // index 212:215 (value range 1 -> 21341,28)
 			public float FilterBDrive;               // index 216:219 (value range 0 -> 10)
-			public FILTERINPUT FilterBInput;         // index 222:223
+			public FILTERBINPUT FilterBInput;         // index 222:223
 			public float FilterBReso;                // index 224:227 (value range 0 -> 10)
 			public FILTERTYPE FilterBType;           // index 228:231
 			public float FilterBDB;                  // index 234:235 (value range 12 -> 24)
@@ -811,13 +817,13 @@ namespace PresetConverter
 				this.EQTrebleFreq = bFile.ReadSingle();               // index 184:187 (value range 440 -> 28160)
 				this.FilterACutoff = bFile.ReadSingle();              // index 188:191 (value range 1 -> 21341,28)
 				this.FilterADrive = bFile.ReadSingle();               // index 192:195 (value range 0 -> 10)
-				this.FilterAInput = (FILTERINPUT) bFile.ReadUInt32();         // index 198:199
+				this.FilterAInput = (FILTERAINPUT) bFile.ReadUInt32();         // index 198:199
 				this.FilterAReso = bFile.ReadSingle();                // index 200:203 (value range 0 -> 10)
 				this.FilterAType = (FILTERTYPE) bFile.ReadUInt32();           // index 204:207
 				this.FilterADB = bFile.ReadSingle();                  // index 210:211 (value range 12 -> 12)
 				this.FilterBCutoff = bFile.ReadSingle();              // index 212:215 (value range 1 -> 21341,28)
 				this.FilterBDrive = bFile.ReadSingle();               // index 216:219 (value range 0 -> 10)
-				this.FilterBInput = (FILTERINPUT) bFile.ReadUInt32();         // index 222:223
+				this.FilterBInput = (FILTERBINPUT) bFile.ReadUInt32();         // index 222:223
 				this.FilterBReso = bFile.ReadSingle();                // index 224:227 (value range 0 -> 10)
 				this.FilterBType = (FILTERTYPE) bFile.ReadUInt32();           // index 228:231
 				this.FilterBDB = bFile.ReadSingle();                  // index 234:235 (value range 12 -> 24)
