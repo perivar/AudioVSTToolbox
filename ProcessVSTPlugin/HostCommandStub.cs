@@ -359,7 +359,7 @@ namespace ProcessVSTPlugin
 								
 								// store each of the chunk differences in a list
 								foreach (SimpleBinaryDiff.DiffPoint point in diff.Points) {
-									this.investigatedPluginPresetFileFormatList.Add(
+									this.InvestigatedPluginPresetFileFormatList.Add(
 										new InvestigatedPluginPresetFileFormat(point.Index, point.NewValue, name, label, display));
 								}
 							}
@@ -383,7 +383,7 @@ namespace ProcessVSTPlugin
 								if (text != "") {
 									System.Diagnostics.Debug.WriteLine(String.Format("TextDiff: {0} {1}", e.Index, text));
 									
-									this.investigatedPluginPresetFileFormatList.Add(
+									this.InvestigatedPluginPresetFileFormatList.Add(
 										new InvestigatedPluginPresetFileFormat(e.Index, 0, name, label, display, text));
 								}
 							}

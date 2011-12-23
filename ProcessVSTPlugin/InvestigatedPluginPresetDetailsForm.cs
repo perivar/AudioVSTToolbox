@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 
+using System.Globalization;
+
 using Equin.ApplicationFramework; // for BindingListView
 using System.ComponentModel; // for BindingList
 using System.Data; // for DataTable
@@ -11,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Xml;
+using System.Xml.Linq;
 
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
@@ -25,6 +28,8 @@ namespace ProcessVSTPlugin
 	{
 		public VstPluginContext PluginContext { get; set; }
 
+		private List<InvestigatedPluginPresetFileFormat> trackChunkList;
+		
 		private BindingList<InvestigatedPluginPresetFileFormat> investigatedPluginPresetFileFormatList;
 		private BindingListView<InvestigatedPluginPresetFileFormat> investigatedPluginPresetFileFormatView;
 		
@@ -53,6 +58,8 @@ namespace ProcessVSTPlugin
 						return format.ParameterName.Contains(FilterTextBox.Text);
 					});
 			};
+			
+			trackChunkList = new List<InvestigatedPluginPresetFileFormat>();
 		}
 
 		private void updateDataGridView()
@@ -165,6 +172,51 @@ namespace ProcessVSTPlugin
 					int i = BinaryFile.ByteArrayToInt32(trackedBytes, bOrder);
 					float f = BinaryFile.ByteArrayToSingle(trackedBytes, bOrder);
 					ValueTextBox.Text = String.Format("int: {0} float: {1:00.0000}", i, f);
+					
+					// store these values in a tracking list together with the ParameterDisplay Value
+					string paramName = dataGridView1["ParameterName", nRowIndex].Value.ToString();
+					string paramValue = dataGridView1["ParameterDisplay", nRowIndex].Value.ToString().Trim();
+					InvestigatedPluginPresetFileFormat row = new InvestigatedPluginPresetFileFormat(0, 0, paramName, "", paramValue, String.Format("{0:00.0000}",f));
+					
+					// store this in a xml ouput file.
+					string xmlFilePath = "track-chunk-dump.xml";
+					if (File.Exists(xmlFilePath)) {
+						// add to existing xml document if the entry does not exist from before.
+						XDocument xmlDoc = XDocument.Load(xmlFilePath);
+						
+						var query = from r in xmlDoc.Element("TrackedPresetFileChanges")
+							.Elements("Row")
+							where r.Element("ParameterName").Value == paramName 
+							&& r.Element("ParameterDisplay").Value == paramValue 
+							&& Convert.ToSingle(r.Element("FloatValue").Value, CultureInfo.InvariantCulture) == f 
+							&& Convert.ToInt32(r.Element("IntValue").Value) == i
+							select r;
+						
+						if (query.Count() == 0) {
+							xmlDoc.Element("TrackedPresetFileChanges").Add(
+								new XElement("Row",
+								             new XElement("ParameterName", paramName),
+								             new XElement("ParameterDisplay", paramValue),
+								             new XElement("FloatValue", f),
+								             new XElement("IntValue", i)));
+
+							xmlDoc.Save(xmlFilePath);
+						}
+					} else {
+						// create xml document first
+						XDocument xmlDoc =
+							new XDocument(
+								new XElement("TrackedPresetFileChanges",
+								             new XElement("Row",
+								                          new XElement("ParameterName", paramName),
+								                          new XElement("ParameterDisplay", paramValue),
+								                          new XElement("FloatValue", f),
+								                          new XElement("IntValue", i))
+								            )
+							);
+						xmlDoc.Save(xmlFilePath);
+					}
+					//trackChunkList.Add(row);
 				}
 			}
 		}
@@ -205,7 +257,7 @@ namespace ProcessVSTPlugin
 					NumberOfBytesTextBox.Text = "4";
 					int numBytes = 0;
 					int.TryParse(this.NumberOfBytesTextBox.Text, out numBytes);
-					((HostCommandStub) PluginContext.HostCommandStub).TrackPluginPresetFileNumberOfBytes = numBytes;					
+					((HostCommandStub) PluginContext.HostCommandStub).TrackPluginPresetFileNumberOfBytes = numBytes;
 				}
 				
 				string sindex = dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells["IndexInFile"].Value.ToString();
