@@ -123,6 +123,7 @@ public class FXP {
 		}
 
 		Console.Out.WriteLine("Writing FXP to {0} ...", filePath);
+		/*
 		Console.Out.WriteLine(">chunkMagic: {0}", chunkMagic);
 		Console.Out.WriteLine(">byteSize: {0}", byteSize);
 		Console.Out.WriteLine(">fxMagic: {0}", fxMagic);
@@ -133,6 +134,7 @@ public class FXP {
 		Console.Out.WriteLine(">name: {0}", name);
 		Console.Out.WriteLine(">future: {0}", future);
 		Console.Out.WriteLine(">chunkSize: {0}", chunkSize);
+		*/
 
 		bf.Write(chunkMagic);							// chunkMagic, 4
 
@@ -229,6 +231,7 @@ public class FXP {
 		bf.Close();
 
 		Console.Out.WriteLine("Loading FXP from {0} ...", filePath);
+		/*
 		Console.Out.WriteLine(">chunkMagic: {0}", chunkMagic);
 		Console.Out.WriteLine(">byteSize: {0}", byteSize);
 		Console.Out.WriteLine(">fxMagic: {0}", fxMagic);
@@ -239,6 +242,7 @@ public class FXP {
 		Console.Out.WriteLine(">name: {0}", name);
 		Console.Out.WriteLine(">future: {0}", future);
 		Console.Out.WriteLine(">chunkSize: {0}", chunkSize);
+		*/
 		
 		// read the xml chunk into memory
 		xmlDocument = new XmlDocument();
