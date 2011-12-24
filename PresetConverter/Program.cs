@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text;
+using System.IO;
 using CommandLine.Utility;
 
 namespace PresetConverter
@@ -12,13 +14,17 @@ namespace PresetConverter
 			string sylenthPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\Per Ivar - Test Preset (Zebra vs Sylenth).fxp";
 			//string zebraPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\Per Ivar - Test Preset (Zebra vs Sylenth).h2p";
 			//string zebraPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\Zebra2.data\Presets\Zebra2\initialize-extended.h2p";
-				string zebraPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter\initialize-extended2.h2p";
+			string zebraPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter\initialize-extended2.h2p";
 			
 			string zebraGeneratedPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter\Generated-Zebra2-Preset.h2p";
 			
 			Sylenth1Preset sylenth1 = new Sylenth1Preset(sylenthPreset);
 			//sylenth1.TransformToZebra2("");
-			Console.Out.WriteLine(sylenth1);
+			//Console.Out.WriteLine(sylenth1);
+			string outFilePath = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter\Sylenth1PresetOutput.txt";
+			TextWriter tw = new StreamWriter(outFilePath);
+			tw.WriteLine(sylenth1);
+			tw.Close();
 			
 			//Zebra2Preset zebra2 = new Zebra2Preset();
 			//zebra2.GenerateWriteMethod(zebraPreset, zebraPreset + ".txt");
