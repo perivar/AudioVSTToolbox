@@ -28,8 +28,6 @@ namespace ProcessVSTPlugin
 	{
 		public VstPluginContext PluginContext { get; set; }
 
-		private List<InvestigatedPluginPresetFileFormat> trackChunkList;
-		
 		private BindingList<InvestigatedPluginPresetFileFormat> investigatedPluginPresetFileFormatList;
 		private BindingListView<InvestigatedPluginPresetFileFormat> investigatedPluginPresetFileFormatView;
 		
@@ -58,8 +56,6 @@ namespace ProcessVSTPlugin
 						return format.ParameterName.Contains(FilterTextBox.Text);
 					});
 			};
-			
-			trackChunkList = new List<InvestigatedPluginPresetFileFormat>();
 		}
 
 		private void updateDataGridView()
@@ -186,9 +182,9 @@ namespace ProcessVSTPlugin
 						
 						var query = from r in xmlDoc.Element("TrackedPresetFileChanges")
 							.Elements("Row")
-							where r.Element("ParameterName").Value == paramName 
-							&& r.Element("ParameterDisplay").Value == paramValue 
-							&& Convert.ToSingle(r.Element("FloatValue").Value, CultureInfo.InvariantCulture) == f 
+							where r.Element("ParameterName").Value == paramName
+							&& r.Element("ParameterDisplay").Value == paramValue
+							&& Convert.ToSingle(r.Element("FloatValue").Value, CultureInfo.InvariantCulture) == f
 							&& Convert.ToInt32(r.Element("IntValue").Value) == i
 							select r;
 						
@@ -216,7 +212,6 @@ namespace ProcessVSTPlugin
 							);
 						xmlDoc.Save(xmlFilePath);
 					}
-					//trackChunkList.Add(row);
 				}
 			}
 		}
@@ -246,6 +241,7 @@ namespace ProcessVSTPlugin
 			((HostCommandStub) PluginContext.HostCommandStub).TrackPluginPresetFileNumberOfBytes = numBytes;
 		}
 
+		// set the indexinfile property for chunk tracking when double clicking on a cell
 		private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
 		{
 			try

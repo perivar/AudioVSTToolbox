@@ -134,7 +134,7 @@ public class FXP {
 		Console.Out.WriteLine(">name: {0}", name);
 		Console.Out.WriteLine(">future: {0}", future);
 		Console.Out.WriteLine(">chunkSize: {0}", chunkSize);
-		*/
+		 */
 
 		bf.Write(chunkMagic);							// chunkMagic, 4
 
@@ -242,14 +242,14 @@ public class FXP {
 		Console.Out.WriteLine(">name: {0}", name);
 		Console.Out.WriteLine(">future: {0}", future);
 		Console.Out.WriteLine(">chunkSize: {0}", chunkSize);
-		*/
+		 */
 		
 		// read the xml chunk into memory
 		xmlDocument = new XmlDocument();
 		try {
 			xmlDocument.LoadXml(chunkData);
 		} catch (XmlException) {
-			Console.Out.WriteLine("No XML found");
+			//Console.Out.WriteLine("No XML found");
 		}
 	}
 	
@@ -304,7 +304,7 @@ public class FXP {
 		try {
 			xmlDocument.LoadXml(chunkData);
 		} catch (XmlException) {
-			Console.Out.WriteLine("No XML found");
+			//Console.Out.WriteLine("No XML found");
 		}
 	}
 }
