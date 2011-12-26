@@ -9,7 +9,16 @@ namespace PresetConverter
 	/// </summary>
 	public class Sylenth1Preset
 	{
-		#region Sylenth Enums
+		#region Enums
+		private enum FloatToHz {
+			DelayLowCut,
+			DelayHighCut,
+			FilterCutoff,
+			EQBassFreq,
+			EQTrebleFreq,
+			LFORateFree
+		}
+		
 		public enum ARPMODE : uint {
 			Chord      = 0x00003F80,
 			Down       = 0x3DE38E39,
@@ -36,16 +45,198 @@ namespace PresetConverter
 			Single  = 0x00000000
 		}
 
-		// will not work this only works in ranges,
-		// i.e. use float instead
-		// logarithmic
-		public enum COMPRATIO : uint {
-			COMPRATIO___1_00_1 = 0x00000000,
-			COMPRATIO___1_01_1 = 0x3C6A0EA2,
-			COMPRATIO___1_02_1 = 0x3C9C09C1,
-			COMPRATIO___1_03_1 = 0x3CEA0EA2,
-			// logarithmic ...
-			COMPRATIO_100_00_1 = 0x800000
+		public enum COMPRATIO : int {
+			RATIO_UNKNOWN = -1,
+			RATIO_1_00_TO_ONE = 0,
+			RATIO_1_01_TO_ONE,
+			RATIO_1_02_TO_ONE,
+			RATIO_1_03_TO_ONE,
+			RATIO_1_04_TO_ONE,
+			RATIO_1_05_TO_ONE,
+			RATIO_1_06_TO_ONE,
+			RATIO_1_07_TO_ONE,
+			RATIO_1_08_TO_ONE,
+			RATIO_1_09_TO_ONE,
+			RATIO_1_10_TO_ONE,
+			RATIO_1_11_TO_ONE,
+			RATIO_1_12_TO_ONE,
+			RATIO_1_13_TO_ONE,
+			RATIO_1_14_TO_ONE,
+			RATIO_1_15_TO_ONE,
+			RATIO_1_16_TO_ONE,
+			RATIO_1_17_TO_ONE,
+			RATIO_1_18_TO_ONE,
+			RATIO_1_19_TO_ONE,
+			RATIO_1_20_TO_ONE,
+			RATIO_1_21_TO_ONE,
+			RATIO_1_22_TO_ONE,
+			RATIO_1_23_TO_ONE,
+			RATIO_1_24_TO_ONE,
+			RATIO_1_25_TO_ONE,
+			RATIO_1_26_TO_ONE,
+			RATIO_1_27_TO_ONE,
+			RATIO_1_28_TO_ONE,
+			RATIO_1_29_TO_ONE,
+			RATIO_1_30_TO_ONE,
+			RATIO_1_31_TO_ONE,
+			RATIO_1_32_TO_ONE,
+			RATIO_1_33_TO_ONE,
+			RATIO_1_34_TO_ONE,
+			RATIO_1_35_TO_ONE,
+			RATIO_1_36_TO_ONE,
+			RATIO_1_37_TO_ONE,
+			RATIO_1_38_TO_ONE,
+			RATIO_1_39_TO_ONE,
+			RATIO_1_40_TO_ONE,
+			RATIO_1_41_TO_ONE,
+			RATIO_1_42_TO_ONE,
+			RATIO_1_43_TO_ONE,
+			RATIO_1_44_TO_ONE,
+			RATIO_1_45_TO_ONE,
+			RATIO_1_46_TO_ONE,
+			RATIO_1_47_TO_ONE,
+			RATIO_1_48_TO_ONE,
+			RATIO_1_49_TO_ONE,
+			RATIO_1_50_TO_ONE,
+			RATIO_1_51_TO_ONE,
+			RATIO_1_52_TO_ONE,
+			RATIO_1_54_TO_ONE,
+			RATIO_1_55_TO_ONE,
+			RATIO_1_56_TO_ONE,
+			RATIO_1_57_TO_ONE,
+			RATIO_1_58_TO_ONE,
+			RATIO_1_60_TO_ONE,
+			RATIO_1_61_TO_ONE,
+			RATIO_1_62_TO_ONE,
+			RATIO_1_63_TO_ONE,
+			RATIO_1_64_TO_ONE,
+			RATIO_1_66_TO_ONE,
+			RATIO_1_67_TO_ONE,
+			RATIO_1_68_TO_ONE,
+			RATIO_1_70_TO_ONE,
+			RATIO_1_71_TO_ONE,
+			RATIO_1_73_TO_ONE,
+			RATIO_1_74_TO_ONE,
+			RATIO_1_75_TO_ONE,
+			RATIO_1_78_TO_ONE,
+			RATIO_1_79_TO_ONE,
+			RATIO_1_80_TO_ONE,
+			RATIO_1_81_TO_ONE,
+			RATIO_1_83_TO_ONE,
+			RATIO_1_84_TO_ONE,
+			RATIO_1_86_TO_ONE,
+			RATIO_1_88_TO_ONE,
+			RATIO_1_90_TO_ONE,
+			RATIO_1_91_TO_ONE,
+			RATIO_1_93_TO_ONE,
+			RATIO_1_95_TO_ONE,
+			RATIO_1_96_TO_ONE,
+			RATIO_1_98_TO_ONE,
+			RATIO_2_00_TO_ONE,
+			RATIO_2_02_TO_ONE,
+			RATIO_2_04_TO_ONE,
+			RATIO_2_06_TO_ONE,
+			RATIO_2_08_TO_ONE,
+			RATIO_2_10_TO_ONE,
+			RATIO_2_12_TO_ONE,
+			RATIO_2_14_TO_ONE,
+			RATIO_2_16_TO_ONE,
+			RATIO_2_18_TO_ONE,
+			RATIO_2_21_TO_ONE,
+			RATIO_2_23_TO_ONE,
+			RATIO_2_25_TO_ONE,
+			RATIO_2_28_TO_ONE,
+			RATIO_2_30_TO_ONE,
+			RATIO_2_33_TO_ONE,
+			RATIO_2_35_TO_ONE,
+			RATIO_2_38_TO_ONE,
+			RATIO_2_41_TO_ONE,
+			RATIO_2_43_TO_ONE,
+			RATIO_2_46_TO_ONE,
+			RATIO_2_49_TO_ONE,
+			RATIO_2_52_TO_ONE,
+			RATIO_2_55_TO_ONE,
+			RATIO_2_58_TO_ONE,
+			RATIO_2_61_TO_ONE,
+			RATIO_2_65_TO_ONE,
+			RATIO_2_68_TO_ONE,
+			RATIO_2_72_TO_ONE,
+			RATIO_2_75_TO_ONE,
+			RATIO_2_79_TO_ONE,
+			RATIO_2_82_TO_ONE,
+			RATIO_2_86_TO_ONE,
+			RATIO_2_90_TO_ONE,
+			RATIO_2_94_TO_ONE,
+			RATIO_2_98_TO_ONE,
+			RATIO_3_03_TO_ONE,
+			RATIO_3_07_TO_ONE,
+			RATIO_3_11_TO_ONE,
+			RATIO_3_16_TO_ONE,
+			RATIO_3_21_TO_ONE,
+			RATIO_3_26_TO_ONE,
+			RATIO_3_31_TO_ONE,
+			RATIO_3_36_TO_ONE,
+			RATIO_3_41_TO_ONE,
+			RATIO_3_47_TO_ONE,
+			RATIO_3_53_TO_ONE,
+			RATIO_3_59_TO_ONE,
+			RATIO_3_65_TO_ONE,
+			RATIO_3_71_TO_ONE,
+			RATIO_3_78_TO_ONE,
+			RATIO_3_85_TO_ONE,
+			RATIO_3_92_TO_ONE,
+			RATIO_3_99_TO_ONE,
+			RATIO_4_07_TO_ONE,
+			RATIO_4_15_TO_ONE,
+			RATIO_4_23_TO_ONE,
+			RATIO_4_32_TO_ONE,
+			RATIO_4_41_TO_ONE,
+			RATIO_4_50_TO_ONE,
+			RATIO_4_60_TO_ONE,
+			RATIO_4_70_TO_ONE,
+			RATIO_4_81_TO_ONE,
+			RATIO_4_92_TO_ONE,
+			RATIO_5_04_TO_ONE,
+			RATIO_5_16_TO_ONE,
+			RATIO_5_29_TO_ONE,
+			RATIO_5_42_TO_ONE,
+			RATIO_5_56_TO_ONE,
+			RATIO_5_71_TO_ONE,
+			RATIO_5_87_TO_ONE,
+			RATIO_6_04_TO_ONE,
+			RATIO_6_22_TO_ONE,
+			RATIO_6_40_TO_ONE,
+			RATIO_6_60_TO_ONE,
+			RATIO_6_82_TO_ONE,
+			RATIO_7_04_TO_ONE,
+			RATIO_7_28_TO_ONE,
+			RATIO_7_54_TO_ONE,
+			RATIO_7_82_TO_ONE,
+			RATIO_8_12_TO_ONE,
+			RATIO_8_44_TO_ONE,
+			RATIO_8_79_TO_ONE,
+			RATIO_9_17_TO_ONE,
+			RATIO_9_59_TO_ONE,
+			RATIO_10_04_TO_ONE,
+			RATIO_10_54_TO_ONE,
+			RATIO_11_09_TO_ONE,
+			RATIO_11_71_TO_ONE,
+			RATIO_12_39_TO_ONE,
+			RATIO_13_16_TO_ONE,
+			RATIO_14_03_TO_ONE,
+			RATIO_15_02_TO_ONE,
+			RATIO_16_17_TO_ONE,
+			RATIO_17_50_TO_ONE,
+			RATIO_19_07_TO_ONE,
+			RATIO_20_96_TO_ONE,
+			RATIO_23_26_TO_ONE,
+			RATIO_26_12_TO_ONE,
+			RATIO_29_79_TO_ONE,
+			RATIO_34_65_TO_ONE,
+			RATIO_41_42_TO_ONE,
+			RATIO_51_47_TO_ONE,
+			RATIO_67_96_TO_ONE,
+			RATIO_100_TO_ONE
 		}
 
 		public enum DISTORTTYPE : uint {
@@ -72,7 +263,12 @@ namespace PresetConverter
 			Highpass= 0x3F800000,
 			Bandpass= 0x3F2AAAAB,
 			Lowpass = 0x3EAAAAAB,
-			Bypass  = 0x00000000,
+			Bypass  = 0x00000000
+		}
+		
+		public enum FILTERDB : uint {
+			DB12  = 0x3F800000,
+			DB24  = 0x00000000
 		}
 
 		public enum LFOWAVE : uint {
@@ -184,10 +380,74 @@ namespace PresetConverter
 			VOICES_7       = 0x3F600000,
 			VOICES_8       = 0x3F800000
 		}
+		
+		public enum DELAYTIMING {
+			DELAY_UNKNOWN = -1,
+			DELAY_1_64 = 0,
+			DELAY_1_32T = 1,
+			DELAY_1_64D = 2,
+			DELAY_1_32 = 3,
+			DELAY_1_16T = 4,
+			DELAY_1_32D = 5,
+			DELAY_1_16 = 6,
+			DELAY_1_8T = 7,
+			DELAY_1_16D = 8,
+			DELAY_1_8 = 9,
+			DELAY_1_4T = 10,
+			DELAY_1_8D = 11,
+			DELAY_1_4 = 12,
+			DELAY_1_2T = 13,
+			DELAY_1_4D = 14,
+			DELAY_1_2 = 15
+		}
+		
+		public enum LFOTIMING {
+			LFO_UNKNOWN = -1,
+			LFO_8_1D = 0,
+			LFO_8_1 = 1,
+			LFO_4_1D = 2,
+			LFO_8_1T = 3,
+			LFO_4_1 = 4,
+			LFO_2_1D = 5,
+			LFO_4_1T = 6,
+			LFO_2_1 = 7,
+			LFO_1_1D = 8,
+			LFO_2_1T = 9,
+			LFO_1_1 = 10,
+			LFO_1_2D = 11,
+			LFO_1_1T = 12,
+			LFO_1_2 = 13,
+			LFO_1_4D = 14,
+			LFO_1_2T = 15,
+			LFO_1_4 = 16,
+			LFO_1_8D = 17,
+			LFO_1_4T = 18,
+			LFO_1_8 = 19,
+			LFO_1_16D = 20,
+			LFO_1_8T = 21,
+			LFO_1_16 = 22,
+			LFO_1_32D = 23,
+			LFO_1_16T = 24,
+			LFO_1_32 = 25,
+			LFO_1_64D = 26,
+			LFO_1_32T = 27,
+			LFO_1_64 = 28,
+			LFO_1_128D = 29,
+			LFO_1_64T = 30,
+			LFO_1_128 = 31,
+			LFO_1_256D = 32,
+			LFO_1_128T = 33,
+			LFO_1_256 = 34,
+			LFO_1_256T = 35
+		}
 		#endregion
 		
 		public Syl1PresetContent Content { set; get; }
 		public string PresetName { set; get; }
+		
+		public Sylenth1Preset()
+		{
+		}
 		
 		public Sylenth1Preset(string filePath) {
 			FXP fxp = new FXP();
@@ -209,110 +469,587 @@ namespace PresetConverter
 			}
 		}
 		
-		public void TransformToZebra2(string filePath) {
-			
-			// OscA1
-			if (Content.OscA1Voices != VOICES.VOICES_0) {
-				System.Diagnostics.Debug.WriteLine("OscA1Detune:{0}", Content.OscA1Detune);                // index 344:347 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA1Fine:{0}", Content.OscA1Fine);                  // index 348:351 (value range -1 -> 1)
-				System.Diagnostics.Debug.WriteLine("OscA1Invert:{0}", Content.OscA1Invert);                // index 354:355
-				System.Diagnostics.Debug.WriteLine("OscA1Note:{0}", Content.OscA1Note);                  // index 356:359 (value range -7 -> 7)
-				System.Diagnostics.Debug.WriteLine("OscA1Octave:{0}", Content.OscA1Octave);                // index 360:363 (value range -3 -> 3)
-				System.Diagnostics.Debug.WriteLine("OscA1Pan:{0}", Content.OscA1Pan);                   // index 364:367 (value range -10 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA1Phase:{0}", Content.OscA1Phase);                 // index 368:371 (value range 0 -> 360)
-				System.Diagnostics.Debug.WriteLine("OscA1Retrig:{0}", Content.OscA1Retrig);                // index 374:375
-				System.Diagnostics.Debug.WriteLine("OscA1Stereo:{0}", Content.OscA1Stereo);                // index 376:379 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA1Voices:{0}", Content.OscA1Voices);                // index 382:383 (value range 0 -> 8)
-				System.Diagnostics.Debug.WriteLine("OscA1Volume:{0}", Content.OscA1Volume);                // index 384:387 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA1Wave:{0}", Content.OscA1Wave);                // index 388:391
-			}
+		private static DELAYTIMING DelayTimeFloatToEnum(float value) {
+			// the rule for finding the Delay timing float ranges in a Sylenth presets
+			// seems to be:
+			// 
+			// timingstep  1 = one divided by the number of unique timings minus one
+			// timingstep  2 = one divided by the number of unique timings minus two
+			// the first and the last have a special timing step
+			// 
+			// i.e for Delay:
+			// normal timing step 1: =1/(COUNTA(H:H)-1) = 0,0666666667
+			// normal timing step 2: =1/(COUNTA(H:H)-2) = 0,0714285714
+			// first timing step: normal timing step 2 / 5 = 0,0142857143
 
-			// OscA2
-			if (Content.OscA2Voices != VOICES.VOICES_0) {
-				System.Diagnostics.Debug.WriteLine("OscA2Detune:{0}", Content.OscA2Detune);                // index 392:395 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA2Fine:{0}", Content.OscA2Fine);                  // index 396:399 (value range -1 -> 1)
-				System.Diagnostics.Debug.WriteLine("OscA2Invert:{0}", Content.OscA2Invert);                // index 402:403
-				System.Diagnostics.Debug.WriteLine("OscA2Note:{0}", Content.OscA2Note);                  // index 404:407 (value range -7 -> 7)
-				System.Diagnostics.Debug.WriteLine("OscA2Octave:{0}", Content.OscA2Octave);                // index 408:411 (value range -3 -> 3)
-				System.Diagnostics.Debug.WriteLine("OscA2Pan:{0}", Content.OscA2Pan);                   // index 412:415 (value range -10 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA2Phase:{0}", Content.OscA2Phase);                 // index 416:419 (value range 0 -> 360)
-				System.Diagnostics.Debug.WriteLine("OscA2Retrig:{0}", Content.OscA2Retrig);                // index 422:423
-				System.Diagnostics.Debug.WriteLine("OscA2Stereo:{0}", Content.OscA2Stereo);                // index 424:427 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA2Voices:{0}", Content.OscA2Voices);                // index 430:431 (value range 0 -> 8)
-				System.Diagnostics.Debug.WriteLine("OscA2Volume:{0}", Content.OscA2Volume);                // index 432:435 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA2Wave:{0}", Content.OscA2Wave);                // index 436:439
-			}
+			float x = value;
+			DELAYTIMING timing = DELAYTIMING.DELAY_UNKNOWN;
 			
-			// OscB1
-			if (Content.OscB1Voices != VOICES.VOICES_0) {
-				System.Diagnostics.Debug.WriteLine("OscB1Detune:{0}", Content.OscB1Detune);                // index 440:443 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB1Fine:{0}", Content.OscB1Fine);                  // index 444:447 (value range -1 -> 1)
-				System.Diagnostics.Debug.WriteLine("OscB1Invert:{0}", Content.OscB1Invert);                // index 450:451
-				System.Diagnostics.Debug.WriteLine("OscB1Note:{0}", Content.OscB1Note);                  // index 452:455 (value range -7 -> 7)
-				System.Diagnostics.Debug.WriteLine("OscB1Octave:{0}", Content.OscB1Octave);                // index 456:459 (value range -3 -> 3)
-				System.Diagnostics.Debug.WriteLine("OscB1Pan:{0}", Content.OscB1Pan);                   // index 460:463 (value range -10 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB1Phase:{0}", Content.OscB1Phase);                 // index 464:467 (value range 0 -> 360)
-				System.Diagnostics.Debug.WriteLine("OscB1Retrig:{0}", Content.OscB1Retrig);                // index 470:471
-				System.Diagnostics.Debug.WriteLine("OscB1Stereo:{0}", Content.OscB1Stereo);                // index 472:475 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB1Voices:{0}", Content.OscB1Voices);                // index 478:479 (value range 0 -> 8)
-				System.Diagnostics.Debug.WriteLine("OscB1Volume:{0}", Content.OscB1Volume);                // index 480:483 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB1Wave:{0}", Content.OscB1Wave);                // index 484:487
+			if (x >= 0.0000000000f && x < 0.0142857143f) {
+				timing = DELAYTIMING.DELAY_1_64;
+			} else if (x >= 0.0142857143f && x < 0.0809523810f) {
+				timing = DELAYTIMING.DELAY_1_32T;
+			} else if (x >= 0.0809523810f && x < 0.1523809524f) {
+				timing = DELAYTIMING.DELAY_1_64D;
+			} else if (x >= 0.1523809524f && x < 0.2190476190f) {
+				timing = DELAYTIMING.DELAY_1_32;
+			} else if (x >= 0.2190476190f && x < 0.2904761905f) {
+				timing = DELAYTIMING.DELAY_1_16T;
+			} else if (x >= 0.2904761905f && x < 0.3571428571f) {
+				timing = DELAYTIMING.DELAY_1_32D;
+			} else if (x >= 0.3571428571f && x < 0.4285714286f) {
+				timing = DELAYTIMING.DELAY_1_16;
+			} else if (x >= 0.4285714286f && x < 0.4952380952f) {
+				timing = DELAYTIMING.DELAY_1_8T;
+			} else if (x >= 0.4952380952f && x < 0.5666666667f) {
+				timing = DELAYTIMING.DELAY_1_16D;
+			} else if (x >= 0.5666666667f && x < 0.6333333333f) {
+				timing = DELAYTIMING.DELAY_1_8;
+			} else if (x >= 0.6333333333f && x < 0.7047619048f) {
+				timing = DELAYTIMING.DELAY_1_4T;
+			} else if (x >= 0.7047619048f && x < 0.7714285714f) {
+				timing = DELAYTIMING.DELAY_1_8D;
+			} else if (x >= 0.7714285714f && x < 0.8428571429f) {
+				timing = DELAYTIMING.DELAY_1_4;
+			} else if (x >= 0.8428571429f && x < 0.9095238095f) {
+				timing = DELAYTIMING.DELAY_1_2T;
+			} else if (x >= 0.9095238095f && x < 0.9809523810f) {
+				timing = DELAYTIMING.DELAY_1_4D;
+			} else if (x >= 0.9809523810f && x < 1.0000000000f) {
+				timing = DELAYTIMING.DELAY_1_2;
 			}
-
-			// OscB2
-			if (Content.OscB1Voices != VOICES.VOICES_0) {
-				System.Diagnostics.Debug.WriteLine("OscB2Detune:{0}", Content.OscB2Detune);                // index 488:491 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB2Fine:{0}", Content.OscB2Fine);                  // index 492:495 (value range -1 -> 1)
-				System.Diagnostics.Debug.WriteLine("OscB2Invert:{0}", Content.OscB2Invert);                // index 498:499
-				System.Diagnostics.Debug.WriteLine("OscB2Note:{0}", Content.OscB2Note);                  // index 500:503 (value range -7 -> 7)
-				System.Diagnostics.Debug.WriteLine("OscB2Octave:{0}", Content.OscB2Octave);                // index 504:507 (value range -3 -> 3)
-				System.Diagnostics.Debug.WriteLine("OscB2Pan:{0}", Content.OscB2Pan);                   // index 508:511 (value range -10 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB2Phase:{0}", Content.OscB2Phase);                 // index 512:515 (value range 0 -> 360)
-				System.Diagnostics.Debug.WriteLine("OscB2Retrig:{0}", Content.OscB2Retrig);                // index 518:519
-				System.Diagnostics.Debug.WriteLine("OscB2Stereo:{0}", Content.OscB2Stereo);                // index 520:523 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB2Voices:{0}", Content.OscB2Voices);                // index 526:527 (value range 0 -> 8)
-				System.Diagnostics.Debug.WriteLine("OscB2Volume:{0}", Content.OscB2Volume);                // index 528:531 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB2Wave:{0}", Content.OscB2Wave);                // index 532:535
-			}
+			return timing;
 		}
 
-		private static string ValueToString(object val, float newMin, float newMax) {
+		private static LFOTIMING LFOTimeFloatToEnum(float value) {
+			// the rule for finding the LFO timing float ranges in a Sylenth presets
+			// seems to be:
+			// 
+			// timingstep = one divided by the number of unique timings minus one
+			// and the first and the last have a half timing step
+			// 
+			// i.e for LFO:
+			// normal timing step: =1/(COUNTA(H:H)-1) = 0,0285714286
+			// first and last timing step: normal timing step / 2 = 0,0142857143
+			
+			float x = value;
+			LFOTIMING timing = LFOTIMING.LFO_UNKNOWN;
+			
+			if (x >= 0.0000000000f && x < 0.0142857143f) {
+				timing = LFOTIMING.LFO_8_1D;
+			} else if (x >= 0.0142857143f && x < 0.0428571429f) {
+				timing = LFOTIMING.LFO_8_1;
+			} else if (x >= 0.0428571429f && x < 0.0714285714f) {
+				timing = LFOTIMING.LFO_4_1D;
+			} else if (x >= 0.0714285714f && x < 0.1000000000f) {
+				timing = LFOTIMING.LFO_8_1T;
+			} else if (x >= 0.1000000000f && x < 0.1285714286f) {
+				timing = LFOTIMING.LFO_4_1;
+			} else if (x >= 0.1285714286f && x < 0.1571428571f) {
+				timing = LFOTIMING.LFO_2_1D;
+			} else if (x >= 0.1571428571f && x < 0.1857142857f) {
+				timing = LFOTIMING.LFO_4_1T;
+			} else if (x >= 0.1857142857f && x < 0.2142857143f) {
+				timing = LFOTIMING.LFO_2_1;
+			} else if (x >= 0.2142857143f && x < 0.2428571429f) {
+				timing = LFOTIMING.LFO_1_1D;
+			} else if (x >= 0.2428571429f && x < 0.2714285714f) {
+				timing = LFOTIMING.LFO_2_1T;
+			} else if (x >= 0.2714285714f && x < 0.3000000000f) {
+				timing = LFOTIMING.LFO_1_1;
+			} else if (x >= 0.3000000000f && x < 0.3285714286f) {
+				timing = LFOTIMING.LFO_1_2D;
+			} else if (x >= 0.3285714286f && x < 0.3571428571f) {
+				timing = LFOTIMING.LFO_1_1T;
+			} else if (x >= 0.3571428571f && x < 0.3857142857f) {
+				timing = LFOTIMING.LFO_1_2;
+			} else if (x >= 0.3857142857f && x < 0.4142857143f) {
+				timing = LFOTIMING.LFO_1_4D;
+			} else if (x >= 0.4142857143f && x < 0.4428571429f) {
+				timing = LFOTIMING.LFO_1_2T;
+			} else if (x >= 0.4428571429f && x < 0.4714285714f) {
+				timing = LFOTIMING.LFO_1_4;
+			} else if (x >= 0.4714285714f && x < 0.5000000000f) {
+				timing = LFOTIMING.LFO_1_8D;
+			} else if (x >= 0.5000000000f && x < 0.5285714286f) {
+				timing = LFOTIMING.LFO_1_4T;
+			} else if (x >= 0.5285714286f && x < 0.5571428571f) {
+				timing = LFOTIMING.LFO_1_8;
+			} else if (x >= 0.5571428571f && x < 0.5857142857f) {
+				timing = LFOTIMING.LFO_1_16D;
+			} else if (x >= 0.5857142857f && x < 0.6142857143f) {
+				timing = LFOTIMING.LFO_1_8T;
+			} else if (x >= 0.6142857143f && x < 0.6428571429f) {
+				timing = LFOTIMING.LFO_1_16;
+			} else if (x >= 0.6428571429f && x < 0.6714285714f) {
+				timing = LFOTIMING.LFO_1_32D;
+			} else if (x >= 0.6714285714f && x < 0.7000000000f) {
+				timing = LFOTIMING.LFO_1_16T;
+			} else if (x >= 0.7000000000f && x < 0.7285714286f) {
+				timing = LFOTIMING.LFO_1_32;
+			} else if (x >= 0.7285714286f && x < 0.7571428571f) {
+				timing = LFOTIMING.LFO_1_64D;
+			} else if (x >= 0.7571428571f && x < 0.7857142857f) {
+				timing = LFOTIMING.LFO_1_32T;
+			} else if (x >= 0.7857142857f && x < 0.8142857143f) {
+				timing = LFOTIMING.LFO_1_64;
+			} else if (x >= 0.8142857143f && x < 0.8428571429f) {
+				timing = LFOTIMING.LFO_1_128D;
+			} else if (x >= 0.8428571429f && x < 0.8714285714f) {
+				timing = LFOTIMING.LFO_1_64T;
+			} else if (x >= 0.8714285714f && x < 0.9000000000f) {
+				timing = LFOTIMING.LFO_1_128;
+			} else if (x >= 0.9000000000f && x < 0.9285714286f) {
+				timing = LFOTIMING.LFO_1_256D;
+			} else if (x >= 0.9285714286f && x < 0.9571428571f) {
+				timing = LFOTIMING.LFO_1_128T;
+			} else if (x >= 0.9571428571f && x < 0.9857142857f) {
+				timing = LFOTIMING.LFO_1_256;
+			} else if (x >= 0.9857142857f && x < 1.0000000000f) {
+				timing = LFOTIMING.LFO_1_256T;
+			}
+
+			return timing;
+		}
+		
+		private static COMPRATIO CompRatioFloatToEnum(float value) {
+			float x = value;
+			COMPRATIO ratio = COMPRATIO.RATIO_UNKNOWN;
+
+			if (x >= 0.0000000000f && x < 0.0095238095f) {
+				ratio = COMPRATIO.RATIO_1_00_TO_ONE;
+			} else if (x >= 0.0095238095f && x < 0.0190476190f) {
+				ratio = COMPRATIO.RATIO_1_01_TO_ONE;
+			} else if (x >= 0.0190476190f && x < 0.0285714286f) {
+				ratio = COMPRATIO.RATIO_1_02_TO_ONE;
+			} else if (x >= 0.0285714286f && x < 0.0380952381f) {
+				ratio = COMPRATIO.RATIO_1_03_TO_ONE;
+			} else if (x >= 0.0380952381f && x < 0.0476190476f) {
+				ratio = COMPRATIO.RATIO_1_04_TO_ONE;
+			} else if (x >= 0.0476190476f && x < 0.0571428571f) {
+				ratio = COMPRATIO.RATIO_1_05_TO_ONE;
+			} else if (x >= 0.0571428571f && x < 0.0619047619f) {
+				ratio = COMPRATIO.RATIO_1_06_TO_ONE;
+			} else if (x >= 0.0619047619f && x < 0.0714285714f) {
+				ratio = COMPRATIO.RATIO_1_07_TO_ONE;
+			} else if (x >= 0.0714285714f && x < 0.0809523810f) {
+				ratio = COMPRATIO.RATIO_1_08_TO_ONE;
+			} else if (x >= 0.0809523810f && x < 0.0904761905f) {
+				ratio = COMPRATIO.RATIO_1_09_TO_ONE;
+			} else if (x >= 0.0904761905f && x < 0.1000000000f) {
+				ratio = COMPRATIO.RATIO_1_10_TO_ONE;
+			} else if (x >= 0.1000000000f && x < 0.1095238095f) {
+				ratio = COMPRATIO.RATIO_1_11_TO_ONE;
+			} else if (x >= 0.1095238095f && x < 0.1142857143f) {
+				ratio = COMPRATIO.RATIO_1_12_TO_ONE;
+			} else if (x >= 0.1142857143f && x < 0.1238095238f) {
+				ratio = COMPRATIO.RATIO_1_13_TO_ONE;
+			} else if (x >= 0.1238095238f && x < 0.1285714286f) {
+				ratio = COMPRATIO.RATIO_1_14_TO_ONE;
+			} else if (x >= 0.1285714286f && x < 0.1380952381f) {
+				ratio = COMPRATIO.RATIO_1_15_TO_ONE;
+			} else if (x >= 0.1380952381f && x < 0.1476190476f) {
+				ratio = COMPRATIO.RATIO_1_16_TO_ONE;
+			} else if (x >= 0.1476190476f && x < 0.1523809524f) {
+				ratio = COMPRATIO.RATIO_1_17_TO_ONE;
+			} else if (x >= 0.1523809524f && x < 0.1619047619f) {
+				ratio = COMPRATIO.RATIO_1_18_TO_ONE;
+			} else if (x >= 0.1619047619f && x < 0.1666666667f) {
+				ratio = COMPRATIO.RATIO_1_19_TO_ONE;
+			} else if (x >= 0.1666666667f && x < 0.1761904762f) {
+				ratio = COMPRATIO.RATIO_1_20_TO_ONE;
+			} else if (x >= 0.1761904762f && x < 0.1809523810f) {
+				ratio = COMPRATIO.RATIO_1_21_TO_ONE;
+			} else if (x >= 0.1809523810f && x < 0.1857142857f) {
+				ratio = COMPRATIO.RATIO_1_22_TO_ONE;
+			} else if (x >= 0.1857142857f && x < 0.1952380952f) {
+				ratio = COMPRATIO.RATIO_1_23_TO_ONE;
+			} else if (x >= 0.1952380952f && x < 0.2000000000f) {
+				ratio = COMPRATIO.RATIO_1_24_TO_ONE;
+			} else if (x >= 0.2000000000f && x < 0.2095238095f) {
+				ratio = COMPRATIO.RATIO_1_25_TO_ONE;
+			} else if (x >= 0.2095238095f && x < 0.2142857143f) {
+				ratio = COMPRATIO.RATIO_1_26_TO_ONE;
+			} else if (x >= 0.2142857143f && x < 0.2190476191f) {
+				ratio = COMPRATIO.RATIO_1_27_TO_ONE;
+			} else if (x >= 0.2190476191f && x < 0.2285714286f) {
+				ratio = COMPRATIO.RATIO_1_28_TO_ONE;
+			} else if (x >= 0.2285714286f && x < 0.2333333333f) {
+				ratio = COMPRATIO.RATIO_1_29_TO_ONE;
+			} else if (x >= 0.2333333333f && x < 0.2380952381f) {
+				ratio = COMPRATIO.RATIO_1_30_TO_ONE;
+			} else if (x >= 0.2380952381f && x < 0.2476190476f) {
+				ratio = COMPRATIO.RATIO_1_31_TO_ONE;
+			} else if (x >= 0.2476190476f && x < 0.2523809524f) {
+				ratio = COMPRATIO.RATIO_1_32_TO_ONE;
+			} else if (x >= 0.2523809524f && x < 0.2571428571f) {
+				ratio = COMPRATIO.RATIO_1_33_TO_ONE;
+			} else if (x >= 0.2571428571f && x < 0.2619047619f) {
+				ratio = COMPRATIO.RATIO_1_34_TO_ONE;
+			} else if (x >= 0.2619047619f && x < 0.2666666667f) {
+				ratio = COMPRATIO.RATIO_1_35_TO_ONE;
+			} else if (x >= 0.2666666667f && x < 0.2714285714f) {
+				ratio = COMPRATIO.RATIO_1_36_TO_ONE;
+			} else if (x >= 0.2714285714f && x < 0.2761904762f) {
+				ratio = COMPRATIO.RATIO_1_37_TO_ONE;
+			} else if (x >= 0.2761904762f && x < 0.2857142857f) {
+				ratio = COMPRATIO.RATIO_1_38_TO_ONE;
+			} else if (x >= 0.2857142857f && x < 0.2904761905f) {
+				ratio = COMPRATIO.RATIO_1_39_TO_ONE;
+			} else if (x >= 0.2904761905f && x < 0.2952380952f) {
+				ratio = COMPRATIO.RATIO_1_40_TO_ONE;
+			} else if (x >= 0.2952380952f && x < 0.3000000000f) {
+				ratio = COMPRATIO.RATIO_1_41_TO_ONE;
+			} else if (x >= 0.3000000000f && x < 0.3047619048f) {
+				ratio = COMPRATIO.RATIO_1_42_TO_ONE;
+			} else if (x >= 0.3047619048f && x < 0.3095238095f) {
+				ratio = COMPRATIO.RATIO_1_43_TO_ONE;
+			} else if (x >= 0.3095238095f && x < 0.3142857143f) {
+				ratio = COMPRATIO.RATIO_1_44_TO_ONE;
+			} else if (x >= 0.3142857143f && x < 0.3190476191f) {
+				ratio = COMPRATIO.RATIO_1_45_TO_ONE;
+			} else if (x >= 0.3190476191f && x < 0.3238095238f) {
+				ratio = COMPRATIO.RATIO_1_46_TO_ONE;
+			} else if (x >= 0.3238095238f && x < 0.3285714286f) {
+				ratio = COMPRATIO.RATIO_1_47_TO_ONE;
+			} else if (x >= 0.3285714286f && x < 0.3333333333f) {
+				ratio = COMPRATIO.RATIO_1_48_TO_ONE;
+			} else if (x >= 0.3333333333f && x < 0.3380952381f) {
+				ratio = COMPRATIO.RATIO_1_49_TO_ONE;
+			} else if (x >= 0.3380952381f && x < 0.3428571429f) {
+				ratio = COMPRATIO.RATIO_1_50_TO_ONE;
+			} else if (x >= 0.3428571429f && x < 0.3476190476f) {
+				ratio = COMPRATIO.RATIO_1_51_TO_ONE;
+			} else if (x >= 0.3476190476f && x < 0.3523809524f) {
+				ratio = COMPRATIO.RATIO_1_52_TO_ONE;
+			} else if (x >= 0.3523809524f && x < 0.3571428572f) {
+				ratio = COMPRATIO.RATIO_1_54_TO_ONE;
+			} else if (x >= 0.3571428572f && x < 0.3619047619f) {
+				ratio = COMPRATIO.RATIO_1_55_TO_ONE;
+			} else if (x >= 0.3619047619f && x < 0.3666666667f) {
+				ratio = COMPRATIO.RATIO_1_56_TO_ONE;
+			} else if (x >= 0.3666666667f && x < 0.3714285714f) {
+				ratio = COMPRATIO.RATIO_1_57_TO_ONE;
+			} else if (x >= 0.3714285714f && x < 0.3761904762f) {
+				ratio = COMPRATIO.RATIO_1_58_TO_ONE;
+			} else if (x >= 0.3761904762f && x < 0.3809523810f) {
+				ratio = COMPRATIO.RATIO_1_60_TO_ONE;
+			} else if (x >= 0.3809523810f && x < 0.3857142857f) {
+				ratio = COMPRATIO.RATIO_1_61_TO_ONE;
+			} else if (x >= 0.3857142857f && x < 0.3904761905f) {
+				ratio = COMPRATIO.RATIO_1_62_TO_ONE;
+			} else if (x >= 0.3904761905f && x < 0.3952380952f) {
+				ratio = COMPRATIO.RATIO_1_63_TO_ONE;
+			} else if (x >= 0.3952380952f && x < 0.4000000000f) {
+				ratio = COMPRATIO.RATIO_1_64_TO_ONE;
+			} else if (x >= 0.4000000000f && x < 0.4047619048f) {
+				ratio = COMPRATIO.RATIO_1_66_TO_ONE;
+			} else if (x >= 0.4047619048f && x < 0.4095238095f) {
+				ratio = COMPRATIO.RATIO_1_67_TO_ONE;
+			} else if (x >= 0.4095238095f && x < 0.4142857143f) {
+				ratio = COMPRATIO.RATIO_1_68_TO_ONE;
+			} else if (x >= 0.4142857143f && x < 0.4190476191f) {
+				ratio = COMPRATIO.RATIO_1_70_TO_ONE;
+			} else if (x >= 0.4190476191f && x < 0.4238095238f) {
+				ratio = COMPRATIO.RATIO_1_71_TO_ONE;
+			} else if (x >= 0.4238095238f && x < 0.4285714286f) {
+				ratio = COMPRATIO.RATIO_1_73_TO_ONE;
+			} else if (x >= 0.4285714286f && x < 0.4333333333f) {
+				ratio = COMPRATIO.RATIO_1_74_TO_ONE;
+			} else if (x >= 0.4333333333f && x < 0.4380952381f) {
+				ratio = COMPRATIO.RATIO_1_75_TO_ONE;
+			} else if (x >= 0.4380952381f && x < 0.4428571429f) {
+				ratio = COMPRATIO.RATIO_1_78_TO_ONE;
+			} else if (x >= 0.4428571429f && x < 0.4476190476f) {
+				ratio = COMPRATIO.RATIO_1_79_TO_ONE;
+			} else if (x >= 0.4476190476f && x < 0.4523809524f) {
+				ratio = COMPRATIO.RATIO_1_80_TO_ONE;
+			} else if (x >= 0.4523809524f && x < 0.4571428572f) {
+				ratio = COMPRATIO.RATIO_1_81_TO_ONE;
+			} else if (x >= 0.4571428572f && x < 0.4619047619f) {
+				ratio = COMPRATIO.RATIO_1_83_TO_ONE;
+			} else if (x >= 0.4619047619f && x < 0.4666666667f) {
+				ratio = COMPRATIO.RATIO_1_84_TO_ONE;
+			} else if (x >= 0.4666666667f && x < 0.4714285714f) {
+				ratio = COMPRATIO.RATIO_1_86_TO_ONE;
+			} else if (x >= 0.4714285714f && x < 0.4761904762f) {
+				ratio = COMPRATIO.RATIO_1_88_TO_ONE;
+			} else if (x >= 0.4761904762f && x < 0.4809523810f) {
+				ratio = COMPRATIO.RATIO_1_90_TO_ONE;
+			} else if (x >= 0.4809523810f && x < 0.4857142857f) {
+				ratio = COMPRATIO.RATIO_1_91_TO_ONE;
+			} else if (x >= 0.4857142857f && x < 0.4904761905f) {
+				ratio = COMPRATIO.RATIO_1_93_TO_ONE;
+			} else if (x >= 0.4904761905f && x < 0.4952380952f) {
+				ratio = COMPRATIO.RATIO_1_95_TO_ONE;
+			} else if (x >= 0.4952380952f && x < 0.5000000000f) {
+				ratio = COMPRATIO.RATIO_1_96_TO_ONE;
+			} else if (x >= 0.5000000000f && x < 0.5047619048f) {
+				ratio = COMPRATIO.RATIO_1_98_TO_ONE;
+			} else if (x >= 0.5047619048f && x < 0.5095238095f) {
+				ratio = COMPRATIO.RATIO_2_00_TO_ONE;
+			} else if (x >= 0.5095238095f && x < 0.5142857143f) {
+				ratio = COMPRATIO.RATIO_2_02_TO_ONE;
+			} else if (x >= 0.5142857143f && x < 0.5190476191f) {
+				ratio = COMPRATIO.RATIO_2_04_TO_ONE;
+			} else if (x >= 0.5190476191f && x < 0.5238095238f) {
+				ratio = COMPRATIO.RATIO_2_06_TO_ONE;
+			} else if (x >= 0.5238095238f && x < 0.5285714286f) {
+				ratio = COMPRATIO.RATIO_2_08_TO_ONE;
+			} else if (x >= 0.5285714286f && x < 0.5333333333f) {
+				ratio = COMPRATIO.RATIO_2_10_TO_ONE;
+			} else if (x >= 0.5333333333f && x < 0.5380952381f) {
+				ratio = COMPRATIO.RATIO_2_12_TO_ONE;
+			} else if (x >= 0.5380952381f && x < 0.5428571429f) {
+				ratio = COMPRATIO.RATIO_2_14_TO_ONE;
+			} else if (x >= 0.5428571429f && x < 0.5476190476f) {
+				ratio = COMPRATIO.RATIO_2_16_TO_ONE;
+			} else if (x >= 0.5476190476f && x < 0.5523809524f) {
+				ratio = COMPRATIO.RATIO_2_18_TO_ONE;
+			} else if (x >= 0.5523809524f && x < 0.5571428572f) {
+				ratio = COMPRATIO.RATIO_2_21_TO_ONE;
+			} else if (x >= 0.5571428572f && x < 0.5619047619f) {
+				ratio = COMPRATIO.RATIO_2_23_TO_ONE;
+			} else if (x >= 0.5619047619f && x < 0.5666666667f) {
+				ratio = COMPRATIO.RATIO_2_25_TO_ONE;
+			} else if (x >= 0.5666666667f && x < 0.5714285714f) {
+				ratio = COMPRATIO.RATIO_2_28_TO_ONE;
+			} else if (x >= 0.5714285714f && x < 0.5761904762f) {
+				ratio = COMPRATIO.RATIO_2_30_TO_ONE;
+			} else if (x >= 0.5761904762f && x < 0.5809523810f) {
+				ratio = COMPRATIO.RATIO_2_33_TO_ONE;
+			} else if (x >= 0.5809523810f && x < 0.5857142857f) {
+				ratio = COMPRATIO.RATIO_2_35_TO_ONE;
+			} else if (x >= 0.5857142857f && x < 0.5904761905f) {
+				ratio = COMPRATIO.RATIO_2_38_TO_ONE;
+			} else if (x >= 0.5904761905f && x < 0.5952380953f) {
+				ratio = COMPRATIO.RATIO_2_41_TO_ONE;
+			} else if (x >= 0.5952380953f && x < 0.6000000000f) {
+				ratio = COMPRATIO.RATIO_2_43_TO_ONE;
+			} else if (x >= 0.6000000000f && x < 0.6047619048f) {
+				ratio = COMPRATIO.RATIO_2_46_TO_ONE;
+			} else if (x >= 0.6047619048f && x < 0.6095238095f) {
+				ratio = COMPRATIO.RATIO_2_49_TO_ONE;
+			} else if (x >= 0.6095238095f && x < 0.6142857143f) {
+				ratio = COMPRATIO.RATIO_2_52_TO_ONE;
+			} else if (x >= 0.6142857143f && x < 0.6190476191f) {
+				ratio = COMPRATIO.RATIO_2_55_TO_ONE;
+			} else if (x >= 0.6190476191f && x < 0.6238095238f) {
+				ratio = COMPRATIO.RATIO_2_58_TO_ONE;
+			} else if (x >= 0.6238095238f && x < 0.6285714286f) {
+				ratio = COMPRATIO.RATIO_2_61_TO_ONE;
+			} else if (x >= 0.6285714286f && x < 0.6333333333f) {
+				ratio = COMPRATIO.RATIO_2_65_TO_ONE;
+			} else if (x >= 0.6333333333f && x < 0.6380952381f) {
+				ratio = COMPRATIO.RATIO_2_68_TO_ONE;
+			} else if (x >= 0.6380952381f && x < 0.6428571429f) {
+				ratio = COMPRATIO.RATIO_2_72_TO_ONE;
+			} else if (x >= 0.6428571429f && x < 0.6476190476f) {
+				ratio = COMPRATIO.RATIO_2_75_TO_ONE;
+			} else if (x >= 0.6476190476f && x < 0.6523809524f) {
+				ratio = COMPRATIO.RATIO_2_79_TO_ONE;
+			} else if (x >= 0.6523809524f && x < 0.6571428572f) {
+				ratio = COMPRATIO.RATIO_2_82_TO_ONE;
+			} else if (x >= 0.6571428572f && x < 0.6619047619f) {
+				ratio = COMPRATIO.RATIO_2_86_TO_ONE;
+			} else if (x >= 0.6619047619f && x < 0.6666666667f) {
+				ratio = COMPRATIO.RATIO_2_90_TO_ONE;
+			} else if (x >= 0.6666666667f && x < 0.6714285714f) {
+				ratio = COMPRATIO.RATIO_2_94_TO_ONE;
+			} else if (x >= 0.6714285714f && x < 0.6761904762f) {
+				ratio = COMPRATIO.RATIO_2_98_TO_ONE;
+			} else if (x >= 0.6761904762f && x < 0.6809523810f) {
+				ratio = COMPRATIO.RATIO_3_03_TO_ONE;
+			} else if (x >= 0.6809523810f && x < 0.6857142857f) {
+				ratio = COMPRATIO.RATIO_3_07_TO_ONE;
+			} else if (x >= 0.6857142857f && x < 0.6904761905f) {
+				ratio = COMPRATIO.RATIO_3_11_TO_ONE;
+			} else if (x >= 0.6904761905f && x < 0.6952380953f) {
+				ratio = COMPRATIO.RATIO_3_16_TO_ONE;
+			} else if (x >= 0.6952380953f && x < 0.7000000000f) {
+				ratio = COMPRATIO.RATIO_3_21_TO_ONE;
+			} else if (x >= 0.7000000000f && x < 0.7047619048f) {
+				ratio = COMPRATIO.RATIO_3_26_TO_ONE;
+			} else if (x >= 0.7047619048f && x < 0.7095238095f) {
+				ratio = COMPRATIO.RATIO_3_31_TO_ONE;
+			} else if (x >= 0.7095238095f && x < 0.7142857143f) {
+				ratio = COMPRATIO.RATIO_3_36_TO_ONE;
+			} else if (x >= 0.7142857143f && x < 0.7190476191f) {
+				ratio = COMPRATIO.RATIO_3_41_TO_ONE;
+			} else if (x >= 0.7190476191f && x < 0.7238095238f) {
+				ratio = COMPRATIO.RATIO_3_47_TO_ONE;
+			} else if (x >= 0.7238095238f && x < 0.7285714286f) {
+				ratio = COMPRATIO.RATIO_3_53_TO_ONE;
+			} else if (x >= 0.7285714286f && x < 0.7333333333f) {
+				ratio = COMPRATIO.RATIO_3_59_TO_ONE;
+			} else if (x >= 0.7333333333f && x < 0.7380952381f) {
+				ratio = COMPRATIO.RATIO_3_65_TO_ONE;
+			} else if (x >= 0.7380952381f && x < 0.7428571429f) {
+				ratio = COMPRATIO.RATIO_3_71_TO_ONE;
+			} else if (x >= 0.7428571429f && x < 0.7476190476f) {
+				ratio = COMPRATIO.RATIO_3_78_TO_ONE;
+			} else if (x >= 0.7476190476f && x < 0.7523809524f) {
+				ratio = COMPRATIO.RATIO_3_85_TO_ONE;
+			} else if (x >= 0.7523809524f && x < 0.7571428572f) {
+				ratio = COMPRATIO.RATIO_3_92_TO_ONE;
+			} else if (x >= 0.7571428572f && x < 0.7619047619f) {
+				ratio = COMPRATIO.RATIO_3_99_TO_ONE;
+			} else if (x >= 0.7619047619f && x < 0.7666666667f) {
+				ratio = COMPRATIO.RATIO_4_07_TO_ONE;
+			} else if (x >= 0.7666666667f && x < 0.7714285714f) {
+				ratio = COMPRATIO.RATIO_4_15_TO_ONE;
+			} else if (x >= 0.7714285714f && x < 0.7761904762f) {
+				ratio = COMPRATIO.RATIO_4_23_TO_ONE;
+			} else if (x >= 0.7761904762f && x < 0.7809523810f) {
+				ratio = COMPRATIO.RATIO_4_32_TO_ONE;
+			} else if (x >= 0.7809523810f && x < 0.7857142857f) {
+				ratio = COMPRATIO.RATIO_4_41_TO_ONE;
+			} else if (x >= 0.7857142857f && x < 0.7904761905f) {
+				ratio = COMPRATIO.RATIO_4_50_TO_ONE;
+			} else if (x >= 0.7904761905f && x < 0.7952380953f) {
+				ratio = COMPRATIO.RATIO_4_60_TO_ONE;
+			} else if (x >= 0.7952380953f && x < 0.8000000000f) {
+				ratio = COMPRATIO.RATIO_4_70_TO_ONE;
+			} else if (x >= 0.8000000000f && x < 0.8047619048f) {
+				ratio = COMPRATIO.RATIO_4_81_TO_ONE;
+			} else if (x >= 0.8047619048f && x < 0.8095238095f) {
+				ratio = COMPRATIO.RATIO_4_92_TO_ONE;
+			} else if (x >= 0.8095238095f && x < 0.8142857143f) {
+				ratio = COMPRATIO.RATIO_5_04_TO_ONE;
+			} else if (x >= 0.8142857143f && x < 0.8190476191f) {
+				ratio = COMPRATIO.RATIO_5_16_TO_ONE;
+			} else if (x >= 0.8190476191f && x < 0.8238095238f) {
+				ratio = COMPRATIO.RATIO_5_29_TO_ONE;
+			} else if (x >= 0.8238095238f && x < 0.8285714286f) {
+				ratio = COMPRATIO.RATIO_5_42_TO_ONE;
+			} else if (x >= 0.8285714286f && x < 0.8333333334f) {
+				ratio = COMPRATIO.RATIO_5_56_TO_ONE;
+			} else if (x >= 0.8333333334f && x < 0.8380952381f) {
+				ratio = COMPRATIO.RATIO_5_71_TO_ONE;
+			} else if (x >= 0.8380952381f && x < 0.8428571429f) {
+				ratio = COMPRATIO.RATIO_5_87_TO_ONE;
+			} else if (x >= 0.8428571429f && x < 0.8476190476f) {
+				ratio = COMPRATIO.RATIO_6_04_TO_ONE;
+			} else if (x >= 0.8476190476f && x < 0.8523809524f) {
+				ratio = COMPRATIO.RATIO_6_22_TO_ONE;
+			} else if (x >= 0.8523809524f && x < 0.8571428572f) {
+				ratio = COMPRATIO.RATIO_6_40_TO_ONE;
+			} else if (x >= 0.8571428572f && x < 0.8619047619f) {
+				ratio = COMPRATIO.RATIO_6_60_TO_ONE;
+			} else if (x >= 0.8619047619f && x < 0.8666666667f) {
+				ratio = COMPRATIO.RATIO_6_82_TO_ONE;
+			} else if (x >= 0.8666666667f && x < 0.8714285714f) {
+				ratio = COMPRATIO.RATIO_7_04_TO_ONE;
+			} else if (x >= 0.8714285714f && x < 0.8761904762f) {
+				ratio = COMPRATIO.RATIO_7_28_TO_ONE;
+			} else if (x >= 0.8761904762f && x < 0.8809523810f) {
+				ratio = COMPRATIO.RATIO_7_54_TO_ONE;
+			} else if (x >= 0.8809523810f && x < 0.8857142857f) {
+				ratio = COMPRATIO.RATIO_7_82_TO_ONE;
+			} else if (x >= 0.8857142857f && x < 0.8904761905f) {
+				ratio = COMPRATIO.RATIO_8_12_TO_ONE;
+			} else if (x >= 0.8904761905f && x < 0.8952380953f) {
+				ratio = COMPRATIO.RATIO_8_44_TO_ONE;
+			} else if (x >= 0.8952380953f && x < 0.9000000000f) {
+				ratio = COMPRATIO.RATIO_8_79_TO_ONE;
+			} else if (x >= 0.9000000000f && x < 0.9047619048f) {
+				ratio = COMPRATIO.RATIO_9_17_TO_ONE;
+			} else if (x >= 0.9047619048f && x < 0.9095238095f) {
+				ratio = COMPRATIO.RATIO_9_59_TO_ONE;
+			} else if (x >= 0.9095238095f && x < 0.9142857143f) {
+				ratio = COMPRATIO.RATIO_10_04_TO_ONE;
+			} else if (x >= 0.9142857143f && x < 0.9190476191f) {
+				ratio = COMPRATIO.RATIO_10_54_TO_ONE;
+			} else if (x >= 0.9190476191f && x < 0.9238095238f) {
+				ratio = COMPRATIO.RATIO_11_09_TO_ONE;
+			} else if (x >= 0.9238095238f && x < 0.9285714286f) {
+				ratio = COMPRATIO.RATIO_11_71_TO_ONE;
+			} else if (x >= 0.9285714286f && x < 0.9333333334f) {
+				ratio = COMPRATIO.RATIO_12_39_TO_ONE;
+			} else if (x >= 0.9333333334f && x < 0.9380952381f) {
+				ratio = COMPRATIO.RATIO_13_16_TO_ONE;
+			} else if (x >= 0.9380952381f && x < 0.9428571429f) {
+				ratio = COMPRATIO.RATIO_14_03_TO_ONE;
+			} else if (x >= 0.9428571429f && x < 0.9476190476f) {
+				ratio = COMPRATIO.RATIO_15_02_TO_ONE;
+			} else if (x >= 0.9476190476f && x < 0.9523809524f) {
+				ratio = COMPRATIO.RATIO_16_17_TO_ONE;
+			} else if (x >= 0.9523809524f && x < 0.9571428572f) {
+				ratio = COMPRATIO.RATIO_17_50_TO_ONE;
+			} else if (x >= 0.9571428572f && x < 0.9619047619f) {
+				ratio = COMPRATIO.RATIO_19_07_TO_ONE;
+			} else if (x >= 0.9619047619f && x < 0.9666666667f) {
+				ratio = COMPRATIO.RATIO_20_96_TO_ONE;
+			} else if (x >= 0.9666666667f && x < 0.9714285714f) {
+				ratio = COMPRATIO.RATIO_23_26_TO_ONE;
+			} else if (x >= 0.9714285714f && x < 0.9761904762f) {
+				ratio = COMPRATIO.RATIO_26_12_TO_ONE;
+			} else if (x >= 0.9761904762f && x < 0.9809523810f) {
+				ratio = COMPRATIO.RATIO_29_79_TO_ONE;
+			} else if (x >= 0.9809523810f && x < 0.9857142857f) {
+				ratio = COMPRATIO.RATIO_34_65_TO_ONE;
+			} else if (x >= 0.9857142857f && x < 0.9904761905f) {
+				ratio = COMPRATIO.RATIO_41_42_TO_ONE;
+			} else if (x >= 0.9904761905f && x < 0.9952380953f) {
+				ratio = COMPRATIO.RATIO_51_47_TO_ONE;
+			} else if (x >= 0.9952380953f && x < 1.0000000000f) {
+				ratio = COMPRATIO.RATIO_67_96_TO_ONE;
+			} else if (x == 1.0000000000f) {
+				ratio = COMPRATIO.RATIO_100_TO_ONE;
+			}
+			return ratio;
+		}
+		
+		private static string ValueToString(object val, float newMin, float newMax, string type = "") {
 			float oldMin = 0.0f;
 			float oldMax = 1.0f;
 			
 			if (val is int) {
 				//int oldValue = (int) val;
-				//int newValue = MathUtils.ConvertAndMainainRatio(oldValue, oldMin, oldMax, newMin, newMax);
-				//return String.Format("{0}", newValue);
 				return "<TODO: int support is not implemented>";
 			} else if (val is float) {
 				float oldValue = (float) val;
 				float newValue = MathUtils.ConvertAndMainainRatio(oldValue, oldMin, oldMax, newMin, newMax);
-				return String.Format("original: {0:0.0000}, new value: {1:0.0000}. ({2} -> {3})", oldValue, newValue, newMin, newMax);
+				if (type != "") {
+					type = " " + type;
+				}
+				return String.Format("{0:0.0000}. Display Value: {1:0.00}{2} (Range: {3} -> {4})", oldValue, newValue, type, newMin, newMax);
 			}
 			return val.ToString();
 		}
 
-		enum FloatToHz {
-			Up,
-			Down
+		private static string ValueToStringLFORate(object val, float newMin, float newMax, ONOFF lfoFree) {
+			if (lfoFree == ONOFF.On) {
+				// use Hz not timings
+				return ValueToStringHz(val, newMin, newMax, FloatToHz.LFORateFree);
+			} else {
+				float oldValue = (float) val;
+				LFOTIMING timing = LFOTimeFloatToEnum( oldValue );
+				return String.Format("{0:0.0000}. Display Value: {1} (Range: {2} -> {3})", oldValue, timing, newMin, newMax);
+			}
 		}
 		
-		private static string ValueToStringFloatToHz(object val, float newMin, float newMax, FloatToHz mode) {
+		private static string ValueToStringHz(object val, float newMin, float newMax, FloatToHz mode) {
 			if (val is int) {
 				//int oldValue = (int) val;
-				//int newValue = MathUtils.ConvertAndMainainRatio(oldValue, oldMin, oldMax, newMin, newMax);
-				//return String.Format("{0}", newValue);
 				return "<TODO: int support is not implemented>";
 			} else if (val is float) {
 				float oldValue = (float) val;
 				float newValue = 0;
-				if (mode == FloatToHz.Up) {
-					newValue = (float) Math.Exp(10 * oldValue);
-				} else if (mode == FloatToHz.Down) {					
-					newValue = 21120 * (float) Math.Exp( -5.545 * oldValue);
+				if (mode == FloatToHz.DelayLowCut) {
+					newValue = 3.2328f * (float) Math.Exp(9.0109f * oldValue);
+				} else if (mode == FloatToHz.DelayHighCut) {
+					newValue = 21120.0f * (float) Math.Exp(-5.545f * oldValue);
+				} else if (mode == FloatToHz.FilterCutoff) {
+					newValue = 1.0011f * (float) Math.Exp(9.9673f * oldValue);
+				} else if (mode == FloatToHz.EQBassFreq) {
+					newValue = 13.75f * (float) Math.Exp(4.1589f * oldValue);
+				} else if (mode == FloatToHz.EQTrebleFreq) {
+					newValue = 440.0f * (float) Math.Exp(4.1589f * oldValue);
+				} else if (mode == FloatToHz.LFORateFree) {
+					newValue = 0.0417f * (float) Math.Exp(8.4352f * oldValue);
 				}
-				return String.Format("original: {0:0.0000}, new value: {1:0.0000} Hz. ({2} -> {3})", oldValue, newValue, newMin, newMax);
+				return String.Format("{0:0.0000}. Display Value: {1:0.00} Hz (Range: {2} -> {3})", oldValue, newValue, newMin, newMax);
 			}
 			return val.ToString();
 		}
@@ -320,249 +1057,274 @@ namespace PresetConverter
 		public override string ToString() {
 			StringBuilder buffer = new StringBuilder();
 
-			buffer.AppendFormat("AmpEnvAAttack:{0}\n", ValueToString(Content.AmpEnvAAttack, 0, 10));	// index 20:23 (value range 0 -> 10)
-			buffer.AppendFormat("AmpEnvADecay:{0}\n", ValueToString(Content.AmpEnvADecay, 0, 10));		// index 24:27 (value range 0 -> 10)
-			buffer.AppendFormat("AmpEnvARelease:{0}\n", ValueToString(Content.AmpEnvARelease, 0, 10));	// index 28:31 (value range 0 -> 10)
-			buffer.AppendFormat("AmpEnvASustain:{0}\n", ValueToString(Content.AmpEnvASustain, 0, 10));	// index 32:35 (value range 0 -> 10)
-			buffer.AppendFormat("AmpEnvBAttack:{0}\n", ValueToString(Content.AmpEnvBAttack, 0, 10));	// index 36:39 (value range 0 -> 10)
-			buffer.AppendFormat("AmpEnvBDecay:{0}\n", ValueToString(Content.AmpEnvBDecay, 0, 10));		// index 40:43 (value range 0 -> 10)
-			buffer.AppendFormat("AmpEnvBRelease:{0}\n", ValueToString(Content.AmpEnvBRelease, 0, 10));	// index 44:47 (value range 0 -> 10)
-			buffer.AppendFormat("AmpEnvBSustain:{0}\n", ValueToString(Content.AmpEnvBSustain, 0, 10));	// index 48:51 (value range 0 -> 10)
-			buffer.AppendFormat("ArpGate:{0}\n", ValueToString(Content.ArpGate, 0, 100));				// index 52:55 (value range 0 -> 100)
-			buffer.AppendFormat("ArpMode:{0}\n", Content.ArpMode);                  					// index 56:59
-			buffer.AppendFormat("ArpOctave:{0}\n", ValueToString(Content.ArpOctave, 1, 4));				// index 60:63 (value range 1 -> 4)
-			buffer.AppendFormat("ArpTime:{0}\n", Content.ArpTime);                    					// index 64:67 (value range 1/1 -> 1/64)
-			buffer.AppendFormat("ArpVelo:{0}\n", Content.ArpVelo);                  					// index 70:71
-			buffer.AppendFormat("ArpWrap:{0}\n", ValueToString(Content.ArpWrap, 0, 16));				// index 72:75 (value range 0 -> 16)
-			buffer.AppendFormat("ChorusDelay:{0}\n", ValueToString(Content.ChorusDelay, 1, 40));		// index 76:79 (value range 1 -> 40)
-			buffer.AppendFormat("ChorusDepth:{0}\n", ValueToString(Content.ChorusDepth, 0, 100));		// index 80:83 (value range 0 -> 100)
-			buffer.AppendFormat("ChorusDry_Wet:{0}\n", ValueToString(Content.ChorusDry_Wet, 0, 100));	// index 84:87 (value range 0 -> 100)
-			buffer.AppendFormat("ChorusFeedback:{0}\n", ValueToString(Content.ChorusFeedback, 0, 100));	// index 88:91 (value range 0 -> 100)
-			buffer.AppendFormat("ChorusMode:{0}\n", Content.ChorusMode);            					// index 94:95
-			buffer.AppendFormat("ChorusRate:{0}\n", ValueToString(Content.ChorusRate, 0.01f, 27.5f));     // index 96:99 (value range 0,01 -> 27,5)
-			buffer.AppendFormat("ChorusWidth:{0}\n", ValueToString(Content.ChorusWidth, 0, 100));		// index 100:103 (value range 0 -> 100)
-			buffer.AppendFormat("CompAttack:{0}\n", Content.CompAttack);                 				// index 104:107 (value range 0,1 -> 300)
-			buffer.AppendFormat("CompRatio:{0}\n", Content.CompRatio);                  				// index 108:111 (value range 1.00:1 -> 100.00:1)
-			buffer.AppendFormat("CompRelease:{0}\n", ValueToString(Content.CompRelease, 1, 500));		// index 112:115 (value range 1 -> 500)
-			buffer.AppendFormat("CompThreshold:{0}\n", ValueToString(Content.CompThreshold, -30, 0));	// index 116:119 (value range -30 -> 0)
-			buffer.AppendFormat("DelayDry_Wet:{0}\n", ValueToString(Content.DelayDry_Wet, 0, 100));		// index 120:123 (value range 0 -> 100)
-			buffer.AppendFormat("DelayFeedback:{0}\n", ValueToString(Content.DelayFeedback, 0, 100));	// index 124:127 (value range 0 -> 100)
-			buffer.AppendFormat("DelayHighCut:{0}\n", ValueToStringFloatToHz(Content.DelayHighCut, 21120.0f, 82.5f, FloatToHz.Up));	// index 128:131 (value range 82,5 -> 21120)
-			buffer.AppendFormat("DelayLowCut:{0}\n", ValueToString(Content.DelayLowCut, 3.23f, 26483.12f));		// index 132:135 (value range 3,23 -> 26483,12)
-			buffer.AppendFormat("DelayPingPong:{0}\n", Content.DelayPingPong);              			// index 138:139
-			buffer.AppendFormat("DelaySmear:{0}\n", ValueToString(Content.DelaySmear, 0, 10));			// index 140:143 (value range 0 -> 10)
-			buffer.AppendFormat("DelaySpread:{0}\n", ValueToString(Content.DelaySpread, 0, 100));		// index 144:147 (value range 0 -> 100)
-			buffer.AppendFormat("DelayTimeLeft:{0}\n", Content.DelayTimeLeft);              			// index 148:151 (value range 1/64 -> 1/2)
-			buffer.AppendFormat("DelayTimeRight:{0}\n", Content.DelayTimeRight);             			// index 152:155 (value range 1/64 -> 1/2)
-			buffer.AppendFormat("DelayWidth:{0}\n", ValueToString(Content.DelayWidth, 0, 100));			// index 156:159 (value range 0 -> 100)
-			buffer.AppendFormat("DistortAmount:{0}\n", ValueToString(Content.DistortAmount, 0, 10));	// index 160:163 (value range 0 -> 10)
-			buffer.AppendFormat("DistortDryWet:{0}\n", ValueToString(Content.DistortDryWet, 0, 100));	// index 164:167 (value range 0 -> 100)
-			buffer.AppendFormat("DistortType:{0}\n", Content.DistortType);          					// index 170:171
-			buffer.AppendFormat("EQBass:{0}\n", ValueToString(Content.EQBass, 0, 15));					// index 172:175 (value range 0 -> 15)
-			buffer.AppendFormat("EQBassFreq:{0}\n", ValueToStringFloatToHz(Content.EQBassFreq, 13.75f, 880.0f, FloatToHz.Up)); // index 176:179 (value range 13,75 -> 880)
-			buffer.AppendFormat("EQTreble:{0}\n", ValueToString(Content.EQTreble, 0, 15));				// index 180:183 (value range 0 -> 15)
-			buffer.AppendFormat("EQTrebleFreq:{0}\n", ValueToStringFloatToHz(Content.EQTrebleFreq, 440, 28160, FloatToHz.Up));	// index 184:187 (value range 440 -> 28160)
-			buffer.AppendFormat("FilterACutoff:{0}\n", ValueToStringFloatToHz(Content.FilterACutoff, 1.0f, 21341.28f, FloatToHz.Up));	// index 188:191 (value range 1 -> 21341,28)
-			buffer.AppendFormat("FilterADrive:{0}\n", ValueToString(Content.FilterADrive, 0, 10));		// index 192:195 (value range 0 -> 10)
-			buffer.AppendFormat("FilterAInput:{0}\n", Content.FilterAInput);         					// index 198:199
-			buffer.AppendFormat("FilterAReso:{0}\n", ValueToString(Content.FilterAReso, 0, 10));		// index 200:203 (value range 0 -> 10)
-			buffer.AppendFormat("FilterAType:{0}\n", Content.FilterAType);           					// index 204:207
-			buffer.AppendFormat("FilterADB:{0}\n", ValueToString(Content.FilterADB, 12, 12));			// index 210:211 (value range 12 -> 12)
-			buffer.AppendFormat("FilterBCutoff:{0}\n", ValueToStringFloatToHz(Content.FilterBCutoff, 1.0f, 21341.28f, FloatToHz.Up));	// index 212:215 (value range 1 -> 21341,28)
-			buffer.AppendFormat("FilterBDrive:{0}\n", ValueToString(Content.FilterBDrive, 0, 10));		// index 216:219 (value range 0 -> 10)
-			buffer.AppendFormat("FilterBInput:{0}\n", Content.FilterBInput);         					// index 222:223
-			buffer.AppendFormat("FilterBReso:{0}\n", ValueToString(Content.FilterBReso, 0, 10));		// index 224:227 (value range 0 -> 10)
-			buffer.AppendFormat("FilterBType:{0}\n", Content.FilterBType);           					// index 228:231
-			buffer.AppendFormat("FilterBDB:{0}\n", ValueToString(Content.FilterBDB, 12, 24));			// index 234:235 (value range 12 -> 24)
-			buffer.AppendFormat("FilterCtlCutoff:{0}\n", ValueToStringFloatToHz(Content.FilterCtlCutoff, 1.0f, 21341.28f, FloatToHz.Up)); 	// index 236:239 (value range 1 -> 21341,28)
-			buffer.AppendFormat("FilterCtlKeyTrk:{0}\n", ValueToString(Content.FilterCtlKeyTrk, 0, 10));	// index 240:243 (value range 0 -> 10)
-			buffer.AppendFormat("FilterCtlReso:{0}\n", ValueToString(Content.FilterCtlReso, 0, 10));	// index 244:247 (value range 0 -> 10)
-			buffer.AppendFormat("FilterCtlWarmDrive:{0}\n", Content.FilterCtlWarmDrive);         		// index 250:251
-			buffer.AppendFormat("LFO1Free:{0}\n", Content.LFO1Free);                   					// index 254:255
-			buffer.AppendFormat("LFO1Gain:{0}\n", ValueToString(Content.LFO1Gain, 0, 10));				// index 256:259 (value range 0 -> 10)
-			buffer.AppendFormat("LFO1Offset:{0}\n", ValueToString(Content.LFO1Offset, -10, 10));        // index 260:263 (value range -10 -> 10)
-			buffer.AppendFormat("LFO1Rate:{0}\n", Content.LFO1Rate);                   					// index 264:267 (value range 8/1D -> 1/256T)
-			buffer.AppendFormat("LFO1Wave:{0}\n", Content.LFO1Wave);                 					// index 268:271
-			buffer.AppendFormat("LFO2Free:{0}\n", Content.LFO2Free);                   					// index 274:275
-			buffer.AppendFormat("LFO2Gain:{0}\n", ValueToString(Content.LFO2Gain, 0, 10));				// index 276:279 (value range 0 -> 10)
-			buffer.AppendFormat("LFO2Offset:{0}\n", ValueToString(Content.LFO2Offset, -10, 10));		// index 280:283 (value range -10 -> 10)
-			buffer.AppendFormat("LFO2Rate:{0}\n", Content.LFO2Rate);                   					// index 284:287 (value range 8/1D -> 1/256T)
-			buffer.AppendFormat("LFO2Wave:{0}\n", Content.LFO2Wave);                 					// index 288:291
-			buffer.AppendFormat("MainVolume:{0}\n", ValueToString(Content.MainVolume, 0, 10));			// index 292:295 (value range 0 -> 10)
-			buffer.AppendFormat("MixA:{0}\n", ValueToString(Content.MixA, 0, 10));						// index 296:299 (value range 0 -> 10)
-			buffer.AppendFormat("MixB:{0}\n", ValueToString(Content.MixB, 0, 10));						// index 300:303 (value range 0 -> 10)
-			buffer.AppendFormat("ModEnv1Attack:{0}\n", ValueToString(Content.ModEnv1Attack, 0, 10));	// index 304:307 (value range 0 -> 10)
-			buffer.AppendFormat("ModEnv1Decay:{0}\n", ValueToString(Content.ModEnv1Decay, 0, 10));		// index 308:311 (value range 0 -> 10)
-			buffer.AppendFormat("ModEnv1Release:{0}\n", ValueToString(Content.ModEnv1Release, 0, 10));	// index 312:315 (value range 0 -> 10)
-			buffer.AppendFormat("ModEnv1Sustain:{0}\n", ValueToString(Content.ModEnv1Sustain, 0, 10));	// index 316:319 (value range 0 -> 10)
-			buffer.AppendFormat("ModEnv2Attack:{0}\n", ValueToString(Content.ModEnv2Attack, 0, 10));	// index 320:323 (value range 0 -> 10)
-			buffer.AppendFormat("ModEnv2Decay:{0}\n", ValueToString(Content.ModEnv2Decay, 0, 10));		// index 324:327 (value range 0 -> 10)
-			buffer.AppendFormat("ModEnv2Release:{0}\n", ValueToString(Content.ModEnv2Release, 0, 10));	// index 328:331 (value range 0 -> 10)
-			buffer.AppendFormat("ModEnv2Sustain:{0}\n", ValueToString(Content.ModEnv2Sustain, 0, 10));	// index 332:335 (value range 0 -> 10)
-			buffer.AppendFormat("ModWheel:{0}\n", ValueToString(Content.ModWheel, 0, 10));				// index 336:339 (value range 0 -> 10)
-			buffer.AppendFormat("MonoLegato:{0}\n", Content.MonoLegato);                 				// index 342:343
-			buffer.AppendFormat("OscA1Detune:{0}\n", ValueToString(Content.OscA1Detune, 0, 10));		// index 344:347 (value range 0 -> 10)
-			buffer.AppendFormat("OscA1Fine:{0}\n", ValueToString(Content.OscA1Fine, -1, 1));            // index 348:351 (value range -1 -> 1)
-			buffer.AppendFormat("OscA1Invert:{0}\n", Content.OscA1Invert);                				// index 354:355
-			buffer.AppendFormat("OscA1Note:{0}\n", ValueToString(Content.OscA1Note, -7, 7));           	// index 356:359 (value range -7 -> 7)
-			buffer.AppendFormat("OscA1Octave:{0}\n", ValueToString(Content.OscA1Octave, -3, 3));        // index 360:363 (value range -3 -> 3)
-			buffer.AppendFormat("OscA1Pan:{0}\n", ValueToString(Content.OscA1Pan, -10, 10));            // index 364:367 (value range -10 -> 10)
-			buffer.AppendFormat("OscA1Phase:{0}\n", ValueToString(Content.OscA1Phase, 0, 360));         // index 368:371 (value range 0 -> 360)
-			buffer.AppendFormat("OscA1Retrig:{0}\n", Content.OscA1Retrig);                				// index 374:375
-			buffer.AppendFormat("OscA1Stereo:{0}\n", ValueToString(Content.OscA1Stereo, 0, 10));		// index 376:379 (value range 0 -> 10)
-			buffer.AppendFormat("OscA1Voices:{0}\n", ValueToString(Content.OscA1Voices, 0, 8));			// index 382:383 (value range 0 -> 8)
-			buffer.AppendFormat("OscA1Volume:{0}\n", ValueToString(Content.OscA1Volume, 0, 10));		// index 384:387 (value range 0 -> 10)
-			buffer.AppendFormat("OscA1Wave:{0}\n", Content.OscA1Wave);                					// index 388:391
-			buffer.AppendFormat("OscA2Detune:{0}\n", ValueToString(Content.OscA2Detune, 0, 10));		// index 392:395 (value range 0 -> 10)
-			buffer.AppendFormat("OscA2Fine:{0}\n", ValueToString(Content.OscA2Fine, -1, 1));            // index 396:399 (value range -1 -> 1)
-			buffer.AppendFormat("OscA2Invert:{0}\n", Content.OscA2Invert);               				// index 402:403
-			buffer.AppendFormat("OscA2Note:{0}\n", ValueToString(Content.OscA2Note, -7, 7));            // index 404:407 (value range -7 -> 7)
-			buffer.AppendFormat("OscA2Octave:{0}\n", ValueToString(Content.OscA2Octave, -3, 3));        // index 408:411 (value range -3 -> 3)
-			buffer.AppendFormat("OscA2Pan:{0}\n", ValueToString(Content.OscA2Pan, -10, 10));            // index 412:415 (value range -10 -> 10)
-			buffer.AppendFormat("OscA2Phase:{0}\n", ValueToString(Content.OscA2Phase, 0, 360));			// index 416:419 (value range 0 -> 360)
-			buffer.AppendFormat("OscA2Retrig:{0}\n", Content.OscA2Retrig);                				// index 422:423
-			buffer.AppendFormat("OscA2Stereo:{0}\n", ValueToString(Content.OscA2Stereo, 0, 10));		// index 424:427 (value range 0 -> 10)
-			buffer.AppendFormat("OscA2Voices:{0}\n", ValueToString(Content.OscA2Voices, 0, 8));			// index 430:431 (value range 0 -> 8)
-			buffer.AppendFormat("OscA2Volume:{0}\n", ValueToString(Content.OscA2Volume, 0, 10));		// index 432:435 (value range 0 -> 10)
-			buffer.AppendFormat("OscA2Wave:{0}\n", Content.OscA2Wave);                					// index 436:439
-			buffer.AppendFormat("OscB1Detune:{0}\n", ValueToString(Content.OscB1Detune, 0, 10));		// index 440:443 (value range 0 -> 10)
-			buffer.AppendFormat("OscB1Fine:{0}\n", ValueToString(Content.OscB1Fine, -1, 1));            // index 444:447 (value range -1 -> 1)
-			buffer.AppendFormat("OscB1Invert:{0}\n", Content.OscB1Invert);                				// index 450:451
-			buffer.AppendFormat("OscB1Note:{0}\n", ValueToString(Content.OscB1Note, -7, 7));            // index 452:455 (value range -7 -> 7)
-			buffer.AppendFormat("OscB1Octave:{0}\n", ValueToString(Content.OscB1Octave, -3, 3));        // index 456:459 (value range -3 -> 3)
-			buffer.AppendFormat("OscB1Pan:{0}\n", ValueToString(Content.OscB1Pan, -10, 10));            // index 460:463 (value range -10 -> 10)
-			buffer.AppendFormat("OscB1Phase:{0}\n", ValueToString(Content.OscB1Phase, 0, 360));			// index 464:467 (value range 0 -> 360)
-			buffer.AppendFormat("OscB1Retrig:{0}\n", Content.OscB1Retrig);                				// index 470:471
-			buffer.AppendFormat("OscB1Stereo:{0}\n", ValueToString(Content.OscB1Stereo, 0, 10));		// index 472:475 (value range 0 -> 10)
-			buffer.AppendFormat("OscB1Voices:{0}\n", ValueToString(Content.OscB1Voices, 0, 8));			// index 478:479 (value range 0 -> 8)
-			buffer.AppendFormat("OscB1Volume:{0}\n", ValueToString(Content.OscB1Volume, 0, 10));		// index 480:483 (value range 0 -> 10)
-			buffer.AppendFormat("OscB1Wave:{0}\n", Content.OscB1Wave);                					// index 484:487
-			buffer.AppendFormat("OscB2Detune:{0}\n", ValueToString(Content.OscB2Detune, 0, 10));		// index 488:491 (value range 0 -> 10)
-			buffer.AppendFormat("OscB2Fine:{0}\n", ValueToString(Content.OscB2Fine, -1, 1));           	// index 492:495 (value range -1 -> 1)
-			buffer.AppendFormat("OscB2Invert:{0}\n", Content.OscB2Invert);                				// index 498:499
-			buffer.AppendFormat("OscB2Note:{0}\n", ValueToString(Content.OscB2Note, -7, 7));            // index 500:503 (value range -7 -> 7)
-			buffer.AppendFormat("OscB2Octave:{0}\n", ValueToString(Content.OscB2Octave, -3, 3));        // index 504:507 (value range -3 -> 3)
-			buffer.AppendFormat("OscB2Pan:{0}\n", ValueToString(Content.OscB2Pan, -10, 10));            // index 508:511 (value range -10 -> 10)
-			buffer.AppendFormat("OscB2Phase:{0}\n", ValueToString(Content.OscB2Phase, 0, 360));			// index 512:515 (value range 0 -> 360)
-			buffer.AppendFormat("OscB2Retrig:{0}\n", Content.OscB2Retrig);                				// index 518:519
-			buffer.AppendFormat("OscB2Stereo:{0}\n", ValueToString(Content.OscB2Stereo, 0, 10));		// index 520:523 (value range 0 -> 10)
-			buffer.AppendFormat("OscB2Voices:{0}\n", ValueToString(Content.OscB2Voices, 0, 8));			// index 526:527 (value range 0 -> 8)
-			buffer.AppendFormat("OscB2Volume:{0}\n", ValueToString(Content.OscB2Volume, 0, 10));		// index 528:531 (value range 0 -> 10)
-			buffer.AppendFormat("OscB2Wave:{0}\n", Content.OscB2Wave);                					// index 532:535
-			buffer.AppendFormat("PhaserCenterFreq:{0}\n", ValueToString(Content.PhaserCenterFreq, 0, 10));	// index 536:539 (value range 0 -> 10)
-			buffer.AppendFormat("PhaserDry_Wet:{0}\n", ValueToString(Content.PhaserDry_Wet, 0, 100));	// index 540:543 (value range 0 -> 100)
-			buffer.AppendFormat("PhaserFeedback:{0}\n", ValueToString(Content.PhaserFeedback, 0, 100));	// index 544:547 (value range 0 -> 100)
-			buffer.AppendFormat("PhaserLFOGain:{0}\n", ValueToString(Content.PhaserLFOGain, 0, 10));	// index 548:551 (value range 0 -> 10)
-			buffer.AppendFormat("PhaserLFORate:{0}\n", Content.PhaserLFORate);              			// index 552:555 (value range 8/1D -> 1/256T))
-			buffer.AppendFormat("PhaserLROffset:{0}\n", ValueToString(Content.PhaserLROffset, -10, 10));// index 556:559 (value range -10 -> 10)
-			buffer.AppendFormat("PhaserSpread:{0}\n", ValueToString(Content.PhaserSpread, 0, 10));		// index 560:563 (value range 0 -> 10)
-			buffer.AppendFormat("PhaserWidth:{0}\n", ValueToString(Content.PhaserWidth, 0, 100));		// index 564:567 (value range 0 -> 100)
-			buffer.AppendFormat("PitchBend:{0}\n", ValueToString(Content.PitchBend, -10, 10));          // index 568:571 (value range -10 -> 10)
-			buffer.AppendFormat("PitchBendRange:{0}\n", ValueToString(Content.PitchBendRange, 1, 24));	// index 572:575 (value range 1 -> 24)
-			buffer.AppendFormat("Polyphony:{0}\n", ValueToString(Content.Polyphony, 0, 16));			// index 578:579 (value range 0 -> 16)
-			buffer.AppendFormat("PortaMode:{0}\n", Content.PortaMode);              					// index 582:583
-			buffer.AppendFormat("PortaTime:{0}\n", ValueToString(Content.PortaTime, 0, 10));			// index 584:587 (value range 0 -> 10)
-			buffer.AppendFormat("ReverbDamp:{0}\n", ValueToString(Content.ReverbDamp, 0, 10));			// index 588:591 (value range 0 -> 10)
-			buffer.AppendFormat("ReverbDry_Wet:{0}\n", ValueToString(Content.ReverbDry_Wet, 0, 100));	// index 592:595 (value range 0 -> 100)
-			buffer.AppendFormat("ReverbPredelay:{0}\n", ValueToString(Content.ReverbPredelay, 0, 200));	// index 596:599 (value range 0 -> 200)
-			buffer.AppendFormat("ReverbSize:{0}\n", ValueToString(Content.ReverbSize, 0, 10));			// index 600:603 (value range 0 -> 10)
-			buffer.AppendFormat("ReverbWidth:{0}\n", ValueToString(Content.ReverbWidth, 0, 100));		// index 604:607 (value range 0 -> 100)
-			buffer.AppendFormat("Solo:{0}\n", Content.Solo);                       		// index 610:611
-			buffer.AppendFormat("Sync:{0}\n", Content.Sync);                       		// index 614:615
-			buffer.AppendFormat("XArpHold01:{0}\n", Content.XArpHold01);                 // index 618:619
-			buffer.AppendFormat("XArpHold02:{0}\n", Content.XArpHold02);                 // index 622:623
-			buffer.AppendFormat("XArpHold03:{0}\n", Content.XArpHold03);                 // index 626:627
-			buffer.AppendFormat("XArpHold04:{0}\n", Content.XArpHold04);                 // index 630:631
-			buffer.AppendFormat("XArpHold05:{0}\n", Content.XArpHold05);                 // index 634:635
-			buffer.AppendFormat("XArpHold06:{0}\n", Content.XArpHold06);                 // index 638:639
-			buffer.AppendFormat("XArpHold07:{0}\n", Content.XArpHold07);                 // index 642:643
-			buffer.AppendFormat("XArpHold08:{0}\n", Content.XArpHold08);                 // index 646:647
-			buffer.AppendFormat("XArpHold09:{0}\n", Content.XArpHold09);                 // index 650:651
-			buffer.AppendFormat("XArpHold10:{0}\n", Content.XArpHold10);                 // index 654:655
-			buffer.AppendFormat("XArpHold11:{0}\n", Content.XArpHold11);                 // index 658:659
-			buffer.AppendFormat("XArpHold12:{0}\n", Content.XArpHold12);                 // index 662:663
-			buffer.AppendFormat("XArpHold13:{0}\n", Content.XArpHold13);                 // index 666:667
-			buffer.AppendFormat("XArpHold14:{0}\n", Content.XArpHold14);                 // index 670:671
-			buffer.AppendFormat("XArpHold15:{0}\n", Content.XArpHold15);                 // index 674:675
-			buffer.AppendFormat("XArpHold16:{0}\n", Content.XArpHold16);                 // index 678:679
-			buffer.AppendFormat("XArpTransp01:{0}\n", ValueToString(Content.XArpTransp01, -24, 24));  // index 680:684 (value range -24 -> 24)
-			buffer.AppendFormat("XArpTransp02:{0}\n", ValueToString(Content.XArpTransp02, -24, 24));  // (value range -24 -> 24)
-			buffer.AppendFormat("XArpTransp03:{0}\n", ValueToString(Content.XArpTransp03, -24, 24));  // (value range -24 -> 24)
-			buffer.AppendFormat("XArpTransp04:{0}\n", ValueToString(Content.XArpTransp04, -24, 24));  // (value range -24 -> 24)
-			buffer.AppendFormat("XArpTransp05:{0}\n", ValueToString(Content.XArpTransp05, -24, 24));  // (value range -24 -> 24)
-			buffer.AppendFormat("XArpTransp06:{0}\n", ValueToString(Content.XArpTransp06, -24, 24));  // (value range -24 -> 24)
-			buffer.AppendFormat("XArpTransp07:{0}\n", ValueToString(Content.XArpTransp07, -24, 24));  // (value range -24 -> 24)
-			buffer.AppendFormat("XArpTransp08:{0}\n", ValueToString(Content.XArpTransp08, -24, 24));  // (value range -24 -> 14)
-			buffer.AppendFormat("XArpTransp09:{0}\n", ValueToString(Content.XArpTransp09, -24, 24));  // index 712:715 (value range -24 -> 24)
-			buffer.AppendFormat("XArpTransp10:{0}\n", ValueToString(Content.XArpTransp10, -24, 24));  // index 716:719 (value range -24 -> 24)
-			buffer.AppendFormat("XArpTransp11:{0}\n", ValueToString(Content.XArpTransp11, -24, 24));  // index 720:723 (value range -24 -> 24)
-			buffer.AppendFormat("XArpTransp12:{0}\n", ValueToString(Content.XArpTransp12, -24, 24));  // index 724:727 (value range -24 -> 24)
-			buffer.AppendFormat("XArpTransp13:{0}\n", ValueToString(Content.XArpTransp13, -24, 24));  // index 728:731 (value range -24 -> 24)
-			buffer.AppendFormat("XArpTransp14:{0}\n", ValueToString(Content.XArpTransp14, -24, 24));  // index 732:735 (value range -24 -> 24)
-			buffer.AppendFormat("XArpTransp15:{0}\n", ValueToString(Content.XArpTransp15, -24, 24));  // index 736:739 (value range -24 -> 24)
-			buffer.AppendFormat("XArpTransp16:{0}\n", ValueToString(Content.XArpTransp16, -24, 24));  // index 740:743 (value range -24 -> 14)
-			buffer.AppendFormat("XArpVelo01:{0}\n", ValueToString(Content.XArpVelo01, 0, 127));	// (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo02:{0}\n", ValueToString(Content.XArpVelo02, 0, 127));	// (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo03:{0}\n", ValueToString(Content.XArpVelo03, 0, 127));	// (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo04:{0}\n", ValueToString(Content.XArpVelo04, 0, 127));	// (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo05:{0}\n", ValueToString(Content.XArpVelo05, 0, 127));	// (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo06:{0}\n", ValueToString(Content.XArpVelo06, 0, 127));	// (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo07:{0}\n", ValueToString(Content.XArpVelo07, 0, 127));	// (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo08:{0}\n", ValueToString(Content.XArpVelo08, 0, 127));	// (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo09:{0}\n", ValueToString(Content.XArpVelo09, 0, 127));	// index 776:779 (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo10:{0}\n", ValueToString(Content.XArpVelo10, 0, 127));	// index 780:783 (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo11:{0}\n", ValueToString(Content.XArpVelo11, 0, 127));	// index 784:787 (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo12:{0}\n", ValueToString(Content.XArpVelo12, 0, 127));	// index 788:791 (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo13:{0}\n", ValueToString(Content.XArpVelo13, 0, 127));	// index 792:795 (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo14:{0}\n", ValueToString(Content.XArpVelo14, 0, 127));	// index 796:799 (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo15:{0}\n", ValueToString(Content.XArpVelo15, 0, 127));	// index 800:803 (value range 0 -> 127)
-			buffer.AppendFormat("XArpVelo16:{0}\n", ValueToString(Content.XArpVelo16, 0, 127));	// index 804:807 (value range 0 -> 127)
-			buffer.AppendFormat("XModEnv1Dest1Am:{0}\n", ValueToString(Content.XModEnv1Dest1Am, -10, 10));           	// index 808:811 (value range -10 -> 10)
-			buffer.AppendFormat("XModEnv1Dest2Am:{0}\n", ValueToString(Content.XModEnv1Dest2Am, -10, 10));            	// index 812:815 (value range -10 -> 10)
-			buffer.AppendFormat("XModEnv2Dest1Am:{0}\n", ValueToString(Content.XModEnv2Dest1Am, -10, 10));            	// index 816:819 (value range -10 -> 10)
-			buffer.AppendFormat("XModEnv2Dest2Am:{0}\n", ValueToString(Content.XModEnv2Dest2Am, -10, 10));            	// index 820:823 (value range -10 -> 10)
-			buffer.AppendFormat("XModLFO1Dest1Am:{0}\n", ValueToString(Content.XModLFO1Dest1Am, -10, 10));            	// index 824:827 (value range -10 -> 10)
-			buffer.AppendFormat("XModLFO1Dest2Am:{0}\n", ValueToString(Content.XModLFO1Dest2Am, -10, 10));            	// index 828:831 (value range -10 -> 10)
-			buffer.AppendFormat("XModLFO2Dest1Am:{0}\n", ValueToString(Content.XModLFO2Dest1Am, -10, 10));            	// index 832:835 (value range -10 -> 10)
-			buffer.AppendFormat("XModLFO2Dest2Am:{0}\n", ValueToString(Content.XModLFO2Dest2Am, -10, 10));            	// index 836:839 (value range -10 -> 10)
-			buffer.AppendFormat("XModMisc1ADest1Am:{0}\n", ValueToString(Content.XModMisc1ADest1Am, -10, 10));        	// index 840:843 (value range -10 -> 10)
-			buffer.AppendFormat("XModMisc1ADest2Am:{0}\n", ValueToString(Content.XModMisc1ADest2Am, -10, 10));          // index 844:847 (value range -10 -> 10)
-			buffer.AppendFormat("XModMisc1ASource:{0}\n", Content.XModMisc1ASource);      // index 848:851
-			buffer.AppendFormat("XModMisc1BDest1Am:{0}\n", ValueToString(Content.XModMisc1BDest1Am, -10, 10));          // index 852:855 (value range -10 -> 10)
-			buffer.AppendFormat("XModMisc1BDest2Am:{0}\n", ValueToString(Content.XModMisc1BDest2Am, -10, 10));          // index 856:859 (value range -10 -> 10)
-			buffer.AppendFormat("XModMisc1BSource:{0}\n", Content.XModMisc1BSource);      // index 860:863
-			buffer.AppendFormat("XModMisc2ADest1Am:{0}\n", ValueToString(Content.XModMisc2ADest1Am, -10, 10));          // index 864:867 (value range -10 -> 10)
-			buffer.AppendFormat("XModMisc2ADest2Am:{0}\n", ValueToString(Content.XModMisc2ADest2Am, -10, 10));          // index 868:871 (value range -10 -> 10)
-			buffer.AppendFormat("XModMisc2ASource:{0}\n", Content.XModMisc2ASource);      // index 872:875
-			buffer.AppendFormat("XModMisc2BDest1Am:{0}\n", ValueToString(Content.XModMisc2BDest1Am, -10, 10));          // index 876:879 (value range -10 -> 10)
-			buffer.AppendFormat("XModMisc2BDest2Am:{0}\n", ValueToString(Content.XModMisc2BDest2Am, -10, 10));          // index 880:883 (value range -10 -> 10)
-			buffer.AppendFormat("XModMisc2BSource:{0}\n", Content.XModMisc2BSource);      // index 884:887
-			buffer.AppendFormat("XSwArpOnOff:{0}\n", Content.XSwArpOnOff);                // index 890:891
-			buffer.AppendFormat("XSwChorusOnOff:{0}\n", Content.XSwChorusOnOff);             // index 894:895
-			buffer.AppendFormat("XSwCompOnOff:{0}\n", Content.XSwCompOnOff);               // index 898:899
-			buffer.AppendFormat("XSwDelayOnOff:{0}\n", Content.XSwDelayOnOff);              // index 902:903
-			buffer.AppendFormat("XSwDistOnOff:{0}\n", Content.XSwDistOnOff);               // index 906:907
-			buffer.AppendFormat("XSwEQOnOff:{0}\n", Content.XSwEQOnOff);                 // index 910:911
-			buffer.AppendFormat("XSwPhaserOnOff:{0}\n", Content.XSwPhaserOnOff);             // index 914:915
-			buffer.AppendFormat("XSwReverbOnOff:{0}\n", Content.XSwReverbOnOff);             // index 918:919
-			buffer.AppendFormat("YModEnv1Dest1:{0}\n", Content.YModEnv1Dest1);           // index 922:923
-			buffer.AppendFormat("YModEnv1Dest2:{0}\n", Content.YModEnv1Dest2);           // index 926:927
-			buffer.AppendFormat("YModEnv2Dest1:{0}\n", Content.YModEnv2Dest1);           // index 930:931
-			buffer.AppendFormat("YModEnv2Dest2:{0}\n", Content.YModEnv2Dest2);           // index 934:935
-			buffer.AppendFormat("YModLFO1Dest1:{0}\n", Content.YModLFO1Dest1);          // index 939:939
-			buffer.AppendFormat("YModLFO1Dest2:{0}\n", Content.YModLFO1Dest2);          // index 942:943
-			buffer.AppendFormat("YModLFO2Dest1:{0}\n", Content.YModLFO2Dest1);          // index 946:947
-			buffer.AppendFormat("YModLFO2Dest2:{0}\n", Content.YModLFO2Dest2);          // index 950:951
-			buffer.AppendFormat("YModMisc1ADest1:{0}\n", Content.YModMisc1ADest1);        // index 954:955
-			buffer.AppendFormat("YModMisc1ADest2:{0}\n", Content.YModMisc1ADest2);        // index 958:959
-			buffer.AppendFormat("YModMisc1BDest1:{0}\n", Content.YModMisc1BDest1);        // index 962:963
-			buffer.AppendFormat("YModMisc1BDest2:{0}\n", Content.YModMisc1BDest2);        // index 966:967
-			buffer.AppendFormat("YModMisc2ADest1:{0}\n", Content.YModMisc2ADest1);        // index 970:971
-			buffer.AppendFormat("YModMisc2ADest2:{0}\n", Content.YModMisc2ADest2);        // index 974:975
-			buffer.AppendFormat("YModMisc2BDest1:{0}\n", Content.YModMisc2BDest1);        // index 978:979
-			buffer.AppendFormat("YModMisc2BDest2:{0}\n", Content.YModMisc2BDest2);        // index 982:983
-			buffer.AppendFormat("YPartSelect:{0}\n", Content.YPartSelect);         // index 986:987
-			buffer.AppendFormat("ZEQMode:{0}\n", Content.ZEQMode);                 // index 990:991
+			buffer.AppendFormat("AmpEnvAAttack: {0}\n", ValueToString(Content.AmpEnvAAttack, 0, 10));	// index 20:23 (value range 0 -> 10)
+			buffer.AppendFormat("AmpEnvADecay: {0}\n", ValueToString(Content.AmpEnvADecay, 0, 10));		// index 24:27 (value range 0 -> 10)
+			buffer.AppendFormat("AmpEnvARelease: {0}\n", ValueToString(Content.AmpEnvARelease, 0, 10));	// index 28:31 (value range 0 -> 10)
+			buffer.AppendFormat("AmpEnvASustain: {0}\n", ValueToString(Content.AmpEnvASustain, 0, 10));	// index 32:35 (value range 0 -> 10)
+			
+			buffer.AppendFormat("AmpEnvBAttack: {0}\n", ValueToString(Content.AmpEnvBAttack, 0, 10));	// index 36:39 (value range 0 -> 10)
+			buffer.AppendFormat("AmpEnvBDecay: {0}\n", ValueToString(Content.AmpEnvBDecay, 0, 10));		// index 40:43 (value range 0 -> 10)
+			buffer.AppendFormat("AmpEnvBRelease: {0}\n", ValueToString(Content.AmpEnvBRelease, 0, 10));	// index 44:47 (value range 0 -> 10)
+			buffer.AppendFormat("AmpEnvBSustain: {0}\n", ValueToString(Content.AmpEnvBSustain, 0, 10));	// index 48:51 (value range 0 -> 10)
+
+			buffer.AppendFormat("ArpGate: {0}\n", ValueToString(Content.ArpGate, 0, 100, "%"));				// index 52:55 (value range 0 -> 100)
+			buffer.AppendFormat("ArpMode: {0}\n", Content.ArpMode);                  					// index 56:59
+			buffer.AppendFormat("ArpOctave: {0}\n", ValueToString(Content.ArpOctave, 1, 4));				// index 60:63 (value range 1 -> 4)
+			buffer.AppendFormat("ArpTime: {0}\n", Content.ArpTime);                    					// index 64:67 (value range 1/1 -> 1/64)
+			buffer.AppendFormat("ArpVelo: {0}\n", Content.ArpVelo);                  					// index 70:71
+			buffer.AppendFormat("ArpWrap: {0}\n", ValueToString(Content.ArpWrap, 0, 16));				// index 72:75 (value range 0 -> 16)
+
+			buffer.AppendFormat("ChorusDelay: {0}\n", ValueToString(Content.ChorusDelay, 1, 40, "ms"));		// index 76:79 (value range 1 -> 40)
+			buffer.AppendFormat("ChorusDepth: {0}\n", ValueToString(Content.ChorusDepth, 0, 100, "%"));		// index 80:83 (value range 0 -> 100)
+			buffer.AppendFormat("ChorusDry_Wet: {0}\n", ValueToString(Content.ChorusDry_Wet, 0, 100, "%"));	// index 84:87 (value range 0 -> 100)
+			buffer.AppendFormat("ChorusFeedback: {0}\n", ValueToString(Content.ChorusFeedback, 0, 100, "%"));	// index 88:91 (value range 0 -> 100)
+			buffer.AppendFormat("ChorusMode: {0}\n", Content.ChorusMode);            					// index 94:95
+			buffer.AppendFormat("ChorusRate: {0}\n", ValueToString(Content.ChorusRate, 0.01f, 27.5f, "Hz"));   // index 96:99 (value range 0,01 -> 27,5)
+			buffer.AppendFormat("ChorusWidth: {0}\n", ValueToString(Content.ChorusWidth, 0, 100, "%"));		// index 100:103 (value range 0 -> 100)
+			
+			buffer.AppendFormat("CompAttack: {0}\n", ValueToString(Content.CompAttack, 0.1f, 300f, "ms"));      // index 104:107 (value range 0,1 -> 300)
+			buffer.AppendFormat("CompRatio: {0}\n", CompRatioFloatToEnum(Content.CompRatio));                  				// index 108:111 (value range 1.00:1 -> 100.00:1)
+			buffer.AppendFormat("CompRelease: {0}\n", ValueToString(Content.CompRelease, 1, 500, "ms"));		// index 112:115 (value range 1 -> 500)
+			buffer.AppendFormat("CompThreshold: {0}\n", ValueToString(Content.CompThreshold, -30, 0, "dB"));	// index 116:119 (value range -30 -> 0)
+			
+			buffer.AppendFormat("DelayDry_Wet: {0}\n", ValueToString(Content.DelayDry_Wet, 0, 100, "%"));		// index 120:123 (value range 0 -> 100)
+			buffer.AppendFormat("DelayFeedback: {0}\n", ValueToString(Content.DelayFeedback, 0, 100, "%"));	// index 124:127 (value range 0 -> 100)
+			buffer.AppendFormat("DelayHighCut: {0}\n", ValueToStringHz(Content.DelayHighCut, 21120.0f, 82.5f, FloatToHz.DelayHighCut));	// index 128:131 (value range 82,5 -> 21120)
+			buffer.AppendFormat("DelayLowCut: {0}\n", ValueToStringHz(Content.DelayLowCut, 3.23f, 26483.12f, FloatToHz.DelayLowCut));		// index 132:135 (value range 3,23 -> 26483,12)
+			buffer.AppendFormat("DelayPingPong: {0}\n", Content.DelayPingPong);              			// index 138:139
+			buffer.AppendFormat("DelaySmear: {0}\n", ValueToString(Content.DelaySmear, 0, 10));			// index 140:143 (value range 0 -> 10)
+			buffer.AppendFormat("DelaySpread: {0}\n", ValueToString(Content.DelaySpread, 0, 100, "%"));		// index 144:147 (value range 0 -> 100)
+			buffer.AppendFormat("DelayTimeLeft: {0}\n", DelayTimeFloatToEnum(Content.DelayTimeLeft));              			// index 148:151 (value range 1/64 -> 1/2)
+			buffer.AppendFormat("DelayTimeRight: {0}\n", DelayTimeFloatToEnum(Content.DelayTimeRight));             			// index 152:155 (value range 1/64 -> 1/2)
+			buffer.AppendFormat("DelayWidth: {0}\n", ValueToString(Content.DelayWidth, 0, 100, "%"));			// index 156:159 (value range 0 -> 100)
+			
+			buffer.AppendFormat("DistortAmount: {0}\n", ValueToString(Content.DistortAmount, 0, 10));	// index 160:163 (value range 0 -> 10)
+			buffer.AppendFormat("DistortDryWet: {0}\n", ValueToString(Content.DistortDryWet, 0, 100, "%"));	// index 164:167 (value range 0 -> 100)
+			buffer.AppendFormat("DistortType: {0}\n", Content.DistortType);          					// index 170:171
+			
+			buffer.AppendFormat("EQBass: {0}\n", ValueToString(Content.EQBass, 0, 15, "dB"));					// index 172:175 (value range 0 -> 15)
+			buffer.AppendFormat("EQBassFreq: {0}\n", ValueToStringHz(Content.EQBassFreq, 13.75f, 880.0f, FloatToHz.EQBassFreq)); // index 176:179 (value range 13,75 -> 880)
+			buffer.AppendFormat("EQTreble: {0}\n", ValueToString(Content.EQTreble, 0, 15, "dB"));				// index 180:183 (value range 0 -> 15)
+			buffer.AppendFormat("EQTrebleFreq: {0}\n", ValueToStringHz(Content.EQTrebleFreq, 440, 28160, FloatToHz.EQTrebleFreq));	// index 184:187 (value range 440 -> 28160)
+			
+			buffer.AppendFormat("FilterACutoff: {0}\n", ValueToStringHz(Content.FilterACutoff, 1.0f, 21341.28f, FloatToHz.FilterCutoff));	// index 188:191 (value range 1 -> 21341,28)
+			buffer.AppendFormat("FilterADrive: {0}\n", ValueToString(Content.FilterADrive, 0, 10));		// index 192:195 (value range 0 -> 10)
+			buffer.AppendFormat("FilterAInput: {0}\n", Content.FilterAInput);         					// index 198:199
+			buffer.AppendFormat("FilterAReso: {0}\n", ValueToString(Content.FilterAReso, 0, 10));		// index 200:203 (value range 0 -> 10)
+			buffer.AppendFormat("FilterAType: {0}\n", Content.FilterAType);           					// index 204:207
+			buffer.AppendFormat("FilterADB: {0}\n", Content.FilterADB);									// index 210:211 (value range 12 -> 12)
+			
+			buffer.AppendFormat("FilterBCutoff: {0}\n", ValueToStringHz(Content.FilterBCutoff, 1.0f, 21341.28f, FloatToHz.FilterCutoff));	// index 212:215 (value range 1 -> 21341,28)
+			buffer.AppendFormat("FilterBDrive: {0}\n", ValueToString(Content.FilterBDrive, 0, 10));		// index 216:219 (value range 0 -> 10)
+			buffer.AppendFormat("FilterBInput: {0}\n", Content.FilterBInput);         					// index 222:223
+			buffer.AppendFormat("FilterBReso: {0}\n", ValueToString(Content.FilterBReso, 0, 10));		// index 224:227 (value range 0 -> 10)
+			buffer.AppendFormat("FilterBType: {0}\n", Content.FilterBType);           					// index 228:231
+			buffer.AppendFormat("FilterBDB: {0}\n", Content.FilterBDB);									// index 234:235 (value range 12 -> 24)
+			
+			buffer.AppendFormat("FilterCtlCutoff: {0}\n", ValueToStringHz(Content.FilterCtlCutoff, 1.0f, 21341.28f, FloatToHz.FilterCutoff)); 	// index 236:239 (value range 1 -> 21341,28)
+			buffer.AppendFormat("FilterCtlKeyTrk: {0}\n", ValueToString(Content.FilterCtlKeyTrk, 0, 10));	// index 240:243 (value range 0 -> 10)
+			buffer.AppendFormat("FilterCtlReso: {0}\n", ValueToString(Content.FilterCtlReso, 0, 10));	// index 244:247 (value range 0 -> 10)
+			buffer.AppendFormat("FilterCtlWarmDrive: {0}\n", Content.FilterCtlWarmDrive);         		// index 250:251
+			
+			buffer.AppendFormat("LFO1Free: {0}\n", Content.LFO1Free);                   					// index 254:255
+			buffer.AppendFormat("LFO1Gain: {0}\n", ValueToString(Content.LFO1Gain, 0, 10));				// index 256:259 (value range 0 -> 10)
+			buffer.AppendFormat("LFO1Offset: {0}\n", ValueToString(Content.LFO1Offset, -10, 10));        // index 260:263 (value range -10 -> 10)
+			buffer.AppendFormat("LFO1Rate: {0}\n", ValueToStringLFORate(Content.LFO1Rate, 0.04f, 192f, Content.LFO1Free));                   					// index 264:267 (value range 8/1D -> 1/256T)
+			buffer.AppendFormat("LFO1Wave: {0}\n", Content.LFO1Wave);                 					// index 268:271
+			
+			buffer.AppendFormat("LFO2Free: {0}\n", Content.LFO2Free);                   					// index 274:275
+			buffer.AppendFormat("LFO2Gain: {0}\n", ValueToString(Content.LFO2Gain, 0, 10));				// index 276:279 (value range 0 -> 10)
+			buffer.AppendFormat("LFO2Offset: {0}\n", ValueToString(Content.LFO2Offset, -10, 10));		// index 280:283 (value range -10 -> 10)
+			buffer.AppendFormat("LFO2Rate: {0}\n", ValueToStringLFORate(Content.LFO2Rate, 0.04f, 192f, Content.LFO2Free));                   					// index 284:287 (value range 8/1D -> 1/256T)
+			buffer.AppendFormat("LFO2Wave: {0}\n", Content.LFO2Wave);                 					// index 288:291
+			
+			buffer.AppendFormat("MainVolume: {0}\n", ValueToString(Content.MainVolume, 0, 10));			// index 292:295 (value range 0 -> 10)
+			buffer.AppendFormat("MixA: {0}\n", ValueToString(Content.MixA, 0, 10));						// index 296:299 (value range 0 -> 10)
+			buffer.AppendFormat("MixB: {0}\n", ValueToString(Content.MixB, 0, 10));						// index 300:303 (value range 0 -> 10)
+			
+			buffer.AppendFormat("ModEnv1Attack: {0}\n", ValueToString(Content.ModEnv1Attack, 0, 10));	// index 304:307 (value range 0 -> 10)
+			buffer.AppendFormat("ModEnv1Decay: {0}\n", ValueToString(Content.ModEnv1Decay, 0, 10));		// index 308:311 (value range 0 -> 10)
+			buffer.AppendFormat("ModEnv1Release: {0}\n", ValueToString(Content.ModEnv1Release, 0, 10));	// index 312:315 (value range 0 -> 10)
+			buffer.AppendFormat("ModEnv1Sustain: {0}\n", ValueToString(Content.ModEnv1Sustain, 0, 10));	// index 316:319 (value range 0 -> 10)
+			buffer.AppendFormat("ModEnv2Attack: {0}\n", ValueToString(Content.ModEnv2Attack, 0, 10));	// index 320:323 (value range 0 -> 10)
+			buffer.AppendFormat("ModEnv2Decay: {0}\n", ValueToString(Content.ModEnv2Decay, 0, 10));		// index 324:327 (value range 0 -> 10)
+			buffer.AppendFormat("ModEnv2Release: {0}\n", ValueToString(Content.ModEnv2Release, 0, 10));	// index 328:331 (value range 0 -> 10)
+			buffer.AppendFormat("ModEnv2Sustain: {0}\n", ValueToString(Content.ModEnv2Sustain, 0, 10));	// index 332:335 (value range 0 -> 10)
+			buffer.AppendFormat("ModWheel: {0}\n", ValueToString(Content.ModWheel, 0, 10));				// index 336:339 (value range 0 -> 10)
+			
+			buffer.AppendFormat("MonoLegato: {0}\n", Content.MonoLegato);                 				// index 342:343
+			
+			buffer.AppendFormat("OscA1Detune: {0}\n", ValueToString(Content.OscA1Detune, 0, 10));		// index 344:347 (value range 0 -> 10)
+			buffer.AppendFormat("OscA1Fine: {0}\n", ValueToString(Content.OscA1Fine, -1, 1));            // index 348:351 (value range -1 -> 1)
+			buffer.AppendFormat("OscA1Invert: {0}\n", Content.OscA1Invert);                				// index 354:355
+			buffer.AppendFormat("OscA1Note: {0}\n", ValueToString(Content.OscA1Note, -7, 7));           	// index 356:359 (value range -7 -> 7)
+			buffer.AppendFormat("OscA1Octave: {0}\n", ValueToString(Content.OscA1Octave, -3, 3));        // index 360:363 (value range -3 -> 3)
+			buffer.AppendFormat("OscA1Pan: {0}\n", ValueToString(Content.OscA1Pan, -10, 10));            // index 364:367 (value range -10 -> 10)
+			buffer.AppendFormat("OscA1Phase: {0}\n", ValueToString(Content.OscA1Phase, 0, 360, "deg"));         // index 368:371 (value range 0 -> 360)
+			buffer.AppendFormat("OscA1Retrig: {0}\n", Content.OscA1Retrig);                				// index 374:375
+			buffer.AppendFormat("OscA1Stereo: {0}\n", ValueToString(Content.OscA1Stereo, 0, 10));		// index 376:379 (value range 0 -> 10)
+			buffer.AppendFormat("OscA1Voices: {0}\n", ValueToString(Content.OscA1Voices, 0, 8));			// index 382:383 (value range 0 -> 8)
+			buffer.AppendFormat("OscA1Volume: {0}\n", ValueToString(Content.OscA1Volume, 0, 10));		// index 384:387 (value range 0 -> 10)
+			buffer.AppendFormat("OscA1Wave: {0}\n", Content.OscA1Wave);                					// index 388:391
+			
+			buffer.AppendFormat("OscA2Detune: {0}\n", ValueToString(Content.OscA2Detune, 0, 10));		// index 392:395 (value range 0 -> 10)
+			buffer.AppendFormat("OscA2Fine: {0}\n", ValueToString(Content.OscA2Fine, -1, 1));            // index 396:399 (value range -1 -> 1)
+			buffer.AppendFormat("OscA2Invert: {0}\n", Content.OscA2Invert);               				// index 402:403
+			buffer.AppendFormat("OscA2Note: {0}\n", ValueToString(Content.OscA2Note, -7, 7));            // index 404:407 (value range -7 -> 7)
+			buffer.AppendFormat("OscA2Octave: {0}\n", ValueToString(Content.OscA2Octave, -3, 3));        // index 408:411 (value range -3 -> 3)
+			buffer.AppendFormat("OscA2Pan: {0}\n", ValueToString(Content.OscA2Pan, -10, 10));            // index 412:415 (value range -10 -> 10)
+			buffer.AppendFormat("OscA2Phase: {0}\n", ValueToString(Content.OscA2Phase, 0, 360, "deg"));			// index 416:419 (value range 0 -> 360)
+			buffer.AppendFormat("OscA2Retrig: {0}\n", Content.OscA2Retrig);                				// index 422:423
+			buffer.AppendFormat("OscA2Stereo: {0}\n", ValueToString(Content.OscA2Stereo, 0, 10));		// index 424:427 (value range 0 -> 10)
+			buffer.AppendFormat("OscA2Voices: {0}\n", ValueToString(Content.OscA2Voices, 0, 8));			// index 430:431 (value range 0 -> 8)
+			buffer.AppendFormat("OscA2Volume: {0}\n", ValueToString(Content.OscA2Volume, 0, 10));		// index 432:435 (value range 0 -> 10)
+			buffer.AppendFormat("OscA2Wave: {0}\n", Content.OscA2Wave);                					// index 436:439
+			
+			buffer.AppendFormat("OscB1Detune: {0}\n", ValueToString(Content.OscB1Detune, 0, 10));		// index 440:443 (value range 0 -> 10)
+			buffer.AppendFormat("OscB1Fine: {0}\n", ValueToString(Content.OscB1Fine, -1, 1));            // index 444:447 (value range -1 -> 1)
+			buffer.AppendFormat("OscB1Invert: {0}\n", Content.OscB1Invert);                				// index 450:451
+			buffer.AppendFormat("OscB1Note: {0}\n", ValueToString(Content.OscB1Note, -7, 7));            // index 452:455 (value range -7 -> 7)
+			buffer.AppendFormat("OscB1Octave: {0}\n", ValueToString(Content.OscB1Octave, -3, 3));        // index 456:459 (value range -3 -> 3)
+			buffer.AppendFormat("OscB1Pan: {0}\n", ValueToString(Content.OscB1Pan, -10, 10));            // index 460:463 (value range -10 -> 10)
+			buffer.AppendFormat("OscB1Phase: {0}\n", ValueToString(Content.OscB1Phase, 0, 360, "deg"));			// index 464:467 (value range 0 -> 360)
+			buffer.AppendFormat("OscB1Retrig: {0}\n", Content.OscB1Retrig);                				// index 470:471
+			buffer.AppendFormat("OscB1Stereo: {0}\n", ValueToString(Content.OscB1Stereo, 0, 10));		// index 472:475 (value range 0 -> 10)
+			buffer.AppendFormat("OscB1Voices: {0}\n", ValueToString(Content.OscB1Voices, 0, 8));			// index 478:479 (value range 0 -> 8)
+			buffer.AppendFormat("OscB1Volume: {0}\n", ValueToString(Content.OscB1Volume, 0, 10));		// index 480:483 (value range 0 -> 10)
+			buffer.AppendFormat("OscB1Wave: {0}\n", Content.OscB1Wave);                					// index 484:487
+			
+			buffer.AppendFormat("OscB2Detune: {0}\n", ValueToString(Content.OscB2Detune, 0, 10));		// index 488:491 (value range 0 -> 10)
+			buffer.AppendFormat("OscB2Fine: {0}\n", ValueToString(Content.OscB2Fine, -1, 1));           	// index 492:495 (value range -1 -> 1)
+			buffer.AppendFormat("OscB2Invert: {0}\n", Content.OscB2Invert);                				// index 498:499
+			buffer.AppendFormat("OscB2Note: {0}\n", ValueToString(Content.OscB2Note, -7, 7));            // index 500:503 (value range -7 -> 7)
+			buffer.AppendFormat("OscB2Octave: {0}\n", ValueToString(Content.OscB2Octave, -3, 3));        // index 504:507 (value range -3 -> 3)
+			buffer.AppendFormat("OscB2Pan: {0}\n", ValueToString(Content.OscB2Pan, -10, 10));            // index 508:511 (value range -10 -> 10)
+			buffer.AppendFormat("OscB2Phase: {0}\n", ValueToString(Content.OscB2Phase, 0, 360, "deg"));			// index 512:515 (value range 0 -> 360)
+			buffer.AppendFormat("OscB2Retrig: {0}\n", Content.OscB2Retrig);                				// index 518:519
+			buffer.AppendFormat("OscB2Stereo: {0}\n", ValueToString(Content.OscB2Stereo, 0, 10));		// index 520:523 (value range 0 -> 10)
+			buffer.AppendFormat("OscB2Voices: {0}\n", ValueToString(Content.OscB2Voices, 0, 8));			// index 526:527 (value range 0 -> 8)
+			buffer.AppendFormat("OscB2Volume: {0}\n", ValueToString(Content.OscB2Volume, 0, 10));		// index 528:531 (value range 0 -> 10)
+			buffer.AppendFormat("OscB2Wave: {0}\n", Content.OscB2Wave);                					// index 532:535
+			
+			buffer.AppendFormat("PhaserCenterFreq: {0}\n", ValueToString(Content.PhaserCenterFreq, 0, 10));	// index 536:539 (value range 0 -> 10)
+			buffer.AppendFormat("PhaserDry_Wet: {0}\n", ValueToString(Content.PhaserDry_Wet, 0, 100, "%"));	// index 540:543 (value range 0 -> 100)
+			buffer.AppendFormat("PhaserFeedback: {0}\n", ValueToString(Content.PhaserFeedback, 0, 100, "%"));	// index 544:547 (value range 0 -> 100)
+			buffer.AppendFormat("PhaserLFOGain: {0}\n", ValueToString(Content.PhaserLFOGain, 0, 10));	// index 548:551 (value range 0 -> 10)
+			buffer.AppendFormat("PhaserLFORate: {0}\n", Content.PhaserLFORate);              			// index 552:555 (value range 8/1D -> 1/256T))
+			buffer.AppendFormat("PhaserLROffset: {0}\n", ValueToString(Content.PhaserLROffset, -10, 10));// index 556:559 (value range -10 -> 10)
+			buffer.AppendFormat("PhaserSpread: {0}\n", ValueToString(Content.PhaserSpread, 0, 10));		// index 560:563 (value range 0 -> 10)
+			buffer.AppendFormat("PhaserWidth: {0}\n", ValueToString(Content.PhaserWidth, 0, 100, "%"));		// index 564:567 (value range 0 -> 100)
+			
+			buffer.AppendFormat("PitchBend: {0}\n", ValueToString(Content.PitchBend, -10, 10));          // index 568:571 (value range -10 -> 10)
+			buffer.AppendFormat("PitchBendRange: {0}\n", ValueToString(Content.PitchBendRange, 1, 24));	// index 572:575 (value range 1 -> 24)
+			
+			buffer.AppendFormat("Polyphony: {0}\n", ValueToString(Content.Polyphony, 0, 16));			// index 578:579 (value range 0 -> 16)
+			buffer.AppendFormat("PortaMode: {0}\n", Content.PortaMode);              					// index 582:583
+			buffer.AppendFormat("PortaTime: {0}\n", ValueToString(Content.PortaTime, 0, 10));			// index 584:587 (value range 0 -> 10)
+			
+			buffer.AppendFormat("ReverbDamp: {0}\n", ValueToString(Content.ReverbDamp, 0, 10));			// index 588:591 (value range 0 -> 10)
+			buffer.AppendFormat("ReverbDry_Wet: {0}\n", ValueToString(Content.ReverbDry_Wet, 0, 100, "%"));	// index 592:595 (value range 0 -> 100)
+			buffer.AppendFormat("ReverbPredelay: {0}\n", ValueToString(Content.ReverbPredelay, 0, 200, "ms"));	// index 596:599 (value range 0 -> 200)
+			buffer.AppendFormat("ReverbSize: {0}\n", ValueToString(Content.ReverbSize, 0, 10));			// index 600:603 (value range 0 -> 10)
+			buffer.AppendFormat("ReverbWidth: {0}\n", ValueToString(Content.ReverbWidth, 0, 100, "%"));		// index 604:607 (value range 0 -> 100)
+			
+			buffer.AppendFormat("Solo: {0}\n", Content.Solo);                       		// index 610:611
+			buffer.AppendFormat("Sync: {0}\n", Content.Sync);                       		// index 614:615
+			
+			buffer.AppendFormat("XArpHold01: {0}\n", Content.XArpHold01);                 // index 618:619
+			buffer.AppendFormat("XArpHold02: {0}\n", Content.XArpHold02);                 // index 622:623
+			buffer.AppendFormat("XArpHold03: {0}\n", Content.XArpHold03);                 // index 626:627
+			buffer.AppendFormat("XArpHold04: {0}\n", Content.XArpHold04);                 // index 630:631
+			buffer.AppendFormat("XArpHold05: {0}\n", Content.XArpHold05);                 // index 634:635
+			buffer.AppendFormat("XArpHold06: {0}\n", Content.XArpHold06);                 // index 638:639
+			buffer.AppendFormat("XArpHold07: {0}\n", Content.XArpHold07);                 // index 642:643
+			buffer.AppendFormat("XArpHold08: {0}\n", Content.XArpHold08);                 // index 646:647
+			buffer.AppendFormat("XArpHold09: {0}\n", Content.XArpHold09);                 // index 650:651
+			buffer.AppendFormat("XArpHold10: {0}\n", Content.XArpHold10);                 // index 654:655
+			buffer.AppendFormat("XArpHold11: {0}\n", Content.XArpHold11);                 // index 658:659
+			buffer.AppendFormat("XArpHold12: {0}\n", Content.XArpHold12);                 // index 662:663
+			buffer.AppendFormat("XArpHold13: {0}\n", Content.XArpHold13);                 // index 666:667
+			buffer.AppendFormat("XArpHold14: {0}\n", Content.XArpHold14);                 // index 670:671
+			buffer.AppendFormat("XArpHold15: {0}\n", Content.XArpHold15);                 // index 674:675
+			buffer.AppendFormat("XArpHold16: {0}\n", Content.XArpHold16);                 // index 678:679
+			buffer.AppendFormat("XArpTransp01: {0}\n", ValueToString(Content.XArpTransp01, -24, 24));  // index 680:684 (value range -24 -> 24)
+			buffer.AppendFormat("XArpTransp02: {0}\n", ValueToString(Content.XArpTransp02, -24, 24));  // (value range -24 -> 24)
+			buffer.AppendFormat("XArpTransp03: {0}\n", ValueToString(Content.XArpTransp03, -24, 24));  // (value range -24 -> 24)
+			buffer.AppendFormat("XArpTransp04: {0}\n", ValueToString(Content.XArpTransp04, -24, 24));  // (value range -24 -> 24)
+			buffer.AppendFormat("XArpTransp05: {0}\n", ValueToString(Content.XArpTransp05, -24, 24));  // (value range -24 -> 24)
+			buffer.AppendFormat("XArpTransp06: {0}\n", ValueToString(Content.XArpTransp06, -24, 24));  // (value range -24 -> 24)
+			buffer.AppendFormat("XArpTransp07: {0}\n", ValueToString(Content.XArpTransp07, -24, 24));  // (value range -24 -> 24)
+			buffer.AppendFormat("XArpTransp08: {0}\n", ValueToString(Content.XArpTransp08, -24, 24));  // (value range -24 -> 14)
+			buffer.AppendFormat("XArpTransp09: {0}\n", ValueToString(Content.XArpTransp09, -24, 24));  // index 712:715 (value range -24 -> 24)
+			buffer.AppendFormat("XArpTransp10: {0}\n", ValueToString(Content.XArpTransp10, -24, 24));  // index 716:719 (value range -24 -> 24)
+			buffer.AppendFormat("XArpTransp11: {0}\n", ValueToString(Content.XArpTransp11, -24, 24));  // index 720:723 (value range -24 -> 24)
+			buffer.AppendFormat("XArpTransp12: {0}\n", ValueToString(Content.XArpTransp12, -24, 24));  // index 724:727 (value range -24 -> 24)
+			buffer.AppendFormat("XArpTransp13: {0}\n", ValueToString(Content.XArpTransp13, -24, 24));  // index 728:731 (value range -24 -> 24)
+			buffer.AppendFormat("XArpTransp14: {0}\n", ValueToString(Content.XArpTransp14, -24, 24));  // index 732:735 (value range -24 -> 24)
+			buffer.AppendFormat("XArpTransp15: {0}\n", ValueToString(Content.XArpTransp15, -24, 24));  // index 736:739 (value range -24 -> 24)
+			buffer.AppendFormat("XArpTransp16: {0}\n", ValueToString(Content.XArpTransp16, -24, 24));  // index 740:743 (value range -24 -> 14)
+			buffer.AppendFormat("XArpVelo01: {0}\n", ValueToString(Content.XArpVelo01, 0, 127));	// (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo02: {0}\n", ValueToString(Content.XArpVelo02, 0, 127));	// (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo03: {0}\n", ValueToString(Content.XArpVelo03, 0, 127));	// (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo04: {0}\n", ValueToString(Content.XArpVelo04, 0, 127));	// (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo05: {0}\n", ValueToString(Content.XArpVelo05, 0, 127));	// (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo06: {0}\n", ValueToString(Content.XArpVelo06, 0, 127));	// (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo07: {0}\n", ValueToString(Content.XArpVelo07, 0, 127));	// (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo08: {0}\n", ValueToString(Content.XArpVelo08, 0, 127));	// (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo09: {0}\n", ValueToString(Content.XArpVelo09, 0, 127));	// index 776:779 (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo10: {0}\n", ValueToString(Content.XArpVelo10, 0, 127));	// index 780:783 (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo11: {0}\n", ValueToString(Content.XArpVelo11, 0, 127));	// index 784:787 (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo12: {0}\n", ValueToString(Content.XArpVelo12, 0, 127));	// index 788:791 (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo13: {0}\n", ValueToString(Content.XArpVelo13, 0, 127));	// index 792:795 (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo14: {0}\n", ValueToString(Content.XArpVelo14, 0, 127));	// index 796:799 (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo15: {0}\n", ValueToString(Content.XArpVelo15, 0, 127));	// index 800:803 (value range 0 -> 127)
+			buffer.AppendFormat("XArpVelo16: {0}\n", ValueToString(Content.XArpVelo16, 0, 127));	// index 804:807 (value range 0 -> 127)
+			buffer.AppendFormat("XModEnv1Dest1Am: {0}\n", ValueToString(Content.XModEnv1Dest1Am, -10, 10));           	// index 808:811 (value range -10 -> 10)
+			buffer.AppendFormat("XModEnv1Dest2Am: {0}\n", ValueToString(Content.XModEnv1Dest2Am, -10, 10));            	// index 812:815 (value range -10 -> 10)
+			buffer.AppendFormat("XModEnv2Dest1Am: {0}\n", ValueToString(Content.XModEnv2Dest1Am, -10, 10));            	// index 816:819 (value range -10 -> 10)
+			buffer.AppendFormat("XModEnv2Dest2Am: {0}\n", ValueToString(Content.XModEnv2Dest2Am, -10, 10));            	// index 820:823 (value range -10 -> 10)
+			buffer.AppendFormat("XModLFO1Dest1Am: {0}\n", ValueToString(Content.XModLFO1Dest1Am, -10, 10));            	// index 824:827 (value range -10 -> 10)
+			buffer.AppendFormat("XModLFO1Dest2Am: {0}\n", ValueToString(Content.XModLFO1Dest2Am, -10, 10));            	// index 828:831 (value range -10 -> 10)
+			buffer.AppendFormat("XModLFO2Dest1Am: {0}\n", ValueToString(Content.XModLFO2Dest1Am, -10, 10));            	// index 832:835 (value range -10 -> 10)
+			buffer.AppendFormat("XModLFO2Dest2Am: {0}\n", ValueToString(Content.XModLFO2Dest2Am, -10, 10));            	// index 836:839 (value range -10 -> 10)
+			buffer.AppendFormat("XModMisc1ADest1Am: {0}\n", ValueToString(Content.XModMisc1ADest1Am, -10, 10));        	// index 840:843 (value range -10 -> 10)
+			buffer.AppendFormat("XModMisc1ADest2Am: {0}\n", ValueToString(Content.XModMisc1ADest2Am, -10, 10));          // index 844:847 (value range -10 -> 10)
+			buffer.AppendFormat("XModMisc1ASource: {0}\n", Content.XModMisc1ASource);      // index 848:851
+			buffer.AppendFormat("XModMisc1BDest1Am: {0}\n", ValueToString(Content.XModMisc1BDest1Am, -10, 10));          // index 852:855 (value range -10 -> 10)
+			buffer.AppendFormat("XModMisc1BDest2Am: {0}\n", ValueToString(Content.XModMisc1BDest2Am, -10, 10));          // index 856:859 (value range -10 -> 10)
+			buffer.AppendFormat("XModMisc1BSource: {0}\n", Content.XModMisc1BSource);      // index 860:863
+			buffer.AppendFormat("XModMisc2ADest1Am: {0}\n", ValueToString(Content.XModMisc2ADest1Am, -10, 10));          // index 864:867 (value range -10 -> 10)
+			buffer.AppendFormat("XModMisc2ADest2Am: {0}\n", ValueToString(Content.XModMisc2ADest2Am, -10, 10));          // index 868:871 (value range -10 -> 10)
+			buffer.AppendFormat("XModMisc2ASource: {0}\n", Content.XModMisc2ASource);      // index 872:875
+			buffer.AppendFormat("XModMisc2BDest1Am: {0}\n", ValueToString(Content.XModMisc2BDest1Am, -10, 10));          // index 876:879 (value range -10 -> 10)
+			buffer.AppendFormat("XModMisc2BDest2Am: {0}\n", ValueToString(Content.XModMisc2BDest2Am, -10, 10));          // index 880:883 (value range -10 -> 10)
+			buffer.AppendFormat("XModMisc2BSource: {0}\n", Content.XModMisc2BSource);      // index 884:887
+			buffer.AppendFormat("XSwArpOnOff: {0}\n", Content.XSwArpOnOff);                // index 890:891
+			buffer.AppendFormat("XSwChorusOnOff: {0}\n", Content.XSwChorusOnOff);             // index 894:895
+			buffer.AppendFormat("XSwCompOnOff: {0}\n", Content.XSwCompOnOff);               // index 898:899
+			buffer.AppendFormat("XSwDelayOnOff: {0}\n", Content.XSwDelayOnOff);              // index 902:903
+			buffer.AppendFormat("XSwDistOnOff: {0}\n", Content.XSwDistOnOff);               // index 906:907
+			buffer.AppendFormat("XSwEQOnOff: {0}\n", Content.XSwEQOnOff);                 // index 910:911
+			buffer.AppendFormat("XSwPhaserOnOff: {0}\n", Content.XSwPhaserOnOff);             // index 914:915
+			buffer.AppendFormat("XSwReverbOnOff: {0}\n", Content.XSwReverbOnOff);             // index 918:919
+			buffer.AppendFormat("YModEnv1Dest1: {0}\n", Content.YModEnv1Dest1);           // index 922:923
+			buffer.AppendFormat("YModEnv1Dest2: {0}\n", Content.YModEnv1Dest2);           // index 926:927
+			buffer.AppendFormat("YModEnv2Dest1: {0}\n", Content.YModEnv2Dest1);           // index 930:931
+			buffer.AppendFormat("YModEnv2Dest2: {0}\n", Content.YModEnv2Dest2);           // index 934:935
+			buffer.AppendFormat("YModLFO1Dest1: {0}\n", Content.YModLFO1Dest1);          // index 939:939
+			buffer.AppendFormat("YModLFO1Dest2: {0}\n", Content.YModLFO1Dest2);          // index 942:943
+			buffer.AppendFormat("YModLFO2Dest1: {0}\n", Content.YModLFO2Dest1);          // index 946:947
+			buffer.AppendFormat("YModLFO2Dest2: {0}\n", Content.YModLFO2Dest2);          // index 950:951
+			buffer.AppendFormat("YModMisc1ADest1: {0}\n", Content.YModMisc1ADest1);        // index 954:955
+			buffer.AppendFormat("YModMisc1ADest2: {0}\n", Content.YModMisc1ADest2);        // index 958:959
+			buffer.AppendFormat("YModMisc1BDest1: {0}\n", Content.YModMisc1BDest1);        // index 962:963
+			buffer.AppendFormat("YModMisc1BDest2: {0}\n", Content.YModMisc1BDest2);        // index 966:967
+			buffer.AppendFormat("YModMisc2ADest1: {0}\n", Content.YModMisc2ADest1);        // index 970:971
+			buffer.AppendFormat("YModMisc2ADest2: {0}\n", Content.YModMisc2ADest2);        // index 974:975
+			buffer.AppendFormat("YModMisc2BDest1: {0}\n", Content.YModMisc2BDest1);        // index 978:979
+			buffer.AppendFormat("YModMisc2BDest2: {0}\n", Content.YModMisc2BDest2);        // index 982:983
+			buffer.AppendFormat("YPartSelect: {0}\n", Content.YPartSelect);         // index 986:987
+			buffer.AppendFormat("ZEQMode: {0}\n", Content.ZEQMode);                 // index 990:991
 			
 			return buffer.ToString();
 		}
@@ -613,16 +1375,16 @@ namespace PresetConverter
 			public float EQTrebleFreq;               // index 184:187 (value range 440 -> 28160)
 			public float FilterACutoff;              // index 188:191 (value range 1 -> 21341,28)
 			public float FilterADrive;               // index 192:195 (value range 0 -> 10)
-			public FILTERAINPUT FilterAInput;         // index 198:199
+			public FILTERAINPUT FilterAInput;        // index 198:199
 			public float FilterAReso;                // index 200:203 (value range 0 -> 10)
 			public FILTERTYPE FilterAType;           // index 204:207
-			public float FilterADB;                  // index 210:211 (value range 12 -> 12)
+			public FILTERDB FilterADB;               // index 210:211 (value range 12 -> 12)
 			public float FilterBCutoff;              // index 212:215 (value range 1 -> 21341,28)
 			public float FilterBDrive;               // index 216:219 (value range 0 -> 10)
-			public FILTERBINPUT FilterBInput;         // index 222:223
+			public FILTERBINPUT FilterBInput;        // index 222:223
 			public float FilterBReso;                // index 224:227 (value range 0 -> 10)
 			public FILTERTYPE FilterBType;           // index 228:231
-			public float FilterBDB;                  // index 234:235 (value range 12 -> 24)
+			public FILTERDB FilterBDB;               // index 234:235 (value range 12 -> 24)
 			public float FilterCtlCutoff;            // index 236:239 (value range 1 -> 21341,28)
 			public float FilterCtlKeyTrk;            // index 240:243 (value range 0 -> 10)
 			public float FilterCtlReso;              // index 244:247 (value range 0 -> 10)
@@ -861,13 +1623,13 @@ namespace PresetConverter
 				this.FilterAInput = (FILTERAINPUT) bFile.ReadUInt32();         // index 198:199
 				this.FilterAReso = bFile.ReadSingle();                // index 200:203 (value range 0 -> 10)
 				this.FilterAType = (FILTERTYPE) bFile.ReadUInt32();           // index 204:207
-				this.FilterADB = bFile.ReadSingle();                  // index 210:211 (value range 12 -> 12)
+				this.FilterADB = (FILTERDB) bFile.ReadUInt32();                  // index 210:211 (value range 12 -> 12)
 				this.FilterBCutoff = bFile.ReadSingle();              // index 212:215 (value range 1 -> 21341,28)
 				this.FilterBDrive = bFile.ReadSingle();               // index 216:219 (value range 0 -> 10)
 				this.FilterBInput = (FILTERBINPUT) bFile.ReadUInt32();         // index 222:223
 				this.FilterBReso = bFile.ReadSingle();                // index 224:227 (value range 0 -> 10)
 				this.FilterBType = (FILTERTYPE) bFile.ReadUInt32();           // index 228:231
-				this.FilterBDB = bFile.ReadSingle();                  // index 234:235 (value range 12 -> 24)
+				this.FilterBDB = (FILTERDB) bFile.ReadUInt32();                  // index 234:235 (value range 12 -> 24)
 				this.FilterCtlCutoff = bFile.ReadSingle();            // index 236:239 (value range 1 -> 21341,28)
 				this.FilterCtlKeyTrk = bFile.ReadSingle();            // index 240:243 (value range 0 -> 10)
 				this.FilterCtlReso = bFile.ReadSingle();              // index 244:247 (value range 0 -> 10)
@@ -1057,6 +1819,73 @@ namespace PresetConverter
 				this.YModMisc2BDest2 = (YMODDEST) bFile.ReadUInt32();        // index 982:983
 				this.YPartSelect = (YPARTSELECT) bFile.ReadUInt32();         // index 986:987
 				this.ZEQMode = (ZEQMODE) bFile.ReadUInt32();                 // index 990:991
+			}
+		}
+		
+		public void TransformToZebra2(string filePath) {
+			
+			// OscA1
+			if (Content.OscA1Voices != VOICES.VOICES_0) {
+				System.Diagnostics.Debug.WriteLine("OscA1Detune:{0}", Content.OscA1Detune);                // index 344:347 (value range 0 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscA1Fine:{0}", Content.OscA1Fine);                  // index 348:351 (value range -1 -> 1)
+				System.Diagnostics.Debug.WriteLine("OscA1Invert:{0}", Content.OscA1Invert);                // index 354:355
+				System.Diagnostics.Debug.WriteLine("OscA1Note:{0}", Content.OscA1Note);                  // index 356:359 (value range -7 -> 7)
+				System.Diagnostics.Debug.WriteLine("OscA1Octave:{0}", Content.OscA1Octave);                // index 360:363 (value range -3 -> 3)
+				System.Diagnostics.Debug.WriteLine("OscA1Pan:{0}", Content.OscA1Pan);                   // index 364:367 (value range -10 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscA1Phase:{0}", Content.OscA1Phase);                 // index 368:371 (value range 0 -> 360)
+				System.Diagnostics.Debug.WriteLine("OscA1Retrig:{0}", Content.OscA1Retrig);                // index 374:375
+				System.Diagnostics.Debug.WriteLine("OscA1Stereo:{0}", Content.OscA1Stereo);                // index 376:379 (value range 0 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscA1Voices:{0}", Content.OscA1Voices);                // index 382:383 (value range 0 -> 8)
+				System.Diagnostics.Debug.WriteLine("OscA1Volume:{0}", Content.OscA1Volume);                // index 384:387 (value range 0 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscA1Wave:{0}", Content.OscA1Wave);                // index 388:391
+			}
+
+			// OscA2
+			if (Content.OscA2Voices != VOICES.VOICES_0) {
+				System.Diagnostics.Debug.WriteLine("OscA2Detune:{0}", Content.OscA2Detune);                // index 392:395 (value range 0 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscA2Fine:{0}", Content.OscA2Fine);                  // index 396:399 (value range -1 -> 1)
+				System.Diagnostics.Debug.WriteLine("OscA2Invert:{0}", Content.OscA2Invert);                // index 402:403
+				System.Diagnostics.Debug.WriteLine("OscA2Note:{0}", Content.OscA2Note);                  // index 404:407 (value range -7 -> 7)
+				System.Diagnostics.Debug.WriteLine("OscA2Octave:{0}", Content.OscA2Octave);                // index 408:411 (value range -3 -> 3)
+				System.Diagnostics.Debug.WriteLine("OscA2Pan:{0}", Content.OscA2Pan);                   // index 412:415 (value range -10 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscA2Phase:{0}", Content.OscA2Phase);                 // index 416:419 (value range 0 -> 360)
+				System.Diagnostics.Debug.WriteLine("OscA2Retrig:{0}", Content.OscA2Retrig);                // index 422:423
+				System.Diagnostics.Debug.WriteLine("OscA2Stereo:{0}", Content.OscA2Stereo);                // index 424:427 (value range 0 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscA2Voices:{0}", Content.OscA2Voices);                // index 430:431 (value range 0 -> 8)
+				System.Diagnostics.Debug.WriteLine("OscA2Volume:{0}", Content.OscA2Volume);                // index 432:435 (value range 0 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscA2Wave:{0}", Content.OscA2Wave);                // index 436:439
+			}
+			
+			// OscB1
+			if (Content.OscB1Voices != VOICES.VOICES_0) {
+				System.Diagnostics.Debug.WriteLine("OscB1Detune:{0}", Content.OscB1Detune);                // index 440:443 (value range 0 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscB1Fine:{0}", Content.OscB1Fine);                  // index 444:447 (value range -1 -> 1)
+				System.Diagnostics.Debug.WriteLine("OscB1Invert:{0}", Content.OscB1Invert);                // index 450:451
+				System.Diagnostics.Debug.WriteLine("OscB1Note:{0}", Content.OscB1Note);                  // index 452:455 (value range -7 -> 7)
+				System.Diagnostics.Debug.WriteLine("OscB1Octave:{0}", Content.OscB1Octave);                // index 456:459 (value range -3 -> 3)
+				System.Diagnostics.Debug.WriteLine("OscB1Pan:{0}", Content.OscB1Pan);                   // index 460:463 (value range -10 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscB1Phase:{0}", Content.OscB1Phase);                 // index 464:467 (value range 0 -> 360)
+				System.Diagnostics.Debug.WriteLine("OscB1Retrig:{0}", Content.OscB1Retrig);                // index 470:471
+				System.Diagnostics.Debug.WriteLine("OscB1Stereo:{0}", Content.OscB1Stereo);                // index 472:475 (value range 0 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscB1Voices:{0}", Content.OscB1Voices);                // index 478:479 (value range 0 -> 8)
+				System.Diagnostics.Debug.WriteLine("OscB1Volume:{0}", Content.OscB1Volume);                // index 480:483 (value range 0 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscB1Wave:{0}", Content.OscB1Wave);                // index 484:487
+			}
+
+			// OscB2
+			if (Content.OscB1Voices != VOICES.VOICES_0) {
+				System.Diagnostics.Debug.WriteLine("OscB2Detune:{0}", Content.OscB2Detune);                // index 488:491 (value range 0 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscB2Fine:{0}", Content.OscB2Fine);                  // index 492:495 (value range -1 -> 1)
+				System.Diagnostics.Debug.WriteLine("OscB2Invert:{0}", Content.OscB2Invert);                // index 498:499
+				System.Diagnostics.Debug.WriteLine("OscB2Note:{0}", Content.OscB2Note);                  // index 500:503 (value range -7 -> 7)
+				System.Diagnostics.Debug.WriteLine("OscB2Octave:{0}", Content.OscB2Octave);                // index 504:507 (value range -3 -> 3)
+				System.Diagnostics.Debug.WriteLine("OscB2Pan:{0}", Content.OscB2Pan);                   // index 508:511 (value range -10 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscB2Phase:{0}", Content.OscB2Phase);                 // index 512:515 (value range 0 -> 360)
+				System.Diagnostics.Debug.WriteLine("OscB2Retrig:{0}", Content.OscB2Retrig);                // index 518:519
+				System.Diagnostics.Debug.WriteLine("OscB2Stereo:{0}", Content.OscB2Stereo);                // index 520:523 (value range 0 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscB2Voices:{0}", Content.OscB2Voices);                // index 526:527 (value range 0 -> 8)
+				System.Diagnostics.Debug.WriteLine("OscB2Volume:{0}", Content.OscB2Volume);                // index 528:531 (value range 0 -> 10)
+				System.Diagnostics.Debug.WriteLine("OscB2Wave:{0}", Content.OscB2Wave);                // index 532:535
 			}
 		}
 	}
