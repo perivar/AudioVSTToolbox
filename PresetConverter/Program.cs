@@ -21,7 +21,9 @@ namespace PresetConverter
 			
 			string zebraGeneratedPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter\Generated-Zebra2-Preset.h2p";
 			
-			Sylenth1Preset sylenth1 = new Sylenth1Preset(sylenthPreset);
+			Sylenth1Preset sylenth1 = new Sylenth1Preset();
+			sylenth1.Read(sylenthPreset);
+			
 			//sylenth1.TransformToZebra2("");
 			//Console.Out.WriteLine(sylenth1);
 			string outFilePath = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter\Sylenth1PresetOutput.txt";
@@ -29,10 +31,17 @@ namespace PresetConverter
 			tw.WriteLine(sylenth1);
 			tw.Close();
 			
-			//Zebra2Preset zebra2 = new Zebra2Preset();
-			//zebra2.GenerateWriteMethod(zebraPreset, zebraPreset + ".txt");
-			//zebra2.GenerateClassFields(zebraPreset, zebraPreset + ".txt");
+			Zebra2Preset zebra2 = new Zebra2Preset();
+			//zebra2.Read(zebraPreset);
 			
+			string outFilePath2 = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter\Zebra2PresetOutput.txt";
+			
+			Zebra2Preset zebra2Converted = sylenth1.ToZebra2Preset();
+
+			TextWriter tw2 = new StreamWriter(outFilePath2);
+			tw2.WriteLine(zebra2Converted);
+			tw2.Close();
+				
 			//Zebra2Preset zebra2 = new Zebra2Preset(zebraPreset);
 			//zebra2.Write(zebraGeneratedPreset);
 			

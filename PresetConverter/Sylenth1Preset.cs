@@ -7,7 +7,7 @@ namespace PresetConverter
 	/// <summary>
 	/// Description of Sylenth1Preset.
 	/// </summary>
-	public class Sylenth1Preset
+	public class Sylenth1Preset : Preset
 	{
 		#region Enums
 		private enum FloatToHz {
@@ -450,23 +450,7 @@ namespace PresetConverter
 		}
 		
 		public Sylenth1Preset(string filePath) {
-			FXP fxp = new FXP();
-			fxp.ReadFile(filePath);
-			
-			byte[] bArray = fxp.chunkDataByteArray;
-			BinaryFile bFile = new BinaryFile(bArray, BinaryFile.ByteOrder.LittleEndian);
-			
-			string presetType = bFile.ReadString(4);
-			int UNKNOWN1 = bFile.ReadInt32();
-			int fxVersion = bFile.ReadInt32();
-			int numPrograms = bFile.ReadInt32();
-			int UNKNOWN2 = bFile.ReadInt32();
-			
-			// if Sylenth 1 preset format
-			if (presetType == "1lys") { // '1lys' = 'syl1' backwards
-				this.Content = new Syl1PresetContent(bFile);
-				this.PresetName = bFile.ReadString(36);
-			}
+			Read(filePath);
 		}
 		
 		private static DELAYTIMING DelayTimeFloatToEnum(float value) {
@@ -613,6 +597,9 @@ namespace PresetConverter
 		}
 		
 		private static COMPRATIO CompRatioFloatToEnum(float value) {
+			// there is a very exponential curve going on but
+			// i did not manage to find out the calculation
+			
 			float x = value;
 			COMPRATIO ratio = COMPRATIO.RATIO_UNKNOWN;
 
@@ -1029,26 +1016,31 @@ namespace PresetConverter
 			}
 		}
 		
+		private static float ValueToHz(float oldValue, FloatToHz mode) {
+			float newValue = 0;
+			if (mode == FloatToHz.DelayLowCut) {
+				newValue = 3.2328f * (float) Math.Exp(9.0109f * oldValue);
+			} else if (mode == FloatToHz.DelayHighCut) {
+				newValue = 21120.0f * (float) Math.Exp(-5.545f * oldValue);
+			} else if (mode == FloatToHz.FilterCutoff) {
+				newValue = 1.0011f * (float) Math.Exp(9.9673f * oldValue);
+			} else if (mode == FloatToHz.EQBassFreq) {
+				newValue = 13.75f * (float) Math.Exp(4.1589f * oldValue);
+			} else if (mode == FloatToHz.EQTrebleFreq) {
+				newValue = 440.0f * (float) Math.Exp(4.1589f * oldValue);
+			} else if (mode == FloatToHz.LFORateFree) {
+				newValue = 0.0417f * (float) Math.Exp(8.4352f * oldValue);
+			}
+			return newValue;
+		}
+		
 		private static string ValueToStringHz(object val, float newMin, float newMax, FloatToHz mode) {
 			if (val is int) {
 				//int oldValue = (int) val;
 				return "<TODO: int support is not implemented>";
 			} else if (val is float) {
 				float oldValue = (float) val;
-				float newValue = 0;
-				if (mode == FloatToHz.DelayLowCut) {
-					newValue = 3.2328f * (float) Math.Exp(9.0109f * oldValue);
-				} else if (mode == FloatToHz.DelayHighCut) {
-					newValue = 21120.0f * (float) Math.Exp(-5.545f * oldValue);
-				} else if (mode == FloatToHz.FilterCutoff) {
-					newValue = 1.0011f * (float) Math.Exp(9.9673f * oldValue);
-				} else if (mode == FloatToHz.EQBassFreq) {
-					newValue = 13.75f * (float) Math.Exp(4.1589f * oldValue);
-				} else if (mode == FloatToHz.EQTrebleFreq) {
-					newValue = 440.0f * (float) Math.Exp(4.1589f * oldValue);
-				} else if (mode == FloatToHz.LFORateFree) {
-					newValue = 0.0417f * (float) Math.Exp(8.4352f * oldValue);
-				}
+				float newValue = ValueToHz(oldValue, mode);
 				return String.Format("{0:0.0000}. Display Value: {1:0.00} Hz (Range: {2} -> {3})", oldValue, newValue, newMin, newMax);
 			}
 			return val.ToString();
@@ -1057,23 +1049,27 @@ namespace PresetConverter
 		public override string ToString() {
 			StringBuilder buffer = new StringBuilder();
 
+			buffer.AppendLine("//");
+			buffer.AppendLine("// Sylenth1 Preset Content");
+			buffer.AppendLine("//");
+
 			buffer.AppendFormat("AmpEnvAAttack: {0}\n", ValueToString(Content.AmpEnvAAttack, 0, 10));	// index 20:23 (value range 0 -> 10)
 			buffer.AppendFormat("AmpEnvADecay: {0}\n", ValueToString(Content.AmpEnvADecay, 0, 10));		// index 24:27 (value range 0 -> 10)
 			buffer.AppendFormat("AmpEnvARelease: {0}\n", ValueToString(Content.AmpEnvARelease, 0, 10));	// index 28:31 (value range 0 -> 10)
 			buffer.AppendFormat("AmpEnvASustain: {0}\n", ValueToString(Content.AmpEnvASustain, 0, 10));	// index 32:35 (value range 0 -> 10)
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("AmpEnvBAttack: {0}\n", ValueToString(Content.AmpEnvBAttack, 0, 10));	// index 36:39 (value range 0 -> 10)
 			buffer.AppendFormat("AmpEnvBDecay: {0}\n", ValueToString(Content.AmpEnvBDecay, 0, 10));		// index 40:43 (value range 0 -> 10)
 			buffer.AppendFormat("AmpEnvBRelease: {0}\n", ValueToString(Content.AmpEnvBRelease, 0, 10));	// index 44:47 (value range 0 -> 10)
 			buffer.AppendFormat("AmpEnvBSustain: {0}\n", ValueToString(Content.AmpEnvBSustain, 0, 10));	// index 48:51 (value range 0 -> 10)
-
+			buffer.AppendLine();
 			buffer.AppendFormat("ArpGate: {0}\n", ValueToString(Content.ArpGate, 0, 100, "%"));				// index 52:55 (value range 0 -> 100)
 			buffer.AppendFormat("ArpMode: {0}\n", Content.ArpMode);                  					// index 56:59
 			buffer.AppendFormat("ArpOctave: {0}\n", ValueToString(Content.ArpOctave, 1, 4));				// index 60:63 (value range 1 -> 4)
 			buffer.AppendFormat("ArpTime: {0}\n", Content.ArpTime);                    					// index 64:67 (value range 1/1 -> 1/64)
 			buffer.AppendFormat("ArpVelo: {0}\n", Content.ArpVelo);                  					// index 70:71
 			buffer.AppendFormat("ArpWrap: {0}\n", ValueToString(Content.ArpWrap, 0, 16));				// index 72:75 (value range 0 -> 16)
-
+			buffer.AppendLine();
 			buffer.AppendFormat("ChorusDelay: {0}\n", ValueToString(Content.ChorusDelay, 1, 40, "ms"));		// index 76:79 (value range 1 -> 40)
 			buffer.AppendFormat("ChorusDepth: {0}\n", ValueToString(Content.ChorusDepth, 0, 100, "%"));		// index 80:83 (value range 0 -> 100)
 			buffer.AppendFormat("ChorusDry_Wet: {0}\n", ValueToString(Content.ChorusDry_Wet, 0, 100, "%"));	// index 84:87 (value range 0 -> 100)
@@ -1081,12 +1077,12 @@ namespace PresetConverter
 			buffer.AppendFormat("ChorusMode: {0}\n", Content.ChorusMode);            					// index 94:95
 			buffer.AppendFormat("ChorusRate: {0}\n", ValueToString(Content.ChorusRate, 0.01f, 27.5f, "Hz"));   // index 96:99 (value range 0,01 -> 27,5)
 			buffer.AppendFormat("ChorusWidth: {0}\n", ValueToString(Content.ChorusWidth, 0, 100, "%"));		// index 100:103 (value range 0 -> 100)
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("CompAttack: {0}\n", ValueToString(Content.CompAttack, 0.1f, 300f, "ms"));      // index 104:107 (value range 0,1 -> 300)
 			buffer.AppendFormat("CompRatio: {0}\n", CompRatioFloatToEnum(Content.CompRatio));                  				// index 108:111 (value range 1.00:1 -> 100.00:1)
 			buffer.AppendFormat("CompRelease: {0}\n", ValueToString(Content.CompRelease, 1, 500, "ms"));		// index 112:115 (value range 1 -> 500)
 			buffer.AppendFormat("CompThreshold: {0}\n", ValueToString(Content.CompThreshold, -30, 0, "dB"));	// index 116:119 (value range -30 -> 0)
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("DelayDry_Wet: {0}\n", ValueToString(Content.DelayDry_Wet, 0, 100, "%"));		// index 120:123 (value range 0 -> 100)
 			buffer.AppendFormat("DelayFeedback: {0}\n", ValueToString(Content.DelayFeedback, 0, 100, "%"));	// index 124:127 (value range 0 -> 100)
 			buffer.AppendFormat("DelayHighCut: {0}\n", ValueToStringHz(Content.DelayHighCut, 21120.0f, 82.5f, FloatToHz.DelayHighCut));	// index 128:131 (value range 82,5 -> 21120)
@@ -1097,51 +1093,51 @@ namespace PresetConverter
 			buffer.AppendFormat("DelayTimeLeft: {0}\n", DelayTimeFloatToEnum(Content.DelayTimeLeft));              			// index 148:151 (value range 1/64 -> 1/2)
 			buffer.AppendFormat("DelayTimeRight: {0}\n", DelayTimeFloatToEnum(Content.DelayTimeRight));             			// index 152:155 (value range 1/64 -> 1/2)
 			buffer.AppendFormat("DelayWidth: {0}\n", ValueToString(Content.DelayWidth, 0, 100, "%"));			// index 156:159 (value range 0 -> 100)
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("DistortAmount: {0}\n", ValueToString(Content.DistortAmount, 0, 10));	// index 160:163 (value range 0 -> 10)
 			buffer.AppendFormat("DistortDryWet: {0}\n", ValueToString(Content.DistortDryWet, 0, 100, "%"));	// index 164:167 (value range 0 -> 100)
 			buffer.AppendFormat("DistortType: {0}\n", Content.DistortType);          					// index 170:171
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("EQBass: {0}\n", ValueToString(Content.EQBass, 0, 15, "dB"));					// index 172:175 (value range 0 -> 15)
 			buffer.AppendFormat("EQBassFreq: {0}\n", ValueToStringHz(Content.EQBassFreq, 13.75f, 880.0f, FloatToHz.EQBassFreq)); // index 176:179 (value range 13,75 -> 880)
 			buffer.AppendFormat("EQTreble: {0}\n", ValueToString(Content.EQTreble, 0, 15, "dB"));				// index 180:183 (value range 0 -> 15)
 			buffer.AppendFormat("EQTrebleFreq: {0}\n", ValueToStringHz(Content.EQTrebleFreq, 440, 28160, FloatToHz.EQTrebleFreq));	// index 184:187 (value range 440 -> 28160)
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("FilterACutoff: {0}\n", ValueToStringHz(Content.FilterACutoff, 1.0f, 21341.28f, FloatToHz.FilterCutoff));	// index 188:191 (value range 1 -> 21341,28)
 			buffer.AppendFormat("FilterADrive: {0}\n", ValueToString(Content.FilterADrive, 0, 10));		// index 192:195 (value range 0 -> 10)
 			buffer.AppendFormat("FilterAInput: {0}\n", Content.FilterAInput);         					// index 198:199
 			buffer.AppendFormat("FilterAReso: {0}\n", ValueToString(Content.FilterAReso, 0, 10));		// index 200:203 (value range 0 -> 10)
 			buffer.AppendFormat("FilterAType: {0}\n", Content.FilterAType);           					// index 204:207
 			buffer.AppendFormat("FilterADB: {0}\n", Content.FilterADB);									// index 210:211 (value range 12 -> 12)
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("FilterBCutoff: {0}\n", ValueToStringHz(Content.FilterBCutoff, 1.0f, 21341.28f, FloatToHz.FilterCutoff));	// index 212:215 (value range 1 -> 21341,28)
 			buffer.AppendFormat("FilterBDrive: {0}\n", ValueToString(Content.FilterBDrive, 0, 10));		// index 216:219 (value range 0 -> 10)
 			buffer.AppendFormat("FilterBInput: {0}\n", Content.FilterBInput);         					// index 222:223
 			buffer.AppendFormat("FilterBReso: {0}\n", ValueToString(Content.FilterBReso, 0, 10));		// index 224:227 (value range 0 -> 10)
 			buffer.AppendFormat("FilterBType: {0}\n", Content.FilterBType);           					// index 228:231
 			buffer.AppendFormat("FilterBDB: {0}\n", Content.FilterBDB);									// index 234:235 (value range 12 -> 24)
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("FilterCtlCutoff: {0}\n", ValueToStringHz(Content.FilterCtlCutoff, 1.0f, 21341.28f, FloatToHz.FilterCutoff)); 	// index 236:239 (value range 1 -> 21341,28)
 			buffer.AppendFormat("FilterCtlKeyTrk: {0}\n", ValueToString(Content.FilterCtlKeyTrk, 0, 10));	// index 240:243 (value range 0 -> 10)
 			buffer.AppendFormat("FilterCtlReso: {0}\n", ValueToString(Content.FilterCtlReso, 0, 10));	// index 244:247 (value range 0 -> 10)
 			buffer.AppendFormat("FilterCtlWarmDrive: {0}\n", Content.FilterCtlWarmDrive);         		// index 250:251
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("LFO1Free: {0}\n", Content.LFO1Free);                   					// index 254:255
 			buffer.AppendFormat("LFO1Gain: {0}\n", ValueToString(Content.LFO1Gain, 0, 10));				// index 256:259 (value range 0 -> 10)
 			buffer.AppendFormat("LFO1Offset: {0}\n", ValueToString(Content.LFO1Offset, -10, 10));        // index 260:263 (value range -10 -> 10)
 			buffer.AppendFormat("LFO1Rate: {0}\n", ValueToStringLFORate(Content.LFO1Rate, 0.04f, 192f, Content.LFO1Free));                   					// index 264:267 (value range 8/1D -> 1/256T)
 			buffer.AppendFormat("LFO1Wave: {0}\n", Content.LFO1Wave);                 					// index 268:271
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("LFO2Free: {0}\n", Content.LFO2Free);                   					// index 274:275
 			buffer.AppendFormat("LFO2Gain: {0}\n", ValueToString(Content.LFO2Gain, 0, 10));				// index 276:279 (value range 0 -> 10)
 			buffer.AppendFormat("LFO2Offset: {0}\n", ValueToString(Content.LFO2Offset, -10, 10));		// index 280:283 (value range -10 -> 10)
 			buffer.AppendFormat("LFO2Rate: {0}\n", ValueToStringLFORate(Content.LFO2Rate, 0.04f, 192f, Content.LFO2Free));                   					// index 284:287 (value range 8/1D -> 1/256T)
 			buffer.AppendFormat("LFO2Wave: {0}\n", Content.LFO2Wave);                 					// index 288:291
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("MainVolume: {0}\n", ValueToString(Content.MainVolume, 0, 10));			// index 292:295 (value range 0 -> 10)
 			buffer.AppendFormat("MixA: {0}\n", ValueToString(Content.MixA, 0, 10));						// index 296:299 (value range 0 -> 10)
 			buffer.AppendFormat("MixB: {0}\n", ValueToString(Content.MixB, 0, 10));						// index 300:303 (value range 0 -> 10)
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("ModEnv1Attack: {0}\n", ValueToString(Content.ModEnv1Attack, 0, 10));	// index 304:307 (value range 0 -> 10)
 			buffer.AppendFormat("ModEnv1Decay: {0}\n", ValueToString(Content.ModEnv1Decay, 0, 10));		// index 308:311 (value range 0 -> 10)
 			buffer.AppendFormat("ModEnv1Release: {0}\n", ValueToString(Content.ModEnv1Release, 0, 10));	// index 312:315 (value range 0 -> 10)
@@ -1151,9 +1147,9 @@ namespace PresetConverter
 			buffer.AppendFormat("ModEnv2Release: {0}\n", ValueToString(Content.ModEnv2Release, 0, 10));	// index 328:331 (value range 0 -> 10)
 			buffer.AppendFormat("ModEnv2Sustain: {0}\n", ValueToString(Content.ModEnv2Sustain, 0, 10));	// index 332:335 (value range 0 -> 10)
 			buffer.AppendFormat("ModWheel: {0}\n", ValueToString(Content.ModWheel, 0, 10));				// index 336:339 (value range 0 -> 10)
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("MonoLegato: {0}\n", Content.MonoLegato);                 				// index 342:343
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("OscA1Detune: {0}\n", ValueToString(Content.OscA1Detune, 0, 10));		// index 344:347 (value range 0 -> 10)
 			buffer.AppendFormat("OscA1Fine: {0}\n", ValueToString(Content.OscA1Fine, -1, 1));            // index 348:351 (value range -1 -> 1)
 			buffer.AppendFormat("OscA1Invert: {0}\n", Content.OscA1Invert);                				// index 354:355
@@ -1166,7 +1162,7 @@ namespace PresetConverter
 			buffer.AppendFormat("OscA1Voices: {0}\n", ValueToString(Content.OscA1Voices, 0, 8));			// index 382:383 (value range 0 -> 8)
 			buffer.AppendFormat("OscA1Volume: {0}\n", ValueToString(Content.OscA1Volume, 0, 10));		// index 384:387 (value range 0 -> 10)
 			buffer.AppendFormat("OscA1Wave: {0}\n", Content.OscA1Wave);                					// index 388:391
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("OscA2Detune: {0}\n", ValueToString(Content.OscA2Detune, 0, 10));		// index 392:395 (value range 0 -> 10)
 			buffer.AppendFormat("OscA2Fine: {0}\n", ValueToString(Content.OscA2Fine, -1, 1));            // index 396:399 (value range -1 -> 1)
 			buffer.AppendFormat("OscA2Invert: {0}\n", Content.OscA2Invert);               				// index 402:403
@@ -1179,7 +1175,7 @@ namespace PresetConverter
 			buffer.AppendFormat("OscA2Voices: {0}\n", ValueToString(Content.OscA2Voices, 0, 8));			// index 430:431 (value range 0 -> 8)
 			buffer.AppendFormat("OscA2Volume: {0}\n", ValueToString(Content.OscA2Volume, 0, 10));		// index 432:435 (value range 0 -> 10)
 			buffer.AppendFormat("OscA2Wave: {0}\n", Content.OscA2Wave);                					// index 436:439
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("OscB1Detune: {0}\n", ValueToString(Content.OscB1Detune, 0, 10));		// index 440:443 (value range 0 -> 10)
 			buffer.AppendFormat("OscB1Fine: {0}\n", ValueToString(Content.OscB1Fine, -1, 1));            // index 444:447 (value range -1 -> 1)
 			buffer.AppendFormat("OscB1Invert: {0}\n", Content.OscB1Invert);                				// index 450:451
@@ -1192,7 +1188,7 @@ namespace PresetConverter
 			buffer.AppendFormat("OscB1Voices: {0}\n", ValueToString(Content.OscB1Voices, 0, 8));			// index 478:479 (value range 0 -> 8)
 			buffer.AppendFormat("OscB1Volume: {0}\n", ValueToString(Content.OscB1Volume, 0, 10));		// index 480:483 (value range 0 -> 10)
 			buffer.AppendFormat("OscB1Wave: {0}\n", Content.OscB1Wave);                					// index 484:487
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("OscB2Detune: {0}\n", ValueToString(Content.OscB2Detune, 0, 10));		// index 488:491 (value range 0 -> 10)
 			buffer.AppendFormat("OscB2Fine: {0}\n", ValueToString(Content.OscB2Fine, -1, 1));           	// index 492:495 (value range -1 -> 1)
 			buffer.AppendFormat("OscB2Invert: {0}\n", Content.OscB2Invert);                				// index 498:499
@@ -1205,7 +1201,7 @@ namespace PresetConverter
 			buffer.AppendFormat("OscB2Voices: {0}\n", ValueToString(Content.OscB2Voices, 0, 8));			// index 526:527 (value range 0 -> 8)
 			buffer.AppendFormat("OscB2Volume: {0}\n", ValueToString(Content.OscB2Volume, 0, 10));		// index 528:531 (value range 0 -> 10)
 			buffer.AppendFormat("OscB2Wave: {0}\n", Content.OscB2Wave);                					// index 532:535
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("PhaserCenterFreq: {0}\n", ValueToString(Content.PhaserCenterFreq, 0, 10));	// index 536:539 (value range 0 -> 10)
 			buffer.AppendFormat("PhaserDry_Wet: {0}\n", ValueToString(Content.PhaserDry_Wet, 0, 100, "%"));	// index 540:543 (value range 0 -> 100)
 			buffer.AppendFormat("PhaserFeedback: {0}\n", ValueToString(Content.PhaserFeedback, 0, 100, "%"));	// index 544:547 (value range 0 -> 100)
@@ -1214,23 +1210,23 @@ namespace PresetConverter
 			buffer.AppendFormat("PhaserLROffset: {0}\n", ValueToString(Content.PhaserLROffset, -10, 10));// index 556:559 (value range -10 -> 10)
 			buffer.AppendFormat("PhaserSpread: {0}\n", ValueToString(Content.PhaserSpread, 0, 10));		// index 560:563 (value range 0 -> 10)
 			buffer.AppendFormat("PhaserWidth: {0}\n", ValueToString(Content.PhaserWidth, 0, 100, "%"));		// index 564:567 (value range 0 -> 100)
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("PitchBend: {0}\n", ValueToString(Content.PitchBend, -10, 10));          // index 568:571 (value range -10 -> 10)
 			buffer.AppendFormat("PitchBendRange: {0}\n", ValueToString(Content.PitchBendRange, 1, 24));	// index 572:575 (value range 1 -> 24)
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("Polyphony: {0}\n", ValueToString(Content.Polyphony, 0, 16));			// index 578:579 (value range 0 -> 16)
 			buffer.AppendFormat("PortaMode: {0}\n", Content.PortaMode);              					// index 582:583
 			buffer.AppendFormat("PortaTime: {0}\n", ValueToString(Content.PortaTime, 0, 10));			// index 584:587 (value range 0 -> 10)
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("ReverbDamp: {0}\n", ValueToString(Content.ReverbDamp, 0, 10));			// index 588:591 (value range 0 -> 10)
 			buffer.AppendFormat("ReverbDry_Wet: {0}\n", ValueToString(Content.ReverbDry_Wet, 0, 100, "%"));	// index 592:595 (value range 0 -> 100)
 			buffer.AppendFormat("ReverbPredelay: {0}\n", ValueToString(Content.ReverbPredelay, 0, 200, "ms"));	// index 596:599 (value range 0 -> 200)
 			buffer.AppendFormat("ReverbSize: {0}\n", ValueToString(Content.ReverbSize, 0, 10));			// index 600:603 (value range 0 -> 10)
 			buffer.AppendFormat("ReverbWidth: {0}\n", ValueToString(Content.ReverbWidth, 0, 100, "%"));		// index 604:607 (value range 0 -> 100)
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("Solo: {0}\n", Content.Solo);                       		// index 610:611
 			buffer.AppendFormat("Sync: {0}\n", Content.Sync);                       		// index 614:615
-			
+			buffer.AppendLine();
 			buffer.AppendFormat("XArpHold01: {0}\n", Content.XArpHold01);                 // index 618:619
 			buffer.AppendFormat("XArpHold02: {0}\n", Content.XArpHold02);                 // index 622:623
 			buffer.AppendFormat("XArpHold03: {0}\n", Content.XArpHold03);                 // index 626:627
@@ -1325,6 +1321,8 @@ namespace PresetConverter
 			buffer.AppendFormat("YModMisc2BDest2: {0}\n", Content.YModMisc2BDest2);        // index 982:983
 			buffer.AppendFormat("YPartSelect: {0}\n", Content.YPartSelect);         // index 986:987
 			buffer.AppendFormat("ZEQMode: {0}\n", Content.ZEQMode);                 // index 990:991
+			buffer.AppendLine();
+			buffer.AppendFormat("PresetName: {0}\n", PresetName);
 			
 			return buffer.ToString();
 		}
@@ -1822,71 +1820,242 @@ namespace PresetConverter
 			}
 		}
 		
-		public void TransformToZebra2(string filePath) {
+		private static float ConvertValueSylenthToZebra(float storedSylenthValue, float displaySylenthMin, float displaySylenthMax, float zebraMin, float zebraMax) {
+			float sylenthDisplayValue = MathUtils.ConvertAndMainainRatio(storedSylenthValue, 0, 1, displaySylenthMin, displaySylenthMax);
+			return MathUtils.ConvertAndMainainRatio(sylenthDisplayValue, displaySylenthMin, displaySylenthMax, zebraMin, zebraMax);
+		}
+
+		private static int ConvertSylenthVoicesToZebra(VOICES numberOfVoices) {
+			int zebraVoices = (int) Zebra2Preset.OscillatorPoly.single;
+			
+			switch (numberOfVoices) {
+				case VOICES.VOICES_1:
+					zebraVoices = (int) Zebra2Preset.OscillatorPoly.single;
+					break;
+				case VOICES.VOICES_2:
+				case VOICES.VOICES_3:
+					zebraVoices = (int) Zebra2Preset.OscillatorPoly.dual;
+					break;
+				case VOICES.VOICES_4:
+				case VOICES.VOICES_5:
+				case VOICES.VOICES_6:
+					zebraVoices = (int) Zebra2Preset.OscillatorPoly.quad;
+					break;
+				case VOICES.VOICES_7:
+				case VOICES.VOICES_8:
+					zebraVoices = (int) Zebra2Preset.OscillatorPoly.eleven;
+					break;
+			}
+			return zebraVoices;
+		}
+		
+		private static int ConvertSylenthWaveToZebra(OSCWAVE wave) {
+			
+			int zebraWave = 1;
+			
+			switch (wave) {
+				case OSCWAVE.OSC_HPulse:
+					zebraWave = 1;
+					break;
+				case OSCWAVE.OSC_Noise:
+					// TODO: special case - noise is not a waveform in zebra but a seperate unit
+					zebraWave = 2;
+					break;
+				case OSCWAVE.OSC_Pulse:
+					zebraWave = 3;
+					break;
+				case OSCWAVE.OSC_QPulse:
+					zebraWave = 4;
+					break;
+				case OSCWAVE.OSC_Saw:
+					zebraWave = 5;
+					break;
+				case OSCWAVE.OSC_Triangle:
+					zebraWave = 6;
+					break;
+				case OSCWAVE.OSC_TriSaw:
+					zebraWave = 7;
+					break;
+			}
+			return zebraWave;
+		}
+
+		private static float ConvertSylenthTuneToZebra(float octave, float note, float fine) {
+			
+			// sylenth octave + note + fine makes up a zebra Tune?
+			float osc_octave = MathUtils.ConvertAndMainainRatio(octave, 0, 1, -3, 3);
+			float osc_note = MathUtils.ConvertAndMainainRatio(note, 0, 1, -7, 7);
+			float osc_fine = MathUtils.ConvertAndMainainRatio(fine, 0, 1, -1, 1);
+			float osc_tune = (12 * osc_octave) + osc_note + osc_fine;
+			return osc_tune;
+		}
+		
+		private static float ConvertSylenthFrequencyToZebra(float frequency, FloatToHz mode) {
+			float hertz = ValueToHz(frequency, mode);	
+			int midiNote = Zebra2Preset.FilterFrequencyToMidiNote(hertz);
+			return midiNote;
+		}
+				
+		public Zebra2Preset ToZebra2Preset() {
+			
+			// load a default preset file and modify this one
+			Zebra2Preset zebra2Preset = new Zebra2Preset();
 			
 			// OscA1
 			if (Content.OscA1Voices != VOICES.VOICES_0) {
-				System.Diagnostics.Debug.WriteLine("OscA1Detune:{0}", Content.OscA1Detune);                // index 344:347 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA1Fine:{0}", Content.OscA1Fine);                  // index 348:351 (value range -1 -> 1)
-				System.Diagnostics.Debug.WriteLine("OscA1Invert:{0}", Content.OscA1Invert);                // index 354:355
-				System.Diagnostics.Debug.WriteLine("OscA1Note:{0}", Content.OscA1Note);                  // index 356:359 (value range -7 -> 7)
-				System.Diagnostics.Debug.WriteLine("OscA1Octave:{0}", Content.OscA1Octave);                // index 360:363 (value range -3 -> 3)
-				System.Diagnostics.Debug.WriteLine("OscA1Pan:{0}", Content.OscA1Pan);                   // index 364:367 (value range -10 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA1Phase:{0}", Content.OscA1Phase);                 // index 368:371 (value range 0 -> 360)
-				System.Diagnostics.Debug.WriteLine("OscA1Retrig:{0}", Content.OscA1Retrig);                // index 374:375
-				System.Diagnostics.Debug.WriteLine("OscA1Stereo:{0}", Content.OscA1Stereo);                // index 376:379 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA1Voices:{0}", Content.OscA1Voices);                // index 382:383 (value range 0 -> 8)
-				System.Diagnostics.Debug.WriteLine("OscA1Volume:{0}", Content.OscA1Volume);                // index 384:387 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA1Wave:{0}", Content.OscA1Wave);                // index 388:391
+				zebra2Preset.OSC1_Tune = ConvertSylenthTuneToZebra(Content.OscA1Octave, Content.OscA1Note, Content.OscA1Fine);
+				zebra2Preset.OSC1_WNum = ConvertSylenthWaveToZebra(Content.OscA1Wave);
+				zebra2Preset.OSC1_Poly = ConvertSylenthVoicesToZebra(Content.OscA1Voices);
+				zebra2Preset.OSC1_Dtun = ConvertValueSylenthToZebra(Content.OscA1Detune, 0, 10, -50, 50);
+				zebra2Preset.OSC1_Pan = ConvertValueSylenthToZebra(Content.OscA1Pan, -10, 10, -100, 100);
+				zebra2Preset.OSC1_PolW = ConvertValueSylenthToZebra(Content.OscA1Stereo, 0, 10, 0, 100);
+				zebra2Preset.OSC1_Phse = ConvertValueSylenthToZebra(Content.OscA1Phase, 0, 360, 0, 100);
+				zebra2Preset.OSC1_Vol = ConvertValueSylenthToZebra(Content.OscA1Volume, 0, 10, 0, 200);
+				
+				// These are not yet handled!
+				// Content.OscA1Retrig
+				// Content.OscA1Wave
+				// Content.OscA1Invert
 			}
 
 			// OscA2
 			if (Content.OscA2Voices != VOICES.VOICES_0) {
-				System.Diagnostics.Debug.WriteLine("OscA2Detune:{0}", Content.OscA2Detune);                // index 392:395 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA2Fine:{0}", Content.OscA2Fine);                  // index 396:399 (value range -1 -> 1)
-				System.Diagnostics.Debug.WriteLine("OscA2Invert:{0}", Content.OscA2Invert);                // index 402:403
-				System.Diagnostics.Debug.WriteLine("OscA2Note:{0}", Content.OscA2Note);                  // index 404:407 (value range -7 -> 7)
-				System.Diagnostics.Debug.WriteLine("OscA2Octave:{0}", Content.OscA2Octave);                // index 408:411 (value range -3 -> 3)
-				System.Diagnostics.Debug.WriteLine("OscA2Pan:{0}", Content.OscA2Pan);                   // index 412:415 (value range -10 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA2Phase:{0}", Content.OscA2Phase);                 // index 416:419 (value range 0 -> 360)
-				System.Diagnostics.Debug.WriteLine("OscA2Retrig:{0}", Content.OscA2Retrig);                // index 422:423
-				System.Diagnostics.Debug.WriteLine("OscA2Stereo:{0}", Content.OscA2Stereo);                // index 424:427 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA2Voices:{0}", Content.OscA2Voices);                // index 430:431 (value range 0 -> 8)
-				System.Diagnostics.Debug.WriteLine("OscA2Volume:{0}", Content.OscA2Volume);                // index 432:435 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscA2Wave:{0}", Content.OscA2Wave);                // index 436:439
+				zebra2Preset.OSC2_Tune = ConvertSylenthTuneToZebra(Content.OscA2Octave, Content.OscA2Note, Content.OscA2Fine);
+				zebra2Preset.OSC2_WNum = ConvertSylenthWaveToZebra(Content.OscA2Wave);
+				zebra2Preset.OSC2_Poly = ConvertSylenthVoicesToZebra(Content.OscA2Voices);
+				zebra2Preset.OSC2_Dtun = ConvertValueSylenthToZebra(Content.OscA2Detune, 0, 10, -50, 50);
+				zebra2Preset.OSC2_Pan = ConvertValueSylenthToZebra(Content.OscA2Pan, -10, 10, -100, 100);
+				zebra2Preset.OSC2_PolW = ConvertValueSylenthToZebra(Content.OscA2Stereo, 0, 10, 0, 100);
+				zebra2Preset.OSC2_Phse = ConvertValueSylenthToZebra(Content.OscA2Phase, 0, 360, 0, 100);
+				zebra2Preset.OSC2_Vol = ConvertValueSylenthToZebra(Content.OscA2Volume, 0, 10, 0, 200);
+				
+				// These are not yet handled!
+				// Content.OscA2Retrig
+				// Content.OscA2Wave
+				// Content.OscA2Invert
 			}
 			
 			// OscB1
 			if (Content.OscB1Voices != VOICES.VOICES_0) {
-				System.Diagnostics.Debug.WriteLine("OscB1Detune:{0}", Content.OscB1Detune);                // index 440:443 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB1Fine:{0}", Content.OscB1Fine);                  // index 444:447 (value range -1 -> 1)
-				System.Diagnostics.Debug.WriteLine("OscB1Invert:{0}", Content.OscB1Invert);                // index 450:451
-				System.Diagnostics.Debug.WriteLine("OscB1Note:{0}", Content.OscB1Note);                  // index 452:455 (value range -7 -> 7)
-				System.Diagnostics.Debug.WriteLine("OscB1Octave:{0}", Content.OscB1Octave);                // index 456:459 (value range -3 -> 3)
-				System.Diagnostics.Debug.WriteLine("OscB1Pan:{0}", Content.OscB1Pan);                   // index 460:463 (value range -10 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB1Phase:{0}", Content.OscB1Phase);                 // index 464:467 (value range 0 -> 360)
-				System.Diagnostics.Debug.WriteLine("OscB1Retrig:{0}", Content.OscB1Retrig);                // index 470:471
-				System.Diagnostics.Debug.WriteLine("OscB1Stereo:{0}", Content.OscB1Stereo);                // index 472:475 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB1Voices:{0}", Content.OscB1Voices);                // index 478:479 (value range 0 -> 8)
-				System.Diagnostics.Debug.WriteLine("OscB1Volume:{0}", Content.OscB1Volume);                // index 480:483 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB1Wave:{0}", Content.OscB1Wave);                // index 484:487
+				zebra2Preset.OSC3_Tune = ConvertSylenthTuneToZebra(Content.OscB1Octave, Content.OscB1Note, Content.OscB1Fine);
+				zebra2Preset.OSC3_WNum = ConvertSylenthWaveToZebra(Content.OscB1Wave);
+				zebra2Preset.OSC3_Poly = ConvertSylenthVoicesToZebra(Content.OscB1Voices);
+				zebra2Preset.OSC3_Dtun = ConvertValueSylenthToZebra(Content.OscB1Detune, 0, 10, -50, 50);
+				zebra2Preset.OSC3_Pan = ConvertValueSylenthToZebra(Content.OscB1Pan, -10, 10, -100, 100);
+				zebra2Preset.OSC3_PolW = ConvertValueSylenthToZebra(Content.OscB1Stereo, 0, 10, 0, 100);
+				zebra2Preset.OSC3_Phse = ConvertValueSylenthToZebra(Content.OscB1Phase, 0, 360, 0, 100);
+				zebra2Preset.OSC3_Vol = ConvertValueSylenthToZebra(Content.OscB1Volume, 0, 10, 0, 200);
+				
+				// These are not yet handled!
+				// Content.OscB1Retrig
+				// Content.OscB1Wave
+				// Content.OscB1Invert
 			}
 
 			// OscB2
-			if (Content.OscB1Voices != VOICES.VOICES_0) {
-				System.Diagnostics.Debug.WriteLine("OscB2Detune:{0}", Content.OscB2Detune);                // index 488:491 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB2Fine:{0}", Content.OscB2Fine);                  // index 492:495 (value range -1 -> 1)
-				System.Diagnostics.Debug.WriteLine("OscB2Invert:{0}", Content.OscB2Invert);                // index 498:499
-				System.Diagnostics.Debug.WriteLine("OscB2Note:{0}", Content.OscB2Note);                  // index 500:503 (value range -7 -> 7)
-				System.Diagnostics.Debug.WriteLine("OscB2Octave:{0}", Content.OscB2Octave);                // index 504:507 (value range -3 -> 3)
-				System.Diagnostics.Debug.WriteLine("OscB2Pan:{0}", Content.OscB2Pan);                   // index 508:511 (value range -10 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB2Phase:{0}", Content.OscB2Phase);                 // index 512:515 (value range 0 -> 360)
-				System.Diagnostics.Debug.WriteLine("OscB2Retrig:{0}", Content.OscB2Retrig);                // index 518:519
-				System.Diagnostics.Debug.WriteLine("OscB2Stereo:{0}", Content.OscB2Stereo);                // index 520:523 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB2Voices:{0}", Content.OscB2Voices);                // index 526:527 (value range 0 -> 8)
-				System.Diagnostics.Debug.WriteLine("OscB2Volume:{0}", Content.OscB2Volume);                // index 528:531 (value range 0 -> 10)
-				System.Diagnostics.Debug.WriteLine("OscB2Wave:{0}", Content.OscB2Wave);                // index 532:535
+			if (Content.OscB2Voices != VOICES.VOICES_0) {
+				zebra2Preset.OSC4_Tune = ConvertSylenthTuneToZebra(Content.OscB2Octave, Content.OscB2Note, Content.OscB2Fine);
+				zebra2Preset.OSC4_WNum = ConvertSylenthWaveToZebra(Content.OscB2Wave);
+				zebra2Preset.OSC4_Poly = ConvertSylenthVoicesToZebra(Content.OscB2Voices);
+				zebra2Preset.OSC4_Dtun = ConvertValueSylenthToZebra(Content.OscB2Detune, 0, 10, -50, 50);
+				zebra2Preset.OSC4_Pan = ConvertValueSylenthToZebra(Content.OscB2Pan, -10, 10, -100, 100);
+				zebra2Preset.OSC4_PolW = ConvertValueSylenthToZebra(Content.OscB2Stereo, 0, 10, 0, 100);
+				zebra2Preset.OSC4_Phse = ConvertValueSylenthToZebra(Content.OscB2Phase, 0, 360, 0, 100);
+				zebra2Preset.OSC4_Vol = ConvertValueSylenthToZebra(Content.OscB2Volume, 0, 10, 0, 200);
+				
+				// These are not yet handled!
+				// Content.OscB2Retrig
+				// Content.OscB2Wave
+				// Content.OscB2Invert
 			}
+
+			// FilterA
+			if (Content.FilterAType != FILTERTYPE.Bypass) {
+				zebra2Preset.VCF1_Cut = ConvertSylenthFrequencyToZebra(Content.FilterACutoff, FloatToHz.FilterCutoff);
+				zebra2Preset.VCF1_Drv = ConvertValueSylenthToZebra(Content.FilterADrive, 0, 10, 0, 100);
+				zebra2Preset.VCF1_Res = ConvertValueSylenthToZebra(Content.FilterAReso, 0, 10, 0, 100);
+
+				FILTERDB filterDb = Content.FilterADB;
+				Zebra2Preset.FilterType zebraFilter = Zebra2Preset.FilterType.LP_12dB;
+				switch (Content.FilterAType) {
+					case FILTERTYPE.Lowpass:
+						zebraFilter = Zebra2Preset.FilterType.LP_12dB;
+						break;
+					case FILTERTYPE.Highpass:
+						if (filterDb == FILTERDB.DB12) {
+							zebraFilter = Zebra2Preset.FilterType.HP_12dB;
+						} else {
+							zebraFilter = Zebra2Preset.FilterType.HP_24dB;
+						}
+						break;
+					case FILTERTYPE.Bandpass:
+						zebraFilter = Zebra2Preset.FilterType.BP_QBand;
+						break;
+				}
+				
+				zebra2Preset.VCF1_Typ = (int) zebraFilter;
+			}
+
+			// FilterB
+			if (Content.FilterBType != FILTERTYPE.Bypass) {			
+				zebra2Preset.VCF2_Cut = ConvertSylenthFrequencyToZebra(Content.FilterBCutoff, FloatToHz.FilterCutoff);
+				zebra2Preset.VCF2_Drv = ConvertValueSylenthToZebra(Content.FilterBDrive, 0, 10, 0, 100);
+				zebra2Preset.VCF2_Res = ConvertValueSylenthToZebra(Content.FilterBReso, 0, 10, 0, 100);
+
+				FILTERDB filterDb = Content.FilterBDB;
+				Zebra2Preset.FilterType zebraFilter = Zebra2Preset.FilterType.LP_12dB;
+				switch (Content.FilterBType) {
+					case FILTERTYPE.Lowpass:
+						zebraFilter = Zebra2Preset.FilterType.LP_12dB;
+						break;
+					case FILTERTYPE.Highpass:
+						if (filterDb == FILTERDB.DB12) {
+							zebraFilter = Zebra2Preset.FilterType.HP_12dB;
+						} else {
+							zebraFilter = Zebra2Preset.FilterType.HP_24dB;
+						}
+						break;
+					case FILTERTYPE.Bandpass:
+						zebraFilter = Zebra2Preset.FilterType.BP_QBand;
+						break;
+				}
+				
+				zebra2Preset.VCF2_Typ = (int) zebraFilter;
+			}
+			
+			return zebra2Preset;
+		}
+		
+		public void Read(string filePath)
+		{
+			FXP fxp = new FXP();
+			fxp.ReadFile(filePath);
+			
+			byte[] bArray = fxp.chunkDataByteArray;
+			BinaryFile bFile = new BinaryFile(bArray, BinaryFile.ByteOrder.LittleEndian);
+			
+			string presetType = bFile.ReadString(4);
+			int UNKNOWN1 = bFile.ReadInt32();
+			int fxVersion = bFile.ReadInt32();
+			int numPrograms = bFile.ReadInt32();
+			int UNKNOWN2 = bFile.ReadInt32();
+			
+			// if Sylenth 1 preset format
+			if (presetType == "1lys") { // '1lys' = 'syl1' backwards
+				this.Content = new Syl1PresetContent(bFile);
+				
+				byte[] presetNameArray = StringUtils.RemoveTrailingBytes(bFile.ReadBytes(36));
+				this.PresetName = BinaryFile.ByteArrayToString(presetNameArray);
+				
+				Console.Out.WriteLine("Finished reading preset file {0} ...", filePath);
+			} else {
+				Console.Out.WriteLine("Error. The preset file is not a valid Sylenth1 Preset! ({0})", filePath);
+			}
+		}
+		
+		public void Write(string filePath)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

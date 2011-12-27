@@ -88,12 +88,6 @@ namespace PresetConverter
 			// Replace invalid characters with empty strings.
 			return Regex.Replace(strIn, @"[^\w\.@-]", "");
 		}
-		
-		public static IEnumerable<string> Split(string str, int chunkSize)
-		{
-			return Enumerable.Range(0, str.Length / chunkSize)
-				.Select(i => str.Substring(i * chunkSize, chunkSize));
-		}
 
 		public static IEnumerable<string> SplitByLength(this string str, int maxLength) {
 			int index = 0;
@@ -107,5 +101,16 @@ namespace PresetConverter
 			}
 		}
 
+		public static byte[] RemoveTrailingBytes(byte[] array, byte valueToCheck = 0) {
+			int i = array.Length - 1;
+			while(array[i] == valueToCheck)
+				--i;
+			
+			// now array[i] is the last non-zero byte (if checking for zero)
+			byte[] fixedArray = new byte[i+1];
+			Array.Copy(array, fixedArray, i+1);
+			
+			return fixedArray;
+		}
 	}
 }
