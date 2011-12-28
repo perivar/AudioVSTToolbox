@@ -4732,32 +4732,51 @@ namespace PresetConverter
 			return buffer.ToString();
 		}
 		
-		private string GeneratePresetDelay(string name) {
+		private string GeneratePresetDelay(string name,
+		                                   int delayMode,
+		                                   float delayMix,
+		                                   float delayFB,
+		                                   float delayCB,
+		                                   float delayLP,
+		                                   float delayHP,
+		                                   float delayDrv,
+		                                   int delaySync1,
+		                                   int delaySync2,
+		                                   int delaySync3,
+		                                   int delaySync4,
+		                                   float delayT0,
+		                                   float delayT1,
+		                                   float delayT2,
+		                                   float delayT3,
+		                                   float delayPan1,
+		                                   float delayPan2,
+		                                   float delayPan3,
+		                                   float delayPan4) {
 			StringBuilder buffer = new StringBuilder();
+			buffer.AppendLine();
 			buffer.AppendLine("/*");
 			buffer.AppendLine("	" + name);
 			buffer.AppendLine("*/");
 			buffer.AppendLine("#cm=" + name);
-			buffer.Append(String.Format("Mode={0}", (int)DelayMode.stereo_2).PadRight(20)).AppendLine("// Mode=stereo 2");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Mix={0:0.00}", 0.00).PadRight(20)).AppendLine("// Mix");		// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FB={0:0.00}", 10.00).PadRight(20)).AppendLine("// Feedback");// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "CB={0:0.00}", 25.00).PadRight(20)).AppendLine("// X-back"); 	// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "LP={0:0.00}", 100.00).PadRight(20)).AppendLine("// Lowpass");// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "HP={0:0.00}", 0.00).PadRight(20)).AppendLine("// Hipass"); 	// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Drv={0:0.00}", 0.00).PadRight(20)).AppendLine("// Drive");
-			buffer.Append(String.Format("Sync1={0}", (int)DelaySync.Delay_1_4).PadRight(20)).AppendLine("// Sync1=1/4");
-			buffer.Append(String.Format("Sync2={0}", (int)DelaySync.Delay_1_4).PadRight(20)).AppendLine("// Sync2=1/4");
-			buffer.Append(String.Format("Sync3={0}", (int)DelaySync.Delay_1_4).PadRight(20)).AppendLine("// Sync3=1/4");
-			buffer.Append(String.Format("Sync4={0}", (int)DelaySync.Delay_1_4).PadRight(20)).AppendLine("// Sync4=1/4");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T0={0:0.00}", 100.00).PadRight(20)).AppendLine("// Ratio1");	// 0.00 - 200.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T1={0:0.00}", 100.00).PadRight(20)).AppendLine("// Ratio2");	// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T2={0:0.00}", 100.00).PadRight(20)).AppendLine("// Ratio3");	// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T3={0:0.00}", 100.00).PadRight(20)).AppendLine("// Ratio4");	// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan1={0:0.00}", -100.00).PadRight(20)).AppendLine("// Pan1");// -100.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan2={0:0.00}", 100.00).PadRight(20)).AppendLine("// Pan2");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan3={0:0.00}", -100.00).PadRight(20)).AppendLine("// Pan3");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan4={0:0.00}", 100.00).PadRight(20)).AppendLine("// Pan4");
-			buffer.AppendLine();
+			buffer.Append(String.Format("Mode={0}", delayMode).PadRight(20)).AppendFormat("// Mode={0}\n", (DelayMode) delayMode);
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Mix={0:0.00}", delayMix).PadRight(20)).AppendLine("// Mix (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FB={0:0.00}", delayFB).PadRight(20)).AppendLine("// Feedback (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "CB={0:0.00}", delayCB).PadRight(20)).AppendLine("// X-back (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "LP={0:0.00}", delayLP).PadRight(20)).AppendLine("// Lowpass (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "HP={0:0.00}", delayHP).PadRight(20)).AppendLine("// Hipass (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Drv={0:0.00}", delayDrv).PadRight(20)).AppendLine("// Drive");
+			buffer.Append(String.Format("Sync1={0}", delaySync1).PadRight(20)).AppendFormat("// Sync1={0}\n", (DelaySync) delaySync1);
+			buffer.Append(String.Format("Sync2={0}", delaySync2).PadRight(20)).AppendFormat("// Sync2={0}\n", (DelaySync) delaySync2);
+			buffer.Append(String.Format("Sync3={0}", delaySync3).PadRight(20)).AppendFormat("// Sync3={0}\n", (DelaySync) delaySync3);
+			buffer.Append(String.Format("Sync4={0}", delaySync4).PadRight(20)).AppendFormat("// Sync4={0}\n", (DelaySync) delaySync4);
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T0={0:0.00}", delayT0).PadRight(20)).AppendLine("// Ratio1 (0.00 - 200.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T1={0:0.00}", delayT1).PadRight(20)).AppendLine("// Ratio2 (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T2={0:0.00}", delayT2).PadRight(20)).AppendLine("// Ratio3 (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T3={0:0.00}", delayT3).PadRight(20)).AppendLine("// Ratio4 (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan1={0:0.00}", delayPan1).PadRight(20)).AppendLine("// Pan1 (-100.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan2={0:0.00}", delayPan2).PadRight(20)).AppendLine("// Pan2 (-100.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan3={0:0.00}", delayPan3).PadRight(20)).AppendLine("// Pan3 (-100.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan4={0:0.00}", delayPan4).PadRight(20)).AppendLine("// Pan4 (-100.00 - 100.00)");
 			return buffer.ToString();
 		}
 		
@@ -4768,25 +4787,25 @@ namespace PresetConverter
 		
 		private string GeneratePresetReverb(string name) {
 			StringBuilder buffer = new StringBuilder();
+			buffer.AppendLine();
 			buffer.AppendLine("/*");
 			buffer.AppendLine("	" + name);
 			buffer.AppendLine("*/");
 			buffer.AppendLine("#cm=" + name);
-			buffer.Append(String.Format("Mode={0}", (int)ReverbMode.Reverb).PadRight(20)).AppendLine("// Mode=Reverb");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Dry={0:0.00}", 82.00).PadRight(20)).AppendLine("// Dry");			// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Wet={0:0.00}", 52.00).PadRight(20)).AppendLine("// Wet");			// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FB={0:0.00}", 43.00).PadRight(20)).AppendLine("// Feedback");		// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Damp={0:0.00}", 4.00).PadRight(20)).AppendLine("// Damp");			// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Size={0:0.00}", 75.00).PadRight(20)).AppendLine("// Range");			// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Spd={0:0.00}", 50.00).PadRight(20)).AppendLine("// Speed");			// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Dpt={0:0.00}", 50.00).PadRight(20)).AppendLine("// Modulation");		// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "DFB={0:0.00}", 70.00).PadRight(20)).AppendLine("// Diff Feedback");	// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "DSize={0:0.00}", 50.00).PadRight(20)).AppendLine("// Diff Range"); 	// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "EMix={0:0.00}", 100.00).PadRight(20)).AppendLine("// Diff Mix");		// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "DMod={0:0.00}", 50.00).PadRight(20)).AppendLine("// Diff Mod");		// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "DSpd={0:0.00}", 55.00).PadRight(20)).AppendLine("// Diff Speed");	// 0.00 - 100.00
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pre={0:0.00}", 0.00).PadRight(20)).AppendLine("// PreDelay");		// 0.00 - 250.00
-			buffer.AppendLine();
+			buffer.Append(String.Format("Mode={0}", Rev1_Mode).PadRight(20)).AppendFormat("// Mode={0}\n", (ReverbMode) Rev1_Mode);
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Dry={0:0.00}", Rev1_Dry).PadRight(20)).AppendLine("// Dry (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Wet={0:0.00}", Rev1_Wet).PadRight(20)).AppendLine("// Wet (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FB={0:0.00}", Rev1_FB).PadRight(20)).AppendLine("// Feedback (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Damp={0:0.00}", Rev1_Damp).PadRight(20)).AppendLine("// Damp (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Size={0:0.00}", Rev1_Size).PadRight(20)).AppendLine("// Range (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Spd={0:0.00}", Rev1_Spd).PadRight(20)).AppendLine("// Speed (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Dpt={0:0.00}", Rev1_Dpt).PadRight(20)).AppendLine("// Modulation (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "DFB={0:0.00}", Rev1_DFB).PadRight(20)).AppendLine("// Diff Feedback (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "DSize={0:0.00}", Rev1_DSize).PadRight(20)).AppendLine("// Diff Range (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "EMix={0:0.00}", Rev1_EMix).PadRight(20)).AppendLine("// Diff Mix (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "DMod={0:0.00}", Rev1_DMod).PadRight(20)).AppendLine("// Diff Mod (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "DSpd={0:0.00}", Rev1_DSpd).PadRight(20)).AppendLine("// Diff Speed (0.00 - 100.00)");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pre={0:0.00}", Rev1_Pre).PadRight(20)).AppendLine("// PreDelay (0.00 - 100.00)");
 			return buffer.ToString();
 		}
 
@@ -5076,8 +5095,8 @@ namespace PresetConverter
 			buffer.Append(GeneratePresetModFX("ModFX1"));
 			buffer.Append(GeneratePresetModFX("ModFX2"));
 			
-			buffer.Append(GeneratePresetDelay("Delay1"));
-			buffer.Append(GeneratePresetDelay("Delay2"));
+			//buffer.Append(GeneratePresetDelay("Delay1"));
+			//buffer.Append(GeneratePresetDelay("Delay2"));
 			
 			buffer.Append(GeneratePresetShape("Shape3"));
 			buffer.Append(GeneratePresetShape("Shape4"));
@@ -5112,12 +5131,14 @@ namespace PresetConverter
 			buffer.AppendLine("// Zebra 2 Preset Content");
 			buffer.AppendLine("//");
 			
+			buffer.Append(GeneratePresetHeader());
+			buffer.Append(GenerateModulatorReferenceTable());
+			
 			buffer.AppendLine("\n#cm=main");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "CcOp={0:0.00}", Main_CcOp).PadRight(20)).AppendLine("// Output");
 			buffer.Append(String.Format("#LFOG={0}", Main_LFOG).PadRight(20)).AppendLine("// Active #LFOG");
 			buffer.Append(String.Format("#LFOG2={0}", Main_LFOG2).PadRight(20)).AppendLine("// Active #LFOG2");
 
-			/*
 			buffer.AppendLine("\n#cm=PCore");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "X_1={0:0.00}", PCore_X_1).PadRight(20)).AppendLine("// X1");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Y_1={0:0.00}", PCore_Y_1).PadRight(20)).AppendLine("// Y1");
@@ -5389,7 +5410,6 @@ namespace PresetConverter
 			buffer.Append(String.Format("GScale={0}", PCore_GScale).PadRight(20)).AppendLine("// GUI Scale");
 			buffer.Append(String.Format("ChLay={0}", PCore_ChLay).PadRight(20)).AppendLine("// Channel Layout");
 			buffer.Append(String.Format("SurrO={0}", PCore_SurrO).PadRight(20)).AppendLine("// Surround Options");
-			 */
 
 			buffer.AppendLine("\n#cm=LFOG");
 			buffer.Append(String.Format("Sync={0}", LFOG_Sync).PadRight(20)).AppendLine("// Sync");
@@ -5423,7 +5443,7 @@ namespace PresetConverter
 			buffer.Append(String.Format("Voices={0}", VCC_Voices).PadRight(20)).AppendLine("// Voices");
 			buffer.Append(String.Format("Voicing={0}", VCC_Voicing).PadRight(20)).AppendLine("// Voicing");
 			buffer.Append(String.Format("Mode={0}", VCC_Mode).PadRight(20)).AppendLine("// Mode");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Porta={0:0.00}", VCC_Porta).PadRight(20)).AppendLine("// Portamento");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Porta={0:0.00}", VCC_Porta).PadRight(20)).AppendLine("// Portamento (0.00 - 100.00)");
 			buffer.Append(String.Format("PB={0}", VCC_PB).PadRight(20)).AppendLine("// PitchBendUp");
 			buffer.Append(String.Format("PBD={0}", VCC_PBD).PadRight(20)).AppendLine("// PitchBendDown");
 			buffer.Append(String.Format("ArSc={0}", VCC_ArSc).PadRight(20)).AppendLine("// ArpSync");
@@ -6443,48 +6463,48 @@ namespace PresetConverter
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Q1={0:0.00}", ModFX2_Q1).PadRight(20)).AppendLine("// Q1");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Q2={0:0.00}", ModFX2_Q2).PadRight(20)).AppendLine("// Q2");
 			buffer.Append(String.Format("EQon={0}", ModFX2_EQon).PadRight(20)).AppendLine("// EQ");
-
-			buffer.AppendLine("\n#cm=Delay1");
-			buffer.Append(String.Format("Mode={0}", Delay1_Mode).PadRight(20)).AppendLine("// Mode");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Mix={0:0.00}", Delay1_Mix).PadRight(20)).AppendLine("// Mix");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FB={0:0.00}", Delay1_FB).PadRight(20)).AppendLine("// Feedback");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "CB={0:0.00}", Delay1_CB).PadRight(20)).AppendLine("// X-back");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "LP={0:0.00}", Delay1_LP).PadRight(20)).AppendLine("// Lowpass");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "HP={0:0.00}", Delay1_HP).PadRight(20)).AppendLine("// Hipass");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Drv={0:0.00}", Delay1_Drv).PadRight(20)).AppendLine("// Drive");
-			buffer.Append(String.Format("Sync1={0}", Delay1_Sync1).PadRight(20)).AppendLine("// Sync1");
-			buffer.Append(String.Format("Sync2={0}", Delay1_Sync2).PadRight(20)).AppendLine("// Sync2");
-			buffer.Append(String.Format("Sync3={0}", Delay1_Sync3).PadRight(20)).AppendLine("// Sync3");
-			buffer.Append(String.Format("Sync4={0}", Delay1_Sync4).PadRight(20)).AppendLine("// Sync4");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T0={0:0.00}", Delay1_T0).PadRight(20)).AppendLine("// Ratio1");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T1={0:0.00}", Delay1_T1).PadRight(20)).AppendLine("// Ratio2");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T2={0:0.00}", Delay1_T2).PadRight(20)).AppendLine("// Ratio3");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T3={0:0.00}", Delay1_T3).PadRight(20)).AppendLine("// Ratio4");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan1={0:0.00}", Delay1_Pan1).PadRight(20)).AppendLine("// Pan1");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan2={0:0.00}", Delay1_Pan2).PadRight(20)).AppendLine("// Pan2");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan3={0:0.00}", Delay1_Pan3).PadRight(20)).AppendLine("// Pan3");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan4={0:0.00}", Delay1_Pan4).PadRight(20)).AppendLine("// Pan4");
-
-			buffer.AppendLine("\n#cm=Delay2");
-			buffer.Append(String.Format("Mode={0}", Delay2_Mode).PadRight(20)).AppendLine("// Mode");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Mix={0:0.00}", Delay2_Mix).PadRight(20)).AppendLine("// Mix");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FB={0:0.00}", Delay2_FB).PadRight(20)).AppendLine("// Feedback");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "CB={0:0.00}", Delay2_CB).PadRight(20)).AppendLine("// X-back");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "LP={0:0.00}", Delay2_LP).PadRight(20)).AppendLine("// Lowpass");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "HP={0:0.00}", Delay2_HP).PadRight(20)).AppendLine("// Hipass");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Drv={0:0.00}", Delay2_Drv).PadRight(20)).AppendLine("// Drive");
-			buffer.Append(String.Format("Sync1={0}", Delay2_Sync1).PadRight(20)).AppendLine("// Sync1");
-			buffer.Append(String.Format("Sync2={0}", Delay2_Sync2).PadRight(20)).AppendLine("// Sync2");
-			buffer.Append(String.Format("Sync3={0}", Delay2_Sync3).PadRight(20)).AppendLine("// Sync3");
-			buffer.Append(String.Format("Sync4={0}", Delay2_Sync4).PadRight(20)).AppendLine("// Sync4");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T0={0:0.00}", Delay2_T0).PadRight(20)).AppendLine("// Ratio1");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T1={0:0.00}", Delay2_T1).PadRight(20)).AppendLine("// Ratio2");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T2={0:0.00}", Delay2_T2).PadRight(20)).AppendLine("// Ratio3");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "T3={0:0.00}", Delay2_T3).PadRight(20)).AppendLine("// Ratio4");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan1={0:0.00}", Delay2_Pan1).PadRight(20)).AppendLine("// Pan1");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan2={0:0.00}", Delay2_Pan2).PadRight(20)).AppendLine("// Pan2");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan3={0:0.00}", Delay2_Pan3).PadRight(20)).AppendLine("// Pan3");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan4={0:0.00}", Delay2_Pan4).PadRight(20)).AppendLine("// Pan4");
+			
+			buffer.Append(GeneratePresetDelay("Delay1",
+			                                  Delay1_Mode,
+			                                  Delay1_Mix,
+			                                  Delay1_FB,
+			                                  Delay1_CB,
+			                                  Delay1_LP,
+			                                  Delay1_HP,
+			                                  Delay1_Drv,
+			                                  Delay1_Sync1,
+			                                  Delay1_Sync2,
+			                                  Delay1_Sync3,
+			                                  Delay1_Sync4,
+			                                  Delay1_T0,
+			                                  Delay1_T1,
+			                                  Delay1_T2,
+			                                  Delay1_T3,
+			                                  Delay1_Pan1,
+			                                  Delay1_Pan2,
+			                                  Delay1_Pan3,
+			                                  Delay1_Pan4));
+			
+			buffer.Append(GeneratePresetDelay("Delay2",
+			                                  Delay2_Mode,
+			                                  Delay2_Mix,
+			                                  Delay2_FB,
+			                                  Delay2_CB,
+			                                  Delay2_LP,
+			                                  Delay2_HP,
+			                                  Delay2_Drv,
+			                                  Delay2_Sync1,
+			                                  Delay2_Sync2,
+			                                  Delay2_Sync3,
+			                                  Delay2_Sync4,
+			                                  Delay2_T0,
+			                                  Delay2_T1,
+			                                  Delay2_T2,
+			                                  Delay2_T3,
+			                                  Delay2_Pan1,
+			                                  Delay2_Pan2,
+			                                  Delay2_Pan3,
+			                                  Delay2_Pan4));
 
 			buffer.AppendLine("\n#cm=Shape3");
 			buffer.Append(String.Format("Type={0}", Shape3_Type).PadRight(20)).AppendLine("// Type");
@@ -6524,22 +6544,8 @@ namespace PresetConverter
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "PnMD={0:0.00}", Mix6_PnMD).PadRight(20)).AppendLine("// PanMod Depth");
 			buffer.Append(String.Format("PnMS={0}", Mix6_PnMS).PadRight(20)).AppendLine("// PanMod Source");
 
-			buffer.AppendLine("\n#cm=Rev1");
-			buffer.Append(String.Format("Mode={0}", Rev1_Mode).PadRight(20)).AppendLine("// Mode");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Dry={0:0.00}", Rev1_Dry).PadRight(20)).AppendLine("// Dry");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Wet={0:0.00}", Rev1_Wet).PadRight(20)).AppendLine("// Wet");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FB={0:0.00}", Rev1_FB).PadRight(20)).AppendLine("// Feedback");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Damp={0:0.00}", Rev1_Damp).PadRight(20)).AppendLine("// Damp");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Size={0:0.00}", Rev1_Size).PadRight(20)).AppendLine("// Range");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Spd={0:0.00}", Rev1_Spd).PadRight(20)).AppendLine("// Speed");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Dpt={0:0.00}", Rev1_Dpt).PadRight(20)).AppendLine("// Modulation");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "DFB={0:0.00}", Rev1_DFB).PadRight(20)).AppendLine("// Diff Feedback");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "DSize={0:0.00}", Rev1_DSize).PadRight(20)).AppendLine("// Diff Range");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "EMix={0:0.00}", Rev1_EMix).PadRight(20)).AppendLine("// Diff Mix");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "DMod={0:0.00}", Rev1_DMod).PadRight(20)).AppendLine("// Diff Mod");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "DSpd={0:0.00}", Rev1_DSpd).PadRight(20)).AppendLine("// Diff Speed");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pre={0:0.00}", Rev1_Pre).PadRight(20)).AppendLine("// PreDelay");
-
+			buffer.Append(GeneratePresetReverb("Rev1"));
+			
 			buffer.AppendLine("\n#cm=Comp1");
 			buffer.Append(String.Format("Type={0}", Comp1_Type).PadRight(20)).AppendLine("// Type");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Rat={0:0.00}", Comp1_Rat).PadRight(20)).AppendLine("// Compression");
@@ -6792,7 +6798,8 @@ namespace PresetConverter
 		}
 		
 		public void Write(string filePath) {
-			string presetString = GeneratePresetContent();
+			//string presetString = GeneratePresetContent();
+			string presetString = ToString();
 			
 			// create a writer and open the file
 			TextWriter tw = new StreamWriter(filePath);
