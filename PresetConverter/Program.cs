@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.IO;
+using System.Collections.Generic;
 using CommandLine.Utility;
 
 namespace PresetConverter
@@ -30,7 +31,8 @@ namespace PresetConverter
 			string allProjectDir = allProjectDirInfo.FullName;
 			
 			// Build preset file paths
-			string sylenthPreset = Path.Combine(allProjectDir, "ProcessVSTPlugin", "Per Ivar - Test Preset (Zebra vs Sylenth).fxp");
+			//string sylenthPreset = Path.Combine(allProjectDir, "ProcessVSTPlugin", "Per Ivar - Test Preset (Zebra vs Sylenth).fxp");
+			string sylenthPreset = @"C:\Program Files (x86)\Steinberg\Vstplugins\Synth\Sylenth1\www.vengeance-sound.de - Sylenth Trilogy v1 - HandsUpDance Soundset.fxb";
 			//string sylenthPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\Per Ivar - Test Preset (Zebra vs Sylenth).fxp";
 			//string sylenthPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\Sylenth - Default - Preset.fxp";
 			//string sylenthPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\Sylenth - Test - Preset.fxp";
@@ -39,36 +41,23 @@ namespace PresetConverter
 			//string zebraPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\Zebra2.data\Presets\Zebra2\initialize-extended.h2p";
 			//string zebraPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter\initialize-extended2.h2p";
 			//string zebraPreset = Path.Combine(allProjectDir, "PresetConverter", "initialize-extended2.h2p");
-			string zebraPreset = @"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Per Ivar\Zebra2-Default Sylenth1 Template.h2p";
-			
-			//string zebraGeneratedPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter\Generated-Zebra2-Preset.h2p";
-			//string zebraGeneratedPreset = Path.Combine(allProjectDir, "PresetConverter", "Generated-Zebra2-Preset.h2p");
-			string zebraGeneratedPreset = @"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Per Ivar\1111-deleteme-testing.h2p";
-			
+			string zebra2_Sylenth1_PresetTemplate = @"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Per Ivar\Zebra2-Default Sylenth1 Template.h2p";
+						
 			Sylenth1Preset sylenth1 = new Sylenth1Preset();
 			sylenth1.Read(sylenthPreset);
-			
-			//sylenth1.TransformToZebra2("");
-			//Console.Out.WriteLine(sylenth1);
-			//string outFilePath = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter\Sylenth1PresetOutput.txt";
+
+			// Output a dump of the Sylenth1 Preset File			
 			string outFilePath = Path.Combine(allProjectDir, "PresetConverter", "Sylenth1PresetOutput.txt");
 			TextWriter tw = new StreamWriter(outFilePath);
 			tw.WriteLine(sylenth1);
 			tw.Close();
 			
-			Zebra2Preset zebra2 = new Zebra2Preset();
-			//zebra2.Read(zebraPreset);
-			
-			//string outFilePath2 = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter\Zebra2PresetOutput.txt";
-			string outFilePath2 = Path.Combine(allProjectDir, "PresetConverter", "Zebra2PresetOutput.txt");
-			
-			Zebra2Preset zebra2Converted = sylenth1.ToZebra2Preset(zebraPreset);
-
-			TextWriter tw2 = new StreamWriter(outFilePath2);
-			tw2.WriteLine(zebra2Converted);
-			tw2.Close();
-			
-			zebra2Converted.Write(zebraGeneratedPreset);
+			List<Zebra2Preset> zebra2ConvertedList = sylenth1.ToZebra2Preset(zebra2_Sylenth1_PresetTemplate);			
+			foreach (Zebra2Preset zebra2Converted in zebra2ConvertedList) {
+				string presetName = StringUtils.MakeValidFileName(zebra2Converted.PresetName);
+				string zebraGeneratedPreset = Path.Combine(@"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets", presetName + ".h2p");
+				zebra2Converted.Write(zebraGeneratedPreset);
+			}
 			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
@@ -96,7 +85,7 @@ namespace PresetConverter
 		
 		public static void PrintUsage() {
 			Console.WriteLine("Preset Converter. Version {0}.", _version);
-			Console.WriteLine("Copyright (C) 2009-2011 Per Ivar Nerseth.");
+			Console.WriteLine("Copyright (C) 2009-2012 Per Ivar Nerseth.");
 			Console.WriteLine();
 			Console.WriteLine("Usage: PresetConverter.exe <Arguments>");
 			Console.WriteLine();

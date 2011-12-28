@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using System.IO;
+
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -19,7 +21,7 @@ namespace PresetConverter
 			CamelCase
 		}
 
-	
+		
 		/// <summary>
 		/// Converts the phrase to specified convention.
 		/// </summary>
@@ -89,6 +91,13 @@ namespace PresetConverter
 			return Regex.Replace(strIn, @"[^\w\.@-]", "");
 		}
 
+		public static string MakeValidFileName( string name )
+		{
+			string invalidChars = Regex.Escape( new string( Path.GetInvalidFileNameChars() ) );
+			string invalidReStr = string.Format( @"[{0}]+", invalidChars );
+			return Regex.Replace( name, invalidReStr, "_" );
+		}
+		
 		public static IEnumerable<string> SplitByLength(this string str, int maxLength) {
 			int index = 0;
 			while(true) {
@@ -103,14 +112,19 @@ namespace PresetConverter
 
 		public static byte[] RemoveTrailingBytes(byte[] array, byte valueToCheck = 0) {
 			int i = array.Length - 1;
-			while(array[i] == valueToCheck)
+			while(i >= 0 && array[i] == valueToCheck) {
 				--i;
+			}
 			
-			// now array[i] is the last non-zero byte (if checking for zero)
-			byte[] fixedArray = new byte[i+1];
-			Array.Copy(array, fixedArray, i+1);
-			
-			return fixedArray;
+			if (i < 0) {
+				// every entry in the array has the valueToCheck value.
+				return array;
+			} else {
+				// now array[i] is the last non-zero byte (if checking for zero)
+				byte[] fixedArray = new byte[i+1];
+				Array.Copy(array, fixedArray, i+1);
+				return fixedArray;
+			}
 		}
 	}
 }
