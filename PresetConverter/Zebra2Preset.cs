@@ -5173,6 +5173,69 @@ namespace PresetConverter
 			midiNote = (int) Math.Round(note, 0);
 			return midiNote;
 		}
+
+		// Use like this:
+		// Zebra2Preset.LFOSync lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
+		// double lfoValue = 0.0;
+		// Zebra2Preset.MillisecondsToLFOSyncAndValue(msValue, out lfoSync, out lfoValue);
+		public static void MillisecondsToLFOSyncAndValue(float msValue, out LFOSync lfoSync, out double lfoValue) {
+			
+			// the lfo value must be between 0 and 200
+			// test with 0.1s first			
+
+			// round to nearest 1
+			int timeInMs = MathUtils.RoundToNearestInteger( (int) msValue, 1);
+			
+			if (timeInMs < 1000) {
+				// use 0.1s
+				// rate 100 = 0.1s
+				double value0_1s = (double) 50 / Math.Pow( (double) timeInMs/1000/0.8f, (double) 1/3);
+				value0_1s = MathUtils.RoundToNearestInteger((int)value0_1s, 2);
+				lfoValue = value0_1s;
+				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
+			} else if (timeInMs >= 1000 && timeInMs < 10000 ) {
+				// use 1s
+				// rate 100 = 1s
+				double value1s = (double) 50 / Math.Pow( (double) timeInMs/1000/8f, (double) 1/3);
+				value1s = MathUtils.RoundToNearestInteger((int)value1s, 2);
+				lfoValue = value1s;
+				lfoSync = Zebra2Preset.LFOSync.SYNC_1s;
+			} else {
+				// use 10s
+				// rate 100 = 10s
+				double value10s = (double) 50 / Math.Pow( (double) timeInMs/1000/8f, (double) 1/3);
+				value10s = MathUtils.RoundToNearestInteger((int)value10s, 2);
+				lfoValue = value10s;
+				lfoSync = Zebra2Preset.LFOSync.SYNC_10s;
+			}
+		}
+		
+		// Use like this:
+		// Zebra2Preset.EnvelopeTimeBase timebase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_1_4;
+		// double envValue = 0.0;
+		// Zebra2Preset.MillisecondsToEnvTypeAndValue(msValue, out timebase, out envValue);
+		public static void MillisecondsToEnvTypeAndValue(float msValue, out EnvelopeTimeBase timeBase, out double envValue) {
+			
+			// round to nearest 5
+			int timeInMs = MathUtils.RoundToNearestInteger( (int) msValue, 5);
+			
+			if (timeInMs <= 8000) {
+				// use 8sX
+				timeBase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_8sX;
+				double envValue8sX = 50 * Math.Pow( (double) timeInMs/1000, (double) 1/3);
+				envValue8sX = MathUtils.RoundToNearest(envValue8sX, 0.5f);
+				envValue = envValue8sX;
+			} else if (timeInMs > 8000 && timeInMs <= 16000) {
+				timeBase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_16sX;
+				double envValue16sX = 50 * Math.Pow( (double) timeInMs/2000, (double) 1/3);
+				envValue16sX = MathUtils.RoundToNearest(envValue16sX, 0.5f);
+				envValue = envValue16sX;
+			} else {
+				// Zebra2 cannot use more than 16 seconds
+				timeBase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_8sX;
+				envValue = 0;
+			}
+		}
 		
 		public void Read(string filePath) {
 			Read(filePath, false);

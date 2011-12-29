@@ -6,7 +6,7 @@ namespace PresetConverter
 	/// Description of MathUtils.
 	/// </summary>
 	public static class MathUtils
-	{		
+	{
 		// For use in calculating log base 10. A log times this is a log base 10.
 		private static double LOG10SCALE = 1 / Math.Log(10);
 		
@@ -95,6 +95,16 @@ namespace PresetConverter
 			float log_oldValue = flog10(oldValue + float.Epsilon);
 			float newValue = (((log_oldValue - log_oldMin) * newRange) / log_oldRange) + newMin;
 			return newValue;
+		}
+				
+		public static double RoundToNearest(double number, double nearest) {
+			double rounded = Math.Round(number * 2, MidpointRounding.AwayFromZero) / 2;
+			return rounded;
+		}
+		
+		public static int RoundToNearestInteger(int number, int nearest) {
+			int rounded = (int) Math.Round( (double) number / nearest) * nearest;
+			return rounded;
 		}
 	}
 }

@@ -12,6 +12,17 @@ namespace PresetConverter
 		
 		public static void Main(string[] args)
 		{
+			float msValue = 7;
+			Zebra2Preset.LFOSync lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
+			double lfoValue = 0.0;
+			Zebra2Preset.MillisecondsToLFOSyncAndValue(msValue, out lfoSync, out lfoValue);
+			Console.Out.WriteLine("{0}ms = {1} {2}", msValue, lfoValue, lfoSync );
+			
+			Console.Write("Press any key to continue . . . ");
+			Console.ReadKey(true);
+			
+			return;
+			
 			// to get the location the assembly is executing from
 			//(not neccesarily where the it normally resides on disk)
 			// in the case of the using shadow copies, for instance in NUnit tests,
