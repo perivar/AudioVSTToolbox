@@ -29,14 +29,6 @@ namespace PresetConverter
 		/// <param name="cases">The cases.</param>
 		/// <returns>string</returns>
 		public static string ConvertCaseString(string phrase, Case cases) {
-			/*
-				string a = "background color-red.brown";
-				string camelCase = ConvertCaseString(a, Case.CamelCase);
-				string pascalCase = ConvertCaseString(a, Case.PascalCase);
-				Console.WriteLine(String.Format("Original: {0}", a));
-				Console.WriteLine(String.Format("Camel Case: {0}", camelCase));
-				Console.WriteLine(String.Format("Pascal Case: {0}", pascalCase));
-			 */
 
 			string[] splittedPhrase = phrase.Split(' ', '-', '.');
 			var sb = new StringBuilder();

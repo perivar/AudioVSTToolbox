@@ -49,6 +49,7 @@
     <Compile Include="BinaryFile.cs" />
     <Compile Include="FXP.cs" />
     <Compile Include="MathUtils.cs" />
+    <Compile Include="ObjectUtils.cs" />
     <Compile Include="Preset.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

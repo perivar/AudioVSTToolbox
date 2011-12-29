@@ -42,22 +42,28 @@ namespace PresetConverter
 			//string zebraPreset = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter\initialize-extended2.h2p";
 			//string zebraPreset = Path.Combine(allProjectDir, "PresetConverter", "initialize-extended2.h2p");
 			string zebra2_Sylenth1_PresetTemplate = @"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Per Ivar\Zebra2-Default Sylenth1 Template.h2p";
-						
+			
 			Sylenth1Preset sylenth1 = new Sylenth1Preset();
 			sylenth1.Read(sylenthPreset);
 
-			// Output a dump of the Sylenth1 Preset File			
+			// Output a dump of the Sylenth1 Preset File
 			string outFilePath = Path.Combine(allProjectDir, "PresetConverter", "Sylenth1PresetOutput.txt");
 			TextWriter tw = new StreamWriter(outFilePath);
 			tw.WriteLine(sylenth1);
 			tw.Close();
 			
-			List<Zebra2Preset> zebra2ConvertedList = sylenth1.ToZebra2Preset(zebra2_Sylenth1_PresetTemplate);			
+			// Output a dump of the Zebra2 Preset File
+			string outFilePath2 = Path.Combine(allProjectDir, "PresetConverter", "Zebra2PresetOutput.txt");
+			TextWriter tw2 = new StreamWriter(outFilePath2);
+			
+			List<Zebra2Preset> zebra2ConvertedList = sylenth1.ToZebra2Preset(zebra2_Sylenth1_PresetTemplate, false);
 			foreach (Zebra2Preset zebra2Converted in zebra2ConvertedList) {
 				string presetName = StringUtils.MakeValidFileName(zebra2Converted.PresetName);
 				string zebraGeneratedPreset = Path.Combine(@"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets", presetName + ".h2p");
 				zebra2Converted.Write(zebraGeneratedPreset);
+				tw2.WriteLine(zebra2Converted);
 			}
+			tw2.Close();
 			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
