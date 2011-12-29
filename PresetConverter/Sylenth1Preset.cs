@@ -447,6 +447,9 @@ namespace PresetConverter
 		public Syl1PresetContent[] ContentArray { set; get; }
 		public string FilePath { set; get; }
 		
+		// keep track of nextFreeMatrixSlot
+		public int NextFreeMatrixSlot = 1;
+		
 		public Sylenth1Preset()
 		{
 		}
@@ -1903,7 +1906,7 @@ namespace PresetConverter
 		private static float ConvertSylenthTuneToZebra(float octave, float note, float fine) {
 			
 			// sylenth octave + note + fine makes up a zebra Tune?
-			float osc_oct = MathUtils.ConvertAndMainainRatio(octave, 0, 1, -3, 3);			
+			float osc_oct = MathUtils.ConvertAndMainainRatio(octave, 0, 1, -3, 3);
 			int osc_octave = (int) Math.Floor(osc_oct);
 			float osc_note = MathUtils.ConvertAndMainainRatio(note, 0, 1, -7, 7);
 			float osc_fine = MathUtils.ConvertAndMainainRatio(fine, 0, 1, -1, 1);
@@ -1981,96 +1984,23 @@ namespace PresetConverter
 			return (int) delaySync;
 		}
 		
-		private static void ConvertSylenthMatrixToZebra(Zebra2Preset z2, XMODSOURCE XModSource, YMODDEST YModDest, float XModDestAm,
-		                                                string Matrix1Depth,
-		                                                string Matrix2Depth,
-		                                                string Matrix1Source,
-		                                                string Matrix2Source,
-		                                                string Matrix1Target,
-		                                                string Matrix2Target
-		                                               ) {
+		private void SetZebraField(Zebra2Preset z2, string fieldNamePrefix, int startMatrixSlot, int slotIndex, Object fieldValue) {
+			string fieldName = String.Format("{0}{1}", fieldNamePrefix,  startMatrixSlot + slotIndex);
+			ObjectUtils.SetField(z2, fieldName, fieldValue);
+		}
+		
+		private void ConvertSylenthMatrixToZebra(Zebra2Preset z2, XMODSOURCE XModSource, YMODDEST YModDest, float XModDestAm) {
 			
-			/* Examples:
-			 * MMT1=VCF1:Cut		// Matrix1 Target
-			 * MMS1=1				// Matrix1 Source=ModWhl
-			 * MMD1=100.00			// Matrix1 Depth
-			 * MMVS1=0				// Matrix1 ViaSrc=none
-			 * MMVD1=0.00			// Matrix1 Via
-			 * 
-			 * MMT3=VCF1:Cut		// Matrix3 Target
-			 * MMS3=16				// Matrix3 Source=Env3
-			 * MMD3=48.00			// Matrix3 Depth
-			 * MMVS3=0				// Matrix3 ViaSrc=none
-			 * MMVD3=0.00			// Matrix3 Via
-			 */
+			// use the NextFreeMatrixSlot to keep track of the slot usage
+			if (NextFreeMatrixSlot > 12) return;
+			
+			int numberOfSlotsUsed = 0;
 			if (XModSource != XMODSOURCE.SOURCE_None && YModDest != YMODDEST.None) {
-				
-				// if the sylenth1 destination is using any of the AB types, we must use two slots for this in Zebra
-				bool useTwoSlots = false;
-				if (YModDest == YMODDEST.VolumeAB ||
-				    YModDest == YMODDEST.Pitch_AB ||
-				    YModDest == YMODDEST.Phase_AB ||
-				    YModDest == YMODDEST.Pan_AB ||
-				    YModDest == YMODDEST.CutoffAB ||
-				    YModDest == YMODDEST.Reso_AB ||
-				    YModDest == YMODDEST.Mix_AB) {
-					useTwoSlots = true;
-				}
-				
-				// set the modulation depth amount
-				// have to constraint the amount due to too high converstion (real zebra range is 0 - 100)
-				ObjectUtils.SetField(z2, Matrix1Depth, ConvertSylenthValueToZebra(XModDestAm, -10, 10, 0, 70));
-				if (useTwoSlots) ObjectUtils.SetField(z2, Matrix2Depth, ConvertSylenthValueToZebra(XModDestAm, -10, 10, 0, 70));
-
-				switch (XModSource) {
-					case XMODSOURCE.SOURCE_None:
-						// should never get here
-						break;
-					case XMODSOURCE.SOURCE_Velocity:
-						ObjectUtils.SetField(z2, Matrix1Source, (int) Zebra2Preset.ModulationSource.Velocity);
-						if (useTwoSlots) ObjectUtils.SetField(z2, Matrix2Source, (int) Zebra2Preset.ModulationSource.Velocity);
-						break;
-					case XMODSOURCE.SOURCE_ModWheel:
-						ObjectUtils.SetField(z2, Matrix1Source, (int) Zebra2Preset.ModulationSource.ModWhl);
-						if (useTwoSlots) ObjectUtils.SetField(z2, Matrix2Source, (int) Zebra2Preset.ModulationSource.ModWhl);
-						break;
-					case XMODSOURCE.SOURCE_KeyTrack:
-						ObjectUtils.SetField(z2, Matrix1Source, (int) Zebra2Preset.ModulationSource.KeyFol);
-						if (useTwoSlots) ObjectUtils.SetField(z2, Matrix2Source, (int) Zebra2Preset.ModulationSource.KeyFol);
-						break;
-					case XMODSOURCE.SOURCE_AmpEnv_A:
-						ObjectUtils.SetField(z2, Matrix1Source, (int) Zebra2Preset.ModulationSource.Env1);
-						if (useTwoSlots) ObjectUtils.SetField(z2, Matrix2Source, (int) Zebra2Preset.ModulationSource.Env1);
-						break;
-					case XMODSOURCE.SOURCE_AmpEnv_B:
-						ObjectUtils.SetField(z2, Matrix1Source, (int) Zebra2Preset.ModulationSource.Env2);
-						if (useTwoSlots) ObjectUtils.SetField(z2, Matrix2Source, (int) Zebra2Preset.ModulationSource.Env2);
-						break;
-					case XMODSOURCE.SOURCE_ModEnv_1:
-						ObjectUtils.SetField(z2, Matrix1Source, (int) Zebra2Preset.ModulationSource.Env3);
-						if (useTwoSlots) ObjectUtils.SetField(z2, Matrix2Source, (int) Zebra2Preset.ModulationSource.Env3);
-						break;
-					case XMODSOURCE.SOURCE_ModEnv_2:
-						ObjectUtils.SetField(z2, Matrix1Source, (int) Zebra2Preset.ModulationSource.Env4);
-						if (useTwoSlots) ObjectUtils.SetField(z2, Matrix2Source, (int) Zebra2Preset.ModulationSource.Env4);
-						break;
-					case XMODSOURCE.SOURCE_LFO_1:
-						ObjectUtils.SetField(z2, Matrix1Source, (int) Zebra2Preset.ModulationSource.Lfo1);
-						if (useTwoSlots) ObjectUtils.SetField(z2, Matrix2Source, (int) Zebra2Preset.ModulationSource.Lfo1);
-						break;
-					case XMODSOURCE.SOURCE_LFO_2:
-						ObjectUtils.SetField(z2, Matrix1Source, (int) Zebra2Preset.ModulationSource.Lfo2);
-						if (useTwoSlots) ObjectUtils.SetField(z2, Matrix2Source, (int) Zebra2Preset.ModulationSource.Lfo2);
-						break;
-					case XMODSOURCE.SOURCE_Aftertch:
-						ObjectUtils.SetField(z2, Matrix1Source, (int) Zebra2Preset.ModulationSource.ATouch);
-						if (useTwoSlots) ObjectUtils.SetField(z2, Matrix2Source, (int) Zebra2Preset.ModulationSource.ATouch);
-						break;
-					case XMODSOURCE.SOURCE_StepVlty:
-						ObjectUtils.SetField(z2, Matrix1Source, (int) Zebra2Preset.ModulationSource.Xpress);
-						if (useTwoSlots) ObjectUtils.SetField(z2, Matrix2Source, (int) Zebra2Preset.ModulationSource.Xpress);
-						break;
-				}
+				string MatrixDepthPrefix  = "PCore_MMD";
+				string MatrixSourcePrefix = "PCore_MMS";
+				string MatrixTargetPrefix = "PCore_MMT";
+				string MatrixViaSourcePrefix = "PCore_MMVS";
+				string MatrixViaSourceDepthPrefix = "PCore_MMVD";
 				
 				switch (YModDest) {
 					case YMODDEST.None:
@@ -2079,91 +2009,173 @@ namespace PresetConverter
 						
 						// Oscillators
 					case YMODDEST.Volume_A:
-						ObjectUtils.SetField(z2, Matrix1Target, "VCA1:Vol1");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Vol1");
+						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.Volume_B:
-						ObjectUtils.SetField(z2, Matrix1Target, "VCA1:Vol2");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Vol2");
+						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.VolumeAB:
-						ObjectUtils.SetField(z2, Matrix1Target, "VCA1:Vol1");
-						ObjectUtils.SetField(z2, Matrix2Target, "VCA1:Vol2");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Vol1");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "VCA1:Vol2");
+						numberOfSlotsUsed = 2;
 						break;
 					case YMODDEST.Pitch_A:
-						ObjectUtils.SetField(z2, Matrix1Target, "OSC1:Tune");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC1:Tune");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC2:Tune");
+						numberOfSlotsUsed = 2;
 						break;
 					case YMODDEST.Pitch_B:
-						ObjectUtils.SetField(z2, Matrix1Target, "OSC3:Tune");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC3:Tune");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC4:Tune");
+						numberOfSlotsUsed = 2;
 						break;
 					case YMODDEST.Pitch_AB:
-						ObjectUtils.SetField(z2, Matrix1Target, "OSC1:Tune");
-						ObjectUtils.SetField(z2, Matrix2Target, "OSC3:Tune");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC1:Tune");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC2:Tune");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 3, "OSC3:Tune");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 4, "OSC4:Tune");
+						numberOfSlotsUsed = 4;
 						break;
 					case YMODDEST.Phase_A:
-						ObjectUtils.SetField(z2, Matrix1Target, "OSC1:Phse");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC1:Phse");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC2:Phse");
+						numberOfSlotsUsed = 2;
 						break;
 					case YMODDEST.Phase_B:
-						ObjectUtils.SetField(z2, Matrix1Target, "OSC3:Phse");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC3:Phse");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC4:Phse");
+						numberOfSlotsUsed = 2;
 						break;
 					case YMODDEST.Phase_AB:
-						ObjectUtils.SetField(z2, Matrix1Target, "OSC1:Phse");
-						ObjectUtils.SetField(z2, Matrix2Target, "OSC3:Phse");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC1:Phse");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC2:Phse");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 3, "OSC3:Phse");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 4, "OSC4:Phse");
+						numberOfSlotsUsed = 4;
 						break;
 					case YMODDEST.Pan_A:
-						ObjectUtils.SetField(z2, Matrix1Target, "VCA1:Pan1");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Pan1");
+						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.Pan_B:
-						ObjectUtils.SetField(z2, Matrix1Target, "VCA1:Pan2");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Pan2");
+						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.Pan_AB:
-						ObjectUtils.SetField(z2, Matrix1Target, "VCA1:Pan1");
-						ObjectUtils.SetField(z2, Matrix2Target, "VCA1:Pan2");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Pan1");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "VCA1:Pan2");
+						numberOfSlotsUsed = 2;
 						break;
 
 						// Filters
 					case YMODDEST.Cutoff_A:
-						ObjectUtils.SetField(z2, Matrix1Target, "VCF1:Cut");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF1:Cut");
+						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.Cutoff_B:
-						ObjectUtils.SetField(z2, Matrix1Target, "VCF2:Cut");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF2:Cut");
+						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.CutoffAB:
-						ObjectUtils.SetField(z2, Matrix1Target, "VCF1:Cut");
-						ObjectUtils.SetField(z2, Matrix2Target, "VCF2:Cut");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF1:Cut");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "VCF2:Cut");
+						numberOfSlotsUsed = 2;
 						break;
 					case YMODDEST.Reso_A:
-						ObjectUtils.SetField(z2, Matrix1Target, "VCF1:Res");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF1:Res");
+						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.Reso_B:
-						ObjectUtils.SetField(z2, Matrix1Target, "VCF2:Res");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF2:Res");
+						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.Reso_AB:
-						ObjectUtils.SetField(z2, Matrix1Target, "VCF1:Res");
-						ObjectUtils.SetField(z2, Matrix2Target, "VCF2:Res");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF1:Res");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "VCF2:Res");
+						numberOfSlotsUsed = 2;
 						break;
 
 						// Misc
 					case YMODDEST.PhsrFreq:
+						numberOfSlotsUsed = 0;
 						break;
 					case YMODDEST.Mix_A:
+						numberOfSlotsUsed = 0;
 						break;
 					case YMODDEST.Mix_B:
+						numberOfSlotsUsed = 0;
 						break;
 					case YMODDEST.Mix_AB:
+						numberOfSlotsUsed = 0;
 						break;
 					case YMODDEST.LFO1Rate:
-						ObjectUtils.SetField(z2, Matrix1Target, "LFO1:Rate");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "LFO1:Rate");
+						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.LFO1Gain:
-						ObjectUtils.SetField(z2, Matrix1Target, "LFO1:Amp");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "LFO1:Amp");
+						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.LFO2Rate:
-						ObjectUtils.SetField(z2, Matrix1Target, "LFO2:Rate");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "LFO2:Rate");
+						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.LFO2Gain:
-						ObjectUtils.SetField(z2, Matrix1Target, "LFO2:Amp");
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "LFO2:Amp");
+						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.DistAmnt:
+						SetZebraField(z2, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "Shape3:Depth");
+						numberOfSlotsUsed = 1;
 						break;
+				}
+
+				
+				for (int i = 1; i <= numberOfSlotsUsed; i++) {
+					switch (XModSource) {
+						case XMODSOURCE.SOURCE_None:
+							// should never get here
+							break;
+						case XMODSOURCE.SOURCE_Velocity:
+							SetZebraField(z2, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Velocity);
+							break;
+						case XMODSOURCE.SOURCE_ModWheel:
+							SetZebraField(z2, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.ModWhl);
+							break;
+						case XMODSOURCE.SOURCE_KeyTrack:
+							SetZebraField(z2, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.KeyFol);
+							break;
+						case XMODSOURCE.SOURCE_AmpEnv_A:
+							SetZebraField(z2, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env1);
+							break;
+						case XMODSOURCE.SOURCE_AmpEnv_B:
+							SetZebraField(z2, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env2);
+							break;
+						case XMODSOURCE.SOURCE_ModEnv_1:
+							SetZebraField(z2, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env3);
+							break;
+						case XMODSOURCE.SOURCE_ModEnv_2:
+							SetZebraField(z2, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env4);
+							break;
+						case XMODSOURCE.SOURCE_LFO_1:
+							SetZebraField(z2, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Lfo1);
+							break;
+						case XMODSOURCE.SOURCE_LFO_2:
+							SetZebraField(z2, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Lfo2);
+							break;
+						case XMODSOURCE.SOURCE_Aftertch:
+							SetZebraField(z2, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.ATouch);
+							break;
+						case XMODSOURCE.SOURCE_StepVlty:
+							SetZebraField(z2, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Xpress);
+							break;
+					}
+					
+					// set the modulation depth amount
+					// have to constraint the amount due to too high converstion (real zebra range is 0 - 100)
+					SetZebraField(z2, MatrixDepthPrefix, NextFreeMatrixSlot, i, ConvertSylenthValueToZebra(XModDestAm, -10, 10, 0, 70));
 				}
 			}
 		}
@@ -2180,7 +2192,7 @@ namespace PresetConverter
 					break;
 				}
 
-				Console.Out.WriteLine("Converting preset number {0} - {1} ...", convertCounter, Content.PresetName);				
+				Console.Out.WriteLine("Converting preset number {0} - {1} ...", convertCounter, Content.PresetName);
 				
 				// Load a default preset file and modify this one
 				Zebra2Preset zebra2Preset = new Zebra2Preset();
@@ -2469,89 +2481,24 @@ namespace PresetConverter
 				zebra2Preset.ENV4_Sus = ConvertSylenthValueToZebra(Content.ModEnv2Sustain, 0, 10, 0, 100);
 				
 				// Matrix
-				/*
-				 * MMT1=VCF1:Cut		// Matrix1 Target
-				 * MMS1=1				// Matrix1 Source=ModWhl
-				 * MMD1=100.00			// Matrix1 Depth
-				 * MMVS1=0				// Matrix1 ViaSrc=none
-				 * MMVD1=0.00			// Matrix1 Via
-				 */
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest1, Content.XModMisc1ADest1Am,
-				                            "PCore_MMD1",
-				                            "PCore_MMD2",
-				                            "PCore_MMS1",
-				                            "PCore_MMS2",
-				                            "PCore_MMT1",
-				                            "PCore_MMT2");
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest2, Content.XModMisc1ADest2Am,
-				                            "PCore_MMD3",
-				                            "PCore_MMD4",
-				                            "PCore_MMS3",
-				                            "PCore_MMS4",
-				                            "PCore_MMT3",
-				                            "PCore_MMT4");
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc1BSource, Content.YModMisc1BDest1, Content.XModMisc1BDest1Am,
-				                            "PCore_MMD5",
-				                            "PCore_MMD6",
-				                            "PCore_MMS5",
-				                            "PCore_MMS6",
-				                            "PCore_MMT5",
-				                            "PCore_MMT6");
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc1BSource, Content.YModMisc1BDest2, Content.XModMisc1BDest2Am,
-				                            "PCore_MMD7",
-				                            "PCore_MMD8",
-				                            "PCore_MMS7",
-				                            "PCore_MMS8",
-				                            "PCore_MMT7",
-				                            "PCore_MMT8");
-
-				/*
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc2ASource, Content.YModMisc2ADest1, Content.XModMisc2ADest1Am,
-				                            "PCore_MMD9",
-				                            "PCore_MMD10",
-				                            "PCore_MMS9",
-				                            "PCore_MMS10",
-				                            "PCore_MMT9",
-				                            "PCore_MMT10");
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc2ASource, Content.YModMisc2ADest2, Content.XModMisc2ADest2Am,
-				                            "PCore_MMD11",
-				                            "PCore_MMD12",
-				                            "PCore_MMS11",
-				                            "PCore_MMS12",
-				                            "PCore_MMT11",
-				                            "PCore_MMT12");
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc2BSource, Content.YModMisc2BDest1, Content.XModMisc2BDest1Am,
-				                            "PCore_MMD5",
-				                            "PCore_MMD6",
-				                            "PCore_MMS5",
-				                            "PCore_MMS6",
-				                            "PCore_MMT5",
-				                            "PCore_MMT6");
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc2BSource, Content.YModMisc2BDest2, Content.XModMisc2BDest2Am,
-				                            "PCore_MMD7",
-				                            "PCore_MMD8",
-				                            "PCore_MMS7",
-				                            "PCore_MMS8",
-				                            "PCore_MMT7",
-				                            "PCore_MMT8");
-				 */
-
+				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest1, Content.XModMisc1ADest1Am);
+				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest2, Content.XModMisc1ADest2Am);
+				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc1BSource, Content.YModMisc1BDest1, Content.XModMisc1BDest1Am);
+				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc1BSource, Content.YModMisc1BDest2, Content.XModMisc1BDest2Am);
+				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc2ASource, Content.YModMisc2ADest1, Content.XModMisc2ADest1Am);
+				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc2ASource, Content.YModMisc2ADest2, Content.XModMisc2ADest2Am);
+				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc2BSource, Content.YModMisc2BDest1, Content.XModMisc2BDest1Am);
+				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc2BSource, Content.YModMisc2BDest2, Content.XModMisc2BDest2Am);
 				
-				// see if the mod envelopes are used
-				ConvertSylenthMatrixToZebra(zebra2Preset, XMODSOURCE.SOURCE_ModEnv_1, Content.YModEnv1Dest1, Content.XModEnv1Dest1Am,
-				                            "PCore_MMD9",
-				                            "PCore_MMD10",
-				                            "PCore_MMS9",
-				                            "PCore_MMS10",
-				                            "PCore_MMT9",
-				                            "PCore_MMT10");
-				ConvertSylenthMatrixToZebra(zebra2Preset, XMODSOURCE.SOURCE_ModEnv_2, Content.YModEnv2Dest1, Content.XModEnv2Dest1Am,
-				                            "PCore_MMD11",
-				                            "PCore_MMD12",
-				                            "PCore_MMS11",
-				                            "PCore_MMS12",
-				                            "PCore_MMT11",
-				                            "PCore_MMT12");
+				// See if the mod envelopes are used
+				ConvertSylenthMatrixToZebra(zebra2Preset, XMODSOURCE.SOURCE_ModEnv_1, Content.YModEnv1Dest1, Content.XModEnv1Dest1Am);
+				ConvertSylenthMatrixToZebra(zebra2Preset, XMODSOURCE.SOURCE_ModEnv_2, Content.YModEnv2Dest1, Content.XModEnv2Dest1Am);
+
+				// See if the LFOs are used
+				ConvertSylenthMatrixToZebra(zebra2Preset, XMODSOURCE.SOURCE_LFO_1, Content.YModLFO1Dest1, Content.XModLFO1Dest1Am);
+				ConvertSylenthMatrixToZebra(zebra2Preset, XMODSOURCE.SOURCE_LFO_1, Content.YModLFO1Dest2, Content.XModLFO1Dest2Am);
+				ConvertSylenthMatrixToZebra(zebra2Preset, XMODSOURCE.SOURCE_LFO_2, Content.YModLFO2Dest1, Content.XModLFO2Dest1Am);
+				ConvertSylenthMatrixToZebra(zebra2Preset, XMODSOURCE.SOURCE_LFO_2, Content.YModLFO2Dest2, Content.XModLFO2Dest2Am);
 			}
 			return zebra2PresetList;
 		}
