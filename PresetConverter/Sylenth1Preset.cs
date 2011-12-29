@@ -1984,7 +1984,7 @@ namespace PresetConverter
 			return (int) delaySync;
 		}
 		
-		private void SetZebraField(Zebra2Preset z2, XMODSOURCE modSource, YMODDEST modDestination, string fieldNamePrefix, int startMatrixSlot, int slotIndex, Object fieldValue) {
+		private static void SetZebraMatrixField(Zebra2Preset z2, XMODSOURCE modSource, YMODDEST modDestination, string fieldNamePrefix, int startMatrixSlot, int slotIndex, Object fieldValue) {
 			int fieldIndex = startMatrixSlot + slotIndex -1;
 			string fieldName = String.Format("{0}{1}", fieldNamePrefix,  fieldIndex);
 			if (fieldIndex > 12) {
@@ -2015,91 +2015,91 @@ namespace PresetConverter
 						
 						// Oscillators
 					case YMODDEST.Volume_A:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Vol1");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Vol1");
 						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.Volume_B:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Vol2");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Vol2");
 						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.VolumeAB:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Vol1");
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "VCA1:Vol2");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Vol1");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "VCA1:Vol2");
 						numberOfSlotsUsed = 2;
 						break;
 					case YMODDEST.Pitch_A:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC1:Tune");
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC2:Tune");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC1:Tune");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC2:Tune");
 						numberOfSlotsUsed = 2;
 						break;
 					case YMODDEST.Pitch_B:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC3:Tune");
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC4:Tune");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC3:Tune");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC4:Tune");
 						numberOfSlotsUsed = 2;
 						break;
 					case YMODDEST.Pitch_AB:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC1:Tune");
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC2:Tune");
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 3, "OSC3:Tune");
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 4, "OSC4:Tune");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC1:Tune");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC2:Tune");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 3, "OSC3:Tune");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 4, "OSC4:Tune");
 						numberOfSlotsUsed = 4;
 						break;
 					case YMODDEST.Phase_A:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC1:Phse");
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC2:Phse");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC1:Phse");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC2:Phse");
 						numberOfSlotsUsed = 2;
 						break;
 					case YMODDEST.Phase_B:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC3:Phse");
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC4:Phse");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC3:Phse");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC4:Phse");
 						numberOfSlotsUsed = 2;
 						break;
 					case YMODDEST.Phase_AB:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC1:Phse");
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC2:Phse");
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 3, "OSC3:Phse");
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 4, "OSC4:Phse");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "OSC1:Phse");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "OSC2:Phse");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 3, "OSC3:Phse");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 4, "OSC4:Phse");
 						numberOfSlotsUsed = 4;
 						break;
 					case YMODDEST.Pan_A:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Pan1");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Pan1");
 						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.Pan_B:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Pan2");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Pan2");
 						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.Pan_AB:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Pan1");
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "VCA1:Pan2");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCA1:Pan1");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "VCA1:Pan2");
 						numberOfSlotsUsed = 2;
 						break;
 
 						// Filters
 					case YMODDEST.Cutoff_A:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF1:Cut");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF1:Cut");
 						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.Cutoff_B:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF2:Cut");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF2:Cut");
 						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.CutoffAB:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF1:Cut");
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "VCF2:Cut");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF1:Cut");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "VCF2:Cut");
 						numberOfSlotsUsed = 2;
 						break;
 					case YMODDEST.Reso_A:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF1:Res");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF1:Res");
 						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.Reso_B:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF2:Res");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF2:Res");
 						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.Reso_AB:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF1:Res");
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "VCF2:Res");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "VCF1:Res");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 2, "VCF2:Res");
 						numberOfSlotsUsed = 2;
 						break;
 
@@ -2117,23 +2117,23 @@ namespace PresetConverter
 						numberOfSlotsUsed = 0;
 						break;
 					case YMODDEST.LFO1Rate:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "LFOG:Rate");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "LFOG:Rate");
 						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.LFO1Gain:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "LFOG:Amp");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "LFOG:Amp");
 						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.LFO2Rate:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "LFOG2:Rate");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "LFOG2:Rate");
 						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.LFO2Gain:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "LFOG2:Amp");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "LFOG2:Amp");
 						numberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.DistAmnt:
-						SetZebraField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "Shape3:Depth");
+						SetZebraMatrixField(z2, modSource, modDestination, MatrixTargetPrefix, NextFreeMatrixSlot, 1, "Shape3:Depth");
 						numberOfSlotsUsed = 1;
 						break;
 				}
@@ -2145,47 +2145,283 @@ namespace PresetConverter
 							// should never get here
 							break;
 						case XMODSOURCE.SOURCE_Velocity:
-							SetZebraField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Velocity);
+							SetZebraMatrixField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Velocity);
 							break;
 						case XMODSOURCE.SOURCE_ModWheel:
-							SetZebraField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.ModWhl);
+							SetZebraMatrixField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.ModWhl);
 							break;
 						case XMODSOURCE.SOURCE_KeyTrack:
-							SetZebraField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.KeyFol);
+							SetZebraMatrixField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.KeyFol);
 							break;
 						case XMODSOURCE.SOURCE_AmpEnv_A:
-							SetZebraField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env1);
+							SetZebraMatrixField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env1);
 							break;
 						case XMODSOURCE.SOURCE_AmpEnv_B:
-							SetZebraField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env2);
+							SetZebraMatrixField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env2);
 							break;
 						case XMODSOURCE.SOURCE_ModEnv_1:
-							SetZebraField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env3);
+							SetZebraMatrixField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env3);
 							break;
 						case XMODSOURCE.SOURCE_ModEnv_2:
-							SetZebraField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env4);
+							SetZebraMatrixField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env4);
 							break;
 						case XMODSOURCE.SOURCE_LFO_1:
-							SetZebraField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.LfoG1);
+							SetZebraMatrixField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.LfoG1);
 							break;
 						case XMODSOURCE.SOURCE_LFO_2:
-							SetZebraField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.LfoG2);
+							SetZebraMatrixField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.LfoG2);
 							break;
 						case XMODSOURCE.SOURCE_Aftertch:
-							SetZebraField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.ATouch);
+							SetZebraMatrixField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.ATouch);
 							break;
 						case XMODSOURCE.SOURCE_StepVlty:
-							SetZebraField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Xpress);
+							SetZebraMatrixField(z2, modSource, modDestination, MatrixSourcePrefix, NextFreeMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Xpress);
 							break;
 					}
 					
 					// set the modulation depth amount
 					// have to constraint the amount due to too high converstion (real zebra range is 0 - 100)
-					SetZebraField(z2, modSource, modDestination, MatrixDepthPrefix, NextFreeMatrixSlot, i, ConvertSylenthValueToZebra(XModDestAm, -10, 10, -100, 100));
+					SetZebraMatrixField(z2, modSource, modDestination, MatrixDepthPrefix, NextFreeMatrixSlot, i, ConvertSylenthValueToZebra(XModDestAm, -10, 10, -100, 100));
 				}
 				
 				NextFreeMatrixSlot += numberOfSlotsUsed;
 			}
+		}
+		
+		private static void ConvertSylenthLFOToZebra(Zebra2Preset z2, LFOWAVE sylenthLFOWave, ONOFF sylenthLFOFree, float sylenthLFORate, float sylenthLFOGain,
+		                                             string LFOWaveFieldName,
+		                                             string LFOSyncFieldName,
+		                                             string LFORateFieldName,
+		                                             string LFOGTrigFieldName,
+		                                             string LFOGPhseFieldName,
+		                                             string LFOGAmpFieldName,
+		                                             string LFOGSlewFieldName) {
+
+			Zebra2Preset.LFOWave zebraLFOWave = Zebra2Preset.LFOWave.sine;
+			switch (sylenthLFOWave) {
+				case LFOWAVE.LFO_HPulse:
+					zebraLFOWave = Zebra2Preset.LFOWave.sqr_hi_lo;
+					break;
+				case LFOWAVE.LFO_Lorenz:
+					zebraLFOWave = Zebra2Preset.LFOWave.sine;
+					break;
+				case LFOWAVE.LFO_Pulse:
+					zebraLFOWave = Zebra2Preset.LFOWave.sqr_hi_lo;
+					break;
+				case LFOWAVE.LFO_QPulse:
+					zebraLFOWave = Zebra2Preset.LFOWave.sqr_hi_lo;
+					break;
+				case LFOWAVE.LFO_Ramp:
+					zebraLFOWave = Zebra2Preset.LFOWave.saw_down;
+					break;
+				case LFOWAVE.LFO_Ramp2:
+					zebraLFOWave = Zebra2Preset.LFOWave.saw_down;
+					break;
+				case LFOWAVE.LFO_Random:
+					zebraLFOWave = Zebra2Preset.LFOWave.rand_glide;
+					break;
+				case LFOWAVE.LFO_Saw:
+					zebraLFOWave = Zebra2Preset.LFOWave.saw_down;
+					break;
+				case LFOWAVE.LFO_Sine:
+					zebraLFOWave = Zebra2Preset.LFOWave.sine;
+					break;
+				case LFOWAVE.LFO_SmpHold:
+					zebraLFOWave = Zebra2Preset.LFOWave.rand_hold;
+					break;
+				case LFOWAVE.LFO_Triangle:
+					zebraLFOWave = Zebra2Preset.LFOWave.triangle;
+					break;
+				case LFOWAVE.LFO_TriSaw:
+					zebraLFOWave = Zebra2Preset.LFOWave.saw_up;
+					break;
+			}
+			ObjectUtils.SetField(z2, LFOWaveFieldName, (int) zebraLFOWave);
+			
+			if (sylenthLFOFree == ONOFF.On) {
+				// use free LFO = hz (0.04 - 192 Hz)
+				float lfo1RateHz = ValueToHz( sylenthLFORate, FloatToHz.LFORateFree);
+				
+				// hz = 1 / s
+				float msValue = (float) 1 / lfo1RateHz * 1000;
+				
+				Zebra2Preset.LFOSync lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
+				double lfoValue = 0.0;
+				Zebra2Preset.MillisecondsToLFOSyncAndValue(msValue, out lfoSync, out lfoValue);
+				
+				ObjectUtils.SetField(z2, LFOSyncFieldName, (int) lfoSync);
+				ObjectUtils.SetField(z2, LFORateFieldName, (float) lfoValue);
+			} else {
+				// use LFO preset
+				LFOTIMING timing = LFOTimeFloatToEnum( sylenthLFORate );
+				
+				// Rate (0.00 - 200.00)
+				float rateNormal = 100.00f;
+				float rateDotted = 50.00f;
+				float rateTriple = 150.00f;
+				
+				float zebraLFORate = rateNormal;
+				Zebra2Preset.LFOSync zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_4;
+				switch (timing) {
+					case LFOTIMING.LFO_UNKNOWN:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_4;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_8_1D:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_8_1;
+						zebraLFORate = rateDotted;
+						break;
+					case LFOTIMING.LFO_8_1:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_8_1;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_4_1D:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_4_1;
+						zebraLFORate = rateDotted;
+						break;
+					case LFOTIMING.LFO_8_1T:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_8_1;
+						zebraLFORate = rateTriple;
+						break;
+					case LFOTIMING.LFO_4_1:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_4_1;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_2_1D:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_2_1;
+						zebraLFORate = rateDotted;
+						break;
+					case LFOTIMING.LFO_4_1T:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_4_1;
+						zebraLFORate = rateTriple;
+						break;
+					case LFOTIMING.LFO_2_1:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_2_1;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_1D:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_1;
+						zebraLFORate = rateDotted;
+						break;
+					case LFOTIMING.LFO_2_1T:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_2_1;
+						zebraLFORate = rateTriple;
+						break;
+					case LFOTIMING.LFO_1_1:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_1;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_2D:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_2_dot;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_1T:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_1_trip;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_2:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_2;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_4D:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_4_dot;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_2T:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_2_trip;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_4:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_4;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_8D:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_8_dot;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_4T:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_4_trip;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_8:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_8;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_16D:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_16_dot;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_8T:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_8_trip;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_16:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_16;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_32D:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_32_dot;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_16T:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_16_trip;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_32:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_32;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_64D:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_64;
+						zebraLFORate = rateDotted;
+						break;
+					case LFOTIMING.LFO_1_32T:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_32;
+						zebraLFORate = rateTriple;
+						break;
+					case LFOTIMING.LFO_1_64:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_64;
+						zebraLFORate = rateNormal;
+						break;
+					case LFOTIMING.LFO_1_128D:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_0_1s;
+						zebraLFORate = 170.00f;  // Rate (0.00 - 200.00)
+						break;
+					case LFOTIMING.LFO_1_64T:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_0_1s;
+						zebraLFORate = 175.00f;  // Rate (0.00 - 200.00)
+						break;
+					case LFOTIMING.LFO_1_128:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_0_1s;
+						zebraLFORate = 180.00f;  // Rate (0.00 - 200.00)
+						break;
+					case LFOTIMING.LFO_1_256D:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_0_1s;
+						zebraLFORate = 185.00f;  // Rate (0.00 - 200.00)
+						break;
+					case LFOTIMING.LFO_1_128T:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_0_1s;
+						zebraLFORate = 190.00f;  // Rate (0.00 - 200.00)
+						break;
+					case LFOTIMING.LFO_1_256:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_0_1s;
+						zebraLFORate = 195.00f;  // Rate (0.00 - 200.00)
+						break;
+					case LFOTIMING.LFO_1_256T:
+						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_0_1s;
+						zebraLFORate = 200.00f;  // Rate (0.00 - 200.00)
+						break;
+				}
+				
+				ObjectUtils.SetField(z2, LFOSyncFieldName, (int) zebraLFOSync);
+				ObjectUtils.SetField(z2, LFORateFieldName, zebraLFORate);
+			}
+			
+			ObjectUtils.SetField(z2, LFOGTrigFieldName, (int) Zebra2Preset.LFOGlobalTriggering.Trig_off);
+			//ObjectUtils.SetField(z2, LFOGPhseFieldName, ConvertSylenthValueToZebra(Content.LFO1Offset, -10, 10, 0, 100));
+			ObjectUtils.SetField(z2, LFOGPhseFieldName, 0.0f);
+			ObjectUtils.SetField(z2, LFOGAmpFieldName, ConvertSylenthValueToZebra(sylenthLFOGain, 0, 10, 0, 100));
+			ObjectUtils.SetField(z2, LFOGSlewFieldName, (int) Zebra2Preset.LFOSlew.fast);	// LFO Slew (Slew=1)
 		}
 		
 		public List<Zebra2Preset> ToZebra2Preset(string defaultZebra2PresetFile, bool doProcessInitPresets = false) {
@@ -2362,225 +2598,27 @@ namespace PresetConverter
 				}
 				
 				// LFOG1 is used for something
-				if (Content.YModLFO1Dest1 != YMODDEST.None) {
-					switch (Content.LFO1Wave) {
-						case LFOWAVE.LFO_HPulse:
-							zebra2Preset.LFOG_Wave 	= (int) Zebra2Preset.LFOWave.sqr_hi_lo;
-							break;
-						case LFOWAVE.LFO_Lorenz:
-							zebra2Preset.LFOG_Wave 	= (int) Zebra2Preset.LFOWave.sine;
-							break;
-						case LFOWAVE.LFO_Pulse:
-							zebra2Preset.LFOG_Wave 	= (int) Zebra2Preset.LFOWave.sqr_hi_lo;
-							break;
-						case LFOWAVE.LFO_QPulse:
-							zebra2Preset.LFOG_Wave 	= (int) Zebra2Preset.LFOWave.sqr_hi_lo;
-							break;
-						case LFOWAVE.LFO_Ramp:
-							zebra2Preset.LFOG_Wave 	= (int) Zebra2Preset.LFOWave.saw_down;
-							break;
-						case LFOWAVE.LFO_Ramp2:
-							zebra2Preset.LFOG_Wave 	= (int) Zebra2Preset.LFOWave.saw_down;
-							break;
-						case LFOWAVE.LFO_Random:
-							zebra2Preset.LFOG_Wave 	= (int) Zebra2Preset.LFOWave.rand_glide;
-							break;
-						case LFOWAVE.LFO_Saw:
-							zebra2Preset.LFOG_Wave 	= (int) Zebra2Preset.LFOWave.saw_down;
-							break;
-						case LFOWAVE.LFO_Sine:
-							zebra2Preset.LFOG_Wave 	= (int) Zebra2Preset.LFOWave.sine;
-							break;
-						case LFOWAVE.LFO_SmpHold:
-							zebra2Preset.LFOG_Wave 	= (int) Zebra2Preset.LFOWave.rand_hold;
-							break;
-						case LFOWAVE.LFO_Triangle:
-							zebra2Preset.LFOG_Wave 	= (int) Zebra2Preset.LFOWave.triangle;
-							break;
-						case LFOWAVE.LFO_TriSaw:
-							zebra2Preset.LFOG_Wave 	= (int) Zebra2Preset.LFOWave.saw_up;
-							break;
-					}
+				if (Content.YModLFO1Dest1 != YMODDEST.None && Content.YModLFO1Dest2 != YMODDEST.None ) {
+					ConvertSylenthLFOToZebra(zebra2Preset, Content.LFO1Wave, Content.LFO1Free, Content.LFO1Rate, Content.LFO1Gain,
+					                         "LFOG_Wave",
+					                         "LFOG_Sync",
+					                         "LFOG_Rate",
+					                         "LFOG_Trig",
+					                         "LFOG_Phse",
+					                         "LFOG_Amp",
+					                         "LFOG_Slew");
+				}
 
-					if (Content.LFO1Free == ONOFF.On) {
-						// use free LFO = hz (0.04 - 192 Hz)
-						float lfo1RateHz = ValueToHz( Content.LFO1Rate, FloatToHz.LFORateFree);
-						
-						// hz = 1 / s
-						float msValue = (float) 1 / lfo1RateHz * 1000;
-						
-						Zebra2Preset.LFOSync lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
-						double lfoValue = 0.0;
-						Zebra2Preset.MillisecondsToLFOSyncAndValue(msValue, out lfoSync, out lfoValue);
-						
-						zebra2Preset.LFOG_Sync = (int) lfoSync;
-						zebra2Preset.LFOG_Rate = (float) lfoValue;
-					} else {
-						// use LFO preset
-						LFOTIMING timing = LFOTimeFloatToEnum( Content.LFO1Rate );
-						
-						// Rate (0.00 - 200.00)
-						float rateNormal = 100.00f;
-						float rateDotted = 50.00f;
-						float rateTriple = 150.00f;
-						
-						switch (timing) {
-							case LFOTIMING.LFO_UNKNOWN:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_4;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_8_1D:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_8_1;
-								zebra2Preset.LFOG_Rate 	= rateDotted;
-								break;
-							case LFOTIMING.LFO_8_1:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_8_1;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_4_1D:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_4_1;
-								zebra2Preset.LFOG_Rate 	= rateDotted;
-								break;
-							case LFOTIMING.LFO_8_1T:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_8_1;
-								zebra2Preset.LFOG_Rate 	= rateTriple;
-								break;
-							case LFOTIMING.LFO_4_1:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_4_1;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_2_1D:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_2_1;
-								zebra2Preset.LFOG_Rate 	= rateDotted;
-								break;
-							case LFOTIMING.LFO_4_1T:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_4_1;
-								zebra2Preset.LFOG_Rate 	= rateTriple;
-								break;
-							case LFOTIMING.LFO_2_1:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_2_1;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_1D:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_1;
-								zebra2Preset.LFOG_Rate 	= rateDotted;
-								break;
-							case LFOTIMING.LFO_2_1T:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_2_1;
-								zebra2Preset.LFOG_Rate 	= rateTriple;
-								break;
-							case LFOTIMING.LFO_1_1:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_1;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_2D:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_2_dot;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_1T:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_1_trip;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_2:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_2;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_4D:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_4_dot;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_2T:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_2_trip;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_4:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_4;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_8D:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_8_dot;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_4T:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_4_trip;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_8:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_8;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_16D:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_16_dot;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_8T:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_8_trip;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_16:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_16;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_32D:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_32_dot;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_16T:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_16_trip;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_32:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_32;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_64D:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_64;
-								zebra2Preset.LFOG_Rate 	= rateDotted;
-								break;
-							case LFOTIMING.LFO_1_32T:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_32;
-								zebra2Preset.LFOG_Rate 	= rateTriple;
-								break;
-							case LFOTIMING.LFO_1_64:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_1_64;
-								zebra2Preset.LFOG_Rate 	= rateNormal;
-								break;
-							case LFOTIMING.LFO_1_128D:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_0_1s;
-								zebra2Preset.LFOG_Rate 	= 170.00f;  // Rate (0.00 - 200.00)
-								break;
-							case LFOTIMING.LFO_1_64T:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_0_1s;
-								zebra2Preset.LFOG_Rate 	= 175.00f;  // Rate (0.00 - 200.00)
-								break;
-							case LFOTIMING.LFO_1_128:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_0_1s;
-								zebra2Preset.LFOG_Rate 	= 180.00f;  // Rate (0.00 - 200.00)
-								break;
-							case LFOTIMING.LFO_1_256D:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_0_1s;
-								zebra2Preset.LFOG_Rate 	= 185.00f;  // Rate (0.00 - 200.00)
-								break;
-							case LFOTIMING.LFO_1_128T:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_0_1s;
-								zebra2Preset.LFOG_Rate 	= 190.00f;  // Rate (0.00 - 200.00)
-								break;
-							case LFOTIMING.LFO_1_256:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_0_1s;
-								zebra2Preset.LFOG_Rate 	= 195.00f;  // Rate (0.00 - 200.00)
-								break;
-							case LFOTIMING.LFO_1_256T:
-								zebra2Preset.LFOG_Sync 	= (int) Zebra2Preset.LFOSync.SYNC_0_1s;
-								zebra2Preset.LFOG_Rate 	= 200.00f;  // Rate (0.00 - 200.00)
-								break;
-						}
-					}
-
-					zebra2Preset.LFOG_Trig 	= (int) Zebra2Preset.LFOGlobalTriggering.Trig_off;
-					//zebra2Preset.LFOG_Phse = ConvertSylenthValueToZebra(Content.LFO1Offset, -10, 10, 0, 100);
-					zebra2Preset.LFOG_Phse 	= 0.0f;
-					zebra2Preset.LFOG_Amp = ConvertSylenthValueToZebra(Content.LFO1Gain, 0, 10, 0, 100);
-					zebra2Preset.LFOG_Slew 	= (int) Zebra2Preset.LFOSlew.fast;	// LFO Slew (Slew=1)
+				// LFOG2 is used for something
+				if (Content.YModLFO2Dest1 != YMODDEST.None && Content.YModLFO2Dest2 != YMODDEST.None ) {
+					ConvertSylenthLFOToZebra(zebra2Preset, Content.LFO2Wave, Content.LFO2Free, Content.LFO2Rate, Content.LFO2Gain,
+					                         "LFOG2_Wave",
+					                         "LFOG2_Sync",
+					                         "LFOG2_Rate",
+					                         "LFOG2_Trig",
+					                         "LFOG2_Phse",
+					                         "LFOG2_Amp",
+					                         "LFOG2_Slew");
 				}
 				
 				// Delay

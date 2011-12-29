@@ -12,7 +12,8 @@ namespace PresetConverter
 		
 		public static void Main(string[] args)
 		{
-			float msValue = 7;
+			/*
+			float msValue = 15;
 			Zebra2Preset.LFOSync lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
 			double lfoValue = 0.0;
 			Zebra2Preset.MillisecondsToLFOSyncAndValue(msValue, out lfoSync, out lfoValue);
@@ -22,6 +23,7 @@ namespace PresetConverter
 			Console.ReadKey(true);
 			
 			return;
+			*/
 			
 			// to get the location the assembly is executing from
 			//(not neccesarily where the it normally resides on disk)

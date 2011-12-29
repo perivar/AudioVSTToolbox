@@ -5180,20 +5180,24 @@ namespace PresetConverter
 		// Zebra2Preset.MillisecondsToLFOSyncAndValue(msValue, out lfoSync, out lfoValue);
 		public static void MillisecondsToLFOSyncAndValue(float msValue, out LFOSync lfoSync, out double lfoValue) {
 			
-			// the lfo value must be between 0 and 200
-			// test with 0.1s first			
-
 			// round to nearest 1
 			int timeInMs = MathUtils.RoundToNearestInteger( (int) msValue, 1);
 			
-			if (timeInMs < 1000) {
+			if (timeInMs <= 200) {
 				// use 0.1s
 				// rate 100 = 0.1s
 				double value0_1s = (double) 50 / Math.Pow( (double) timeInMs/1000/0.8f, (double) 1/3);
 				value0_1s = MathUtils.RoundToNearestInteger((int)value0_1s, 2);
-				lfoValue = value0_1s;
+				
+				// the lfo value must be between 0 and 200
+				if (value0_1s > 200) {
+					Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 13ms! (Value: {0} ms.)", msValue);
+					lfoValue = 200;
+				} else {
+					lfoValue = value0_1s;					
+				}				
 				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
-			} else if (timeInMs >= 1000 && timeInMs < 10000 ) {
+			} else if (timeInMs > 200 && timeInMs <= 2000 ) {
 				// use 1s
 				// rate 100 = 1s
 				double value1s = (double) 50 / Math.Pow( (double) timeInMs/1000/8f, (double) 1/3);
@@ -5203,7 +5207,7 @@ namespace PresetConverter
 			} else {
 				// use 10s
 				// rate 100 = 10s
-				double value10s = (double) 50 / Math.Pow( (double) timeInMs/1000/8f, (double) 1/3);
+				double value10s = (double) 50 / Math.Pow( (double) timeInMs/1000/80f, (double) 1/3);
 				value10s = MathUtils.RoundToNearestInteger((int)value10s, 2);
 				lfoValue = value10s;
 				lfoSync = Zebra2Preset.LFOSync.SYNC_10s;
