@@ -70,11 +70,13 @@ namespace PresetConverter
 			TextWriter tw2 = new StreamWriter(outFilePath2);
 			
 			List<Zebra2Preset> zebra2ConvertedList = sylenth1.ToZebra2Preset(zebra2_Sylenth1_PresetTemplate, false);
+			int count = 1;
 			foreach (Zebra2Preset zebra2Converted in zebra2ConvertedList) {
 				string presetName = StringUtils.MakeValidFileName(zebra2Converted.PresetName);
-				string zebraGeneratedPreset = Path.Combine(@"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets", presetName + ".h2p");
+				string zebraGeneratedPreset = Path.Combine(@"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets", String.Format("{0:00}_{1}.h2p", count, presetName));
 				zebra2Converted.Write(zebraGeneratedPreset);
 				tw2.WriteLine(zebra2Converted);
+				count++;
 			}
 			tw2.Close();
 			

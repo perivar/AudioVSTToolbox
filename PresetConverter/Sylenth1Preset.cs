@@ -450,6 +450,9 @@ namespace PresetConverter
 		// keep track of nextFreeMatrixSlot
 		public int NextFreeMatrixSlot = 1;
 		
+		// keep track of used ModSources
+		public List<string> UsedModSources = new List<string>();
+
 		public Sylenth1Preset()
 		{
 		}
@@ -1984,6 +1987,49 @@ namespace PresetConverter
 			return (int) delaySync;
 		}
 		
+		private static Zebra2Preset.ModulationSource ConvertSylenthModSourceToZebra(XMODSOURCE sylenthModSource) {
+			Zebra2Preset.ModulationSource zebraModSource = Zebra2Preset.ModulationSource.ModWhl;
+			switch (sylenthModSource) {
+				case XMODSOURCE.SOURCE_None:
+					// should never get here
+					break;
+				case XMODSOURCE.SOURCE_Velocity:
+					zebraModSource = Zebra2Preset.ModulationSource.Velocity;
+					break;
+				case XMODSOURCE.SOURCE_ModWheel:
+					zebraModSource = Zebra2Preset.ModulationSource.ModWhl;
+					break;
+				case XMODSOURCE.SOURCE_KeyTrack:
+					zebraModSource = Zebra2Preset.ModulationSource.KeyFol;
+					break;
+				case XMODSOURCE.SOURCE_AmpEnv_A:
+					zebraModSource = Zebra2Preset.ModulationSource.Env1;
+					break;
+				case XMODSOURCE.SOURCE_AmpEnv_B:
+					zebraModSource = Zebra2Preset.ModulationSource.Env2;
+					break;
+				case XMODSOURCE.SOURCE_ModEnv_1:
+					zebraModSource = Zebra2Preset.ModulationSource.Env3;
+					break;
+				case XMODSOURCE.SOURCE_ModEnv_2:
+					zebraModSource = Zebra2Preset.ModulationSource.Env4;
+					break;
+				case XMODSOURCE.SOURCE_LFO_1:
+					zebraModSource = Zebra2Preset.ModulationSource.Lfo1;
+					break;
+				case XMODSOURCE.SOURCE_LFO_2:
+					zebraModSource = Zebra2Preset.ModulationSource.Lfo2;
+					break;
+				case XMODSOURCE.SOURCE_Aftertch:
+					zebraModSource = Zebra2Preset.ModulationSource.ATouch;
+					break;
+				case XMODSOURCE.SOURCE_StepVlty:
+					zebraModSource = Zebra2Preset.ModulationSource.Xpress;
+					break;
+			}
+			return zebraModSource;
+		}
+		
 		private static void SetZebraMatrixField(Zebra2Preset z2, XMODSOURCE modSource, YMODDEST modDestination, string fieldNamePrefix, int startMatrixSlot, int slotIndex, Object fieldValue) {
 			int fieldIndex = startMatrixSlot + slotIndex -1;
 			string fieldName = String.Format("{0}{1}", fieldNamePrefix,  fieldIndex);
@@ -2188,14 +2234,405 @@ namespace PresetConverter
 			}
 		}
 		
+		private void ConnectZebraModulation(Zebra2Preset z2,
+		                                    string modSourceFieldName,
+		                                    Object modSourceFieldValue,
+		                                    string modDepthFieldName,
+		                                    Object modDepthFieldValue,
+		                                    XMODSOURCE sylenthModSource,
+		                                    YMODDEST sylenthModDestination,
+		                                    float XModDestAm) {
+			
+			if (modSourceFieldName == null || modDepthFieldName == null) {
+				return;
+			}
+			//Console.Out.WriteLine("Processing {0}={1} {2}={3} ...", modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue);
+			
+			if (!UsedModSources.Contains(modSourceFieldName)) {
+				UsedModSources.Add(modSourceFieldName);
+				ObjectUtils.SetField(z2, modSourceFieldName, modSourceFieldValue);
+				ObjectUtils.SetField(z2, modDepthFieldName, modDepthFieldValue);
+			} else {
+				// Already used the mod source, must revert to "old" matrix way
+				//Console.Out.WriteLine("Already processed the source. Processing {0}={1} {2}={3} ...", modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue);
+				ConvertSylenthMatrixToZebra(z2, sylenthModSource, sylenthModDestination, XModDestAm);
+			}
+		}
+		
+		public class ModulationPair {
+			public string modSourceFieldName { set; get; }
+			public Object modSourceFieldValue { set; get; }
+			public string modDepthFieldName { set; get; }
+			public Object modDepthFieldValue { set; get; }
+
+			public ModulationPair(string modSourceFieldName,
+			                      Object modSourceFieldValue,
+			                      string modDepthFieldName,
+			                      Object modDepthFieldValue) {
+				this.modSourceFieldName = modSourceFieldName;
+				this.modSourceFieldValue = modSourceFieldValue;
+				this.modDepthFieldName = modDepthFieldName;
+				this.modDepthFieldValue = modDepthFieldValue;
+			}
+		}
+		
+		private void ConvertSylenthMatrixToZebraV2(Zebra2Preset z2, XMODSOURCE sylenthModSource, YMODDEST sylenthModDestination, float XModDestAm) {
+			
+			if (sylenthModSource != XMODSOURCE.SOURCE_None && sylenthModDestination != YMODDEST.None) {
+				//Console.Out.WriteLine("Processing {0} {1} {2} ...", sylenthModSource, sylenthModDestination, XModDestAm);
+				
+				Zebra2Preset.ModulationSource zebraModSource = ConvertSylenthModSourceToZebra(sylenthModSource);
+				
+				string modSourceFieldName = null;
+				Object modSourceFieldValue = null;
+				string modDepthFieldName = null;
+				Object modDepthFieldValue = null;
+				
+				// use List to store modulation pairs
+				List<ModulationPair> modPairs = new List<ModulationPair>();
+				
+				switch (sylenthModDestination) {
+					case YMODDEST.None:
+						// should never get here
+						break;
+						
+						// Oscillators
+					case YMODDEST.Volume_A:
+						// Volume A:
+						modSourceFieldName = "VCA1_ModSrc1";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCA1_ModDpt1";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -100, 100);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						break;
+					case YMODDEST.Volume_B:
+						// Volume B:
+						modSourceFieldName = "VCA1_ModSrc2";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCA1_ModDpt2";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -100, 100);			// Mod Depth2
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						break;
+					case YMODDEST.VolumeAB:
+						// Volume A and B:
+						modSourceFieldName = "VCA1_ModSrc1";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCA1_ModDpt1";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -100, 100);			// Mod Depth1
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						modSourceFieldName = "VCA1_ModSrc2";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCA1_ModDpt2";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -100, 100);			// Mod Depth2
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						break;
+					case YMODDEST.Pitch_A:
+						// TMSrc = Tune Modulation Source
+						// TMDpt = Tune Modulation Depth
+						modSourceFieldName = "OSC1_TMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC1_TMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -48, 48);			// TuneModDepth
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						modSourceFieldName = "OSC2_TMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC2_TMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -48, 48);			// TuneModDepth
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.Pitch_B:
+						// TMSrc = Tune Modulation Source
+						// TMDpt = Tune Modulation Depth
+						modSourceFieldName = "OSC3_TMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC3_TMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -48, 48);			// TuneModDepth
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						modSourceFieldName = "OSC4_TMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC4_TMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -48, 48);			// TuneModDepth
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.Pitch_AB:
+						modSourceFieldName = "OSC1_TMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC1_TMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -48, 48);			// TuneModDepth
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						modSourceFieldName = "OSC2_TMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC2_TMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -48, 48);			// TuneModDepth
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						modSourceFieldName = "OSC3_TMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC3_TMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -48, 48);			// TuneModDepth
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						modSourceFieldName = "OSC4_TMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC4_TMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -48, 48);			// TuneModDepth
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.Phase_A:
+						// PhsMSrc = PhaseModSrc
+						// PhsMDpt = PhaseModDepth
+						modSourceFieldName = "OSC1_PhsMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC1_PhsMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -50, 50);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						modSourceFieldName = "OSC2_PhsMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC2_PhsMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -50, 50);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.Phase_B:
+						// PhsMSrc = PhaseModSrc
+						// PhsMDpt = PhaseModDepth
+						modSourceFieldName = "OSC3_PhsMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC3_PhsMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -50, 50);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						modSourceFieldName = "OSC4_PhsMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC4_PhsMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -50, 50);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.Phase_AB:
+						// PhsMSrc = PhaseModSrc
+						// PhsMDpt = PhaseModDepth
+						modSourceFieldName = "OSC1_PhsMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC1_PhsMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -50, 50);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						modSourceFieldName = "OSC2_PhsMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC2_PhsMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -50, 50);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						modSourceFieldName = "OSC3_PhsMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC3_PhsMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -50, 50);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						modSourceFieldName = "OSC4_PhsMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "OSC4_PhsMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -50, 50);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.Pan_A:
+						// Pan A:
+						modSourceFieldName = "VCA1_PanMS1";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCA1_PanMD1";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -100, 100);			// Pan Mod Dpt1
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.Pan_B:
+						// Pan B:
+						modSourceFieldName = "VCA1_PanMS2";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCA1_PanMD2";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -100, 100);			// Pan Mod Dpt2
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.Pan_AB:
+						// Pan A and B:
+						modSourceFieldName = "VCA1_PanMS1";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCA1_PanMD1";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -100, 100);			// Pan Mod Dpt1
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						modSourceFieldName = "VCA1_PanMS2";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCA1_PanMD2";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -100, 100);			// Pan Mod Dpt2
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+
+						// Filters
+					case YMODDEST.Cutoff_A:
+						// FS1 = Modsource1
+						// FM1 = ModDepth1 (-150 - 150)
+						modSourceFieldName = "VCF1_FS1";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCF1_FM1";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -150, 150);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.Cutoff_B:
+						// FS1 = Modsource1
+						// FM1 = ModDepth1 (-150 - 150)
+						modSourceFieldName = "VCF2_FS1";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCF2_FM1";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -150, 150);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.CutoffAB:
+						// FS1 = Modsource1
+						// FM1 = ModDepth1 (-150 - 150)
+						modSourceFieldName = "VCF1_FS1";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCF1_FM1";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -150, 150);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						modSourceFieldName = "VCF2_FS1";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCF2_FM1";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -150, 150);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.Reso_A:
+						// FS2 = Modsource1
+						// FM2 = ModDepth1 (-150 - 150)
+						modSourceFieldName = "VCF1_FS2";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCF1_FM2";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -150, 150);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.Reso_B:
+						// FS2 = Modsource1
+						// FM2 = ModDepth1 (-150 - 150)
+						modSourceFieldName = "VCF2_FS2";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCF2_FM2";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -150, 150);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.Reso_AB:
+						// FS2 = Modsource1
+						// FM2 = ModDepth1 (-150 - 150)
+						modSourceFieldName = "VCF1_FS2";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCF1_FM2";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -150, 150);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+
+						modSourceFieldName = "VCF2_FS2";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "VCF2_FM2";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -150, 150);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+
+						// Misc
+					case YMODDEST.PhsrFreq:
+						break;
+					case YMODDEST.Mix_A:
+						break;
+					case YMODDEST.Mix_B:
+						break;
+					case YMODDEST.Mix_AB:
+						break;
+					case YMODDEST.LFO1Rate:
+						// FMS = FreqMod Src1=none
+						// FMD = FreqMod Dpt (-100.00 - 100.00)
+						modSourceFieldName = "LFO1_FMS1";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "LFO1_FMD1";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -100, 100);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.LFO1Gain:
+						// DMS = DepthMod Src1=none
+						// DMD = DepthMod Dpt1 (0.00 - 100.00)
+						modSourceFieldName = "LFO1_DMS1";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "LFO1_DMD1";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, 0, 100);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.LFO2Rate:
+						// FMS = FreqMod Src1=none
+						// FMD = FreqMod Dpt (-100.00 - 100.00)
+						modSourceFieldName = "LFO2_FMS1";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "LFO2_FMD1";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -100, 100);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.LFO2Gain:
+						// DMS = DepthMod Src1=none
+						// DMD = DepthMod Dpt1 (0.00 - 100.00)
+						modSourceFieldName = "LFO2_DMS1";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "LFO2_DMD1";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, 0, 100);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+					case YMODDEST.DistAmnt:
+						// DMSrc = D_ModSrc=none
+						// DMDpt = D_ModDepth
+						modSourceFieldName = "Shape3_DMSrc";
+						modSourceFieldValue = (int) zebraModSource;
+						modDepthFieldName = "Shape3_DMDpt";
+						modDepthFieldValue = ConvertSylenthValueToZebra(XModDestAm, -10, 10, -100, 100);
+						modPairs.Add(new ModulationPair(modSourceFieldName, modSourceFieldValue, modDepthFieldName, modDepthFieldValue));
+						
+						break;
+				}
+
+				// Use var keyword to enumerate dictionary
+				foreach (ModulationPair modElement in modPairs)
+				{
+					ConnectZebraModulation(z2, modElement.modSourceFieldName, modElement.modSourceFieldValue, modElement.modDepthFieldName, modElement.modDepthFieldValue, sylenthModSource, sylenthModDestination, XModDestAm);
+				}
+			}
+		}
+		
 		private static void ConvertSylenthLFOToZebra(Zebra2Preset z2, LFOWAVE sylenthLFOWave, ONOFF sylenthLFOFree, float sylenthLFORate, float sylenthLFOGain,
 		                                             string LFOWaveFieldName,
 		                                             string LFOSyncFieldName,
 		                                             string LFORateFieldName,
-		                                             string LFOGTrigFieldName,
-		                                             string LFOGPhseFieldName,
-		                                             string LFOGAmpFieldName,
-		                                             string LFOGSlewFieldName) {
+		                                             string LFOTrigFieldName,
+		                                             string LFOPhseFieldName,
+		                                             string LFOAmpFieldName,
+		                                             string LFOSlewFieldName) {
 
 			Zebra2Preset.LFOWave zebraLFOWave = Zebra2Preset.LFOWave.sine;
 			switch (sylenthLFOWave) {
@@ -2417,11 +2854,11 @@ namespace PresetConverter
 				ObjectUtils.SetField(z2, LFORateFieldName, zebraLFORate);
 			}
 			
-			ObjectUtils.SetField(z2, LFOGTrigFieldName, (int) Zebra2Preset.LFOGlobalTriggering.Trig_off);
-			//ObjectUtils.SetField(z2, LFOGPhseFieldName, ConvertSylenthValueToZebra(Content.LFO1Offset, -10, 10, 0, 100));
-			ObjectUtils.SetField(z2, LFOGPhseFieldName, 0.0f);
-			ObjectUtils.SetField(z2, LFOGAmpFieldName, ConvertSylenthValueToZebra(sylenthLFOGain, 0, 10, 0, 100));
-			ObjectUtils.SetField(z2, LFOGSlewFieldName, (int) Zebra2Preset.LFOSlew.fast);	// LFO Slew (Slew=1)
+			ObjectUtils.SetField(z2, LFOTrigFieldName, (int) Zebra2Preset.LFOGlobalTriggering.Trig_off);
+			//ObjectUtils.SetField(z2, LFOPhseFieldName, ConvertSylenthValueToZebra(Content.LFO1Offset, -10, 10, 0, 100));
+			ObjectUtils.SetField(z2, LFOPhseFieldName, 0.0f);
+			ObjectUtils.SetField(z2, LFOAmpFieldName, ConvertSylenthValueToZebra(sylenthLFOGain, 0, 10, 0, 100)+2);
+			ObjectUtils.SetField(z2, LFOSlewFieldName, (int) Zebra2Preset.LFOSlew.fast);	// LFO Slew (Slew=1)
 		}
 		
 		public List<Zebra2Preset> ToZebra2Preset(string defaultZebra2PresetFile, bool doProcessInitPresets = false) {
@@ -2429,8 +2866,9 @@ namespace PresetConverter
 
 			int convertCounter = 0;
 			foreach (Syl1PresetContent Content in ContentArray) {
-				NextFreeMatrixSlot = 1;
-				convertCounter++;
+				NextFreeMatrixSlot = 1; // reset the index that keeps track of the used matrix slots for a preset					
+				UsedModSources.Clear(); // reset the list that keeps track of the used mod sources for a preset					
+				convertCounter++;		
 				
 				// Break if the Preset Name is Init
 				if (!doProcessInitPresets && Content.PresetName == "Init") {
@@ -2449,8 +2887,8 @@ namespace PresetConverter
 				// set name
 				zebra2Preset.PresetName = Content.PresetName;
 				
-				// set master volume
-				zebra2Preset.Main_CcOp = 50;
+				// set master volume (50?)
+				zebra2Preset.Main_CcOp = ConvertSylenthValueToZebra(Content.MainVolume, 0, 10, 0, 75); // restrict the limit
 				zebra2Preset.ZMas_Mast = 80;
 				
 				// set mix volume
@@ -2597,6 +3035,7 @@ namespace PresetConverter
 					zebra2Preset.VCF2_Typ = (int) zebraFilter;
 				}
 				
+				/*
 				// LFOG1 is used for something
 				if (Content.YModLFO1Dest1 != YMODDEST.None && Content.YModLFO1Dest2 != YMODDEST.None ) {
 					ConvertSylenthLFOToZebra(zebra2Preset, Content.LFO1Wave, Content.LFO1Free, Content.LFO1Rate, Content.LFO1Gain,
@@ -2619,6 +3058,31 @@ namespace PresetConverter
 					                         "LFOG2_Phse",
 					                         "LFOG2_Amp",
 					                         "LFOG2_Slew");
+				}
+				 */
+				
+				// LFO1 is used for something
+				if (Content.YModLFO1Dest1 != YMODDEST.None || Content.YModLFO1Dest2 != YMODDEST.None ) {
+					ConvertSylenthLFOToZebra(zebra2Preset, Content.LFO1Wave, Content.LFO1Free, Content.LFO1Rate, Content.LFO1Gain,
+					                         "LFO1_Wave",
+					                         "LFO1_Sync",
+					                         "LFO1_Rate",
+					                         "LFO1_Trig",
+					                         "LFO1_Phse",
+					                         "LFO1_Amp",
+					                         "LFO1_Slew");
+				}
+
+				// LFO2 is used for something
+				if (Content.YModLFO2Dest1 != YMODDEST.None || Content.YModLFO2Dest2 != YMODDEST.None ) {
+					ConvertSylenthLFOToZebra(zebra2Preset, Content.LFO2Wave, Content.LFO2Free, Content.LFO2Rate, Content.LFO2Gain,
+					                         "LFO2_Wave",
+					                         "LFO2_Sync",
+					                         "LFO2_Rate",
+					                         "LFO2_Trig",
+					                         "LFO2_Phse",
+					                         "LFO2_Amp",
+					                         "LFO2_Slew");
 				}
 				
 				// Delay
@@ -2750,24 +3214,24 @@ namespace PresetConverter
 				zebra2Preset.ENV4_Sus = ConvertSylenthValueToZebra(Content.ModEnv2Sustain, 0, 10, 0, 100);
 				
 				// Matrix
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest1, Content.XModMisc1ADest1Am);
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest2, Content.XModMisc1ADest2Am);
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc1BSource, Content.YModMisc1BDest1, Content.XModMisc1BDest1Am);
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc1BSource, Content.YModMisc1BDest2, Content.XModMisc1BDest2Am);
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc2ASource, Content.YModMisc2ADest1, Content.XModMisc2ADest1Am);
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc2ASource, Content.YModMisc2ADest2, Content.XModMisc2ADest2Am);
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc2BSource, Content.YModMisc2BDest1, Content.XModMisc2BDest1Am);
-				ConvertSylenthMatrixToZebra(zebra2Preset, Content.XModMisc2BSource, Content.YModMisc2BDest2, Content.XModMisc2BDest2Am);
+				ConvertSylenthMatrixToZebraV2(zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest1, Content.XModMisc1ADest1Am);
+				ConvertSylenthMatrixToZebraV2(zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest2, Content.XModMisc1ADest2Am);
+				ConvertSylenthMatrixToZebraV2(zebra2Preset, Content.XModMisc1BSource, Content.YModMisc1BDest1, Content.XModMisc1BDest1Am);
+				ConvertSylenthMatrixToZebraV2(zebra2Preset, Content.XModMisc1BSource, Content.YModMisc1BDest2, Content.XModMisc1BDest2Am);
+				ConvertSylenthMatrixToZebraV2(zebra2Preset, Content.XModMisc2ASource, Content.YModMisc2ADest1, Content.XModMisc2ADest1Am);
+				ConvertSylenthMatrixToZebraV2(zebra2Preset, Content.XModMisc2ASource, Content.YModMisc2ADest2, Content.XModMisc2ADest2Am);
+				ConvertSylenthMatrixToZebraV2(zebra2Preset, Content.XModMisc2BSource, Content.YModMisc2BDest1, Content.XModMisc2BDest1Am);
+				ConvertSylenthMatrixToZebraV2(zebra2Preset, Content.XModMisc2BSource, Content.YModMisc2BDest2, Content.XModMisc2BDest2Am);
 				
 				// See if the mod envelopes are used
-				ConvertSylenthMatrixToZebra(zebra2Preset, XMODSOURCE.SOURCE_ModEnv_1, Content.YModEnv1Dest1, Content.XModEnv1Dest1Am);
-				ConvertSylenthMatrixToZebra(zebra2Preset, XMODSOURCE.SOURCE_ModEnv_2, Content.YModEnv2Dest1, Content.XModEnv2Dest1Am);
+				ConvertSylenthMatrixToZebraV2(zebra2Preset, XMODSOURCE.SOURCE_ModEnv_1, Content.YModEnv1Dest1, Content.XModEnv1Dest1Am);
+				ConvertSylenthMatrixToZebraV2(zebra2Preset, XMODSOURCE.SOURCE_ModEnv_2, Content.YModEnv2Dest1, Content.XModEnv2Dest1Am);
 
 				// See if the LFOs are used
-				ConvertSylenthMatrixToZebra(zebra2Preset, XMODSOURCE.SOURCE_LFO_1, Content.YModLFO1Dest1, Content.XModLFO1Dest1Am);
-				ConvertSylenthMatrixToZebra(zebra2Preset, XMODSOURCE.SOURCE_LFO_1, Content.YModLFO1Dest2, Content.XModLFO1Dest2Am);
-				ConvertSylenthMatrixToZebra(zebra2Preset, XMODSOURCE.SOURCE_LFO_2, Content.YModLFO2Dest1, Content.XModLFO2Dest1Am);
-				ConvertSylenthMatrixToZebra(zebra2Preset, XMODSOURCE.SOURCE_LFO_2, Content.YModLFO2Dest2, Content.XModLFO2Dest2Am);
+				ConvertSylenthMatrixToZebraV2(zebra2Preset, XMODSOURCE.SOURCE_LFO_1, Content.YModLFO1Dest1, Content.XModLFO1Dest1Am);
+				ConvertSylenthMatrixToZebraV2(zebra2Preset, XMODSOURCE.SOURCE_LFO_1, Content.YModLFO1Dest2, Content.XModLFO1Dest2Am);
+				ConvertSylenthMatrixToZebraV2(zebra2Preset, XMODSOURCE.SOURCE_LFO_2, Content.YModLFO2Dest1, Content.XModLFO2Dest1Am);
+				ConvertSylenthMatrixToZebraV2(zebra2Preset, XMODSOURCE.SOURCE_LFO_2, Content.YModLFO2Dest2, Content.XModLFO2Dest2Am);
 			}
 			return zebra2PresetList;
 		}
