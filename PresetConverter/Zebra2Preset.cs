@@ -5194,8 +5194,8 @@ namespace PresetConverter
 					Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 13ms! (Value: {0} ms.)", msValue);
 					lfoValue = 200;
 				} else {
-					lfoValue = value0_1s;					
-				}				
+					lfoValue = value0_1s;
+				}
 				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
 			} else if (timeInMs > 200 && timeInMs <= 2000 ) {
 				// use 1s
@@ -5239,6 +5239,24 @@ namespace PresetConverter
 				timeBase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_8sX;
 				envValue = 0;
 			}
+		}
+		
+		// The Zebra equaliser is a 4 band eq (LowShelf, Mid1, Mid2, HiShelf) 
+		// with three parameters each (Freq, Q and Gain )
+		// Freq is stored as a number between 0 - 100.
+		// Gains is stored as the actual dB value, number between -24 and 24.
+		// This method converts the zebra freq value to hz
+		public static float EqualiserFreqValueToHz(float oldValue) {
+			float newValue = 0;
+			newValue = 55.0f * (float) Math.Exp(0.05765476f * oldValue);
+			return newValue;
+		}
+
+		public static float EqualiserHzToFreqValue(float oldValue) {
+			float newValue = 0;
+			newValue = (float) Math.Log(oldValue / 55.0f) / 0.05765476f;
+			newValue = (float) MathUtils.RoundToNearest(newValue, 0.5f);
+			return newValue;
 		}
 		
 		public void Read(string filePath) {

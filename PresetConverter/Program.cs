@@ -12,18 +12,47 @@ namespace PresetConverter
 		
 		public static void Main(string[] args)
 		{
+			
 			/*
+			// test the sylenth envelope conversion methods
+			float envValue = 4f;
+			float envMs = Sylenth1Preset.EnvelopeValueToMilliseconds(envValue);
+			Console.Out.WriteLine("{0} = {1} ms", envValue, envMs);
+
+			float envMs2 = envMs;
+			float envValue2 = Sylenth1Preset.MillisecondsToEnvelopeValue(envMs2);
+			Console.Out.WriteLine("{0} ms = {1}", envMs2, envValue2);
+
+			float envMs3 = 2500;
+			float envValue3 = Sylenth1Preset.MillisecondsToEnvelopeValue(envMs3);
+			Console.Out.WriteLine("{0} ms = {1}", envMs3, envValue3);
+
+			float envMs4 = Sylenth1Preset.EnvelopeValueToMilliseconds(envValue3);
+			Console.Out.WriteLine("{0} = {1} ms", envValue3, envMs4);
+			
+			// test the zebra LFO conversion methods
 			float msValue = 15;
 			Zebra2Preset.LFOSync lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
 			double lfoValue = 0.0;
 			Zebra2Preset.MillisecondsToLFOSyncAndValue(msValue, out lfoSync, out lfoValue);
 			Console.Out.WriteLine("{0}ms = {1} {2}", msValue, lfoValue, lfoSync );
 			
+			float freqValue = 70.5f;
+			float freqHz = Zebra2Preset.EqualiserFreqValueToHz(freqValue);
+			Console.Out.WriteLine("{0} = {1} Hz", freqValue, freqHz);
+			
+			float freqValueTest = Zebra2Preset.EqualiserHzToFreqValue(freqHz);
+			Console.Out.WriteLine("{0} Hz = {1}", freqHz, freqValueTest);
+			
+			float freqHzTest = 3000.0f;
+			float freqValueTest2 = Zebra2Preset.EqualiserHzToFreqValue(freqHzTest);
+			Console.Out.WriteLine("{0} Hz = {1}", freqHzTest, freqValueTest2);
+			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
 			
 			return;
-			*/
+			 */			
 			
 			// to get the location the assembly is executing from
 			//(not neccesarily where the it normally resides on disk)
