@@ -1861,9 +1861,10 @@ namespace PresetConverter
 		private static void SetZebraEnvelopeFromSylenth(Zebra2Preset z2, float storedSylenthValue, string timeBaseFieldName, string envelopeFieldName) {
 			float displaySylenthValue = MathUtils.ConvertAndMainainRatio(storedSylenthValue, 0, 1, 0, 10);
 			float sylenthEnvelopeMs = EnvelopeValueToMilliseconds(displaySylenthValue);
-			Zebra2Preset.EnvelopeTimeBase timebase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_1_4;
-			double envValue = 0.0;
-			Zebra2Preset.MillisecondsToEnvTypeAndValue(sylenthEnvelopeMs, out timebase, out envValue);
+			Zebra2Preset.EnvelopeTimeBase timebase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_8sX;
+			//double envValue = 0.0;
+			//Zebra2Preset.MillisecondsToEnvTypeAndValue(sylenthEnvelopeMs, out timebase, out envValue);
+			int envValue = (int) Zebra2Preset.MillisecondsToValue(sylenthEnvelopeMs, timebase) - 10;
 			
 			ObjectUtils.SetField(z2, timeBaseFieldName, (int) timebase);
 			ObjectUtils.SetField(z2, envelopeFieldName, (float) envValue);
@@ -1961,7 +1962,7 @@ namespace PresetConverter
 			float filterControlFrequencyHertz = ValueToHz(filterControlFrequency, mode);
 			int midiNoteControl = Zebra2Preset.FilterFrequencyToMidiNote(filterControlFrequencyHertz);
 			
-			return midiNote + (int)(midiNoteControl / 1.5);
+			return midiNote + (int)(midiNoteControl / 1.4) + 4;
 		}
 		
 		private static int ConvertSylenthDelayTimingsToZebra(float delayTime) {
@@ -2940,7 +2941,7 @@ namespace PresetConverter
 				zebra2Preset.PresetName = Content.PresetName;
 				
 				// set master volume (50?)
-				zebra2Preset.Main_CcOp = ConvertSylenthValueToZebra(Content.MainVolume, 0, 10, 0, 100); // restrict the limit from 100 - x
+				zebra2Preset.Main_CcOp = ConvertSylenthValueToZebra(Content.MainVolume, 0, 10, 0, 60); // restrict the limit from 100 - x
 				zebra2Preset.ZMas_Mast = 80;
 				
 				// set mix volume
@@ -2948,7 +2949,7 @@ namespace PresetConverter
 				zebra2Preset.VCA1_Vol2 = ConvertSylenthValueToZebra(Content.MixB, 0, 10, 0, 100); // the range is 0, 100, but using 0 - x i get a more correct conversion
 				
 				// set portamento
-				zebra2Preset.VCC_Porta = ConvertSylenthValueToZebra(Content.PortaTime, 0, 10, 0, 40); // the range is 0, 100, but using 0 - 40 i get a more correct conversion
+				zebra2Preset.VCC_Porta = ConvertSylenthValueToZebra(Content.PortaTime, 0, 10, 0, 60); // the range is 0, 100, but using 0 - 40 i get a more correct conversion
 				
 				// set mode (mono legato etc)
 				if (Content.MonoLegato == ONOFF.On) {

@@ -5226,14 +5226,10 @@ namespace PresetConverter
 			if (timeInMs <= 8000) {
 				// use 8sX
 				timeBase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_8sX;
-				double envValue8sX = 50 * Math.Pow( (double) timeInMs/1000, (double) 1/3);
-				envValue8sX = MathUtils.RoundToNearest(envValue8sX, 0.5f);
-				envValue = envValue8sX;
+				envValue = MillisecondsToValue(timeInMs, timeBase);
 			} else if (timeInMs > 8000 && timeInMs <= 16000) {
 				timeBase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_16sX;
-				double envValue16sX = 50 * Math.Pow( (double) timeInMs/2000, (double) 1/3);
-				envValue16sX = MathUtils.RoundToNearest(envValue16sX, 0.5f);
-				envValue = envValue16sX;
+				envValue = MillisecondsToValue(timeInMs, timeBase);
 			} else {
 				// Zebra2 cannot use more than 16 seconds
 				timeBase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_8sX;
@@ -5241,7 +5237,29 @@ namespace PresetConverter
 			}
 		}
 		
-		// The Zebra equaliser is a 4 band eq (LowShelf, Mid1, Mid2, HiShelf) 
+		public static double MillisecondsToValue(float timeInMs, Zebra2Preset.EnvelopeTimeBase timeBase) {
+			double envValue = 0.0f;
+			switch (timeBase) {
+				case EnvelopeTimeBase.TIMEBASE_8sX:
+					double envValue8sX = 50 * Math.Pow( (double) timeInMs/1000, (double) 1/3);
+					envValue8sX = MathUtils.RoundToNearest(envValue8sX, 0.5f);
+					envValue = envValue8sX;
+					break;
+				case EnvelopeTimeBase.TIMEBASE_16sX:
+					double envValue16sX = 50 * Math.Pow( (double) timeInMs/2000, (double) 1/3);
+					envValue16sX = MathUtils.RoundToNearest(envValue16sX, 0.5f);
+					envValue = envValue16sX;
+					break;
+				case EnvelopeTimeBase.TIMEBASE_10s:
+					double envValue10s = timeInMs / 100;
+					envValue10s = MathUtils.RoundToNearest(envValue10s, 0.5f);
+					envValue = envValue10s;
+					break;
+			}
+			return envValue;
+		}
+		
+		// The Zebra equaliser is a 4 band eq (LowShelf, Mid1, Mid2, HiShelf)
 		// with three parameters each (Freq, Q and Gain )
 		// Freq is stored as a number between 0 - 100.
 		// Gains is stored as the actual dB value, number between -24 and 24.
