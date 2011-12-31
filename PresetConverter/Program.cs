@@ -8,12 +8,11 @@ namespace PresetConverter
 {
 	class Program
 	{
-		static string _version = "1.0";
+		static string _version = "1.1";
 		
 		public static void Main(string[] args)
 		{
-			
-			/*
+			/*			
 			// test the sylenth envelope conversion methods
 			float envValue = 4f;
 			float envMs = Sylenth1Preset.EnvelopeValueToMilliseconds(envValue);

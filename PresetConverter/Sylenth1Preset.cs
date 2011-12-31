@@ -1025,15 +1025,31 @@ namespace PresetConverter
 		}
 		
 		public static float EnvelopeValueToMilliseconds(float oldValue) {
+			
+			// have to use three functions to get correct slope
 			float newValue = 0;
-			newValue = 0.0293f * (float) Math.Exp(0.6931f * oldValue);
+			if (oldValue >= 0 && oldValue < 2) {
+				newValue = 0.0087f * (float) Math.Exp(1.1849f * oldValue);
+			} else if (oldValue >= 2 && oldValue < 5) {
+				newValue = 0.0208f * (float) Math.Exp(0.7524f * oldValue);
+			} else {
+				newValue = 0.027f * (float) Math.Exp(0.701f * oldValue);
+			}
 			return newValue * 1000;
 		}
 
 		public static float MillisecondsToEnvelopeValue(float oldValue) {
 			float newValue = 0;
 			oldValue = oldValue / 1000;
-			newValue = (float) Math.Log(oldValue / 0.0293f) / 0.6931f;
+			
+			// have to use three functions to get correct slope
+			if (oldValue >= 0 && oldValue < 0.1f) {
+				newValue = (float) Math.Log(oldValue / 0.0087f) / 1.1849f;				
+			} else if (oldValue >= 0.1f && oldValue < 0.9f) {
+				newValue = (float) Math.Log(oldValue / 0.0208f) / 0.7524f;				
+			} else {
+				newValue = (float) Math.Log(oldValue / 0.027f) / 0.701f;				
+			}
 			newValue = (float) MathUtils.RoundToNearest(newValue, 0.01f);
 			return newValue;
 		}
@@ -1861,10 +1877,13 @@ namespace PresetConverter
 		private static void SetZebraEnvelopeFromSylenth(Zebra2Preset z2, float storedSylenthValue, string timeBaseFieldName, string envelopeFieldName) {
 			float displaySylenthValue = MathUtils.ConvertAndMainainRatio(storedSylenthValue, 0, 1, 0, 10);
 			float sylenthEnvelopeMs = EnvelopeValueToMilliseconds(displaySylenthValue);
+			
 			Zebra2Preset.EnvelopeTimeBase timebase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_8sX;
 			//double envValue = 0.0;
 			//Zebra2Preset.MillisecondsToEnvTypeAndValue(sylenthEnvelopeMs, out timebase, out envValue);
-			int envValue = (int) Zebra2Preset.MillisecondsToValue(sylenthEnvelopeMs, timebase) - 10;
+			
+			// subtracting -10 seems to work quite well?!
+			int envValue = (int) Zebra2Preset.MillisecondsToValue(sylenthEnvelopeMs, timebase);// - 10;
 			
 			ObjectUtils.SetField(z2, timeBaseFieldName, (int) timebase);
 			ObjectUtils.SetField(z2, envelopeFieldName, (float) envValue);
@@ -3226,7 +3245,7 @@ namespace PresetConverter
 				zebra2Preset.ENV2_Dec = ConvertSylenthValueToZebra(Content.AmpEnvBDecay, 0, 10, 0, 100);
 				zebra2Preset.ENV2_Rel = ConvertSylenthValueToZebra(Content.AmpEnvBRelease, 0, 10, 0, 100);
 				zebra2Preset.ENV2_Sus = ConvertSylenthValueToZebra(Content.AmpEnvBSustain, 0, 10, 0, 100);
-				*/
+				 */
 
 				// Envelope 3 - Used as Mod Envelope
 				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Attack, "ENV3_TBase", "ENV3_Atk");
@@ -3238,7 +3257,7 @@ namespace PresetConverter
 				zebra2Preset.ENV3_Dec = ConvertSylenthValueToZebra(Content.ModEnv1Decay, 0, 10, 0, 100);
 				zebra2Preset.ENV3_Rel = ConvertSylenthValueToZebra(Content.ModEnv1Release, 0, 10, 0, 100);
 				zebra2Preset.ENV3_Sus = ConvertSylenthValueToZebra(Content.ModEnv1Sustain, 0, 10, 0, 100);
-				*/
+				 */
 
 				// Envelope 4 - Used as Mod Envelope
 				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Attack, "ENV4_TBase", "ENV4_Atk");
@@ -3250,7 +3269,7 @@ namespace PresetConverter
 				zebra2Preset.ENV4_Dec = ConvertSylenthValueToZebra(Content.ModEnv2Decay, 0, 10, 0, 100);
 				zebra2Preset.ENV4_Rel = ConvertSylenthValueToZebra(Content.ModEnv2Release, 0, 10, 0, 100);
 				zebra2Preset.ENV4_Sus = ConvertSylenthValueToZebra(Content.ModEnv2Sustain, 0, 10, 0, 100);
-				*/
+				 */
 				
 				// Matrix
 				SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest1, Content.XModMisc1ADest1Am);
