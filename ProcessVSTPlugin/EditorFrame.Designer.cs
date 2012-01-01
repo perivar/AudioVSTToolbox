@@ -36,11 +36,12 @@
         	this.InvestigatePluginPresetFileCheckbox = new System.Windows.Forms.CheckBox();
         	this.PresetContentBtn = new System.Windows.Forms.Button();
         	this.TextDiffCheckbox = new System.Windows.Forms.CheckBox();
+        	this.MidiNoteCheckbox = new System.Windows.Forms.CheckBox();
         	this.SuspendLayout();
         	// 
         	// LoadBtn
         	// 
-        	this.LoadBtn.Location = new System.Drawing.Point(364, 4);
+        	this.LoadBtn.Location = new System.Drawing.Point(352, 6);
         	this.LoadBtn.Name = "LoadBtn";
         	this.LoadBtn.Size = new System.Drawing.Size(46, 23);
         	this.LoadBtn.TabIndex = 0;
@@ -50,7 +51,7 @@
         	// 
         	// SaveBtn
         	// 
-        	this.SaveBtn.Location = new System.Drawing.Point(413, 4);
+        	this.SaveBtn.Location = new System.Drawing.Point(404, 6);
         	this.SaveBtn.Name = "SaveBtn";
         	this.SaveBtn.Size = new System.Drawing.Size(46, 23);
         	this.SaveBtn.TabIndex = 1;
@@ -63,7 +64,7 @@
         	this.presetComboBox.FormattingEnabled = true;
         	this.presetComboBox.Location = new System.Drawing.Point(42, 6);
         	this.presetComboBox.Name = "presetComboBox";
-        	this.presetComboBox.Size = new System.Drawing.Size(316, 21);
+        	this.presetComboBox.Size = new System.Drawing.Size(304, 21);
         	this.presetComboBox.TabIndex = 2;
         	this.presetComboBox.SelectedValueChanged += new System.EventHandler(this.PresetComboBoxSelectedValueChanged);
         	// 
@@ -79,32 +80,32 @@
         	// 
         	this.pluginPanel.Location = new System.Drawing.Point(1, 36);
         	this.pluginPanel.Name = "pluginPanel";
-        	this.pluginPanel.Size = new System.Drawing.Size(742, 231);
+        	this.pluginPanel.Size = new System.Drawing.Size(781, 231);
         	this.pluginPanel.TabIndex = 4;
         	// 
         	// InvestigatePluginPresetFileCheckbox
         	// 
-        	this.InvestigatePluginPresetFileCheckbox.Location = new System.Drawing.Point(593, 4);
+        	this.InvestigatePluginPresetFileCheckbox.Location = new System.Drawing.Point(553, 6);
         	this.InvestigatePluginPresetFileCheckbox.Name = "InvestigatePluginPresetFileCheckbox";
-        	this.InvestigatePluginPresetFileCheckbox.Size = new System.Drawing.Size(96, 24);
+        	this.InvestigatePluginPresetFileCheckbox.Size = new System.Drawing.Size(97, 24);
         	this.InvestigatePluginPresetFileCheckbox.TabIndex = 5;
-        	this.InvestigatePluginPresetFileCheckbox.Text = "Track Preset";
+        	this.InvestigatePluginPresetFileCheckbox.Text = "Track Chunk?";
         	this.InvestigatePluginPresetFileCheckbox.UseVisualStyleBackColor = true;
         	this.InvestigatePluginPresetFileCheckbox.CheckedChanged += new System.EventHandler(this.InvestigatePluginPresetFileCheckboxCheckedChanged);
         	// 
         	// PresetContentBtn
         	// 
-        	this.PresetContentBtn.Location = new System.Drawing.Point(476, 4);
+        	this.PresetContentBtn.Location = new System.Drawing.Point(456, 6);
         	this.PresetContentBtn.Name = "PresetContentBtn";
-        	this.PresetContentBtn.Size = new System.Drawing.Size(111, 23);
+        	this.PresetContentBtn.Size = new System.Drawing.Size(93, 23);
         	this.PresetContentBtn.TabIndex = 6;
-        	this.PresetContentBtn.Text = "PresetFile Changes";
+        	this.PresetContentBtn.Text = "Chunk Changes";
         	this.PresetContentBtn.UseVisualStyleBackColor = true;
         	this.PresetContentBtn.Click += new System.EventHandler(this.PresetContentBtnClick);
         	// 
         	// TextDiffCheckbox
         	// 
-        	this.TextDiffCheckbox.Location = new System.Drawing.Point(680, 4);
+        	this.TextDiffCheckbox.Location = new System.Drawing.Point(644, 6);
         	this.TextDiffCheckbox.Name = "TextDiffCheckbox";
         	this.TextDiffCheckbox.Size = new System.Drawing.Size(63, 24);
         	this.TextDiffCheckbox.TabIndex = 7;
@@ -112,13 +113,24 @@
         	this.TextDiffCheckbox.UseVisualStyleBackColor = true;
         	this.TextDiffCheckbox.CheckedChanged += new System.EventHandler(this.TextDiffCheckboxCheckedChanged);
         	// 
+        	// MidiNoteCheckbox
+        	// 
+        	this.MidiNoteCheckbox.Location = new System.Drawing.Point(706, 6);
+        	this.MidiNoteCheckbox.Name = "MidiNoteCheckbox";
+        	this.MidiNoteCheckbox.Size = new System.Drawing.Size(76, 24);
+        	this.MidiNoteCheckbox.TabIndex = 8;
+        	this.MidiNoteCheckbox.Text = "Midi Note";
+        	this.MidiNoteCheckbox.UseVisualStyleBackColor = true;
+        	this.MidiNoteCheckbox.CheckedChanged += new System.EventHandler(this.MidiNoteCheckboxCheckedChanged);
+        	// 
         	// EditorFrame
         	// 
         	this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
         	this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         	this.AutoSize = true;
         	this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-        	this.ClientSize = new System.Drawing.Size(745, 266);
+        	this.ClientSize = new System.Drawing.Size(782, 266);
+        	this.Controls.Add(this.MidiNoteCheckbox);
         	this.Controls.Add(this.TextDiffCheckbox);
         	this.Controls.Add(this.PresetContentBtn);
         	this.Controls.Add(this.InvestigatePluginPresetFileCheckbox);
@@ -137,6 +149,7 @@
         	this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyUp);
         	this.ResumeLayout(false);
         }
+        private System.Windows.Forms.CheckBox MidiNoteCheckbox;
         private System.Windows.Forms.CheckBox TextDiffCheckbox;
         private System.Windows.Forms.CheckBox InvestigatePluginPresetFileCheckbox;
         private System.Windows.Forms.Button PresetContentBtn;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Timers;
 
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
@@ -14,6 +15,7 @@ namespace ProcessVSTPlugin
 	{
 		VstPlaybackNAudio playback;
 		bool hasNoKeyDown = true;
+		System.Timers.Timer guiRefreshTimer;
 
 		/// <summary>
 		/// Default ctor.
@@ -22,12 +24,31 @@ namespace ProcessVSTPlugin
 		{
 			InitializeComponent();
 			KeyPreview = true;
+			
+			StartGUIRefreshTimer();
 		}
 		
 		/// <summary>
 		/// Gets or sets the Plugin Contex.
 		/// </summary>
 		public VstPluginContext PluginContext { get; set; }
+		
+		public void RefreshGUI(object source, ElapsedEventArgs e)
+		{
+			//Rectangle wndRect = new Rectangle();
+			//if (PluginContext.PluginCommandStub.EditorGetRect(out wndRect))
+			PluginContext.PluginCommandStub.EditorIdle();
+			
+		}
+
+		public void StartGUIRefreshTimer()
+		{
+			guiRefreshTimer = new System.Timers.Timer();
+			guiRefreshTimer.Interval = 200;
+			guiRefreshTimer.Elapsed += new ElapsedEventHandler(RefreshGUI);
+			guiRefreshTimer.AutoReset = true;
+			//guiRefreshTimer.Enabled = true;
+		}
 		
 		/// <summary>
 		/// Shows the custom plugin editor UI.
@@ -44,7 +65,20 @@ namespace ProcessVSTPlugin
 			{
 				this.pluginPanel.Size = this.SizeFromClientSize(new Size(wndRect.Width, wndRect.Height));
 				PluginContext.PluginCommandStub.EditorOpen(this.pluginPanel.Handle);
-				PluginContext.PluginCommandStub.EditorIdle();
+				
+				//PluginContext.PluginCommandStub.EditorIdle();
+
+				// start gui refresh timer
+				guiRefreshTimer.Start();
+			}
+			
+			// Some plugins have the following bug:
+			// When calling PluginCommandStub.EditorGetRect(out wndRect) before opening the window,
+			// the size returned is too small.
+			// The fix is easy, calling EditorGetRect again after EditorOpen returns the correct size.
+			if (PluginContext.PluginCommandStub.EditorGetRect(out wndRect))
+			{
+				this.pluginPanel.Size = this.SizeFromClientSize(new Size(wndRect.Width, wndRect.Height));
 			}
 
 			FillProgram(0);
@@ -58,6 +92,7 @@ namespace ProcessVSTPlugin
 			if (e.Cancel == false)
 			{
 				PluginContext.PluginCommandStub.EditorClose();
+				guiRefreshTimer.Stop();
 			}
 		}
 		
@@ -376,16 +411,45 @@ namespace ProcessVSTPlugin
 			//dlg.ShowDialog(this); // modal
 			dlg.Show(); // modeless
 		}
-        
-        void TextDiffCheckboxCheckedChanged(object sender, EventArgs e)
-        {
+		
+		void TextDiffCheckboxCheckedChanged(object sender, EventArgs e)
+		{
 			CheckBox check = (CheckBox) sender;
 			if(check.Checked)
 			{
 				((HostCommandStub) PluginContext.HostCommandStub).InvestigatePluginPresetFileFormatDiffType = DiffType.Text;
 			} else {
 				((HostCommandStub) PluginContext.HostCommandStub).InvestigatePluginPresetFileFormatDiffType = DiffType.Binary;
-			}        	
-        }
+			}
+		}
+		
+		void MidiNoteCheckboxCheckedChanged(object sender, EventArgs e)
+		{
+			VstHost host = VstHost.Instance;
+			host.PluginContext = this.PluginContext;
+			host.doPluginOpen();
+			
+			// if first keypress setup audio
+			if (playback == null) {
+				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
+				// tblock = 0.15 makes blocksize = 6615.
+				int sampleRate = 44100;
+				int blockSize = (int) (sampleRate * 0.15f); //6615;
+				int channels = 2;
+				host.Init(blockSize, sampleRate, channels);
+				
+				playback = new VstPlaybackNAudio(host);
+				playback.Play();
+			}
+			
+			CheckBox check = (CheckBox) sender;
+			if(check.Checked)
+			{
+				host.DoSendContinousMidiNote = true;
+				host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
+			} else {
+				host.DoSendContinousMidiNote = false;
+			}
+		}
 	}
 }

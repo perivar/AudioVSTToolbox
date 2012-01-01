@@ -28,6 +28,11 @@ namespace ProcessVSTPlugin
 		public int BlockSize { get; set; }
 		public int SampleRate { get; set; }
 		public int Channels { get; set; }
+
+		// these are used for continous midi note playing
+		public bool DoSendContinousMidiNote { get; set; }
+		public byte SendContinousMidiNoteVelocity = 100;
+		public byte SendContinousMidiNote = 72;
 		
 		private WaveChannel32 wavStream;
 		private WaveFileReader wavFileReader;
@@ -76,7 +81,7 @@ namespace ProcessVSTPlugin
 				this.tailWaitForNumberOfSeconds = value;
 			}
 		}
-		
+				
 		public void OpenPlugin(string pluginPath)
 		{
 			try
@@ -135,7 +140,7 @@ namespace ProcessVSTPlugin
 			this.PluginContext.PluginCommandStub.SetProcessPrecision(VstProcessPrecision.Process32);
 		}
 		
-		void doPluginOpen() {
+		public void doPluginOpen() {
 			// The calls to Mainschanged and Start/Stop Process should be made only once, not for every cycle in the audio processing.
 			// So it should look something like:
 			// 
@@ -163,7 +168,7 @@ namespace ProcessVSTPlugin
 			}
 		}
 
-		void doPluginClose() {
+		public void doPluginClose() {
 			// The calls to Mainschanged and Start/Stop Process should be made only once, not for every cycle in the audio processing.
 			// So it should look something like:
 			// 
@@ -224,6 +229,13 @@ namespace ProcessVSTPlugin
 				
 				// make sure the plugin has been opened.
 				doPluginOpen();
+				
+				// check if we are playing a continous midi not automatically
+				//if (DoSendContinousMidiNote) {
+				//	SendMidiNote(SendContinousMidiNote, SendContinousMidiNoteVelocity);
+				//}
+				
+				// and do the vst processing
 				PluginContext.PluginCommandStub.ProcessReplacing(vstInputBuffers, vstOutputBuffers);
 				
 				count++;
@@ -422,7 +434,7 @@ namespace ProcessVSTPlugin
 					// Alternatively, when not using chunk, the Host will simply
 					// save all parameter values.
 					
-					//PluginContext.PluginCommandStub.SetProgramName(fxp.name);					
+					//PluginContext.PluginCommandStub.SetProgramName(fxp.name);
 					byte[] chunkData = fxp.chunkDataByteArray;
 					int setChunkResult = EffSetChunk(chunkData, true);
 				} else {
@@ -446,7 +458,7 @@ namespace ProcessVSTPlugin
 			
 			byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);
 			fxp.chunkSize = chunkData.Length;
-			fxp.chunkDataByteArray = chunkData;			
+			fxp.chunkDataByteArray = chunkData;
 			fxp.WriteFile(filePath);
 		}
 		
