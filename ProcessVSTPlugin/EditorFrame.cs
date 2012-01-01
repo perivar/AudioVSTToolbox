@@ -37,14 +37,14 @@ namespace ProcessVSTPlugin
 		{
 			//Rectangle wndRect = new Rectangle();
 			//if (PluginContext.PluginCommandStub.EditorGetRect(out wndRect))
-			PluginContext.PluginCommandStub.EditorIdle();
+				PluginContext.PluginCommandStub.EditorIdle();
 			
 		}
 
 		public void StartGUIRefreshTimer()
 		{
 			guiRefreshTimer = new System.Timers.Timer();
-			guiRefreshTimer.Interval = 200;
+			guiRefreshTimer.Interval = 100;
 			guiRefreshTimer.Elapsed += new ElapsedEventHandler(RefreshGUI);
 			guiRefreshTimer.AutoReset = true;
 			//guiRefreshTimer.Enabled = true;
@@ -449,6 +449,7 @@ namespace ProcessVSTPlugin
 				host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
 			} else {
 				host.DoSendContinousMidiNote = false;
+				host.SendMidiNote(host.SendContinousMidiNote, 0);
 			}
 		}
 	}
