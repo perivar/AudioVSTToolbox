@@ -16,6 +16,7 @@ namespace ProcessVSTPlugin
 		VstPlaybackNAudio playback;
 		bool hasNoKeyDown = true;
 		System.Timers.Timer guiRefreshTimer;
+		public bool doGUIRefresh = false;
 
 		/// <summary>
 		/// Default ctor.
@@ -35,10 +36,15 @@ namespace ProcessVSTPlugin
 		
 		public void RefreshGUI(object source, ElapsedEventArgs e)
 		{
-			//Rectangle wndRect = new Rectangle();
-			//if (PluginContext.PluginCommandStub.EditorGetRect(out wndRect))
-				PluginContext.PluginCommandStub.EditorIdle();
+			// Call these three functions 'getEditorSize', 'processIdle' and 'processReplacing' continually while the GUI is open.
+			// If size don't change and you don't need to process audio call the functions anyway because plugins can rely on them being called frequently for their redrawing.
+			// http://vstnet.codeplex.com/discussions/281497
 			
+			// In fact all I had to call was  Jacobi.Vst.Core.Host.IVstPluginCommandStub.EditorIdle()
+			// which I do every 100 ms.  This works great ;)
+			if (doGUIRefresh) {
+				PluginContext.PluginCommandStub.EditorIdle();
+			}
 		}
 
 		public void StartGUIRefreshTimer()
@@ -48,6 +54,10 @@ namespace ProcessVSTPlugin
 			guiRefreshTimer.Elapsed += new ElapsedEventHandler(RefreshGUI);
 			guiRefreshTimer.AutoReset = true;
 			//guiRefreshTimer.Enabled = true;
+			
+			// start gui refresh timer
+			guiRefreshTimer.Start();
+			doGUIRefresh = true;
 		}
 		
 		/// <summary>
@@ -65,11 +75,7 @@ namespace ProcessVSTPlugin
 			{
 				this.pluginPanel.Size = this.SizeFromClientSize(new Size(wndRect.Width, wndRect.Height));
 				PluginContext.PluginCommandStub.EditorOpen(this.pluginPanel.Handle);
-				
-				//PluginContext.PluginCommandStub.EditorIdle();
-
-				// start gui refresh timer
-				guiRefreshTimer.Start();
+				// PluginContext.PluginCommandStub.EditorIdle();
 			}
 			
 			// Some plugins have the following bug:
@@ -92,7 +98,7 @@ namespace ProcessVSTPlugin
 			if (e.Cancel == false)
 			{
 				PluginContext.PluginCommandStub.EditorClose();
-				guiRefreshTimer.Stop();
+				doGUIRefresh = false;
 			}
 		}
 		
