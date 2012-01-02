@@ -97,10 +97,10 @@ namespace FFT
 			float MAX_FREQ = 20000; //4000      // Maximum frequency (Hz) on horizontal axis.
 			float FREQ_STEP = 2000; //500;      // Interval between ticks (Hz) on horizontal axis.
 			float MAX_DB = -0.0f;           	// Maximum dB magnitude on vertical axis.
-			float MIN_DB = -180.0f; //-60       // Minimum dB magnitude on vertical axis.
-			float DB_STEP = 30;                	// Interval between ticks (dB) on vertical axis.
-			int TOP = 0;//50;                     	// Top of graph
-			int LEFT = 0;//60;                    	// Left edge of graph
+			float MIN_DB = -100.0f; //-60       // Minimum dB magnitude on vertical axis.
+			float DB_STEP = 20;                	// Interval between ticks (dB) on vertical axis.
+			int TOP = 0;                     	// Top of graph
+			int LEFT = 0;                    	// Left edge of graph
 			int HEIGHT = imageSize.Height;      // Height of graph
 			int WIDTH = imageSize.Width;        // Width of graph
 			int TICK_LEN = 10;                	// Length of tick in pixels
@@ -108,13 +108,12 @@ namespace FFT
 			String LABEL_Y = "dB";             	// Label for Y axis
 			
 			// Derived constants
-			int BOTTOM = TOP+HEIGHT;                   				// Bottom of graph
+			int BOTTOM = HEIGHT-TOP;                   				// Bottom of graph
 			float DBTOPIXEL = (float) HEIGHT/(MAX_DB-MIN_DB);    	// Pixels/tick
 			float FREQTOPIXEL = (float) WIDTH/(MAX_FREQ-MIN_FREQ);	// Pixels/Hz
 			
 			try {
-				//-----------------------
-				Bitmap png = new Bitmap( WIDTH+150, HEIGHT+150, PixelFormat.Format32bppArgb );
+				Bitmap png = new Bitmap( WIDTH, HEIGHT, PixelFormat.Format32bppArgb );
 				Graphics g = Graphics.FromImage(png);
 				
 				int numPoints = mag.Length;
@@ -131,8 +130,6 @@ namespace FFT
 				g.FillRectangle(Brushes.White, rect);
 				g.DrawRectangle(linePen, rect);
 				
-				//--------------------------------------------
-				
 				// Tick marks on the vertical axis
 				float y = 0;
 				float x = 0;
@@ -140,14 +137,13 @@ namespace FFT
 				for ( float dBTick = MIN_DB; dBTick <= MAX_DB; dBTick += DB_STEP )
 				{
 					y = BOTTOM - DBTOPIXEL*(dBTick-MIN_DB);
-					//g.DrawLine(linePen, LEFT-TICK_LEN/2, y, LEFT+TICK_LEN/2, y);
 					g.DrawLine(linePen, LEFT-TICK_LEN/2, y, LEFT+WIDTH, y);
 					if ( m_tickTextAdded == false )
 					{
 						// Numbers on the tick marks
 						Font drawFont = new Font("Arial", 8);
 						SolidBrush drawBrush = new SolidBrush(textPen.Color);
-						g.DrawString("" + dBTick, drawFont, drawBrush, LEFT-20, y - drawFont.GetHeight(g)/2);
+						g.DrawString("" + dBTick, drawFont, drawBrush, LEFT+10, y - drawFont.GetHeight(g)/2);
 					}
 				}
 				
@@ -156,23 +152,20 @@ namespace FFT
 				{
 					Font drawFont = new Font("Arial", 10);
 					SolidBrush drawBrush = new SolidBrush(textPen.Color);
-					g.DrawString(LABEL_Y, drawFont, drawBrush, (float) LEFT-50, (float) TOP + HEIGHT/2 - drawFont.GetHeight(g)/2);
+					g.DrawString(LABEL_Y, drawFont, drawBrush, LEFT, TOP + HEIGHT/2 - drawFont.GetHeight(g)/2);
 				}
-				
-				//--------------------------------------------
 				
 				// Tick marks on the horizontal axis
 				for ( float f = MIN_FREQ; f <= MAX_FREQ; f += FREQ_STEP )
 				{
 					x = LEFT + FREQTOPIXEL*(f-MIN_FREQ);
-					//g.DrawLine(linePen, x, BOTTOM - TICK_LEN/2, x, BOTTOM + TICK_LEN/2);
 					g.DrawLine(linePen, x, BOTTOM + TICK_LEN/2, x, TOP);
 					if ( m_tickTextAdded == false )
 					{
 						// Numbers on the tick marks
 						Font drawFont = new Font("Arial", 8);
 						SolidBrush drawBrush = new SolidBrush(textPen.Color);
-						g.DrawString("" + f, drawFont, drawBrush, x, BOTTOM+7);
+						g.DrawString("" + f, drawFont, drawBrush, x, BOTTOM-30);
 					}
 				}
 				
@@ -181,12 +174,11 @@ namespace FFT
 				{
 					Font drawFont = new Font("Arial", 10);
 					SolidBrush drawBrush = new SolidBrush(textPen.Color);
-					g.DrawString(LABEL_X, drawFont, drawBrush, LEFT+WIDTH/2, BOTTOM+30);
+					g.DrawString(LABEL_X, drawFont, drawBrush, LEFT+WIDTH/2, BOTTOM-50);
 				}
 				
 				m_tickTextAdded = true;
 				
-				// -------------------------------------------------
 				// The line in the graph
 				int i = 0;
 				

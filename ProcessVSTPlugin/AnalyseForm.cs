@@ -34,7 +34,7 @@ namespace ProcessVSTPlugin
 			// TODO: Add constructor code after the InitializeComponent() call.
 			//
 			VstHost host = VstHost.Instance;
-			this.frequencyAnalyserUserControl1.SetData(host.LastProcessedBuffer);
+			this.frequencyAnalyserUserControl1.SetAudioData(host.LastProcessedBufferLeft);
 
 			StartGUIRefreshTimer();
 		}
@@ -42,16 +42,15 @@ namespace ProcessVSTPlugin
 		public void RefreshGUI(object source, ElapsedEventArgs e)
 		{
 			VstHost host = VstHost.Instance;
-			this.frequencyAnalyserUserControl1.SetData(host.LastProcessedBuffer);
+			this.frequencyAnalyserUserControl1.SetAudioData(host.LastProcessedBufferLeft);
 			this.frequencyAnalyserUserControl1.Invalidate();
 			this.frequencyAnalyserUserControl1.Update();
-			//this.frequencyAnalyserUserControl1.Refresh();
 		}
 		
 		public void StartGUIRefreshTimer()
 		{
 			guiRefreshTimer = new System.Timers.Timer();
-			guiRefreshTimer.Interval = 4000;
+			guiRefreshTimer.Interval = 500;
 			guiRefreshTimer.Elapsed += new ElapsedEventHandler(RefreshGUI);
 			guiRefreshTimer.Enabled = true;
 			

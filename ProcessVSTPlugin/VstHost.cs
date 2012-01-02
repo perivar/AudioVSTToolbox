@@ -41,7 +41,8 @@ namespace ProcessVSTPlugin
 		
 		private bool initialisedMainOut = false;
 		
-		private float[] lastProcessedBuffer;
+		private float[] lastProcessedBufferRight;
+		private float[] lastProcessedBufferLeft;
 		
 		// Explicit static constructor to tell C# compiler
 		// not to mark type as beforefieldinit
@@ -84,11 +85,19 @@ namespace ProcessVSTPlugin
 			}
 		}
 		
-		public float[] LastProcessedBuffer
+		public float[] LastProcessedBufferRight
 		{
 			get
 			{
-				return this.lastProcessedBuffer;
+				return this.lastProcessedBufferRight;
+			}
+		}
+
+		public float[] LastProcessedBufferLeft
+		{
+			get
+			{
+				return this.lastProcessedBufferLeft;
 			}
 		}
 		
@@ -149,7 +158,8 @@ namespace ProcessVSTPlugin
 			this.PluginContext.PluginCommandStub.SetSampleRate((float)sampleRate);
 			this.PluginContext.PluginCommandStub.SetProcessPrecision(VstProcessPrecision.Process32);
 			
-			this.lastProcessedBuffer = new float[blockSize*Channels];
+			this.lastProcessedBufferRight = new float[blockSize*Channels];
+			this.lastProcessedBufferLeft = new float[blockSize*Channels];
 		}
 		
 		public void doPluginOpen() {
@@ -231,9 +241,9 @@ namespace ProcessVSTPlugin
 							int j = 0;
 							for (int i = 0; i < loopSize; i++)
 							{
-								vstInputBuffers[0][i] = *(floatBuf + j);
+								vstInputBuffers[0][i] = *(floatBuf + j); // left
 								j++;
-								vstInputBuffers[1][i] = *(floatBuf + j);
+								vstInputBuffers[1][i] = *(floatBuf + j); // right
 								j++;
 							}
 						}
@@ -259,13 +269,11 @@ namespace ProcessVSTPlugin
 					int j = 0;
 					for (int i = 0; i < loopSize; i++)
 					{
-						lastProcessedBuffer[j] = *(tmpBufL + i);
-						j++;
-						lastProcessedBuffer[j] = *(tmpBufR + i);
+						lastProcessedBufferLeft[j] = *(tmpBufL + i);
+						lastProcessedBufferRight[j] = *(tmpBufR + i);
 						j++;
 					}
 				}
-				
 				count++;
 			}
 			return (int) sampleCount;
