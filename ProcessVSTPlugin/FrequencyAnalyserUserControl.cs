@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 
+using FFT;
+
 namespace ProcessVSTPlugin
 {
 	/// <summary>
@@ -66,8 +68,15 @@ namespace ProcessVSTPlugin
 		protected override void OnPaint(PaintEventArgs pe)
 		{
 			// TODO: Add custom paint code here
-			Bitmap bmp = DrawNormalizedAudio(ref x, Color.Black, Color.White, new Size(ClientSize.Width, ClientSize.Height));
-			pe.Graphics.DrawImage(bmp,  this.Left, this.Top);
+			//Bitmap bmp = DrawNormalizedAudio(ref x, Color.Black, Color.White, new Size(ClientSize.Width, ClientSize.Height));
+			double sampleRate = 44100;// 44100  default 5512
+			int fftWindowsSize = 2048; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
+			// overlap must be an integer smaller than the window size
+			// half the windows size is quite normal, sometimes 80% is best?!
+			int fftOverlap = 1; //fftWindowsSize / 2; //64;
+			float[][] spectrogramData = FFTUtils.CreateSpectrogram(x, sampleRate, fftWindowsSize, fftOverlap);
+			Bitmap bmp = FFTUtils.PrepareAndDrawSpectrumAnalysis(spectrogramData, sampleRate, fftWindowsSize, fftOverlap, new Size(ClientSize.Width, ClientSize.Height));
+			pe.Graphics.DrawImage(bmp, this.Left, this.Top);
 
 			// Calling the base class OnPaint
 			base.OnPaint(pe);

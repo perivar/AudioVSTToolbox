@@ -90,6 +90,8 @@
     </Compile>
     <Compile Include="Arguments.cs" />
     <Compile Include="AudioOutput.cs" />
+    <Compile Include="FFTUtils.cs" />
+    <Compile Include="FFTWindows.cs" />
     <Compile Include="FrequencyAnalyserUserControl.cs" />
     <Compile Include="FrequencyAnalyserUserControl.Designer.cs">
       <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
@@ -99,6 +101,7 @@
       <DependentUpon>InvestigatedPluginPresetDetailsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="InvestigatedPluginPresetFileFormat.cs" />
+    <Compile Include="LomontFFT.cs" />
     <Compile Include="SimpleBinaryDiff.cs" />
     <Compile Include="BinaryFile.cs" />
     <Compile Include="EditorFrame.cs">

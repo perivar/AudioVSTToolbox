@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-# SharpDevelop 4.1.0.7915
+# SharpDevelop 4.1.0.8000
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessVSTPlugin", "ProcessVSTPlugin.csproj", "{94F91E57-2BA7-494F-895E-6ECF254E4B43}"
 EndProject
 Global

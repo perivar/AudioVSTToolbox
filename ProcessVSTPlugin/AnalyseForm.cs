@@ -45,12 +45,13 @@ namespace ProcessVSTPlugin
 			this.frequencyAnalyserUserControl1.SetData(host.LastProcessedBuffer);
 			this.frequencyAnalyserUserControl1.Invalidate();
 			this.frequencyAnalyserUserControl1.Update();
+			//this.frequencyAnalyserUserControl1.Refresh();
 		}
 		
 		public void StartGUIRefreshTimer()
 		{
 			guiRefreshTimer = new System.Timers.Timer();
-			guiRefreshTimer.Interval = 200;
+			guiRefreshTimer.Interval = 4000;
 			guiRefreshTimer.Elapsed += new ElapsedEventHandler(RefreshGUI);
 			guiRefreshTimer.Enabled = true;
 			
