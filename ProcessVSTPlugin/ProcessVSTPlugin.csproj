@@ -84,8 +84,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnalyseForm.cs" />
+    <Compile Include="AnalyseForm.Designer.cs">
+      <DependentUpon>AnalyseForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Arguments.cs" />
     <Compile Include="AudioOutput.cs" />
+    <Compile Include="FrequencyAnalyserUserControl.cs" />
+    <Compile Include="FrequencyAnalyserUserControl.Designer.cs">
+      <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="InvestigatedPluginPresetDetailsForm.cs" />
     <Compile Include="InvestigatedPluginPresetDetailsForm.Designer.cs">
       <DependentUpon>InvestigatedPluginPresetDetailsForm.cs</DependentUpon>
@@ -122,9 +130,15 @@
     <Compile Include="VstPlaybackNAudio.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="AnalyseForm.resx">
+      <DependentUpon>AnalyseForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="EditorFrame.resx">
       <DependentUpon>EditorFrame.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrequencyAnalyserUserControl.resx">
+      <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="InvestigatedPluginPresetDetailsForm.resx">
       <DependentUpon>InvestigatedPluginPresetDetailsForm.cs</DependentUpon>

@@ -435,122 +435,6 @@ public class BinaryFile {
 		return r;
 	}
 	
-	/*
-    int8/System.Int8      byte     Signed 8-bit integer
-    int16/System.Int16    short    Signed 16-bit integer
-    int32/System.Int32    int      Signed 32-bit integer
-    int64/System.Int64    long     Signed 64-bit integer
-	public static byte[] ShortToByteArray(short value, bool invert) {
-		if (invert) {
-			return new byte[] {
-				(byte) value,
-				(byte) (value >> 8),
-			};
-		} else {
-			return new byte[] {
-				(byte) (value >> 8),
-				(byte) value };
-		}
-	}
-
-	public static byte[] IntToByteArray(int value, bool invert) {
-		if (invert) {
-			return new byte[] {
-				(byte) value,
-				(byte) (value >> 8),
-				(byte) (value >> 16),
-				(byte) (value >> 24) };
-		} else {
-			return new byte[] {
-				(byte) (value >> 24),
-				(byte) (value >> 16),
-				(byte) (value >> 8),
-				(byte) value };
-		}
-	}
-
-	public static byte[] LongToByteArray(long value, bool invert) {
-		if (invert) {
-			return new byte[] {
-				(byte) value,
-				(byte) (value >> 8),
-				(byte) (value >> 16),
-				(byte) (value >> 24),
-				(byte) (value >> 32),
-				(byte) (value >> 40),
-				(byte) (value >> 48),
-				(byte) (value >> 56)
-			};
-		} else {
-			return new byte[] {
-				(byte) (value >> 56),
-				(byte) (value >> 48),
-				(byte) (value >> 40),
-				(byte) (value >> 32),
-				(byte) (value >> 24),
-				(byte) (value >> 16),
-				(byte) (value >> 8),
-				(byte) value };
-		}
-	}
-
-	public static int TwoByteArrayToInt(byte [] b, bool invert) {
-		int i = 0;
-		if (invert) {
-			i = ((b[0] & 0xFF)) + ((b[1] & 0xFF) << 8);
-		} else {
-			i = ((b[1] & 0xFF)) + ((b[0] & 0xFF) << 8);
-		}
-		return i;
-	}
-	
-	public static int FourByteArrayToInt(byte [] b, bool invert) {
-		int i = 0;
-		if (invert) {
-			i = ((b[0] & 0xFF)) + ((b[1] & 0xFF) << 8) + ((b[2] & 0xFF) << 16) + ((b[3] & 0xFF) << 24);
-		} else {
-			i = ((b[3] & 0xFF)) + ((b[2] & 0xFF) << 8) + ((b[1] & 0xFF) << 16) + ((b[0] & 0xFF) << 24);
-		}
-		return i;
-	}
-
-	public static long EightByteArrayToLong(byte [] b, bool invert) {
-		long l = 0;
-		if (invert) {
-			l = ((b[0] & 0xFF)) + ((b[1] & 0xFF) << 8) + ((b[2] & 0xFF) << 16) + ((b[3] & 0xFF) << 24) + ((b[4] & 0xFF) << 32) + ((b[5] & 0xFF) << 40) + ((b[6] & 0xFF) << 48) + ((b[7] & 0xFF) << 56);
-		} else {
-			l = ((b[7] & 0xFF)) + ((b[6] & 0xFF) << 8) + ((b[5] & 0xFF) << 16) + ((b[4] & 0xFF) << 24) + ((b[3] & 0xFF) << 32) + ((b[2] & 0xFF) << 40) + ((b[1] & 0xFF) << 48) + ((b[0] & 0xFF) << 56);
-		}
-		return l;
-	}
-
-	//
-	// Convert the byte array to an int.
-	//
-	// @param b The byte array
-	// @return The integer
-	//
-	public static int FourByteArrayToInt(byte[] b) {
-		return FourByteArrayToInt(b, 0);
-	}
-
-	 //
-	 // Convert the byte array to an int starting from the given offset.
-	 //
-	 // @param b The byte array
-	 // @param offset The array offset
-	 // @return The integer
-	 //
-	public static int FourByteArrayToInt(byte[] b, int offset) {
-		int value = 0;
-		for (int i = 0; i < 4; i++) {
-			int shift = (4 - 1 - i) * 8;
-			value += (b[i + offset] & 0x000000FF) << shift;
-		}
-		return value;
-	}
-	 */
-	
 	public static float ByteArrayToSingle(byte [] b, ByteOrder byteOrder) {
 		if (b == null || b.Length < 4) return -1;
 		
@@ -684,4 +568,15 @@ public class BinaryFile {
 		return false;
 	}
 	
+	public float[] FloatArrayFromStream(System.IO.MemoryStream stream)
+	{
+		return FloatArrayFromByteArray(stream.GetBuffer());
+	}
+
+	public float[] FloatArrayFromByteArray(byte[] input)
+	{
+		float[] output = new float[input.Length / 4];
+		Buffer.BlockCopy(input, 0, output, 0, input.Length);
+		return output;
+	}	
 }

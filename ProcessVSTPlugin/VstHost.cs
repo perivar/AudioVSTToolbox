@@ -41,6 +41,8 @@ namespace ProcessVSTPlugin
 		
 		private bool initialisedMainOut = false;
 		
+		private float[] lastProcessedBuffer;
+		
 		// Explicit static constructor to tell C# compiler
 		// not to mark type as beforefieldinit
 		static VstHost()
@@ -81,7 +83,15 @@ namespace ProcessVSTPlugin
 				this.tailWaitForNumberOfSeconds = value;
 			}
 		}
-				
+		
+		public float[] LastProcessedBuffer
+		{
+			get
+			{
+				return this.lastProcessedBuffer;
+			}
+		}
+		
 		public void OpenPlugin(string pluginPath)
 		{
 			try
@@ -138,6 +148,8 @@ namespace ProcessVSTPlugin
 			this.PluginContext.PluginCommandStub.SetBlockSize(blockSize);
 			this.PluginContext.PluginCommandStub.SetSampleRate((float)sampleRate);
 			this.PluginContext.PluginCommandStub.SetProcessPrecision(VstProcessPrecision.Process32);
+			
+			this.lastProcessedBuffer = new float[blockSize*Channels];
 		}
 		
 		public void doPluginOpen() {
@@ -193,13 +205,14 @@ namespace ProcessVSTPlugin
 		
 		// This function fills vstOutputBuffers with audio processed by a plugin
 		public int ProcessReplacing(uint sampleCount) {
+			int loopSize = (int) sampleCount / Channels;
+
 			lock (this)
 			{
 
 				// check if we are processing a wavestream (VST) or if this is audio outputting only (VSTi)
 				if (wavStream != null) {
 					int sampleCountx4 = (int) sampleCount * 4;
-					int loopSize = (int) sampleCount / Channels;
 					
 					// 4 bytes per sample (32 bit)
 					byte[] naudioBuf = new byte[sampleCountx4];
@@ -237,6 +250,21 @@ namespace ProcessVSTPlugin
 				
 				// and do the vst processing
 				PluginContext.PluginCommandStub.ProcessReplacing(vstInputBuffers, vstOutputBuffers);
+				
+				// read from the vstOutputBuffers
+				unsafe
+				{
+					float* tmpBufL = ((IDirectBufferAccess32)vstOutputBuffers[0]).Buffer;
+					float* tmpBufR = ((IDirectBufferAccess32)vstOutputBuffers[1]).Buffer;
+					int j = 0;
+					for (int i = 0; i < loopSize; i++)
+					{
+						lastProcessedBuffer[j] = *(tmpBufL + i);
+						j++;
+						lastProcessedBuffer[j] = *(tmpBufR + i);
+						j++;
+					}
+				}
 				
 				count++;
 			}

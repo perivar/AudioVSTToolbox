@@ -458,5 +458,32 @@ namespace ProcessVSTPlugin
 				host.SendMidiNote(host.SendContinousMidiNote, 0);
 			}
 		}
+        
+        void AnalyseBtnClick(object sender, EventArgs e)
+        {
+			VstHost host = VstHost.Instance;
+			host.PluginContext = this.PluginContext;
+			host.doPluginOpen();
+			
+			// if first keypress setup audio
+			if (playback == null) {
+				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
+				// tblock = 0.15 makes blocksize = 6615.
+				int sampleRate = 44100;
+				int blockSize = (int) (sampleRate * 0.15f); //6615;
+				int channels = 2;
+				host.Init(blockSize, sampleRate, channels);
+				
+				playback = new VstPlaybackNAudio(host);
+				playback.Play();
+			}
+
+			AnalyseForm dlg = new AnalyseForm();
+			dlg.PluginContext = this.PluginContext;
+			dlg.Playback = playback;
+			
+			//dlg.ShowDialog(this); // modal
+			dlg.Show(); // modeless        	
+        }
 	}
 }

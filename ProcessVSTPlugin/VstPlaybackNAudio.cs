@@ -24,9 +24,6 @@ namespace ProcessVSTPlugin
 		public VstStreamNAudio(VstHost host)
 		{
 			Host = host;
-			//Frequency = 1000;
-			//Amplitude = 0.25f; // let's not hurt our ears
-			//BlockSize = 1024;
 			this.SetWaveFormat(host.SampleRate, host.Channels);
 		}
 		
@@ -74,6 +71,12 @@ namespace ProcessVSTPlugin
 			Init();
 		}
 
+		public virtual IWaveProvider VstWaveProvider {
+			get {
+				return this.vstStream;
+			}
+		}
+		
 		public virtual IWavePlayer PlaybackDevice
 		{
 			get
@@ -170,7 +173,7 @@ namespace ProcessVSTPlugin
 			set
 			{
 				this.blocksize = value;
-			}	
+			}
 			get
 			{
 				return this.blocksize;
@@ -190,8 +193,8 @@ namespace ProcessVSTPlugin
 			//{
 			//	WaveFileWriter.CreateWaveFile(outputFile, pcmStream);
 			//}
-	
- 			Console.WriteLine("Saving wav file: " + outputFile);			
+			
+			Console.WriteLine("Saving wav file: " + outputFile);
 			using (WaveFileWriter writer = new WaveFileWriter(outputFile, this.VstStream.WaveFormat))
 			{
 				byte[] buf = new byte[this.blocksize];
