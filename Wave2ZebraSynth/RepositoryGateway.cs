@@ -466,7 +466,7 @@ namespace Wave2ZebraSynth
 		{
 			// Basic constants
 			float MIN_FREQ = 0;                 // Minimum frequency (Hz) on horizontal axis.
-			float MAX_FREQ = 5512;           	// Maximum frequency (Hz) on horizontal axis.
+			float MAX_FREQ = 20000; //4000      // Maximum frequency (Hz) on horizontal axis.
 			float FREQ_STEP = 500;             	// Interval between ticks (Hz) on horizontal axis.
 			float MAX_DB = -0.0f;           	// Maximum dB magnitude on vertical axis.
 			float MIN_DB = -180.0f; //-60       // Minimum dB magnitude on vertical axis.

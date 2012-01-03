@@ -27,27 +27,29 @@ using Wave2ZebraSynth.HermitGauges;
 namespace Wave2ZebraSynth
 {
 	class Program
-	{		
+	{
 		///   Music file filters
 		/// </summary>
 		private static readonly string[] _musicFileFilters = new[] {"*.mp3", "*.ogg", "*.flac", "*.wav"};
 		
 		public static void Main(string[] args)
 		{
+			String fileName = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl\01. Only Girl (In The World).mp3";
+			//String fileName = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
+			//String fileName = @"G:\Cubase and Nuendo Projects\Music To Copy Learn\Britney Spears - Hold It Against Me\02 Hold It Against Me (Instrumental) 1.mp3";
+
+			/*
 			InstrumentPanel panel = new InstrumentPanel(800, 600);
 			panel.Instrument = InstrumentPanel.Instruments.SPECTRUM_P_W;
 			AudioAnalyser analyser = panel.AudioAnalyser;
 			
-			String fileName = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl\01. Only Girl (In The World).mp3";
-			//String fileName = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
-			//String fileName = @"G:\Cubase and Nuendo Projects\Music To Copy Learn\Britney Spears - Hold It Against Me\02 Hold It Against Me (Instrumental) 1.mp3";
-			
 			//String path = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl";
-			
+			 */
 			Console.WriteLine("Analyzer starting ...");
 			
 			RepositoryGateway repositoryGateway = new RepositoryGateway();
 			FingerprintManager manager = new FingerprintManager();
+			/*
 
 			// extract tags
 			TAG_INFO tag = repositoryGateway._proxy.GetTagInfoFromFile(fileName);
@@ -62,9 +64,10 @@ namespace Wave2ZebraSynth
 			vb6Spect.ComputeColorPalette();
 			float[][] vb6Spectrogram = vb6Spect.Compute(wavDataVB6, sampleRate, fftWindowsSize, fftOverlapPercentage);
 			//exportCSV (@"c:\VB6Spectrogram-full.csv", vb6Spectrogram);
-	
+			 */
+			
 			/*
-			StreamWriter writer = File.CreateText(@"C:\audiofile.dat"); 
+			StreamWriter writer = File.CreateText(@"C:\audiofile.dat");
 			writer.WriteLine(wavDataVB6.Length);
 			writer.WriteLine(sampleRate);
 			for (int i = 0; i < wavDataVB6.Length; i++) {
@@ -76,11 +79,11 @@ namespace Wave2ZebraSynth
 			LogPlotter logPlotter = new LogPlotter();
 			logPlotter.Render( new double[] {1, 2, 4, 8, 16, 32}, new double[] {1, 2, 3, 4, 5, 6}, @"c:\logplot.png" );
 			return;
-			*/
+			 */
 			
 			// Lomont FFT
-			//double sampleRate = 5512;// 44100  default 5512
-			//int fftWindowsSize = 2048; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
+			double sampleRate = 44100;// 44100  default 5512
+			int fftWindowsSize = 16384; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
 			// overlap must be an integer smaller than the window size
 			// half the windows size is quite normal, sometimes 80% is best?!
 			int fftOverlap = fftWindowsSize / 2; //64;
@@ -97,6 +100,7 @@ namespace Wave2ZebraSynth
 			ComputeMinAndMax(wavDataFixed, out minNew, out maxNew);
 			System.Diagnostics.Debug.WriteLine(String.Format("New data value range: Min: {0}. Max: {1}.", minNew, maxNew));
 
+			/*
 			float[] wavDataDb = ConvertRangeAndMainainRatioLog(wavData, min, max, 0, 100);
 			exportCSV (String.Format("c:\\{0}-samples-and-short-range-conversion-{1}-{2}.csv", System.IO.Path.GetFileNameWithoutExtension(fileName), sampleRate, fftWindowsSize), wavData, wavDataFixed, wavDataDb);
 			
@@ -110,8 +114,9 @@ namespace Wave2ZebraSynth
 			analyser.SampleRate = (int) sampleRate;
 			analyser.ProcessAudio(shortData);
 			//return;
-
-			float[][] lomontSpectrogram = CreateSpectrogram2(wavData, sampleRate, fftWindowsSize, fftOverlap);
+			 */
+			
+			float[][] lomontSpectrogram = CreateSpectrogram(wavData, sampleRate, fftWindowsSize, fftOverlap);
 			repositoryGateway.drawSpectrogram2("LomontSpectrum", fileName, lomontSpectrogram, sampleRate, fftWindowsSize);
 			//exportCSV (@"c:\LomontSpectrogram-full-not-normalized.csv", lomontSpectrogram);
 			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Lomont", fileName, lomontSpectrogram, sampleRate, fftWindowsSize, fftOverlap);
@@ -123,13 +128,15 @@ namespace Wave2ZebraSynth
 			FingerprintManager.NormalizeInPlace(wavData);
 			exportCSV (String.Format("c:\\{0}-samples-normalized-{1}-{2}.csv", System.IO.Path.GetFileNameWithoutExtension(fileName), sampleRate, fftWindowsSize), wavData);
 			repositoryGateway.drawWaveform("Waveform-Normalized", fileName, wavData);
+			/*
 			
 			// Exocortex.DSP FFT
 			// read 5512 Hz, Mono, PCM, with a specific proxy
 			float[][] exoSpectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START, false);
 			repositoryGateway.drawSpectrogram("ExoSpectrum", fileName, exoSpectrogram);
 			//exportCSV (@"c:\ExoSpectrogram-full-not-normalized.csv", exoSpectrogram);
-			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Exo", fileName, exoSpectrogram, manager.SampleRate, manager.WdftSize, fftOverlap);
+			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Exo", fileName, exoSpectrogram, manager.SampleRate, manager.WdftSize, fftOverlap);			
+			*/
 			
 			/*
 			float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
@@ -695,7 +702,7 @@ namespace Wave2ZebraSynth
 			double output = RepositoryGateway.RoundDown(dout, 0);
 			//float output = (float) (Math.Floor(a) * sign);
 			return (int)output;
-		}		
+		}
 		
 	}
 	
