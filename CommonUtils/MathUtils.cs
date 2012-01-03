@@ -96,9 +96,8 @@ namespace CommonUtils
 			float newValue = (((log_oldValue - log_oldMin) * newRange) / log_oldRange) + newMin;
 			return newValue;
 		}
-				
+		
 		public static double RoundToNearest(double number, double nearest) {
-			//double rounded = Math.Round(number * 2, MidpointRounding.AwayFromZero) / 2;
 			double rounded = Math.Round(number * (1 / nearest), MidpointRounding.AwayFromZero) / (1 / nearest);
 			return rounded;
 		}
@@ -107,5 +106,35 @@ namespace CommonUtils
 			int rounded = (int) Math.Round( (double) number / nearest) * nearest;
 			return rounded;
 		}
+
+		public static float[] GetSineWave(float frequency, float amplitude, float sampleRate, int offset, int sampleCount, int sample = 0) {
+			float[] buffer = new float[sampleCount+offset];
+			for (int n = 0; n < sampleCount; n++)
+			{
+				buffer[n+offset] = (float)(amplitude * Math.Sin((2 * Math.PI * sample * frequency) / sampleRate));
+				sample++;
+				if (sample >= sampleRate) sample = 0;
+			}
+			return buffer;
+		}
+		
+		// look at this http://jvalentino2.tripod.com/dft/index.html
+		public static float ConvertAmplitudeToDB(float amplitude, float MinDb, float MaxDb) {
+			// db = 20 * log10( fft[index] );
+			float smallestNumber = float.Epsilon;
+			float db = 20 * (float) Math.Log10( (float) (amplitude + smallestNumber) );
+			
+			if (db < MinDb) db = MinDb;
+			if (db > MaxDb) db = MaxDb;
+			
+			return db;
+		}
+		
+		public static float ConvertIndexToHz(int i, int numberOfSamples, double sampleRate, double fftWindowsSize) {
+			double nyquistFreq = sampleRate / 2;
+			double firstFrequency = nyquistFreq / numberOfSamples;
+			double frequency = firstFrequency *  i ;
+			return (float) frequency;
+		}		
 	}
 }

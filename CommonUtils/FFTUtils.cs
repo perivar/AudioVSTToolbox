@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using Lomont;
 
+using System.Drawing.Extended;
+
 namespace CommonUtils.FFT
 {
 	/// <summary>
@@ -66,8 +68,8 @@ namespace CommonUtils.FFT
 			float[] m_freq = new float[spectrogramLength];
 			for (int i = 0; i < spectrogramLength; i++)
 			{
-				m_mag[i] = ConvertAmplitudeToDB((float) spectrogramData[0][i], -120.0f, 18.0f);
-				m_freq[i] = ConvertIndexToHz (i, spectrogramLength, sampleRate, fftWindowsSize);
+				m_mag[i] = MathUtils.ConvertAmplitudeToDB((float) spectrogramData[0][i], -120.0f, 18.0f);
+				m_freq[i] = MathUtils.ConvertIndexToHz (i, spectrogramLength, sampleRate, fftWindowsSize);
 			}
 			return DrawSpectrumAnalysis(ref m_mag, ref m_freq, foreColor, backColor, imageSize);
 		}
@@ -78,6 +80,7 @@ namespace CommonUtils.FFT
 		 * Released under the MIT License
 		 *
 		 * Copyright (c) 2010 Gerald T. Beauregard
+		 * Ported to C# and heavily modifified by Per Ivar Nerseth, 2012
 		 *
 		 * Permission is hereby granted, free of charge, to any person obtaining a copy
 		 * of this software and associated documentation files (the "Software"), to
@@ -92,92 +95,121 @@ namespace CommonUtils.FFT
 		public static Bitmap DrawSpectrumAnalysis(ref float[] mag, ref float[] freq, Color foreColor, Color backColor, Size imageSize)
 		{
 			// Basic constants
-			float MIN_FREQ = 0;                 // Minimum frequency (Hz) on horizontal axis.
-			float MAX_FREQ = 20000; //4000      // Maximum frequency (Hz) on horizontal axis.
-			float FREQ_STEP = 2000; //500;      // Interval between ticks (Hz) on horizontal axis.
-			float MAX_DB = -0.0f;           	// Maximum dB magnitude on vertical axis.
+			int TOTAL_HEIGHT = imageSize.Height;    // Height of graph
+			int TOTAL_WIDTH = imageSize.Width;      // Width of graph
+
+			float MIN_FREQ = 0;					// Minimum frequency (Hz) on horizontal axis.
+			float MAX_FREQ = 20000;				// Maximum frequency (Hz) on horizontal axis.
+			float FREQ_STEP = 2000;				// Interval between ticks (Hz) on horizontal axis.
+			float MAX_DB = -0.0f;				// Maximum dB magnitude on vertical axis.
 			float MIN_DB = -100.0f; //-60       // Minimum dB magnitude on vertical axis.
 			float DB_STEP = 20;                	// Interval between ticks (dB) on vertical axis.
-			int TOP = 0;                     	// Top of graph
-			int LEFT = 0;                    	// Left edge of graph
-			int HEIGHT = imageSize.Height;      // Height of graph
-			int WIDTH = imageSize.Width;        // Width of graph
-			int TICK_LEN = 10;                	// Length of tick in pixels
-			String LABEL_X = "Frequency (Hz)"; 	// Label for X axis
-			String LABEL_Y = "dB";             	// Label for Y axis
+
+			int TOP = 10;                     	// Top of graph
+			int LEFT = 10;                    	// Left edge of graph
+			int HEIGHT = imageSize.Height-2*TOP;	// Height of graph
+			int WIDTH = imageSize.Width-2*LEFT;     // Width of graph
+			string LABEL_X = "Frequency (Hz)"; 	// Label for X axis
+			string LABEL_Y = "dB";             	// Label for Y axis
+			bool drawLabels = false;
 			
 			// Derived constants
-			int BOTTOM = HEIGHT-TOP;                   				// Bottom of graph
+			int BOTTOM = TOTAL_HEIGHT-TOP;                   		// Bottom of graph
 			float DBTOPIXEL = (float) HEIGHT/(MAX_DB-MIN_DB);    	// Pixels/tick
 			float FREQTOPIXEL = (float) WIDTH/(MAX_FREQ-MIN_FREQ);	// Pixels/Hz
 			
 			try {
-				Bitmap png = new Bitmap( WIDTH, HEIGHT, PixelFormat.Format32bppArgb );
+				Bitmap png = new Bitmap( TOTAL_WIDTH, TOTAL_HEIGHT, PixelFormat.Format32bppArgb );
 				Graphics g = Graphics.FromImage(png);
+				ExtendedGraphics eg = new ExtendedGraphics(g);
 				
 				int numPoints = mag.Length;
 				if ( mag.Length != freq.Length )
 					System.Diagnostics.Debug.WriteLine( "mag.length != freq.length" );
 				
+				Pen linePen = new Pen(ColorTranslator.FromHtml("#C7834C"), 0.5f);
+				Pen middleLinePen = new Pen(ColorTranslator.FromHtml("#EFAB74"), 0.5f);
+				Pen textPen = new Pen(ColorTranslator.FromHtml("#A9652E"), 1);
+				Pen samplePen = new Pen(ColorTranslator.FromHtml("#A9652E"), 1);
+
 				// Draw a rectangular box marking the boundaries of the graph
-				Pen linePen = new Pen(backColor, 0.5f);
-				Pen textPen = new Pen(foreColor, 1);
-				Pen samplePen = new Pen(foreColor, 1);
+				// Create outer rectangle.
+				Rectangle rect1 = new Rectangle(0, 0, TOTAL_WIDTH, TOTAL_HEIGHT);
+				g.FillRectangle(Brushes.White, rect1);
 				
 				// Create rectangle.
 				Rectangle rect = new Rectangle(LEFT, TOP, WIDTH, HEIGHT);
-				g.FillRectangle(Brushes.White, rect);
-				g.DrawRectangle(linePen, rect);
+				Brush fillBrush = new SolidBrush(ColorTranslator.FromHtml("#F9C998"));
+				//g.FillRectangle(fillBrush, rect);
+				eg.FillRoundRectangle(fillBrush, rect.X, rect.Y, rect.Width, rect.Height, 10);
+				//g.DrawRectangle(linePen, rect);
+				eg.DrawRoundRectangle(linePen, rect.X, rect.Y, rect.Width, rect.Height, 10);
 				
-				// Tick marks on the vertical axis
+				// Label for horizontal axis
+				Font drawLabelFont = new Font("Arial", 8);
+				SolidBrush drawLabelBrush = new SolidBrush(textPen.Color);
+				if (drawLabels) {
+					SizeF drawLabelTextSize = g.MeasureString(LABEL_X, drawLabelFont);
+					g.DrawString(LABEL_X, drawLabelFont, drawLabelBrush, (TOTAL_WIDTH/2) - (drawLabelTextSize.Width/2), TOTAL_HEIGHT - drawLabelFont.GetHeight(g) -3);
+				}
+				
 				float y = 0;
+				float yMiddle = 0;
 				float x = 0;
-				bool m_tickTextAdded = false;
+				float xMiddle = 0;
 				for ( float dBTick = MIN_DB; dBTick <= MAX_DB; dBTick += DB_STEP )
 				{
+					// draw horozontal main line
 					y = BOTTOM - DBTOPIXEL*(dBTick-MIN_DB);
-					g.DrawLine(linePen, LEFT-TICK_LEN/2, y, LEFT+WIDTH, y);
-					if ( m_tickTextAdded == false )
+					if (y < BOTTOM && y > TOP+1) {
+						g.DrawLine(linePen, LEFT, y, LEFT+WIDTH, y);
+					}
+
+					// draw horozontal middle line (between the main lines)
+					yMiddle = y-(DBTOPIXEL*DB_STEP)/2;
+					if (yMiddle > 0) {
+						g.DrawLine(middleLinePen, LEFT, yMiddle, LEFT+WIDTH, yMiddle);
+					}
+
+					if ( dBTick != MAX_DB )
 					{
 						// Numbers on the tick marks
 						Font drawFont = new Font("Arial", 8);
 						SolidBrush drawBrush = new SolidBrush(textPen.Color);
-						g.DrawString("" + dBTick, drawFont, drawBrush, LEFT+10, y - drawFont.GetHeight(g)/2);
+						g.DrawString("" + dBTick + " dB", drawFont, drawBrush, LEFT+5, y - drawFont.GetHeight(g) -2);
 					}
 				}
 				
-				// Label for vertical axis
-				if ( m_tickTextAdded == false )
-				{
-					Font drawFont = new Font("Arial", 10);
-					SolidBrush drawBrush = new SolidBrush(textPen.Color);
-					g.DrawString(LABEL_Y, drawFont, drawBrush, LEFT, TOP + HEIGHT/2 - drawFont.GetHeight(g)/2);
+				if (drawLabels) {
+					// Label for vertical axis
+					g.DrawString(LABEL_Y, drawLabelFont, drawLabelBrush, 1, TOP + HEIGHT/2 - drawLabelFont.GetHeight(g)/2);
 				}
 				
 				// Tick marks on the horizontal axis
 				for ( float f = MIN_FREQ; f <= MAX_FREQ; f += FREQ_STEP )
 				{
+					// draw vertical main line
 					x = LEFT + FREQTOPIXEL*(f-MIN_FREQ);
-					g.DrawLine(linePen, x, BOTTOM + TICK_LEN/2, x, TOP);
-					if ( m_tickTextAdded == false )
+					if (x > LEFT  && x < WIDTH) {
+						g.DrawLine(linePen, x, BOTTOM, x, TOP);
+					}
+
+					// draw vertical middle line (between the main lines)
+					xMiddle = x + FREQTOPIXEL*FREQ_STEP/2;
+					if (xMiddle < TOTAL_WIDTH) {
+						g.DrawLine(middleLinePen, xMiddle, BOTTOM, xMiddle, TOP);
+					}
+
+					if ( f != MIN_FREQ && f != MAX_FREQ )
 					{
 						// Numbers on the tick marks
 						Font drawFont = new Font("Arial", 8);
 						SolidBrush drawBrush = new SolidBrush(textPen.Color);
-						g.DrawString("" + f, drawFont, drawBrush, x, BOTTOM-30);
+						g.DrawString("" + f + " Hz", drawFont, drawBrush, x, TOP +2);
 					}
 				}
 				
-				// Label for horizontal axis
-				if ( m_tickTextAdded == false )
-				{
-					Font drawFont = new Font("Arial", 10);
-					SolidBrush drawBrush = new SolidBrush(textPen.Color);
-					g.DrawString(LABEL_X, drawFont, drawBrush, LEFT+WIDTH/2, BOTTOM-50);
-				}
-				
-				m_tickTextAdded = true;
-				
+
 				// The line in the graph
 				int i = 0;
 				
@@ -226,31 +258,6 @@ namespace CommonUtils.FFT
 				System.Diagnostics.Debug.WriteLine(ex);
 				return null;
 			}
-		}
-		
-		// look at this http://jvalentino2.tripod.com/dft/index.html
-		public static float ConvertAmplitudeToDB(float amplitude, float MinDb, float MaxDb) {
-			// db = 20 * log10( fft[index] );
-			float smallestNumber = float.Epsilon;
-			float db = 20 * (float) Math.Log10( (float) (amplitude + smallestNumber) );
-			
-			if (db < MinDb) db = MinDb;
-			if (db > MaxDb) db = MaxDb;
-			
-			return db;
-		}
-		
-		public static float ConvertIndexToHz(int i, int numberOfSamples, double sampleRate, double fftWindowsSize) {
-			// either
-			// freq = index * samplerate / fftsize;
-			// frequency = ( i + 1 ) * (float) sampleRate / fftWindowsSize;
-			
-			// or
-			// ( i + 1 ) * ((sampleRate / 2) / numberOfSamples)
-			double nyquistFreq = sampleRate / 2;
-			double firstFrequency = nyquistFreq / numberOfSamples;
-			double frequency = firstFrequency * ( i + 1 );
-			return (float) frequency;
 		}
 	}
 }
