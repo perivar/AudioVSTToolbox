@@ -96,6 +96,9 @@
     <Compile Include="..\CommonUtils\FFTWindows.cs">
       <Link>FFTWindows.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\FXP.cs">
+      <Link>FXP.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\LomontFFT.cs">
       <Link>LomontFFT.cs</Link>
     </Compile>
@@ -104,9 +107,6 @@
     </Compile>
     <Compile Include="..\CommonUtils\ObjectUtils.cs">
       <Link>ObjectUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\RiffRead.cs">
-      <Link>RiffRead.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\StringUtils.cs">
       <Link>StringUtils.cs</Link>
@@ -132,7 +132,6 @@
     <Compile Include="EditorFrame.Designer.cs">
       <DependentUpon>EditorFrame.cs</DependentUpon>
     </Compile>
-    <Compile Include="FXP.cs" />
     <Compile Include="HostCommandStub.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
