@@ -9,7 +9,7 @@ using Jacobi.Vst.Core;
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Interop.Host;
 
-using CommandLine.Utility;
+using CommonUtils;
 
 using DiffPlex;
 using DiffPlex.Model;
@@ -137,7 +137,7 @@ namespace ProcessVSTPlugin
 		
 		public static void PrintUsage() {
 			Console.WriteLine("Process VST Plugin. Version {0}.", _version);
-			Console.WriteLine("Copyright (C) 2009-2011 Per Ivar Nerseth.");
+			Console.WriteLine("Copyright (C) 2009-2012 Per Ivar Nerseth.");
 			Console.WriteLine();
 			Console.WriteLine("Usage: ProcessVSTPlugin.exe <Arguments>");
 			Console.WriteLine();

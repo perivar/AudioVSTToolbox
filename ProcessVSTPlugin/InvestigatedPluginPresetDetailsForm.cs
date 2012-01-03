@@ -19,6 +19,8 @@ using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 using Jacobi.Vst.Core.Host;
 
+using CommonUtils;
+
 namespace ProcessVSTPlugin
 {
 	/// <summary>

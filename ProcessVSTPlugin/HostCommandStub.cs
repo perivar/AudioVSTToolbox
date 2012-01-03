@@ -11,6 +11,8 @@ using DiffPlex.Model;
 
 using System.Linq;
 
+using CommonUtils;
+
 namespace ProcessVSTPlugin
 {
 	public enum DiffType : int

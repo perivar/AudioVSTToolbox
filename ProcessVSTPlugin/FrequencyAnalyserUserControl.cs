@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 
-using FFT;
+using CommonUtils.FFT;
 
 namespace ProcessVSTPlugin
 {
@@ -13,16 +13,41 @@ namespace ProcessVSTPlugin
 	/// </summary>
 	public partial class FrequencyAnalyserUserControl : UserControl
 	{
+		Bitmap bmp;
+		
+		double sampleRate = 44100;
+		int fftWindowsSize = 256;
+		
+		// overlap must be an integer smaller than the window size
+		// half the windows size is quite normal, sometimes 80% is best?!
+		int fftOverlap = 1;
+
 		public FrequencyAnalyserUserControl()
 		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
+			this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
+			              ControlStyles.OptimizedDoubleBuffer, true);
 			InitializeComponent();
-			
-			//
-			// TODO: Add constructor code after the InitializeComponent() call.
-			//
+		}
+		
+		public double SampleRate
+		{
+			get { return sampleRate; }
+			set { sampleRate = value; }
+		}
+		
+		public int FFTWindowsSize
+		{
+			get { return fftWindowsSize; }
+			set { fftWindowsSize = value; }
+		}
+
+		public int FFTOverlap
+		{
+			get { return fftOverlap; }
+			set { fftOverlap = value; }
 		}
 		
 		public static Bitmap DrawNormalizedAudio(ref float[] data, Color foreColor, Color backColor, Size imageSize)
@@ -67,16 +92,9 @@ namespace ProcessVSTPlugin
 		/// </summary>
 		protected override void OnPaint(PaintEventArgs pe)
 		{
-			// TODO: Add custom paint code here
-			//Bitmap bmp = DrawNormalizedAudio(ref x, Color.Black, Color.White, new Size(ClientSize.Width, ClientSize.Height));
-			double sampleRate = 44100;// 44100  default 5512
-			int fftWindowsSize = 256; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
-			// overlap must be an integer smaller than the window size
-			// half the windows size is quite normal, sometimes 80% is best?!
-			int fftOverlap = 1; //fftWindowsSize / 2; //64;
-			float[][] spectrogramData = FFTUtils.CreateSpectrogram(audioData, sampleRate, fftWindowsSize, fftOverlap);
-			Bitmap bmp = FFTUtils.PrepareAndDrawSpectrumAnalysis(spectrogramData, sampleRate, fftWindowsSize, fftOverlap, new Size(ClientSize.Width, ClientSize.Height));
-			pe.Graphics.DrawImage(bmp, this.Left, this.Top);
+			if (bmp != null) {
+				pe.Graphics.DrawImage(bmp, this.Left, this.Top);
+			}
 
 			// Calling the base class OnPaint
 			base.OnPaint(pe);
@@ -90,6 +108,10 @@ namespace ProcessVSTPlugin
 		public void SetAudioData(float[] audioData)
 		{
 			this.audioData = audioData;
+			float[][] spectrogramData = FFTUtils.CreateSpectrogram(audioData, sampleRate, fftWindowsSize, fftOverlap);
+			bmp = FFTUtils.PrepareAndDrawSpectrumAnalysis(spectrogramData, sampleRate, fftWindowsSize, fftOverlap, ForeColor, BackColor, new Size(ClientSize.Width, ClientSize.Height));
+			
+			this.Invalidate();
 		}
 	}
 }

@@ -20,8 +20,8 @@ namespace ProcessVSTPlugin
 		public VstPluginContext PluginContext { get; set; }
 		public VstPlaybackNAudio Playback { get; set; }
 
-		System.Timers.Timer guiRefreshTimer;
-		public bool doGUIRefresh = false;
+		private System.Timers.Timer guiRefreshTimer;
+		public bool DoGUIRefresh = false;
 		
 		public AnalyseForm()
 		{
@@ -30,9 +30,6 @@ namespace ProcessVSTPlugin
 			//
 			InitializeComponent();
 			
-			//
-			// TODO: Add constructor code after the InitializeComponent() call.
-			//
 			VstHost host = VstHost.Instance;
 			this.frequencyAnalyserUserControl1.SetAudioData(host.LastProcessedBufferLeft);
 
@@ -41,22 +38,23 @@ namespace ProcessVSTPlugin
 		
 		public void RefreshGUI(object source, ElapsedEventArgs e)
 		{
-			VstHost host = VstHost.Instance;
-			this.frequencyAnalyserUserControl1.SetAudioData(host.LastProcessedBufferLeft);
-			this.frequencyAnalyserUserControl1.Invalidate();
-			this.frequencyAnalyserUserControl1.Update();
+			if (DoGUIRefresh) {
+				VstHost host = VstHost.Instance;
+				this.frequencyAnalyserUserControl1.SetAudioData(host.LastProcessedBufferLeft);
+			}
 		}
 		
 		public void StartGUIRefreshTimer()
 		{
 			guiRefreshTimer = new System.Timers.Timer();
-			guiRefreshTimer.Interval = 500;
+			guiRefreshTimer.Interval = 200;
 			guiRefreshTimer.Elapsed += new ElapsedEventHandler(RefreshGUI);
 			guiRefreshTimer.Enabled = true;
 			
+			DoGUIRefresh = true;
+
 			// start gui refresh timer
 			guiRefreshTimer.Start();
-			doGUIRefresh = true;
 		}
 	}
 }

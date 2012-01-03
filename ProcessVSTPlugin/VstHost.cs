@@ -10,6 +10,8 @@ using Jacobi.Vst.Interop.Host;
 using NAudio;
 using NAudio.Wave;
 
+using CommonUtils;
+
 namespace ProcessVSTPlugin
 {
 	/// <summary>
