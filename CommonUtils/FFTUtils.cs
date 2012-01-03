@@ -52,7 +52,7 @@ namespace CommonUtils.FFT
 		}
 
 		
-		public static Bitmap PrepareAndDrawSpectrumAnalysis(float[][] spectrogramData, double sampleRate, int fftWindowsSize, int fftOverlap, Color foreColor, Color backColor, Size imageSize) {
+		public static Bitmap PrepareAndDrawSpectrumAnalysis(float[][] spectrogramData, double sampleRate, int fftWindowsSize, int fftOverlap, Size imageSize) {
 			/*
 			 * freq = index * samplerate / fftsize;
 			 * db = 20 * log10(fft[index]);
@@ -71,7 +71,7 @@ namespace CommonUtils.FFT
 				m_mag[i] = MathUtils.ConvertAmplitudeToDB((float) spectrogramData[0][i], -120.0f, 18.0f);
 				m_freq[i] = MathUtils.ConvertIndexToHz (i, spectrogramLength, sampleRate, fftWindowsSize);
 			}
-			return DrawSpectrumAnalysis(ref m_mag, ref m_freq, foreColor, backColor, imageSize);
+			return DrawSpectrumAnalysis(ref m_mag, ref m_freq, imageSize);
 		}
 
 		/**
@@ -92,7 +92,7 @@ namespace CommonUtils.FFT
 		 * The above copyright notice and this permission notice shall be included in
 		 * all copies or substantial portions of the Software.
 		 */
-		public static Bitmap DrawSpectrumAnalysis(ref float[] mag, ref float[] freq, Color foreColor, Color backColor, Size imageSize)
+		public static Bitmap DrawSpectrumAnalysis(ref float[] mag, ref float[] freq, Size imageSize)
 		{
 			// Basic constants
 			int TOTAL_HEIGHT = imageSize.Height;    // Height of graph
@@ -105,13 +105,22 @@ namespace CommonUtils.FFT
 			float MIN_DB = -100.0f; //-60       // Minimum dB magnitude on vertical axis.
 			float DB_STEP = 20;                	// Interval between ticks (dB) on vertical axis.
 
-			int TOP = 10;                     	// Top of graph
-			int LEFT = 10;                    	// Left edge of graph
+			int TOP = 4;                     	// Top of graph
+			int LEFT = 4;                    	// Left edge of graph
 			int HEIGHT = imageSize.Height-2*TOP;	// Height of graph
 			int WIDTH = imageSize.Width-2*LEFT;     // Width of graph
 			string LABEL_X = "Frequency (Hz)"; 	// Label for X axis
 			string LABEL_Y = "dB";             	// Label for Y axis
 			bool drawLabels = false;
+			bool drawRoundedRectangles = true;
+			
+			// Colors
+			Color lineColor = ColorTranslator.FromHtml("#C7834C");
+			Color middleLineColor = ColorTranslator.FromHtml("#EFAB74");
+			Color textColor = ColorTranslator.FromHtml("#A9652E");
+			Color sampleColor = ColorTranslator.FromHtml("#A9652E");
+			Color fillOuterColor = ColorTranslator.FromHtml("#FFFFFF");
+			Color fillColor = ColorTranslator.FromHtml("#F9C998");
 			
 			// Derived constants
 			int BOTTOM = TOTAL_HEIGHT-TOP;                   		// Bottom of graph
@@ -127,23 +136,27 @@ namespace CommonUtils.FFT
 				if ( mag.Length != freq.Length )
 					System.Diagnostics.Debug.WriteLine( "mag.length != freq.length" );
 				
-				Pen linePen = new Pen(ColorTranslator.FromHtml("#C7834C"), 0.5f);
-				Pen middleLinePen = new Pen(ColorTranslator.FromHtml("#EFAB74"), 0.5f);
-				Pen textPen = new Pen(ColorTranslator.FromHtml("#A9652E"), 1);
-				Pen samplePen = new Pen(ColorTranslator.FromHtml("#A9652E"), 1);
+				Pen linePen = new Pen(lineColor, 0.5f);
+				Pen middleLinePen = new Pen(middleLineColor, 0.5f);
+				Pen textPen = new Pen(textColor, 1);
+				Pen samplePen = new Pen(sampleColor, 1);
 
 				// Draw a rectangular box marking the boundaries of the graph
 				// Create outer rectangle.
-				Rectangle rect1 = new Rectangle(0, 0, TOTAL_WIDTH, TOTAL_HEIGHT);
-				g.FillRectangle(Brushes.White, rect1);
+				Rectangle rectOuter = new Rectangle(0, 0, TOTAL_WIDTH, TOTAL_HEIGHT);
+				Brush fillBrushOuter = new SolidBrush(fillOuterColor);
+				g.FillRectangle(fillBrushOuter, rectOuter);
 				
 				// Create rectangle.
 				Rectangle rect = new Rectangle(LEFT, TOP, WIDTH, HEIGHT);
-				Brush fillBrush = new SolidBrush(ColorTranslator.FromHtml("#F9C998"));
-				//g.FillRectangle(fillBrush, rect);
-				eg.FillRoundRectangle(fillBrush, rect.X, rect.Y, rect.Width, rect.Height, 10);
-				//g.DrawRectangle(linePen, rect);
-				eg.DrawRoundRectangle(linePen, rect.X, rect.Y, rect.Width, rect.Height, 10);
+				Brush fillBrush = new SolidBrush(fillColor);
+				if (drawRoundedRectangles) {
+					eg.FillRoundRectangle(fillBrush, rect.X, rect.Y, rect.Width, rect.Height, 10);
+					eg.DrawRoundRectangle(linePen, rect.X, rect.Y, rect.Width, rect.Height, 10);
+				} else {
+					g.FillRectangle(fillBrush, rect);
+					g.DrawRectangle(linePen, rect);
+				}
 				
 				// Label for horizontal axis
 				Font drawLabelFont = new Font("Arial", 8);

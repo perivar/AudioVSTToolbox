@@ -32,7 +32,8 @@ namespace ProcessVSTPlugin
 			
 			VstHost host = VstHost.Instance;
 			this.frequencyAnalyserUserControl1.SetAudioData(host.LastProcessedBufferLeft);
-
+			
+			WindowsSizeComboBox.SelectedItem = this.frequencyAnalyserUserControl1.FFTWindowsSize;
 			StartGUIRefreshTimer();
 		}
 		
@@ -55,6 +56,27 @@ namespace ProcessVSTPlugin
 
 			// start gui refresh timer
 			guiRefreshTimer.Start();
+		}
+		
+		void ComboBox1SelectedIndexChanged(object sender, EventArgs e)
+		{
+			ComboBox comboBox = (ComboBox) sender;
+			string stringSize = (string) comboBox.SelectedItem;
+			int windowsSize = 2048;
+			int.TryParse(stringSize, out windowsSize);
+			this.frequencyAnalyserUserControl1.FFTWindowsSize = windowsSize;
+		}
+		
+		void OnOffCheckboxCheckedChanged(object sender, EventArgs e)
+		{
+			CheckBox check = (CheckBox) sender;
+			if(check.Checked)
+			{
+				DoGUIRefresh = true;
+			} else {
+				DoGUIRefresh = false;
+			}
+			
 		}
 	}
 }
