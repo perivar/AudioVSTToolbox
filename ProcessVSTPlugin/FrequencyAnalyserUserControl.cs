@@ -93,7 +93,7 @@ namespace ProcessVSTPlugin
 		protected override void OnPaint(PaintEventArgs pe)
 		{
 			if (bmp != null) {
-				pe.Graphics.DrawImage(bmp, this.Left, this.Top);
+				pe.Graphics.DrawImage(bmp, 0, 0);
 			}
 
 			// Calling the base class OnPaint
@@ -109,7 +109,7 @@ namespace ProcessVSTPlugin
 		{
 			this.audioData = audioData;
 			float[][] spectrogramData = FFTUtils.CreateSpectrogram(audioData, sampleRate, fftWindowsSize, fftOverlap);
-			bmp = FFTUtils.PrepareAndDrawSpectrumAnalysis(spectrogramData, sampleRate, fftWindowsSize, fftOverlap, ForeColor, BackColor, new Size(ClientSize.Width, ClientSize.Height));
+			bmp = FFTUtils.PrepareAndDrawSpectrumAnalysis(spectrogramData, sampleRate, fftWindowsSize, fftOverlap, ForeColor, BackColor, new Size(this.Width, this.Height));
 			
 			this.Invalidate();
 		}

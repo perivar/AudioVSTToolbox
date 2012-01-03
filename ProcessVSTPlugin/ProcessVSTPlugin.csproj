@@ -90,6 +90,9 @@
     <Compile Include="..\CommonUtils\BinaryFile.cs">
       <Link>BinaryFile.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\ExtendedGraphics.cs">
+      <Link>ExtendedGraphics.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\FFTUtils.cs">
       <Link>FFTUtils.cs</Link>
     </Compile>

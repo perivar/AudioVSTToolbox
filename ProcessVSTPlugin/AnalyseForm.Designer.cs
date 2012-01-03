@@ -43,10 +43,10 @@ namespace ProcessVSTPlugin
 			// 
 			this.frequencyAnalyserUserControl1.FFTOverlap = 1;
 			this.frequencyAnalyserUserControl1.FFTWindowsSize = 256;
-			this.frequencyAnalyserUserControl1.Location = new System.Drawing.Point(12, 12);
+			this.frequencyAnalyserUserControl1.Location = new System.Drawing.Point(0, 1);
 			this.frequencyAnalyserUserControl1.Name = "frequencyAnalyserUserControl1";
 			this.frequencyAnalyserUserControl1.SampleRate = 44100D;
-			this.frequencyAnalyserUserControl1.Size = new System.Drawing.Size(713, 331);
+			this.frequencyAnalyserUserControl1.Size = new System.Drawing.Size(735, 354);
 			this.frequencyAnalyserUserControl1.TabIndex = 0;
 			// 
 			// AnalyseForm

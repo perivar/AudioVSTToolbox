@@ -29,13 +29,13 @@ namespace ProcessVSTPlugin
 		
 		public override int Read(float[] buffer, int offset, int sampleCount)
 		{
-			// 	Right I've got it! I changed the blockSize when initializing the output managers
+			// Right I've got it! I changed the blockSize when initializing the output managers
 			// to match the buffer.Length attribute in the read function.
 			// The sound is now continuous wahoo! Still not sure if this is the best way to do this but it works!
 			int bufferLength = buffer.Length;
 			int loopSize = sampleCount / Host.Channels;
 			
-			// CALL VST PROCESS HERE WITH BLOCK SIZE OF sampleCount
+			// Call vst process with block size of sampleCount
 			int processedCount = Host.ProcessReplacing((uint)sampleCount);
 			
 			// read from the vstOutputBuffers
@@ -189,11 +189,6 @@ namespace ProcessVSTPlugin
 		}
 		
 		public void CreateWaveFile(string outputFile) {
-			//using (WaveStream pcmStream = new WaveProviderToWaveStream(this.VstStream))
-			//{
-			//	WaveFileWriter.CreateWaveFile(outputFile, pcmStream);
-			//}
-			
 			Console.WriteLine("Saving wav file: " + outputFile);
 			using (WaveFileWriter writer = new WaveFileWriter(outputFile, this.VstStream.WaveFormat))
 			{
@@ -202,7 +197,7 @@ namespace ProcessVSTPlugin
 				{
 					int cnt = this.VstStream.Read(buf, 0, buf.Length);
 					if (cnt == 0) break;
-					writer.WriteData(buf, 0, cnt);
+					writer.Write(buf, 0, cnt);
 				}
 			}
 		}
