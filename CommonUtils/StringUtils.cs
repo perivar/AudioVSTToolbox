@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -27,15 +28,6 @@ namespace CommonUtils
 		/// <param name="cases">The cases.</param>
 		/// <returns>string</returns>
 		public static string ConvertCaseString(string phrase, Case cases) {
-			/*
-				string a = "background color-red.brown";
-				string camelCase = ConvertCaseString(a, Case.CamelCase);
-				string pascalCase = ConvertCaseString(a, Case.PascalCase);
-				Console.WriteLine(String.Format("Original: {0}", a));
-				Console.WriteLine(String.Format("Camel Case: {0}", camelCase));
-				Console.WriteLine(String.Format("Pascal Case: {0}", pascalCase));
-			 */
-
 			string[] splittedPhrase = phrase.Split(' ', '-', '.');
 			var sb = new StringBuilder();
 
@@ -92,13 +84,14 @@ namespace CommonUtils
 			// Replace invalid characters with empty strings.
 			return Regex.Replace(strIn, @"[^\w\.@-]", "");
 		}
-		
-		public static IEnumerable<string> Split(string str, int chunkSize)
+				
+		public static string MakeValidFileName( string name )
 		{
-			return Enumerable.Range(0, str.Length / chunkSize)
-				.Select(i => str.Substring(i * chunkSize, chunkSize));
+			string invalidChars = Regex.Escape( new string( Path.GetInvalidFileNameChars() ) );
+			string invalidReStr = string.Format( @"[{0}]+", invalidChars );
+			return Regex.Replace( name, invalidReStr, "_" );
 		}
-
+		
 		public static IEnumerable<string> SplitByLength(this string str, int maxLength) {
 			int index = 0;
 			while(true) {
@@ -111,5 +104,21 @@ namespace CommonUtils
 			}
 		}
 
+		public static byte[] RemoveTrailingBytes(byte[] array, byte valueToCheck = 0) {
+			int i = array.Length - 1;
+			while(i >= 0 && array[i] == valueToCheck) {
+				--i;
+			}
+			
+			if (i < 0) {
+				// every entry in the array has the valueToCheck value.
+				return array;
+			} else {
+				// now array[i] is the last non-zero byte (if checking for zero)
+				byte[] fixedArray = new byte[i+1];
+				Array.Copy(array, fixedArray, i+1);
+				return fixedArray;
+			}
+		}
 	}
 }
