@@ -84,7 +84,7 @@ namespace CommonUtils
 			// Replace invalid characters with empty strings.
 			return Regex.Replace(strIn, @"[^\w\.@-]", "");
 		}
-				
+		
 		public static string MakeValidFileName( string name )
 		{
 			string invalidChars = Regex.Escape( new string( Path.GetInvalidFileNameChars() ) );
@@ -120,5 +120,15 @@ namespace CommonUtils
 				return fixedArray;
 			}
 		}
+		
+		public static String GetCurrentTimestamp()
+		{
+			return GetTimestamp(DateTime.Now);
+		}				
+		
+		public static String GetTimestamp(this DateTime value)
+		{
+			return value.ToString("yyyyMMddHHmmssffff");
+		}		
 	}
 }

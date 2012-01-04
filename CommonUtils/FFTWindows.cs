@@ -85,6 +85,7 @@ namespace CommonUtils.FFT
 					// Hanning
 					for (i = 0; i < fftWindowsSize; i++)
 						dataArray[i] *= (0.50 - 0.50 * Math.Cos(2 * Math.PI * i / (fftWindowsSize - 1)));
+					// this is the same as 0.5 * (1 - Math.Cos(2 * Math.PI * i / (length - 1)));
 					break;
 				case 4:
 					// Blackman

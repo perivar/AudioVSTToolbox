@@ -12,8 +12,8 @@ namespace CommonUtils.FFT
 	/// </summary>
 	public static class FFTUtils
 	{
-
-		public static float[][] CreateSpectrogram(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
+		
+		public static float[][] CreateSpectrogram(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap, bool firstBandOnly = false)
 		{
 			// overlap must be an integer smaller than the window size
 			// half the windows size is quite normal
@@ -22,17 +22,26 @@ namespace CommonUtils.FFT
 			LomontFFT fft = new LomontFFT();
 			int numberOfSamples = samples.Length;
 			double seconds = numberOfSamples / sampleRate;
-			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap; 	// width of the segment - i.e. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
+			
+			int numberOfSegments = 0;
+			if (firstBandOnly) {
+				numberOfSegments = 1;
+			} else {
+				numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap; 	// width of the segment - i.e. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
+			}
+			
 			float[][] frames = new float[numberOfSegments][];
 			double[] complexSignal = new double[2*fftWindowsSize]; 		// even - Re, odd - Img
 			for (int i = 0; i < numberOfSegments; i++)
 			{
 				// apply Hanning Window
+				// e.g. take 371 ms each 11.6 ms (2048 samples each 64 samples)
 				for (int j = 0; j < fftWindowsSize; j++)
 				{
 					// add window with (4.0 / (fftWindowsSize - 1)
-					complexSignal[2*j] = (double) ((4.0/(fftWindowsSize - 1)) * windowArray[j] * samples[i * fftOverlap + j]); 	// Weight by Hann Window
-					//complexSignal[2*j] = (double) (windowArray[j] * samples[i * fftOverlap + j]); 	// Weight by Hann Window
+					//complexSignal[2*j] = (double) ((4.0/(fftWindowsSize - 1)) * windowArray[j] * samples[i * fftOverlap + j]); 	// Weight by Hann Window
+					
+					complexSignal[2*j] = (double) (windowArray[j] * samples[i * fftOverlap + j]); 	// Weight by Hann Window
 					complexSignal[2*j + 1] = 0;  // need to clear out as fft modifies buffer (phase)
 				}
 

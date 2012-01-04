@@ -90,6 +90,12 @@
     <Compile Include="..\CommonUtils\BinaryFile.cs">
       <Link>BinaryFile.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\CSVWriter.cs">
+      <Link>CSVWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\Export.cs">
+      <Link>Export.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\ExtendedGraphics.cs">
       <Link>ExtendedGraphics.cs</Link>
     </Compile>
