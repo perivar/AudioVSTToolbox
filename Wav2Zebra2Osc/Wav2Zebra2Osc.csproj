@@ -56,41 +56,8 @@
     <Compile Include="..\CommonUtils\Conversions.cs">
       <Link>Conversions.cs</Link>
     </Compile>
-    <Compile Include="..\CommonUtils\CSVWriter.cs">
-      <Link>CSVWriter.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Export.cs">
-      <Link>Export.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\ExtendedGraphics.cs">
-      <Link>ExtendedGraphics.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\AudioAnalyzer.cs">
-      <Link>AudioAnalyzer.cs</Link>
-    </Compile>
     <Compile Include="..\CommonUtils\FFT\DFT.cs">
       <Link>DFT.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Complex.cs">
-      <Link>Complex.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\ComplexF.cs">
-      <Link>ComplexF.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Fourier.cs">
-      <Link>Fourier.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\FourierDirection.cs">
-      <Link>FourierDirection.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\FFTTesting.cs">
-      <Link>FFTTesting.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\FFTUtils.cs">
-      <Link>FFTUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\FFTWindows.cs">
-      <Link>FFTWindows.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\FFT\LomontFFT.cs">
       <Link>LomontFFT.cs</Link>
