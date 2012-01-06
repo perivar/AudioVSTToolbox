@@ -13,7 +13,7 @@ namespace CommonUtils.FFT
 	/// </summary>
 	public static class AudioAnalyzer
 	{
-		public static float[][] CreateSpectrogram(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap, bool firstBandOnly = false)
+		public static float[][] CreateSpectrogramLomont(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap, bool firstBandOnly = false)
 		{
 			// overlap must be an integer smaller than the window size
 			// half the windows size is quite normal
@@ -38,15 +38,13 @@ namespace CommonUtils.FFT
 				// e.g. take 371 ms each 11.6 ms (2048 samples each 64 samples)
 				for (int j = 0; j < fftWindowsSize; j++)
 				{
-					// add window with (4.0 / (fftWindowsSize - 1)
-					//complexSignal[2*j] = (double) ((4.0/(fftWindowsSize - 1)) * windowArray[j] * samples[i * fftOverlap + j]); 	// Weight by Hann Window
-					
 					complexSignal[2*j] = (double) (windowArray[j] * samples[i * fftOverlap + j]); 	// Weight by Hann Window
 					complexSignal[2*j + 1] = 0;  // need to clear out as fft modifies buffer (phase)
 				}
 
 				// FFT transform for gathering the spectrum
 				fft.FFT(complexSignal, true);
+
 				float[] band = new float[fftWindowsSize/2];
 				for (int j = 0; j < fftWindowsSize/2; j++)
 				{
@@ -60,7 +58,54 @@ namespace CommonUtils.FFT
 			return frames;
 		}
 		
-		public static Bitmap PrepareAndDrawSpectrumAnalysis(float[][] spectrogramData, double sampleRate, int fftWindowsSize, int fftOverlap, Size imageSize) {
+		public static float[][] CreateSpectrogramExocortex(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap, bool firstBandOnly = false)
+		{
+			// overlap must be an integer smaller than the window size
+			// half the windows size is quite normal
+			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
+			
+			int numberOfSamples = samples.Length;
+			double seconds = numberOfSamples / sampleRate;
+			
+			int numberOfSegments = 0;
+			if (firstBandOnly) {
+				numberOfSegments = 1;
+			} else {
+				numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap; 	// width of the segment - i.e. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
+			}
+			
+			float[][] frames = new float[numberOfSegments][];
+			float[] complexSignal = new float[2*fftWindowsSize]; 		// even - Re, odd - Img
+			for (int i = 0; i < numberOfSegments; i++)
+			{
+				// apply Hanning Window
+				// e.g. take 371 ms each 11.6 ms (2048 samples each 64 samples)
+				for (int j = 0; j < fftWindowsSize; j++)
+				{
+					// Weight by Hann Window
+					complexSignal[2*j] = (float) (windowArray[j] * samples[i * fftOverlap + j]); 	
+					
+					// need to clear out as fft modifies buffer (phase)
+					complexSignal[2*j + 1] = 0;  
+				}
+
+				// FFT transform for gathering the spectrum
+				Fourier.FFT(complexSignal, fftWindowsSize, FourierDirection.Forward);
+
+				float[] band = new float[fftWindowsSize/2];
+				for (int j = 0; j < fftWindowsSize/2; j++)
+				{
+					double re = complexSignal[2*j];
+					double img = complexSignal[2*j + 1];
+					band[j] = (float) Math.Sqrt(re*re + img*img) * 2/fftWindowsSize;
+				}
+				frames[i] = band;
+			}
+			
+			return frames;
+		}
+		
+		public static Bitmap PrepareAndDrawSpectrumAnalysis(float[][] spectrogramData, double sampleRate, int fftWindowsSize, int fftOverlap, Size imageSize, float MIN_FREQ = 0, float MAX_FREQ = 20000) {
 			/*
 			 * freq = index * samplerate / fftsize;
 			 * db = 20 * log10(fft[index]);
@@ -79,7 +124,7 @@ namespace CommonUtils.FFT
 				m_mag[i] = MathUtils.ConvertAmplitudeToDB((float) spectrogramData[0][i], -120.0f, 18.0f);
 				m_freq[i] = MathUtils.ConvertIndexToHz (i, spectrogramLength, sampleRate, fftWindowsSize);
 			}
-			return DrawSpectrumAnalysis(ref m_mag, ref m_freq, imageSize);
+			return DrawSpectrumAnalysis(ref m_mag, ref m_freq, imageSize, MIN_FREQ, MAX_FREQ);
 		}
 
 		/**
@@ -100,21 +145,21 @@ namespace CommonUtils.FFT
 		 * The above copyright notice and this permission notice shall be included in
 		 * all copies or substantial portions of the Software.
 		 */
-		public static Bitmap DrawSpectrumAnalysis(ref float[] mag, ref float[] freq, Size imageSize)
+		public static Bitmap DrawSpectrumAnalysis(ref float[] mag, ref float[] freq, Size imageSize, float MIN_FREQ = 0, float MAX_FREQ = 20000)
 		{
 			// Basic constants
 			int TOTAL_HEIGHT = imageSize.Height;    // Height of graph
 			int TOTAL_WIDTH = imageSize.Width;      // Width of graph
 
-			float MIN_FREQ = 0;					// Minimum frequency (Hz) on horizontal axis.
-			float MAX_FREQ = 20000;				// Maximum frequency (Hz) on horizontal axis.
+			//float MIN_FREQ = 0;					// Minimum frequency (Hz) on horizontal axis.
+			//float MAX_FREQ = 20000;				// Maximum frequency (Hz) on horizontal axis.
 			float FREQ_STEP = 2000;				// Interval between ticks (Hz) on horizontal axis.
 			float MAX_DB = -0.0f;				// Maximum dB magnitude on vertical axis.
 			float MIN_DB = -100.0f; //-60       // Minimum dB magnitude on vertical axis.
 			float DB_STEP = 20;                	// Interval between ticks (dB) on vertical axis.
 
-			int TOP = 4;                     	// Top of graph
-			int LEFT = 4;                    	// Left edge of graph
+			int TOP = 5;                     	// Top of graph
+			int LEFT = 5;                    	// Left edge of graph
 			int HEIGHT = imageSize.Height-2*TOP;	// Height of graph
 			int WIDTH = imageSize.Width-2*LEFT;     // Width of graph
 			string LABEL_X = "Frequency (Hz)"; 	// Label for X axis

@@ -30,10 +30,13 @@ namespace ProcessVSTPlugin
 			//
 			InitializeComponent();
 			
+			string stringSize = "" + this.frequencyAnalyserUserControl1.FFTWindowsSize;
+			System.Diagnostics.Debug.WriteLine("stringSize: {0}", stringSize);
+			WindowsSizeComboBox.Text = stringSize;
+			
 			VstHost host = VstHost.Instance;
 			this.frequencyAnalyserUserControl1.SetAudioData(host.LastProcessedBufferLeft);
 			
-			WindowsSizeComboBox.SelectedItem = this.frequencyAnalyserUserControl1.FFTWindowsSize;
 			StartGUIRefreshTimer();
 		}
 		
@@ -77,6 +80,11 @@ namespace ProcessVSTPlugin
 				DoGUIRefresh = false;
 			}
 			
+		}
+		
+		void TrackBar1Scroll(object sender, EventArgs e)
+		{
+			this.frequencyAnalyserUserControl1.MaximumFrequency = (float) trackBar1.Value;
 		}
 	}
 }

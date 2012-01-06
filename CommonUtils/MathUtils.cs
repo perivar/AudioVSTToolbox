@@ -107,6 +107,76 @@ namespace CommonUtils
 			return rounded;
 		}
 
+		public static void ComputeMinAndMax(double[] data, out double min, out double max) {
+			// prepare the data:
+			double maxVal = double.MinValue;
+			double minVal = double.MaxValue;
+			
+			for(int x = 0; x < data.Length; x++)
+			{
+				if (data[x] > maxVal)
+					maxVal = data[x];
+				if (data[x] < minVal)
+					minVal = data[x];
+			}
+			min = minVal;
+			max = maxVal;
+		}
+		
+		public static void ComputeMinAndMax(double[][] data, out double min, out double max) {
+			// prepare the data:
+			double maxVal = double.MinValue;
+			double minVal = double.MaxValue;
+			
+			for(int x = 0; x < data.Length; x++)
+			{
+				for(int y = 0; y < data[x].Length; y++)
+				{
+					if (data[x][y] > maxVal)
+						maxVal = data[x][y];
+					if (data[x][y] < minVal)
+						minVal = data[x][y];
+				}
+			}
+			min = minVal;
+			max = maxVal;
+		}
+
+		public static void ComputeMinAndMax(float[] data, out float min, out float max) {
+			// prepare the data:
+			float maxVal = float.MinValue;
+			float minVal = float.MaxValue;
+			
+			for(int x = 0; x < data.Length; x++)
+			{
+				if (data[x] > maxVal)
+					maxVal = data[x];
+				if (data[x] < minVal)
+					minVal = data[x];
+			}
+			min = minVal;
+			max = maxVal;
+		}
+		
+		public static void ComputeMinAndMax(float[][] data, out float min, out float max) {
+			// prepare the data:
+			float maxVal = float.MinValue;
+			float minVal = float.MaxValue;
+			
+			for(int x = 0; x < data.Length; x++)
+			{
+				for(int y = 0; y < data[x].Length; y++)
+				{
+					if (data[x][y] > maxVal)
+						maxVal = data[x][y];
+					if (data[x][y] < minVal)
+						minVal = data[x][y];
+				}
+			}
+			min = minVal;
+			max = maxVal;
+		}
+		
 		public static float[] GetSineWave(float frequency, float amplitude, float sampleRate, int offset, int sampleCount, int sample = 0) {
 			float[] buffer = new float[sampleCount+offset];
 			for (int n = 0; n < sampleCount; n++)

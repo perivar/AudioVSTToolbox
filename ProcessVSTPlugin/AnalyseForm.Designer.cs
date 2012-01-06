@@ -40,13 +40,18 @@ namespace ProcessVSTPlugin
 			this.OnOffCheckbox = new System.Windows.Forms.CheckBox();
 			this.WindowsSizeComboBox = new System.Windows.Forms.ComboBox();
 			this.label1 = new System.Windows.Forms.Label();
+			this.trackBar1 = new System.Windows.Forms.TrackBar();
+			this.label2 = new System.Windows.Forms.Label();
+			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// frequencyAnalyserUserControl1
 			// 
 			this.frequencyAnalyserUserControl1.FFTOverlap = 1;
-			this.frequencyAnalyserUserControl1.FFTWindowsSize = 256;
+			this.frequencyAnalyserUserControl1.FFTWindowsSize = 2048;
 			this.frequencyAnalyserUserControl1.Location = new System.Drawing.Point(0, 1);
+			this.frequencyAnalyserUserControl1.MaximumFrequency = 20000F;
+			this.frequencyAnalyserUserControl1.MinimumFrequency = 0F;
 			this.frequencyAnalyserUserControl1.Name = "frequencyAnalyserUserControl1";
 			this.frequencyAnalyserUserControl1.SampleRate = 44100D;
 			this.frequencyAnalyserUserControl1.Size = new System.Drawing.Size(665, 354);
@@ -68,10 +73,12 @@ namespace ProcessVSTPlugin
 			// 
 			this.WindowsSizeComboBox.FormattingEnabled = true;
 			this.WindowsSizeComboBox.Items.AddRange(new object[] {
-			                                        	"512",
-			                                        	"1024",
-			                                        	"2048",
-			                                        	"4096"});
+									"256",
+									"512",
+									"1024",
+									"2048",
+									"4096",
+									"8192"});
 			this.WindowsSizeComboBox.Location = new System.Drawing.Point(671, 61);
 			this.WindowsSizeComboBox.Name = "WindowsSizeComboBox";
 			this.WindowsSizeComboBox.Size = new System.Drawing.Size(66, 21);
@@ -86,19 +93,48 @@ namespace ProcessVSTPlugin
 			this.label1.TabIndex = 3;
 			this.label1.Text = "Window Size";
 			// 
+			// trackBar1
+			// 
+			this.trackBar1.LargeChange = 1000;
+			this.trackBar1.Location = new System.Drawing.Point(671, 117);
+			this.trackBar1.Maximum = 20000;
+			this.trackBar1.Minimum = 500;
+			this.trackBar1.Name = "trackBar1";
+			this.trackBar1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+			this.trackBar1.Size = new System.Drawing.Size(70, 45);
+			this.trackBar1.SmallChange = 100;
+			this.trackBar1.TabIndex = 4;
+			this.trackBar1.TickFrequency = 2000;
+			this.trackBar1.Value = 20000;
+			this.trackBar1.Scroll += new System.EventHandler(this.TrackBar1Scroll);
+			// 
+			// label2
+			// 
+			this.label2.Location = new System.Drawing.Point(677, 98);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(60, 16);
+			this.label2.TabIndex = 5;
+			this.label2.Text = "Max Freq.";
+			// 
 			// AnalyseForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(743, 355);
+			this.Controls.Add(this.label2);
+			this.Controls.Add(this.trackBar1);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.WindowsSizeComboBox);
 			this.Controls.Add(this.OnOffCheckbox);
 			this.Controls.Add(this.frequencyAnalyserUserControl1);
 			this.Name = "AnalyseForm";
 			this.Text = "AnalyseForm";
+			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
 			this.ResumeLayout(false);
+			this.PerformLayout();
 		}
+		private System.Windows.Forms.Label label2;
+		private System.Windows.Forms.TrackBar trackBar1;
 		private ProcessVSTPlugin.FrequencyAnalyserUserControl frequencyAnalyserUserControl1;
 		private System.Windows.Forms.CheckBox OnOffCheckbox;
 		private System.Windows.Forms.ComboBox WindowsSizeComboBox;

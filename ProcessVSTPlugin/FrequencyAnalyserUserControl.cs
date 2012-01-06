@@ -17,6 +17,8 @@ namespace ProcessVSTPlugin
 		
 		double sampleRate = 44100;
 		int fftWindowsSize = 2048;
+		float MIN_FREQ = 0;
+		float MAX_FREQ = 20000;
 		
 		// overlap must be an integer smaller than the window size
 		// half the windows size is quite normal, sometimes 80% is best?!
@@ -30,6 +32,18 @@ namespace ProcessVSTPlugin
 			this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
 			              ControlStyles.OptimizedDoubleBuffer, true);
 			InitializeComponent();
+		}
+
+		public float MinimumFrequency
+		{
+			get { return MIN_FREQ; }
+			set { MIN_FREQ = value; }
+		}
+
+		public float MaximumFrequency
+		{
+			get { return MAX_FREQ; }
+			set { MAX_FREQ = value; }
 		}
 		
 		public double SampleRate
@@ -71,8 +85,8 @@ namespace ProcessVSTPlugin
 		public void SetAudioData(float[] audioData)
 		{
 			this.audioData = audioData;
-			float[][] spectrogramData = AudioAnalyzer.CreateSpectrogram(audioData, sampleRate, fftWindowsSize, fftOverlap, true);
-			bmp = AudioAnalyzer.PrepareAndDrawSpectrumAnalysis(spectrogramData, sampleRate, fftWindowsSize, fftOverlap, new Size(this.Width, this.Height));
+			float[][] spectrogramData = AudioAnalyzer.CreateSpectrogramLomont(audioData, sampleRate, fftWindowsSize, fftOverlap, true);
+			bmp = AudioAnalyzer.PrepareAndDrawSpectrumAnalysis(spectrogramData, sampleRate, fftWindowsSize, fftOverlap, new Size(this.Width, this.Height), MIN_FREQ, MAX_FREQ);
 			
 			// force redraw
 			this.Invalidate();

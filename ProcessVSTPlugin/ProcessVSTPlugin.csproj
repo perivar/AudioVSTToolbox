@@ -102,11 +102,29 @@
     <Compile Include="..\CommonUtils\FFT\AudioAnalyzer.cs">
       <Link>AudioAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Complex.cs">
+      <Link>FFT\Complex.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\ComplexF.cs">
+      <Link>FFT\ComplexF.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Fourier.cs">
+      <Link>FFT\Fourier.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\FourierDirection.cs">
+      <Link>FFT\FourierDirection.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\FFTTesting.cs">
+      <Link>FFT\FFTTesting.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\FFTUtils.cs">
+      <Link>FFT\FFTUtils.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\FFT\FFTWindows.cs">
-      <Link>FFTWindows.cs</Link>
+      <Link>FFT\FFTWindows.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\FFT\LomontFFT.cs">
-      <Link>LomontFFT.cs</Link>
+      <Link>FFT\LomontFFT.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\FXP.cs">
       <Link>FXP.cs</Link>
@@ -185,6 +203,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FFT" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>
