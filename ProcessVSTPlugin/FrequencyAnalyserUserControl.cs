@@ -71,8 +71,8 @@ namespace ProcessVSTPlugin
 		public void SetAudioData(float[] audioData)
 		{
 			this.audioData = audioData;
-			float[][] spectrogramData = FFTUtils.CreateSpectrogram(audioData, sampleRate, fftWindowsSize, fftOverlap, true);
-			bmp = FFTUtils.PrepareAndDrawSpectrumAnalysis(spectrogramData, sampleRate, fftWindowsSize, fftOverlap, new Size(this.Width, this.Height));
+			float[][] spectrogramData = AudioAnalyzer.CreateSpectrogram(audioData, sampleRate, fftWindowsSize, fftOverlap, true);
+			bmp = AudioAnalyzer.PrepareAndDrawSpectrumAnalysis(spectrogramData, sampleRate, fftWindowsSize, fftOverlap, new Size(this.Width, this.Height));
 			
 			// force redraw
 			this.Invalidate();

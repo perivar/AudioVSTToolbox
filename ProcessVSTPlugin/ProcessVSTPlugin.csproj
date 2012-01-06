@@ -99,17 +99,17 @@
     <Compile Include="..\CommonUtils\ExtendedGraphics.cs">
       <Link>ExtendedGraphics.cs</Link>
     </Compile>
-    <Compile Include="..\CommonUtils\FFTUtils.cs">
-      <Link>FFTUtils.cs</Link>
+    <Compile Include="..\CommonUtils\FFT\AudioAnalyzer.cs">
+      <Link>AudioAnalyzer.cs</Link>
     </Compile>
-    <Compile Include="..\CommonUtils\FFTWindows.cs">
+    <Compile Include="..\CommonUtils\FFT\FFTWindows.cs">
       <Link>FFTWindows.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\LomontFFT.cs">
+      <Link>LomontFFT.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\FXP.cs">
       <Link>FXP.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\LomontFFT.cs">
-      <Link>LomontFFT.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\MathUtils.cs">
       <Link>MathUtils.cs</Link>
