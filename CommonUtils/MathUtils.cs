@@ -135,6 +135,16 @@ namespace CommonUtils
 			double firstFrequency = nyquistFreq / numberOfSamples;
 			double frequency = firstFrequency *  i ;
 			return (float) frequency;
-		}		
+		}
+		
+		public static double[] FloatToDouble(float[] floatArray) {
+			double[] doubleArray = Array.ConvertAll(floatArray, x => (double)x);
+			return doubleArray;
+		}
+
+		public static float[] DoubleToFloat(double[] doubleArray) {
+			float[] floatArray = Array.ConvertAll(doubleArray, x => (float)x);
+			return floatArray;
+		}
 	}
 }
