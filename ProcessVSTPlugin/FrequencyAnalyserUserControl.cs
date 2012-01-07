@@ -42,11 +42,13 @@ namespace ProcessVSTPlugin
 		public float FoundMaxFrequency
 		{
 			get { return foundMaxFrequency; }
+			set { foundMaxFrequency = value; }
 		}
 		
 		public float FoundMaxDecibel
 		{
 			get { return foundMaxDecibel; }
+			set { foundMaxDecibel = value; }
 		}
 		
 		public float MinimumFrequency
@@ -100,42 +102,10 @@ namespace ProcessVSTPlugin
 		public void SetAudioData(float[] audioData)
 		{
 			this.audioData = audioData;
-			float[][] spectrogramData = AudioAnalyzer.CreateSpectrogramLomont(audioData, sampleRate, fftWindowsSize, fftOverlap, true);
 
-			//bmp = AudioAnalyzer.PrepareAndDrawSpectrumAnalysis(spectrogramData, sampleRate, fftWindowsSize, fftOverlap, new Size(this.Width, this.Height), showMinFrequency, showMaxFrequency);
-			
-			int numberOfSegments = spectrogramData.Length; // i.e. 78 images which containt a spectrum which is half the fftWindowsSize (2048)
-			int spectrogramLength = spectrogramData[0].Length; // 1024 - half the fftWindowsSize (2048)
-			double numberOfSamples = (fftOverlap * numberOfSegments) + fftWindowsSize;
-			double seconds = numberOfSamples / sampleRate;
-			
-			// prepare the data:
-			float[] m_mag = new float[spectrogramLength];
-			float[] m_freq = new float[spectrogramLength];
-
-			float maxVal = float.MinValue;
-			int maxIndex = 0;
-			float minVal = float.MaxValue;
-			int minIndex = 0;
-			for (int i = 0; i < spectrogramLength; i++)
-			{
-				if (spectrogramData[0][i] > maxVal) {
-					maxVal = spectrogramData[0][i];
-					maxIndex = i;
-				}
-				if (spectrogramData[0][i] < minVal) {
-					minVal = spectrogramData[0][i];
-					minIndex = i;
-				}
-
-				m_mag[i] = MathUtils.ConvertAmplitudeToDB((float) spectrogramData[0][i], -120.0f, 18.0f);
-				m_freq[i] = MathUtils.ConvertIndexToHz (i, spectrogramLength, sampleRate, fftWindowsSize);
-			}			
-			this.foundMaxDecibel = MathUtils.ConvertAmplitudeToDB((float) spectrogramData[0][maxIndex], -120.0f, 18.0f);
-			this.foundMaxFrequency = MathUtils.ConvertIndexToHz (maxIndex, spectrogramLength, sampleRate, fftWindowsSize);
-
-			bmp = AudioAnalyzer.DrawSpectrumAnalysis(ref m_mag, ref m_freq, new Size(this.Width, this.Height), showMinFrequency, showMaxFrequency, this.foundMaxDecibel, this.foundMaxFrequency);
-			
+			float[] spectrumData = AudioAnalyzer.CreateSpectrumAnalysisLomont(audioData, sampleRate, fftWindowsSize, fftOverlap);
+			bmp = AudioAnalyzer.PrepareAndDrawSpectrumAnalysis(spectrumData, sampleRate, fftWindowsSize, fftOverlap, new Size(this.Width, this.Height), showMinFrequency, showMaxFrequency);
+						
 			// force redraw
 			this.Invalidate();
 		}

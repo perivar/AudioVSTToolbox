@@ -191,6 +191,7 @@ namespace CommonUtils
 		// look at this http://jvalentino2.tripod.com/dft/index.html
 		public static float ConvertAmplitudeToDB(float amplitude, float MinDb, float MaxDb) {
 			// db = 20 * log10( fft[index] );
+			 // Addition of smallestNumber prevents log from returning minus infinity if mag is zero
 			float smallestNumber = float.Epsilon;
 			float db = 20 * (float) Math.Log10( (float) (amplitude + smallestNumber) );
 			
@@ -198,6 +199,23 @@ namespace CommonUtils
 			if (db > MaxDb) db = MaxDb;
 			
 			return db;
+		}
+		
+		public static float ConvertFloatToDB(float amplitude) {
+			// 20 log10(mag) => 20/ln(10) ln(mag)
+			// javascript: var result = Math.log(x) * (20.0 / Math.LN10);
+			// http://www.plugindeveloper.com/05/decibel-calculator-online
+			 // Addition of smallestNumber prevents log from returning minus infinity if mag is zero
+			float smallestNumber = float.Epsilon;
+			double result = Math.Log(amplitude + smallestNumber) * (20.0 / Math.Log(10));
+			return (float) result;
+		}
+
+		public static float ConvertDBToFloat(float dB) {
+			// javascript: var result = Math.exp((x) * (Math.LN10 / 20.0));
+			// http://www.plugindeveloper.com/05/decibel-calculator-online
+			double result = Math.Exp(( dB) * (Math.Log(10) / 20.0));
+			return (float) result;
 		}
 		
 		public static float ConvertIndexToHz(int i, int numberOfSamples, double sampleRate, double fftWindowsSize) {
@@ -215,6 +233,34 @@ namespace CommonUtils
 		public static float[] DoubleToFloat(double[] doubleArray) {
 			float[] floatArray = Array.ConvertAll(doubleArray, x => (float)x);
 			return floatArray;
+		}
+		
+		/* Return a nicer number
+		 * 0,1 --> 0,1
+		 * 0,2 --> 0,25
+		 * 0,7 --> 1
+		 * 1 --> 1
+		 * 2 --> 2,5
+		 * 9 --> 10
+		 * 25 --> 50
+		 * 58 --> 100
+		 * 99 --> 100
+		 * 158 --> 250
+		 * 267 --> 500
+		 * 832 --> 1000
+		 */
+		public static double GetNicerNumber(double val)
+		{
+			// get the first larger power of 10
+			var nice = Math.Pow(10, Math.Ceiling(Math.Log10(val)));
+
+			// scale the power to a "nice enough" value
+			if (val < 0.25 * nice)
+				nice = 0.25 * nice;
+			else if (val < 0.5 * nice)
+				nice = 0.5 * nice;
+
+			return nice;
 		}
 	}
 }

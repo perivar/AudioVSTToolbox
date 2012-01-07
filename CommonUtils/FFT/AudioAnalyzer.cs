@@ -13,38 +13,41 @@ namespace CommonUtils.FFT
 	/// </summary>
 	public static class AudioAnalyzer
 	{
-		public static float[][] CreateSpectrogramLomont(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap, bool firstBandOnly = false)
+		public static float[][] CreateSpectrogramLomont(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
 		{
+			LomontFFT fft = new LomontFFT();
+			
+			// find the time
+			int numberOfSamples = samples.Length;
+			double seconds = numberOfSamples / sampleRate;
+
 			// overlap must be an integer smaller than the window size
 			// half the windows size is quite normal
 			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
 			
-			LomontFFT fft = new LomontFFT();
-			int numberOfSamples = samples.Length;
-			double seconds = numberOfSamples / sampleRate;
-			
-			int numberOfSegments = 0;
-			if (firstBandOnly) {
-				numberOfSegments = 1;
-			} else {
-				numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap; 	// width of the segment - i.e. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
-			}
-			
+			// width of the segment - i.e. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
+			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap;
 			float[][] frames = new float[numberOfSegments][];
-			double[] complexSignal = new double[2*fftWindowsSize]; 		// even - Re, odd - Img
+			
+			// even - Re, odd - Img
+			double[] complexSignal = new double[2*fftWindowsSize];
 			for (int i = 0; i < numberOfSegments; i++)
 			{
 				// apply Hanning Window
 				// e.g. take 371 ms each 11.6 ms (2048 samples each 64 samples)
 				for (int j = 0; j < fftWindowsSize; j++)
 				{
-					complexSignal[2*j] = (double) (windowArray[j] * samples[i * fftOverlap + j]); 	// Weight by Hann Window
-					complexSignal[2*j + 1] = 0;  // need to clear out as fft modifies buffer (phase)
+					// Weight by Hann Window
+					complexSignal[2*j] = (double) (windowArray[j] * samples[i * fftOverlap + j]);
+					
+					// need to clear out as fft modifies buffer (phase)
+					complexSignal[2*j + 1] = 0;
 				}
 
 				// FFT transform for gathering the spectrum
 				fft.FFT(complexSignal, true);
 
+				// get the ABS of the complex signal
 				float[] band = new float[fftWindowsSize/2];
 				for (int j = 0; j < fftWindowsSize/2; j++)
 				{
@@ -54,28 +57,25 @@ namespace CommonUtils.FFT
 				}
 				frames[i] = band;
 			}
-			
 			return frames;
 		}
 		
-		public static float[][] CreateSpectrogramExocortex(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap, bool firstBandOnly = false)
+		public static float[][] CreateSpectrogramExocortex(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
 		{
 			// overlap must be an integer smaller than the window size
 			// half the windows size is quite normal
 			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
 			
+			// find the time
 			int numberOfSamples = samples.Length;
 			double seconds = numberOfSamples / sampleRate;
 			
-			int numberOfSegments = 0;
-			if (firstBandOnly) {
-				numberOfSegments = 1;
-			} else {
-				numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap; 	// width of the segment - i.e. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
-			}
-			
+			// width of the segment - i.e. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
+			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap;
 			float[][] frames = new float[numberOfSegments][];
-			float[] complexSignal = new float[2*fftWindowsSize]; 		// even - Re, odd - Img
+			
+			// even - Re, odd - Img
+			float[] complexSignal = new float[2*fftWindowsSize];
 			for (int i = 0; i < numberOfSegments; i++)
 			{
 				// apply Hanning Window
@@ -91,12 +91,15 @@ namespace CommonUtils.FFT
 
 				// FFT transform for gathering the spectrum
 				Fourier.FFT(complexSignal, fftWindowsSize, FourierDirection.Forward);
-
+				
+				// get the ABS of the complex signal
 				float[] band = new float[fftWindowsSize/2];
 				for (int j = 0; j < fftWindowsSize/2; j++)
 				{
 					double re = complexSignal[2*j];
 					double img = complexSignal[2*j + 1];
+					
+					// do the Abs calculation and multiply by 1/N (2/N cause of the using half the window size)
 					band[j] = (float) Math.Sqrt(re*re + img*img) * 2/fftWindowsSize;
 				}
 				frames[i] = band;
@@ -105,28 +108,131 @@ namespace CommonUtils.FFT
 			return frames;
 		}
 		
-		public static Bitmap PrepareAndDrawSpectrumAnalysis(float[][] spectrogramData,
+		public static float[] CreateSpectrumAnalysisLomont(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
+		{
+			LomontFFT fft = new LomontFFT();
+
+			// find the time
+			int numberOfSamples = samples.Length;
+			double seconds = numberOfSamples / sampleRate;
+			
+			// overlap must be an integer smaller than the window size
+			// half the windows size is quite normal
+			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
+
+			// even - Re, odd - Img
+			double[] complexSignal = new double[2*fftWindowsSize];
+
+			// apply Hanning Window
+			// e.g. take 371 ms each 11.6 ms (2048 samples each 64 samples)
+			for (int j = 0; j < fftWindowsSize; j++)
+			{
+				// Weight by Hann Window
+				complexSignal[2*j] = (double) (windowArray[j] * samples[fftOverlap + j]);
+				
+				// need to clear out as fft modifies buffer (phase)
+				complexSignal[2*j + 1] = 0;
+			}
+
+			// FFT transform for gathering the spectrum
+			fft.FFT(complexSignal, true);
+
+			float[] band = new float[fftWindowsSize/2];
+			for (int j = 0; j < fftWindowsSize/2; j++)
+			{
+				double re = complexSignal[2*j] / (float) Math.Sqrt(fftWindowsSize);
+				double img = complexSignal[2*j + 1] / (float) Math.Sqrt(fftWindowsSize);
+				
+				// do the Abs calculation and add with Math.Sqrt(audio_data.Length);
+				band[j] = (float) Math.Sqrt(re*re + img*img) * 4;
+			}
+			return band;
+		}
+		
+		public static float[] CreateSpectrumAnalysisExocortex(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
+		{
+			// find the time
+			int numberOfSamples = samples.Length;
+			double seconds = numberOfSamples / sampleRate;
+			
+			// overlap must be an integer smaller than the window size
+			// half the windows size is quite normal
+			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
+
+			// even - Re, odd - Img
+			float[] complexSignal = new float[2*fftWindowsSize];
+
+			// apply Hanning Window
+			// e.g. take 371 ms each 11.6 ms (2048 samples each 64 samples)
+			for (int j = 0; j < fftWindowsSize; j++)
+			{
+				// Weight by Hann Window
+				complexSignal[2*j] = (float) (windowArray[j] * samples[fftOverlap + j]);
+				
+				// need to clear out as fft modifies buffer (phase)
+				complexSignal[2*j + 1] = 0;
+			}
+
+			// FFT transform for gathering the spectrum
+			Fourier.FFT(complexSignal, fftWindowsSize, FourierDirection.Forward);
+
+			float[] band = new float[fftWindowsSize/2];
+			for (int j = 0; j < fftWindowsSize/2; j++)
+			{
+				double re = complexSignal[2*j];
+				double img = complexSignal[2*j + 1];
+				
+				// do the Abs calculation and multiply by 1/N (2/N cause of the using half the window size)
+				band[j] = (float) Math.Sqrt(re*re + img*img) * 4/fftWindowsSize;
+			}
+			return band;
+		}
+		
+		public static Bitmap PrepareAndDrawSpectrumAnalysis(float[] spectrumData,
 		                                                    double sampleRate,
 		                                                    int fftWindowsSize, int fftOverlap, Size imageSize,
-		                                                    float showMinFrequency = 0, float showMaxFrequency = 20000,
-		                                                    float foundMaxDecibel = -1, float foundMaxFrequency = -1) {
+		                                                    float showMinFrequency = 0, float showMaxFrequency = 20000) {
 			/*
 			 * freq = index * samplerate / fftsize;
 			 * db = 20 * log10(fft[index]);
 			 * 20 log10 (mag) => 20/ ln(10) ln(mag)
 			 */
-			int numberOfSegments = spectrogramData.Length; // i.e. 78 images which containt a spectrum which is half the fftWindowsSize (2048)
-			int spectrogramLength = spectrogramData[0].Length; // 1024 - half the fftWindowsSize (2048)
-			double numberOfSamples = (fftOverlap * numberOfSegments) + fftWindowsSize;
+			int spectrumDataLength = spectrumData.Length; // 1024 - half the fftWindowsSize (2048)
+			double numberOfSamples = fftOverlap + fftWindowsSize;
 			double seconds = numberOfSamples / sampleRate;
-			
-			float[] m_mag = new float[spectrogramLength];
-			float[] m_freq = new float[spectrogramLength];
-			for (int i = 0; i < spectrogramLength; i++)
+
+			// prepare the data:
+			float[] m_mag = new float[spectrumDataLength];
+			float[] m_freq = new float[spectrumDataLength];
+			float foundMaxFrequency = -1;
+			float foundMaxDecibel = -1;
+
+			// prepare to store min and max values
+			float maxVal = float.MinValue;
+			int maxIndex = 0;
+			float minVal = float.MaxValue;
+			int minIndex = 0;
+			for (int i = 0; i < spectrumDataLength; i++)
 			{
-				m_mag[i] = MathUtils.ConvertAmplitudeToDB((float) spectrogramData[0][i], -120.0f, 18.0f);
-				m_freq[i] = MathUtils.ConvertIndexToHz (i, spectrogramLength, sampleRate, fftWindowsSize);
+				if (spectrumData[i] > maxVal) {
+					maxVal = spectrumData[i];
+					maxIndex = i;
+				}
+				if (spectrumData[i] < minVal) {
+					minVal = spectrumData[i];
+					minIndex = i;
+				}
+
+				//m_mag[i] = MathUtils.ConvertAmplitudeToDB((float) spectrumData[i], -120.0f, 18.0f);
+				m_mag[i] = MathUtils.ConvertFloatToDB(spectrumData[i]);
+				m_freq[i] = MathUtils.ConvertIndexToHz (i, spectrumDataLength, sampleRate, fftWindowsSize);
 			}
+			
+			// store the max findings
+			//foundMaxDecibel = MathUtils.ConvertAmplitudeToDB((float) spectrumData[maxIndex], -120.0f, 18.0f);
+			foundMaxDecibel = MathUtils.ConvertFloatToDB(spectrumData[maxIndex]);
+			foundMaxFrequency = MathUtils.ConvertIndexToHz (maxIndex, spectrumDataLength, sampleRate, fftWindowsSize);
+
 			return DrawSpectrumAnalysis(ref m_mag, ref m_freq, imageSize, showMinFrequency, showMaxFrequency, foundMaxDecibel, foundMaxFrequency);
 		}
 
@@ -173,11 +279,17 @@ namespace CommonUtils.FFT
 			bool drawLabels = false;
 			bool drawRoundedRectangles = true;
 			
+			// if the max frequency gets lower than ... lower the frequency step
+			if (MAX_FREQ < 20000) {
+				FREQ_STEP = (float) MathUtils.GetNicerNumber(MAX_FREQ / 10);
+			}
+			
 			// Colors
 			Color lineColor = ColorTranslator.FromHtml("#C7834C");
 			Color middleLineColor = ColorTranslator.FromHtml("#EFAB74");
 			Color textColor = ColorTranslator.FromHtml("#A9652E");
-			Color sampleColor = ColorTranslator.FromHtml("#A9652E");
+			//Color sampleColor = ColorTranslator.FromHtml("#A9652E");
+			Color sampleColor = ColorTranslator.FromHtml("#4C2F1A");
 			Color fillOuterColor = ColorTranslator.FromHtml("#FFFFFF");
 			Color fillColor = ColorTranslator.FromHtml("#F9C998");
 			

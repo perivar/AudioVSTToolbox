@@ -93,21 +93,21 @@ namespace ProcessVSTPlugin
 		/// </summary>
 		[STAThread]
 		static void Main(string[] args)
-		{
-			/*
-			float frequency = 6000;
-			float amplitude = 0.25f; // let's not hurt our ears
+		{		
+			/*			
+			float frequency = 5000;
+			float amplitude = 0.5f; // let's not hurt our ears
 			double sampleRate = 44100;
-			int fftWindowsSize = 4096;
+			int fftWindowsSize = 4096; // 8192;
 			int fftOverlap = 1;
 			int numSeconds = 1;
 			float[] buffer = MathUtils.GetSineWave(frequency, amplitude, (float) sampleRate, 0, (int) sampleRate*numSeconds);
-			float[][] spectrogram = CommonUtils.FFT.AudioAnalyzer.CreateSpectrogramLomont(buffer, sampleRate, fftWindowsSize, fftOverlap, true);
-			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.PrepareAndDrawSpectrumAnalysis(spectrogram, sampleRate, fftWindowsSize, fftOverlap,
-			                                                                                         new System.Drawing.Size(600, 300),
-			                                                                                         0, 20000,
-			                                                                                         87, 2000);
-			png.Save("test.png");
+			float[] spectrumData = CommonUtils.FFT.AudioAnalyzer.CreateSpectrumAnalysisLomont(buffer, sampleRate, fftWindowsSize, fftOverlap);
+			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.PrepareAndDrawSpectrumAnalysis(spectrumData, sampleRate, fftWindowsSize, fftOverlap,
+			                                                                                         new System.Drawing.Size(1000, 600),
+			                                                                                         0, 20000);
+			string fileName = String.Format("{0:00.0000}dB.png", MathUtils.ConvertFloatToDB(amplitude));
+			png.Save(fileName);
 			return;
 			*/
 			
