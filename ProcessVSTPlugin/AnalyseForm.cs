@@ -36,6 +36,9 @@ namespace ProcessVSTPlugin
 			
 			VstHost host = VstHost.Instance;
 			this.frequencyAnalyserUserControl1.SetAudioData(host.LastProcessedBufferLeft);
+
+			foundFreqTextBox.Text = String.Format("a{0}", this.frequencyAnalyserUserControl1.FoundMaxFrequency);
+			foundDBTextBox.Text = String.Format("b{0}", this.frequencyAnalyserUserControl1.FoundMaxDecibel);
 			
 			StartGUIRefreshTimer();
 		}

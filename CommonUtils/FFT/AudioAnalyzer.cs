@@ -83,10 +83,10 @@ namespace CommonUtils.FFT
 				for (int j = 0; j < fftWindowsSize; j++)
 				{
 					// Weight by Hann Window
-					complexSignal[2*j] = (float) (windowArray[j] * samples[i * fftOverlap + j]); 	
+					complexSignal[2*j] = (float) (windowArray[j] * samples[i * fftOverlap + j]);
 					
 					// need to clear out as fft modifies buffer (phase)
-					complexSignal[2*j + 1] = 0;  
+					complexSignal[2*j + 1] = 0;
 				}
 
 				// FFT transform for gathering the spectrum
@@ -105,13 +105,16 @@ namespace CommonUtils.FFT
 			return frames;
 		}
 		
-		public static Bitmap PrepareAndDrawSpectrumAnalysis(float[][] spectrogramData, double sampleRate, int fftWindowsSize, int fftOverlap, Size imageSize, float MIN_FREQ = 0, float MAX_FREQ = 20000) {
+		public static Bitmap PrepareAndDrawSpectrumAnalysis(float[][] spectrogramData,
+		                                                    double sampleRate,
+		                                                    int fftWindowsSize, int fftOverlap, Size imageSize,
+		                                                    float showMinFrequency = 0, float showMaxFrequency = 20000,
+		                                                    float foundMaxDecibel = -1, float foundMaxFrequency = -1) {
 			/*
 			 * freq = index * samplerate / fftsize;
 			 * db = 20 * log10(fft[index]);
 			 * 20 log10 (mag) => 20/ ln(10) ln(mag)
 			 */
-			
 			int numberOfSegments = spectrogramData.Length; // i.e. 78 images which containt a spectrum which is half the fftWindowsSize (2048)
 			int spectrogramLength = spectrogramData[0].Length; // 1024 - half the fftWindowsSize (2048)
 			double numberOfSamples = (fftOverlap * numberOfSegments) + fftWindowsSize;
@@ -124,7 +127,7 @@ namespace CommonUtils.FFT
 				m_mag[i] = MathUtils.ConvertAmplitudeToDB((float) spectrogramData[0][i], -120.0f, 18.0f);
 				m_freq[i] = MathUtils.ConvertIndexToHz (i, spectrogramLength, sampleRate, fftWindowsSize);
 			}
-			return DrawSpectrumAnalysis(ref m_mag, ref m_freq, imageSize, MIN_FREQ, MAX_FREQ);
+			return DrawSpectrumAnalysis(ref m_mag, ref m_freq, imageSize, showMinFrequency, showMaxFrequency, foundMaxDecibel, foundMaxFrequency);
 		}
 
 		/**
@@ -145,14 +148,17 @@ namespace CommonUtils.FFT
 		 * The above copyright notice and this permission notice shall be included in
 		 * all copies or substantial portions of the Software.
 		 */
-		public static Bitmap DrawSpectrumAnalysis(ref float[] mag, ref float[] freq, Size imageSize, float MIN_FREQ = 0, float MAX_FREQ = 20000)
+		public static Bitmap DrawSpectrumAnalysis(ref float[] mag, ref float[] freq,
+		                                          Size imageSize,
+		                                          float showMinFrequency = 0, float showMaxFrequency = 20000,
+		                                          float foundMaxDecibel = -1, float foundMaxFrequency = -1)
 		{
 			// Basic constants
 			int TOTAL_HEIGHT = imageSize.Height;    // Height of graph
 			int TOTAL_WIDTH = imageSize.Width;      // Width of graph
 
-			//float MIN_FREQ = 0;					// Minimum frequency (Hz) on horizontal axis.
-			//float MAX_FREQ = 20000;				// Maximum frequency (Hz) on horizontal axis.
+			float MIN_FREQ = showMinFrequency;  // Minimum frequency (Hz) on horizontal axis.
+			float MAX_FREQ = showMaxFrequency;	// Maximum frequency (Hz) on horizontal axis.
 			float FREQ_STEP = 2000;				// Interval between ticks (Hz) on horizontal axis.
 			float MAX_DB = -0.0f;				// Maximum dB magnitude on vertical axis.
 			float MIN_DB = -100.0f; //-60       // Minimum dB magnitude on vertical axis.
@@ -275,7 +281,12 @@ namespace CommonUtils.FFT
 					}
 				}
 				
-
+				if (foundMaxDecibel != -1 && foundMaxFrequency != -1) {
+					string foundMax = String.Format("Max found: {0}dB @ {1} hz", foundMaxDecibel, foundMaxFrequency);
+					SizeF foundMaxLabelTextSize = g.MeasureString(foundMax, drawLabelFont);
+					g.DrawString(foundMax, drawLabelFont, drawLabelBrush, TOTAL_WIDTH - foundMaxLabelTextSize.Width - 10, TOTAL_HEIGHT - drawLabelFont.GetHeight(g) - 10);
+				}
+				
 				// The line in the graph
 				int i = 0;
 				

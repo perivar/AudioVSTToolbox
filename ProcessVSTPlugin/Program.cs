@@ -95,16 +95,18 @@ namespace ProcessVSTPlugin
 		static void Main(string[] args)
 		{
 			/*
-			float frequency = 12000;
+			float frequency = 6000;
 			float amplitude = 0.25f; // let's not hurt our ears
 			double sampleRate = 44100;
 			int fftWindowsSize = 4096;
 			int fftOverlap = 1;
 			int numSeconds = 1;
 			float[] buffer = MathUtils.GetSineWave(frequency, amplitude, (float) sampleRate, 0, (int) sampleRate*numSeconds);
-			float[][] spectrogram = CommonUtils.FFT.FFTUtils.CreateSpectrogram(buffer, sampleRate, fftWindowsSize, fftOverlap, true);
-			System.Drawing.Bitmap png = CommonUtils.FFT.FFTUtils.PrepareAndDrawSpectrumAnalysis(spectrogram, sampleRate, fftWindowsSize, fftOverlap,
-			                                                                                    new System.Drawing.Size(600, 300));
+			float[][] spectrogram = CommonUtils.FFT.AudioAnalyzer.CreateSpectrogramLomont(buffer, sampleRate, fftWindowsSize, fftOverlap, true);
+			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.PrepareAndDrawSpectrumAnalysis(spectrogram, sampleRate, fftWindowsSize, fftOverlap,
+			                                                                                         new System.Drawing.Size(600, 300),
+			                                                                                         0, 20000,
+			                                                                                         87, 2000);
 			png.Save("test.png");
 			return;
 			*/

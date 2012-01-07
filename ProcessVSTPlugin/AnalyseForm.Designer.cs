@@ -42,6 +42,10 @@ namespace ProcessVSTPlugin
 			this.label1 = new System.Windows.Forms.Label();
 			this.trackBar1 = new System.Windows.Forms.TrackBar();
 			this.label2 = new System.Windows.Forms.Label();
+			this.label3 = new System.Windows.Forms.Label();
+			this.label4 = new System.Windows.Forms.Label();
+			this.foundFreqTextBox = new System.Windows.Forms.TextBox();
+			this.foundDBTextBox = new System.Windows.Forms.TextBox();
 			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -110,17 +114,51 @@ namespace ProcessVSTPlugin
 			// 
 			// label2
 			// 
-			this.label2.Location = new System.Drawing.Point(677, 98);
+			this.label2.Location = new System.Drawing.Point(677, 99);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(60, 16);
 			this.label2.TabIndex = 5;
 			this.label2.Text = "Max Freq.";
+			// 
+			// label3
+			// 
+			this.label3.Location = new System.Drawing.Point(670, 188);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(60, 16);
+			this.label3.TabIndex = 6;
+			this.label3.Text = "Freq.";
+			// 
+			// label4
+			// 
+			this.label4.Location = new System.Drawing.Point(671, 241);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(54, 15);
+			this.label4.TabIndex = 7;
+			this.label4.Text = "dB";
+			// 
+			// foundFreqTextBox
+			// 
+			this.foundFreqTextBox.Location = new System.Drawing.Point(670, 207);
+			this.foundFreqTextBox.Name = "foundFreqTextBox";
+			this.foundFreqTextBox.Size = new System.Drawing.Size(67, 20);
+			this.foundFreqTextBox.TabIndex = 8;
+			// 
+			// foundDBTextBox
+			// 
+			this.foundDBTextBox.Location = new System.Drawing.Point(671, 258);
+			this.foundDBTextBox.Name = "foundDBTextBox";
+			this.foundDBTextBox.Size = new System.Drawing.Size(67, 20);
+			this.foundDBTextBox.TabIndex = 9;
 			// 
 			// AnalyseForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(743, 355);
+			this.Controls.Add(this.foundDBTextBox);
+			this.Controls.Add(this.foundFreqTextBox);
+			this.Controls.Add(this.label4);
+			this.Controls.Add(this.label3);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.trackBar1);
 			this.Controls.Add(this.label1);
@@ -133,6 +171,10 @@ namespace ProcessVSTPlugin
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.TextBox foundDBTextBox;
+		private System.Windows.Forms.TextBox foundFreqTextBox;
+		private System.Windows.Forms.Label label4;
+		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.TrackBar trackBar1;
 		private ProcessVSTPlugin.FrequencyAnalyserUserControl frequencyAnalyserUserControl1;
