@@ -129,6 +129,13 @@
     <Compile Include="..\CommonUtils\FXP.cs">
       <Link>FXP.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\GUI\FrequencyAnalyserUserControl.cs">
+      <Link>FrequencyAnalyserUserControl.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\GUI\FrequencyAnalyserUserControl.Designer.cs">
+      <Link>FrequencyAnalyserUserControl.Designer.cs</Link>
+      <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="..\CommonUtils\MathUtils.cs">
       <Link>MathUtils.cs</Link>
     </Compile>
@@ -141,10 +148,6 @@
     <Compile Include="AnalyseForm.cs" />
     <Compile Include="AnalyseForm.Designer.cs">
       <DependentUpon>AnalyseForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FrequencyAnalyserUserControl.cs" />
-    <Compile Include="FrequencyAnalyserUserControl.Designer.cs">
-      <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="EditorFrame.cs">
       <SubType>Form</SubType>
@@ -171,15 +174,16 @@
     <Compile Include="VstPlaybackNAudio.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\CommonUtils\GUI\FrequencyAnalyserUserControl.resx">
+      <Link>FrequencyAnalyserUserControl.resx</Link>
+      <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="AnalyseForm.resx">
       <DependentUpon>AnalyseForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EditorFrame.resx">
       <DependentUpon>EditorFrame.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FrequencyAnalyserUserControl.resx">
-      <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

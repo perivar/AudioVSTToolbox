@@ -1,11 +1,4 @@
-﻿/*
- * Created by SharpDevelop.
- * User: perivar.nerseth
- * Date: 02.01.2012
- * Time: 00:01
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
+﻿
 namespace ProcessVSTPlugin
 {
 	partial class AnalyseForm
@@ -36,7 +29,7 @@ namespace ProcessVSTPlugin
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.frequencyAnalyserUserControl1 = new ProcessVSTPlugin.FrequencyAnalyserUserControl();
+			this.frequencyAnalyserUserControl1 = new CommonUtils.GUI.FrequencyAnalyserUserControl();
 			this.OnOffCheckbox = new System.Windows.Forms.CheckBox();
 			this.WindowsSizeComboBox = new System.Windows.Forms.ComboBox();
 			this.label1 = new System.Windows.Forms.Label();
@@ -137,7 +130,7 @@ namespace ProcessVSTPlugin
 		}
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.TrackBar trackBar1;
-		private ProcessVSTPlugin.FrequencyAnalyserUserControl frequencyAnalyserUserControl1;
+		private CommonUtils.GUI.FrequencyAnalyserUserControl frequencyAnalyserUserControl1;
 		private System.Windows.Forms.CheckBox OnOffCheckbox;
 		private System.Windows.Forms.ComboBox WindowsSizeComboBox;
 		private System.Windows.Forms.Label label1;

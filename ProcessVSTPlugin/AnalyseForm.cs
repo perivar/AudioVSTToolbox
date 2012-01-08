@@ -13,6 +13,8 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
+using CommonUtils.GUI;
+
 using NAudio.Wave;
 
 namespace ProcessVSTPlugin
