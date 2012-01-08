@@ -1,0 +1,1 @@
+SynthAnalysisStudio.exe -gui

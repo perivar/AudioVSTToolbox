@@ -1,0 +1,6 @@
+// Cache file that speeds up loading of MIDI Banks
+
+
+#Banks: up to date
+Bank 0: Bank0 (0)
+ 
