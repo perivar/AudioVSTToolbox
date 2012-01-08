@@ -105,8 +105,6 @@ namespace CommonUtils.GUI
 
 			float[] spectrumData = AudioAnalyzer.CreateSpectrumAnalysisLomont(audioData, sampleRate, fftWindowsSize, fftOverlap);
 			
-			//bmp = AudioAnalyzer.PrepareAndDrawSpectrumAnalysis(spectrumData, sampleRate, fftWindowsSize, fftOverlap, new Size(this.Width, this.Height), showMinFrequency, showMaxFrequency);
-
 			float[] m_mag;
 			float[] m_freq;
 			AudioAnalyzer.PrepareSpectrumAnalysis(spectrumData, sampleRate, fftWindowsSize, fftOverlap,
