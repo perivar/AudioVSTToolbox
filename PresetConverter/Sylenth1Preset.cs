@@ -12,7 +12,7 @@ namespace PresetConverter
 	public class Sylenth1Preset : Preset
 	{
 		#region Enums
-		private enum FloatToHz {
+		public enum FloatToHz {
 			DelayLowCut,
 			DelayHighCut,
 			FilterCutoff,
@@ -1044,17 +1044,17 @@ namespace PresetConverter
 			
 			// have to use three functions to get correct slope
 			if (oldValue >= 0 && oldValue < 0.1f) {
-				newValue = (float) Math.Log(oldValue / 0.0087f) / 1.1849f;				
+				newValue = (float) Math.Log(oldValue / 0.0087f) / 1.1849f;
 			} else if (oldValue >= 0.1f && oldValue < 0.9f) {
-				newValue = (float) Math.Log(oldValue / 0.0208f) / 0.7524f;				
+				newValue = (float) Math.Log(oldValue / 0.0208f) / 0.7524f;
 			} else {
-				newValue = (float) Math.Log(oldValue / 0.027f) / 0.701f;				
+				newValue = (float) Math.Log(oldValue / 0.027f) / 0.701f;
 			}
 			newValue = (float) MathUtils.RoundToNearest(newValue, 0.01f);
 			return newValue;
 		}
 		
-		private static float ValueToHz(float oldValue, FloatToHz mode) {
+		public static float ValueToHz(float oldValue, FloatToHz mode) {
 			float newValue = 0;
 			if (mode == FloatToHz.DelayLowCut) {
 				newValue = 3.2328f * (float) Math.Exp(9.0109f * oldValue);
@@ -1072,7 +1072,7 @@ namespace PresetConverter
 			return newValue;
 		}
 		
-		private static string ValueToStringHz(object val, float newMin, float newMax, FloatToHz mode) {
+		public static string ValueToStringHz(object val, float newMin, float newMax, FloatToHz mode) {
 			if (val is int) {
 				//int oldValue = (int) val;
 				return "<TODO: int support is not implemented>";
@@ -3293,17 +3293,10 @@ namespace PresetConverter
 			}
 			return zebra2PresetList;
 		}
-		
-		public void Read(string filePath)
+
+		public bool ReadFXP(FXP fxp, string filePath="")
 		{
-			// store filepath
-			FilePath = filePath;
-			
-			FXP fxp = new FXP();
-			fxp.ReadFile(filePath);
-			
-			byte[] bArray = fxp.chunkDataByteArray;
-			BinaryFile bFile = new BinaryFile(bArray, BinaryFile.ByteOrder.LittleEndian);
+			BinaryFile bFile = new BinaryFile(fxp.chunkDataByteArray, BinaryFile.ByteOrder.LittleEndian);
 			
 			string presetType = bFile.ReadString(4);
 			int UNKNOWN1 = bFile.ReadInt32();
@@ -3325,14 +3318,31 @@ namespace PresetConverter
 						this.ContentArray[i] = new Sylenth1Preset.Syl1PresetContent(bFile);
 					}
 					Console.Out.WriteLine("Finished reading {0} presets from bank {1} ...", numPrograms, filePath);
+					return true;
 				} else if (fxp.fxMagic == "FPCh") {
 					// single preset file
 					this.ContentArray = new Syl1PresetContent[1];
 					this.ContentArray[0] = new Sylenth1Preset.Syl1PresetContent(bFile);
 					Console.Out.WriteLine("Finished reading preset file {0} ...", filePath);
+					return true;
 				}
 			} else {
 				Console.Out.WriteLine("Error. The preset file is not a valid Sylenth1 Preset! ({0})", filePath);
+				return false;
+			}
+			return false;
+		}
+		
+		public void Read(string filePath)
+		{
+			// store filepath
+			FilePath = filePath;
+			
+			FXP fxp = new FXP();
+			fxp.ReadFile(filePath);
+			
+			if (!ReadFXP(fxp, filePath)) {
+				Console.Out.WriteLine("Error. Could not read the preset file");
 			}
 		}
 		

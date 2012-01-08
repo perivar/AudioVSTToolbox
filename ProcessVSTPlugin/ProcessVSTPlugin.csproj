@@ -138,6 +138,15 @@
     <Compile Include="..\CommonUtils\StringUtils.cs">
       <Link>StringUtils.cs</Link>
     </Compile>
+    <Compile Include="..\PresetConverter\Preset.cs">
+      <Link>Preset.cs</Link>
+    </Compile>
+    <Compile Include="..\PresetConverter\Sylenth1Preset.cs">
+      <Link>Sylenth1Preset.cs</Link>
+    </Compile>
+    <Compile Include="..\PresetConverter\Zebra2Preset.cs">
+      <Link>Zebra2Preset.cs</Link>
+    </Compile>
     <Compile Include="AnalyseForm.cs" />
     <Compile Include="AnalyseForm.Designer.cs">
       <DependentUpon>AnalyseForm.cs</DependentUpon>

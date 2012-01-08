@@ -236,6 +236,52 @@ namespace CommonUtils.FFT
 			return DrawSpectrumAnalysis(ref m_mag, ref m_freq, imageSize, showMinFrequency, showMaxFrequency, foundMaxDecibel, foundMaxFrequency);
 		}
 
+
+		public static void PrepareSpectrumAnalysis(float[] spectrumData, double sampleRate, int fftWindowsSize, int fftOverlap,
+		                                           out float[] m_mag, out float[] m_freq,
+		                                           out float foundMaxFrequency, out float foundMaxDecibel) {
+			/*
+			 * freq = index * samplerate / fftsize;
+			 * db = 20 * log10(fft[index]);
+			 * 20 log10 (mag) => 20/ ln(10) ln(mag)
+			 */
+			int spectrumDataLength = spectrumData.Length; // 1024 - half the fftWindowsSize (2048)
+			double numberOfSamples = fftOverlap + fftWindowsSize;
+			double seconds = numberOfSamples / sampleRate;
+
+			// prepare the data:
+			m_mag = new float[spectrumDataLength];
+			m_freq = new float[spectrumDataLength];
+			foundMaxFrequency = -1;
+			foundMaxDecibel = -1;
+
+			// prepare to store min and max values
+			float maxVal = float.MinValue;
+			int maxIndex = 0;
+			float minVal = float.MaxValue;
+			int minIndex = 0;
+			for (int i = 0; i < spectrumDataLength; i++)
+			{
+				if (spectrumData[i] > maxVal) {
+					maxVal = spectrumData[i];
+					maxIndex = i;
+				}
+				if (spectrumData[i] < minVal) {
+					minVal = spectrumData[i];
+					minIndex = i;
+				}
+
+				//m_mag[i] = MathUtils.ConvertAmplitudeToDB((float) spectrumData[i], -120.0f, 18.0f);
+				m_mag[i] = MathUtils.ConvertFloatToDB(spectrumData[i]);
+				m_freq[i] = MathUtils.ConvertIndexToHz (i, spectrumDataLength, sampleRate, fftWindowsSize);
+			}
+			
+			// store the max findings
+			//foundMaxDecibel = MathUtils.ConvertAmplitudeToDB((float) spectrumData[maxIndex], -120.0f, 18.0f);
+			foundMaxDecibel = MathUtils.ConvertFloatToDB(spectrumData[maxIndex]);
+			foundMaxFrequency = MathUtils.ConvertIndexToHz (maxIndex, spectrumDataLength, sampleRate, fftWindowsSize);
+		}
+
 		/**
 		 * Draw a graph of the spectrum
 		 *

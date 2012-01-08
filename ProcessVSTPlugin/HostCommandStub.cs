@@ -39,6 +39,15 @@ namespace ProcessVSTPlugin
 		private int trackPluginPresetFileNumberOfBytes = 0;
 		private byte[] trackPluginPresetFileBytes;
 		
+		// TODO: remove these sylenth frequency trackers
+		public bool doSylenthFrequencyTracking = true;
+		public float filterACutoff;
+		public float filterBCutoff;
+		public float filterCtrlCutoff;
+		public string filterACutoffString = "";
+		public string filterBCutoffString = "";
+		public string filterCtrlCutoffString = "";
+		
 		private DiffType investigatePluginPresetFileFormatDiffType = DiffType.Binary;
 
 		public DiffType InvestigatePluginPresetFileFormatDiffType {
@@ -341,7 +350,7 @@ namespace ProcessVSTPlugin
 						TrackPluginPresetFileBytes = trackedChunkData;
 					}
 				}
-
+				
 				// if the chunk is not empty, try to detect what has changed
 				if (chunkData != null && chunkData.Length > 0) {
 					int chunkLength = chunkData.Length;
@@ -352,6 +361,24 @@ namespace ProcessVSTPlugin
 						if (debugChunkFiles) {
 							BinaryFile.ByteArrayToFile("Preset Chunk Data - previousChunkData.dat", previousChunkData);
 							BinaryFile.ByteArrayToFile("Preset Chunk Data - chunkData.dat", chunkData);
+						}
+						
+						// if we are tracking some sylenth properties
+						if (doSylenthFrequencyTracking) {
+							PresetConverter.Sylenth1Preset sylenth = new PresetConverter.Sylenth1Preset();
+							FXP fxp = new FXP();
+							fxp.fxMagic = "FPCh";
+							fxp.chunkDataByteArray = chunkData;
+							if (sylenth.ReadFXP(fxp)) {
+								PresetConverter.Sylenth1Preset.Syl1PresetContent sylContent = sylenth.ContentArray[0];
+								this.filterACutoff = sylContent.FilterACutoff;
+								this.filterBCutoff = sylContent.FilterBCutoff;
+								this.filterCtrlCutoff = sylContent.FilterCtlCutoff;
+								
+								this.filterACutoffString = String.Format("{0:0.00}", PresetConverter.Sylenth1Preset.ValueToHz(filterACutoff, PresetConverter.Sylenth1Preset.FloatToHz.FilterCutoff));	// (value range 1 -> 21341,28)
+								this.filterBCutoffString = String.Format("{0:0.00}", PresetConverter.Sylenth1Preset.ValueToHz(filterBCutoff, PresetConverter.Sylenth1Preset.FloatToHz.FilterCutoff));	// (value range 1 -> 21341,28)
+								this.filterCtrlCutoffString = String.Format("{0:0.00}", PresetConverter.Sylenth1Preset.ValueToHz(filterCtrlCutoff, PresetConverter.Sylenth1Preset.FloatToHz.FilterCutoff)); 	// (value range 1 -> 21341,28)
+							}
 						}
 						
 						if (InvestigatePluginPresetFileFormatDiffType == DiffType.Binary) {
