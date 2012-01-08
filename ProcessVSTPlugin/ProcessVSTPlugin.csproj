@@ -132,36 +132,20 @@
     <Compile Include="..\CommonUtils\MathUtils.cs">
       <Link>MathUtils.cs</Link>
     </Compile>
-    <Compile Include="..\CommonUtils\ObjectUtils.cs">
-      <Link>ObjectUtils.cs</Link>
-    </Compile>
     <Compile Include="..\CommonUtils\StringUtils.cs">
       <Link>StringUtils.cs</Link>
     </Compile>
     <Compile Include="..\PresetConverter\Preset.cs">
       <Link>Preset.cs</Link>
     </Compile>
-    <Compile Include="..\PresetConverter\Sylenth1Preset.cs">
-      <Link>Sylenth1Preset.cs</Link>
-    </Compile>
-    <Compile Include="..\PresetConverter\Zebra2Preset.cs">
-      <Link>Zebra2Preset.cs</Link>
-    </Compile>
     <Compile Include="AnalyseForm.cs" />
     <Compile Include="AnalyseForm.Designer.cs">
       <DependentUpon>AnalyseForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="AudioOutput.cs" />
     <Compile Include="FrequencyAnalyserUserControl.cs" />
     <Compile Include="FrequencyAnalyserUserControl.Designer.cs">
       <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="InvestigatedPluginPresetDetailsForm.cs" />
-    <Compile Include="InvestigatedPluginPresetDetailsForm.Designer.cs">
-      <DependentUpon>InvestigatedPluginPresetDetailsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="InvestigatedPluginPresetFileFormat.cs" />
-    <Compile Include="SimpleBinaryDiff.cs" />
     <Compile Include="EditorFrame.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -183,7 +167,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnidiffSeqFormatter.cs" />
     <Compile Include="VstHost.cs" />
     <Compile Include="VstPlaybackNAudio.cs" />
   </ItemGroup>
@@ -197,9 +180,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FrequencyAnalyserUserControl.resx">
       <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="InvestigatedPluginPresetDetailsForm.resx">
-      <DependentUpon>InvestigatedPluginPresetDetailsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

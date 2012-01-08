@@ -11,9 +11,6 @@ using Jacobi.Vst.Interop.Host;
 
 using CommonUtils;
 
-using DiffPlex;
-using DiffPlex.Model;
-
 namespace ProcessVSTPlugin
 {
 	static class Program
@@ -24,30 +21,6 @@ namespace ProcessVSTPlugin
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			Application.Run(new MainForm());
-		}
-
-		static void StartAudioOutput(string pluginPath, string waveFilePath) {
-			try
-			{
-				HostCommandStub hostCmdStub = new HostCommandStub();
-				VstPluginContext ctx = VstPluginContext.Create(pluginPath, hostCmdStub);
-				
-				// add custom data to the context
-				ctx.Set("PluginPath", pluginPath);
-				ctx.Set("HostCmdStub", hostCmdStub);
-				
-				// actually open the plugin itself
-				ctx.PluginCommandStub.Open();
-				
-				AudioOutput audioOut = new AudioOutput(
-					new List<IVstPluginCommandStub>() {ctx.PluginCommandStub},
-					waveFilePath);
-				Thread.Sleep(100);
-			}
-			catch (Exception ex)
-			{
-				System.Diagnostics.Debug.WriteLine(ex);
-			}
 		}
 
 		static void StartVstHost(string pluginPath, string waveInputFilePath, string fxpFilePath, string waveOutputFilePath, bool doPlay) {
@@ -93,24 +66,7 @@ namespace ProcessVSTPlugin
 		/// </summary>
 		[STAThread]
 		static void Main(string[] args)
-		{		
-			/*			
-			float frequency = 5000;
-			float amplitude = 0.5f; // let's not hurt our ears
-			double sampleRate = 44100;
-			int fftWindowsSize = 4096; // 8192;
-			int fftOverlap = 1;
-			int numSeconds = 1;
-			float[] buffer = MathUtils.GetSineWave(frequency, amplitude, (float) sampleRate, 0, (int) sampleRate*numSeconds);
-			float[] spectrumData = CommonUtils.FFT.AudioAnalyzer.CreateSpectrumAnalysisLomont(buffer, sampleRate, fftWindowsSize, fftOverlap);
-			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.PrepareAndDrawSpectrumAnalysis(spectrumData, sampleRate, fftWindowsSize, fftOverlap,
-			                                                                                         new System.Drawing.Size(1000, 600),
-			                                                                                         0, 20000);
-			string fileName = String.Format("{0:00.0000}dB.png", MathUtils.ConvertFloatToDB(amplitude));
-			png.Save(fileName);
-			return;
-			*/
-			
+		{
 			string pluginPath = "";
 			string waveInputFilePath = "";
 			string waveOutputFilePath = "";
@@ -147,7 +103,6 @@ namespace ProcessVSTPlugin
 			if (useGui) {
 				StartGUI();
 			} else {
-				//StartAudioOutput(pluginPath);
 				StartVstHost(pluginPath, waveInputFilePath, fxpFilePath, waveOutputFilePath, doPlay );
 			}
 		}

@@ -397,70 +397,8 @@ namespace ProcessVSTPlugin
 			}
 		}
 		
-		void InvestigatePluginPresetFileCheckboxCheckedChanged(object sender, EventArgs e)
+		void AnalyseBtnClick(object sender, EventArgs e)
 		{
-			CheckBox check = (CheckBox) sender;
-			if(check.Checked)
-			{
-				((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
-			} else {
-				((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= false;
-			}
-		}
-		
-		void PresetContentBtnClick(object sender, System.EventArgs e)
-		{
-			InvestigatedPluginPresetDetailsForm dlg = new InvestigatedPluginPresetDetailsForm();
-			dlg.PluginContext = this.PluginContext;
-			dlg.InvestigatedPluginPresetFileFormatList = ((HostCommandStub) PluginContext.HostCommandStub).InvestigatedPluginPresetFileFormatList;
-			
-			//dlg.ShowDialog(this); // modal
-			dlg.Show(); // modeless
-		}
-		
-		void TextDiffCheckboxCheckedChanged(object sender, EventArgs e)
-		{
-			CheckBox check = (CheckBox) sender;
-			if(check.Checked)
-			{
-				((HostCommandStub) PluginContext.HostCommandStub).InvestigatePluginPresetFileFormatDiffType = DiffType.Text;
-			} else {
-				((HostCommandStub) PluginContext.HostCommandStub).InvestigatePluginPresetFileFormatDiffType = DiffType.Binary;
-			}
-		}
-		
-		void MidiNoteCheckboxCheckedChanged(object sender, EventArgs e)
-		{
-			VstHost host = VstHost.Instance;
-			host.PluginContext = this.PluginContext;
-			host.doPluginOpen();
-			
-			// if first keypress setup audio
-			if (playback == null) {
-				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
-				// tblock = 0.15 makes blocksize = 6615.
-				int sampleRate = 44100;
-				int blockSize = (int) (sampleRate * 0.15f); //6615;
-				int channels = 2;
-				host.Init(blockSize, sampleRate, channels);
-				
-				playback = new VstPlaybackNAudio(host);
-				playback.Play();
-			}
-			
-			CheckBox check = (CheckBox) sender;
-			if(check.Checked)
-			{
-				host.DoSendContinousMidiNote = true;
-				host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
-			} else {
-				host.DoSendContinousMidiNote = false;
-				host.SendMidiNote(host.SendContinousMidiNote, 0);
-			}
-		}
-        
-        void AnalyseBtnClick(object sender, EventArgs e)
-        {
 			VstHost host = VstHost.Instance;
 			host.PluginContext = this.PluginContext;
 			host.doPluginOpen();
@@ -483,7 +421,7 @@ namespace ProcessVSTPlugin
 			dlg.Playback = playback;
 			
 			//dlg.ShowDialog(this); // modal
-			dlg.Show(); // modeless        	
-        }
+			dlg.Show(); // modeless
+		}
 	}
 }

@@ -1,2 +1,0 @@
-ALTERNATIVE name='Original' filename='Zebra2orig.txt'
-INCLUDE filename='default'

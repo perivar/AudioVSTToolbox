@@ -36,7 +36,6 @@ namespace ProcessVSTPlugin
 			InitializeComponent();
 			
 			string stringSize = "" + this.frequencyAnalyserUserControl1.FFTWindowsSize;
-			System.Diagnostics.Debug.WriteLine("stringSize: {0}", stringSize);
 			WindowsSizeComboBox.Text = stringSize;
 			
 			VstHost host = VstHost.Instance;
@@ -90,62 +89,6 @@ namespace ProcessVSTPlugin
 		void TrackBar1Scroll(object sender, EventArgs e)
 		{
 			this.frequencyAnalyserUserControl1.MaximumFrequency = (float) trackBar1.Value;
-		}
-		
-		void FreqSampleBtnClick(object sender, EventArgs e)
-		{
-			string foundMaxFreq = String.Format("{0}", this.frequencyAnalyserUserControl1.FoundMaxFrequency);
-			string foundMaxDB = String.Format("{0}", this.frequencyAnalyserUserControl1.FoundMaxDecibel);
-			
-			string filterACutoffString = ((HostCommandStub) PluginContext.HostCommandStub).filterACutoffString;
-			string filterBCutoffString = ((HostCommandStub) PluginContext.HostCommandStub).filterBCutoffString;
-			string filterCtrlCutoffString = ((HostCommandStub) PluginContext.HostCommandStub).filterCtrlCutoffString;
-
-			float filterACutoff = ((HostCommandStub) PluginContext.HostCommandStub).filterACutoff;
-			float filterBCutoff = ((HostCommandStub) PluginContext.HostCommandStub).filterBCutoff;
-			float filterCtrlCutoff = ((HostCommandStub) PluginContext.HostCommandStub).filterCtrlCutoff;
-			
-			foundFreqTextBox.Text = foundMaxFreq;
-			foundDBTextBox.Text = foundMaxDB;
-			filterATextBox.Text = filterACutoffString;
-			filterBTextBox.Text = filterBCutoffString;
-			filterCtrlTextBox.Text = filterCtrlCutoffString;
-			
-			// store this in a xml ouput file.
-			string xmlFilePath = "frequency-sampler.xml";
-			if (File.Exists(xmlFilePath)) {
-				// add to existing xml document
-				XDocument xmlDoc = XDocument.Load(xmlFilePath);
-				
-				xmlDoc.Element("TrackedPresetFileChanges").Add(
-					new XElement("Row",
-					             new XElement("FilterACutoffString", filterACutoffString),
-					             new XElement("FilterACutoff", filterACutoff),
-					             new XElement("FilterBCutoffString", filterBCutoffString),
-					             new XElement("FilterBCutoff", filterBCutoff),
-					             new XElement("FilterCtrlCutoffString", filterCtrlCutoffString),
-					             new XElement("FilterCtrlCutoff", filterCtrlCutoff),
-					             new XElement("FoundFrequency", foundMaxFreq)
-					            ));
-
-				xmlDoc.Save(xmlFilePath);
-			} else {
-				// create xml document first
-				XDocument xmlDoc =
-					new XDocument(
-						new XElement("FrequencySampler",
-						             new XElement("Row",
-						                          new XElement("FilterACutoffString", filterACutoffString),
-						                          new XElement("FilterACutoff", filterACutoff),
-						                          new XElement("FilterBCutoffString", filterBCutoffString),
-						                          new XElement("FilterBCutoff", filterBCutoff),
-						                          new XElement("FilterCtrlCutoffString", filterCtrlCutoffString),
-						                          new XElement("FilterCtrlCutoff", filterCtrlCutoff),
-						                          new XElement("FoundFrequency", foundMaxFreq)
-						                         )
-						            ));
-				xmlDoc.Save(xmlFilePath);
-			}
-		}
+		}		
 	}
 }
