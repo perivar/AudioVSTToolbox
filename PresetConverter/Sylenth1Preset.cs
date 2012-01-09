@@ -1984,7 +1984,7 @@ namespace PresetConverter
 			return midiNote + (int)(midiNoteControl / 1.4) + 4;
 		}
 
-		public static float ConvertSylenthFrequencyToZebra(float filterFrequency, float filterControlFrequency, FloatToHz mode) {
+		public static float ConvertSylenthFrequencyToHertz(float filterFrequency, float filterControlFrequency, FloatToHz mode) {
 			// i.e.
 			// Sylenth Filter A = 139,38 Hz
 			// +
@@ -1998,11 +1998,16 @@ namespace PresetConverter
 			// Excel:
 			// =IF([@FilterACutoffString]/($I$1*(B2^-1))>21341,31;21341,31;[@FilterACutoffString]/($I$1*(B2^-1)))
 			// =13,221
-			float actualFrequencyHertz = (float) (filterFrequencyHertz / (13.221 * Math.Pow(filterControlFrequencyHertz, -1)));
+			float actualFrequencyHertz = (float) (filterFrequencyHertz / (12.8 * Math.Pow(filterControlFrequencyHertz, -1)));
 			if (actualFrequencyHertz > 21341.31f) {
 				actualFrequencyHertz = 21341.31f;
 			}
 			
+			return actualFrequencyHertz;
+		}
+		
+		public static float ConvertSylenthFrequencyToZebra(float filterFrequency, float filterControlFrequency, FloatToHz mode) {
+			float actualFrequencyHertz = ConvertSylenthFrequencyToHertz(filterFrequency, filterControlFrequency, mode);
 			int midiNote = Zebra2Preset.FilterFrequencyToMidiNote(actualFrequencyHertz);
 			return midiNote;
 		}
@@ -3384,13 +3389,13 @@ namespace PresetConverter
 					for (int i = 0; i < numPrograms; i++) {
 						this.ContentArray[i] = new Sylenth1Preset.Syl1PresetContent(bFile);
 					}
-					Console.Out.WriteLine("Finished reading {0} presets from bank {1} ...", numPrograms, filePath);
+					//Console.Out.WriteLine("Finished reading {0} presets from bank {1} ...", numPrograms, filePath);
 					return true;
 				} else if (fxp.fxMagic == "FPCh") {
 					// single preset file
 					this.ContentArray = new Syl1PresetContent[1];
 					this.ContentArray[0] = new Sylenth1Preset.Syl1PresetContent(bFile);
-					Console.Out.WriteLine("Finished reading preset file {0} ...", filePath);
+					//Console.Out.WriteLine("Finished reading preset file {0} ...", filePath);
 					return true;
 				}
 			} else {

@@ -2,6 +2,7 @@
 using System.Text;
 using System.IO;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 using CommonUtils;
 
@@ -13,6 +14,58 @@ namespace PresetConverter
 		
 		public static void Main(string[] args)
 		{
+
+			string[] filePaths = Directory.GetFiles("../..", "*.fxp");
+			foreach (string file in filePaths) {
+				// perivar-filter-2022hz.fxp
+				string hertz = "";
+				var regex = new Regex(@"perivar-filter-(\d+)hz");
+				var match = regex.Match(file);
+				if (match.Success) {
+					hertz = match.Groups[1].Value;
+				}
+				int hertzValue = 0;
+				int.TryParse(hertz, out hertzValue);
+				
+				Sylenth1Preset sylenth = new Sylenth1Preset(file);
+				float filterACutoff = sylenth.ContentArray[0].FilterACutoff;
+				float filterCtlCutoff = sylenth.ContentArray[0].FilterCtlCutoff;
+				
+				float filterACutoffHz = Sylenth1Preset.ValueToHz(filterACutoff, Sylenth1Preset.FloatToHz.FilterCutoff);
+				float filterCtlCutoffHz = Sylenth1Preset.ValueToHz(filterCtlCutoff, Sylenth1Preset.FloatToHz.FilterCutoff);
+				
+				// test the algorithm
+				float testHz1 = Sylenth1Preset.ConvertSylenthFrequencyToHertz(filterACutoff, filterCtlCutoff, Sylenth1Preset.FloatToHz.FilterCutoff);
+				float testHz1Midi = Sylenth1Preset.ConvertSylenthFrequencyToZebra(filterACutoff, filterCtlCutoff, Sylenth1Preset.FloatToHz.FilterCutoff);
+				float testZebraHz1 = Zebra2Preset.MidiNoteToFilterFrequency((int)testHz1Midi);
+				Console.Out.WriteLine("{0:0,0} hz ==> {5:0,0.00} hz :\t {1:0.0000}={2:0.00} hz, {3:0.0000}={4:0.00} hz {6}", hertzValue, filterACutoff, filterACutoffHz, filterCtlCutoff, filterCtlCutoffHz, testHz1, testZebraHz1);
+
+				float testHz2 = Sylenth1Preset.ConvertSylenthFrequencyToHertz(filterCtlCutoff, filterACutoff, Sylenth1Preset.FloatToHz.FilterCutoff);
+				float testHz2Midi = Sylenth1Preset.ConvertSylenthFrequencyToZebra(filterCtlCutoff, filterACutoff, Sylenth1Preset.FloatToHz.FilterCutoff);
+				float testZebraHz2 = Zebra2Preset.MidiNoteToFilterFrequency((int)testHz2Midi);
+				Console.Out.WriteLine("{0:0,0} hz ==> {5:0,0.00} hz :\t {1:0.0000}={2:0.00} hz, {3:0.0000}={4:0.00} hz {6}", hertzValue, filterACutoff, filterACutoffHz, filterCtlCutoff, filterCtlCutoffHz, testHz2, testZebraHz2);
+			}
+
+			// i.e.
+			// Sylenth Filter A = 139,38 Hz
+			// +
+			// Sylenth FilterControl = 361,17 Hz
+			// Gives Zebra Cutoff = ca midinote 110 = 2 349,318 Hz
+			float filterControlFrequencyHertz = 139.38f;
+			float filterFrequencyHertz = 361.17f;
+			
+			// test the algorithm
+			float actualFrequencyHertz = (float) (filterFrequencyHertz / (13.221 * Math.Pow(filterControlFrequencyHertz, -1)));
+			if (actualFrequencyHertz > 21341.31f) {
+				actualFrequencyHertz = 21341.31f;
+			}
+			Console.Out.WriteLine("{0:0,0} hz ==> {3:0,0.00} hz :\t {1:0.00} hz, {2:0.00} hz", 2349.318f, filterFrequencyHertz, filterControlFrequencyHertz, actualFrequencyHertz);
+			
+			Console.Write("Press any key to continue . . . ");
+			Console.ReadKey(true);
+			
+			return;
+
 			/*
 			float filterFrequencyHertz = 0.4047619f; 			//	56,57 Hz
 			float filterControlFrequencyHertz = 0.823809564f; 	// 3685,85 Hz
