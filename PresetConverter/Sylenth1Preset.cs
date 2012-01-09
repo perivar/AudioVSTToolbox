@@ -3002,14 +3002,25 @@ namespace PresetConverter
 				
 				// OscA1
 				if (Content.OscA1Voices != VOICES.VOICES_0) {
+					if (Content.OscA1Wave != OSCWAVE.OSC_Noise) {
+						zebra2Preset.OSC1_WNum = ConvertSylenthWaveToZebra(Content.OscA1Wave, Content.OscA1Invert);
+						zebra2Preset.OSC1_Vol = ConvertSylenthValueToZebra(Content.OscA1Volume, 0, 10, 0, 200);
+
+						// turn the volume on Noise1 down
+						zebra2Preset.Noise1_Vol = 0;
+					} else {
+						// turn the volume on OSC1 all the way down
+						zebra2Preset.OSC1_Vol = 0;
+						
+						// turn the volume on Noise1 up
+						zebra2Preset.Noise1_Vol = ConvertSylenthValueToZebra(Content.OscA1Volume, 0, 10, 0, 200);
+					}
 					zebra2Preset.OSC1_Tune = ConvertSylenthTuneToZebra(Content.OscA1Octave, Content.OscA1Note, Content.OscA1Fine);
-					zebra2Preset.OSC1_WNum = ConvertSylenthWaveToZebra(Content.OscA1Wave, Content.OscA1Invert);
 					zebra2Preset.OSC1_Poly = ConvertSylenthVoicesToZebra(Content.OscA1Voices);
 					zebra2Preset.OSC1_Dtun = ConvertSylenthDetuneToZebra(Content.OscA1Detune);
 					zebra2Preset.OSC1_Pan = ConvertSylenthValueToZebra(Content.OscA1Pan, -10, 10, -100, 100);
 					zebra2Preset.OSC1_PolW = ConvertSylenthValueToZebra(Content.OscA1Stereo, 0, 10, 0, 100);
 					zebra2Preset.OSC1_Phse = ConvertSylenthValueToZebra(Content.OscA1Phase, 0, 360, 0, 100);
-					zebra2Preset.OSC1_Vol = ConvertSylenthValueToZebra(Content.OscA1Volume, 0, 10, 0, 200);
 					
 					// These are not yet handled!
 					// Content.OscA1Retrig
@@ -3021,14 +3032,25 @@ namespace PresetConverter
 
 				// OscA2
 				if (Content.OscA2Voices != VOICES.VOICES_0) {
+					if (Content.OscA2Wave != OSCWAVE.OSC_Noise) {
+						zebra2Preset.OSC2_WNum = ConvertSylenthWaveToZebra(Content.OscA2Wave, Content.OscA2Invert);
+						zebra2Preset.OSC2_Vol = ConvertSylenthValueToZebra(Content.OscA2Volume, 0, 10, 0, 200);
+
+						// turn the volume on Noise1 down
+						zebra2Preset.Noise1_Vol = 0;
+					} else {
+						// turn the volume on OSC1 all the way down
+						zebra2Preset.OSC2_Vol = 0;
+						
+						// turn the volume on Noise1 up
+						zebra2Preset.Noise1_Vol = ConvertSylenthValueToZebra(Content.OscA2Volume, 0, 10, 0, 200);
+					}
 					zebra2Preset.OSC2_Tune = ConvertSylenthTuneToZebra(Content.OscA2Octave, Content.OscA2Note, Content.OscA2Fine);
-					zebra2Preset.OSC2_WNum = ConvertSylenthWaveToZebra(Content.OscA2Wave, Content.OscA2Invert);
 					zebra2Preset.OSC2_Poly = ConvertSylenthVoicesToZebra(Content.OscA2Voices);
 					zebra2Preset.OSC2_Dtun = ConvertSylenthDetuneToZebra(Content.OscA2Detune);
 					zebra2Preset.OSC2_Pan = ConvertSylenthValueToZebra(Content.OscA2Pan, -10, 10, -100, 100);
 					zebra2Preset.OSC2_PolW = ConvertSylenthValueToZebra(Content.OscA2Stereo, 0, 10, 0, 100);
 					zebra2Preset.OSC2_Phse = ConvertSylenthValueToZebra(Content.OscA2Phase, 0, 360, 0, 100);
-					zebra2Preset.OSC2_Vol = ConvertSylenthValueToZebra(Content.OscA2Volume, 0, 10, 0, 200);
 					
 					// These are not yet handled!
 					// Content.OscA2Retrig
@@ -3040,14 +3062,25 @@ namespace PresetConverter
 				
 				// OscB1
 				if (Content.OscB1Voices != VOICES.VOICES_0) {
+					if (Content.OscB1Wave != OSCWAVE.OSC_Noise) {
+						zebra2Preset.OSC3_WNum = ConvertSylenthWaveToZebra(Content.OscB1Wave, Content.OscB1Invert);
+						zebra2Preset.OSC3_Vol = ConvertSylenthValueToZebra(Content.OscB1Volume, 0, 10, 0, 200);
+
+						// turn the volume on Noise2 down
+						zebra2Preset.Noise2_Vol = 0;
+					} else {
+						// turn the volume on OSC1 all the way down
+						zebra2Preset.OSC3_Vol = 0;
+						
+						// turn the volume on Noise2 up
+						zebra2Preset.Noise2_Vol = ConvertSylenthValueToZebra(Content.OscB1Volume, 0, 10, 0, 200);
+					}
 					zebra2Preset.OSC3_Tune = ConvertSylenthTuneToZebra(Content.OscB1Octave, Content.OscB1Note, Content.OscB1Fine);
-					zebra2Preset.OSC3_WNum = ConvertSylenthWaveToZebra(Content.OscB1Wave, Content.OscB1Invert);
 					zebra2Preset.OSC3_Poly = ConvertSylenthVoicesToZebra(Content.OscB1Voices);
 					zebra2Preset.OSC3_Dtun = ConvertSylenthDetuneToZebra(Content.OscB1Detune);
 					zebra2Preset.OSC3_Pan = ConvertSylenthValueToZebra(Content.OscB1Pan, -10, 10, -100, 100);
 					zebra2Preset.OSC3_PolW = ConvertSylenthValueToZebra(Content.OscB1Stereo, 0, 10, 0, 100);
 					zebra2Preset.OSC3_Phse = ConvertSylenthValueToZebra(Content.OscB1Phase, 0, 360, 0, 100);
-					zebra2Preset.OSC3_Vol = ConvertSylenthValueToZebra(Content.OscB1Volume, 0, 10, 0, 200);
 					
 					// These are not yet handled!
 					// Content.OscB1Retrig
@@ -3059,14 +3092,25 @@ namespace PresetConverter
 
 				// OscB2
 				if (Content.OscB2Voices != VOICES.VOICES_0) {
+					if (Content.OscB2Wave != OSCWAVE.OSC_Noise) {
+						zebra2Preset.OSC4_WNum = ConvertSylenthWaveToZebra(Content.OscB2Wave, Content.OscB2Invert);
+						zebra2Preset.OSC4_Vol = ConvertSylenthValueToZebra(Content.OscB2Volume, 0, 10, 0, 200);
+
+						// turn the volume on Noise2 down
+						zebra2Preset.Noise2_Vol = 0;
+					} else {
+						// turn the volume on OSC1 all the way down
+						zebra2Preset.OSC4_Vol = 0;
+						
+						// turn the volume on Noise2 up
+						zebra2Preset.Noise2_Vol = ConvertSylenthValueToZebra(Content.OscB2Volume, 0, 10, 0, 200);
+					}
 					zebra2Preset.OSC4_Tune = ConvertSylenthTuneToZebra(Content.OscB2Octave, Content.OscB2Note, Content.OscB2Fine);
-					zebra2Preset.OSC4_WNum = ConvertSylenthWaveToZebra(Content.OscB2Wave, Content.OscB2Invert);
 					zebra2Preset.OSC4_Poly = ConvertSylenthVoicesToZebra(Content.OscB2Voices);
 					zebra2Preset.OSC4_Dtun = ConvertSylenthDetuneToZebra(Content.OscB2Detune);
 					zebra2Preset.OSC4_Pan = ConvertSylenthValueToZebra(Content.OscB2Pan, -10, 10, -100, 100);
 					zebra2Preset.OSC4_PolW = ConvertSylenthValueToZebra(Content.OscB2Stereo, 0, 10, 0, 100);
 					zebra2Preset.OSC4_Phse = ConvertSylenthValueToZebra(Content.OscB2Phase, 0, 360, 0, 100);
-					zebra2Preset.OSC4_Vol = ConvertSylenthValueToZebra(Content.OscB2Volume, 0, 10, 0, 200);
 					
 					// These are not yet handled!
 					// Content.OscB2Retrig
