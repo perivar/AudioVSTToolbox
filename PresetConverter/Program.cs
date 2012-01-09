@@ -13,7 +13,14 @@ namespace PresetConverter
 		
 		public static void Main(string[] args)
 		{
-			/*			
+			/*
+			float filterFrequencyHertz = 0.4047619f; 			//	56,57 Hz
+			float filterControlFrequencyHertz = 0.823809564f; 	// 3685,85 Hz
+			
+			float f1 = Sylenth1Preset.ConvertSylenthFrequencyToZebra(filterFrequencyHertz, filterControlFrequencyHertz, Sylenth1Preset.FloatToHz.FilterCutoff);
+			float f2 = Sylenth1Preset.ConvertSylenthFrequencyToZebraOLD(filterFrequencyHertz, filterControlFrequencyHertz, Sylenth1Preset.FloatToHz.FilterCutoff);
+			return;
+
 			// test the sylenth envelope conversion methods
 			float envValue = 4f;
 			float envMs = Sylenth1Preset.EnvelopeValueToMilliseconds(envValue);
@@ -52,7 +59,7 @@ namespace PresetConverter
 			Console.ReadKey(true);
 			
 			return;
-			 */			
+			 */
 			
 			// to get the location the assembly is executing from
 			//(not neccesarily where the it normally resides on disk)
