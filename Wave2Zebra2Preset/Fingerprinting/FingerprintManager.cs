@@ -7,9 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CommonUtils.Audio;
-using Wave2ZebraSynth.Fingerprinting.MathUtils;
+using Wave2Zebra2Preset.Fingerprinting.MathUtils;
 
-namespace Wave2ZebraSynth.Fingerprinting
+namespace Wave2Zebra2Preset.Fingerprinting
 {
     /// <summary>
     ///   Event Arguments exposed by FingerprintManager class

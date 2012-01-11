@@ -6,9 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Wave2ZebraSynth.Model;
+using Wave2Zebra2Preset.Model;
 
-namespace Wave2ZebraSynth.DataAccess
+namespace Wave2Zebra2Preset.DataAccess
 {
     /// <summary>
     ///   Class for RAM storage of hashes

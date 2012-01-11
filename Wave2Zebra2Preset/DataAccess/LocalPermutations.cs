@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-namespace Wave2ZebraSynth.DataAccess
+namespace Wave2Zebra2Preset.DataAccess
 {
     /// <summary>
     ///   Class for reading local permutations from file

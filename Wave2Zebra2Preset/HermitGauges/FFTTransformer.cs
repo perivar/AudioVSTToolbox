@@ -15,7 +15,7 @@
 using System;
 using Lomont;
 
-namespace Wave2ZebraSynth.HermitGauges
+namespace Wave2Zebra2Preset.HermitGauges
 {
 	
 	///

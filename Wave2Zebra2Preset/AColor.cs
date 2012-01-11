@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace Wave2ZebraSynth
+namespace Wave2Zebra2Preset
 {
 	/// <summary>
 	/// Description of AColor.

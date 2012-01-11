@@ -3,7 +3,7 @@
 // Code license: GNU General Public License v2
 // ciumac.sergiu@gmail.com
 
-namespace Wave2ZebraSynth.Fingerprinting
+namespace Wave2Zebra2Preset.Fingerprinting
 {
     /// <summary>
     ///   Incremental stride

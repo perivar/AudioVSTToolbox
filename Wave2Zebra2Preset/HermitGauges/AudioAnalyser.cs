@@ -17,11 +17,11 @@
 
 using System;
 
-using Wave2ZebraSynth.HermitGauges;
+using Wave2Zebra2Preset.HermitGauges;
 using CommonUtils.Audio;
 using Lomont;
 
-namespace Wave2ZebraSynth.HermitGauges
+namespace Wave2Zebra2Preset.HermitGauges
 {
 
 	///

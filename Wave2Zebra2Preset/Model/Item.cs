@@ -6,7 +6,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Wave2ZebraSynth.Model
+namespace Wave2Zebra2Preset.Model
 {
     /// <summary>
     ///   Class for folder representation in the UI element

@@ -6,7 +6,7 @@ using System.Drawing.Imaging; //holds imageformat enumeration
 using System; //holds log function
 using System.IO; //holds file class for deleting existing files
 
-namespace Wave2ZebraSynth
+namespace Wave2Zebra2Preset
 {
 	public class LogPlotter
 	{

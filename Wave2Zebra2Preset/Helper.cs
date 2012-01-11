@@ -10,7 +10,7 @@ using System.Linq;
 using System.Security;
 using System.Text;
 
-namespace Wave2ZebraSynth
+namespace Wave2Zebra2Preset
 {
     public static class Helper
     {

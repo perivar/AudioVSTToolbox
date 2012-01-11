@@ -9,7 +9,7 @@
  */
 using System;
 
-namespace Wave2ZebraSynth
+namespace Wave2Zebra2Preset
 {
 	/// <summary>
 	/// Description of VB6Fourier.

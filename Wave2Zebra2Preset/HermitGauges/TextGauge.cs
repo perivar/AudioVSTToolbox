@@ -19,7 +19,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace Wave2ZebraSynth.HermitGauges
+namespace Wave2Zebra2Preset.HermitGauges
 {
 	///
 	/// <summary> * A <seealso cref="Gauge"/> which displays data in textual form, generally as

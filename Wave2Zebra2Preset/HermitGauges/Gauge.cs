@@ -19,7 +19,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace Wave2ZebraSynth.HermitGauges
+namespace Wave2Zebra2Preset.HermitGauges
 {
 	///
 	/// <summary> * A graphical display which shows some data in a region

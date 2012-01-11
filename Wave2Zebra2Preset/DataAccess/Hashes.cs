@@ -4,9 +4,9 @@
 // ciumac.sergiu@gmail.com
 
 using System.Collections.Generic;
-using Wave2ZebraSynth.Model;
+using Wave2Zebra2Preset.Model;
 
-namespace Wave2ZebraSynth.DataAccess
+namespace Wave2Zebra2Preset.DataAccess
 {
     /// <summary>
     ///   Hashes used in Query/Creation mechanisms

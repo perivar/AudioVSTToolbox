@@ -3,7 +3,7 @@
 // Code license: GNU General Public License v2
 // ciumac.sergiu@gmail.com
 
-namespace Wave2ZebraSynth.DataAccess
+namespace Wave2Zebra2Preset.DataAccess
 {
     /// <summary>
     ///   Hash type

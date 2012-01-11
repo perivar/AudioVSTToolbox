@@ -5,9 +5,9 @@
 
 using System;
 using System.Collections.Generic;
-using Wave2ZebraSynth.DataAccess;
+using Wave2Zebra2Preset.DataAccess;
 
-namespace Wave2ZebraSynth.Fingerprinting
+namespace Wave2Zebra2Preset.Fingerprinting
 {
     /// <summary>
     ///   Class for Min Hash algorithm implementation

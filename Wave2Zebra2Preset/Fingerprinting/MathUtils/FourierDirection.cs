@@ -30,7 +30,7 @@
  */
 
 
-namespace Wave2ZebraSynth.Fingerprinting.MathUtils
+namespace Wave2Zebra2Preset.Fingerprinting.MathUtils
 {
     // Comments? Questions? Bugs? Tell Ben Houston at ben@exocortex.org
     // Version: May 4, 2002

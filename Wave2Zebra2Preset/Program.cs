@@ -9,10 +9,10 @@ using System.IO;
 using System.Collections.Generic;
 
 using CommonUtils.Audio;
-using Wave2ZebraSynth.Fingerprinting;
-using Wave2ZebraSynth.DataAccess;
-using Wave2ZebraSynth.Model;
-using Wave2ZebraSynth.Fingerprinting.MathUtils;
+using Wave2Zebra2Preset.Fingerprinting;
+using Wave2Zebra2Preset.DataAccess;
+using Wave2Zebra2Preset.Model;
+using Wave2Zebra2Preset.Fingerprinting.MathUtils;
 
 using Lomont;
 
@@ -22,9 +22,9 @@ using Un4seen.Bass.AddOn.Mix;
 using Un4seen.Bass.AddOn.Tags;
 using Un4seen.Bass.Misc;
 
-using Wave2ZebraSynth.HermitGauges;
+using Wave2Zebra2Preset.HermitGauges;
 
-namespace Wave2ZebraSynth
+namespace Wave2Zebra2Preset
 {
 	class Program
 	{

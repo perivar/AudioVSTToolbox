@@ -9,12 +9,12 @@ using System.Drawing;
 using System.Drawing.Imaging;
 
 using CommonUtils.Audio;
-using Wave2ZebraSynth.Fingerprinting;
-using Wave2ZebraSynth.DataAccess;
-using Wave2ZebraSynth.Model;
+using Wave2Zebra2Preset.Fingerprinting;
+using Wave2Zebra2Preset.DataAccess;
+using Wave2Zebra2Preset.Model;
 using Un4seen.Bass.AddOn.Tags;
 
-namespace Wave2ZebraSynth
+namespace Wave2Zebra2Preset
 {
 	/// <summary>
 	/// Description of RepositoryGateway.

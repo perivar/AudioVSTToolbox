@@ -8,7 +8,7 @@ using System.IO;
 using System.Security.Permissions;
 using System.Text;
 
-namespace Wave2ZebraSynth.Fingerprinting
+namespace Wave2Zebra2Preset.Fingerprinting
 {
     /// <summary>
     ///   Class for writing any object values in comma separated file

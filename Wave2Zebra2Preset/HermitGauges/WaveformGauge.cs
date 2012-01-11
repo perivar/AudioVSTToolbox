@@ -20,7 +20,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
 
-namespace Wave2ZebraSynth.HermitGauges
+namespace Wave2Zebra2Preset.HermitGauges
 {
 	///
 	/// <summary> * A graphical display which displays the audio waveform from an

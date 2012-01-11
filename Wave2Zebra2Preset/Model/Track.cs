@@ -6,7 +6,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Wave2ZebraSynth.Model
+namespace Wave2Zebra2Preset.Model
 {
     /// <summary>
     ///   Track entity object

@@ -15,7 +15,7 @@ using System.Drawing.Imaging;
 
 using System.Collections.Generic;
 
-namespace Wave2ZebraSynth
+namespace Wave2Zebra2Preset
 {
 	/// <summary>
 	/// Description of VB6Spectrogram.

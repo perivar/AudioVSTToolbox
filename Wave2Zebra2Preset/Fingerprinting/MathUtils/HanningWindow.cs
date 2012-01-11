@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Wave2ZebraSynth.Fingerprinting.MathUtils
+namespace Wave2Zebra2Preset.Fingerprinting.MathUtils
 {
     /// <summary>
     ///   Hanning window function

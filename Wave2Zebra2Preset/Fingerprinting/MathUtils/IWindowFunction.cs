@@ -2,7 +2,7 @@
 // https://code.google.com/p/soundfingerprinting/
 // Code license: GNU General Public License v2
 // ciumac.sergiu@gmail.com
-namespace Wave2ZebraSynth.Fingerprinting.MathUtils
+namespace Wave2Zebra2Preset.Fingerprinting.MathUtils
 {
     /// <summary>
     ///   Window function for spectrogram computing

@@ -4,7 +4,7 @@
 // ciumac.sergiu@gmail.com
 using System;
 
-namespace Wave2ZebraSynth.Fingerprinting
+namespace Wave2Zebra2Preset.Fingerprinting
 {
     /// <summary>
     ///   StaticStride class

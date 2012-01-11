@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Drawing;
 
-namespace Wave2ZebraSynth
+namespace Wave2Zebra2Preset
 {
 	
 	///

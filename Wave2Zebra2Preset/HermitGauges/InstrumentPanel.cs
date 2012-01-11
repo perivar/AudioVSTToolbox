@@ -16,7 +16,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace Wave2ZebraSynth.HermitGauges
+namespace Wave2Zebra2Preset.HermitGauges
 {
 	///
 	/// <summary> * The main audio analyser view. </summary>
