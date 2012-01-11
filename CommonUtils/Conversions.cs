@@ -1,10 +1,6 @@
 ﻿using System;
 using System.IO;
 
-//using AudioFormat = javax.sound.sampled.AudioFormat;
-//using Encoding = javax.sound.sampled.AudioFormat.Encoding;
-//using AudioInputStream = javax.sound.sampled.AudioInputStream;
-
 namespace Wav2Zebra2CSharp
 {
 	public class Conversions
@@ -12,58 +8,6 @@ namespace Wav2Zebra2CSharp
 		public const double PI = Math.PI; // 3.141593F;
 		public const double TWO_PI = 2 * Math.PI; //6.283186F;
 		
-		public static float[] AudioInputStreamToFloat(Stream ais)
-		{
-			float[] floatArray = new float[1];
-			/*
-			int length = (int)ais.FrameLength;
-			float[] floatArray = new float[length];
-			int numChannels = ais.Format.Channels;
-			int numBytes = ais.Format.FrameSize / numChannels;
-			bool bigEndian = ais.Format.BigEndian;
-			bool signed = ais.Format.Encoding == AudioFormat.Encoding.PCM_SIGNED;
-			sbyte[] byteArray = new sbyte[length * numBytes * numChannels];
-			try
-			{
-				ais.read(byteArray);
-			} catch (IOException e) {
-			}
-			
-			for (int i = 0; i < length; i++)
-			{
-				floatArray[i] = 0.0F;
-				int j = 0;
-				int step = i * numChannels;
-				
-				float bits = (float)Math.Pow(2.0D, numBytes * 8.0D);
-				do
-				{
-					if ((!bigEndian) && (signed))
-					{
-						float floatValue = byteArray[(step * numBytes + j)];
-						float multiplier = (float)Math.Pow(2.0D, j * 8.0D);
-						
-						floatArray[i] += floatValue * multiplier / bits;
-						
-					} else if ((bigEndian) && (signed))
-					{
-						float floatValue = byteArray[(step * numBytes + (numBytes - 1 - j))];
-						float multiplier = (float)Math.Pow(2.0D, j * 8.0D);
-						floatArray[i] += floatValue * multiplier / bits;
-					} else if (!signed)
-					{
-						int intval = byteArray[(step * numBytes + j)] & 0x7F;
-						intval += (byteArray[(step * numBytes + j)] & 0x80);
-						float floatValue = intval / bits - 0.5F;
-						floatArray[i] += floatValue;
-					}
-					j++;
-				} while (j < numBytes);
-			}
-			*/
-			return floatArray;
-		}		
-
 		public static float[] ReSampleToArbitrary(float[] input, int size)
 		{
 			float[] returnArray = new float[size];

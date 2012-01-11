@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Threading;
+using System.IO;
 
 using NAudio.Wave;
 
@@ -10,6 +11,7 @@ using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Interop.Host;
 
 using CommonUtils;
+using CommonUtils.Audio;
 
 using DiffPlex;
 using DiffPlex.Model;
@@ -93,8 +95,49 @@ namespace ProcessVSTPlugin
 		/// </summary>
 		[STAThread]
 		static void Main(string[] args)
-		{		
-			/*			
+		{
+			/*
+			string wavFilePath = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
+
+			TimeSpan t = AudioUtils.GetWaveFileTotalTime(wavFilePath);
+			var stream=new MemoryStream(File.ReadAllBytes(wavFilePath));
+			byte[] bArray = AudioUtils.ResampleWav(stream, new WaveFormat(8000, 8, 1));
+			return;
+			*/
+			/*
+			// read audio
+			BassProxy bassAudio = new BassProxy();
+			float[] wavData = bassAudio.ReadMonoFromFile(wavFilePath, 44100, 1*1000, 2*1000 );
+			
+			float min = 0.0f;
+			float max = 0.0f;
+			MathUtils.ComputeMinAndMax(wavData, out min, out max);
+			System.Diagnostics.Debug.WriteLine(String.Format("Wav data value range: Min: {0}. Max: {1}.", min, max));
+			float[] wavDataFixed = MathUtils.ConvertRangeAndMainainRatio(wavData, min, max, -32768, 32767);
+			
+			//WaveFileReader reader = new WaveFileReader(wavFilePath);
+			//byte[] audioData = AudioUtils.ReadFully(reader);
+			//byte[] audioData = AudioUtils.ResampleWav(reader, new WaveFormat(8000, 8, 1));
+			//byte[] audioData = AudioUtils.ResampleWav(wavFilePath, new WaveFormat(8000, 16, 1));
+			//float[] floatAudioData = BinaryFile.FloatArrayFromByteArray(audioData);
+			//Export.exportCSV("sine-sample-data.csv", floatAudioData);
+			
+			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavData, new System.Drawing.Size(1000, 600), 1);
+			string fileName = String.Format("wave-sine-{0}.png", 1);
+			png.Save(fileName);
+
+			System.Drawing.Bitmap png2 = CommonUtils.FFT.AudioAnalyzer.DrawWaveform2(wavData, new System.Drawing.Size(1000, 600), 1);
+			string fileName2 = String.Format("wave-sine-{0}.png", 2);
+			png2.Save(fileName2);
+
+			System.Drawing.Bitmap png3 = CommonUtils.FFT.AudioAnalyzer.DrawWaveform3(wavDataFixed, new System.Drawing.Size(1000, 600), 1);
+			string fileName3 = String.Format("wave-sine-{0}.png", 3);
+			png3.Save(fileName3);
+
+			return;
+			*/
+			
+			/*
 			float frequency = 5000;
 			float amplitude = 0.5f; // let's not hurt our ears
 			double sampleRate = 44100;
@@ -109,7 +152,7 @@ namespace ProcessVSTPlugin
 			string fileName = String.Format("{0:00.0000}dB.png", MathUtils.ConvertFloatToDB(amplitude));
 			png.Save(fileName);
 			return;
-			*/
+			 */
 			
 			string pluginPath = "";
 			string waveInputFilePath = "";

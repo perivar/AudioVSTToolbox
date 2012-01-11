@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Wave2ZebraSynth.Audio
+namespace CommonUtils.Audio
 {
     /// <summary>
     ///   Digital signal processing proxy

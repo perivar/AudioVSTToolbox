@@ -1984,6 +1984,28 @@ namespace PresetConverter
 			return midiNote + (int)(midiNoteControl / 1.4) + 4;
 		}
 
+		public static float ConvertSylenthFrequencyToHertzNew(float filterFrequency, float filterControlFrequency, FloatToHz mode) {
+			// i.e.
+			// Sylenth Filter A = 139,38 Hz
+			// +
+			// Sylenth FilterControl = 361,17 Hz
+			// Gives Zebra Cutoff = ca midinote 110 = 2 349,318 Hz
+			
+			// first get values in Hz
+			float filterFrequencyHertz = ValueToHz(filterFrequency, mode);
+			//float filterControlFrequencyHertz = ValueToHz(filterControlFrequency, mode);
+			
+			// Excel: 13,801 -10,02
+			// =FilterACutoffString/13,801*EXP(-10,02*FilterCtrlCutoff)
+			// 
+			float actualFrequencyHertz = (float) (filterFrequencyHertz / (13.801 * Math.Exp(-10.02 * filterControlFrequency)));
+			if (actualFrequencyHertz > 21341.31f) {
+				actualFrequencyHertz = 21341.31f;
+			}
+			
+			return actualFrequencyHertz;
+		}
+
 		public static float ConvertSylenthFrequencyToHertz(float filterFrequency, float filterControlFrequency, FloatToHz mode) {
 			// i.e.
 			// Sylenth Filter A = 139,38 Hz
@@ -1996,9 +2018,9 @@ namespace PresetConverter
 			float filterControlFrequencyHertz = ValueToHz(filterControlFrequency, mode);
 			
 			// Excel:
-			// =IF([@FilterACutoffString]/($I$1*(B2^-1))>21341,31;21341,31;[@FilterACutoffString]/($I$1*(B2^-1)))
-			// =13,221
-			float actualFrequencyHertz = (float) (filterFrequencyHertz / (12.8 * Math.Pow(filterControlFrequencyHertz, -1)));
+			// =IF([@FilterACutoffString]/($I$1*(B2^-1))>21341,31;21341,31;[@FilterACutoffString]/($I$1*(B2^-1,005)))
+			// =13,221 || 13,817 || 13.801
+			float actualFrequencyHertz = (float) (filterFrequencyHertz / (13.221 * Math.Pow(filterControlFrequencyHertz, -1.002)));
 			if (actualFrequencyHertz > 21341.31f) {
 				actualFrequencyHertz = 21341.31f;
 			}

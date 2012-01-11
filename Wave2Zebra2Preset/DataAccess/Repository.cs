@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Wave2ZebraSynth.Audio;
+using CommonUtils.Audio;
 using Wave2ZebraSynth.Fingerprinting;
 using Wave2ZebraSynth.Model;
 using Un4seen.Bass.AddOn.Tags;

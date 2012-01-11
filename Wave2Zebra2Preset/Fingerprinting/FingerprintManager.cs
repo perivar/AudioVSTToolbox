@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Wave2ZebraSynth.Audio;
+using CommonUtils.Audio;
 using Wave2ZebraSynth.Fingerprinting.MathUtils;
 
 namespace Wave2ZebraSynth.Fingerprinting

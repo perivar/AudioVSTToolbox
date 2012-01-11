@@ -6,48 +6,42 @@ namespace CommonUtils
 {
 	/// <summary>
 	/// Class for reading and writing Steinberg Preset files and Bank files (fxp and fxb files).
-	/// Per Ivar Nerseth, 2011
+	/// Per Ivar Nerseth, 2012
 	/// </summary>
 	
 	public class FXP {
 		/*
-		 * Class for reading and writing Steinberg Preset files and Bank files (fxp and fxb files).
-		 * Per Ivar Nerseth, 2011
-		 */
-		
 		// Preset (Program) (.fxp) without chunk (magic = 'FxCk')
 		// Preset (Program) (.fxp) with chunk (magic = 'FPCh')
-		/*
-    typedef struct
-    {
-        char chunkMagic[4];     // 'CcnK'
-        long byteSize;          // of this chunk, excl. magic + byteSize
-        char fxMagic[4];        // 'FPCh'
-        long version;
-        char fxID[4];           // fx unique id
-        long fxVersion;
-        long numPrograms;
-        char name[28];
-        long chunkSize;
-        unsigned char chunkData[chunkSize];
-    } fxProgramSet;
-		 */
+		typedef struct
+		{
+			char chunkMagic[4];     // 'CcnK'
+			long byteSize;          // of this chunk, excl. magic + byteSize
+			char fxMagic[4];        // 'FPCh'
+			long version;
+			char fxID[4];           // fx unique id
+			long fxVersion;
+			long numPrograms;
+			char name[28];
+			long chunkSize;
+			unsigned char chunkData[chunkSize];
+		} fxProgramSet;
+
 		// Bank (.fxb) without chunk (magic = 'FxBk')
 		// Bank (.fxb) with chunk (magic = 'FBCh')
-		/*
-    typedef struct
-    {
-        char chunkMagic[4];     // 'CcnK'
-        long byteSize;          // of this chunk, excl. magic + byteSize
-        char fxMagic[4];        // 'FBCh'
-        long version;
-        char fxID[4];           // fx unique id
-        long fxVersion;
-        long numPrograms;
-        char future[128];
-        long chunkSize;
-        unsigned char chunkData[chunkSize];
-    } fxChunkSet;
+		typedef struct
+		{
+			char chunkMagic[4];     // 'CcnK'
+			long byteSize;          // of this chunk, excl. magic + byteSize
+			char fxMagic[4];        // 'FBCh'
+			long version;
+			char fxID[4];           // fx unique id
+			long fxVersion;
+			long numPrograms;
+			char future[128];
+			long chunkSize;
+			unsigned char chunkData[chunkSize];
+		} fxChunkSet;
 		 */
 
 		private string m_chunkMagic;    // 'CcnK'
@@ -131,16 +125,16 @@ namespace CommonUtils
 
 			Console.Out.WriteLine("Writing FXP to {0} ...", filePath);
 			/*
-		Console.Out.WriteLine(">chunkMagic: {0}", chunkMagic);
-		Console.Out.WriteLine(">byteSize: {0}", byteSize);
-		Console.Out.WriteLine(">fxMagic: {0}", fxMagic);
-		Console.Out.WriteLine(">version: {0}", version);
-		Console.Out.WriteLine(">fxID: {0}", fxID);
-		Console.Out.WriteLine(">fxVersion: {0}", fxVersion);
-		Console.Out.WriteLine(">numPrograms: {0}", numPrograms);
-		Console.Out.WriteLine(">name: {0}", name);
-		Console.Out.WriteLine(">future: {0}", future);
-		Console.Out.WriteLine(">chunkSize: {0}", chunkSize);
+			Console.Out.WriteLine(">chunkMagic: {0}", chunkMagic);
+			Console.Out.WriteLine(">byteSize: {0}", byteSize);
+			Console.Out.WriteLine(">fxMagic: {0}", fxMagic);
+			Console.Out.WriteLine(">version: {0}", version);
+			Console.Out.WriteLine(">fxID: {0}", fxID);
+			Console.Out.WriteLine(">fxVersion: {0}", fxVersion);
+			Console.Out.WriteLine(">numPrograms: {0}", numPrograms);
+			Console.Out.WriteLine(">name: {0}", name);
+			Console.Out.WriteLine(">future: {0}", future);
+			Console.Out.WriteLine(">chunkSize: {0}", chunkSize);
 			 */
 
 			bf.Write(chunkMagic);							// chunkMagic, 4
@@ -237,18 +231,18 @@ namespace CommonUtils
 			
 			bf.Close();
 
-			Console.Out.WriteLine("Loading FXP from {0} ...", filePath);
 			/*
-		Console.Out.WriteLine(">chunkMagic: {0}", chunkMagic);
-		Console.Out.WriteLine(">byteSize: {0}", byteSize);
-		Console.Out.WriteLine(">fxMagic: {0}", fxMagic);
-		Console.Out.WriteLine(">version: {0}", version);
-		Console.Out.WriteLine(">fxID: {0}", fxID);
-		Console.Out.WriteLine(">fxVersion: {0}", fxVersion);
-		Console.Out.WriteLine(">numPrograms: {0}", numPrograms);
-		Console.Out.WriteLine(">name: {0}", name);
-		Console.Out.WriteLine(">future: {0}", future);
-		Console.Out.WriteLine(">chunkSize: {0}", chunkSize);
+			Console.Out.WriteLine("Loading FXP from {0} ...", filePath);
+			Console.Out.WriteLine(">chunkMagic: {0}", chunkMagic);
+			Console.Out.WriteLine(">byteSize: {0}", byteSize);
+			Console.Out.WriteLine(">fxMagic: {0}", fxMagic);
+			Console.Out.WriteLine(">version: {0}", version);
+			Console.Out.WriteLine(">fxID: {0}", fxID);
+			Console.Out.WriteLine(">fxVersion: {0}", fxVersion);
+			Console.Out.WriteLine(">numPrograms: {0}", numPrograms);
+			Console.Out.WriteLine(">name: {0}", name);
+			Console.Out.WriteLine(">future: {0}", future);
+			Console.Out.WriteLine(">chunkSize: {0}", chunkSize);
 			 */
 			
 			// read the xml chunk into memory

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-# SharpDevelop 4.0.0.7070
+# SharpDevelop 4.1.0.8000
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wave2ZebraSynth", "Wave2ZebraSynth.csproj", "{A7036556-4E99-414D-B4F8-B9A90B7F66D8}"
 EndProject
 Global

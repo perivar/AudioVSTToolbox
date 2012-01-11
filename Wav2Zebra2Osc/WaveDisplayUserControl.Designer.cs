@@ -58,12 +58,6 @@ namespace Wav2Zebra2CSharp
 				g.Clear(Color.Gray);
 			}
 
-			// TODO: what does this do?
-			//g.DrawRectangle(Pens.White, 0, height / 2, width, height);
-
-			// TODO: and this?
-			//g.FillRectangle(Brushes.Black, 2, 2, width - 2, height - 2);
-
 			if (this.parentForm.DoShowRAWWaves)
 			{
 				this.interpolatedData = Conversions.ReSampleToArbitrary(this.waveData, width);

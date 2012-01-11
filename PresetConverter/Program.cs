@@ -38,28 +38,8 @@ namespace PresetConverter
 				float testHz1 = Sylenth1Preset.ConvertSylenthFrequencyToHertz(filterACutoff, filterCtlCutoff, Sylenth1Preset.FloatToHz.FilterCutoff);
 				float testHz1Midi = Sylenth1Preset.ConvertSylenthFrequencyToZebra(filterACutoff, filterCtlCutoff, Sylenth1Preset.FloatToHz.FilterCutoff);
 				float testZebraHz1 = Zebra2Preset.MidiNoteToFilterFrequency((int)testHz1Midi);
-				Console.Out.WriteLine("{0:0,0} hz ==> {5:0,0.00} hz :\t {1:0.0000}={2:0.00} hz, {3:0.0000}={4:0.00} hz {6}", hertzValue, filterACutoff, filterACutoffHz, filterCtlCutoff, filterCtlCutoffHz, testHz1, testZebraHz1);
-
-				float testHz2 = Sylenth1Preset.ConvertSylenthFrequencyToHertz(filterCtlCutoff, filterACutoff, Sylenth1Preset.FloatToHz.FilterCutoff);
-				float testHz2Midi = Sylenth1Preset.ConvertSylenthFrequencyToZebra(filterCtlCutoff, filterACutoff, Sylenth1Preset.FloatToHz.FilterCutoff);
-				float testZebraHz2 = Zebra2Preset.MidiNoteToFilterFrequency((int)testHz2Midi);
-				Console.Out.WriteLine("{0:0,0} hz ==> {5:0,0.00} hz :\t {1:0.0000}={2:0.00} hz, {3:0.0000}={4:0.00} hz {6}", hertzValue, filterACutoff, filterACutoffHz, filterCtlCutoff, filterCtlCutoffHz, testHz2, testZebraHz2);
+				Console.Out.WriteLine("Hz {0:0} => {5:0.00} => {6:0.00} [{7}] ({1:0.0000}={2:0.00} hz, {3:0.0000}={4:0.00} hz)", hertzValue, filterACutoff, filterACutoffHz, filterCtlCutoff, filterCtlCutoffHz, testHz1, testZebraHz1, testHz1Midi);
 			}
-
-			// i.e.
-			// Sylenth Filter A = 139,38 Hz
-			// +
-			// Sylenth FilterControl = 361,17 Hz
-			// Gives Zebra Cutoff = ca midinote 110 = 2 349,318 Hz
-			float filterControlFrequencyHertz = 139.38f;
-			float filterFrequencyHertz = 361.17f;
-			
-			// test the algorithm
-			float actualFrequencyHertz = (float) (filterFrequencyHertz / (13.221 * Math.Pow(filterControlFrequencyHertz, -1)));
-			if (actualFrequencyHertz > 21341.31f) {
-				actualFrequencyHertz = 21341.31f;
-			}
-			Console.Out.WriteLine("{0:0,0} hz ==> {3:0,0.00} hz :\t {1:0.00} hz, {2:0.00} hz", 2349.318f, filterFrequencyHertz, filterControlFrequencyHertz, actualFrequencyHertz);
 			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);

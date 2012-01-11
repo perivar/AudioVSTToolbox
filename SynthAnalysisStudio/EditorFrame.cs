@@ -6,6 +6,8 @@ using System.Timers;
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 
+using SynthAnalysisStudio;
+
 namespace ProcessVSTPlugin
 {
 	/// <summary>
@@ -484,6 +486,14 @@ namespace ProcessVSTPlugin
 			
 			//dlg.ShowDialog(this); // modal
 			dlg.Show(); // modeless        	
+
+
+			WaveDisplayForm dlg2 = new WaveDisplayForm();
+			dlg2.PluginContext = this.PluginContext;
+			dlg2.Playback = playback;
+			
+			//dlg2.ShowDialog(this); // modal
+			dlg2.Show(); // modeless        	
         }
 	}
 }

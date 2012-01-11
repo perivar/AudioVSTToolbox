@@ -445,5 +445,283 @@ namespace CommonUtils.FFT
 				return null;
 			}
 		}
+		
+		public static Bitmap DrawWaveform(float[] data, Size imageSize, int resolution) {
+
+			// Basic constants
+			int TOTAL_HEIGHT = imageSize.Height;    // Height of graph
+			int TOTAL_WIDTH = imageSize.Width;      // Width of graph
+
+			int TOP = 5;                     		// Top of graph
+			int LEFT = 5;                    		// Left edge of graph
+			int HEIGHT = imageSize.Height-2*TOP;	// Height of graph
+			int WIDTH = imageSize.Width-2*LEFT;     // Width of graph
+
+			string LABEL_X = "X axis"; 				// Label for X axis
+			string LABEL_Y = "Y axis";             	// Label for Y axis
+			bool drawRoundedRectangles = true;
+			
+			// Colors
+			Color lineColor = ColorTranslator.FromHtml("#C7834C");
+			Color middleLineColor = ColorTranslator.FromHtml("#EFAB74");
+			Color textColor = ColorTranslator.FromHtml("#A9652E");
+			//Color sampleColor = ColorTranslator.FromHtml("#A9652E");
+			Color sampleColor = ColorTranslator.FromHtml("#4C2F1A");
+			Color fillOuterColor = ColorTranslator.FromHtml("#FFFFFF");
+			Color fillColor = ColorTranslator.FromHtml("#F9C998");
+			
+			// Set up for drawing
+			Bitmap png = new Bitmap( TOTAL_WIDTH, TOTAL_HEIGHT, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(png);
+			ExtendedGraphics eg = new ExtendedGraphics(g);
+			
+			Pen linePen = new Pen(lineColor, 0.5f);
+			Pen middleLinePen = new Pen(middleLineColor, 0.5f);
+			Pen textPen = new Pen(textColor, 1);
+			Pen samplePen = new Pen(sampleColor, 1);
+
+			// Draw a rectangular box marking the boundaries of the graph
+			// Create outer rectangle.
+			Rectangle rectOuter = new Rectangle(0, 0, TOTAL_WIDTH, TOTAL_HEIGHT);
+			Brush fillBrushOuter = new SolidBrush(fillOuterColor);
+			g.FillRectangle(fillBrushOuter, rectOuter);
+			
+			// Create rectangle.
+			Rectangle rect = new Rectangle(LEFT, TOP, WIDTH, HEIGHT);
+			Brush fillBrush = new SolidBrush(fillColor);
+			if (drawRoundedRectangles) {
+				eg.FillRoundRectangle(fillBrush, rect.X, rect.Y, rect.Width, rect.Height, 10);
+				eg.DrawRoundRectangle(linePen, rect.X, rect.Y, rect.Width, rect.Height, 10);
+			} else {
+				g.FillRectangle(fillBrush, rect);
+				g.DrawRectangle(linePen, rect);
+			}
+			
+			// Determine channnel boundries
+			int CENTER = TOTAL_HEIGHT / 2;
+
+			g.DrawLine(middleLinePen, LEFT, CENTER, WIDTH, CENTER);
+
+			int RIGHT = WIDTH;
+			int BOTTOM = HEIGHT;
+
+			int numberOfSamples = data.Length;
+			//int resolution = 44; //low resolution (1) means to zoom into the waveform
+			int amplitude = 2; // 1 = normal
+			
+			// Draw channel
+			//double yScale = 0.5 * (BOTTOM - TOP) / 32768;  // a 16 bit sample has values from -32768 to 32767
+			double yScale = 0.5 * (BOTTOM - TOP) * amplitude;  // a float sample has values from -1 to 1
+			int xPrev = 0, yPrev = 0;
+			for (int xAxis = 0; xAxis < RIGHT; xAxis++)
+			{
+				//int sampleToPixel = (int) data.Length / (RIGHT - LEFT); 
+				int sampleToPixel = resolution;
+				int sampleIndex = sampleToPixel * xAxis;
+				float sample = data[sampleIndex];
+				int yAxis = (int)(CENTER + (sample * yScale));
+				if (xAxis == 0)
+				{
+					xPrev = 0;
+					yPrev = yAxis;
+				}
+				else
+				{
+					g.DrawLine(samplePen, xPrev+LEFT, yPrev, xAxis+LEFT, yAxis);
+					xPrev = xAxis;
+					yPrev = yAxis;
+				}
+			}
+			
+			return png;
+		}
+		
+		public static Bitmap DrawWaveform2(float[] data, Size imageSize, int resolution) {
+
+			// Basic constants
+			bool sampleBitMono = false;
+			int TOTAL_HEIGHT = imageSize.Height;    // Height of graph
+			int TOTAL_WIDTH = imageSize.Width;      // Width of graph
+
+			int TOP = 5;                     		// Top of graph
+			int LEFT = 5;                    		// Left edge of graph
+			int HEIGHT = imageSize.Height-2*TOP;	// Height of graph
+			int WIDTH = imageSize.Width-2*LEFT;     // Width of graph
+
+			string LABEL_X = "X axis"; 				// Label for X axis
+			string LABEL_Y = "Y axis";             	// Label for Y axis
+
+			// Set up for drawing
+			Bitmap png = new Bitmap( TOTAL_WIDTH, TOTAL_HEIGHT, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(png);
+			
+			Pen pen = new Pen(Color.LightGreen, 1);
+			
+			float X_Slot = (float) (0.8 * WIDTH / 10);
+			float Y_Slot = (float) (0.8 * HEIGHT / 10);
+			float X = 0;
+			float Y = 0;
+			float X_0 = (float) (WIDTH * 0.1);
+			float X_1 = (float) (WIDTH * 0.9);
+			float Y_0 = (float) (HEIGHT * 0.1);
+			float Y_1 = (float) (HEIGHT * 0.9);
+			float X_Unit = 1;
+			float Y_Unit = 0;
+			
+			if (sampleBitMono) {
+				Y_Unit = (float) (0.8 * HEIGHT/ 256);
+				for (int i = 0; i < data.Length; i++) {
+					data[i] = data[i] + 128;
+				}
+			} else {
+				Y_Unit = (float) (0.8 * HEIGHT/ 65536);
+				for (int i = 0; i < data.Length; i++) {
+					data[i] = data[i] + 32768;
+				}
+			}
+			
+			g.Clear(Color.LightGray);
+			g.DrawLine(Pens.Black, X_0, Y_0, X_0, Y_1);
+			g.DrawLine(Pens.Black, X_0, Y_1, X_1, Y_1);
+			
+			for (int i = 1; i < 10; i++) {
+				g.DrawLine(Pens.DarkGray, X_0, Y_0 + (i * Y_Slot), X_1, Y_0 + (i * Y_Slot));
+				g.DrawLine(Pens.DarkGray, X_0 + (i * X_Slot), Y_0, X_0 + (i * X_Slot), Y_1);
+			}
+
+			pen.Width = 2.0F;
+			g.DrawLine(pen, X_0, Y_0 + (5 * Y_Slot), X_1, Y_0 + (5 * Y_Slot));
+			g.DrawLine(pen, X_0 + (5 * X_Slot), Y_0, X_0 + (5 * X_Slot), Y_1);
+			
+			X_Unit = (float) (0.8 * WIDTH / data.Length);
+			
+			PointF[] pointArray = new PointF[data.Length];
+			for (int i = 0; i < data.Length; i++) {
+				X = X_0 + (i * X_Unit);
+				Y = Y_1 - (data[i] * Y_Unit);
+				pointArray[i] = new PointF(X, Y);
+			}
+			
+			g.DrawLines(Pens.DarkBlue, pointArray);
+
+			return png;
+		}
+		
+		/*
+		 * Converted from a Java Class forom jMusic API version 1.4, February 2003.
+		 * 
+		 * Copyright (C) 2000 Andrew Sorensen & Andrew Brown
+		 * 
+		 * This program is free software; you can redistribute it and/or modify
+		 * it under the terms of the GNU General Public License as published by
+		 * the Free Software Foundation; either version 2 of the License, or any
+		 * later version.
+		 */
+		public static Bitmap DrawWaveform3(float[] data, Size imageSize, int resolution) {
+
+			// Basic constants
+			int TOTAL_HEIGHT = imageSize.Height;    // Height of graph
+			int TOTAL_WIDTH = imageSize.Width;      // Width of graph
+
+			int TOP = 5;                     		// Top of graph
+			int LEFT = 5;                    		// Left edge of graph
+			int HEIGHT = imageSize.Height-2*TOP;	// Height of graph
+			int WIDTH = imageSize.Width-2*LEFT;     // Width of graph
+
+			string LABEL_X = "X axis"; 				// Label for X axis
+			string LABEL_Y = "Y axis";             	// Label for Y axis
+			
+			// Colors
+			Color lineColor = ColorTranslator.FromHtml("#C7834C");
+			Color middleLineColor = ColorTranslator.FromHtml("#EFAB74");
+			Color textColor = ColorTranslator.FromHtml("#A9652E");
+			//Color sampleColor = ColorTranslator.FromHtml("#A9652E");
+			Color sampleColor = ColorTranslator.FromHtml("#4C2F1A");
+			Color fillOuterColor = ColorTranslator.FromHtml("#FFFFFF");
+			Color fillColor = ColorTranslator.FromHtml("#F9C998");
+			
+			Pen linePen = new Pen(lineColor, 0.5f);
+			Pen middleLinePen = new Pen(middleLineColor, 0.5f);
+			Pen textPen = new Pen(textColor, 1);
+			Pen samplePen = new Pen(sampleColor, 1);
+			
+			// Set up for drawing
+			Bitmap bmp = new Bitmap( TOTAL_WIDTH, TOTAL_HEIGHT, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(bmp);
+			
+			int numberOfSamples = data.Length;
+			//int resolution = 5; //125 // low resolution (2+) means to zoom into the waveform
+			int amplitude = 2; // 1 = normal
+
+			float max = 0.0f;
+			float min = 0.0f;
+
+			float drawMax, drawMin, currData;
+
+			int h2 = HEIGHT/2 - 1;
+			int position = 0;
+			int sampleStart = 0;
+			
+			// Draw a rectangular box marking the boundaries of the graph
+			Rectangle rect = new Rectangle(0, 0, WIDTH, HEIGHT);
+			g.DrawRectangle(linePen, rect);
+			
+			// mid line
+			g.DrawLine(middleLinePen, 0, h2, WIDTH, h2);
+
+			// draw wave
+			int pixCount = Math.Min(data.Length - resolution, WIDTH * resolution);
+			if (resolution == 1) {
+				for (int i = sampleStart; i < sampleStart + pixCount; i += resolution) {
+					currData = data[i];
+					int x1 = position;
+					int y1 = (int)(h2 - currData * h2 * amplitude);
+					int x2 = position + 1;
+					int y2 = (int)(h2 - currData * h2 * amplitude);
+					g.DrawLine(linePen, x1, y1, x2, y2);
+					position++;
+				}
+			} else {
+				for (int i = sampleStart; i < sampleStart + pixCount; i += resolution) {
+					if( i < numberOfSamples ) {
+						currData = data[i];
+						
+						// max and min
+						max = 0.0f;
+						min = 0.0f;
+						for( int j=0; j< resolution; j++) {
+							if (data[i+j] > max) max = data[i+j];
+							if (data[i+j] < min) min = data[i+j];
+						}
+						
+						// highest and lowest curve values
+						// disabled - does not look good?!
+						/*
+						if (resolution > 8) {
+							drawMax = Math.Max(currData, data[i+resolution]);
+							drawMin = Math.Min(currData, data[i+resolution]);
+							
+							if (max > 0.0f) {
+								g.DrawLine(samplePen, position, (int)(h2 - drawMax * h2 * amplitude), position, (int)(h2 - max * h2 * amplitude));
+							}
+							
+							if (min < 0.0f) {
+								g.DrawLine(samplePen, position, (int)(h2 - drawMin * h2 * amplitude), position, (int)(h2 - min * h2 * amplitude));
+							}
+						}
+						 */
+						
+						// draw wave
+						int x1 = position++;
+						int y1 = (int)(h2 - currData * h2 * amplitude);
+						int x2 = position;
+						int y2 = (int)(h2 - data[i+resolution] * h2 * amplitude);
+						g.DrawLine(samplePen, x1, y1, x2, y2);
+					}
+				}
+			}
+			return bmp;
+		}
+		
 	}
 }

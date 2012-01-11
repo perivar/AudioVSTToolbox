@@ -52,6 +52,9 @@
     <FileAlignment>4096</FileAlignment>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Bass.Net">
+      <HintPath>_SharedAssemblies\Bass.Net.dll</HintPath>
+    </Reference>
     <Reference Include="DiffPlex">
       <HintPath>_SharedAssemblies\DiffPlex.dll</HintPath>
     </Reference>
@@ -87,6 +90,15 @@
     <Compile Include="..\CommonUtils\Arguments.cs">
       <Link>Arguments.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\Audio\Bass\BassProxy.cs">
+      <Link>Audio\BassProxy.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\Audio\Bass\IAudio.cs">
+      <Link>Audio\IAudio.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\Audio\NAudio\AudioUtils.cs">
+      <Link>Audio\AudioUtils.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\BinaryFile.cs">
       <Link>BinaryFile.cs</Link>
     </Compile>
@@ -100,7 +112,7 @@
       <Link>ExtendedGraphics.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\FFT\AudioAnalyzer.cs">
-      <Link>AudioAnalyzer.cs</Link>
+      <Link>Audio\AudioAnalyzer.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Complex.cs">
       <Link>FFT\Complex.cs</Link>
@@ -130,11 +142,18 @@
       <Link>FXP.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\GUI\FrequencyAnalyserUserControl.cs">
-      <Link>FrequencyAnalyserUserControl.cs</Link>
+      <Link>GUI\FrequencyAnalyserUserControl.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\GUI\FrequencyAnalyserUserControl.Designer.cs">
-      <Link>FrequencyAnalyserUserControl.Designer.cs</Link>
+      <Link>GUI\FrequencyAnalyserUserControl.Designer.cs</Link>
       <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\CommonUtils\GUI\WaveDisplayUserControl.cs">
+      <Link>GUI\WaveDisplayUserControl.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\GUI\WaveDisplayUserControl.Designer.cs">
+      <Link>GUI\WaveDisplayUserControl.Designer.cs</Link>
+      <DependentUpon>WaveDisplayUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="..\CommonUtils\MathUtils.cs">
       <Link>MathUtils.cs</Link>
@@ -189,11 +208,19 @@
     <Compile Include="UnidiffSeqFormatter.cs" />
     <Compile Include="VstHost.cs" />
     <Compile Include="VstPlaybackNAudio.cs" />
+    <Compile Include="WaveDisplayForm.cs" />
+    <Compile Include="WaveDisplayForm.Designer.cs">
+      <DependentUpon>WaveDisplayForm.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CommonUtils\GUI\FrequencyAnalyserUserControl.resx">
-      <Link>FrequencyAnalyserUserControl.resx</Link>
+      <Link>GUI\FrequencyAnalyserUserControl.resx</Link>
       <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CommonUtils\GUI\WaveDisplayUserControl.resx">
+      <Link>GUI\WaveDisplayUserControl.resx</Link>
+      <DependentUpon>WaveDisplayUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="AnalyseForm.resx">
       <DependentUpon>AnalyseForm.cs</DependentUpon>
@@ -213,12 +240,20 @@
       <DependentUpon>PluginForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="WaveDisplayForm.resx">
+      <DependentUpon>WaveDisplayForm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="FFT" />
+    <Folder Include="Audio" />
+    <Folder Include="GUI" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <PropertyGroup>
+    <PreBuildEvent>copy "$(MSBuildProjectDirectory)\_SharedAssemblies\*.dll" "$(MSBuildProjectDirectory)\$(OutputPath)"</PreBuildEvent>
+  </PropertyGroup>
 </Project>

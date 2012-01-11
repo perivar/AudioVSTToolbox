@@ -62,13 +62,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CommonUtils\Audio\Bass\BassProxy.cs">
+      <Link>BassProxy.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\Audio\Bass\IAudio.cs">
+      <Link>IAudio.cs</Link>
+    </Compile>
     <Compile Include="AColor.cs" />
     <Compile Include="Axis.cs" />
     <Compile Include="CWT.cs" />
     <Compile Include="CWTForm.cs" />
     <Compile Include="FFTWindows.cs" />
-    <Compile Include="Audio\BassProxy.cs" />
-    <Compile Include="Audio\IAudio.cs" />
     <Compile Include="DataAccess\Hashes.cs" />
     <Compile Include="DataAccess\HashType.cs" />
     <Compile Include="DataAccess\IPermutations.cs" />
@@ -118,7 +122,6 @@
     <Compile Include="VB6Spectrogram.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Audio" />
     <Folder Include="DataAccess" />
     <Folder Include="Fingerprinting" />
     <Folder Include="Fingerprinting\MathUtils" />

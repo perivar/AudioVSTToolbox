@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-using Wave2ZebraSynth.Audio;
+using CommonUtils.Audio;
 using Wave2ZebraSynth.Fingerprinting;
 using Wave2ZebraSynth.DataAccess;
 using Wave2ZebraSynth.Model;

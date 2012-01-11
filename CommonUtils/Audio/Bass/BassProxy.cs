@@ -11,7 +11,7 @@ using Un4seen.Bass.AddOn.Mix;
 using Un4seen.Bass.AddOn.Tags;
 using Un4seen.Bass.Misc;
 
-namespace Wave2ZebraSynth.Audio
+namespace CommonUtils.Audio
 {
     /// <summary>
     ///   Bass Proxy for Bass.Net API

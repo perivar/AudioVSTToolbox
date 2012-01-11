@@ -8,7 +8,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-using Wave2ZebraSynth.Audio;
+using CommonUtils.Audio;
 using Wave2ZebraSynth.Fingerprinting;
 using Wave2ZebraSynth.DataAccess;
 using Wave2ZebraSynth.Model;
@@ -116,10 +116,10 @@ namespace Wave2ZebraSynth
 			//return;
 			 */
 			
-			float[][] lomontSpectrogram = CreateSpectrogram(wavData, sampleRate, fftWindowsSize, fftOverlap);
-			repositoryGateway.drawSpectrogram2("LomontSpectrum", fileName, lomontSpectrogram, sampleRate, fftWindowsSize);
+			//float[][] lomontSpectrogram = CreateSpectrogram(wavData, sampleRate, fftWindowsSize, fftOverlap);
+			//repositoryGateway.drawSpectrogram2("LomontSpectrum", fileName, lomontSpectrogram, sampleRate, fftWindowsSize);
 			//exportCSV (@"c:\LomontSpectrogram-full-not-normalized.csv", lomontSpectrogram);
-			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Lomont", fileName, lomontSpectrogram, sampleRate, fftWindowsSize, fftOverlap);
+			//prepareAndDrawSpectrumAnalysis(repositoryGateway, "Lomont", fileName, lomontSpectrogram, sampleRate, fftWindowsSize, fftOverlap);
 
 			// draw waveform
 			exportCSV (String.Format("c:\\{0}-samples-{1}-{2}.csv", System.IO.Path.GetFileNameWithoutExtension(fileName), sampleRate, fftWindowsSize), wavData);

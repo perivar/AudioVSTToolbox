@@ -574,12 +574,12 @@ namespace CommonUtils
 			return false;
 		}
 		
-		public float[] FloatArrayFromStream(System.IO.MemoryStream stream)
+		public static float[] FloatArrayFromStream(System.IO.MemoryStream stream)
 		{
 			return FloatArrayFromByteArray(stream.GetBuffer());
 		}
 
-		public float[] FloatArrayFromByteArray(byte[] input)
+		public static float[] FloatArrayFromByteArray(byte[] input)
 		{
 			float[] output = new float[input.Length / 4];
 			Buffer.BlockCopy(input, 0, output, 0, input.Length);
