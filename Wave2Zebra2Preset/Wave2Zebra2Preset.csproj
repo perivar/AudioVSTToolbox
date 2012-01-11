@@ -5,8 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>Exe</OutputType>
-    <RootNamespace>PIN-AudioAnalyzer</RootNamespace>
-    <AssemblyName>Wave2ZebraSynth</AssemblyName>
+    <AssemblyName>Wave2Zebra2Preset</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -21,7 +20,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <FileAlignment>4096</FileAlignment>
     <SourceAnalysisOverrideSettingsFile>C:\Users\perivar.nerseth\AppData\Roaming\ICSharpCode/SharpDevelop4.0\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
-    <StartupObject>Wave2ZebraSynth.Program</StartupObject>
+    <StartupObject>Wave2Zebra2Preset.Program</StartupObject>
     <RunCodeAnalysis>False</RunCodeAnalysis>
     <RunSourceAnalysis>False</RunSourceAnalysis>
   </PropertyGroup>
@@ -44,7 +43,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bass.Net">
-      <HintPath>NativeLibs\Bass.Net.dll</HintPath>
+      <HintPath>_SharedAssemblies\Bass.Net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -129,4 +128,7 @@
     <Folder Include="Model" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <PropertyGroup>
+    <PreBuildEvent>copy "$(MSBuildProjectDirectory)\_SharedAssemblies\*.*" "$(MSBuildProjectDirectory)\$(OutputPath)"</PreBuildEvent>
+  </PropertyGroup>
 </Project>
