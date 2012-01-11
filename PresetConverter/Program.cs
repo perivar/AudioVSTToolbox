@@ -14,7 +14,7 @@ namespace PresetConverter
 		
 		public static void Main(string[] args)
 		{
-
+			/*
 			string[] filePaths = Directory.GetFiles("../..", "*.fxp");
 			foreach (string file in filePaths) {
 				// perivar-filter-2022hz.fxp
@@ -45,7 +45,8 @@ namespace PresetConverter
 			Console.ReadKey(true);
 			
 			return;
-
+			*/
+		
 			/*
 			float filterFrequencyHertz = 0.4047619f; 			//	56,57 Hz
 			float filterControlFrequencyHertz = 0.823809564f; 	// 3685,85 Hz
