@@ -2031,7 +2031,7 @@ namespace PresetConverter
 		public static float ConvertSylenthFrequencyToZebra(float filterFrequency, float filterControlFrequency, FloatToHz mode) {
 			float actualFrequencyHertz = ConvertSylenthFrequencyToHertz(filterFrequency, filterControlFrequency, mode);
 			int midiNote = Zebra2Preset.FilterFrequencyToMidiNote(actualFrequencyHertz);
-			return midiNote;
+			return midiNote + 1; // TODO: adjust with one to be on the safe side?!
 		}
 		
 		private static int ConvertSylenthDelayTimingsToZebra(float delayTime) {
@@ -2992,399 +2992,400 @@ namespace PresetConverter
 				UsedModSources.Clear(); // reset the list that keeps track of the used mod sources for a preset
 				convertCounter++;
 				
-				// Break if the Preset Name is Init
+				// Skip if the Preset Name is Init
 				if (!doProcessInitPresets && Content.PresetName == "Init") {
-					break;
-				}
-
-				Console.Out.WriteLine("Converting preset number {0} - {1} ...", convertCounter, Content.PresetName);
-				
-				// Load a default preset file and modify this one
-				Zebra2Preset zebra2Preset = new Zebra2Preset();
-				zebra2Preset.Read(defaultZebra2PresetFile, true);
-				
-				// add to list
-				zebra2PresetList.Add(zebra2Preset);
-				
-				// set name
-				zebra2Preset.PresetName = Content.PresetName;
-				
-				// set master volume (50?)
-				zebra2Preset.Main_CcOp = ConvertSylenthValueToZebra(Content.MainVolume, 0, 10, 0, 60); // restrict the limit from 100 - x
-				zebra2Preset.ZMas_Mast = 80;
-				
-				// set mix volume
-				zebra2Preset.VCA1_Vol1 = ConvertSylenthValueToZebra(Content.MixA, 0, 10, 0, 100); // the range is 0, 100, but using 0 - x i get a more correct conversion
-				zebra2Preset.VCA1_Vol2 = ConvertSylenthValueToZebra(Content.MixB, 0, 10, 0, 100); // the range is 0, 100, but using 0 - x i get a more correct conversion
-				
-				// set portamento
-				zebra2Preset.VCC_Porta = ConvertSylenthValueToZebra(Content.PortaTime, 0, 10, 0, 60); // the range is 0, 100, but using 0 - 40 i get a more correct conversion
-				
-				// set mode (mono legato etc)
-				if (Content.MonoLegato == ONOFF.On) {
-					zebra2Preset.VCC_Mode = (int) Zebra2Preset.VoiceMode.legato;
+					// skipping					
+					Console.Out.WriteLine("Skipping preset number {0} - {1} ...", convertCounter, Content.PresetName);
 				} else {
-					zebra2Preset.VCC_Mode = (int) Zebra2Preset.VoiceMode.poly;
-				}
-				
-				// OscA1
-				if (Content.OscA1Voices != VOICES.VOICES_0) {
-					if (Content.OscA1Wave != OSCWAVE.OSC_Noise) {
-						zebra2Preset.OSC1_WNum = ConvertSylenthWaveToZebra(Content.OscA1Wave, Content.OscA1Invert);
-						zebra2Preset.OSC1_Vol = ConvertSylenthValueToZebra(Content.OscA1Volume, 0, 10, 0, 200);
-
-						// turn the volume on Noise1 down
-						zebra2Preset.Noise1_Vol = 0;
+					Console.Out.WriteLine("Converting preset number {0} - {1} ...", convertCounter, Content.PresetName);
+					
+					// Load a default preset file and modify this one
+					Zebra2Preset zebra2Preset = new Zebra2Preset();
+					zebra2Preset.Read(defaultZebra2PresetFile, true);
+					
+					// add to list
+					zebra2PresetList.Add(zebra2Preset);
+					
+					// set name
+					zebra2Preset.PresetName = Content.PresetName;
+					
+					// set master volume (50?)
+					zebra2Preset.Main_CcOp = ConvertSylenthValueToZebra(Content.MainVolume, 0, 10, 0, 60); // restrict the limit from 100 - x
+					zebra2Preset.ZMas_Mast = 80;
+					
+					// set mix volume
+					zebra2Preset.VCA1_Vol1 = ConvertSylenthValueToZebra(Content.MixA, 0, 10, 0, 100); // the range is 0, 100, but using 0 - x i get a more correct conversion
+					zebra2Preset.VCA1_Vol2 = ConvertSylenthValueToZebra(Content.MixB, 0, 10, 0, 100); // the range is 0, 100, but using 0 - x i get a more correct conversion
+					
+					// set portamento
+					zebra2Preset.VCC_Porta = ConvertSylenthValueToZebra(Content.PortaTime, 0, 10, 0, 60); // the range is 0, 100, but using 0 - 40 i get a more correct conversion
+					
+					// set mode (mono legato etc)
+					if (Content.MonoLegato == ONOFF.On) {
+						zebra2Preset.VCC_Mode = (int) Zebra2Preset.VoiceMode.legato;
 					} else {
-						// turn the volume on OSC1 all the way down
+						zebra2Preset.VCC_Mode = (int) Zebra2Preset.VoiceMode.poly;
+					}
+					
+					// OscA1
+					if (Content.OscA1Voices != VOICES.VOICES_0) {
+						if (Content.OscA1Wave != OSCWAVE.OSC_Noise) {
+							zebra2Preset.OSC1_WNum = ConvertSylenthWaveToZebra(Content.OscA1Wave, Content.OscA1Invert);
+							zebra2Preset.OSC1_Vol = ConvertSylenthValueToZebra(Content.OscA1Volume, 0, 10, 0, 200);
+
+							// turn the volume on Noise1 down
+							zebra2Preset.Noise1_Vol = 0;
+						} else {
+							// turn the volume on OSC1 all the way down
+							zebra2Preset.OSC1_Vol = 0;
+							
+							// turn the volume on Noise1 up
+							zebra2Preset.Noise1_Vol = ConvertSylenthValueToZebra(Content.OscA1Volume, 0, 10, 0, 200);
+						}
+						zebra2Preset.OSC1_Tune = ConvertSylenthTuneToZebra(Content.OscA1Octave, Content.OscA1Note, Content.OscA1Fine);
+						zebra2Preset.OSC1_Poly = ConvertSylenthVoicesToZebra(Content.OscA1Voices);
+						zebra2Preset.OSC1_Dtun = ConvertSylenthDetuneToZebra(Content.OscA1Detune);
+						zebra2Preset.OSC1_Pan = ConvertSylenthValueToZebra(Content.OscA1Pan, -10, 10, -100, 100);
+						zebra2Preset.OSC1_PolW = ConvertSylenthValueToZebra(Content.OscA1Stereo, 0, 10, 0, 100);
+						zebra2Preset.OSC1_Phse = ConvertSylenthValueToZebra(Content.OscA1Phase, 0, 360, 0, 100);
+						
+						// These are not yet handled!
+						// Content.OscA1Retrig
+						// Content.OscA1Wave
+					} else {
+						// set volume to zero?
 						zebra2Preset.OSC1_Vol = 0;
-						
-						// turn the volume on Noise1 up
-						zebra2Preset.Noise1_Vol = ConvertSylenthValueToZebra(Content.OscA1Volume, 0, 10, 0, 200);
 					}
-					zebra2Preset.OSC1_Tune = ConvertSylenthTuneToZebra(Content.OscA1Octave, Content.OscA1Note, Content.OscA1Fine);
-					zebra2Preset.OSC1_Poly = ConvertSylenthVoicesToZebra(Content.OscA1Voices);
-					zebra2Preset.OSC1_Dtun = ConvertSylenthDetuneToZebra(Content.OscA1Detune);
-					zebra2Preset.OSC1_Pan = ConvertSylenthValueToZebra(Content.OscA1Pan, -10, 10, -100, 100);
-					zebra2Preset.OSC1_PolW = ConvertSylenthValueToZebra(Content.OscA1Stereo, 0, 10, 0, 100);
-					zebra2Preset.OSC1_Phse = ConvertSylenthValueToZebra(Content.OscA1Phase, 0, 360, 0, 100);
-					
-					// These are not yet handled!
-					// Content.OscA1Retrig
-					// Content.OscA1Wave
-				} else {
-					// set volume to zero?
-					zebra2Preset.OSC1_Vol = 0;
-				}
 
-				// OscA2
-				if (Content.OscA2Voices != VOICES.VOICES_0) {
-					if (Content.OscA2Wave != OSCWAVE.OSC_Noise) {
-						zebra2Preset.OSC2_WNum = ConvertSylenthWaveToZebra(Content.OscA2Wave, Content.OscA2Invert);
-						zebra2Preset.OSC2_Vol = ConvertSylenthValueToZebra(Content.OscA2Volume, 0, 10, 0, 200);
+					// OscA2
+					if (Content.OscA2Voices != VOICES.VOICES_0) {
+						if (Content.OscA2Wave != OSCWAVE.OSC_Noise) {
+							zebra2Preset.OSC2_WNum = ConvertSylenthWaveToZebra(Content.OscA2Wave, Content.OscA2Invert);
+							zebra2Preset.OSC2_Vol = ConvertSylenthValueToZebra(Content.OscA2Volume, 0, 10, 0, 200);
 
-						// turn the volume on Noise1 down
-						zebra2Preset.Noise1_Vol = 0;
+							// turn the volume on Noise1 down
+							zebra2Preset.Noise1_Vol = 0;
+						} else {
+							// turn the volume on OSC1 all the way down
+							zebra2Preset.OSC2_Vol = 0;
+							
+							// turn the volume on Noise1 up
+							zebra2Preset.Noise1_Vol = ConvertSylenthValueToZebra(Content.OscA2Volume, 0, 10, 0, 200);
+						}
+						zebra2Preset.OSC2_Tune = ConvertSylenthTuneToZebra(Content.OscA2Octave, Content.OscA2Note, Content.OscA2Fine);
+						zebra2Preset.OSC2_Poly = ConvertSylenthVoicesToZebra(Content.OscA2Voices);
+						zebra2Preset.OSC2_Dtun = ConvertSylenthDetuneToZebra(Content.OscA2Detune);
+						zebra2Preset.OSC2_Pan = ConvertSylenthValueToZebra(Content.OscA2Pan, -10, 10, -100, 100);
+						zebra2Preset.OSC2_PolW = ConvertSylenthValueToZebra(Content.OscA2Stereo, 0, 10, 0, 100);
+						zebra2Preset.OSC2_Phse = ConvertSylenthValueToZebra(Content.OscA2Phase, 0, 360, 0, 100);
+						
+						// These are not yet handled!
+						// Content.OscA2Retrig
+						// Content.OscA2Wave
 					} else {
-						// turn the volume on OSC1 all the way down
+						// set volume to zero?
 						zebra2Preset.OSC2_Vol = 0;
-						
-						// turn the volume on Noise1 up
-						zebra2Preset.Noise1_Vol = ConvertSylenthValueToZebra(Content.OscA2Volume, 0, 10, 0, 200);
 					}
-					zebra2Preset.OSC2_Tune = ConvertSylenthTuneToZebra(Content.OscA2Octave, Content.OscA2Note, Content.OscA2Fine);
-					zebra2Preset.OSC2_Poly = ConvertSylenthVoicesToZebra(Content.OscA2Voices);
-					zebra2Preset.OSC2_Dtun = ConvertSylenthDetuneToZebra(Content.OscA2Detune);
-					zebra2Preset.OSC2_Pan = ConvertSylenthValueToZebra(Content.OscA2Pan, -10, 10, -100, 100);
-					zebra2Preset.OSC2_PolW = ConvertSylenthValueToZebra(Content.OscA2Stereo, 0, 10, 0, 100);
-					zebra2Preset.OSC2_Phse = ConvertSylenthValueToZebra(Content.OscA2Phase, 0, 360, 0, 100);
 					
-					// These are not yet handled!
-					// Content.OscA2Retrig
-					// Content.OscA2Wave
-				} else {
-					// set volume to zero?
-					zebra2Preset.OSC2_Vol = 0;
-				}
-				
-				// OscB1
-				if (Content.OscB1Voices != VOICES.VOICES_0) {
-					if (Content.OscB1Wave != OSCWAVE.OSC_Noise) {
-						zebra2Preset.OSC3_WNum = ConvertSylenthWaveToZebra(Content.OscB1Wave, Content.OscB1Invert);
-						zebra2Preset.OSC3_Vol = ConvertSylenthValueToZebra(Content.OscB1Volume, 0, 10, 0, 200);
+					// OscB1
+					if (Content.OscB1Voices != VOICES.VOICES_0) {
+						if (Content.OscB1Wave != OSCWAVE.OSC_Noise) {
+							zebra2Preset.OSC3_WNum = ConvertSylenthWaveToZebra(Content.OscB1Wave, Content.OscB1Invert);
+							zebra2Preset.OSC3_Vol = ConvertSylenthValueToZebra(Content.OscB1Volume, 0, 10, 0, 200);
 
-						// turn the volume on Noise2 down
-						zebra2Preset.Noise2_Vol = 0;
+							// turn the volume on Noise2 down
+							zebra2Preset.Noise2_Vol = 0;
+						} else {
+							// turn the volume on OSC1 all the way down
+							zebra2Preset.OSC3_Vol = 0;
+							
+							// turn the volume on Noise2 up
+							zebra2Preset.Noise2_Vol = ConvertSylenthValueToZebra(Content.OscB1Volume, 0, 10, 0, 200);
+						}
+						zebra2Preset.OSC3_Tune = ConvertSylenthTuneToZebra(Content.OscB1Octave, Content.OscB1Note, Content.OscB1Fine);
+						zebra2Preset.OSC3_Poly = ConvertSylenthVoicesToZebra(Content.OscB1Voices);
+						zebra2Preset.OSC3_Dtun = ConvertSylenthDetuneToZebra(Content.OscB1Detune);
+						zebra2Preset.OSC3_Pan = ConvertSylenthValueToZebra(Content.OscB1Pan, -10, 10, -100, 100);
+						zebra2Preset.OSC3_PolW = ConvertSylenthValueToZebra(Content.OscB1Stereo, 0, 10, 0, 100);
+						zebra2Preset.OSC3_Phse = ConvertSylenthValueToZebra(Content.OscB1Phase, 0, 360, 0, 100);
+						
+						// These are not yet handled!
+						// Content.OscB1Retrig
+						// Content.OscB1Wave
 					} else {
-						// turn the volume on OSC1 all the way down
+						// set volume to zero?
 						zebra2Preset.OSC3_Vol = 0;
-						
-						// turn the volume on Noise2 up
-						zebra2Preset.Noise2_Vol = ConvertSylenthValueToZebra(Content.OscB1Volume, 0, 10, 0, 200);
 					}
-					zebra2Preset.OSC3_Tune = ConvertSylenthTuneToZebra(Content.OscB1Octave, Content.OscB1Note, Content.OscB1Fine);
-					zebra2Preset.OSC3_Poly = ConvertSylenthVoicesToZebra(Content.OscB1Voices);
-					zebra2Preset.OSC3_Dtun = ConvertSylenthDetuneToZebra(Content.OscB1Detune);
-					zebra2Preset.OSC3_Pan = ConvertSylenthValueToZebra(Content.OscB1Pan, -10, 10, -100, 100);
-					zebra2Preset.OSC3_PolW = ConvertSylenthValueToZebra(Content.OscB1Stereo, 0, 10, 0, 100);
-					zebra2Preset.OSC3_Phse = ConvertSylenthValueToZebra(Content.OscB1Phase, 0, 360, 0, 100);
-					
-					// These are not yet handled!
-					// Content.OscB1Retrig
-					// Content.OscB1Wave
-				} else {
-					// set volume to zero?
-					zebra2Preset.OSC3_Vol = 0;
-				}
 
-				// OscB2
-				if (Content.OscB2Voices != VOICES.VOICES_0) {
-					if (Content.OscB2Wave != OSCWAVE.OSC_Noise) {
-						zebra2Preset.OSC4_WNum = ConvertSylenthWaveToZebra(Content.OscB2Wave, Content.OscB2Invert);
-						zebra2Preset.OSC4_Vol = ConvertSylenthValueToZebra(Content.OscB2Volume, 0, 10, 0, 200);
+					// OscB2
+					if (Content.OscB2Voices != VOICES.VOICES_0) {
+						if (Content.OscB2Wave != OSCWAVE.OSC_Noise) {
+							zebra2Preset.OSC4_WNum = ConvertSylenthWaveToZebra(Content.OscB2Wave, Content.OscB2Invert);
+							zebra2Preset.OSC4_Vol = ConvertSylenthValueToZebra(Content.OscB2Volume, 0, 10, 0, 200);
 
-						// turn the volume on Noise2 down
-						zebra2Preset.Noise2_Vol = 0;
+							// turn the volume on Noise2 down
+							zebra2Preset.Noise2_Vol = 0;
+						} else {
+							// turn the volume on OSC1 all the way down
+							zebra2Preset.OSC4_Vol = 0;
+							
+							// turn the volume on Noise2 up
+							zebra2Preset.Noise2_Vol = ConvertSylenthValueToZebra(Content.OscB2Volume, 0, 10, 0, 200);
+						}
+						zebra2Preset.OSC4_Tune = ConvertSylenthTuneToZebra(Content.OscB2Octave, Content.OscB2Note, Content.OscB2Fine);
+						zebra2Preset.OSC4_Poly = ConvertSylenthVoicesToZebra(Content.OscB2Voices);
+						zebra2Preset.OSC4_Dtun = ConvertSylenthDetuneToZebra(Content.OscB2Detune);
+						zebra2Preset.OSC4_Pan = ConvertSylenthValueToZebra(Content.OscB2Pan, -10, 10, -100, 100);
+						zebra2Preset.OSC4_PolW = ConvertSylenthValueToZebra(Content.OscB2Stereo, 0, 10, 0, 100);
+						zebra2Preset.OSC4_Phse = ConvertSylenthValueToZebra(Content.OscB2Phase, 0, 360, 0, 100);
+						
+						// These are not yet handled!
+						// Content.OscB2Retrig
+						// Content.OscB2Wave
 					} else {
-						// turn the volume on OSC1 all the way down
+						// set volume to zero?
 						zebra2Preset.OSC4_Vol = 0;
+					}
+
+					// FilterA
+					if (Content.FilterAType != FILTERTYPE.Bypass) {
+						zebra2Preset.VCF1_Cut = ConvertSylenthFrequencyToZebra(Content.FilterACutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
+						zebra2Preset.VCF1_Drv = ConvertSylenthValueToZebra(Content.FilterADrive, 0, 10, 0, 100);
+						zebra2Preset.VCF1_Res = ConvertSylenthValueToZebra(Content.FilterAReso, 0, 10, 0, 100);
+						zebra2Preset.VCF1_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterAType, Content.FilterADB, Content.FilterCtlWarmDrive);
+					}
+
+					// FilterB
+					if (Content.FilterBType != FILTERTYPE.Bypass) {
+						zebra2Preset.VCF2_Cut = ConvertSylenthFrequencyToZebra(Content.FilterBCutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
+						zebra2Preset.VCF2_Drv = ConvertSylenthValueToZebra(Content.FilterBDrive, 0, 10, 0, 100);
+						zebra2Preset.VCF2_Res = ConvertSylenthValueToZebra(Content.FilterBReso, 0, 10, 0, 100);
+						zebra2Preset.VCF2_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterBType, Content.FilterBDB, Content.FilterCtlWarmDrive);
+					}
+					
+					// LFO1 is used for something
+					if (Content.YModLFO1Dest1 != YMODDEST.None || Content.YModLFO1Dest2 != YMODDEST.None ) {
+						SetZebraLFOFromSylenth(zebra2Preset, Content.LFO1Wave, Content.LFO1Free, Content.LFO1Rate, Content.LFO1Gain,
+						                       "LFO1_Wave",
+						                       "LFO1_Sync",
+						                       "LFO1_Rate",
+						                       "LFO1_Trig",
+						                       "LFO1_Phse",
+						                       "LFO1_Amp",
+						                       "LFO1_Slew");
+					}
+
+					// LFO2 is used for something
+					if (Content.YModLFO2Dest1 != YMODDEST.None || Content.YModLFO2Dest2 != YMODDEST.None ) {
+						SetZebraLFOFromSylenth(zebra2Preset, Content.LFO2Wave, Content.LFO2Free, Content.LFO2Rate, Content.LFO2Gain,
+						                       "LFO2_Wave",
+						                       "LFO2_Sync",
+						                       "LFO2_Rate",
+						                       "LFO2_Trig",
+						                       "LFO2_Phse",
+						                       "LFO2_Amp",
+						                       "LFO2_Slew");
+					}
+					
+					// Delay
+					if (Content.XSwDelayOnOff == ONOFF.On) {
+
+						zebra2Preset.Delay1_Mix = ConvertSylenthValueToZebra(Content.DelayDry_Wet, 0, 100, 0, 40); // the range is 0, 100, but using 0 - x i get a more correct volume
 						
-						// turn the volume on Noise2 up
-						zebra2Preset.Noise2_Vol = ConvertSylenthValueToZebra(Content.OscB2Volume, 0, 10, 0, 200);
+						// Feedback
+						zebra2Preset.Delay1_FB = ConvertSylenthValueToZebra(Content.DelayFeedback, 0, 100, 0, 30);
+						
+						// X-back sounds like ping pong
+						if (Content.DelayPingPong == ONOFF.On) {
+							zebra2Preset.Delay1_CB = 50;
+							zebra2Preset.Delay1_FB = 0;
+						}
+						
+						// high pass == low cut and low pass == high cut
+						// these does not work since zebra delay freq has a range of 0 - 100 not 0 - 150 like the rest ?
+						// ConvertSylenthFrequencyToZebra(Content.DelayLowCut, FloatToHz.DelayLowCut);
+						// ConvertSylenthFrequencyToZebra(Content.DelayHighCut, FloatToHz.DelayHighCut);
+						zebra2Preset.Delay1_HP = 0;
+						zebra2Preset.Delay1_LP = 60; // 35 - 60 sounds more like the default sylenth delay settings
+						
+						zebra2Preset.Delay1_Mode = (int) Zebra2Preset.DelayMode.stereo_2;
+						
+						zebra2Preset.Delay1_Sync1 = ConvertSylenthDelayTimingsToZebra(Content.DelayTimeLeft);
+						zebra2Preset.Delay1_Pan1 = -100;
+						zebra2Preset.Delay1_Sync2 = ConvertSylenthDelayTimingsToZebra(Content.DelayTimeRight);
+						zebra2Preset.Delay1_Pan2 = 100;
+					} else {
+						// set volume to zero?
+						zebra2Preset.Delay1_Mix = 0;
 					}
-					zebra2Preset.OSC4_Tune = ConvertSylenthTuneToZebra(Content.OscB2Octave, Content.OscB2Note, Content.OscB2Fine);
-					zebra2Preset.OSC4_Poly = ConvertSylenthVoicesToZebra(Content.OscB2Voices);
-					zebra2Preset.OSC4_Dtun = ConvertSylenthDetuneToZebra(Content.OscB2Detune);
-					zebra2Preset.OSC4_Pan = ConvertSylenthValueToZebra(Content.OscB2Pan, -10, 10, -100, 100);
-					zebra2Preset.OSC4_PolW = ConvertSylenthValueToZebra(Content.OscB2Stereo, 0, 10, 0, 100);
-					zebra2Preset.OSC4_Phse = ConvertSylenthValueToZebra(Content.OscB2Phase, 0, 360, 0, 100);
-					
-					// These are not yet handled!
-					// Content.OscB2Retrig
-					// Content.OscB2Wave
-				} else {
-					// set volume to zero?
-					zebra2Preset.OSC4_Vol = 0;
-				}
 
-				// FilterA
-				if (Content.FilterAType != FILTERTYPE.Bypass) {
-					zebra2Preset.VCF1_Cut = ConvertSylenthFrequencyToZebra(Content.FilterACutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
-					zebra2Preset.VCF1_Drv = ConvertSylenthValueToZebra(Content.FilterADrive, 0, 10, 0, 100);
-					zebra2Preset.VCF1_Res = ConvertSylenthValueToZebra(Content.FilterAReso, 0, 10, 0, 100);
-					zebra2Preset.VCF1_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterAType, Content.FilterADB, Content.FilterCtlWarmDrive);
-				}
-
-				// FilterB
-				if (Content.FilterBType != FILTERTYPE.Bypass) {
-					zebra2Preset.VCF2_Cut = ConvertSylenthFrequencyToZebra(Content.FilterBCutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
-					zebra2Preset.VCF2_Drv = ConvertSylenthValueToZebra(Content.FilterBDrive, 0, 10, 0, 100);
-					zebra2Preset.VCF2_Res = ConvertSylenthValueToZebra(Content.FilterBReso, 0, 10, 0, 100);
-					zebra2Preset.VCF2_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterBType, Content.FilterBDB, Content.FilterCtlWarmDrive);
-				}
-				
-				// LFO1 is used for something
-				if (Content.YModLFO1Dest1 != YMODDEST.None || Content.YModLFO1Dest2 != YMODDEST.None ) {
-					SetZebraLFOFromSylenth(zebra2Preset, Content.LFO1Wave, Content.LFO1Free, Content.LFO1Rate, Content.LFO1Gain,
-					                       "LFO1_Wave",
-					                       "LFO1_Sync",
-					                       "LFO1_Rate",
-					                       "LFO1_Trig",
-					                       "LFO1_Phse",
-					                       "LFO1_Amp",
-					                       "LFO1_Slew");
-				}
-
-				// LFO2 is used for something
-				if (Content.YModLFO2Dest1 != YMODDEST.None || Content.YModLFO2Dest2 != YMODDEST.None ) {
-					SetZebraLFOFromSylenth(zebra2Preset, Content.LFO2Wave, Content.LFO2Free, Content.LFO2Rate, Content.LFO2Gain,
-					                       "LFO2_Wave",
-					                       "LFO2_Sync",
-					                       "LFO2_Rate",
-					                       "LFO2_Trig",
-					                       "LFO2_Phse",
-					                       "LFO2_Amp",
-					                       "LFO2_Slew");
-				}
-				
-				// Delay
-				if (Content.XSwDelayOnOff == ONOFF.On) {
-
-					zebra2Preset.Delay1_Mix = ConvertSylenthValueToZebra(Content.DelayDry_Wet, 0, 100, 0, 40); // the range is 0, 100, but using 0 - x i get a more correct volume
-					
-					// Feedback
-					zebra2Preset.Delay1_FB = ConvertSylenthValueToZebra(Content.DelayFeedback, 0, 100, 0, 30);
-					
-					// X-back sounds like ping pong
-					if (Content.DelayPingPong == ONOFF.On) {
-						zebra2Preset.Delay1_CB = 50;
-						zebra2Preset.Delay1_FB = 0;
+					// Reverb
+					if (Content.XSwReverbOnOff == ONOFF.On) {
+						zebra2Preset.Rev1_Damp = ConvertSylenthValueToZebra(Content.ReverbDamp, 0, 10, 0, 100);
+						
+						// sylenth dry/wet slider makes up two zebra2 sliders (dry and wet)
+						zebra2Preset.Rev1_Dry = 100;
+						zebra2Preset.Rev1_Wet = ConvertSylenthValueToZebra(Content.ReverbDry_Wet, 0, 100, 0, 50); // reduce the range to limit wetness
+						
+						// sylenth stores the predelay in ms (0 - 200)
+						zebra2Preset.Rev1_Pre = ConvertSylenthValueToZebra(Content.ReverbPredelay, 0, 200, 0, 100);
+						
+						zebra2Preset.Rev1_Size = ConvertSylenthValueToZebra(Content.ReverbSize, 0, 10, 0, 100);
+					} else {
+						// set volume to zero?
+						zebra2Preset.Rev1_Wet = 0;
+						zebra2Preset.Rev1_Dry = 100;
 					}
 					
-					// high pass == low cut and low pass == high cut
-					// these does not work since zebra delay freq has a range of 0 - 100 not 0 - 150 like the rest ?
-					// ConvertSylenthFrequencyToZebra(Content.DelayLowCut, FloatToHz.DelayLowCut);
-					// ConvertSylenthFrequencyToZebra(Content.DelayHighCut, FloatToHz.DelayHighCut);
-					zebra2Preset.Delay1_HP = 0;
-					zebra2Preset.Delay1_LP = 60; // 35 - 60 sounds more like the default sylenth delay settings
-					
-					zebra2Preset.Delay1_Mode = (int) Zebra2Preset.DelayMode.stereo_2;
-					
-					zebra2Preset.Delay1_Sync1 = ConvertSylenthDelayTimingsToZebra(Content.DelayTimeLeft);
-					zebra2Preset.Delay1_Pan1 = -100;
-					zebra2Preset.Delay1_Sync2 = ConvertSylenthDelayTimingsToZebra(Content.DelayTimeRight);
-					zebra2Preset.Delay1_Pan2 = 100;
-				} else {
-					// set volume to zero?
-					zebra2Preset.Delay1_Mix = 0;
-				}
-
-				// Reverb
-				if (Content.XSwReverbOnOff == ONOFF.On) {
-					zebra2Preset.Rev1_Damp = ConvertSylenthValueToZebra(Content.ReverbDamp, 0, 10, 0, 100);
-					
-					// sylenth dry/wet slider makes up two zebra2 sliders (dry and wet)
-					zebra2Preset.Rev1_Dry = 100;
-					zebra2Preset.Rev1_Wet = ConvertSylenthValueToZebra(Content.ReverbDry_Wet, 0, 100, 0, 50); // reduce the range to limit wetness
-					
-					// sylenth stores the predelay in ms (0 - 200)
-					zebra2Preset.Rev1_Pre = ConvertSylenthValueToZebra(Content.ReverbPredelay, 0, 200, 0, 100);
-					
-					zebra2Preset.Rev1_Size = ConvertSylenthValueToZebra(Content.ReverbSize, 0, 10, 0, 100);
-				} else {
-					// set volume to zero?
-					zebra2Preset.Rev1_Wet = 0;
-					zebra2Preset.Rev1_Dry = 100;
-				}
-				
-				// Distortion = Shaper 3
-				if (Content.XSwDistOnOff == ONOFF.On) {
-					zebra2Preset.Shape3_Depth = ConvertSylenthValueToZebra(Content.DistortDryWet, 0, 10, 0, 100);
-					zebra2Preset.Shape3_Edge = ConvertSylenthValueToZebra(Content.DistortAmount, 0, 10, 0, 100);
-					zebra2Preset.Shape3_Input = 13;
-					zebra2Preset.Shape3_Output = 0;
-					zebra2Preset.Shape3_HiOut = 16;
-					
-					switch(Content.DistortType) {
-						case DISTORTTYPE.OverDrv:
-							zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.Wedge;
-							break;
-						case DISTORTTYPE.Clip:
-						case DISTORTTYPE.Decimate:
-						case DISTORTTYPE.BitCrush:
-							zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.Crush;
-							break;
-						case DISTORTTYPE.FoldBack:
-							zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.T_Drive;
-							break;
+					// Distortion = Shaper 3
+					if (Content.XSwDistOnOff == ONOFF.On) {
+						zebra2Preset.Shape3_Depth = ConvertSylenthValueToZebra(Content.DistortDryWet, 0, 10, 0, 100);
+						zebra2Preset.Shape3_Edge = ConvertSylenthValueToZebra(Content.DistortAmount, 0, 10, 0, 100);
+						zebra2Preset.Shape3_Input = 13;
+						zebra2Preset.Shape3_Output = 0;
+						zebra2Preset.Shape3_HiOut = 16;
+						
+						switch(Content.DistortType) {
+							case DISTORTTYPE.OverDrv:
+								zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.Wedge;
+								break;
+							case DISTORTTYPE.Clip:
+							case DISTORTTYPE.Decimate:
+							case DISTORTTYPE.BitCrush:
+								zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.Crush;
+								break;
+							case DISTORTTYPE.FoldBack:
+								zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.T_Drive;
+								break;
+						}
+					} else {
+						// set everything to zero?
+						zebra2Preset.Shape3_Type = 0;                // Type (Type=0)
+						zebra2Preset.Shape3_Depth = 00.00f;          // Depth (Depth=0.00)
+						zebra2Preset.Shape3_DMSrc = 0;               // D_ModSrc (DMSrc=0)
+						zebra2Preset.Shape3_DMDpt = 00.00f;          // D_ModDepth (DMDpt=0.00)
+						zebra2Preset.Shape3_Edge = 0.00f;            // Edge (Edge=0.00)
+						zebra2Preset.Shape3_EMSrc = 0;               // Edge ModSrc (EMSrc=0)
+						zebra2Preset.Shape3_EMDpt = 00.00f;          // Edge ModDepth (EMDpt=0.00)
+						zebra2Preset.Shape3_Input = 00.00f;          // Input (Input=0.00)
+						zebra2Preset.Shape3_Output = 00.00f;         // Output (Output=0.00)
+						zebra2Preset.Shape3_HiOut = 00.00f;          // HiOut (HiOut=0.00)
 					}
-				} else {
-					// set everything to zero?
-					zebra2Preset.Shape3_Type = 0;                // Type (Type=0)
-					zebra2Preset.Shape3_Depth = 00.00f;          // Depth (Depth=0.00)
-					zebra2Preset.Shape3_DMSrc = 0;               // D_ModSrc (DMSrc=0)
-					zebra2Preset.Shape3_DMDpt = 00.00f;          // D_ModDepth (DMDpt=0.00)
-					zebra2Preset.Shape3_Edge = 0.00f;            // Edge (Edge=0.00)
-					zebra2Preset.Shape3_EMSrc = 0;               // Edge ModSrc (EMSrc=0)
-					zebra2Preset.Shape3_EMDpt = 00.00f;          // Edge ModDepth (EMDpt=0.00)
-					zebra2Preset.Shape3_Input = 00.00f;          // Input (Input=0.00)
-					zebra2Preset.Shape3_Output = 00.00f;         // Output (Output=0.00)
-					zebra2Preset.Shape3_HiOut = 00.00f;          // HiOut (HiOut=0.00)
-				}
-				
-				// Compression
-				if (Content.XSwCompOnOff == ONOFF.On) {
-					zebra2Preset.Comp1_Att = ConvertSylenthValueToZebra(Content.CompAttack, 0.1f, 300, 0, 100);
-					zebra2Preset.Comp1_Rel = ConvertSylenthValueToZebra(Content.CompRelease, 1, 500, 0, 100);
-					zebra2Preset.Comp1_Thres = ConvertSylenthValueToZebra(Content.CompThreshold, -30, 0, -96, 0);
-					zebra2Preset.Comp1_Rat = MathUtils.ConvertAndMainainRatio(Content.CompRatio, 0, 1, 0, 100);
-				}
+					
+					// Compression
+					if (Content.XSwCompOnOff == ONOFF.On) {
+						zebra2Preset.Comp1_Att = ConvertSylenthValueToZebra(Content.CompAttack, 0.1f, 300, 0, 100);
+						zebra2Preset.Comp1_Rel = ConvertSylenthValueToZebra(Content.CompRelease, 1, 500, 0, 100);
+						zebra2Preset.Comp1_Thres = ConvertSylenthValueToZebra(Content.CompThreshold, -30, 0, -96, 0);
+						zebra2Preset.Comp1_Rat = MathUtils.ConvertAndMainainRatio(Content.CompRatio, 0, 1, 0, 100);
+					}
 
-				// Chorus
-				if (Content.XSwChorusOnOff == ONOFF.On) {
-					zebra2Preset.ModFX1_Mode = (int) Zebra2Preset.ModFXType.Phorus;
-					zebra2Preset.ModFX1_Dpth = ConvertSylenthValueToZebra(Content.ChorusDepth, 0, 100, 0, 100);
-					zebra2Preset.ModFX1_Sped = ConvertSylenthValueToZebra(Content.ChorusRate, 0.01f, 27.5f, 0, 100);
-					zebra2Preset.ModFX1_FeeB = ConvertSylenthValueToZebra(Content.CompThreshold, 0, 100, 0, 100);
-				} else {
-					zebra2Preset.ModFX1_Mode = (int) Zebra2Preset.ModFXType.Chorus;
-					zebra2Preset.ModFX1_Mix = 0;
-				}
-				
-				// Equaliser on MasterBus
-				if (Content.XSwEQOnOff == ONOFF.On) {
-					float eqBassFreq = ValueToHz(Content.EQBassFreq, FloatToHz.EQBassFreq); // 13.75f, 880.0f
-					float eqTrebleFreq = ValueToHz(Content.EQTrebleFreq, FloatToHz.EQTrebleFreq); // 440, 28160
-					// the Sylenth eq only works upwards even though zebra has the range -24 -> 24
-					zebra2Preset.EQ1_Fc1 = Zebra2Preset.EqualiserHzToFreqValue(eqBassFreq);
-					zebra2Preset.EQ1_Gain1 = ConvertSylenthValueToZebra(Content.EQBass, 0, 15, 0, 15);
-					zebra2Preset.EQ1_Res1 = 25.00f;
-					zebra2Preset.EQ1_Fc4 = Zebra2Preset.EqualiserHzToFreqValue(eqTrebleFreq);
-					zebra2Preset.EQ1_Gain4 = ConvertSylenthValueToZebra(Content.EQTreble, 0, 15, 0, 15);
-					zebra2Preset.EQ1_Res4 = 25.00f;
-				} else {
-					zebra2Preset.EQ1_Fc1 = 20.00f;               // Freq LowShelf (fc1=20.00)
-					zebra2Preset.EQ1_Res1 = 25.00f;              // Q LowShelf (res1=25.00)
-					zebra2Preset.EQ1_Gain1 = 00.00f;             // Gain LowShelf (gain1=0.00)
-					zebra2Preset.EQ1_Fc2 = 40.00f;               // Freq Mid1 (fc2=40.00)
-					zebra2Preset.EQ1_Res2 = 25.00f;              // Q Mid1 (res2=25.00)
-					zebra2Preset.EQ1_Gain2 = 00.00f;             // Gain Mid1 (gain2=0.00)
-					zebra2Preset.EQ1_Fc3 = 60.00f;               // Freq Mid2 (fc3=60.00)
-					zebra2Preset.EQ1_Res3 = 25.00f;              // Q Mid2 (res3=25.00)
-					zebra2Preset.EQ1_Gain3 = 00.00f;             // Gain Mid2 (gain3=0.00)
-					zebra2Preset.EQ1_Fc4 = 80.00f;               // Freq HiShelf (fc4=80.00)
-					zebra2Preset.EQ1_Res4 = 25.00f;              // Q HiShelf (res4=25.00)
-					zebra2Preset.EQ1_Gain4 = 00.00f;             // Gain HiShelf (gain4=0.00)
-				}
-				
-				// Envelope 1 - Used as Amp Envelope
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvAAttack, "ENV1_TBase", "ENV1_Atk");
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvADecay, "ENV1_TBase", "ENV1_Dec");
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvARelease, "ENV1_TBase", "ENV1_Rel");
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvASustain, "ENV1_TBase", "ENV1_Sus");
-				/*
+					// Chorus
+					if (Content.XSwChorusOnOff == ONOFF.On) {
+						zebra2Preset.ModFX1_Mode = (int) Zebra2Preset.ModFXType.Phorus;
+						zebra2Preset.ModFX1_Dpth = ConvertSylenthValueToZebra(Content.ChorusDepth, 0, 100, 0, 100);
+						zebra2Preset.ModFX1_Sped = ConvertSylenthValueToZebra(Content.ChorusRate, 0.01f, 27.5f, 0, 100);
+						zebra2Preset.ModFX1_FeeB = ConvertSylenthValueToZebra(Content.CompThreshold, 0, 100, 0, 100);
+					} else {
+						zebra2Preset.ModFX1_Mode = (int) Zebra2Preset.ModFXType.Chorus;
+						zebra2Preset.ModFX1_Mix = 0;
+					}
+					
+					// Equaliser on MasterBus
+					if (Content.XSwEQOnOff == ONOFF.On) {
+						float eqBassFreq = ValueToHz(Content.EQBassFreq, FloatToHz.EQBassFreq); // 13.75f, 880.0f
+						float eqTrebleFreq = ValueToHz(Content.EQTrebleFreq, FloatToHz.EQTrebleFreq); // 440, 28160
+						// the Sylenth eq only works upwards even though zebra has the range -24 -> 24
+						zebra2Preset.EQ1_Fc1 = Zebra2Preset.EqualiserHzToFreqValue(eqBassFreq);
+						zebra2Preset.EQ1_Gain1 = ConvertSylenthValueToZebra(Content.EQBass, 0, 15, 0, 15);
+						zebra2Preset.EQ1_Res1 = 25.00f;
+						zebra2Preset.EQ1_Fc4 = Zebra2Preset.EqualiserHzToFreqValue(eqTrebleFreq);
+						zebra2Preset.EQ1_Gain4 = ConvertSylenthValueToZebra(Content.EQTreble, 0, 15, 0, 15);
+						zebra2Preset.EQ1_Res4 = 25.00f;
+					} else {
+						zebra2Preset.EQ1_Fc1 = 20.00f;               // Freq LowShelf (fc1=20.00)
+						zebra2Preset.EQ1_Res1 = 25.00f;              // Q LowShelf (res1=25.00)
+						zebra2Preset.EQ1_Gain1 = 00.00f;             // Gain LowShelf (gain1=0.00)
+						zebra2Preset.EQ1_Fc2 = 40.00f;               // Freq Mid1 (fc2=40.00)
+						zebra2Preset.EQ1_Res2 = 25.00f;              // Q Mid1 (res2=25.00)
+						zebra2Preset.EQ1_Gain2 = 00.00f;             // Gain Mid1 (gain2=0.00)
+						zebra2Preset.EQ1_Fc3 = 60.00f;               // Freq Mid2 (fc3=60.00)
+						zebra2Preset.EQ1_Res3 = 25.00f;              // Q Mid2 (res3=25.00)
+						zebra2Preset.EQ1_Gain3 = 00.00f;             // Gain Mid2 (gain3=0.00)
+						zebra2Preset.EQ1_Fc4 = 80.00f;               // Freq HiShelf (fc4=80.00)
+						zebra2Preset.EQ1_Res4 = 25.00f;              // Q HiShelf (res4=25.00)
+						zebra2Preset.EQ1_Gain4 = 00.00f;             // Gain HiShelf (gain4=0.00)
+					}
+					
+					// Envelope 1 - Used as Amp Envelope
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvAAttack, "ENV1_TBase", "ENV1_Atk");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvADecay, "ENV1_TBase", "ENV1_Dec");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvARelease, "ENV1_TBase", "ENV1_Rel");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvASustain, "ENV1_TBase", "ENV1_Sus");
+					/*
 				zebra2Preset.ENV1_Atk = ConvertSylenthValueToZebra(Content.AmpEnvAAttack, 0, 10, 0, 100);
 				zebra2Preset.ENV1_Dec = ConvertSylenthValueToZebra(Content.AmpEnvADecay, 0, 10, 0, 100);
 				zebra2Preset.ENV1_Rel = ConvertSylenthValueToZebra(Content.AmpEnvARelease, 0, 10, 0, 100);
 				zebra2Preset.ENV1_Sus = ConvertSylenthValueToZebra(Content.AmpEnvASustain, 0, 10, 0, 100);
-				 */
-				
-				// Envelope 2 - Used as Amp Envelope
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBAttack, "ENV2_TBase", "ENV2_Atk");
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBDecay, "ENV2_TBase", "ENV2_Dec");
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBRelease, "ENV2_TBase", "ENV2_Rel");
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBSustain, "ENV2_TBase", "ENV2_Sus");
-				/*
+					 */
+					
+					// Envelope 2 - Used as Amp Envelope
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBAttack, "ENV2_TBase", "ENV2_Atk");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBDecay, "ENV2_TBase", "ENV2_Dec");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBRelease, "ENV2_TBase", "ENV2_Rel");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBSustain, "ENV2_TBase", "ENV2_Sus");
+					/*
 				zebra2Preset.ENV2_Atk = ConvertSylenthValueToZebra(Content.AmpEnvBAttack, 0, 10, 0, 100);
 				zebra2Preset.ENV2_Dec = ConvertSylenthValueToZebra(Content.AmpEnvBDecay, 0, 10, 0, 100);
 				zebra2Preset.ENV2_Rel = ConvertSylenthValueToZebra(Content.AmpEnvBRelease, 0, 10, 0, 100);
 				zebra2Preset.ENV2_Sus = ConvertSylenthValueToZebra(Content.AmpEnvBSustain, 0, 10, 0, 100);
-				 */
+					 */
 
-				// Envelope 3 - Used as Mod Envelope
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Attack, "ENV3_TBase", "ENV3_Atk");
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Decay, "ENV3_TBase", "ENV3_Dec");
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Release, "ENV3_TBase", "ENV3_Rel");
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Sustain, "ENV3_TBase", "ENV3_Sus");
-				/*
+					// Envelope 3 - Used as Mod Envelope
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Attack, "ENV3_TBase", "ENV3_Atk");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Decay, "ENV3_TBase", "ENV3_Dec");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Release, "ENV3_TBase", "ENV3_Rel");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Sustain, "ENV3_TBase", "ENV3_Sus");
+					/*
 				zebra2Preset.ENV3_Atk = ConvertSylenthValueToZebra(Content.ModEnv1Attack, 0, 10, 0, 100);
 				zebra2Preset.ENV3_Dec = ConvertSylenthValueToZebra(Content.ModEnv1Decay, 0, 10, 0, 100);
 				zebra2Preset.ENV3_Rel = ConvertSylenthValueToZebra(Content.ModEnv1Release, 0, 10, 0, 100);
 				zebra2Preset.ENV3_Sus = ConvertSylenthValueToZebra(Content.ModEnv1Sustain, 0, 10, 0, 100);
-				 */
+					 */
 
-				// Envelope 4 - Used as Mod Envelope
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Attack, "ENV4_TBase", "ENV4_Atk");
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Decay, "ENV4_TBase", "ENV4_Dec");
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Release, "ENV4_TBase", "ENV4_Rel");
-				SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Sustain, "ENV4_TBase", "ENV4_Sus");
-				/*
+					// Envelope 4 - Used as Mod Envelope
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Attack, "ENV4_TBase", "ENV4_Atk");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Decay, "ENV4_TBase", "ENV4_Dec");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Release, "ENV4_TBase", "ENV4_Rel");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Sustain, "ENV4_TBase", "ENV4_Sus");
+					/*
 				zebra2Preset.ENV4_Atk = ConvertSylenthValueToZebra(Content.ModEnv2Attack, 0, 10, 0, 100);
 				zebra2Preset.ENV4_Dec = ConvertSylenthValueToZebra(Content.ModEnv2Decay, 0, 10, 0, 100);
 				zebra2Preset.ENV4_Rel = ConvertSylenthValueToZebra(Content.ModEnv2Release, 0, 10, 0, 100);
 				zebra2Preset.ENV4_Sus = ConvertSylenthValueToZebra(Content.ModEnv2Sustain, 0, 10, 0, 100);
-				 */
-				
-				// Matrix
-				SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest1, Content.XModMisc1ADest1Am);
-				SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest2, Content.XModMisc1ADest2Am);
-				SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc1BSource, Content.YModMisc1BDest1, Content.XModMisc1BDest1Am);
-				SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc1BSource, Content.YModMisc1BDest2, Content.XModMisc1BDest2Am);
-				SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc2ASource, Content.YModMisc2ADest1, Content.XModMisc2ADest1Am);
-				SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc2ASource, Content.YModMisc2ADest2, Content.XModMisc2ADest2Am);
-				SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc2BSource, Content.YModMisc2BDest1, Content.XModMisc2BDest1Am);
-				SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc2BSource, Content.YModMisc2BDest2, Content.XModMisc2BDest2Am);
-				
-				// See if the mod envelopes are used
-				SetZebraModSourcesFromSylenth(zebra2Preset, XMODSOURCE.SOURCE_ModEnv_1, Content.YModEnv1Dest1, Content.XModEnv1Dest1Am);
-				SetZebraModSourcesFromSylenth(zebra2Preset, XMODSOURCE.SOURCE_ModEnv_2, Content.YModEnv2Dest1, Content.XModEnv2Dest1Am);
+					 */
+					
+					// Matrix
+					SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest1, Content.XModMisc1ADest1Am);
+					SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest2, Content.XModMisc1ADest2Am);
+					SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc1BSource, Content.YModMisc1BDest1, Content.XModMisc1BDest1Am);
+					SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc1BSource, Content.YModMisc1BDest2, Content.XModMisc1BDest2Am);
+					SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc2ASource, Content.YModMisc2ADest1, Content.XModMisc2ADest1Am);
+					SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc2ASource, Content.YModMisc2ADest2, Content.XModMisc2ADest2Am);
+					SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc2BSource, Content.YModMisc2BDest1, Content.XModMisc2BDest1Am);
+					SetZebraModSourcesFromSylenth(zebra2Preset, Content.XModMisc2BSource, Content.YModMisc2BDest2, Content.XModMisc2BDest2Am);
+					
+					// See if the mod envelopes are used
+					SetZebraModSourcesFromSylenth(zebra2Preset, XMODSOURCE.SOURCE_ModEnv_1, Content.YModEnv1Dest1, Content.XModEnv1Dest1Am);
+					SetZebraModSourcesFromSylenth(zebra2Preset, XMODSOURCE.SOURCE_ModEnv_2, Content.YModEnv2Dest1, Content.XModEnv2Dest1Am);
 
-				// See if the LFOs are used
-				SetZebraModSourcesFromSylenth(zebra2Preset, XMODSOURCE.SOURCE_LFO_1, Content.YModLFO1Dest1, Content.XModLFO1Dest1Am);
-				SetZebraModSourcesFromSylenth(zebra2Preset, XMODSOURCE.SOURCE_LFO_1, Content.YModLFO1Dest2, Content.XModLFO1Dest2Am);
-				SetZebraModSourcesFromSylenth(zebra2Preset, XMODSOURCE.SOURCE_LFO_2, Content.YModLFO2Dest1, Content.XModLFO2Dest1Am);
-				SetZebraModSourcesFromSylenth(zebra2Preset, XMODSOURCE.SOURCE_LFO_2, Content.YModLFO2Dest2, Content.XModLFO2Dest2Am);
-			}
+					// See if the LFOs are used
+					SetZebraModSourcesFromSylenth(zebra2Preset, XMODSOURCE.SOURCE_LFO_1, Content.YModLFO1Dest1, Content.XModLFO1Dest1Am);
+					SetZebraModSourcesFromSylenth(zebra2Preset, XMODSOURCE.SOURCE_LFO_1, Content.YModLFO1Dest2, Content.XModLFO1Dest2Am);
+					SetZebraModSourcesFromSylenth(zebra2Preset, XMODSOURCE.SOURCE_LFO_2, Content.YModLFO2Dest1, Content.XModLFO2Dest1Am);
+					SetZebraModSourcesFromSylenth(zebra2Preset, XMODSOURCE.SOURCE_LFO_2, Content.YModLFO2Dest2, Content.XModLFO2Dest2Am);
+				}
+			}			
 			return zebra2PresetList;
 		}
 

@@ -149,7 +149,7 @@ namespace PresetConverter
 			string outFilePath2 = Path.Combine(allProjectDir, "PresetConverter", "Zebra2PresetOutput.txt");
 			TextWriter tw2 = new StreamWriter(outFilePath2);
 			
-			List<Zebra2Preset> zebra2ConvertedList = sylenth1.ToZebra2Preset(zebra2_Sylenth1_PresetTemplate, true);
+			List<Zebra2Preset> zebra2ConvertedList = sylenth1.ToZebra2Preset(zebra2_Sylenth1_PresetTemplate, false);
 			int count = 1;
 			foreach (Zebra2Preset zebra2Converted in zebra2ConvertedList) {
 				string presetName = StringUtils.MakeValidFileName(zebra2Converted.PresetName);
