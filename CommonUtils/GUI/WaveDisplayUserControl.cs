@@ -61,7 +61,7 @@ namespace CommonUtils.GUI
 		{
 			this.audioData = audioData;
 
-			bmp = AudioAnalyzer.DrawWaveform(audioData,
+			bmp = AudioAnalyzer.DrawWaveform4(audioData,
 			                                 new Size(this.Width, this.Height),
 			                                 waveDisplayResolution);
 			

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.IO;
 
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Core.Plugin;
@@ -45,6 +46,9 @@ namespace ProcessVSTPlugin
 		
 		private float[] lastProcessedBufferRight;
 		private float[] lastProcessedBufferLeft;
+		
+		public List<float> recordedRight = new List<float>();
+		public List<float> recordedLeft = new List<float>();
 		
 		// Explicit static constructor to tell C# compiler
 		// not to mark type as beforefieldinit
@@ -100,6 +104,22 @@ namespace ProcessVSTPlugin
 			get
 			{
 				return this.lastProcessedBufferLeft;
+			}
+		}
+
+		public List<float> RecordedRight
+		{
+			get
+			{
+				return this.recordedRight;
+			}
+		}
+
+		public List<float> RecordedLeft
+		{
+			get
+			{
+				return this.recordedLeft;
 			}
 		}
 		
@@ -276,6 +296,11 @@ namespace ProcessVSTPlugin
 						j++;
 					}
 				}
+				
+				// store in recorded List's
+				recordedRight.AddRange(lastProcessedBufferRight);
+				recordedLeft.AddRange(lastProcessedBufferLeft);
+				
 				count++;
 			}
 			return (int) sampleCount;

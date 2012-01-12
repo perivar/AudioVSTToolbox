@@ -173,11 +173,15 @@
     <Compile Include="..\PresetConverter\Zebra2Preset.cs">
       <Link>Zebra2Preset.cs</Link>
     </Compile>
-    <Compile Include="AnalyseForm.cs" />
-    <Compile Include="AnalyseForm.Designer.cs">
+    <Compile Include="AudioOutput.cs" />
+    <Compile Include="Audio\AnalyseForm.cs" />
+    <Compile Include="Audio\AnalyseForm.Designer.cs">
       <DependentUpon>AnalyseForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="AudioOutput.cs" />
+    <Compile Include="Audio\WaveDisplayForm.cs" />
+    <Compile Include="Audio\WaveDisplayForm.Designer.cs">
+      <DependentUpon>WaveDisplayForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="InvestigatedPluginPresetDetailsForm.cs" />
     <Compile Include="InvestigatedPluginPresetDetailsForm.Designer.cs">
       <DependentUpon>InvestigatedPluginPresetDetailsForm.cs</DependentUpon>
@@ -208,10 +212,6 @@
     <Compile Include="UnidiffSeqFormatter.cs" />
     <Compile Include="VstHost.cs" />
     <Compile Include="VstPlaybackNAudio.cs" />
-    <Compile Include="WaveDisplayForm.cs" />
-    <Compile Include="WaveDisplayForm.Designer.cs">
-      <DependentUpon>WaveDisplayForm.cs</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CommonUtils\GUI\FrequencyAnalyserUserControl.resx">
@@ -222,8 +222,11 @@
       <Link>GUI\WaveDisplayUserControl.resx</Link>
       <DependentUpon>WaveDisplayUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="AnalyseForm.resx">
+    <EmbeddedResource Include="Audio\AnalyseForm.resx">
       <DependentUpon>AnalyseForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Audio\WaveDisplayForm.resx">
+      <DependentUpon>WaveDisplayForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EditorFrame.resx">
       <DependentUpon>EditorFrame.cs</DependentUpon>
@@ -239,9 +242,6 @@
     <EmbeddedResource Include="PluginForm.resx">
       <DependentUpon>PluginForm.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="WaveDisplayForm.resx">
-      <DependentUpon>WaveDisplayForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

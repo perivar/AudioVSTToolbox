@@ -102,7 +102,14 @@ namespace ProcessVSTPlugin
 			string wavFilePath = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
 			//string wavFilePath = @"C:\Users\perivar.nerseth\Music\Per Ivar Samples\Rihanna - Who's That Chick (Prod. By David Guetta) (Synth and Bass).wav";
 			BassProxy bassAudio = new BassProxy();
-			float[] wavData = bassAudio.ReadMonoFromFile(wavFilePath, 44100, 3*1000, 0*1000 );
+			//float[] wavData = bassAudio.ReadMonoFromFile(wavFilePath, 44100, 3*1000, 0*1000 );
+			float[] wavData = bassAudio.ReadMonoFromFile(wavFilePath, 44100, 0, 0);
+
+			System.Drawing.Bitmap png4 = CommonUtils.FFT.AudioAnalyzer.DrawWaveform4(wavData, new System.Drawing.Size(1000, 600), 1);
+			string fileName4 = String.Format("wave-sine-{0}.png", 4);
+			png4.Save(fileName4);
+
+			return;
 			
 			TimeSpan t = AudioUtils.GetWaveFileTotalTime(wavFilePath);
 			var stream=new MemoryStream(File.ReadAllBytes(wavFilePath));

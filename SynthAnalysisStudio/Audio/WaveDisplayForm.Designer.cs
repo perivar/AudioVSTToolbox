@@ -45,15 +45,15 @@ namespace SynthAnalysisStudio
 			// 
 			// trackBar1
 			// 
-			this.trackBar1.LargeChange = 10;
+			this.trackBar1.LargeChange = 50;
 			this.trackBar1.Location = new System.Drawing.Point(653, 64);
-			this.trackBar1.Maximum = 100;
+			this.trackBar1.Maximum = 1000;
 			this.trackBar1.Minimum = 1;
 			this.trackBar1.Name = "trackBar1";
 			this.trackBar1.RightToLeft = System.Windows.Forms.RightToLeft.No;
 			this.trackBar1.Size = new System.Drawing.Size(70, 45);
 			this.trackBar1.TabIndex = 5;
-			this.trackBar1.TickFrequency = 10;
+			this.trackBar1.TickFrequency = 100;
 			this.trackBar1.Value = 1;
 			this.trackBar1.Scroll += new System.EventHandler(this.TrackBar1Scroll);
 			// 

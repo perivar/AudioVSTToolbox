@@ -31,6 +31,7 @@ namespace SynthAnalysisStudio
 			InitializeComponent();
 			
 			VstHost host = VstHost.Instance;
+			//this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
 			this.waveDisplayUserControl1.SetAudioData(host.LastProcessedBufferLeft);
 			
 			StartGUIRefreshTimer();
@@ -40,6 +41,7 @@ namespace SynthAnalysisStudio
 		{
 			if (DoGUIRefresh) {
 				VstHost host = VstHost.Instance;
+				//this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
 				this.waveDisplayUserControl1.SetAudioData(host.LastProcessedBufferLeft);
 			}
 		}
