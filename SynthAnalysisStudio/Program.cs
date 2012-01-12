@@ -96,18 +96,18 @@ namespace ProcessVSTPlugin
 		[STAThread]
 		static void Main(string[] args)
 		{
-			/*
-			string wavFilePath = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
 
+			/*
+			// read audio
+			string wavFilePath = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
+			//string wavFilePath = @"C:\Users\perivar.nerseth\Music\Per Ivar Samples\Rihanna - Who's That Chick (Prod. By David Guetta) (Synth and Bass).wav";
+			BassProxy bassAudio = new BassProxy();
+			float[] wavData = bassAudio.ReadMonoFromFile(wavFilePath, 44100, 3*1000, 0*1000 );
+			
 			TimeSpan t = AudioUtils.GetWaveFileTotalTime(wavFilePath);
 			var stream=new MemoryStream(File.ReadAllBytes(wavFilePath));
 			byte[] bArray = AudioUtils.ResampleWav(stream, new WaveFormat(8000, 8, 1));
 			return;
-			*/
-			/*
-			// read audio
-			BassProxy bassAudio = new BassProxy();
-			float[] wavData = bassAudio.ReadMonoFromFile(wavFilePath, 44100, 1*1000, 2*1000 );
 			
 			float min = 0.0f;
 			float max = 0.0f;
@@ -122,20 +122,19 @@ namespace ProcessVSTPlugin
 			//float[] floatAudioData = BinaryFile.FloatArrayFromByteArray(audioData);
 			//Export.exportCSV("sine-sample-data.csv", floatAudioData);
 			
-			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavData, new System.Drawing.Size(1000, 600), 1);
+			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavData, new System.Drawing.Size(1000, 600), 10000);
 			string fileName = String.Format("wave-sine-{0}.png", 1);
 			png.Save(fileName);
 
-			System.Drawing.Bitmap png2 = CommonUtils.FFT.AudioAnalyzer.DrawWaveform2(wavData, new System.Drawing.Size(1000, 600), 1);
-			string fileName2 = String.Format("wave-sine-{0}.png", 2);
-			png2.Save(fileName2);
+			//System.Drawing.Bitmap png2 = CommonUtils.FFT.AudioAnalyzer.DrawWaveform2(wavData, new System.Drawing.Size(1000, 600), 1);
+			//string fileName2 = String.Format("wave-sine-{0}.png", 2);
+			//png2.Save(fileName2);
 
-			System.Drawing.Bitmap png3 = CommonUtils.FFT.AudioAnalyzer.DrawWaveform3(wavDataFixed, new System.Drawing.Size(1000, 600), 1);
-			string fileName3 = String.Format("wave-sine-{0}.png", 3);
-			png3.Save(fileName3);
+			//System.Drawing.Bitmap png3 = CommonUtils.FFT.AudioAnalyzer.DrawWaveform3(wavDataFixed, new System.Drawing.Size(1000, 600), 1);
+			//string fileName3 = String.Format("wave-sine-{0}.png", 3);
+			//png3.Save(fileName3);
 
 			return;
-			*/
 			
 			/*
 			float frequency = 5000;

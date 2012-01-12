@@ -446,7 +446,7 @@ namespace CommonUtils.FFT
 			}
 		}
 		
-		public static Bitmap DrawWaveform(float[] data, Size imageSize, int resolution) {
+		public static Bitmap DrawWaveform(float[] data, Size imageSize, int resolution, float foundMaxAmplitude = -1, float foundMaxTime = -1) {
 
 			// Basic constants
 			int TOTAL_HEIGHT = imageSize.Height;    // Height of graph
@@ -456,9 +456,14 @@ namespace CommonUtils.FFT
 			int LEFT = 5;                    		// Left edge of graph
 			int HEIGHT = imageSize.Height-2*TOP;	// Height of graph
 			int WIDTH = imageSize.Width-2*LEFT;     // Width of graph
-
+			
+			float MIN_AMPLITUDE = -1.0f;
+			float MAX_AMPLITUDE = 1.0f;
+			float AMPLITUDE_STEP = 0.25f;
+			
 			string LABEL_X = "X axis"; 				// Label for X axis
 			string LABEL_Y = "Y axis";             	// Label for Y axis
+			bool drawLabels = false;
 			bool drawRoundedRectangles = true;
 			
 			// Colors
@@ -469,6 +474,32 @@ namespace CommonUtils.FFT
 			Color sampleColor = ColorTranslator.FromHtml("#4C2F1A");
 			Color fillOuterColor = ColorTranslator.FromHtml("#FFFFFF");
 			Color fillColor = ColorTranslator.FromHtml("#F9C998");
+			
+			// Derived constants
+			int CENTER = TOTAL_HEIGHT / 2;
+			int RIGHT = WIDTH;
+			int BOTTOM = TOTAL_HEIGHT-TOP;                   						// Bottom of graph
+
+			double sampleRate = 44100;
+			int numberOfSamples = data.Length;
+			double milliseconds = numberOfSamples / sampleRate * 1000;
+			int amplitude = 1; // 1 = normal
+
+			//int resolution = 44; //low resolution (1) means to zoom into the waveform
+			int sampleToPixel = (int) numberOfSamples / (RIGHT - LEFT);
+			if (resolution < sampleToPixel) {
+				sampleToPixel = resolution;
+			}
+
+			float MIN_TIME = 0.0f;
+			//float MAX_TIME = (float) milliseconds;
+			float MAX_TIME = (float) (sampleToPixel * (RIGHT - LEFT) / sampleRate * 1000);
+			
+			float TIME_STEP = (float) MathUtils.GetNicerNumber(MAX_TIME / 10);
+			
+			float AMPLITUDETOPIXEL = (float) HEIGHT/(MAX_AMPLITUDE-MIN_AMPLITUDE); 	// Pixels/tick
+			float TIMETOPIXEL = (float) WIDTH/(MAX_TIME-MIN_TIME); 					// Pixels/second
+			
 			
 			// Set up for drawing
 			Bitmap png = new Bitmap( TOTAL_WIDTH, TOTAL_HEIGHT, PixelFormat.Format32bppArgb );
@@ -497,39 +528,102 @@ namespace CommonUtils.FFT
 				g.DrawRectangle(linePen, rect);
 			}
 			
-			// Determine channnel boundries
-			int CENTER = TOTAL_HEIGHT / 2;
+			// Label for horizontal axis
+			Font drawLabelFont = new Font("Arial", 8);
+			SolidBrush drawLabelBrush = new SolidBrush(textPen.Color);
+			if (drawLabels) {
+				SizeF drawLabelTextSize = g.MeasureString(LABEL_X, drawLabelFont);
+				g.DrawString(LABEL_X, drawLabelFont, drawLabelBrush, (TOTAL_WIDTH/2) - (drawLabelTextSize.Width/2), TOTAL_HEIGHT - drawLabelFont.GetHeight(g) -3);
+			}
+			
+			
+			float y = 0;
+			float yMiddle = 0;
+			float x = 0;
+			float xMiddle = 0;
+			for ( float amplitudeTick = MIN_AMPLITUDE; amplitudeTick <= MAX_AMPLITUDE; amplitudeTick += AMPLITUDE_STEP )
+			{
+				// draw horozontal main line
+				y = BOTTOM - AMPLITUDETOPIXEL*(amplitudeTick-MIN_AMPLITUDE);
+				if (y < BOTTOM && y > TOP+1) {
+					g.DrawLine(linePen, LEFT, y, LEFT+WIDTH, y);
+				}
 
+				// draw horozontal middle line (between the main lines)
+				yMiddle = y-(AMPLITUDETOPIXEL*AMPLITUDE_STEP)/2;
+				if (yMiddle > 0) {
+					g.DrawLine(middleLinePen, LEFT, yMiddle, LEFT+WIDTH, yMiddle);
+				}
+
+				if ( amplitudeTick != MAX_AMPLITUDE )
+				{
+					// Numbers on the tick marks
+					Font drawFont = new Font("Arial", 8);
+					SolidBrush drawBrush = new SolidBrush(textPen.Color);
+					g.DrawString("" + amplitudeTick, drawFont, drawBrush, LEFT+5, y - drawFont.GetHeight(g) -2);
+				}
+			}
+			
+			if (drawLabels) {
+				// Label for vertical axis
+				g.DrawString(LABEL_Y, drawLabelFont, drawLabelBrush, 1, TOP + HEIGHT/2 - drawLabelFont.GetHeight(g)/2);
+			}
+			
+			// Tick marks on the horizontal axis
+			for ( float timeTick = MIN_TIME; timeTick <= MAX_TIME; timeTick += TIME_STEP )
+			{
+				// draw vertical main line
+				x = LEFT + TIMETOPIXEL*(timeTick-MIN_TIME);
+				if (x > LEFT  && x < WIDTH) {
+					g.DrawLine(linePen, x, BOTTOM, x, TOP);
+				}
+
+				// draw vertical middle line (between the main lines)
+				xMiddle = x + TIMETOPIXEL*TIME_STEP/2;
+				if (xMiddle < TOTAL_WIDTH) {
+					g.DrawLine(middleLinePen, xMiddle, BOTTOM, xMiddle, TOP);
+				}
+
+				if ( timeTick != MIN_TIME && timeTick != MAX_TIME )
+				{
+					// Numbers on the tick marks
+					Font drawFont = new Font("Arial", 8);
+					SolidBrush drawBrush = new SolidBrush(textPen.Color);
+					g.DrawString("" + timeTick + " ms", drawFont, drawBrush, x, TOP +2);
+				}
+			}
+			
+			if (foundMaxAmplitude != -1 && foundMaxTime != -1) {
+				string foundMax = String.Format("Max found: {0} @ {1} ms", foundMaxAmplitude, foundMaxTime);
+				SizeF foundMaxLabelTextSize = g.MeasureString(foundMax, drawLabelFont);
+				g.DrawString(foundMax, drawLabelFont, drawLabelBrush, TOTAL_WIDTH - foundMaxLabelTextSize.Width - 10, TOTAL_HEIGHT - drawLabelFont.GetHeight(g) - 10);
+			}
+			
+			
+			// draw middle line
 			g.DrawLine(middleLinePen, LEFT, CENTER, WIDTH, CENTER);
 
-			int RIGHT = WIDTH;
-			int BOTTOM = HEIGHT;
-
-			int numberOfSamples = data.Length;
-			//int resolution = 44; //low resolution (1) means to zoom into the waveform
-			int amplitude = 2; // 1 = normal
-			
-			// Draw channel
+			// Draw waveform
 			//double yScale = 0.5 * (BOTTOM - TOP) / 32768;  // a 16 bit sample has values from -32768 to 32767
 			double yScale = 0.5 * (BOTTOM - TOP) * amplitude;  // a float sample has values from -1 to 1
 			int xPrev = 0, yPrev = 0;
-			for (int xAxis = 0; xAxis < RIGHT; xAxis++)
+			for (int xAxis = LEFT; xAxis < RIGHT; xAxis++)
 			{
-				//int sampleToPixel = (int) data.Length / (RIGHT - LEFT); 
-				int sampleToPixel = resolution;
-				int sampleIndex = sampleToPixel * xAxis;
-				float sample = data[sampleIndex];
-				int yAxis = (int)(CENTER + (sample * yScale));
-				if (xAxis == 0)
-				{
-					xPrev = 0;
-					yPrev = yAxis;
-				}
-				else
-				{
-					g.DrawLine(samplePen, xPrev+LEFT, yPrev, xAxis+LEFT, yAxis);
-					xPrev = xAxis;
-					yPrev = yAxis;
+				int sampleIndex = sampleToPixel * xAxis - LEFT;
+				if (sampleIndex <= numberOfSamples) {
+					float sample = data[sampleIndex];
+					int yAxis = (int)(CENTER + (sample * yScale));
+					if (xAxis == LEFT)
+					{
+						xPrev = LEFT;
+						yPrev = yAxis;
+					}
+					else
+					{
+						g.DrawLine(samplePen, xPrev, yPrev, xAxis, yAxis);
+						xPrev = xAxis;
+						yPrev = yAxis;
+					}
 				}
 			}
 			
