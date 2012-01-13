@@ -44,9 +44,11 @@ namespace ProcessVSTPlugin
 		
 		private bool initialisedMainOut = false;
 		
+		// can be used for spectrum analysis and spectrogram
 		private float[] lastProcessedBufferRight;
 		private float[] lastProcessedBufferLeft;
 		
+		// for recording
 		private bool doRecord = false;
 		private List<float> recordedRight = new List<float>();
 		private List<float> recordedLeft = new List<float>();
@@ -96,11 +98,13 @@ namespace ProcessVSTPlugin
 		public List<float> RecordedRight
 		{
 			get { return this.recordedRight; }
+			set { this.recordedRight = value; }
 		}
 
 		public List<float> RecordedLeft
 		{
 			get { return this.recordedLeft; }
+			set { this.recordedLeft = value; }
 		}
 		
 		public bool Record {
@@ -289,8 +293,13 @@ namespace ProcessVSTPlugin
 				
 				// Record audio
 				if (doRecord) {
-					recordedRight.AddRange(lastProcessedBufferRight);
-					recordedLeft.AddRange(lastProcessedBufferLeft);					
+					int numberOfSamplesMono = (int) sampleCount/2;
+					float[] rightChannel = new float[numberOfSamplesMono];
+					float[] leftChannel = new float[numberOfSamplesMono];
+					Array.Copy(lastProcessedBufferRight, rightChannel, numberOfSamplesMono);
+					Array.Copy(lastProcessedBufferLeft, leftChannel, numberOfSamplesMono);
+					recordedRight.AddRange(rightChannel);
+					recordedLeft.AddRange(leftChannel);
 				}
 				
 				count++;

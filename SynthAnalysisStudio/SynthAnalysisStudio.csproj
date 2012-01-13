@@ -99,6 +99,9 @@
     <Compile Include="..\CommonUtils\Audio\NAudio\AudioUtils.cs">
       <Link>Audio\AudioUtils.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\Audio\SampleConverter.cs">
+      <Link>Audio\SampleConverter.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\BinaryFile.cs">
       <Link>BinaryFile.cs</Link>
     </Compile>

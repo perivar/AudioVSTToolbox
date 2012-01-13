@@ -50,6 +50,87 @@ namespace CommonUtils.Audio
 			}
 		}
 
+		public static void SaveWaveFile(float[] wavData, string fileName, WaveFormat waveFormat) {
+			using (WaveFileWriter writer = new WaveFileWriter(fileName, waveFormat))
+			{
+				writer.WriteSamples(wavData, 0, wavData.Length);
+			}
+		}
+		
+		public static float[] CropAudioAtSilence(float[] data, double threshold, bool onlyDetectEnd, int addSamples) {
+
+			// process whole file
+			int dataLength = data.Length;
+
+			// start at beginning
+			int position = 0;
+
+			int beginning = 0;
+			int end = data.Length;
+
+			//double threshold = 0.000001; // what is silence
+			double sampleValue = 0;
+
+			int count = 0;
+			int a = 0;
+			if (!onlyDetectEnd) {
+				
+				// detect start silence
+				// count silent samples
+				for (a = 0; a < dataLength; a++) {
+					sampleValue = Math.Abs(data[a]);
+					if (sampleValue > threshold) break;
+				}
+
+				// add number of silent samples
+				count += a;
+
+				beginning = count;
+				System.Diagnostics.Debug.WriteLine("Detected beginning at sample: {0}", beginning);
+			}
+			
+			// detect end silence
+			position = data.Length;
+			int c = 0;
+			while (position > count)
+			{
+				// step back a bit
+				position=position < 20000 ? 0 : position - 20000;
+
+				// count silent samples
+				for (c = data.Length; c > 0 ; c--) {
+					sampleValue = Math.Abs(data[c - 1]);
+					if (sampleValue > threshold) break;
+				}
+
+				// if sound has begun...
+				if ( c > 0 ) {
+					// silence begins here
+					//count = position + c;
+					count = c;
+					break;
+				}
+			}
+			
+			// set end position
+			end = count;
+			if ( (end + addSamples) > data.Length) {
+				end = data.Length;
+			} else {
+				end = end + addSamples;
+			}
+
+			// Crop Audio here
+			//file.CropAudio(beginning, end-beginning);
+			int croppedAudioLength = end-beginning+1;
+			float[] croppedAudio = new float[croppedAudioLength];
+			Array.Copy(data, beginning, croppedAudio, 0, croppedAudioLength);
+			System.Diagnostics.Debug.WriteLine("Successfully cropping to selection: {0} to {1} (Original Length: {2} samples).", beginning, end, dataLength);
+			return croppedAudio;
+		}
+		
+		
+		#region resample methods
 		public static void ResampleWavMono8khz16bit(string wavInFilePath, string wavOutFilePath) {
 			ResampleWav(wavInFilePath, wavOutFilePath, new WaveFormat(8000, 16, 1));
 		}
@@ -134,6 +215,7 @@ namespace CommonUtils.Audio
 				}
 			}
 		}
+		#endregion
 		
 		public static void CreateWaveFile(Stream stream, string wavOutFilePath) {
 			using (WaveFileWriter writer = new WaveFileWriter(wavOutFilePath, new WaveFormat()))
@@ -162,6 +244,8 @@ namespace CommonUtils.Audio
 		}
 		
 	}
+	
+	
 	
 	public class SineWaveProvider : WaveProvider32
 	{

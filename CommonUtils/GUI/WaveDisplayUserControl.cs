@@ -17,15 +17,32 @@ namespace CommonUtils.GUI
 	{
 		private Bitmap bmp;
 		private int waveDisplayResolution = 1;
+		private int waveDisplayAmplitude = 1;
+		private int waveDisplayStartPosition = 0;
+		private double sampleRate = 44100;
 		
+		public double SampleRate
+		{
+			set { sampleRate = value; }
+			get { return sampleRate; }
+		}
+
 		public int Resolution
 		{
-			set {
-				waveDisplayResolution = value;
-			}
-			get {
-				return waveDisplayResolution;
-			}
+			set { waveDisplayResolution = value; }
+			get { return waveDisplayResolution; }
+		}
+
+		public int Amplitude
+		{
+			set { waveDisplayAmplitude = value; }
+			get { return waveDisplayAmplitude; }
+		}
+
+		public int StartPosition
+		{
+			set { waveDisplayStartPosition = value; }
+			get { return waveDisplayStartPosition; }
 		}
 		
 		public WaveDisplayUserControl()
@@ -52,6 +69,33 @@ namespace CommonUtils.GUI
 			base.OnPaint(pe);
 		}
 		
+		public float MaxResolution {
+			get {
+				int numberOfSamples = 0;
+				if (this.audioData != null && this.audioData.Length > 0) {
+					numberOfSamples = this.audioData.Length;
+					
+					// allow some extra margins
+					float sampleToPixel = numberOfSamples / (this.Width-2*10);
+					return sampleToPixel;
+				} else {
+					return 100;
+				}
+			}
+		}
+
+		public int NumberOfSamples {
+			get {
+				int numberOfSamples = 0;
+				if (this.audioData != null && this.audioData.Length > 0) {
+					numberOfSamples = this.audioData.Length;
+					return numberOfSamples;
+				} else {
+					return 0;
+				}
+			}
+		}
+		
 		private float[] audioData;
 
 		/// <summary>
@@ -59,16 +103,16 @@ namespace CommonUtils.GUI
 		/// </summary>
 		public void SetAudioData(float[] audioData)
 		{
-			if (audioData != null && audioData.Length > 0) {
-				this.audioData = audioData;
-
-				bmp = AudioAnalyzer.DrawWaveform4(audioData,
-				                                  new Size(this.Width, this.Height),
-				                                  waveDisplayResolution);
-				
-				// force redraw
-				this.Invalidate();
-			}
+			this.audioData = audioData;
+			bmp = AudioAnalyzer.DrawWaveform(audioData,
+			                                 new Size(this.Width, this.Height),
+			                                 waveDisplayResolution,
+			                                 waveDisplayAmplitude,
+			                                 waveDisplayStartPosition,
+			                                 sampleRate);
+			
+			// force redraw
+			this.Invalidate();
 		}
 	}
 }
