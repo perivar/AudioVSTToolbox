@@ -31,8 +31,8 @@ namespace SynthAnalysisStudio
 			InitializeComponent();
 			
 			VstHost host = VstHost.Instance;
-			//this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
-			this.waveDisplayUserControl1.SetAudioData(host.LastProcessedBufferLeft);
+			this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
+			//this.waveDisplayUserControl1.SetAudioData(host.LastProcessedBufferLeft);
 			
 			StartGUIRefreshTimer();
 		}
@@ -41,8 +41,8 @@ namespace SynthAnalysisStudio
 		{
 			if (DoGUIRefresh) {
 				VstHost host = VstHost.Instance;
-				//this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
-				this.waveDisplayUserControl1.SetAudioData(host.LastProcessedBufferLeft);
+				this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
+				//this.waveDisplayUserControl1.SetAudioData(host.LastProcessedBufferLeft);
 			}
 		}
 		
@@ -74,5 +74,23 @@ namespace SynthAnalysisStudio
 		{
 			this.waveDisplayUserControl1.Resolution = trackBar1.Value;
 		}		
+		
+		void RecordBtnClick(object sender, EventArgs e)
+		{
+			VstHost host = VstHost.Instance;
+			host.Record = true;
+		}
+		
+		void StopBtnClick(object sender, EventArgs e)
+		{
+			VstHost host = VstHost.Instance;
+			host.Record = false;			
+		}
+		
+		void ClearBtnClick(object sender, EventArgs e)
+		{
+			VstHost host = VstHost.Instance;
+			host.ClearRecording();
+		}
 	}
 }

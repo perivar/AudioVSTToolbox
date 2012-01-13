@@ -40,6 +40,9 @@ namespace SynthAnalysisStudio
 			this.waveDisplayUserControl1 = new CommonUtils.GUI.WaveDisplayUserControl();
 			this.label2 = new System.Windows.Forms.Label();
 			this.OnOffCheckbox = new System.Windows.Forms.CheckBox();
+			this.recordBtn = new System.Windows.Forms.Button();
+			this.stopBtn = new System.Windows.Forms.Button();
+			this.clearBtn = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -85,11 +88,44 @@ namespace SynthAnalysisStudio
 			this.OnOffCheckbox.UseVisualStyleBackColor = true;
 			this.OnOffCheckbox.CheckedChanged += new System.EventHandler(this.OnOffCheckboxCheckedChanged);
 			// 
+			// recordBtn
+			// 
+			this.recordBtn.Location = new System.Drawing.Point(663, 105);
+			this.recordBtn.Name = "recordBtn";
+			this.recordBtn.Size = new System.Drawing.Size(60, 23);
+			this.recordBtn.TabIndex = 9;
+			this.recordBtn.Text = "Record";
+			this.recordBtn.UseVisualStyleBackColor = true;
+			this.recordBtn.Click += new System.EventHandler(this.RecordBtnClick);
+			// 
+			// stopBtn
+			// 
+			this.stopBtn.Location = new System.Drawing.Point(663, 134);
+			this.stopBtn.Name = "stopBtn";
+			this.stopBtn.Size = new System.Drawing.Size(60, 23);
+			this.stopBtn.TabIndex = 10;
+			this.stopBtn.Text = "Stop";
+			this.stopBtn.UseVisualStyleBackColor = true;
+			this.stopBtn.Click += new System.EventHandler(this.StopBtnClick);
+			// 
+			// clearBtn
+			// 
+			this.clearBtn.Location = new System.Drawing.Point(663, 163);
+			this.clearBtn.Name = "clearBtn";
+			this.clearBtn.Size = new System.Drawing.Size(60, 23);
+			this.clearBtn.TabIndex = 11;
+			this.clearBtn.Text = "Clear";
+			this.clearBtn.UseVisualStyleBackColor = true;
+			this.clearBtn.Click += new System.EventHandler(this.ClearBtnClick);
+			// 
 			// WaveDisplayForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(735, 262);
+			this.Controls.Add(this.clearBtn);
+			this.Controls.Add(this.stopBtn);
+			this.Controls.Add(this.recordBtn);
 			this.Controls.Add(this.OnOffCheckbox);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.waveDisplayUserControl1);
@@ -100,6 +136,9 @@ namespace SynthAnalysisStudio
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.Button clearBtn;
+		private System.Windows.Forms.Button stopBtn;
+		private System.Windows.Forms.Button recordBtn;
 		private System.Windows.Forms.CheckBox OnOffCheckbox;
 		private System.Windows.Forms.Label label2;
 		private CommonUtils.GUI.WaveDisplayUserControl waveDisplayUserControl1;

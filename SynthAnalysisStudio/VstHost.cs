@@ -47,8 +47,9 @@ namespace ProcessVSTPlugin
 		private float[] lastProcessedBufferRight;
 		private float[] lastProcessedBufferLeft;
 		
-		public List<float> recordedRight = new List<float>();
-		public List<float> recordedLeft = new List<float>();
+		private bool doRecord = false;
+		private List<float> recordedRight = new List<float>();
+		private List<float> recordedLeft = new List<float>();
 		
 		// Explicit static constructor to tell C# compiler
 		// not to mark type as beforefieldinit
@@ -62,10 +63,7 @@ namespace ProcessVSTPlugin
 		
 		public static VstHost Instance
 		{
-			get
-			{
-				return instance;
-			}
+			get { return instance; }
 		}
 		
 		public string InputWave
@@ -81,46 +79,38 @@ namespace ProcessVSTPlugin
 
 		public int TailWaitForNumberOfSeconds
 		{
-			get
-			{
-				return this.tailWaitForNumberOfSeconds;
-			}
-			set
-			{
-				this.tailWaitForNumberOfSeconds = value;
-			}
+			get { return this.tailWaitForNumberOfSeconds; }
+			set { this.tailWaitForNumberOfSeconds = value; }
 		}
 		
 		public float[] LastProcessedBufferRight
 		{
-			get
-			{
-				return this.lastProcessedBufferRight;
-			}
+			get { return this.lastProcessedBufferRight; }
 		}
 
 		public float[] LastProcessedBufferLeft
 		{
-			get
-			{
-				return this.lastProcessedBufferLeft;
-			}
+			get { return this.lastProcessedBufferLeft; }
 		}
 
 		public List<float> RecordedRight
 		{
-			get
-			{
-				return this.recordedRight;
-			}
+			get { return this.recordedRight; }
 		}
 
 		public List<float> RecordedLeft
 		{
-			get
-			{
-				return this.recordedLeft;
-			}
+			get { return this.recordedLeft; }
+		}
+		
+		public bool Record {
+			get { return this.doRecord; }
+			set {this.doRecord = value; }
+		}
+
+		public void ClearRecording() {
+			this.recordedLeft.Clear();
+			this.recordedRight.Clear();
 		}
 		
 		public void OpenPlugin(string pluginPath)
@@ -297,9 +287,11 @@ namespace ProcessVSTPlugin
 					}
 				}
 				
-				// store in recorded List's
-				recordedRight.AddRange(lastProcessedBufferRight);
-				recordedLeft.AddRange(lastProcessedBufferLeft);
+				// Record audio
+				if (doRecord) {
+					recordedRight.AddRange(lastProcessedBufferRight);
+					recordedLeft.AddRange(lastProcessedBufferLeft);					
+				}
 				
 				count++;
 			}

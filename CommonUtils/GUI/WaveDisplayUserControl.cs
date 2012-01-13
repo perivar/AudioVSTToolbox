@@ -59,14 +59,16 @@ namespace CommonUtils.GUI
 		/// </summary>
 		public void SetAudioData(float[] audioData)
 		{
-			this.audioData = audioData;
+			if (audioData != null && audioData.Length > 0) {
+				this.audioData = audioData;
 
-			bmp = AudioAnalyzer.DrawWaveform4(audioData,
-			                                 new Size(this.Width, this.Height),
-			                                 waveDisplayResolution);
-			
-			// force redraw
-			this.Invalidate();
+				bmp = AudioAnalyzer.DrawWaveform4(audioData,
+				                                  new Size(this.Width, this.Height),
+				                                  waveDisplayResolution);
+				
+				// force redraw
+				this.Invalidate();
+			}
 		}
 	}
 }

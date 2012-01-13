@@ -816,7 +816,7 @@ namespace CommonUtils.FFT
 			}
 			return bmp;
 		}
-				
+		
 		// http://stackoverflow.com/questions/1215326/open-source-c-sharp-code-to-present-wave-form
 		public static Bitmap DrawWaveform4(float[] data, Size imageSize, int resolution, float foundMaxAmplitude = -1, float foundMaxTime = -1) {
 
@@ -881,7 +881,7 @@ namespace CommonUtils.FFT
 			Pen linePen = new Pen(lineColor, 0.5f);
 			Pen middleLinePen = new Pen(middleLineColor, 0.5f);
 			Pen textPen = new Pen(textColor, 1.0f);
-			Pen samplePen = new Pen(sampleColor, 2.0f);
+			Pen samplePen = new Pen(sampleColor, 1.0f);
 
 			// Draw a rectangular box marking the boundaries of the graph
 			// Create outer rectangle.
@@ -976,44 +976,73 @@ namespace CommonUtils.FFT
 			
 			
 			// Draw waveform
-			float iPixelPrev = 0;
-			for (float iPixel = 0; iPixel < WIDTH; iPixel++)
+			bool useAverages = false; // averages draws a "filled" waveform
+			float xPrev = 0, yPrev = 0;
+			float yAxis = 0;
+			for (float xAxis = 0; xAxis < WIDTH; xAxis++)
 			{
-				// determine start and end points within WAV (for this single pixel)
-				int start = (int)(iPixel * sampleToPixel);
-				int end = (int)((iPixel + 1) * sampleToPixel);
+				// determine start and end points within WAV (for this single pixel on the X axis)
+				int start = (int)(xAxis * sampleToPixel);
+				int end = (int)((xAxis + 1) * sampleToPixel);
 				
-				// determine the min and max values within this specific range
-				/*
-				float min = float.MaxValue;
-				float max = float.MinValue;
-				for (int i = start; i < end; i++)
-				{
-					float val = data[i];
-					min = val < min ? val : min;
-					max = val > max ? val : max;
-				}
-				
-				int yMax = TOP + HEIGHT - (int)((max * amplitude + 1) * .5 * HEIGHT);
-				int yMin = TOP + HEIGHT - (int)((min * amplitude + 1) * .5 * HEIGHT);
-				 */
-				
-				// use averages instead 
-				float posAvg, negAvg;
-				averages(data, start, end, out posAvg, out negAvg);
+				int yMax, yMin = 0;
+				if (useAverages) {
+					// determine the average min and max values within this specific range
+					float posAvg, negAvg;
+					averages(data, start, end, out posAvg, out negAvg);
 
-				int yMax = TOP + HEIGHT - (int)((posAvg + 1) * 0.5 * HEIGHT);
-				int yMin = TOP + HEIGHT - (int)((negAvg + 1) * 0.5 * HEIGHT);
+					yMax = TOP + HEIGHT - (int)((posAvg * amplitude + 1) * 0.5 * HEIGHT);
+					yMin = TOP + HEIGHT - (int)((negAvg * amplitude + 1) * 0.5 * HEIGHT);
+					
+					yAxis = yMax;
 
-				// draw
-				if (iPixel == 0)
-				{
-					iPixelPrev = 0;
-				}
-				else
-				{
-					g.DrawLine(samplePen, iPixelPrev + LEFT, yMax, iPixel + LEFT, yMin);
-					iPixelPrev = iPixel;
+					// draw waveform
+					if (xAxis == 0)
+					{
+						xPrev = 0;
+						yPrev = yAxis;
+					}
+					else
+					{
+						g.DrawLine(samplePen, xPrev + LEFT, yMax, xAxis + LEFT, yMin);
+						xPrev = xAxis;
+						yPrev = yAxis;
+					}
+				} else {
+					// determine the min and max values within this specific range
+					float min = float.MaxValue;
+					float max = float.MinValue;
+					for (int i = start; i < end; i++)
+					{
+						float val = data[i];
+						min = val < min ? val : min;
+						max = val > max ? val : max;
+					}
+					
+					yMax = TOP + HEIGHT - (int)((max * amplitude + 1) * 0.5 * HEIGHT);
+					yMin = TOP + HEIGHT - (int)((min * amplitude + 1) * 0.5 * HEIGHT);
+
+					yAxis = yMax;
+					
+					// draw waveform
+					if (xAxis == 0)
+					{
+						xPrev = 0;
+						yPrev = yAxis;
+					}
+					else
+					{
+						if (resolution < 40) {
+							g.DrawLine(samplePen, xPrev + LEFT, yPrev, xAxis + LEFT, yAxis);
+							//g.DrawLine(samplePen, xPrev + LEFT, yMax, xAxis + LEFT, yMin);							
+						} else {
+							// original
+							g.DrawLine(samplePen, xAxis + LEFT, yMax, xAxis + LEFT, yMin);
+						}
+
+						xPrev = xAxis;
+						yPrev = yAxis;
+					}
 				}
 			}
 			

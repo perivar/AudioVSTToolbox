@@ -458,8 +458,6 @@ namespace ProcessVSTPlugin
 			} else {
 				host.DoSendContinousMidiNote = false;
 				host.SendMidiNote(host.SendContinousMidiNote, 0);
-				host.RecordedLeft.Clear();
-				host.RecordedRight.Clear();
 			}
 		}
         
