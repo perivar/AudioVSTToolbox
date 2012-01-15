@@ -124,11 +124,15 @@ namespace CommonUtils
 		public static String GetCurrentTimestamp()
 		{
 			return GetTimestamp(DateTime.Now);
-		}				
+		}
 		
 		public static String GetTimestamp(this DateTime value)
 		{
 			return value.ToString("yyyyMMddHHmmssffff");
-		}		
+		}
+		
+		public static string GetNumberWithPlussAndMinusSign(double number) {
+			return number.ToString("+#;-#;0");			
+		}
 	}
 }

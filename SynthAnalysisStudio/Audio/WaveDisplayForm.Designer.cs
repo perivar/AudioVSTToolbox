@@ -58,6 +58,7 @@ namespace SynthAnalysisStudio
 			this.sustainTextBox = new System.Windows.Forms.TextBox();
 			this.releaseTextBox = new System.Windows.Forms.TextBox();
 			this.durationMsTextBox = new System.Windows.Forms.TextBox();
+			this.playMidiC5100msBtn = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.MaxResolutionTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.AmplitudeTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.StartPositionTrackBar)).BeginInit();
@@ -189,7 +190,7 @@ namespace SynthAnalysisStudio
 			// 
 			// MidiNoteCheckbox
 			// 
-			this.MidiNoteCheckbox.Location = new System.Drawing.Point(104, 7);
+			this.MidiNoteCheckbox.Location = new System.Drawing.Point(104, 8);
 			this.MidiNoteCheckbox.Name = "MidiNoteCheckbox";
 			this.MidiNoteCheckbox.Size = new System.Drawing.Size(76, 24);
 			this.MidiNoteCheckbox.TabIndex = 16;
@@ -275,11 +276,22 @@ namespace SynthAnalysisStudio
 			this.durationMsTextBox.Size = new System.Drawing.Size(67, 20);
 			this.durationMsTextBox.TabIndex = 26;
 			// 
+			// playMidiC5100msBtn
+			// 
+			this.playMidiC5100msBtn.Location = new System.Drawing.Point(12, 7);
+			this.playMidiC5100msBtn.Name = "playMidiC5100msBtn";
+			this.playMidiC5100msBtn.Size = new System.Drawing.Size(87, 24);
+			this.playMidiC5100msBtn.TabIndex = 27;
+			this.playMidiC5100msBtn.Text = "Play C5 100ms";
+			this.playMidiC5100msBtn.UseVisualStyleBackColor = true;
+			this.playMidiC5100msBtn.Click += new System.EventHandler(this.PlayMidiC5100msBtnClick);
+			// 
 			// WaveDisplayForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(755, 289);
+			this.Controls.Add(this.playMidiC5100msBtn);
 			this.Controls.Add(this.durationMsTextBox);
 			this.Controls.Add(this.releaseTextBox);
 			this.Controls.Add(this.sustainTextBox);
@@ -310,6 +322,7 @@ namespace SynthAnalysisStudio
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.Button playMidiC5100msBtn;
 		private System.Windows.Forms.TextBox durationMsTextBox;
 		private System.Windows.Forms.TextBox releaseTextBox;
 		private System.Windows.Forms.TextBox sustainTextBox;

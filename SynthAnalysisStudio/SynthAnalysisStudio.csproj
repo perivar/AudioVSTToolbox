@@ -170,6 +170,9 @@
     <Compile Include="..\CommonUtils\MathUtils.cs">
       <Link>MathUtils.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\MidiUtils.cs">
+      <Link>MidiUtils.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\ObjectUtils.cs">
       <Link>ObjectUtils.cs</Link>
     </Compile>

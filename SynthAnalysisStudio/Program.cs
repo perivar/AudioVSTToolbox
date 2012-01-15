@@ -99,6 +99,21 @@ namespace ProcessVSTPlugin
 		{
 
 			/*
+			for (int i = 0; i < 128; i++ ) {
+				float freq = MidiUtils.MidiNoteToPitch(i);
+				int note = 0;
+				int cents = 0;
+				MidiUtils.PitchToMidiNote(freq, out note, out cents);
+				string noteName = MidiUtils.GetNoteName(note, false, true);
+				
+				Console.Out.WriteLine("Midi Key: {0}, Frequency: {1:0.0000} (note: {2} {3} cents - {4})", i, freq, note, cents, noteName);
+			}
+			
+			Console.ReadKey();
+			return;
+			*/
+			
+			/*
 			float[] wavData = new float[] { 0.001f, -0.8f, 0.05f, -0.05f, 0.2f, 0.4f, 1.0f };
 			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavData, new System.Drawing.Size(1000, 600), 1, 1, 0, 44100);
 			string fileName = String.Format("wave-small-dataset-{0}.png", 1);

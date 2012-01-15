@@ -35,7 +35,7 @@ namespace ProcessVSTPlugin
 		// these are used for continous midi note playing
 		public bool DoSendContinousMidiNote { get; set; }
 		public byte SendContinousMidiNoteVelocity = 100;
-		public byte SendContinousMidiNote = 72;
+		public byte SendContinousMidiNote = 72; // C 5
 		
 		private WaveChannel32 wavStream;
 		private WaveFileReader wavFileReader;
@@ -317,18 +317,21 @@ namespace ProcessVSTPlugin
 				PluginContext.PluginCommandStub.SetProgram(programNumber);
 			}
 		}
-		
-		private VstEvent[] CreateMidiEvent(byte midiNote, byte midiVelocity) {
+
+		private VstEvent[] CreateMidiEvent(byte statusByte, byte midiNote, byte midiVelocity) {
 			/* 
 			 * Just a small note on the code for setting up a midi event:
 			 * You can use the VstEventCollection class (Framework) to setup one or more events
 			 * and then call the ToArray() method on the collection when passing it to
 			 * ProcessEvents. This will save you the hassle of dealing with arrays explicitly.
 			 * http://computermusicresource.com/MIDI.Commands.html
+			 * 
+			 * Freq to Midi notes etc:
+			 * http://www.sengpielaudio.com/calculator-notenames.htm
 			 */
 			byte[] midiData = new byte[4];
 			
-			midiData[0] = 144; 			// Send note on midi channel 1
+			midiData[0] = statusByte;
 			midiData[1] = midiNote;   	// Midi note
 			midiData[2] = midiVelocity; // Note strike velocity
 			midiData[3] = 0;    		// Reserved, unused
@@ -344,12 +347,16 @@ namespace ProcessVSTPlugin
 			ve[0] = vse1;
 			return ve;
 		}
-
-		public void SendMidiNote(byte midiNote, byte midiVelocity) {
+		
+		public void SendMidiNote(byte statusByte, byte midiNote, byte midiVelocity) {
 			// make sure the plugin has been opened.
 			doPluginOpen();
-			VstEvent[] vEvent = CreateMidiEvent(midiNote, midiVelocity);
-			PluginContext.PluginCommandStub.ProcessEvents(vEvent);
+			VstEvent[] vEvent = CreateMidiEvent(statusByte, midiNote, midiVelocity);
+			PluginContext.PluginCommandStub.ProcessEvents(vEvent);			
+		}
+		
+		public void SendMidiNote(byte midiNote, byte midiVelocity) {
+			SendMidiNote(MidiUtils.CHANNEL1_NOTE_ON, midiNote, midiVelocity);
 		}
 		
 		public string getPluginInfo() {

@@ -5,6 +5,9 @@ using System.IO;
 using System.Timers;
 using System.Data;
 
+using System.Threading;
+using System.Diagnostics;
+
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -278,6 +281,41 @@ namespace SynthAnalysisStudio
 						            ));
 				xmlDoc.Save(xmlFilePath);
 			}
+		}
+		
+		void PlayMidiC5100msBtnClick(object sender, EventArgs e)
+		{
+			VstHost host = VstHost.Instance;
+			host.PluginContext = this.PluginContext;
+			host.doPluginOpen();
+			
+			// if first keypress setup audio
+			if (Playback == null) {
+				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
+				// tblock = 0.15 makes blocksize = 6615.
+				int sampleRate = 44100;
+				int blockSize = (int) (sampleRate * 0.15f); //6615;
+				int channels = 2;
+				host.Init(blockSize, sampleRate, channels);
+				
+				Playback = new VstPlaybackNAudio(host);
+				Playback.Play();
+			}
+			
+			// time how long this took
+			Stopwatch stopwatch = Stopwatch.StartNew();
+			
+			// end midi note on
+			host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
+			
+			// wait 100 ms
+			System.Threading.Thread.Sleep(100);
+
+			// send midi note off
+			host.SendMidiNote(host.SendContinousMidiNote, 0);
+			
+			stopwatch.Stop();
+			Console.WriteLine("Midi Note Sent. Time used {0} ms", stopwatch.ElapsedMilliseconds);			
 		}
 	}
 }

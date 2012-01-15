@@ -392,7 +392,14 @@ namespace CommonUtils.FFT
 				}
 				
 				if (foundMaxDecibel != -1 && foundMaxFrequency != -1) {
-					string foundMax = String.Format("Max found: {0}dB @ {1} hz", foundMaxDecibel, foundMaxFrequency);
+					int note = 0;
+					int cents = 0;
+					MidiUtils.PitchToMidiNote(foundMaxFrequency, out note, out cents);
+					string noteName = MidiUtils.GetNoteName(note, false, true);
+					
+					//string foundMax = String.Format("Max found: {0}dB @ {1} hz", foundMaxDecibel, foundMaxFrequency);
+					string foundMax = String.Format("Max found: {0}dB @ {1} hz ({2} - Note: {3} {4:+#;-#;0} cents)", foundMaxDecibel, foundMaxFrequency, noteName, note, cents);
+					
 					SizeF foundMaxLabelTextSize = g.MeasureString(foundMax, drawLabelFont);
 					g.DrawString(foundMax, drawLabelFont, drawLabelBrush, TOTAL_WIDTH - foundMaxLabelTextSize.Width - 10, TOTAL_HEIGHT - drawLabelFont.GetHeight(g) - 10);
 				}
