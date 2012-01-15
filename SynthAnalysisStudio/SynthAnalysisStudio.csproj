@@ -73,6 +73,15 @@
     <Reference Include="NAudio">
       <HintPath>_SharedAssemblies\NAudio.dll</HintPath>
     </Reference>
+    <Reference Include="NAudio.WindowsMediaFormat">
+      <HintPath>_SharedAssemblies\NAudio.WindowsMediaFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudioFLAC">
+      <HintPath>_SharedAssemblies\NAudioFLAC.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudioOggVorbis">
+      <HintPath>_SharedAssemblies\NAudioOggVorbis.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>

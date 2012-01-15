@@ -48,6 +48,16 @@ namespace SynthAnalysisStudio
 			this.CropBtn = new System.Windows.Forms.Button();
 			this.saveXMLBtn = new System.Windows.Forms.Button();
 			this.MidiNoteCheckbox = new System.Windows.Forms.CheckBox();
+			this.SaveWAVBtn = new System.Windows.Forms.Button();
+			this.adsrSampleBtn = new System.Windows.Forms.Button();
+			this.durationSamplesTextBox = new System.Windows.Forms.TextBox();
+			this.label3 = new System.Windows.Forms.Label();
+			this.attackTextBox = new System.Windows.Forms.TextBox();
+			this.label1 = new System.Windows.Forms.Label();
+			this.decayTextBox = new System.Windows.Forms.TextBox();
+			this.sustainTextBox = new System.Windows.Forms.TextBox();
+			this.releaseTextBox = new System.Windows.Forms.TextBox();
+			this.durationMsTextBox = new System.Windows.Forms.TextBox();
 			((System.ComponentModel.ISupportInitialize)(this.MaxResolutionTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.AmplitudeTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.StartPositionTrackBar)).BeginInit();
@@ -75,7 +85,7 @@ namespace SynthAnalysisStudio
 			this.waveDisplayUserControl1.Name = "waveDisplayUserControl1";
 			this.waveDisplayUserControl1.Resolution = 1;
 			this.waveDisplayUserControl1.SampleRate = 44100D;
-			this.waveDisplayUserControl1.Size = new System.Drawing.Size(620, 243);
+			this.waveDisplayUserControl1.Size = new System.Drawing.Size(620, 254);
 			this.waveDisplayUserControl1.StartPosition = 0;
 			this.waveDisplayUserControl1.TabIndex = 6;
 			// 
@@ -187,11 +197,99 @@ namespace SynthAnalysisStudio
 			this.MidiNoteCheckbox.UseVisualStyleBackColor = true;
 			this.MidiNoteCheckbox.CheckedChanged += new System.EventHandler(this.MidiNoteCheckboxCheckedChanged);
 			// 
+			// SaveWAVBtn
+			// 
+			this.SaveWAVBtn.Location = new System.Drawing.Point(547, 8);
+			this.SaveWAVBtn.Name = "SaveWAVBtn";
+			this.SaveWAVBtn.Size = new System.Drawing.Size(73, 23);
+			this.SaveWAVBtn.TabIndex = 17;
+			this.SaveWAVBtn.Text = "Save Wav";
+			this.SaveWAVBtn.UseVisualStyleBackColor = true;
+			this.SaveWAVBtn.Click += new System.EventHandler(this.SaveWAVBtnClick);
+			// 
+			// adsrSampleBtn
+			// 
+			this.adsrSampleBtn.Location = new System.Drawing.Point(678, 269);
+			this.adsrSampleBtn.Name = "adsrSampleBtn";
+			this.adsrSampleBtn.Size = new System.Drawing.Size(67, 20);
+			this.adsrSampleBtn.TabIndex = 20;
+			this.adsrSampleBtn.Text = "Save";
+			this.adsrSampleBtn.UseVisualStyleBackColor = true;
+			this.adsrSampleBtn.Click += new System.EventHandler(this.AdsrSampleBtnClick);
+			// 
+			// durationSamplesTextBox
+			// 
+			this.durationSamplesTextBox.Location = new System.Drawing.Point(678, 119);
+			this.durationSamplesTextBox.Name = "durationSamplesTextBox";
+			this.durationSamplesTextBox.Size = new System.Drawing.Size(67, 20);
+			this.durationSamplesTextBox.TabIndex = 19;
+			// 
+			// label3
+			// 
+			this.label3.Location = new System.Drawing.Point(678, 106);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(60, 16);
+			this.label3.TabIndex = 18;
+			this.label3.Text = "Duration (ms)";
+			// 
+			// attackTextBox
+			// 
+			this.attackTextBox.Location = new System.Drawing.Point(678, 180);
+			this.attackTextBox.Name = "attackTextBox";
+			this.attackTextBox.Size = new System.Drawing.Size(67, 20);
+			this.attackTextBox.TabIndex = 22;
+			// 
+			// label1
+			// 
+			this.label1.Location = new System.Drawing.Point(678, 166);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(60, 16);
+			this.label1.TabIndex = 21;
+			this.label1.Text = "A D S R";
+			// 
+			// decayTextBox
+			// 
+			this.decayTextBox.Location = new System.Drawing.Point(678, 202);
+			this.decayTextBox.Name = "decayTextBox";
+			this.decayTextBox.Size = new System.Drawing.Size(67, 20);
+			this.decayTextBox.TabIndex = 23;
+			// 
+			// sustainTextBox
+			// 
+			this.sustainTextBox.Location = new System.Drawing.Point(678, 224);
+			this.sustainTextBox.Name = "sustainTextBox";
+			this.sustainTextBox.Size = new System.Drawing.Size(67, 20);
+			this.sustainTextBox.TabIndex = 24;
+			// 
+			// releaseTextBox
+			// 
+			this.releaseTextBox.Location = new System.Drawing.Point(678, 246);
+			this.releaseTextBox.Name = "releaseTextBox";
+			this.releaseTextBox.Size = new System.Drawing.Size(67, 20);
+			this.releaseTextBox.TabIndex = 25;
+			// 
+			// durationMsTextBox
+			// 
+			this.durationMsTextBox.Location = new System.Drawing.Point(678, 141);
+			this.durationMsTextBox.Name = "durationMsTextBox";
+			this.durationMsTextBox.Size = new System.Drawing.Size(67, 20);
+			this.durationMsTextBox.TabIndex = 26;
+			// 
 			// WaveDisplayForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(755, 280);
+			this.ClientSize = new System.Drawing.Size(755, 289);
+			this.Controls.Add(this.durationMsTextBox);
+			this.Controls.Add(this.releaseTextBox);
+			this.Controls.Add(this.sustainTextBox);
+			this.Controls.Add(this.decayTextBox);
+			this.Controls.Add(this.attackTextBox);
+			this.Controls.Add(this.label1);
+			this.Controls.Add(this.adsrSampleBtn);
+			this.Controls.Add(this.durationSamplesTextBox);
+			this.Controls.Add(this.label3);
+			this.Controls.Add(this.SaveWAVBtn);
 			this.Controls.Add(this.MidiNoteCheckbox);
 			this.Controls.Add(this.saveXMLBtn);
 			this.Controls.Add(this.CropBtn);
@@ -212,6 +310,16 @@ namespace SynthAnalysisStudio
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.TextBox durationMsTextBox;
+		private System.Windows.Forms.TextBox releaseTextBox;
+		private System.Windows.Forms.TextBox sustainTextBox;
+		private System.Windows.Forms.TextBox decayTextBox;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.TextBox attackTextBox;
+		private System.Windows.Forms.Label label3;
+		private System.Windows.Forms.TextBox durationSamplesTextBox;
+		private System.Windows.Forms.Button adsrSampleBtn;
+		private System.Windows.Forms.Button SaveWAVBtn;
 		private System.Windows.Forms.CheckBox MidiNoteCheckbox;
 		private System.Windows.Forms.Button saveXMLBtn;
 		private System.Windows.Forms.Button CropBtn;

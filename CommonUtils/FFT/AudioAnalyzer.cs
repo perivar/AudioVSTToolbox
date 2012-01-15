@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Collections.Generic;
 using System.Drawing.Imaging;
 
 using System.Drawing.Extended;
@@ -469,6 +470,7 @@ namespace CommonUtils.FFT
 			bool drawLabels = false;
 			bool drawRoundedRectangles = true;
 			bool displayTime = true;
+			bool useAverages = false; // averages draws a "filled" waveform
 			
 			// Colors
 			Color lineColor = ColorTranslator.FromHtml("#C7834C");
@@ -491,7 +493,7 @@ namespace CommonUtils.FFT
 				// shift the start position
 				//if (startPosition > 0 ) {
 				//	data = new float[audioData.Length - startPosition];
-				//	Array.Copy(audioData, startPosition, data, 0, audioData.Length - startPosition);					
+				//	Array.Copy(audioData, startPosition, data, 0, audioData.Length - startPosition);
 				//} else {
 				data = audioData;
 				//}
@@ -503,7 +505,7 @@ namespace CommonUtils.FFT
 			//int amplitude = 1; // 1 = normal
 			//resolution = 1; //low resolution (2+) means to zoom into the waveform
 
-			float sampleToPixel = numberOfSamples / WIDTH;
+			float sampleToPixel = (float) numberOfSamples / WIDTH;
 			if (resolution < sampleToPixel) {
 				sampleToPixel = resolution;
 			}
@@ -616,7 +618,7 @@ namespace CommonUtils.FFT
 			}
 
 			if (displayTime) {
-				string displayTimeString = String.Format("Duration: {0} samples @ {1} ms", numberOfSamples, milliseconds);
+				string displayTimeString = String.Format("Duration: {0} samples @ {1:0.0000} ms", numberOfSamples, milliseconds);
 				SizeF displayTimeStringTextSize = g.MeasureString(displayTimeString, drawLabelFont);
 				g.DrawString(displayTimeString, drawLabelFont, drawLabelBrush, TOTAL_WIDTH - displayTimeStringTextSize.Width - 10, TOTAL_HEIGHT - drawLabelFont.GetHeight(g) - 10);
 			}
@@ -627,73 +629,86 @@ namespace CommonUtils.FFT
 			
 			// Draw waveform
 			if (data != null && data.Length > 0) {
-				bool useAverages = false; // averages draws a "filled" waveform
-				float xPrev = 0, yPrev = 0;
-				float yAxis = 0;
-				for (float xAxis = 0; xAxis < WIDTH; xAxis++)
-				{
-					// determine start and end points within WAV (for this single pixel on the X axis)
-					int start = (int)(xAxis * sampleToPixel);
-					int end = (int)((xAxis + 1) * sampleToPixel);
-					
-					int yMax = 0, yMin = 0;
-					if (useAverages) {
-						// determine the average min and max values within this specific range
-						float posAvg = 0, negAvg = 0;
-						averages(data, start, end, out posAvg, out negAvg);
+				if (sampleToPixel >= 1) {
+					// the number of samples are greater than the available drawing space (i.e. greater than the number of pixles in the X-Axis)
 
-						yMax = TOP + HEIGHT - (int)((posAvg * amplitude + 1) * 0.5 * HEIGHT);
-						yMin = TOP + HEIGHT - (int)((negAvg * amplitude + 1) * 0.5 * HEIGHT);
+					float xPrev = 0;
+					float yPrev = 0;
+					float yAxis = 0;
+					bool firstPoint = true;
+					for (float xAxis = 0; xAxis < WIDTH; xAxis++)
+					{
+						// determine start and end points within WAV (for this single pixel on the X axis)
+						int start = (int)(xAxis * sampleToPixel);
+						int end = (int)((xAxis + 1) * sampleToPixel);
 						
-						yAxis = yMax;
+						int yMax = 0, yMin = 0;
+						if (useAverages) {
+							// determine the average min and max values within this specific range
+							float posAvg = 0, negAvg = 0;
+							averages(data, start, end, out posAvg, out negAvg);
 
-						// draw waveform
-						if (xAxis == 0)
-						{
-							xPrev = 0;
-							yPrev = yAxis;
-						}
-						else
-						{
-							g.DrawLine(samplePen, xPrev + LEFT, yMax, xAxis + LEFT, yMin);
-							xPrev = xAxis;
-							yPrev = yAxis;
-						}
-					} else {
-						// determine the min and max values within this specific range
-						float min = float.MaxValue;
-						float max = float.MinValue;
-						for (int i = start; i < end; i++)
-						{
-							float val = data[i];
-							min = val < min ? val : min;
-							max = val > max ? val : max;
-						}
-						
-						yMax = TOP + HEIGHT - (int)((max * amplitude + 1) * 0.5 * HEIGHT);
-						yMin = TOP + HEIGHT - (int)((min * amplitude + 1) * 0.5 * HEIGHT);
-
-						yAxis = yMax;
-						
-						// draw waveform
-						if (xAxis == 0)
-						{
-							xPrev = 0;
-							yPrev = yAxis;
-						}
-						else
-						{
-							if (resolution < 40) {
-								g.DrawLine(samplePen, xPrev + LEFT, yPrev, xAxis + LEFT, yAxis);
-								//g.DrawLine(samplePen, xPrev + LEFT, yMax, xAxis + LEFT, yMin);
-							} else {
-								// original
-								g.DrawLine(samplePen, xAxis + LEFT, yMax, xAxis + LEFT, yMin);
+							yMax = TOP + HEIGHT - (int)((posAvg * amplitude + 1) * 0.5 * HEIGHT);
+							yMin = TOP + HEIGHT - (int)((negAvg * amplitude + 1) * 0.5 * HEIGHT);
+							
+							g.DrawLine(samplePen, xAxis + LEFT, yMin, xAxis + LEFT, yMax);
+						} else {
+							// determine the min and max values within this specific range
+							float min = float.MaxValue;
+							float max = float.MinValue;
+							for (int i = start; i < end; i++)
+							{
+								float val = data[i];
+								min = val < min ? val : min;
+								max = val > max ? val : max;
 							}
+							
+							yMax = TOP + HEIGHT - (int)((max * amplitude + 1) * 0.5 * HEIGHT);
+							yMin = TOP + HEIGHT - (int)((min * amplitude + 1) * 0.5 * HEIGHT);
+							yAxis = yMax;
 
-							xPrev = xAxis;
-							yPrev = yAxis;
+							// draw waveform
+							// If it's the first point
+							if ( firstPoint )
+							{
+								// Move to the point
+								xPrev = xAxis;
+								yPrev = yAxis;
+								firstPoint = false;
+							}
+							else
+							{
+								if (resolution < 40) {
+									// For smaller resolution, Draw line from the previous point
+									g.DrawLine(samplePen, xPrev + LEFT, yPrev, xAxis + LEFT, yAxis);
+									xPrev = xAxis;
+									yPrev = yAxis;
+								} else {
+									// use yMax and yMin
+									// original from example: http://stackoverflow.com/questions/1215326/open-source-c-sharp-code-to-present-wave-form
+									// basically don't care about previous x or y, but draw vertical lines
+									// from y min to y max value
+									g.DrawLine(samplePen, xAxis + LEFT, yMin, xAxis + LEFT, yMax);
+								}
+							}
 						}
+					}
+				} else {
+					// the number of samples are lower than the available drawing space (i.e. less than the number of pixles in the X-Axis)
+					float mult_x = WIDTH / (numberOfSamples - 1);
+					
+					List<Point> ps = new List<Point>();
+					for (int i = 0; i < data.Length; i++)
+					{
+						x = (i * mult_x) + LEFT;
+						y = TOP + HEIGHT - (int)((data[i] * amplitude + 1) * 0.5 * HEIGHT);
+						Point p = new Point((int)x, (int)y);
+						ps.Add(p);
+					}
+
+					if (ps.Count > 0)
+					{
+						g.DrawLines(samplePen, ps.ToArray());
 					}
 				}
 			}

@@ -20,6 +20,7 @@ namespace CommonUtils.GUI
 		private int waveDisplayAmplitude = 1;
 		private int waveDisplayStartPosition = 0;
 		private double sampleRate = 44100;
+		private double milliseconds = 0;
 		
 		public double SampleRate
 		{
@@ -43,30 +44,6 @@ namespace CommonUtils.GUI
 		{
 			set { waveDisplayStartPosition = value; }
 			get { return waveDisplayStartPosition; }
-		}
-		
-		public WaveDisplayUserControl()
-		{
-			//
-			// The InitializeComponent() call is required for Windows Forms designer support.
-			//
-			this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
-			              ControlStyles.OptimizedDoubleBuffer, true);
-			InitializeComponent();
-			
-		}
-		
-		/// <summary>
-		/// <see cref="Control.OnPaint"/>
-		/// </summary>
-		protected override void OnPaint(PaintEventArgs pe)
-		{
-			if (bmp != null) {
-				pe.Graphics.DrawImage(bmp, 0, 0);
-			}
-
-			// Calling the base class OnPaint
-			base.OnPaint(pe);
 		}
 		
 		public float MaxResolution {
@@ -94,6 +71,36 @@ namespace CommonUtils.GUI
 					return 0;
 				}
 			}
+		}
+		
+		public double DurationInMilliseconds {
+			get {
+				return this.NumberOfSamples / this.sampleRate * 1000;
+			}
+		}
+		
+		public WaveDisplayUserControl()
+		{
+			//
+			// The InitializeComponent() call is required for Windows Forms designer support.
+			//
+			this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
+			              ControlStyles.OptimizedDoubleBuffer, true);
+			InitializeComponent();
+			
+		}
+		
+		/// <summary>
+		/// <see cref="Control.OnPaint"/>
+		/// </summary>
+		protected override void OnPaint(PaintEventArgs pe)
+		{
+			if (bmp != null) {
+				pe.Graphics.DrawImage(bmp, 0, 0);
+			}
+
+			// Calling the base class OnPaint
+			base.OnPaint(pe);
 		}
 		
 		private float[] audioData;

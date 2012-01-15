@@ -48,6 +48,17 @@ namespace ProcessVSTPlugin
 		public string filterBCutoffString = "";
 		public string filterCtrlCutoffString = "";
 		
+		// TODO: remove these sylenth ADSR trackers
+		public bool doSylenthADSRTracking = true;
+		public float envelopeAttack;
+		public float envelopeDecay;
+		public float envelopeSustain;
+		public float envelopeRelease;
+		public string envelopeAttackString = "";
+		public string envelopeDecayString = "";
+		public string envelopeSustainString = "";
+		public string envelopeReleaseString = "";
+		
 		private DiffType investigatePluginPresetFileFormatDiffType = DiffType.Binary;
 
 		public DiffType InvestigatePluginPresetFileFormatDiffType {
@@ -364,20 +375,34 @@ namespace ProcessVSTPlugin
 						}
 						
 						// if we are tracking some sylenth properties
-						if (doSylenthFrequencyTracking) {
+						if (doSylenthFrequencyTracking || doSylenthADSRTracking) {
 							PresetConverter.Sylenth1Preset sylenth = new PresetConverter.Sylenth1Preset();
 							FXP fxp = new FXP();
 							fxp.fxMagic = "FPCh";
 							fxp.chunkDataByteArray = chunkData;
 							if (sylenth.ReadFXP(fxp)) {
 								PresetConverter.Sylenth1Preset.Syl1PresetContent sylContent = sylenth.ContentArray[0];
-								this.filterACutoff = sylContent.FilterACutoff;
-								this.filterBCutoff = sylContent.FilterBCutoff;
-								this.filterCtrlCutoff = sylContent.FilterCtlCutoff;
 								
-								this.filterACutoffString = String.Format("{0:0.00}", PresetConverter.Sylenth1Preset.ValueToHz(filterACutoff, PresetConverter.Sylenth1Preset.FloatToHz.FilterCutoff));	// (value range 1 -> 21341,28)
-								this.filterBCutoffString = String.Format("{0:0.00}", PresetConverter.Sylenth1Preset.ValueToHz(filterBCutoff, PresetConverter.Sylenth1Preset.FloatToHz.FilterCutoff));	// (value range 1 -> 21341,28)
-								this.filterCtrlCutoffString = String.Format("{0:0.00}", PresetConverter.Sylenth1Preset.ValueToHz(filterCtrlCutoff, PresetConverter.Sylenth1Preset.FloatToHz.FilterCutoff)); 	// (value range 1 -> 21341,28)
+								if (doSylenthFrequencyTracking) {
+									this.filterACutoff = sylContent.FilterACutoff;
+									this.filterBCutoff = sylContent.FilterBCutoff;
+									this.filterCtrlCutoff = sylContent.FilterCtlCutoff;
+									
+									this.filterACutoffString = String.Format("{0:0.00}", PresetConverter.Sylenth1Preset.ValueToHz(filterACutoff, PresetConverter.Sylenth1Preset.FloatToHz.FilterCutoff));	// (value range 1 -> 21341,28)
+									this.filterBCutoffString = String.Format("{0:0.00}", PresetConverter.Sylenth1Preset.ValueToHz(filterBCutoff, PresetConverter.Sylenth1Preset.FloatToHz.FilterCutoff));	// (value range 1 -> 21341,28)
+									this.filterCtrlCutoffString = String.Format("{0:0.00}", PresetConverter.Sylenth1Preset.ValueToHz(filterCtrlCutoff, PresetConverter.Sylenth1Preset.FloatToHz.FilterCutoff)); 	// (value range 1 -> 21341,28)
+								}
+								if (doSylenthADSRTracking) {
+									this.envelopeAttack = sylContent.AmpEnvAAttack;
+									this.envelopeDecay = sylContent.AmpEnvADecay;
+									this.envelopeSustain =  sylContent.AmpEnvASustain;
+									this.envelopeRelease = sylContent.AmpEnvARelease;
+									
+									this.envelopeAttackString = String.Format("{0:0.00}", MathUtils.ConvertAndMainainRatio(this.envelopeAttack, 0, 1, 0, 10));
+									this.envelopeDecayString = String.Format("{0:0.00}", MathUtils.ConvertAndMainainRatio(this.envelopeDecay, 0, 1, 0, 10));
+									this.envelopeSustainString = String.Format("{0:0.00}", MathUtils.ConvertAndMainainRatio(this.envelopeSustain, 0, 1, 0, 10));
+									this.envelopeReleaseString = String.Format("{0:0.00}", MathUtils.ConvertAndMainainRatio(this.envelopeRelease, 0, 1, 0, 10));
+								}
 							}
 						}
 						

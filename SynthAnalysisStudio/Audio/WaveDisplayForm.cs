@@ -5,12 +5,20 @@ using System.IO;
 using System.Timers;
 using System.Data;
 
+using System.Linq;
+using System.Text;
+using System.Xml;
+using System.Xml.Linq;
+
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 using Jacobi.Vst.Core.Host;
 
+using NAudio.Wave;
+
 using ProcessVSTPlugin;
 
+using CommonUtils;
 using CommonUtils.Audio;
 
 namespace SynthAnalysisStudio
@@ -144,26 +152,8 @@ namespace SynthAnalysisStudio
 			StartPositionTrackBar.TickFrequency = StartPositionTrackBar.Maximum / 10;
 			StartPositionTrackBar.Value = 0;
 			
-			this.waveDisplayUserControl1.Resolution = (int) this.waveDisplayUserControl1.MaxResolution;			
-			this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());			
-		}
-		
-		void SaveXMLBtnClick(object sender, EventArgs e)
-		{
-			// store this in a xml ouput file.
-			string xmlFilePath = "audio-data.xml";
-
-			DataTable dt = new DataTable();
-			dt.Columns.Add("float", typeof(float));
-			
-			VstHost host = VstHost.Instance;
-			foreach (float f in host.RecordedLeft.ToArray())
-			{
-				dt.Rows.Add( new object[] { f } );
-			}
-			
-			dt.TableName = "Audio Data";
-			dt.WriteXml(xmlFilePath);
+			this.waveDisplayUserControl1.Resolution = (int) this.waveDisplayUserControl1.MaxResolution;
+			this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
 		}
 		
 		void MidiNoteCheckboxCheckedChanged(object sender, EventArgs e)
@@ -193,7 +183,101 @@ namespace SynthAnalysisStudio
 			} else {
 				host.DoSendContinousMidiNote = false;
 				host.SendMidiNote(host.SendContinousMidiNote, 0);
-			}			
+			}
+		}
+		
+		void SaveXMLBtnClick(object sender, EventArgs e)
+		{
+			// store this in a xml ouput file.
+			string xmlFilePath = "audio-data.xml";
+
+			DataTable dt = new DataTable();
+			dt.Columns.Add("float", typeof(float));
+			
+			VstHost host = VstHost.Instance;
+			foreach (float f in host.RecordedLeft.ToArray())
+			{
+				dt.Rows.Add( new object[] { f } );
+			}
+			
+			dt.TableName = "Audio Data";
+			dt.WriteXml(xmlFilePath);
+		}
+		
+		void SaveWAVBtnClick(object sender, EventArgs e)
+		{
+			// store this in a wav ouput file.
+			string wavFilePath = String.Format("audio-data-{0}.wav", StringUtils.GetCurrentTimestamp());
+
+			VstHost host = VstHost.Instance;
+			AudioUtils.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat());
+		}
+		
+		void AdsrSampleBtnClick(object sender, EventArgs e)
+		{
+
+			float envelopeAttack = ((HostCommandStub) PluginContext.HostCommandStub).envelopeAttack;
+			float envelopeDecay = ((HostCommandStub) PluginContext.HostCommandStub).envelopeDecay;
+			float envelopeSustain = ((HostCommandStub) PluginContext.HostCommandStub).envelopeSustain;
+			float envelopeRelease = ((HostCommandStub) PluginContext.HostCommandStub).envelopeRelease;
+			
+			string envelopeAttackString = ((HostCommandStub) PluginContext.HostCommandStub).envelopeAttackString;
+			string envelopeDecayString = ((HostCommandStub) PluginContext.HostCommandStub).envelopeDecayString;
+			string envelopeSustainString = ((HostCommandStub) PluginContext.HostCommandStub).envelopeSustainString;
+			string envelopeReleaseString = ((HostCommandStub) PluginContext.HostCommandStub).envelopeReleaseString;
+
+			attackTextBox.Text = envelopeAttackString;
+			decayTextBox.Text = envelopeDecayString;
+			sustainTextBox.Text = envelopeSustainString;
+			releaseTextBox.Text = envelopeReleaseString;
+			
+			double durationInMilliseconds = this.waveDisplayUserControl1.DurationInMilliseconds;
+			int numberOfSamples = this.waveDisplayUserControl1.NumberOfSamples;
+			
+			durationSamplesTextBox.Text = "" + numberOfSamples;
+			durationMsTextBox.Text = String.Format("{0:0.00}", durationInMilliseconds);
+			
+			// store this in a xml ouput file.
+			string xmlFilePath = "ADSR-sampler.xml";
+			if (File.Exists(xmlFilePath)) {
+				// add to existing xml document
+				XDocument xmlDoc = XDocument.Load(xmlFilePath);
+				
+				xmlDoc.Element("ADSRSampler").Add(
+					new XElement("Row",
+					             new XElement("EnvelopeAttackString", envelopeAttackString),
+					             new XElement("EnvelopeAttack", envelopeAttack),
+					             new XElement("EnvelopeDecayString", envelopeDecayString),
+					             new XElement("EnvelopeDecay", envelopeDecay),
+					             new XElement("EnvelopeSustainString", envelopeSustainString),
+					             new XElement("EnvelopeSustain", envelopeSustain),
+					             new XElement("EnvelopeReleaseString", envelopeReleaseString),
+					             new XElement("EnvelopeRelease", envelopeRelease),
+					             new XElement("DurationSamples", numberOfSamples),
+					             new XElement("DurationMS", durationInMilliseconds)
+					            ));
+
+				xmlDoc.Save(xmlFilePath);
+			} else {
+				// create xml document first
+				XDocument xmlDoc =
+					new XDocument(
+						new XElement("ADSRSampler",
+						             new XElement("Row",
+						                          new XElement("EnvelopeAttackString", envelopeAttackString),
+						                          new XElement("EnvelopeAttack", envelopeAttack),
+						                          new XElement("EnvelopeDecayString", envelopeDecayString),
+						                          new XElement("EnvelopeDecay", envelopeDecay),
+						                          new XElement("EnvelopeSustainString", envelopeSustainString),
+						                          new XElement("EnvelopeSustain", envelopeSustain),
+						                          new XElement("EnvelopeReleaseString", envelopeReleaseString),
+						                          new XElement("EnvelopeRelease", envelopeRelease),
+						                          new XElement("DurationSamples", numberOfSamples),
+						                          new XElement("DurationMS", durationInMilliseconds)
+						                         )
+						            ));
+				xmlDoc.Save(xmlFilePath);
+			}
 		}
 	}
 }
