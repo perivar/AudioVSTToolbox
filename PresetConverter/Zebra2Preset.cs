@@ -5240,7 +5240,7 @@ namespace PresetConverter
 		}
 		
 		public static double MillisecondsToValue(float timeInMs, Zebra2Preset.EnvelopeTimeBase timeBase) {
-			double envValue = 0.0f;
+			double envValue = 0.0;
 			switch (timeBase) {
 				case EnvelopeTimeBase.TIMEBASE_8sX:
 					double envValue8sX = 50 * Math.Pow( (double) timeInMs/1000, (double) 1/3);
@@ -5259,6 +5259,24 @@ namespace PresetConverter
 					break;
 			}
 			return envValue;
+		}
+
+		public static double EnvTypeAndValueToMilliseconds(EnvelopeTimeBase timeBase, double envValue) {
+
+			// Forumla: =1000*((B3/50)^3)
+			double ms = 0;
+			switch (timeBase) {
+				case EnvelopeTimeBase.TIMEBASE_8sX:
+					ms = 1000 * ( Math.Pow(envValue / 50, 3) );
+					break;
+				case EnvelopeTimeBase.TIMEBASE_16sX:
+					ms = 2000 * ( Math.Pow(envValue / 50, 3) );
+					break;
+				case EnvelopeTimeBase.TIMEBASE_10s:
+					ms = envValue * 100;
+					break;
+			}
+			return ms;
 		}
 		
 		// The Zebra equaliser is a 4 band eq (LowShelf, Mid1, Mid2, HiShelf)
