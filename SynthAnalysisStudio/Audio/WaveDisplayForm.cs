@@ -315,7 +315,71 @@ namespace SynthAnalysisStudio
 			host.SendMidiNote(host.SendContinousMidiNote, 0);
 			
 			stopwatch.Stop();
-			Console.WriteLine("Midi Note Sent. Time used {0} ms", stopwatch.ElapsedMilliseconds);			
+			Console.WriteLine("Midi Note Sent. Time used {0} ms", stopwatch.ElapsedMilliseconds);
+		}
+		
+		void MeasureABtnClick(object sender, EventArgs e)
+		{
+			// step through the Attack steps
+			for (float paramValue = 0.0f; paramValue <= 10; paramValue += 0.1f) {
+				PluginContext.PluginCommandStub.SetParameter(0, paramValue);
+			}
+		}
+		
+		void MeasureDBtnClick(object sender, EventArgs e)
+		{
+			// step through the Decay steps
+			for (float paramValue = 0.0f; paramValue <= 10; paramValue += 0.1f) {
+				PluginContext.PluginCommandStub.SetParameter(1, paramValue);
+			}
+		}
+
+		void MeasureRBtnClick(object sender, EventArgs e)
+		{		
+			// init
+			((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
+			PluginContext.PluginCommandStub.SetParameter(0, 0); // attack
+			PluginContext.PluginCommandStub.SetParameter(1, 0); // decay
+			PluginContext.PluginCommandStub.SetParameter(3, 10); // sustain
+			
+			// step through the Release steps
+			for (float paramValue = 0.0f; paramValue <= 2; paramValue += 0.1f) {
+				PluginContext.PluginCommandStub.SetParameter(2, paramValue);
+				((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(2, paramValue);
+				
+				// wait a specfied time
+				//System.Threading.Thread.Sleep(10);
+
+				// start record
+				RecordBtnClick(sender, e);
+				
+				// wait a specfied time
+				//System.Threading.Thread.Sleep(10);
+
+				// play midi
+				PlayMidiC5100msBtnClick(sender, e);
+				
+				// wait a specfied time
+				System.Threading.Thread.Sleep((int)(10000 * paramValue));
+				
+				// stop recording
+				StopBtnClick(sender, e);
+				
+				// crop
+				CropBtnClick(sender, e);
+				
+				// save wav
+				SaveWAVBtnClick(sender, e);
+				
+				// store
+				AdsrSampleBtnClick(sender, e);
+				
+				// clear
+				ClearBtnClick(sender, e);
+
+				// wait a specfied time
+				System.Threading.Thread.Sleep(10);
+			}
 		}
 	}
 }

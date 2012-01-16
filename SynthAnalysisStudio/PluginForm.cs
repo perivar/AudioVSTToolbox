@@ -105,17 +105,20 @@ namespace ProcessVSTPlugin
 				string name = PluginContext.PluginCommandStub.GetParameterName(i);
 				string label = PluginContext.PluginCommandStub.GetParameterLabel(i);
 				string display = PluginContext.PluginCommandStub.GetParameterDisplay(i);
+				bool canBeAutomated = PluginContext.PluginCommandStub.CanParameterBeAutomated(i);
 
-				AddParameter(name, display, label, String.Empty);
+				AddParameter(i, name, display, label, String.Empty, canBeAutomated);
 			}
 		}
 
-		private void AddParameter(string paramName, string paramValue, string label, string shortLabel)
+		private void AddParameter(int paramIndex, string paramName, string paramValue, string label, string shortLabel, bool canBeAutomated)
 		{
-			ListViewItem lvItem = new ListViewItem(paramName);
+			ListViewItem lvItem = new ListViewItem(paramIndex.ToString());
+			lvItem.SubItems.Add(paramName);
 			lvItem.SubItems.Add(paramValue);
 			lvItem.SubItems.Add(label);
 			lvItem.SubItems.Add(shortLabel);
+			lvItem.SubItems.Add(canBeAutomated.ToString());
 
 			PluginParameterListVw.Items.Add(lvItem);
 		}

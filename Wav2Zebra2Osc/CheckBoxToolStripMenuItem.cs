@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Wav2Zebra2CSharp
+namespace Wav2Zebra2Osc
 {
 	public class CheckBoxToolStripMenuItem : System.Windows.Forms.ToolStripControlHost
 	{

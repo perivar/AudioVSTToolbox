@@ -196,15 +196,14 @@ namespace CommonUtils.Audio
 		/// <param name = "milliseconds">milliseconds to read</param>
 		/// <param name = "startmillisecond">Start millisecond</param>
 		/// <returns>Array of samples</returns>
-		public static float[] ReadMonoFromFile(string filename, int samplerate, int milliseconds, int startmillisecond, int channel=1)
+		public static float[] ReadMonoFromFile(string filename, int samplerate, int milliseconds, int startmillisecond, int channelToUse=1)
 		{
 			int totalmilliseconds = milliseconds <= 0 ? Int32.MaxValue : milliseconds + startmillisecond;
 			float[] data = null;
 
-			int channels = 2;
-			WaveFormat waveFormat = new WaveFormat(samplerate, channels);
-			
+			// read as stereo file - do the mono thing later
 			List<float> floatList = new List<float>();
+			WaveFormat waveFormat = new WaveFormat(samplerate, 2);
 			WaveStream wave32 = ResampleWaveStream(filename, waveFormat);
 			
 			// we are getting a stereo file back
@@ -215,18 +214,46 @@ namespace CommonUtils.Audio
 			float sampleValueLeft = 0;
 			float sampleValueRight = 0;
 			float sampleValueMono = 0;
-			while (AudioUtils.TryReadFloat(wave32, out sampleValueLeft, out sampleValueRight) == true) {
+			
+			// read until we have read the number of samples (measured in ms) we are supposed to do
+			int sampleCount = 0;
+			while (AudioUtils.TryReadFloat(wave32, out sampleValueLeft, out sampleValueRight) == true
+			       && (float)(sampleCount)/ samplerate * 1000 < totalmilliseconds)
+			{
+
 				// TODO: Use the summed mono signal to anything?
 				sampleValueMono = (sampleValueLeft + sampleValueRight) / 2;
-				
+
 				// return channel 1 as default
-				if (channel == 2) {
+				if (channelToUse == 2) {
 					floatList.Add(sampleValueRight);
 				} else {
 					floatList.Add(sampleValueLeft);
-				}				
+				}
+
+				// increment with size of data
+				//sampleCount += 4;
+				sampleCount++;
 			}
 			data = floatList.ToArray();
+			
+			if ( (float)(sampleCount) / samplerate * 1000 < (milliseconds + startmillisecond)) {
+				// not enough samples to return the requested data
+				return null;
+			}
+			
+			// Select specific part of the song
+			int start = (int) ( (float) startmillisecond * samplerate / 1000);
+			int end = (milliseconds <= 0) ?
+				sampleCount :
+				(int) ( (float)(startmillisecond + milliseconds) * samplerate / 1000);
+			if (start != 0 || end != sampleCount)
+			{
+				float[] temp = new float[end - start];
+				Array.Copy(data, start, temp, 0, end - start);
+				data = temp;
+			}
+			
 			return data;
 		}
 		

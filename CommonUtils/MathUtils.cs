@@ -28,6 +28,29 @@ namespace CommonUtils
 			return (float)exp10(val);
 		}
 		
+		public static float[] ReSampleToArbitrary(float[] input, int size)
+		{
+			float[] returnArray = new float[size];
+			int length = input.Length;
+			float phaseInc = (float) length / size;
+			float phase = 0.0F;
+			float phaseMant = 0.0F;
+			
+			for (int i = 0; i < size; i++)
+			{
+				int intPhase = (int) phase;
+				int intPhasePlusOne = intPhase + 1;
+				if (intPhasePlusOne >= length)
+				{
+					intPhasePlusOne -= length;
+				}
+				phaseMant = (float) phase - intPhase;
+				returnArray[i] = (input[intPhase] * (1.0F - phaseMant) + input[intPhasePlusOne] * phaseMant);
+				phase += phaseInc;
+			}
+			return returnArray;
+		}
+		
 		public static float[] ConvertRangeAndMainainRatio(float[] oldValueArray, float oldMin, float oldMax, float newMin, float newMax) {
 			float[] newValueArray = new float[oldValueArray.Length];
 			float oldRange = (oldMax - oldMin);
@@ -191,7 +214,7 @@ namespace CommonUtils
 		// look at this http://jvalentino2.tripod.com/dft/index.html
 		public static float ConvertAmplitudeToDB(float amplitude, float MinDb, float MaxDb) {
 			// db = 20 * log10( fft[index] );
-			 // Addition of smallestNumber prevents log from returning minus infinity if mag is zero
+			// Addition of smallestNumber prevents log from returning minus infinity if mag is zero
 			float smallestNumber = float.Epsilon;
 			float db = 20 * (float) Math.Log10( (float) (amplitude + smallestNumber) );
 			
@@ -205,7 +228,7 @@ namespace CommonUtils
 			// 20 log10(mag) => 20/ln(10) ln(mag)
 			// javascript: var result = Math.log(x) * (20.0 / Math.LN10);
 			// http://www.plugindeveloper.com/05/decibel-calculator-online
-			 // Addition of smallestNumber prevents log from returning minus infinity if mag is zero
+			// Addition of smallestNumber prevents log from returning minus infinity if mag is zero
 			float smallestNumber = float.Epsilon;
 			double result = Math.Log(amplitude + smallestNumber) * (20.0 / Math.Log(10));
 			return (float) result;
@@ -261,6 +284,17 @@ namespace CommonUtils
 				nice = 0.5 * nice;
 
 			return nice;
+		}
+		
+		public static float[] Abs(float[] floatArray) {
+			if (floatArray == null) return null;
+			
+			float[] absArray = new float[floatArray.Length];
+			for (int i = 0; i < floatArray.Length; i++) {
+				float absValue = Math.Abs(floatArray[i]);
+				absArray[i] = absValue;
+			}
+			return absArray;
 		}
 	}
 }

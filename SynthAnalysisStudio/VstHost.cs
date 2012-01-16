@@ -352,7 +352,7 @@ namespace ProcessVSTPlugin
 			// make sure the plugin has been opened.
 			doPluginOpen();
 			VstEvent[] vEvent = CreateMidiEvent(statusByte, midiNote, midiVelocity);
-			PluginContext.PluginCommandStub.ProcessEvents(vEvent);			
+			PluginContext.PluginCommandStub.ProcessEvents(vEvent);		
 		}
 		
 		public void SendMidiNote(byte midiNote, byte midiVelocity) {
@@ -419,8 +419,9 @@ namespace ProcessVSTPlugin
 					string name = PluginContext.PluginCommandStub.GetParameterName(i);
 					string label = PluginContext.PluginCommandStub.GetParameterLabel(i);
 					string display = PluginContext.PluginCommandStub.GetParameterDisplay(i);
+					bool canBeAutomated = PluginContext.PluginCommandStub.CanParameterBeAutomated(i);
 					
-					pluginInfo.Add(String.Format("Parameter Name: {0} Display: {1} Label: {2}", name, display, label));
+					pluginInfo.Add(String.Format("Parameter Name: {0} Display: {1} Label: {2} Can be automated: {3}", name, display, label, canBeAutomated));
 				}
 				return string.Join("\n", pluginInfo.ToArray());
 			}

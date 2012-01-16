@@ -1,35 +1,12 @@
 ﻿using System;
 using System.IO;
 
-namespace Wav2Zebra2CSharp
+namespace Wav2Zebra2Osc
 {
 	public class Conversions
 	{
 		public const double PI = Math.PI; // 3.141593F;
 		public const double TWO_PI = 2 * Math.PI; //6.283186F;
-		
-		public static float[] ReSampleToArbitrary(float[] input, int size)
-		{
-			float[] returnArray = new float[size];
-			int length = input.Length;
-			float phaseInc = (float) length / size;
-			float phase = 0.0F;
-			float phaseMant = 0.0F;
-			
-			for (int i = 0; i < size; i++)
-			{
-				int intPhase = (int) phase;
-				int intPhasePlusOne = intPhase + 1;
-				if (intPhasePlusOne >= length)
-				{
-					intPhasePlusOne -= length;
-				}			   
-				phaseMant = (float) phase - intPhase;
-				returnArray[i] = (input[intPhase] * (1.0F - phaseMant) + input[intPhasePlusOne] * phaseMant);
-				phase += phaseInc;
-			}			 
-			return returnArray;
-		}
 		
 		public static float[] DFT(float[] waveForm)
 		{

@@ -7,8 +7,9 @@ using System.IO;
 using System.Text;
 
 using AudioSystem;
+using CommonUtils;
 
-namespace Wav2Zebra2CSharp
+namespace Wav2Zebra2Osc
 {
 	/// <summary>
 	/// Main Form
@@ -26,7 +27,7 @@ namespace Wav2Zebra2CSharp
 		
 		private BassProxy bassProxy;
 		
-		public Wav2Zebra2CSharp.WaveDisplayUserControl[] waveDisplays;
+		public Wav2Zebra2Osc.WaveDisplayUserControl[] waveDisplays;
 		
 		public MainForm()
 		{
@@ -41,11 +42,11 @@ namespace Wav2Zebra2CSharp
 			bassProxy = new BassProxy();
 			
 			// Initialize the wave display cells
-			waveDisplays = new Wav2Zebra2CSharp.WaveDisplayUserControl[16];
+			waveDisplays = new Wav2Zebra2Osc.WaveDisplayUserControl[16];
 			int counter = 0;
 			for( int row = 0; row != 4; ++row ) {
 				for( int col = 0; col != 4; ++col ) {
-					this.waveDisplays[counter] = new Wav2Zebra2CSharp.WaveDisplayUserControl(this);
+					this.waveDisplays[counter] = new Wav2Zebra2Osc.WaveDisplayUserControl(this);
 					this.tableLayoutPanel.Controls.Add(waveDisplays[counter], col, row);
 					this.waveDisplays[counter].ResumeLayout(false);
 					this.waveDisplays[counter].PerformLayout();
@@ -164,7 +165,7 @@ namespace Wav2Zebra2CSharp
 		public virtual void SetImportSound(FileInfo file, int selected)
 		{
 			float[] tempAudioBuffer = bassProxy.ReadMonoFromFile(file.FullName, 5512);
-			float[] tempAudioBuffer2 = Conversions.ReSampleToArbitrary(tempAudioBuffer, 128);
+			float[] tempAudioBuffer2 = MathUtils.ReSampleToArbitrary(tempAudioBuffer, 128);
 			Array.Copy(tempAudioBuffer2, 0, this.soundData[selected], 0, 128);
 			
 			// TODO: use lomont instead

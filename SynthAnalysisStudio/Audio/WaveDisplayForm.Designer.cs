@@ -46,7 +46,6 @@ namespace SynthAnalysisStudio
 			this.AmplitudeTrackBar = new System.Windows.Forms.TrackBar();
 			this.StartPositionTrackBar = new System.Windows.Forms.TrackBar();
 			this.CropBtn = new System.Windows.Forms.Button();
-			this.saveXMLBtn = new System.Windows.Forms.Button();
 			this.MidiNoteCheckbox = new System.Windows.Forms.CheckBox();
 			this.SaveWAVBtn = new System.Windows.Forms.Button();
 			this.adsrSampleBtn = new System.Windows.Forms.Button();
@@ -59,6 +58,9 @@ namespace SynthAnalysisStudio
 			this.releaseTextBox = new System.Windows.Forms.TextBox();
 			this.durationMsTextBox = new System.Windows.Forms.TextBox();
 			this.playMidiC5100msBtn = new System.Windows.Forms.Button();
+			this.measureDBtn = new System.Windows.Forms.Button();
+			this.measureABtn = new System.Windows.Forms.Button();
+			this.measureRBtn = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.MaxResolutionTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.AmplitudeTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.StartPositionTrackBar)).BeginInit();
@@ -115,7 +117,7 @@ namespace SynthAnalysisStudio
 			// 
 			this.recordBtn.Location = new System.Drawing.Point(186, 6);
 			this.recordBtn.Name = "recordBtn";
-			this.recordBtn.Size = new System.Drawing.Size(60, 24);
+			this.recordBtn.Size = new System.Drawing.Size(51, 24);
 			this.recordBtn.TabIndex = 9;
 			this.recordBtn.Text = "Record";
 			this.recordBtn.UseVisualStyleBackColor = true;
@@ -123,9 +125,9 @@ namespace SynthAnalysisStudio
 			// 
 			// stopBtn
 			// 
-			this.stopBtn.Location = new System.Drawing.Point(252, 7);
+			this.stopBtn.Location = new System.Drawing.Point(239, 7);
 			this.stopBtn.Name = "stopBtn";
-			this.stopBtn.Size = new System.Drawing.Size(60, 23);
+			this.stopBtn.Size = new System.Drawing.Size(51, 23);
 			this.stopBtn.TabIndex = 10;
 			this.stopBtn.Text = "Stop";
 			this.stopBtn.UseVisualStyleBackColor = true;
@@ -133,9 +135,9 @@ namespace SynthAnalysisStudio
 			// 
 			// clearBtn
 			// 
-			this.clearBtn.Location = new System.Drawing.Point(318, 7);
+			this.clearBtn.Location = new System.Drawing.Point(292, 7);
 			this.clearBtn.Name = "clearBtn";
-			this.clearBtn.Size = new System.Drawing.Size(60, 23);
+			this.clearBtn.Size = new System.Drawing.Size(51, 23);
 			this.clearBtn.TabIndex = 11;
 			this.clearBtn.Text = "Clear";
 			this.clearBtn.UseVisualStyleBackColor = true;
@@ -170,23 +172,13 @@ namespace SynthAnalysisStudio
 			// 
 			// CropBtn
 			// 
-			this.CropBtn.Location = new System.Drawing.Point(384, 7);
+			this.CropBtn.Location = new System.Drawing.Point(345, 7);
 			this.CropBtn.Name = "CropBtn";
-			this.CropBtn.Size = new System.Drawing.Size(60, 23);
+			this.CropBtn.Size = new System.Drawing.Size(51, 23);
 			this.CropBtn.TabIndex = 14;
 			this.CropBtn.Text = "Crop";
 			this.CropBtn.UseVisualStyleBackColor = true;
 			this.CropBtn.Click += new System.EventHandler(this.CropBtnClick);
-			// 
-			// saveXMLBtn
-			// 
-			this.saveXMLBtn.Location = new System.Drawing.Point(468, 7);
-			this.saveXMLBtn.Name = "saveXMLBtn";
-			this.saveXMLBtn.Size = new System.Drawing.Size(73, 23);
-			this.saveXMLBtn.TabIndex = 15;
-			this.saveXMLBtn.Text = "Save XML";
-			this.saveXMLBtn.UseVisualStyleBackColor = true;
-			this.saveXMLBtn.Click += new System.EventHandler(this.SaveXMLBtnClick);
 			// 
 			// MidiNoteCheckbox
 			// 
@@ -286,11 +278,44 @@ namespace SynthAnalysisStudio
 			this.playMidiC5100msBtn.UseVisualStyleBackColor = true;
 			this.playMidiC5100msBtn.Click += new System.EventHandler(this.PlayMidiC5100msBtnClick);
 			// 
+			// measureDBtn
+			// 
+			this.measureDBtn.Location = new System.Drawing.Point(456, 7);
+			this.measureDBtn.Name = "measureDBtn";
+			this.measureDBtn.Size = new System.Drawing.Size(19, 24);
+			this.measureDBtn.TabIndex = 28;
+			this.measureDBtn.Text = "D";
+			this.measureDBtn.UseVisualStyleBackColor = true;
+			this.measureDBtn.Click += new System.EventHandler(this.MeasureDBtnClick);
+			// 
+			// measureABtn
+			// 
+			this.measureABtn.Location = new System.Drawing.Point(434, 7);
+			this.measureABtn.Name = "measureABtn";
+			this.measureABtn.Size = new System.Drawing.Size(19, 24);
+			this.measureABtn.TabIndex = 29;
+			this.measureABtn.Text = "A";
+			this.measureABtn.UseVisualStyleBackColor = true;
+			this.measureABtn.Click += new System.EventHandler(this.MeasureABtnClick);
+			// 
+			// measureRBtn
+			// 
+			this.measureRBtn.Location = new System.Drawing.Point(478, 7);
+			this.measureRBtn.Name = "measureRBtn";
+			this.measureRBtn.Size = new System.Drawing.Size(19, 24);
+			this.measureRBtn.TabIndex = 30;
+			this.measureRBtn.Text = "R";
+			this.measureRBtn.UseVisualStyleBackColor = true;
+			this.measureRBtn.Click += new System.EventHandler(this.MeasureRBtnClick);
+			// 
 			// WaveDisplayForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(755, 289);
+			this.Controls.Add(this.measureRBtn);
+			this.Controls.Add(this.measureABtn);
+			this.Controls.Add(this.measureDBtn);
 			this.Controls.Add(this.playMidiC5100msBtn);
 			this.Controls.Add(this.durationMsTextBox);
 			this.Controls.Add(this.releaseTextBox);
@@ -303,7 +328,6 @@ namespace SynthAnalysisStudio
 			this.Controls.Add(this.label3);
 			this.Controls.Add(this.SaveWAVBtn);
 			this.Controls.Add(this.MidiNoteCheckbox);
-			this.Controls.Add(this.saveXMLBtn);
 			this.Controls.Add(this.CropBtn);
 			this.Controls.Add(this.StartPositionTrackBar);
 			this.Controls.Add(this.AmplitudeTrackBar);
@@ -322,6 +346,9 @@ namespace SynthAnalysisStudio
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.Button measureRBtn;
+		private System.Windows.Forms.Button measureABtn;
+		private System.Windows.Forms.Button measureDBtn;
 		private System.Windows.Forms.Button playMidiC5100msBtn;
 		private System.Windows.Forms.TextBox durationMsTextBox;
 		private System.Windows.Forms.TextBox releaseTextBox;
@@ -334,7 +361,6 @@ namespace SynthAnalysisStudio
 		private System.Windows.Forms.Button adsrSampleBtn;
 		private System.Windows.Forms.Button SaveWAVBtn;
 		private System.Windows.Forms.CheckBox MidiNoteCheckbox;
-		private System.Windows.Forms.Button saveXMLBtn;
 		private System.Windows.Forms.Button CropBtn;
 		private System.Windows.Forms.TrackBar MaxResolutionTrackBar;
 		private System.Windows.Forms.TrackBar StartPositionTrackBar;

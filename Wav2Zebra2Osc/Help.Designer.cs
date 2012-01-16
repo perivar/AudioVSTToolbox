@@ -1,4 +1,4 @@
-﻿namespace Wav2Zebra2CSharp
+﻿namespace Wav2Zebra2Osc
 {
 	partial class Help
 	{

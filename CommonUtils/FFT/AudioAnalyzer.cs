@@ -286,7 +286,6 @@ namespace CommonUtils.FFT
 			Color lineColor = ColorTranslator.FromHtml("#C7834C");
 			Color middleLineColor = ColorTranslator.FromHtml("#EFAB74");
 			Color textColor = ColorTranslator.FromHtml("#A9652E");
-			//Color sampleColor = ColorTranslator.FromHtml("#A9652E");
 			Color sampleColor = ColorTranslator.FromHtml("#4C2F1A");
 			Color fillOuterColor = ColorTranslator.FromHtml("#FFFFFF");
 			Color fillColor = ColorTranslator.FromHtml("#F9C998");
@@ -471,22 +470,25 @@ namespace CommonUtils.FFT
 			float MAX_AMPLITUDE = 1.0f;
 			float AMPLITUDE_STEP = 0.25f;
 			
-			string LABEL_X = "X axis"; 				// Label for X axis
-			string LABEL_Y = "Y axis";             	// Label for Y axis
+			string LABEL_X = "Time (ms)"; 				// Label for X axis
+			string LABEL_Y = "Amplitude";             	// Label for Y axis
 			
 			bool drawLabels = false;
 			bool drawRoundedRectangles = true;
+			bool displayInformationBox = true;
 			bool displayTime = true;
+			
 			bool useAverages = false; // averages draws a "filled" waveform
 			
 			// Colors
 			Color lineColor = ColorTranslator.FromHtml("#C7834C");
 			Color middleLineColor = ColorTranslator.FromHtml("#EFAB74");
 			Color textColor = ColorTranslator.FromHtml("#A9652E");
-			//Color sampleColor = ColorTranslator.FromHtml("#A9652E");
 			Color sampleColor = ColorTranslator.FromHtml("#4C2F1A");
 			Color fillOuterColor = ColorTranslator.FromHtml("#FFFFFF");
 			Color fillColor = ColorTranslator.FromHtml("#F9C998");
+			Color textInfoBoxColor = ColorTranslator.FromHtml("#4C2F1A");
+			Color textInfoBoxBgColor = ColorTranslator.FromHtml("#F7DECA");
 			
 			// Derived constants
 			int CENTER = TOTAL_HEIGHT / 2;
@@ -541,6 +543,7 @@ namespace CommonUtils.FFT
 			Pen middleLinePen = new Pen(middleLineColor, 0.5f);
 			Pen textPen = new Pen(textColor, 1.0f);
 			Pen samplePen = new Pen(sampleColor, 1.0f);
+			Pen infoBoxPen = new Pen(textInfoBoxColor, 1.0f);
 
 			// Draw a rectangular box marking the boundaries of the graph
 			// Create outer rectangle.
@@ -634,6 +637,46 @@ namespace CommonUtils.FFT
 			g.DrawLine(middleLinePen, LEFT, CENTER, WIDTH, CENTER);
 			
 			
+			// draw right upper box
+			if (displayInformationBox) {
+				Font drawInfoBoxFont = new Font("Arial", 8);
+				SolidBrush drawInfoBoxBrush = new SolidBrush(infoBoxPen.Color);
+				
+				string infoBoxLine1Text = String.Format("Resolution: {0}", resolution);
+				string infoBoxLine2Text = String.Format("SampleToPizel Orig: {0:0.000} => New: {1:0.000}", (float) numberOfSamples / WIDTH, sampleToPixel);
+				string infoBoxLine3Text = String.Format("Time (Min->Max): {0} -> {1}", MIN_TIME, MAX_TIME);
+				string infoBoxLine4Text = String.Format("Timestep: {0}, TimeToPixel: {1}", TIME_STEP, TIMETOPIXEL);
+
+				// get box width
+				int infoBoxMargin = 5;
+				List<float> textLineSizes = new List<float>();
+				textLineSizes.Add(g.MeasureString(infoBoxLine1Text, drawInfoBoxFont).Width + infoBoxMargin*2);
+				textLineSizes.Add(g.MeasureString(infoBoxLine2Text, drawInfoBoxFont).Width + infoBoxMargin*2);
+				textLineSizes.Add(g.MeasureString(infoBoxLine3Text, drawInfoBoxFont).Width + infoBoxMargin*2);
+				textLineSizes.Add(g.MeasureString(infoBoxLine4Text, drawInfoBoxFont).Width + infoBoxMargin*2);
+				textLineSizes.Add(150.0f); // info box minimum width
+				
+				float infoBoxLineTextWidth = 0.0f;
+				float minWidth = 0.0f;
+				MathUtils.ComputeMinAndMax(textLineSizes.ToArray(), out minWidth, out infoBoxLineTextWidth);
+
+				int infoBoxWidth = (int) infoBoxLineTextWidth;
+				
+				float infoBoxLineTextHeight = drawInfoBoxFont.GetHeight(g);
+				int infoBoxHeight = (int) (infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*4);
+				
+				Rectangle rectInfoBox = new Rectangle(WIDTH - infoBoxWidth - 20, 30, infoBoxWidth, infoBoxHeight);
+				Brush fillBrushInfoBox = new SolidBrush(textInfoBoxBgColor);
+				g.FillRectangle(fillBrushInfoBox, rectInfoBox);
+				g.DrawRectangle(linePen, rectInfoBox);
+				
+				g.DrawString(infoBoxLine1Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin);
+				g.DrawString(infoBoxLine2Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin));
+				g.DrawString(infoBoxLine3Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*2);
+				g.DrawString(infoBoxLine4Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*3);
+			}
+
+			
 			// Draw waveform
 			if (data != null && data.Length > 0) {
 				if (sampleToPixel >= 1) {
@@ -642,6 +685,11 @@ namespace CommonUtils.FFT
 					float xPrev = 0;
 					float yPrev = 0;
 					float yAxis = 0;
+
+					int yMax = 0;
+					int yMin = 0;
+					int yMaxPrev = 0;
+					int yMinPrev = 0;
 					bool firstPoint = true;
 					for (float xAxis = 0; xAxis < WIDTH; xAxis++)
 					{
@@ -649,7 +697,9 @@ namespace CommonUtils.FFT
 						int start = (int)(xAxis * sampleToPixel);
 						int end = (int)((xAxis + 1) * sampleToPixel);
 						
-						int yMax = 0, yMin = 0;
+						// reset the min and max values
+						yMax = 0;
+						yMin = 0;
 						if (useAverages) {
 							// determine the average min and max values within this specific range
 							float posAvg = 0, negAvg = 0;
@@ -681,15 +731,20 @@ namespace CommonUtils.FFT
 								// Move to the point
 								xPrev = xAxis;
 								yPrev = yAxis;
+								
+								yMaxPrev = yMax;
+								yMinPrev = yMin;
+								
 								firstPoint = false;
 							}
 							else
 							{
-								if (resolution < 40) {
+								if (TIMETOPIXEL > 5) {
 									// For smaller resolution, Draw line from the previous point
-									g.DrawLine(samplePen, xPrev + LEFT, yPrev, xAxis + LEFT, yAxis);
-									xPrev = xAxis;
-									yPrev = yAxis;
+									//g.DrawLine(samplePen, xPrev + LEFT, yPrev, xAxis + LEFT, yAxis);
+									
+									// Try to smooth the lines by using the previous max value
+									g.DrawLine(samplePen, xPrev + LEFT, yMaxPrev, xAxis + LEFT, yMin);
 								} else {
 									// use yMax and yMin
 									// original from example: http://stackoverflow.com/questions/1215326/open-source-c-sharp-code-to-present-wave-form
@@ -697,6 +752,9 @@ namespace CommonUtils.FFT
 									// from y min to y max value
 									g.DrawLine(samplePen, xAxis + LEFT, yMin, xAxis + LEFT, yMax);
 								}
+
+								yMaxPrev = yMax;
+								yMinPrev = yMin;
 							}
 						}
 					}
@@ -722,7 +780,7 @@ namespace CommonUtils.FFT
 			
 			return png;
 		}
-		
+
 		private static void averages(float[] data, int startIndex, int endIndex, out float posAvg, out float negAvg)
 		{
 			posAvg = 0.0f;
@@ -751,6 +809,6 @@ namespace CommonUtils.FFT
 				negAvg /= negCount;
 			}
 		}
-		
+
 	}
 }

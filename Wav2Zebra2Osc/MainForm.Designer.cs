@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace Wav2Zebra2CSharp
+namespace Wav2Zebra2Osc
 {
 	partial class MainForm
 	{
@@ -273,7 +273,7 @@ namespace Wav2Zebra2CSharp
 			this.MainMenuStrip = this.menuStrip;
 			this.MinimumSize = new System.Drawing.Size(620, 620);
 			this.Name = "MainForm";
-			this.Text = "Wav2Zebra2CSharp";
+			this.Text = "Wav2Zebra2Osc";
 			this.Resize += new System.EventHandler(this.MainFormResize);
 			this.menuStrip.ResumeLayout(false);
 			this.menuStrip.PerformLayout();

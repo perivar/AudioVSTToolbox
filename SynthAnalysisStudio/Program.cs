@@ -97,8 +97,22 @@ namespace ProcessVSTPlugin
 		[STAThread]
 		static void Main(string[] args)
 		{
-
 			/*
+			string wavFilePath = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
+			//string wavFilePath = @"C:\Users\perivar.nerseth\Music\Per Ivar Samples\Rihanna - Who's That Chick (Prod. By David Guetta) (Synth and Bass).wav";
+			//string wavFilePath = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\SynthAnalysisStudio\3.wav";
+
+			float[] wavData = AudioUtils.ReadMonoFromFile(wavFilePath, 44100, 0, 0);
+
+			//float[] wavDataAbs = MathUtils.Abs(wavData);
+			
+			//System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavDataAbs, new System.Drawing.Size(1000, 600), 1, 1, 0, 44100);
+			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavData, new System.Drawing.Size(1000, 600), 5, 1, 0, 44100);
+			string fileName = String.Format("wave-{0}.png", 1);
+			png.Save(fileName);
+
+			return;
+			
 			for (int i = 0; i < 128; i++ ) {
 				float freq = MidiUtils.MidiNoteToPitch(i);
 				int note = 0;
@@ -111,7 +125,7 @@ namespace ProcessVSTPlugin
 			
 			Console.ReadKey();
 			return;
-			*/
+			 */
 			
 			/*
 			float[] wavData = new float[] { 0.001f, -0.8f, 0.05f, -0.05f, 0.2f, 0.4f, 1.0f };

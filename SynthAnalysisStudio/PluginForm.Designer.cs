@@ -37,6 +37,7 @@
         	this.SaveFXPBtn = new System.Windows.Forms.Button();
         	this.LoadFXPBtn = new System.Windows.Forms.Button();
         	this.PluginParameterListVw = new System.Windows.Forms.ListView();
+        	this.ParameterIndexHdr = new System.Windows.Forms.ColumnHeader();
         	this.ParameterNameHdr = new System.Windows.Forms.ColumnHeader();
         	this.ParameterValueHdr = new System.Windows.Forms.ColumnHeader();
         	this.ParameterLabelHdr = new System.Windows.Forms.ColumnHeader();
@@ -48,6 +49,7 @@
         	this.EditorBtn = new System.Windows.Forms.Button();
         	this.ProcessAudioBtn = new System.Windows.Forms.Button();
         	this.btnChooseWavefile = new System.Windows.Forms.Button();
+        	this.ParameterCanBeAutomatedHdr = new System.Windows.Forms.ColumnHeader();
         	groupBox1 = new System.Windows.Forms.GroupBox();
         	groupBox2 = new System.Windows.Forms.GroupBox();
         	groupBox1.SuspendLayout();
@@ -64,7 +66,7 @@
         	groupBox1.Location = new System.Drawing.Point(13, 13);
         	groupBox1.Name = "groupBox1";
         	groupBox1.Padding = new System.Windows.Forms.Padding(5);
-        	groupBox1.Size = new System.Drawing.Size(470, 158);
+        	groupBox1.Size = new System.Drawing.Size(504, 158);
         	groupBox1.TabIndex = 0;
         	groupBox1.TabStop = false;
         	groupBox1.Text = "Plugin Properties";
@@ -80,7 +82,7 @@
         	this.PluginPropertyListVw.Location = new System.Drawing.Point(5, 18);
         	this.PluginPropertyListVw.MultiSelect = false;
         	this.PluginPropertyListVw.Name = "PluginPropertyListVw";
-        	this.PluginPropertyListVw.Size = new System.Drawing.Size(460, 135);
+        	this.PluginPropertyListVw.Size = new System.Drawing.Size(494, 135);
         	this.PluginPropertyListVw.TabIndex = 0;
         	this.PluginPropertyListVw.UseCompatibleStateImageBehavior = false;
         	this.PluginPropertyListVw.View = System.Windows.Forms.View.Details;
@@ -106,7 +108,7 @@
         	groupBox2.Controls.Add(this.ProgramIndexNud);
         	groupBox2.Location = new System.Drawing.Point(13, 177);
         	groupBox2.Name = "groupBox2";
-        	groupBox2.Size = new System.Drawing.Size(470, 178);
+        	groupBox2.Size = new System.Drawing.Size(504, 178);
         	groupBox2.TabIndex = 1;
         	groupBox2.TabStop = false;
         	groupBox2.Text = "Programs && Parameters";
@@ -137,19 +139,26 @@
         	        	        	| System.Windows.Forms.AnchorStyles.Left) 
         	        	        	| System.Windows.Forms.AnchorStyles.Right)));
         	this.PluginParameterListVw.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+        	        	        	this.ParameterIndexHdr,
         	        	        	this.ParameterNameHdr,
         	        	        	this.ParameterValueHdr,
         	        	        	this.ParameterLabelHdr,
-        	        	        	this.ParameterShortLabelHdr});
+        	        	        	this.ParameterShortLabelHdr,
+        	        	        	this.ParameterCanBeAutomatedHdr});
         	this.PluginParameterListVw.FullRowSelect = true;
         	this.PluginParameterListVw.HideSelection = false;
         	this.PluginParameterListVw.Location = new System.Drawing.Point(7, 47);
         	this.PluginParameterListVw.MultiSelect = false;
         	this.PluginParameterListVw.Name = "PluginParameterListVw";
-        	this.PluginParameterListVw.Size = new System.Drawing.Size(457, 125);
+        	this.PluginParameterListVw.Size = new System.Drawing.Size(491, 125);
         	this.PluginParameterListVw.TabIndex = 2;
         	this.PluginParameterListVw.UseCompatibleStateImageBehavior = false;
         	this.PluginParameterListVw.View = System.Windows.Forms.View.Details;
+        	// 
+        	// ParameterIndexHdr
+        	// 
+        	this.ParameterIndexHdr.Text = "Index";
+        	this.ParameterIndexHdr.Width = 39;
         	// 
         	// ParameterNameHdr
         	// 
@@ -164,7 +173,7 @@
         	// ParameterLabelHdr
         	// 
         	this.ParameterLabelHdr.Text = "Label";
-        	this.ParameterLabelHdr.Width = 100;
+        	this.ParameterLabelHdr.Width = 90;
         	// 
         	// ParameterShortLabelHdr
         	// 
@@ -190,7 +199,7 @@
         	// 
         	this.OKBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
         	this.OKBtn.DialogResult = System.Windows.Forms.DialogResult.OK;
-        	this.OKBtn.Location = new System.Drawing.Point(427, 362);
+        	this.OKBtn.Location = new System.Drawing.Point(461, 362);
         	this.OKBtn.Name = "OKBtn";
         	this.OKBtn.Size = new System.Drawing.Size(56, 23);
         	this.OKBtn.TabIndex = 3;
@@ -210,8 +219,8 @@
         	// 
         	// EditorBtn
         	// 
-        	this.EditorBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-        	this.EditorBtn.Location = new System.Drawing.Point(368, 362);
+        	this.EditorBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+        	this.EditorBtn.Location = new System.Drawing.Point(402, 362);
         	this.EditorBtn.Name = "EditorBtn";
         	this.EditorBtn.Size = new System.Drawing.Size(53, 23);
         	this.EditorBtn.TabIndex = 5;
@@ -245,11 +254,15 @@
         	this.btnChooseWavefile.UseVisualStyleBackColor = true;
         	this.btnChooseWavefile.Click += new System.EventHandler(this.BtnChooseWavefileClick);
         	// 
+        	// ParameterCanBeAutomatedHdr
+        	// 
+        	this.ParameterCanBeAutomatedHdr.Text = "CanBeAutomated";
+        	// 
         	// PluginForm
         	// 
         	this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
         	this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        	this.ClientSize = new System.Drawing.Size(496, 394);
+        	this.ClientSize = new System.Drawing.Size(530, 394);
         	this.Controls.Add(this.btnChooseWavefile);
         	this.Controls.Add(this.ProcessAudioBtn);
         	this.Controls.Add(this.EditorBtn);
@@ -270,6 +283,8 @@
         	((System.ComponentModel.ISupportInitialize)(this.ProgramIndexNud)).EndInit();
         	this.ResumeLayout(false);
         }
+        private System.Windows.Forms.ColumnHeader ParameterCanBeAutomatedHdr;
+        private System.Windows.Forms.ColumnHeader ParameterIndexHdr;
         private System.Windows.Forms.Button btnChooseWavefile;
         private System.Windows.Forms.Button LoadFXPBtn;
         private System.Windows.Forms.Button SaveFXPBtn;
