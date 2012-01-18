@@ -31,6 +31,11 @@ namespace SynthAnalysisStudio
 	/// </summary>
 	public partial class WaveDisplayForm : Form
 	{
+		const int SYLENTH_PARAM_ATTACK = 0;
+		const int SYLENTH_PARAM_DECAY = 1;
+		const int SYLENTH_PARAM_RELEASE = 2;
+		const int SYLENTH_PARAM_SUSTAIN = 3;
+
 		public VstPluginContext PluginContext { get; set; }
 		public VstPlaybackNAudio Playback { get; set; }
 
@@ -181,10 +186,8 @@ namespace SynthAnalysisStudio
 			CheckBox check = (CheckBox) sender;
 			if(check.Checked)
 			{
-				host.DoSendContinousMidiNote = true;
 				host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
 			} else {
-				host.DoSendContinousMidiNote = false;
 				host.SendMidiNote(host.SendContinousMidiNote, 0);
 			}
 		}
@@ -213,7 +216,7 @@ namespace SynthAnalysisStudio
 			string wavFilePath = String.Format("audio-data-{0}.wav", StringUtils.GetCurrentTimestamp());
 
 			VstHost host = VstHost.Instance;
-			AudioUtils.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat());
+			AudioUtils.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
 		}
 		
 		void AdsrSampleBtnClick(object sender, EventArgs e)
@@ -309,7 +312,7 @@ namespace SynthAnalysisStudio
 			host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
 			
 			// wait 100 ms
-			System.Threading.Thread.Sleep(100);
+			System.Threading.Thread.Sleep(175);
 
 			// send midi note off
 			host.SendMidiNote(host.SendContinousMidiNote, 0);
@@ -320,56 +323,268 @@ namespace SynthAnalysisStudio
 		
 		void MeasureABtnClick(object sender, EventArgs e)
 		{
+			VstHost host = VstHost.Instance;
+			host.PluginContext = this.PluginContext;
+			host.doPluginOpen();
+			host.InitLastProcessedBuffers();
+			
+			// if first keypress setup audio
+			if (Playback == null) {
+				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
+				// tblock = 0.15 makes blocksize = 6615.
+				int sampleRate = 44100;
+				int blockSize = (int) (sampleRate * 0.15f); //6615;
+				int channels = 2;
+				host.Init(blockSize, sampleRate, channels);
+				
+				Playback = new VstPlaybackNAudio(host);
+				Playback.Play();
+			}
+			
+			// init
+			((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_ATTACK, 0); // attack
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_DECAY, 0); // decay
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_SUSTAIN, 0); // sustain
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_RELEASE, 0); // release
+			
 			// step through the Attack steps
-			for (float paramValue = 0.0f; paramValue <= 10; paramValue += 0.1f) {
-				PluginContext.PluginCommandStub.SetParameter(0, paramValue);
+			for (float paramValue = 0.0f; paramValue < 1.05f; paramValue += 0.05f) {
+				// time how long this takes
+				Stopwatch stopwatch = Stopwatch.StartNew();
+
+				// start record
+				host.Record = true;
+				
+				// set the parameter
+				PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_ATTACK, paramValue);
+				((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(SYLENTH_PARAM_ATTACK, paramValue);
+				
+				// wait until it has started playing
+				while(!host.LastProcessedBufferLeftPlaying) {
+					// play midi
+					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
+					
+					if (stopwatch.ElapsedMilliseconds > 5000) {
+						stopwatch.Stop();
+						System.Console.Out.WriteLine("MeasureABtnClick: Playing Midi Failed!");
+						return;
+					}
+					System.Threading.Thread.Sleep(100);
+				}
+				
+				// wait until it has stopped playing
+				stopwatch.Restart();
+				while (host.LastProcessedBufferLeftPlaying) {
+					if (stopwatch.ElapsedMilliseconds > 40000) {
+						stopwatch.Stop();
+						System.Console.Out.WriteLine("MeasureABtnClick: Playing never stopped?!");
+						break;
+					}
+				}
+				stopwatch.Stop();
+				System.Console.Out.WriteLine("MeasureABtnClick: Playing stopped: {0} ms.", stopwatch.ElapsedMilliseconds);
+				
+				// stop recording
+				host.Record = false;
+
+				// wait a specfied time
+				System.Threading.Thread.Sleep(100);
+
+				// crop
+				CropBtnClick(sender, e);
+				
+				// store this in a wav ouput file.
+				float param = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_ATTACK);
+				string wavFilePath = String.Format("audio-attack-{0:0.00}s-{1}.wav", param, StringUtils.GetCurrentTimestamp());
+				AudioUtils.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
+				
+				// store as a png
+				System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
+				string fileName = String.Format("audio-attack-{0:0.00}s-{1}.png", param, StringUtils.GetCurrentTimestamp());
+				png.Save(fileName);
+				
+				// store
+				AdsrSampleBtnClick(sender, e);
+				
+				// turn of midi
+				host.SendMidiNote(host.SendContinousMidiNote, 0);
+
+				// clear
+				ClearBtnClick(sender, e);
+
+				// wait a specfied time
+				System.Threading.Thread.Sleep(100);
+
+				stopwatch.Stop();
 			}
 		}
 		
 		void MeasureDBtnClick(object sender, EventArgs e)
 		{
+			VstHost host = VstHost.Instance;
+			host.PluginContext = this.PluginContext;
+			host.doPluginOpen();
+			host.InitLastProcessedBuffers();
+			
+			// if first keypress setup audio
+			if (Playback == null) {
+				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
+				// tblock = 0.15 makes blocksize = 6615.
+				int sampleRate = 44100;
+				int blockSize = (int) (sampleRate * 0.15f); //6615;
+				int channels = 2;
+				host.Init(blockSize, sampleRate, channels);
+				
+				Playback = new VstPlaybackNAudio(host);
+				Playback.Play();
+			}
+			
+			// init
+			((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_ATTACK, 0); // attack
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_DECAY, 0); // decay
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_SUSTAIN, 0); // sustain
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_RELEASE, 0); // release
+			
 			// step through the Decay steps
-			for (float paramValue = 0.0f; paramValue <= 10; paramValue += 0.1f) {
-				PluginContext.PluginCommandStub.SetParameter(1, paramValue);
+			for (float paramValue = 0.0f; paramValue < 1.05f; paramValue += 0.05f) {
+				// time how long this takes
+				Stopwatch stopwatch = Stopwatch.StartNew();
+
+				// start record
+				host.Record = true;
+				
+				// set the parameter
+				PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_DECAY, paramValue);
+				((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(SYLENTH_PARAM_DECAY, paramValue);
+				
+				// wait until it has started playing
+				while(!host.LastProcessedBufferLeftPlaying) {
+					// play midi
+					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
+					
+					if (stopwatch.ElapsedMilliseconds > 5000) {
+						stopwatch.Stop();
+						System.Console.Out.WriteLine("MeasureDBtnClick: Playing Midi Failed!");
+						return;
+					}
+					System.Threading.Thread.Sleep(100);
+				}
+				
+				// wait until it has stopped playing
+				stopwatch.Restart();
+				while (host.LastProcessedBufferLeftPlaying) {
+					if (stopwatch.ElapsedMilliseconds > 40000) {
+						stopwatch.Stop();
+						System.Console.Out.WriteLine("MeasureDBtnClick: Playing never stopped?!");
+						break;
+					}
+				}
+				stopwatch.Stop();
+				System.Console.Out.WriteLine("MeasureDBtnClick: Playing stopped: {0} ms.", stopwatch.ElapsedMilliseconds);
+				
+				// stop recording
+				host.Record = false;
+
+				// wait a specfied time
+				System.Threading.Thread.Sleep(100);
+
+				// crop
+				CropBtnClick(sender, e);
+				
+				// store this in a wav ouput file.
+				float param = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_DECAY);
+				string wavFilePath = String.Format("audio-decay-{0:0.00}s-{1}.wav", param, StringUtils.GetCurrentTimestamp());
+				AudioUtils.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
+				
+				// store as a png
+				System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
+				string fileName = String.Format("audio-decay-{0:0.00}s-{1}.png", param, StringUtils.GetCurrentTimestamp());
+				png.Save(fileName);
+				
+				// store
+				AdsrSampleBtnClick(sender, e);
+				
+				// turn of midi
+				host.SendMidiNote(host.SendContinousMidiNote, 0);
+
+				// clear
+				ClearBtnClick(sender, e);
+
+				// wait a specfied time
+				System.Threading.Thread.Sleep(100);
+
+				stopwatch.Stop();
 			}
 		}
 
 		void MeasureRBtnClick(object sender, EventArgs e)
-		{		
+		{
+			VstHost host = VstHost.Instance;
+			host.PluginContext = this.PluginContext;
+			host.InitLastProcessedBuffers();
+
 			// init
 			((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
-			PluginContext.PluginCommandStub.SetParameter(0, 0); // attack
-			PluginContext.PluginCommandStub.SetParameter(1, 0); // decay
-			PluginContext.PluginCommandStub.SetParameter(3, 10); // sustain
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_ATTACK, 0); // attack
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_DECAY, 0); // decay
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_SUSTAIN, 10); // sustain
 			
 			// step through the Release steps
-			for (float paramValue = 0.0f; paramValue <= 2; paramValue += 0.1f) {
-				PluginContext.PluginCommandStub.SetParameter(2, paramValue);
-				((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(2, paramValue);
-				
-				// wait a specfied time
-				//System.Threading.Thread.Sleep(10);
+			for (float paramValue = 0.0f; paramValue < 1.05f; paramValue += 0.05f) {
+				// time how long this takes
+				Stopwatch stopwatch = Stopwatch.StartNew();
 
+				// set the parameter
+				PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_RELEASE, paramValue);
+				((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(SYLENTH_PARAM_RELEASE, paramValue);
+				
 				// start record
-				RecordBtnClick(sender, e);
+				host.Record = true;
 				
-				// wait a specfied time
-				//System.Threading.Thread.Sleep(10);
-
-				// play midi
-				PlayMidiC5100msBtnClick(sender, e);
+				// wait until it has started playing
+				while(!host.LastProcessedBufferLeftPlaying) {
+					// play midi
+					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
+					
+					if (stopwatch.ElapsedMilliseconds > 5000) {
+						stopwatch.Stop();
+						System.Console.Out.WriteLine("MeasureRBtnClick: Playing Midi Failed!");
+						return;
+					}
+					System.Threading.Thread.Sleep(100);
+				}
+				// stop midi
+				host.SendMidiNote(host.SendContinousMidiNote, 0);
 				
-				// wait a specfied time
-				System.Threading.Thread.Sleep((int)(10000 * paramValue));
+				// wait until it has stopped playing
+				stopwatch.Restart();
+				while (host.LastProcessedBufferLeftPlaying) {
+					if (stopwatch.ElapsedMilliseconds > 40000) {
+						stopwatch.Stop();
+						System.Console.Out.WriteLine("MeasureRBtnClick: Playing never stopped?!");
+						break;
+					}
+				}
+				stopwatch.Stop();
+				System.Console.Out.WriteLine("MeasureRBtnClick: Playing stopped: {0} ms.", stopwatch.ElapsedMilliseconds);
 				
 				// stop recording
-				StopBtnClick(sender, e);
-				
+				host.Record = false;
+
 				// crop
 				CropBtnClick(sender, e);
 				
-				// save wav
-				SaveWAVBtnClick(sender, e);
+				// store this in a wav ouput file.
+				float param = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_RELEASE);
+				string wavFilePath = String.Format("audio-release-{0:0.00}s-{1}.wav", param, StringUtils.GetCurrentTimestamp());
+				AudioUtils.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
+				
+				// store as a png
+				System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
+				string fileName = String.Format("audio-release-{0:0.00}s-{1}.png", param, StringUtils.GetCurrentTimestamp());
+				png.Save(fileName);
 				
 				// store
 				AdsrSampleBtnClick(sender, e);
@@ -378,7 +593,9 @@ namespace SynthAnalysisStudio
 				ClearBtnClick(sender, e);
 
 				// wait a specfied time
-				System.Threading.Thread.Sleep(10);
+				System.Threading.Thread.Sleep(100);
+
+				stopwatch.Stop();
 			}
 		}
 	}

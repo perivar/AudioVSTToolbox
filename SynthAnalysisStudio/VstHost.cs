@@ -32,8 +32,7 @@ namespace ProcessVSTPlugin
 		public int SampleRate { get; set; }
 		public int Channels { get; set; }
 
-		// these are used for continous midi note playing
-		public bool DoSendContinousMidiNote { get; set; }
+		// these are used for midi note playing
 		public byte SendContinousMidiNoteVelocity = 100;
 		public byte SendContinousMidiNote = 72; // C 5
 		
@@ -95,6 +94,20 @@ namespace ProcessVSTPlugin
 			get { return this.lastProcessedBufferLeft; }
 		}
 
+		public bool LastProcessedBufferLeftPlaying
+		{
+			get {
+				return CommonUtils.Audio.AudioUtils.HasDataAboveThreshold(lastProcessedBufferLeft, 0);
+			}
+		}
+		
+		public bool LastProcessedBufferRightPlaying
+		{
+			get {
+				return CommonUtils.Audio.AudioUtils.HasDataAboveThreshold(lastProcessedBufferRight, 0);
+			}
+		}
+		
 		public List<float> RecordedRight
 		{
 			get { return this.recordedRight; }
@@ -174,8 +187,13 @@ namespace ProcessVSTPlugin
 			this.PluginContext.PluginCommandStub.SetSampleRate((float)sampleRate);
 			this.PluginContext.PluginCommandStub.SetProcessPrecision(VstProcessPrecision.Process32);
 			
-			this.lastProcessedBufferRight = new float[blockSize*Channels];
-			this.lastProcessedBufferLeft = new float[blockSize*Channels];
+			this.lastProcessedBufferRight = new float[blockSize];
+			this.lastProcessedBufferLeft = new float[blockSize];
+		}
+		
+		public void InitLastProcessedBuffers() {
+			this.lastProcessedBufferRight = new float[BlockSize];
+			this.lastProcessedBufferLeft = new float[BlockSize];
 		}
 		
 		public void doPluginOpen() {
@@ -249,6 +267,7 @@ namespace ProcessVSTPlugin
 					}
 					
 					// populate the inputbuffers with the incoming wave stream
+					// TODO: do not use unsafe - like this http://vstnet.codeplex.com/discussions/246206 ?
 					unsafe
 					{
 						fixed (byte* byteBuf = &naudioBuf[0])
@@ -269,37 +288,35 @@ namespace ProcessVSTPlugin
 				// make sure the plugin has been opened.
 				doPluginOpen();
 				
-				// check if we are playing a continous midi not automatically
-				//if (DoSendContinousMidiNote) {
-				//	SendMidiNote(SendContinousMidiNote, SendContinousMidiNoteVelocity);
-				//}
-				
 				// and do the vst processing
-				PluginContext.PluginCommandStub.ProcessReplacing(vstInputBuffers, vstOutputBuffers);
-				
-				// read from the vstOutputBuffers
-				unsafe
+				try
 				{
-					float* tmpBufL = ((IDirectBufferAccess32)vstOutputBuffers[0]).Buffer;
-					float* tmpBufR = ((IDirectBufferAccess32)vstOutputBuffers[1]).Buffer;
-					int j = 0;
-					for (int i = 0; i < loopSize; i++)
+					PluginContext.PluginCommandStub.ProcessReplacing(vstInputBuffers, vstOutputBuffers);
+				}
+				catch (Exception)
+				{
+				}
+
+				// store the output into the last processed buffers
+				for (int channelNumber = 0; channelNumber < Channels; channelNumber++)
+				{
+					for (int samples = 0; samples < vstOutputBuffers[channelNumber].SampleCount; samples++)
 					{
-						lastProcessedBufferLeft[j] = *(tmpBufL + i);
-						lastProcessedBufferRight[j] = *(tmpBufR + i);
-						j++;
+						switch (channelNumber) {
+							case 0:
+								lastProcessedBufferLeft[samples] = vstOutputBuffers[channelNumber][samples];
+								break;
+							case 1:
+								lastProcessedBufferRight[samples] = vstOutputBuffers[channelNumber][samples];
+								break;
+						}
 					}
 				}
 				
 				// Record audio
 				if (doRecord) {
-					int numberOfSamplesMono = (int) sampleCount/2;
-					float[] rightChannel = new float[numberOfSamplesMono];
-					float[] leftChannel = new float[numberOfSamplesMono];
-					Array.Copy(lastProcessedBufferRight, rightChannel, numberOfSamplesMono);
-					Array.Copy(lastProcessedBufferLeft, leftChannel, numberOfSamplesMono);
-					recordedRight.AddRange(rightChannel);
-					recordedLeft.AddRange(leftChannel);
+					recordedRight.AddRange(lastProcessedBufferLeft);
+					recordedLeft.AddRange(lastProcessedBufferRight);
 				}
 				
 				count++;
@@ -352,7 +369,7 @@ namespace ProcessVSTPlugin
 			// make sure the plugin has been opened.
 			doPluginOpen();
 			VstEvent[] vEvent = CreateMidiEvent(statusByte, midiNote, midiVelocity);
-			PluginContext.PluginCommandStub.ProcessEvents(vEvent);		
+			PluginContext.PluginCommandStub.ProcessEvents(vEvent);
 		}
 		
 		public void SendMidiNote(byte midiNote, byte midiVelocity) {
@@ -421,7 +438,7 @@ namespace ProcessVSTPlugin
 					string display = PluginContext.PluginCommandStub.GetParameterDisplay(i);
 					bool canBeAutomated = PluginContext.PluginCommandStub.CanParameterBeAutomated(i);
 					
-					pluginInfo.Add(String.Format("Parameter Name: {0} Display: {1} Label: {2} Can be automated: {3}", name, display, label, canBeAutomated));
+					pluginInfo.Add(String.Format("Parameter Index: {0} Parameter Name: {1} Display: {2} Label: {3} Can be automated: {4}", i, name, display, label, canBeAutomated));
 				}
 				return string.Join("\n", pluginInfo.ToArray());
 			}

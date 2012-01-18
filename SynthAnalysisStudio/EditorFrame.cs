@@ -453,10 +453,8 @@ namespace ProcessVSTPlugin
 			CheckBox check = (CheckBox) sender;
 			if(check.Checked)
 			{
-				host.DoSendContinousMidiNote = true;
 				host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
 			} else {
-				host.DoSendContinousMidiNote = false;
 				host.SendMidiNote(host.SendContinousMidiNote, 0);
 			}
 		}
