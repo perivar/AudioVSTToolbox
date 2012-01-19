@@ -637,46 +637,6 @@ namespace CommonUtils.FFT
 			g.DrawLine(middleLinePen, LEFT, CENTER, WIDTH, CENTER);
 			
 			
-			// draw right upper box
-			if (displayInformationBox) {
-				Font drawInfoBoxFont = new Font("Arial", 8);
-				SolidBrush drawInfoBoxBrush = new SolidBrush(infoBoxPen.Color);
-				
-				string infoBoxLine1Text = String.Format("Resolution: {0}", resolution);
-				string infoBoxLine2Text = String.Format("SampleToPizel Orig: {0:0.000} => New: {1:0.000}", (float) numberOfSamples / WIDTH, sampleToPixel);
-				string infoBoxLine3Text = String.Format("Time (Min->Max): {0} -> {1}", MIN_TIME, MAX_TIME);
-				string infoBoxLine4Text = String.Format("Timestep: {0}, TimeToPixel: {1}", TIME_STEP, TIMETOPIXEL);
-
-				// get box width
-				int infoBoxMargin = 5;
-				List<float> textLineSizes = new List<float>();
-				textLineSizes.Add(g.MeasureString(infoBoxLine1Text, drawInfoBoxFont).Width + infoBoxMargin*2);
-				textLineSizes.Add(g.MeasureString(infoBoxLine2Text, drawInfoBoxFont).Width + infoBoxMargin*2);
-				textLineSizes.Add(g.MeasureString(infoBoxLine3Text, drawInfoBoxFont).Width + infoBoxMargin*2);
-				textLineSizes.Add(g.MeasureString(infoBoxLine4Text, drawInfoBoxFont).Width + infoBoxMargin*2);
-				textLineSizes.Add(150.0f); // info box minimum width
-				
-				float infoBoxLineTextWidth = 0.0f;
-				float minWidth = 0.0f;
-				MathUtils.ComputeMinAndMax(textLineSizes.ToArray(), out minWidth, out infoBoxLineTextWidth);
-
-				int infoBoxWidth = (int) infoBoxLineTextWidth;
-				
-				float infoBoxLineTextHeight = drawInfoBoxFont.GetHeight(g);
-				int infoBoxHeight = (int) (infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*4);
-				
-				Rectangle rectInfoBox = new Rectangle(WIDTH - infoBoxWidth - 20, 30, infoBoxWidth, infoBoxHeight);
-				Brush fillBrushInfoBox = new SolidBrush(textInfoBoxBgColor);
-				g.FillRectangle(fillBrushInfoBox, rectInfoBox);
-				g.DrawRectangle(linePen, rectInfoBox);
-				
-				g.DrawString(infoBoxLine1Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin);
-				g.DrawString(infoBoxLine2Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin));
-				g.DrawString(infoBoxLine3Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*2);
-				g.DrawString(infoBoxLine4Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*3);
-			}
-
-			
 			// Draw waveform
 			if (data != null && data.Length > 0) {
 				if (sampleToPixel >= 1) {
@@ -753,6 +713,10 @@ namespace CommonUtils.FFT
 									g.DrawLine(samplePen, xAxis + LEFT, yMin, xAxis + LEFT, yMax);
 								}
 
+								// store values to next iteration
+								xPrev = xAxis;
+								yPrev = yAxis;
+								
 								yMaxPrev = yMax;
 								yMinPrev = yMin;
 							}
@@ -760,7 +724,7 @@ namespace CommonUtils.FFT
 					}
 				} else {
 					// the number of samples are lower than the available drawing space (i.e. less than the number of pixles in the X-Axis)
-					float mult_x = WIDTH / (numberOfSamples - 1);
+					float mult_x = (float) WIDTH / (numberOfSamples - 1);
 					
 					List<Point> ps = new List<Point>();
 					for (int i = 0; i < data.Length; i++)
@@ -777,6 +741,45 @@ namespace CommonUtils.FFT
 					}
 				}
 			}
+			
+			// draw right upper box
+			if (displayInformationBox) {
+				Font drawInfoBoxFont = new Font("Arial", 8);
+				SolidBrush drawInfoBoxBrush = new SolidBrush(infoBoxPen.Color);
+				
+				string infoBoxLine1Text = String.Format("Resolution: {0}", resolution);
+				string infoBoxLine2Text = String.Format("SampleToPixel Orig: {0:0.000} => New: {1:0.000}", (float) numberOfSamples / WIDTH, sampleToPixel);
+				string infoBoxLine3Text = String.Format("Time (Min->Max): {0} -> {1}", MIN_TIME, MAX_TIME);
+				string infoBoxLine4Text = String.Format("Timestep: {0}, TimeToPixel: {1}", TIME_STEP, TIMETOPIXEL);
+
+				// get box width
+				int infoBoxMargin = 5;
+				List<float> textLineSizes = new List<float>();
+				textLineSizes.Add(g.MeasureString(infoBoxLine1Text, drawInfoBoxFont).Width + infoBoxMargin*2);
+				textLineSizes.Add(g.MeasureString(infoBoxLine2Text, drawInfoBoxFont).Width + infoBoxMargin*2);
+				textLineSizes.Add(g.MeasureString(infoBoxLine3Text, drawInfoBoxFont).Width + infoBoxMargin*2);
+				textLineSizes.Add(g.MeasureString(infoBoxLine4Text, drawInfoBoxFont).Width + infoBoxMargin*2);
+				textLineSizes.Add(150.0f); // info box minimum width
+				
+				float infoBoxLineTextWidth = 0.0f;
+				float minWidth = 0.0f;
+				MathUtils.ComputeMinAndMax(textLineSizes.ToArray(), out minWidth, out infoBoxLineTextWidth);
+
+				int infoBoxWidth = (int) infoBoxLineTextWidth;
+				
+				float infoBoxLineTextHeight = drawInfoBoxFont.GetHeight(g);
+				int infoBoxHeight = (int) (infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*4);
+				
+				Rectangle rectInfoBox = new Rectangle(WIDTH - infoBoxWidth - 20, 30, infoBoxWidth, infoBoxHeight);
+				Brush fillBrushInfoBox = new SolidBrush(textInfoBoxBgColor);
+				g.FillRectangle(fillBrushInfoBox, rectInfoBox);
+				g.DrawRectangle(linePen, rectInfoBox);
+				
+				g.DrawString(infoBoxLine1Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin);
+				g.DrawString(infoBoxLine2Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin));
+				g.DrawString(infoBoxLine3Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*2);
+				g.DrawString(infoBoxLine4Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*3);
+			}			
 			
 			return png;
 		}

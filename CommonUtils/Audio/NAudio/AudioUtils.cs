@@ -149,6 +149,7 @@ namespace CommonUtils.Audio
 		}
 		#endregion
 		
+		// Read Stereo
 		public static bool TryReadFloat(WaveStream waveStream, out float sampleValueLeft, out float sampleValueRight)
 		{
 			// 16 bit PCM data
@@ -168,21 +169,19 @@ namespace CommonUtils.Audio
 			return false;
 		}
 		
+		// Read Mono
 		public static bool TryReadFloat(WaveStream waveStream, out float sampleValue)
 		{
 			// 16 bit PCM data
 			sampleValue = 0f;
 			if (waveStream.WaveFormat.BitsPerSample == 16)
 			{
-				byte[] buffer = new byte[4];
+				byte[] buffer = new byte[2];
 				int read = waveStream.Read(buffer, 0, buffer.Length);
 				if (read < buffer.Length)
 					return false;
 
 				sampleValue = (float)BitConverter.ToInt16(buffer, 0) / 32768f;
-				if (sampleValue > 0 ) {
-					System.Diagnostics.Debug.WriteLine("test");
-				}
 				return true;
 			}
 			return false;
@@ -206,36 +205,54 @@ namespace CommonUtils.Audio
 			WaveFormat waveFormat = new WaveFormat(samplerate, 2);
 			WaveStream wave32 = ResampleWaveStream(filename, waveFormat);
 			
-			// we are getting a stereo file back
-			// convert to mono by taking an average of both values:
-			// f_mono = function(l, r) {
-			//   return (l + r) / 2;
-			//}
-			float sampleValueLeft = 0;
-			float sampleValueRight = 0;
-			float sampleValueMono = 0;
-			
-			// read until we have read the number of samples (measured in ms) we are supposed to do
 			int sampleCount = 0;
-			while (AudioUtils.TryReadFloat(wave32, out sampleValueLeft, out sampleValueRight) == true
-			       && (float)(sampleCount)/ samplerate * 1000 < totalmilliseconds)
-			{
 
-				// TODO: Use the summed mono signal to anything?
-				sampleValueMono = (sampleValueLeft + sampleValueRight) / 2;
-
-				// return channel 1 as default
-				if (channelToUse == 2) {
-					floatList.Add(sampleValueRight);
-				} else {
-					floatList.Add(sampleValueLeft);
+			// check the input file number of channels
+			if (wave32.WaveFormat.Channels == 1) {
+				// we already have a mono file
+				float sampleValue = 0;
+				
+				// read until we have read the number of samples (measured in ms) we are supposed to do
+				while (AudioUtils.TryReadFloat(wave32, out sampleValue) == true
+				       && (float)(sampleCount)/ samplerate * 1000 < totalmilliseconds)
+				{
+					floatList.Add(sampleValue);
+					
+					// increment with size of data
+					sampleCount++;
 				}
+				data = floatList.ToArray();
+				
+			} else if (wave32.WaveFormat.Channels == 2) {
+				// we are getting a stereo file back
+				// convert to mono by taking an average of both values:
+				// f_mono = function(l, r) {
+				//   return (l + r) / 2;
+				//}
+				float sampleValueLeft = 0;
+				float sampleValueRight = 0;
+				float sampleValueMono = 0;
+				
+				// read until we have read the number of samples (measured in ms) we are supposed to do
+				while (AudioUtils.TryReadFloat(wave32, out sampleValueLeft, out sampleValueRight) == true
+				       && (float)(sampleCount)/ samplerate * 1000 < totalmilliseconds)
+				{
 
-				// increment with size of data
-				//sampleCount += 4;
-				sampleCount++;
+					// TODO: Use the summed mono signal to anything?
+					sampleValueMono = (sampleValueLeft + sampleValueRight) / 2;
+
+					// return channel 1 as default
+					if (channelToUse == 2) {
+						floatList.Add(sampleValueRight);
+					} else {
+						floatList.Add(sampleValueLeft);
+					}
+
+					// increment with size of data
+					sampleCount++;
+				}
+				data = floatList.ToArray();
 			}
-			data = floatList.ToArray();
 			
 			if ( (float)(sampleCount) / samplerate * 1000 < (milliseconds + startmillisecond)) {
 				// not enough samples to return the requested data
@@ -372,6 +389,10 @@ namespace CommonUtils.Audio
 		
 		public static float[] CropAudioAtSilence(float[] data, double threshold, bool onlyDetectEnd, int addSamples) {
 
+			if (data == null || data.Length == 0) {
+				return new float[0];
+			}
+			
 			// process whole file
 			int dataLength = data.Length;
 
@@ -439,6 +460,19 @@ namespace CommonUtils.Audio
 			Array.Copy(data, beginning, croppedAudio, 0, croppedAudioLength);
 			System.Diagnostics.Debug.WriteLine("Successfully cropping to selection: {0} to {1} (Original Length: {2} samples).", beginning, end, dataLength);
 			return croppedAudio;
+		}
+
+		public static bool HasDataAboveThreshold(float[] data, double threshold) {
+			if (data == null || data.Length == 0) {
+				return false;
+			}
+			
+			float[] croppedData = CropAudioAtSilence(data, threshold, false, 0);
+			if (croppedData.Length == 0) {
+				return false;
+			} else {
+				return true;
+			}
 		}
 	}
 	

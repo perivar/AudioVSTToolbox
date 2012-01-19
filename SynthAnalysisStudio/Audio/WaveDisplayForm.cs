@@ -312,7 +312,7 @@ namespace SynthAnalysisStudio
 			host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
 			
 			// wait 100 ms
-			System.Threading.Thread.Sleep(175);
+			System.Threading.Thread.Sleep(100);
 
 			// send midi note off
 			host.SendMidiNote(host.SendContinousMidiNote, 0);
@@ -326,20 +326,7 @@ namespace SynthAnalysisStudio
 			VstHost host = VstHost.Instance;
 			host.PluginContext = this.PluginContext;
 			host.doPluginOpen();
-			host.InitLastProcessedBuffers();
-			
-			// if first keypress setup audio
-			if (Playback == null) {
-				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
-				// tblock = 0.15 makes blocksize = 6615.
-				int sampleRate = 44100;
-				int blockSize = (int) (sampleRate * 0.15f); //6615;
-				int channels = 2;
-				host.Init(blockSize, sampleRate, channels);
-				
-				Playback = new VstPlaybackNAudio(host);
-				Playback.Play();
-			}
+			SetupAudio(host);
 			
 			// init
 			((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
@@ -349,7 +336,7 @@ namespace SynthAnalysisStudio
 			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_RELEASE, 0); // release
 			
 			// step through the Attack steps
-			for (float paramValue = 0.0f; paramValue < 1.05f; paramValue += 0.05f) {
+			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
 				// time how long this takes
 				Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -362,9 +349,15 @@ namespace SynthAnalysisStudio
 				
 				// wait until it has started playing
 				while(!host.LastProcessedBufferLeftPlaying) {
+					// start playing audio
+					Playback.Play();
+
+					// make sure to take the time to empty the buffers
+					System.Threading.Thread.Sleep(1000);
+
 					// play midi
-					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
-					
+					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);					
+
 					if (stopwatch.ElapsedMilliseconds > 5000) {
 						stopwatch.Stop();
 						System.Console.Out.WriteLine("MeasureABtnClick: Playing Midi Failed!");
@@ -425,21 +418,8 @@ namespace SynthAnalysisStudio
 			VstHost host = VstHost.Instance;
 			host.PluginContext = this.PluginContext;
 			host.doPluginOpen();
-			host.InitLastProcessedBuffers();
-			
-			// if first keypress setup audio
-			if (Playback == null) {
-				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
-				// tblock = 0.15 makes blocksize = 6615.
-				int sampleRate = 44100;
-				int blockSize = (int) (sampleRate * 0.15f); //6615;
-				int channels = 2;
-				host.Init(blockSize, sampleRate, channels);
-				
-				Playback = new VstPlaybackNAudio(host);
-				Playback.Play();
-			}
-			
+			SetupAudio(host);
+
 			// init
 			((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
 			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_ATTACK, 0); // attack
@@ -448,7 +428,7 @@ namespace SynthAnalysisStudio
 			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_RELEASE, 0); // release
 			
 			// step through the Decay steps
-			for (float paramValue = 0.0f; paramValue < 1.05f; paramValue += 0.05f) {
+			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
 				// time how long this takes
 				Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -461,8 +441,14 @@ namespace SynthAnalysisStudio
 				
 				// wait until it has started playing
 				while(!host.LastProcessedBufferLeftPlaying) {
+					// start playing audio
+					Playback.Play();
+
+					// make sure to take the time to empty the buffers
+					System.Threading.Thread.Sleep(1000);
+
 					// play midi
-					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
+					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);					
 					
 					if (stopwatch.ElapsedMilliseconds > 5000) {
 						stopwatch.Stop();
@@ -523,8 +509,9 @@ namespace SynthAnalysisStudio
 		{
 			VstHost host = VstHost.Instance;
 			host.PluginContext = this.PluginContext;
-			host.InitLastProcessedBuffers();
-
+			host.doPluginOpen();
+			SetupAudio(host);
+			
 			// init
 			((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
 			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_ATTACK, 0); // attack
@@ -532,21 +519,27 @@ namespace SynthAnalysisStudio
 			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_SUSTAIN, 10); // sustain
 			
 			// step through the Release steps
-			for (float paramValue = 0.0f; paramValue < 1.05f; paramValue += 0.05f) {
+			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
 				// time how long this takes
 				Stopwatch stopwatch = Stopwatch.StartNew();
+
+				// start record
+				host.Record = true;
 
 				// set the parameter
 				PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_RELEASE, paramValue);
 				((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(SYLENTH_PARAM_RELEASE, paramValue);
 				
-				// start record
-				host.Record = true;
-				
 				// wait until it has started playing
 				while(!host.LastProcessedBufferLeftPlaying) {
+					// start playing audio
+					Playback.Play();
+
+					// make sure to take the time to empty the buffers
+					System.Threading.Thread.Sleep(1000);
+
 					// play midi
-					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
+					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);					
 					
 					if (stopwatch.ElapsedMilliseconds > 5000) {
 						stopwatch.Stop();
@@ -596,6 +589,20 @@ namespace SynthAnalysisStudio
 				System.Threading.Thread.Sleep(100);
 
 				stopwatch.Stop();
+			}
+		}
+		
+		private void SetupAudio(VstHost host) {
+			// if first keypress setup audio
+			if (Playback == null) {
+				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
+				// tblock = 0.15 makes blocksize = 6615.
+				int sampleRate = 44100;
+				int blockSize = (int) (sampleRate * 0.15f); //6615;
+				int channels = 2;
+				host.Init(blockSize, sampleRate, channels);
+				
+				Playback = new VstPlaybackNAudio(host);
 			}
 		}
 	}

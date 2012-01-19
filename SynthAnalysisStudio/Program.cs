@@ -98,6 +98,16 @@ namespace ProcessVSTPlugin
 		static void Main(string[] args)
 		{
 			/*
+			string wavFilePath = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Release\audio-attack-0,03s-201201191521061845.wav";
+			float[] wavData = AudioUtils.ReadMonoFromFile(wavFilePath, 44100, 0, 0);
+
+			// store as a png
+			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavData, new System.Drawing.Size(1000, 600), 10000, 1, 0, 44100);
+			string fileName = String.Format("audio-{0}.png", 1);
+			png.Save(fileName);
+
+			return;
+
 			string wavFilePath = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
 			//string wavFilePath = @"C:\Users\perivar.nerseth\Music\Per Ivar Samples\Rihanna - Who's That Chick (Prod. By David Guetta) (Synth and Bass).wav";
 			//string wavFilePath = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\SynthAnalysisStudio\3.wav";

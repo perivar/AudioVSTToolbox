@@ -39,6 +39,7 @@ namespace ProcessVSTPlugin
 			int processedCount = Host.ProcessReplacing((uint)sampleCount);
 			
 			// read from the vstOutputBuffers
+			/*
 			unsafe
 			{
 				float* tmpBufL = ((IDirectBufferAccess32)Host.vstOutputBuffers[0]).Buffer;
@@ -51,6 +52,16 @@ namespace ProcessVSTPlugin
 					buffer[j] = *(tmpBufR + i);
 					j++;
 				}
+			}
+			 */
+            int i = 0;
+            int j = 0;			
+			while (i < sampleCount)
+			{
+				for (int k = 0; k < Host.Channels; k++) {
+					buffer[i++] = Host.vstOutputBuffers[k][j];
+				}
+				j++;
 			}
 			
 			return processedCount;

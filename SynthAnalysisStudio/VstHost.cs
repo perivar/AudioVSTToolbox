@@ -187,8 +187,7 @@ namespace ProcessVSTPlugin
 			this.PluginContext.PluginCommandStub.SetSampleRate((float)sampleRate);
 			this.PluginContext.PluginCommandStub.SetProcessPrecision(VstProcessPrecision.Process32);
 			
-			this.lastProcessedBufferRight = new float[blockSize];
-			this.lastProcessedBufferLeft = new float[blockSize];
+			InitLastProcessedBuffers();
 		}
 		
 		public void InitLastProcessedBuffers() {
