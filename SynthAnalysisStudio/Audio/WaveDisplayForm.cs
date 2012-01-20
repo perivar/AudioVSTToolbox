@@ -340,6 +340,10 @@ namespace SynthAnalysisStudio
 				// time how long this takes
 				Stopwatch stopwatch = Stopwatch.StartNew();
 
+				// init the buffers
+				host.ClearRecording();
+				host.ClearLastProcessedBuffers();
+
 				// start record
 				host.Record = true;
 				
@@ -352,11 +356,8 @@ namespace SynthAnalysisStudio
 					// start playing audio
 					Playback.Play();
 
-					// make sure to take the time to empty the buffers
-					System.Threading.Thread.Sleep(1000);
-
 					// play midi
-					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);					
+					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
 
 					if (stopwatch.ElapsedMilliseconds > 5000) {
 						stopwatch.Stop();
@@ -375,6 +376,9 @@ namespace SynthAnalysisStudio
 						break;
 					}
 				}
+				// stop playing audio
+				Playback.Stop();
+
 				stopwatch.Stop();
 				System.Console.Out.WriteLine("MeasureABtnClick: Playing stopped: {0} ms.", stopwatch.ElapsedMilliseconds);
 				
@@ -432,6 +436,10 @@ namespace SynthAnalysisStudio
 				// time how long this takes
 				Stopwatch stopwatch = Stopwatch.StartNew();
 
+				// init the buffers
+				host.ClearRecording();
+				host.ClearLastProcessedBuffers();
+				
 				// start record
 				host.Record = true;
 				
@@ -444,11 +452,8 @@ namespace SynthAnalysisStudio
 					// start playing audio
 					Playback.Play();
 
-					// make sure to take the time to empty the buffers
-					System.Threading.Thread.Sleep(1000);
-
 					// play midi
-					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);					
+					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
 					
 					if (stopwatch.ElapsedMilliseconds > 5000) {
 						stopwatch.Stop();
@@ -467,6 +472,9 @@ namespace SynthAnalysisStudio
 						break;
 					}
 				}
+				// stop playing audio
+				Playback.Stop();
+
 				stopwatch.Stop();
 				System.Console.Out.WriteLine("MeasureDBtnClick: Playing stopped: {0} ms.", stopwatch.ElapsedMilliseconds);
 				
@@ -523,6 +531,10 @@ namespace SynthAnalysisStudio
 				// time how long this takes
 				Stopwatch stopwatch = Stopwatch.StartNew();
 
+				// init the buffers
+				host.ClearRecording();
+				host.ClearLastProcessedBuffers();
+
 				// start record
 				host.Record = true;
 
@@ -535,11 +547,8 @@ namespace SynthAnalysisStudio
 					// start playing audio
 					Playback.Play();
 
-					// make sure to take the time to empty the buffers
-					System.Threading.Thread.Sleep(1000);
-
 					// play midi
-					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);					
+					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
 					
 					if (stopwatch.ElapsedMilliseconds > 5000) {
 						stopwatch.Stop();
@@ -560,6 +569,9 @@ namespace SynthAnalysisStudio
 						break;
 					}
 				}
+				// stop playing audio
+				Playback.Stop();
+
 				stopwatch.Stop();
 				System.Console.Out.WriteLine("MeasureRBtnClick: Playing stopped: {0} ms.", stopwatch.ElapsedMilliseconds);
 				

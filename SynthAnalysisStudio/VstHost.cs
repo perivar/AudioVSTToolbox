@@ -130,6 +130,15 @@ namespace ProcessVSTPlugin
 			this.recordedRight.Clear();
 		}
 		
+		public void ClearLastProcessedBuffers() {
+			for (int i = 0; i < this.lastProcessedBufferRight.Length; i++) {
+				this.lastProcessedBufferRight[i] = 0.0f;
+			}
+			for (int i = 0; i < this.lastProcessedBufferLeft.Length; i++) {
+				this.lastProcessedBufferLeft[i] = 0.0f;
+			}
+		}
+		
 		public void OpenPlugin(string pluginPath)
 		{
 			try
@@ -187,10 +196,6 @@ namespace ProcessVSTPlugin
 			this.PluginContext.PluginCommandStub.SetSampleRate((float)sampleRate);
 			this.PluginContext.PluginCommandStub.SetProcessPrecision(VstProcessPrecision.Process32);
 			
-			InitLastProcessedBuffers();
-		}
-		
-		public void InitLastProcessedBuffers() {
 			this.lastProcessedBufferRight = new float[BlockSize];
 			this.lastProcessedBufferLeft = new float[BlockSize];
 		}
