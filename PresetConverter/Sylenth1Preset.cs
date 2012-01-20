@@ -1028,32 +1028,23 @@ namespace PresetConverter
 			
 			// have to use three functions to get correct slope
 			float newValue = 0;
-			if (oldValue >= 0 && oldValue < 0.21) {
-				//1288,5	165,73	0,7319
-				// =$K$1*B2^2+$L$1*B2+$M$1
-				newValue = (float) (1288.5 * Math.Pow(oldValue, 2) + 165.73 * oldValue + 0.7319);
-			} else if (oldValue >= 0.21 && oldValue < 0.5) {
-				// 20,255	7,6797
-				newValue = 20.255f * (float) Math.Exp(7.6797f * oldValue);
+			if (oldValue < 0.1f) {
+				// =$H$3*B2^2+$I$3*B2+$J$3
+				// 931,32	196,47	0,5681
+				newValue = (float) (931.32f * Math.Pow(oldValue, 2)) + (196.47f * oldValue) + 0.5681f;
+			} else if (oldValue >= 0.1f && oldValue <= 0.5f) {
+				// =($H$1*B7^4)-($I$1*B7^3)+($J$1*B7^2)-($K$1*B7)+$L$1
+				// 24410	14725	5681,2	458,88	31,888
+				newValue = (float) ((24410.0f * Math.Pow(oldValue, 4))
+					- (14725.0f * Math.Pow(oldValue, 3))
+					+ (5681.2f * Math.Pow(oldValue, 2))
+					- (458.88f * oldValue)
+					+ (31.888f));
 			} else {
-				// 27,867	6,986
-				newValue = 27.867f * (float) Math.Exp(6.986f * oldValue);
+				// 28,187	6,9709
+				newValue = 28.187f * (float) Math.Exp(6.9709f * oldValue);
 			}
 			return newValue;
-		}
-
-		public static float EnvelopeValueToMillisecondsOLD(float oldValue) {
-			
-			// have to use three functions to get correct slope
-			float newValue = 0;
-			if (oldValue >= 0 && oldValue < 2) {
-				newValue = 0.0087f * (float) Math.Exp(1.1849f * oldValue);
-			} else if (oldValue >= 2 && oldValue < 5) {
-				newValue = 0.0208f * (float) Math.Exp(0.7524f * oldValue);
-			} else {
-				newValue = 0.027f * (float) Math.Exp(0.701f * oldValue);
-			}
-			return newValue * 1000;
 		}
 
 		public static float MillisecondsToEnvelopeValue(float oldValue) {
@@ -3011,7 +3002,7 @@ namespace PresetConverter
 				
 				// Skip if the Preset Name is Init
 				if (!doProcessInitPresets && Content.PresetName == "Init") {
-					// skipping					
+					// skipping
 					Console.Out.WriteLine("Skipping preset number {0} - {1} ...", convertCounter, Content.PresetName);
 				} else {
 					Console.Out.WriteLine("Converting preset number {0} - {1} ...", convertCounter, Content.PresetName);
@@ -3337,25 +3328,29 @@ namespace PresetConverter
 					// Envelope 1 - Used as Amp Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvAAttack, "ENV1_TBase", "ENV1_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvADecay, "ENV1_TBase", "ENV1_Dec");
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvARelease, "ENV1_TBase", "ENV1_Rel");
+					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvARelease, "ENV1_TBase", "ENV1_Rel");
+					zebra2Preset.ENV1_Rel = ConvertSylenthValueToZebra(Content.AmpEnvARelease, 0, 10, 0, 100);					
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvASustain, "ENV1_TBase", "ENV1_Sus");
 					
 					// Envelope 2 - Used as Amp Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBAttack, "ENV2_TBase", "ENV2_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBDecay, "ENV2_TBase", "ENV2_Dec");
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBRelease, "ENV2_TBase", "ENV2_Rel");
+					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBRelease, "ENV2_TBase", "ENV2_Rel");
+					zebra2Preset.ENV2_Rel = ConvertSylenthValueToZebra(Content.AmpEnvBRelease, 0, 10, 0, 100);					
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBSustain, "ENV2_TBase", "ENV2_Sus");
 
 					// Envelope 3 - Used as Mod Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Attack, "ENV3_TBase", "ENV3_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Decay, "ENV3_TBase", "ENV3_Dec");
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Release, "ENV3_TBase", "ENV3_Rel");
+					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Release, "ENV3_TBase", "ENV3_Rel");
+					zebra2Preset.ENV3_Rel = ConvertSylenthValueToZebra(Content.ModEnv1Release, 0, 10, 0, 100);					
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Sustain, "ENV3_TBase", "ENV3_Sus");
 
 					// Envelope 4 - Used as Mod Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Attack, "ENV4_TBase", "ENV4_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Decay, "ENV4_TBase", "ENV4_Dec");
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Release, "ENV4_TBase", "ENV4_Rel");
+					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Release, "ENV4_TBase", "ENV4_Rel");
+					zebra2Preset.ENV4_Rel = ConvertSylenthValueToZebra(Content.ModEnv2Release, 0, 10, 0, 100);					
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Sustain, "ENV4_TBase", "ENV4_Sus");
 					
 					// Matrix
@@ -3378,7 +3373,7 @@ namespace PresetConverter
 					SetZebraModSourcesFromSylenth(zebra2Preset, XMODSOURCE.SOURCE_LFO_2, Content.YModLFO2Dest1, Content.XModLFO2Dest1Am);
 					SetZebraModSourcesFromSylenth(zebra2Preset, XMODSOURCE.SOURCE_LFO_2, Content.YModLFO2Dest2, Content.XModLFO2Dest2Am);
 				}
-			}			
+			}
 			return zebra2PresetList;
 		}
 

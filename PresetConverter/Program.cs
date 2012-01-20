@@ -16,58 +16,66 @@ namespace PresetConverter
 		{
 			
 			/*
+			 // test the envelope values
 			double[] dArray = new double[] {
 				0
-					,0.045977015
-					,0.103448279
-					,0.166666672
-					,0.201149434
-					,0.2356322
-					,0.3045977
-					,0.3448276
-					,0.408045977
-					,0.459770143
-					,0.5
-					,0.545977056
-					,0.6034483
-					,0.655172467
-					,0.706896544
-					,0.7413794
-					,0.8103448
-					,0.8505748
-					,0.908045948
-					,0.931034565
+					,0.020000387
+					,0.040000387
+					,0.060000386
+					,0.080000386
+					,0.100000381
+					,0.120000377
+					,0.140000373
+					,0.160000369
+					,0.180000365
+					,0.200000361
+					,0.220000356
+					,0.240000352
+					,0.260000348
+					,0.280000359
+					,0.30000037
+					,0.32000038
+					,0.3400004
+					,0.3600004
+					,0.3800004
+					,0.400000423
+					,0.420000434
+					,0.440000445
+					,0.460000455
+					,0.480000466
+					,0.5000005
+					,0.520000458
+					,0.540000439
+					,0.5600004
+					,0.5800004
+					,0.6000004
+					,0.620000362
+					,0.640000343
+					,0.6600003
+					,0.6800003
+					,0.7000003
+					,0.720000267
+					,0.740000248
+					,0.7600002
+					,0.7800002
+					,0.8000002
+					,0.8200002
+					,0.840000153
+					,0.860000134
+					,0.8800001
+					,0.9000001
+					,0.9200001
+					,0.940000057
+					,0.960000038
+					,0.98
 					,1};
 			
-			double[] dArray2 = new double[] {
-				0
-					,0.07471262
-					,0.103448279
-					,0.172413766
-					,0.201149434
-					,0.247126415
-					,0.3045977
-					,0.344827563
-					,0.402298868
-					,0.4367816
-					,0.5
-					,0.545977
-					,0.6091954
-					,0.637931049
-					,0.701149464
-					,0.7643678
-					,0.804597735
-					,0.8448276
-					,0.9022989
-					,0.9425287
-					,1};
-			
-			foreach (double d in dArray2) {
+			foreach (double d in dArray) {
 				float f = (float) d;
 				float sylenthEnvelopeMs = Sylenth1Preset.EnvelopePresetFileValueToMilliseconds(f);
 				double envValue = Zebra2Preset.MillisecondsToValue(sylenthEnvelopeMs, Zebra2Preset.EnvelopeTimeBase.TIMEBASE_8sX);
 				double ms = Zebra2Preset.EnvTypeAndValueToMilliseconds(Zebra2Preset.EnvelopeTimeBase.TIMEBASE_8sX, envValue);
-				Console.Out.WriteLine("stored {0:0.000} = {1:0.00} ms (Zebra midi: {2}: {3} ms)", f, sylenthEnvelopeMs, envValue, ms);				
+				Console.Out.WriteLine("stored {0:0.000} = {1:0.00} ms (Zebra midi: {2}: {3} ms)", f, sylenthEnvelopeMs, envValue, ms);
 			}
 
 			Console.Write("Press any key to continue . . . ");
