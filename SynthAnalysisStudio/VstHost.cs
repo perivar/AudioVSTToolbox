@@ -349,6 +349,9 @@ namespace ProcessVSTPlugin
 			 * 
 			 * Freq to Midi notes etc:
 			 * http://www.sengpielaudio.com/calculator-notenames.htm
+			 * 
+			 * Example to use NAudio Midi support
+			 * http://stackoverflow.com/questions/6474388/naudio-and-midi-file-reading
 			 */
 			byte[] midiData = new byte[4];
 			
