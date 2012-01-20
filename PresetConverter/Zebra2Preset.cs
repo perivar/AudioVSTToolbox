@@ -14,6 +14,16 @@ namespace PresetConverter
 	/// </summary>
 	public class Zebra2Preset : Preset
 	{
+		private int bankIndex;
+		public int BankIndex {
+			get {
+				return this.bankIndex;
+			}
+			set {
+				this.bankIndex = value;
+			}
+		}
+		
 		#region Zebra2 Enums
 		public enum VoiceMode : int {
 			poly = 0,

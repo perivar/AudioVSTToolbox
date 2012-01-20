@@ -221,7 +221,7 @@ namespace PresetConverter
 			int count = 1;
 			foreach (Zebra2Preset zebra2Converted in zebra2ConvertedList) {
 				string presetName = StringUtils.MakeValidFileName(zebra2Converted.PresetName);
-				string zebraGeneratedPreset = Path.Combine(@"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets", String.Format("{0:00}_{1}.h2p", count, presetName));
+				string zebraGeneratedPreset = Path.Combine(@"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets", String.Format("{0:000}_{1}.h2p", zebra2Converted.BankIndex, presetName));
 				zebra2Converted.Write(zebraGeneratedPreset);
 				tw2.WriteLine(zebra2Converted);
 				count++;
