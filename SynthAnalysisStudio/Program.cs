@@ -98,6 +98,23 @@ namespace ProcessVSTPlugin
 		static void Main(string[] args)
 		{
 			/*
+			AudioUtils.OutputLFOTimings();
+			Console.ReadKey();
+			return;
+			
+			string[] filePaths = Directory.GetFiles(".", "*.wav");
+			foreach (string file in filePaths) {
+				// perivar-filter-2022hz.fxp
+				string hertz = "";
+				var regex = new Regex(@"perivar-filter-(\d+)hz");
+				var match = regex.Match(file);
+				if (match.Success) {
+					hertz = match.Groups[1].Value;
+				}
+				int hertzValue = 0;
+				int.TryParse(hertz, out hertzValue);
+			}
+			
 			string wavFilePath = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Release\audio-attack-0,03s-201201191521061845.wav";
 			float[] wavData = AudioUtils.ReadMonoFromFile(wavFilePath, 44100, 0, 0);
 

@@ -119,7 +119,7 @@ namespace CommonUtils
 			float newValue = (((log_oldValue - log_oldMin) * newRange) / log_oldRange) + newMin;
 			return newValue;
 		}
-		
+
 		public static double RoundToNearest(double number, double nearest) {
 			double rounded = Math.Round(number * (1 / nearest), MidpointRounding.AwayFromZero) / (1 / nearest);
 			return rounded;

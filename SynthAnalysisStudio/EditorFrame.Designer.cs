@@ -38,6 +38,7 @@
         	this.TextDiffCheckbox = new System.Windows.Forms.CheckBox();
         	this.MidiNoteCheckbox = new System.Windows.Forms.CheckBox();
         	this.AnalyseBtn = new System.Windows.Forms.Button();
+        	this.WaveBtn = new System.Windows.Forms.Button();
         	this.SuspendLayout();
         	// 
         	// LoadBtn
@@ -81,7 +82,7 @@
         	// 
         	this.pluginPanel.Location = new System.Drawing.Point(1, 36);
         	this.pluginPanel.Name = "pluginPanel";
-        	this.pluginPanel.Size = new System.Drawing.Size(799, 231);
+        	this.pluginPanel.Size = new System.Drawing.Size(820, 231);
         	this.pluginPanel.TabIndex = 4;
         	// 
         	// InvestigatePluginPresetFileCheckbox
@@ -118,21 +119,31 @@
         	// 
         	this.MidiNoteCheckbox.Location = new System.Drawing.Point(682, 6);
         	this.MidiNoteCheckbox.Name = "MidiNoteCheckbox";
-        	this.MidiNoteCheckbox.Size = new System.Drawing.Size(76, 24);
+        	this.MidiNoteCheckbox.Size = new System.Drawing.Size(45, 24);
         	this.MidiNoteCheckbox.TabIndex = 8;
-        	this.MidiNoteCheckbox.Text = "Midi Note";
+        	this.MidiNoteCheckbox.Text = "Midi";
         	this.MidiNoteCheckbox.UseVisualStyleBackColor = true;
         	this.MidiNoteCheckbox.CheckedChanged += new System.EventHandler(this.MidiNoteCheckboxCheckedChanged);
         	// 
         	// AnalyseBtn
         	// 
-        	this.AnalyseBtn.Location = new System.Drawing.Point(747, 6);
+        	this.AnalyseBtn.Location = new System.Drawing.Point(723, 6);
         	this.AnalyseBtn.Name = "AnalyseBtn";
-        	this.AnalyseBtn.Size = new System.Drawing.Size(53, 23);
+        	this.AnalyseBtn.Size = new System.Drawing.Size(57, 23);
         	this.AnalyseBtn.TabIndex = 9;
         	this.AnalyseBtn.Text = "Analyse";
         	this.AnalyseBtn.UseVisualStyleBackColor = true;
         	this.AnalyseBtn.Click += new System.EventHandler(this.AnalyseBtnClick);
+        	// 
+        	// WaveBtn
+        	// 
+        	this.WaveBtn.Location = new System.Drawing.Point(781, 6);
+        	this.WaveBtn.Name = "WaveBtn";
+        	this.WaveBtn.Size = new System.Drawing.Size(40, 23);
+        	this.WaveBtn.TabIndex = 10;
+        	this.WaveBtn.Text = "Wav";
+        	this.WaveBtn.UseVisualStyleBackColor = true;
+        	this.WaveBtn.Click += new System.EventHandler(this.WaveBtnClick);
         	// 
         	// EditorFrame
         	// 
@@ -140,7 +151,8 @@
         	this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         	this.AutoSize = true;
         	this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-        	this.ClientSize = new System.Drawing.Size(802, 266);
+        	this.ClientSize = new System.Drawing.Size(822, 266);
+        	this.Controls.Add(this.WaveBtn);
         	this.Controls.Add(this.AnalyseBtn);
         	this.Controls.Add(this.MidiNoteCheckbox);
         	this.Controls.Add(this.TextDiffCheckbox);
@@ -161,6 +173,7 @@
         	this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyUp);
         	this.ResumeLayout(false);
         }
+        private System.Windows.Forms.Button WaveBtn;
         private System.Windows.Forms.Button AnalyseBtn;
         private System.Windows.Forms.CheckBox MidiNoteCheckbox;
         private System.Windows.Forms.CheckBox TextDiffCheckbox;

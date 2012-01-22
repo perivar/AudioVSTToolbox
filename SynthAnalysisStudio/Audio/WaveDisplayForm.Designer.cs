@@ -61,6 +61,7 @@ namespace SynthAnalysisStudio
 			this.measureDBtn = new System.Windows.Forms.Button();
 			this.measureABtn = new System.Windows.Forms.Button();
 			this.measureRBtn = new System.Windows.Forms.Button();
+			this.measureLFOBtn = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.MaxResolutionTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.AmplitudeTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.StartPositionTrackBar)).BeginInit();
@@ -192,7 +193,7 @@ namespace SynthAnalysisStudio
 			// 
 			// SaveWAVBtn
 			// 
-			this.SaveWAVBtn.Location = new System.Drawing.Point(547, 8);
+			this.SaveWAVBtn.Location = new System.Drawing.Point(598, 8);
 			this.SaveWAVBtn.Name = "SaveWAVBtn";
 			this.SaveWAVBtn.Size = new System.Drawing.Size(73, 23);
 			this.SaveWAVBtn.TabIndex = 17;
@@ -308,11 +309,22 @@ namespace SynthAnalysisStudio
 			this.measureRBtn.UseVisualStyleBackColor = true;
 			this.measureRBtn.Click += new System.EventHandler(this.MeasureRBtnClick);
 			// 
+			// measureLFOBtn
+			// 
+			this.measureLFOBtn.Location = new System.Drawing.Point(523, 8);
+			this.measureLFOBtn.Name = "measureLFOBtn";
+			this.measureLFOBtn.Size = new System.Drawing.Size(35, 24);
+			this.measureLFOBtn.TabIndex = 31;
+			this.measureLFOBtn.Text = "LFO";
+			this.measureLFOBtn.UseVisualStyleBackColor = true;
+			this.measureLFOBtn.Click += new System.EventHandler(this.MeasureLFOBtnClick);
+			// 
 			// WaveDisplayForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(755, 289);
+			this.Controls.Add(this.measureLFOBtn);
 			this.Controls.Add(this.measureRBtn);
 			this.Controls.Add(this.measureABtn);
 			this.Controls.Add(this.measureDBtn);
@@ -346,6 +358,7 @@ namespace SynthAnalysisStudio
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.Button measureLFOBtn;
 		private System.Windows.Forms.Button measureRBtn;
 		private System.Windows.Forms.Button measureABtn;
 		private System.Windows.Forms.Button measureDBtn;

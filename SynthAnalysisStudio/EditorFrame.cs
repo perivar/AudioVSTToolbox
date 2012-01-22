@@ -458,9 +458,9 @@ namespace ProcessVSTPlugin
 				host.SendMidiNote(host.SendContinousMidiNote, 0);
 			}
 		}
-        
-        void AnalyseBtnClick(object sender, EventArgs e)
-        {
+		
+		void AnalyseBtnClick(object sender, EventArgs e)
+		{
 			VstHost host = VstHost.Instance;
 			host.PluginContext = this.PluginContext;
 			host.doPluginOpen();
@@ -483,15 +483,16 @@ namespace ProcessVSTPlugin
 			dlg.Playback = playback;
 			
 			//dlg.ShowDialog(this); // modal
-			dlg.Show(); // modeless        	
-
-
+			dlg.Show(); // modeless
+		}
+		
+		void WaveBtnClick(object sender, EventArgs e)
+		{
 			WaveDisplayForm dlg2 = new WaveDisplayForm();
 			dlg2.PluginContext = this.PluginContext;
-			dlg2.Playback = playback;
 			
 			//dlg2.ShowDialog(this); // modal
-			dlg2.Show(); // modeless        	
-        }
+			dlg2.Show(); // modeless
+		}
 	}
 }

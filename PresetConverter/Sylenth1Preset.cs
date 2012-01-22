@@ -461,6 +461,12 @@ namespace PresetConverter
 			Read(filePath);
 		}
 		
+		public static float EnumUintToFloat(uint uintValue) {			
+			// the values are stored as LittleEndian
+			byte[] bytes = BitConverter.GetBytes(uintValue);
+			return BitConverter.ToSingle(bytes, 0);
+		}
+		
 		private static DELAYTIMING DelayTimeFloatToEnum(float value) {
 			// the rule for finding the Delay timing float ranges in a Sylenth presets
 			// seems to be:
@@ -1025,6 +1031,8 @@ namespace PresetConverter
 		}
 		
 		public static float EnvelopePresetFileValueToMilliseconds(float oldValue) {
+			
+			if (oldValue == 0) return 0.0f;
 			
 			// have to use three functions to get correct slope
 			float newValue = 0;
@@ -2015,11 +2023,13 @@ namespace PresetConverter
 		}
 
 		public static float ConvertSylenthFrequencyToHertz(float filterFrequency, float filterControlFrequency, FloatToHz mode) {
+			// Determine a commont filter frequency based on
+			// two filter values:
 			// i.e.
 			// Sylenth Filter A = 139,38 Hz
 			// +
 			// Sylenth FilterControl = 361,17 Hz
-			// Gives Zebra Cutoff = ca midinote 110 = 2 349,318 Hz
+			// Gives Zebra Cutoff = ?
 			
 			// first get values in Hz
 			float filterFrequencyHertz = ValueToHz(filterFrequency, mode);
@@ -2822,6 +2832,7 @@ namespace PresetConverter
 				// use LFO preset
 				LFOTIMING timing = LFOTimeFloatToEnum( sylenthLFORate );
 				
+				// TODO: Improve the LFO timing using http://tomhess.net/Tools/DelayCalculator.aspx
 				// Rate (0.00 - 200.00)
 				float rateNormal = 100.00f;
 				float rateDotted = 50.00f;
@@ -3042,6 +3053,9 @@ namespace PresetConverter
 							zebra2Preset.OSC1_WNum = ConvertSylenthWaveToZebra(Content.OscA1Wave, Content.OscA1Invert);
 							zebra2Preset.OSC1_Vol = ConvertSylenthValueToZebra(Content.OscA1Volume, 0, 10, 0, 200);
 
+							// cannot let the volume be 0?!
+							if (zebra2Preset.OSC1_Vol == 0) zebra2Preset.OSC1_Vol = 100;
+
 							// turn the volume on Noise1 down
 							zebra2Preset.Noise1_Vol = 0;
 						} else {
@@ -3073,6 +3087,9 @@ namespace PresetConverter
 						if (Content.OscA2Wave != OSCWAVE.OSC_Noise) {
 							zebra2Preset.OSC2_WNum = ConvertSylenthWaveToZebra(Content.OscA2Wave, Content.OscA2Invert);
 							zebra2Preset.OSC2_Vol = ConvertSylenthValueToZebra(Content.OscA2Volume, 0, 10, 0, 200);
+
+							// cannot let the volume be 0?!
+							if (zebra2Preset.OSC2_Vol == 0) zebra2Preset.OSC2_Vol = 100;
 
 							// turn the volume on Noise1 down
 							zebra2Preset.Noise1_Vol = 0;
@@ -3106,6 +3123,9 @@ namespace PresetConverter
 							zebra2Preset.OSC3_WNum = ConvertSylenthWaveToZebra(Content.OscB1Wave, Content.OscB1Invert);
 							zebra2Preset.OSC3_Vol = ConvertSylenthValueToZebra(Content.OscB1Volume, 0, 10, 0, 200);
 
+							// cannot let the volume be 0?!
+							if (zebra2Preset.OSC3_Vol == 0) zebra2Preset.OSC3_Vol = 100;
+
 							// turn the volume on Noise2 down
 							zebra2Preset.Noise2_Vol = 0;
 						} else {
@@ -3137,6 +3157,9 @@ namespace PresetConverter
 						if (Content.OscB2Wave != OSCWAVE.OSC_Noise) {
 							zebra2Preset.OSC4_WNum = ConvertSylenthWaveToZebra(Content.OscB2Wave, Content.OscB2Invert);
 							zebra2Preset.OSC4_Vol = ConvertSylenthValueToZebra(Content.OscB2Volume, 0, 10, 0, 200);
+
+							// cannot let the volume be 0?!
+							if (zebra2Preset.OSC4_Vol == 0) zebra2Preset.OSC4_Vol = 100;
 
 							// turn the volume on Noise2 down
 							zebra2Preset.Noise2_Vol = 0;
