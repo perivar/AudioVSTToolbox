@@ -132,7 +132,26 @@ namespace CommonUtils
 		}
 		
 		public static string GetNumberWithPlussAndMinusSign(double number) {
-			return number.ToString("+#;-#;0");			
+			return number.ToString("+#;-#;0");
+		}
+		
+		// DaysOfWeek d = StringToEnum<DaysOfWeek>("Monday");
+		// d is now DaysOfWeek.Monday
+		//
+		// MonthsInYear m = StringToEnum<MonthsInYear>("January");
+		// m is now MonthsInYear.January
+		// 
+		// So what happens if you enter a string value that doesn't correspond to an enum? The Enum.Parse will fail with an ArgumentException.
+		// DaysOfWeek d = StringToEnum<DaysOfWeek>("Katillsday");
+		// 	throws an ArgumentException
+		// 	Requested value "Katillsday" was not found.
+		//
+		// We can get around this problem by first checking that the enum exists using Enum.IsDefined.
+		// if(Enum.IsDefined(typeof(DaysOfWeek), "Katillsday"))
+		//   StringToEnum<DaysOfWeek>("Katillsday");
+		public static T StringToEnum<T>(string name)
+		{
+			return (T)Enum.Parse(typeof(T), name);
 		}
 	}
 }

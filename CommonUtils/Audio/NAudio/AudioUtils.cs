@@ -868,7 +868,140 @@ namespace CommonUtils.Audio
 			foreach (LFOTIMING timing in Enum.GetValues(typeof(LFOTIMING)))
 			{
 				Console.Out.WriteLine("{0}\t{1:0.000} ms\t{2:0.000} Hz", Enum.GetName(typeof(LFOTIMING), timing).PadRight(12), LFOOrDelayToMilliseconds(timing), AudioUtils.LFOOrDelayToFrequency(timing));
-			}			
+			}
+		}
+		
+		#region Calculate Silence
+		public class Silence : IComparable<Silence> {
+			
+			public int StartIndex {
+				get; set;
+			}
+			
+			public int EndIndex {
+				get; set;
+			}
+
+			public int Length {
+				get; set;
+			}
+			
+			public Silence(int startIndex, int endIndex, int length) {
+				StartIndex = startIndex;
+				EndIndex = endIndex;
+				Length = length;
+			}
+			
+			public double Milliseconds(int sampleRate) {
+				return Length / (double) sampleRate * 1000;
+			}
+
+			public double Hertz(int sampleRate) {
+				return 1000 / (Length / (double) sampleRate * 1000);
+			}
+			
+			public static Comparison<Silence> StartIndexComparison = delegate(Silence s1, Silence s2)
+			{
+				return s1.StartIndex.CompareTo(s2.StartIndex);
+			};
+
+			public static Comparison<Silence> EndIndexComparison = delegate(Silence s1, Silence s2)
+			{
+				return s1.EndIndex.CompareTo(s2.EndIndex);
+			};
+			
+			#region IComparable<Silence> Members
+			public int CompareTo(Silence other)
+			{
+				return Length.CompareTo(other.Length);
+			}
+			#endregion
+			
+			public override string ToString()
+			{
+				return string.Format("StartIndex: {0} EndIndex: {1} Length: {2}", StartIndex, EndIndex, Length);
+			}
+		}
+		
+		public static List<Silence> CalculateSilenceGaps(float[] data, float zero = 0.0f, int numberOfSamplesToConsider = 50) {
+			
+			// define some constants
+			// float zero = 0.0001f;
+			// int numberOfSamplesToConsider = 50;
+			
+			// list to store the silence's found
+			List<Silence> silence = new List<Silence>();
+			
+			// internal
+			bool isZero = false;
+			int zeroStartIndex = -1;
+			int zeroEndIndex = -1;
+			for (int i = 0; i < data.Length; i++) {
+				float sampleValue = Math.Abs(data[i]);
+				
+				if (isZero) {
+					// detect "zero"
+					if (sampleValue <= zero) {
+						// count while "zero"
+						zeroEndIndex++;
+					} else {
+						isZero = false;
+						int zeroLength = zeroEndIndex - zeroStartIndex;
+						if (zeroLength > numberOfSamplesToConsider) {
+							// treat as found zero gap
+							// store start and end index
+							silence.Add(new Silence(zeroStartIndex, zeroEndIndex, zeroLength));
+						}
+					}
+				} else {
+					// detect "zero"
+					if (sampleValue <= zero) {
+						// "zero" found, store index
+						isZero = true;
+						zeroStartIndex = i;
+						zeroEndIndex = i;
+					} else {
+						isZero = false;
+					}
+				}
+			}
+			
+			return silence;
+		}
+		
+		public static bool CalculateLFODelay(float[] data, int sampleRate, out double ms, out double hz, float zero = 0.0f, int numberOfSamplesToConsider = 50) {
+			
+			List<Silence> silence = CalculateSilenceGaps(data, zero, numberOfSamplesToConsider);
+			if (silence.Count > 0) {
+				silence.Sort();
+				int[] silenceLengths = new int[silence.Count];
+				int silenceCount = 0;
+				foreach (Silence sil in silence) {
+					//Console.Out.WriteLine("{0} {1:0.000} ms {2:0.000} hz", sil, sil.Milliseconds(sampleRate), sil.Hertz(sampleRate));
+					silenceLengths[silenceCount] = sil.Length;
+					silenceCount++;
+				}
+				double median = MathUtils.GetMedian(silenceLengths);
+				int delaySamples = (int) median * 2;
+				
+				hz = SamplesToHertz(delaySamples, sampleRate);
+				ms = SamplesToMilliseconds(delaySamples, sampleRate);
+				
+				return true;
+			}
+			
+			hz = -1;
+			ms = -1;
+			return false;
+		}
+		#endregion
+		
+		public static double SamplesToMilliseconds(int samples, int sampleRate) {
+			return samples / (double) sampleRate * 1000;
+		}
+
+		public static double SamplesToHertz(int samples, int sampleRate) {
+			return 1000 / (samples / (double) sampleRate * 1000);
 		}
 	}
 	

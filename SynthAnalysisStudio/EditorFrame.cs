@@ -490,6 +490,7 @@ namespace ProcessVSTPlugin
 		{
 			WaveDisplayForm dlg2 = new WaveDisplayForm();
 			dlg2.PluginContext = this.PluginContext;
+			dlg2.Playback = playback;
 			
 			//dlg2.ShowDialog(this); // modal
 			dlg2.Show(); // modeless

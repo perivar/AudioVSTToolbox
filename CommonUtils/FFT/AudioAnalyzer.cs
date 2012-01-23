@@ -514,8 +514,8 @@ namespace CommonUtils.FFT
 			//int amplitude = 1; // 1 = normal
 			//resolution = 1; //low resolution (2+) means to zoom into the waveform
 
-			float sampleToPixel = (float) numberOfSamples / WIDTH;
-			if (resolution < sampleToPixel) {
+			float sampleToPixel = (float) numberOfSamples / (float) WIDTH;
+			if (resolution != 0 && resolution < sampleToPixel) {
 				sampleToPixel = resolution;
 			}
 
@@ -651,11 +651,11 @@ namespace CommonUtils.FFT
 					int yMaxPrev = 0;
 					int yMinPrev = 0;
 					bool firstPoint = true;
-					for (float xAxis = 0; xAxis < WIDTH; xAxis++)
+					for (int xAxis = 0; xAxis < WIDTH; xAxis++)
 					{
 						// determine start and end points within WAV (for this single pixel on the X axis)
-						int start = (int)(xAxis * sampleToPixel);
-						int end = (int)((xAxis + 1) * sampleToPixel);
+						int start 	= (int)((float)(xAxis) 		* sampleToPixel);
+						int end 	= (int)((float)(xAxis + 1) 	* sampleToPixel);
 						
 						// reset the min and max values
 						yMax = 0;
@@ -673,11 +673,13 @@ namespace CommonUtils.FFT
 							// determine the min and max values within this specific range
 							float min = float.MaxValue;
 							float max = float.MinValue;
-							for (int i = start; i < end; i++)
+							for (int i = start; i <= end; i++)
 							{
-								float val = data[i];
-								min = val < min ? val : min;
-								max = val > max ? val : max;
+								if (i < data.Length) {
+									float val = data[i];
+									min = val < min ? val : min;
+									max = val > max ? val : max;
+								}
 							}
 							
 							yMax = TOP + HEIGHT - (int)((max * amplitude + 1) * 0.5 * HEIGHT);
@@ -699,12 +701,12 @@ namespace CommonUtils.FFT
 							}
 							else
 							{
-								if (TIMETOPIXEL > 5) {
+								if (TIMETOPIXEL > 10) {
 									// For smaller resolution, Draw line from the previous point
-									//g.DrawLine(samplePen, xPrev + LEFT, yPrev, xAxis + LEFT, yAxis);
+									g.DrawLine(samplePen, xPrev + LEFT, yPrev, xAxis + LEFT, yAxis);
 									
 									// Try to smooth the lines by using the previous max value
-									g.DrawLine(samplePen, xPrev + LEFT, yMaxPrev, xAxis + LEFT, yMin);
+									//g.DrawLine(samplePen, xPrev + LEFT, yMaxPrev, xAxis + LEFT, yMin);
 								} else {
 									// use yMax and yMin
 									// original from example: http://stackoverflow.com/questions/1215326/open-source-c-sharp-code-to-present-wave-form
@@ -779,7 +781,7 @@ namespace CommonUtils.FFT
 				g.DrawString(infoBoxLine2Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin));
 				g.DrawString(infoBoxLine3Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*2);
 				g.DrawString(infoBoxLine4Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*3);
-			}			
+			}
 			
 			return png;
 		}

@@ -1,0 +1,109 @@
+audio-LFO-1_1-201201231245051344.wav
+Sampled:	2000,000 ms	0,500 Hz
+Calculated:	2000,000 ms	0,500 Hz
+audio-LFO-1_128-201201231243041853.wav
+Sampled:	15,601 ms	64,099 Hz
+Calculated:	15,625 ms	64,000 Hz
+audio-LFO-1_128D-201201231243065225.wav
+Sampled:	23,401 ms	42,733 Hz
+Calculated:	23,438 ms	42,667 Hz
+audio-LFO-1_128T-201201231243027741.wav
+Sampled:	10,385 ms	96,288 Hz
+Calculated:	10,417 ms	96,000 Hz
+audio-LFO-1_16-201201231243248123.wav
+Sampled:	124,943 ms	8,004 Hz
+Calculated:	125,000 ms	8,000 Hz
+audio-LFO-1_16D-201201231243344013.wav
+Sampled:	187,438 ms	5,335 Hz
+Calculated:	187,500 ms	5,333 Hz
+audio-LFO-1_16T-201201231243173936.wav
+Sampled:	83,311 ms	12,003 Hz
+Calculated:	83,333 ms	12,000 Hz
+audio-LFO-1_1D-201201231245343413.wav
+Sampled:	3000,000 ms	0,333 Hz
+Calculated:	3000,000 ms	0,333 Hz
+audio-LFO-1_1T-201201231244400399.wav
+Sampled:	1333,288 ms	0,750 Hz
+Calculated:	1333,333 ms	0,750 Hz
+audio-LFO-1_2-201201231244290428.wav
+Sampled:	999,955 ms	1,000 Hz
+Calculated:	1000,000 ms	1,000 Hz
+audio-LFO-1_256-201201231243021461.wav
+Sampled:	7,755 ms	128,947 Hz
+Calculated:	7,813 ms	128,000 Hz
+audio-LFO-1_256D-201201231243033962.wav
+Sampled:	11,655 ms	85,798 Hz
+Calculated:	11,719 ms	85,333 Hz
+audio-LFO-1_256T-201201231243015000.wav
+Sampled:	5,125 ms	195,133 Hz
+Calculated:	5,208 ms	192,000 Hz
+audio-LFO-1_2D-201201231244520111.wav
+Sampled:	1499,955 ms	0,667 Hz
+Calculated:	1500,000 ms	0,667 Hz
+audio-LFO-1_2T-201201231244097088.wav
+Sampled:	666,621 ms	1,500 Hz
+Calculated:	666,667 ms	1,500 Hz
+audio-LFO-1_32-201201231243145023.wav
+Sampled:	62,449 ms	16,013 Hz
+Calculated:	62,500 ms	16,000 Hz
+audio-LFO-1_32D-201201231243209110.wav
+Sampled:	93,696 ms	10,673 Hz
+Calculated:	93,750 ms	10,667 Hz
+audio-LFO-1_32T-201201231243097598.wav
+Sampled:	41,633 ms	24,020 Hz
+Calculated:	41,667 ms	24,000 Hz
+audio-LFO-1_4-201201231244011070.wav
+Sampled:	499,955 ms	2,000 Hz
+Calculated:	500,000 ms	2,000 Hz
+audio-LFO-1_4D-201201231244189488.wav
+Sampled:	749,977 ms	1,333 Hz
+Calculated:	750,000 ms	1,333 Hz
+audio-LFO-1_4T-201201231243464125.wav
+Sampled:	333,288 ms	3,000 Hz
+Calculated:	333,333 ms	3,000 Hz
+audio-LFO-1_64-201201231243079157.wav
+Sampled:	31,202 ms	32,049 Hz
+Calculated:	31,250 ms	32,000 Hz
+audio-LFO-1_64D-201201231243120401.wav
+Sampled:	46,848 ms	21,346 Hz
+Calculated:	46,875 ms	21,333 Hz
+audio-LFO-1_64T-201201231243051154.wav
+Sampled:	20,816 ms	48,039 Hz
+Calculated:	20,833 ms	48,000 Hz
+audio-LFO-1_8-201201231243401569.wav
+Sampled:	249,977 ms	4,000 Hz
+Calculated:	250,000 ms	4,000 Hz
+audio-LFO-1_8D-201201231243533702.wav
+Sampled:	374,966 ms	2,667 Hz
+Calculated:	375,000 ms	2,667 Hz
+audio-LFO-1_8T-201201231243294028.wav
+Sampled:	166,621 ms	6,002 Hz
+Calculated:	166,667 ms	6,000 Hz
+audio-LFO-2_1-201201231245504619.wav
+Sampled:	4000,091 ms	0,250 Hz
+Calculated:	4000,000 ms	0,250 Hz
+audio-LFO-2_1D-201201231246266745.wav
+Sampled:	6000,317 ms	0,167 Hz
+Calculated:	6000,000 ms	0,167 Hz
+audio-LFO-2_1T-201201231245193298.wav
+Sampled:	2666,667 ms	0,375 Hz
+Calculated:	2666,667 ms	0,375 Hz
+audio-LFO-4_1-201201231246465835.wav
+Sampled:	8000,544 ms	0,125 Hz
+Calculated:	8000,000 ms	0,125 Hz
+audio-LFO-4_1D-201201231247297608.wav
+Sampled:	12001,361 ms	0,083 Hz
+Calculated:	12000,000 ms	0,083 Hz
+audio-LFO-4_1T-201201231246079647.wav
+Sampled:	5000,045 ms	0,200 Hz
+Calculated:	5333,333 ms	0,188 Hz
+audio-LFO-8_1-201201231247535792.wav
+Sampled:	16002,494 ms	0,062 Hz
+Calculated:	16000,000 ms	0,063 Hz
+audio-LFO-8_1D-201201231248187777.wav
+Sampled:	24005,760 ms	0,042 Hz
+Calculated:	24000,000 ms	0,042 Hz
+audio-LFO-8_1T-201201231247075216.wav
+Sampled:	10667,166 ms	0,094 Hz
+Calculated:	10666,667 ms	0,094 Hz
+

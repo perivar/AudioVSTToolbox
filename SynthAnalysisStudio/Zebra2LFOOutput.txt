@@ -1,0 +1,28 @@
+Z2_LFO_1_4D_100.wav
+Sampled:	749,615 ms	1,334 Hz
+Calculated:	750,000 ms	1,333 Hz
+Z2_LFO_1_4D_150.wav
+Sampled:	221,905 ms	4,506 Hz
+Calculated:	750,000 ms	1,333 Hz
+Z2_LFO_1_4D_50.wav
+Sampled:	5999,683 ms	0,167 Hz
+Calculated:	750,000 ms	1,333 Hz
+Z2_LFO_1_4T_100.wav
+Sampled:	333,016 ms	3,003 Hz
+Calculated:	333,333 ms	3,000 Hz
+Z2_LFO_1_4T_150.wav
+Sampled:	98,367 ms	10,166 Hz
+Calculated:	333,333 ms	3,000 Hz
+Z2_LFO_1_4T_50.wav
+Sampled:	2666,531 ms	0,375 Hz
+Calculated:	333,333 ms	3,000 Hz
+Z2_LFO_1_4_100.wav
+Sampled:	499,637 ms	2,001 Hz
+Calculated:	500,000 ms	2,000 Hz
+Z2_LFO_1_4_150.wav
+Sampled:	147,846 ms	6,764 Hz
+Calculated:	500,000 ms	2,000 Hz
+Z2_LFO_1_4_50.wav
+Sampled:	3999,683 ms	0,250 Hz
+Calculated:	500,000 ms	2,000 Hz
+

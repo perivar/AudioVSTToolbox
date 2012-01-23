@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Threading;
 using System.IO;
+using System.Text.RegularExpressions;
 
 using NAudio;
 using NAudio.Wave;
@@ -98,11 +99,54 @@ namespace ProcessVSTPlugin
 		static void Main(string[] args)
 		{
 			/*
+			int sampleRate = 44100;
+			string[] filePaths = Directory.GetFiles("../Release", "*.wav");
+			foreach (string wavFilePath in filePaths) {
+				if (wavFilePath.Contains("LFO")) {
+					DirectoryInfo fileDir = new DirectoryInfo(wavFilePath);
+					Console.Out.WriteLine(fileDir.Name);
+					float[] wavData = AudioUtils.ReadMonoFromFile(wavFilePath, sampleRate, 0, 0);
+
+					//float[] wavDataAbs = MathUtils.Abs(wavData);
+					
+					double ms = 0;
+					double hz = 0;
+					if (AudioUtils.CalculateLFODelay(wavData, sampleRate, out ms, out hz, 0.05f, 50)) {
+						Console.Out.WriteLine("Sampled:\t{0:0.000} ms\t{1:0.000} Hz", ms, hz);
+
+						// get enum name
+						string enumName = "";
+						var regex = new Regex(@"LFO[-_](\d+_\d+\w?)[-_]");
+						var match = regex.Match(fileDir.Name);
+						if (match.Success) {
+							enumName = "LFO_" + match.Groups[1].Value;
+						}
+						if(Enum.IsDefined(typeof(AudioUtils.LFOTIMING), enumName)) {
+							AudioUtils.LFOTIMING timing = StringUtils.StringToEnum<AudioUtils.LFOTIMING>(enumName);
+							Console.Out.WriteLine("Calculated:\t{0:0.000} ms\t{1:0.000} Hz", AudioUtils.LFOOrDelayToMilliseconds(timing), AudioUtils.LFOOrDelayToFrequency(timing));
+						}
+					}
+					
+					// store as a png
+					//int resolution = 0;
+					//System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavData, new System.Drawing.Size(1000, 600), resolution, 1, 0, 44100);
+					//string fileName = String.Format("{0}.png", fileDir.Name);
+					//png.Save(fileName);
+					
+					// store as wav
+					//string wavFileName = String.Format("{0}.wav", fileDir.Name);
+					//AudioUtils.CreateWaveFile(wavData, wavFileName, new WaveFormat(sampleRate, 1));
+				}
+			}
+
+			Console.ReadKey();
+			return;
+
 			AudioUtils.OutputLFOTimings();
 			Console.ReadKey();
 			return;
 			
-			string[] filePaths = Directory.GetFiles(".", "*.wav");
+			string[] filePaths = Directory.GetFiles("../..", "*.wav");
 			foreach (string file in filePaths) {
 				// perivar-filter-2022hz.fxp
 				string hertz = "";

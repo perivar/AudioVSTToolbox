@@ -55,7 +55,7 @@ namespace ProcessVSTPlugin
 			}
 			 */
             int i = 0;
-            int j = 0;			
+            int j = 0;
 			while (i < sampleCount)
 			{
 				for (int k = 0; k < Host.Channels; k++) {
