@@ -5190,40 +5190,80 @@ namespace PresetConverter
 		// Zebra2Preset.LFOSync lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
 		// double lfoValue = 0.0;
 		// Zebra2Preset.MillisecondsToLFOSyncAndValue(msValue, out lfoSync, out lfoValue);
-		public static void MillisecondsToLFOSyncAndValue(float msValue, out LFOSync lfoSync, out double lfoValue) {
+		public static void MillisecondsToLFOSyncAndValue(float timeInMs, out LFOSync lfoSync, out int lfoValue) {
 			
-			// round to nearest 1
-			int timeInMs = MathUtils.RoundToNearestInteger( (int) msValue, 1);
-			
-			if (timeInMs <= 200) {
-				// use 0.1s
-				// rate 100 = 0.1s
-				double value0_1s = (double) 50 / Math.Pow( (double) timeInMs/1000/0.8f, (double) 1/3);
-				value0_1s = MathUtils.RoundToNearestInteger((int)value0_1s, 2);
-				
-				// the lfo value must be between 0 and 200
-				if (value0_1s > 200) {
-					Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 13ms! (Value: {0} ms.)", msValue);
-					lfoValue = 200;
-				} else {
-					lfoValue = value0_1s;
-				}
+			if (float.IsNaN(timeInMs) || float.IsInfinity(timeInMs)) {
+				Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0} ms.)", timeInMs);
+				lfoValue = 0;
 				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
-			} else if (timeInMs > 200 && timeInMs <= 2000 ) {
-				// use 1s
-				// rate 100 = 1s
-				double value1s = (double) 50 / Math.Pow( (double) timeInMs/1000/8f, (double) 1/3);
-				value1s = MathUtils.RoundToNearestInteger((int)value1s, 2);
-				lfoValue = value1s;
+				return;
+			}			
+			if (timeInMs < 12.5) {
+				Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0} ms.)", timeInMs);
+				lfoValue = 200;
+				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
+				return;
+			}
+
+			// calculate all three alternatives and choose the one that is closest.
+			
+			// first use SYNC_0_1s:
+			lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
+			double value0_1s = (double) 50 / Math.Pow( (double) timeInMs/1000/0.8f, (double) 1/3);
+			value0_1s = MathUtils.RoundToNearestInteger((int)value0_1s, 2); // the Lfo value (Rate) has steps of two
+			// get the value
+			double value0_1s_ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, (int) value0_1s);
+			
+			
+			// then use SYNC_1s:
+			lfoSync = Zebra2Preset.LFOSync.SYNC_1s;
+			double value1s = (double) 50 / Math.Pow( (double) timeInMs/1000/8f, (double) 1/3);
+			value1s = MathUtils.RoundToNearestInteger((int)value1s, 2); // the Lfo value (Rate) has steps of two
+			// get the value
+			double value1s_ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, (int) value1s);
+
+			
+			// then use SYNC_10s:
+			lfoSync = Zebra2Preset.LFOSync.SYNC_10s;
+			double value10s = (double) 50 / Math.Pow( (double) timeInMs/1000/80f, (double) 1/3);
+			value10s = MathUtils.RoundToNearestInteger((int)value10s, 2); // the Lfo value (Rate) has steps of two
+			// get the value
+			double value10s_ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, (int) value10s);
+
+			
+			// determine which is closest
+			List<float> list = new List<float> { (float) value0_1s_ms, (float) value1s_ms, (float) value10s_ms };
+			float closest = MathUtils.FindClosest(list, timeInMs);
+			if (closest == (float) value0_1s_ms) {
+				lfoValue = (int) value0_1s;
+				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
+			} else if (closest == (float) value1s_ms) {
+				lfoValue = (int) value1s;
 				lfoSync = Zebra2Preset.LFOSync.SYNC_1s;
 			} else {
-				// use 10s
-				// rate 100 = 10s
-				double value10s = (double) 50 / Math.Pow( (double) timeInMs/1000/80f, (double) 1/3);
-				value10s = MathUtils.RoundToNearestInteger((int)value10s, 2);
-				lfoValue = value10s;
+				lfoValue = (int) value10s;
 				lfoSync = Zebra2Preset.LFOSync.SYNC_10s;
+			}			
+		}
+		
+		public static double LFOSyncAndValueToMilliseconds(LFOSync lfoSync, int lfoValue) {
+
+			double ms = 0;
+			switch (lfoSync) {
+				case LFOSync.SYNC_0_1s:
+					// =0,8*((50/U3)^3)
+					ms = 1000 * 0.8 * ( Math.Pow(50 / (double) lfoValue, 3) );
+					break;
+				case LFOSync.SYNC_1s:
+					// =8*((50/U36)^3)
+					ms = 1000 * 8 * ( Math.Pow(50 / (double) lfoValue, 3) );
+					break;
+				case LFOSync.SYNC_10s:
+					// =80*((50/U69)^3)
+					ms = 1000 * 80 * ( Math.Pow(50 / (double) lfoValue, 3) );
+					break;
 			}
+			return ms;
 		}
 		
 		// Use like this:
@@ -5238,10 +5278,10 @@ namespace PresetConverter
 			if (timeInMs <= 8000) {
 				// use 8sX
 				timeBase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_8sX;
-				envValue = MillisecondsToValue(timeInMs, timeBase);
+				envValue = MillisecondsToEnvValue(timeInMs, timeBase);
 			} else if (timeInMs > 8000 && timeInMs <= 16000) {
 				timeBase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_16sX;
-				envValue = MillisecondsToValue(timeInMs, timeBase);
+				envValue = MillisecondsToEnvValue(timeInMs, timeBase);
 			} else {
 				// Zebra2 cannot use more than 16 seconds
 				timeBase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_8sX;
@@ -5249,7 +5289,7 @@ namespace PresetConverter
 			}
 		}
 		
-		public static double MillisecondsToValue(float timeInMs, Zebra2Preset.EnvelopeTimeBase timeBase) {
+		public static double MillisecondsToEnvValue(float timeInMs, Zebra2Preset.EnvelopeTimeBase timeBase) {
 			double envValue = 0.0;
 			switch (timeBase) {
 				case EnvelopeTimeBase.TIMEBASE_8sX:

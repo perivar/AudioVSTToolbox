@@ -1899,7 +1899,7 @@ namespace PresetConverter
 			//double envValue = 0.0;
 			//Zebra2Preset.MillisecondsToEnvTypeAndValue(sylenthEnvelopeMs, out timebase, out envValue);
 			
-			int envValue = (int) Zebra2Preset.MillisecondsToValue(sylenthEnvelopeMs, timebase);
+			int envValue = (int) Zebra2Preset.MillisecondsToEnvValue(sylenthEnvelopeMs, timebase);
 			
 			ObjectUtils.SetField(z2, timeBaseFieldName, (int) timebase);
 			ObjectUtils.SetField(z2, envelopeFieldName, (float) envValue);
@@ -2823,11 +2823,11 @@ namespace PresetConverter
 				float msValue = (float) 1 / lfo1RateHz * 1000;
 				
 				Zebra2Preset.LFOSync lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
-				double lfoValue = 0.0;
+				int lfoValue = 0;
 				Zebra2Preset.MillisecondsToLFOSyncAndValue(msValue, out lfoSync, out lfoValue);
 				
 				ObjectUtils.SetField(z2, LFOSyncFieldName, (int) lfoSync);
-				ObjectUtils.SetField(z2, LFORateFieldName, (float) lfoValue);
+				ObjectUtils.SetField(z2, LFORateFieldName, lfoValue);
 			} else {
 				// use LFO preset
 				LFOTIMING timing = LFOTimeFloatToEnum( sylenthLFORate );

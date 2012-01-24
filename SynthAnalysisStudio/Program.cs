@@ -98,7 +98,71 @@ namespace ProcessVSTPlugin
 		[STAThread]
 		static void Main(string[] args)
 		{
+
+			// Z2_LFO_1_4D_100.wav
+			// Sampled:	749,615 ms	1,334 Hz
+			// Calculated:	750,000 ms	1,333 Hz
+			
+			// Z2_LFO_1_4D_150.wav
+			// Sampled:	221,905 ms	4,506 Hz
+			// Calculated:	750,000 ms	1,333 Hz
+			
+			// Z2_LFO_1_4D_50.wav
+			// Sampled:	5999,683 ms	0,167 Hz
+			// Calculated:	750,000 ms	1,333 Hz
+
+			PresetConverter.Zebra2Preset.LFOSync lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_1s;
+			double ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, 100);
+			Console.Out.WriteLine("{0} SyncValue:{1} {2:0.000} ms", lfoSync, 100, ms);
+
+			Console.ReadKey();
+			return;
+			
 			/*
+			// TEST THE LFO ZEBRA 2 LFO CONVERSION
+			PresetConverter.Zebra2Preset.LFOSync lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_0_1s;
+			for (int i = 0; i <= 200; i += 2) {
+				double ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, i);
+
+				// test reverse conversion
+				PresetConverter.Zebra2Preset.LFOSync lfoSync2 = PresetConverter.Zebra2Preset.LFOSync.SYNC_0_1s;
+				int lfoValue = 0;
+				PresetConverter.Zebra2Preset.MillisecondsToLFOSyncAndValue((float) ms, out lfoSync2, out lfoValue);
+				double ms2 = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync2, lfoValue);
+				
+				Console.Out.WriteLine("{0} SyncValue:{1} {2:0.000} ms (Reverse: {3} {4} {5:0.000} ms)", lfoSync, i, ms, lfoSync2, lfoValue, ms2 );
+			}
+
+			lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_1s;
+			for (int i = 0; i <= 200; i += 2) {
+				double ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, i);
+
+				// test reverse conversion
+				PresetConverter.Zebra2Preset.LFOSync lfoSync2 = PresetConverter.Zebra2Preset.LFOSync.SYNC_0_1s;
+				int lfoValue = 0;
+				PresetConverter.Zebra2Preset.MillisecondsToLFOSyncAndValue((float) ms, out lfoSync2, out lfoValue);
+				double ms2 = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync2, lfoValue);
+				
+				Console.Out.WriteLine("{0} SyncValue:{1} {2:0.000} ms (Reverse: {3} {4} {5:0.000} ms)", lfoSync, i, ms, lfoSync2, lfoValue, ms2 );
+			}
+			
+			lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_10s;
+			for (int i = 0; i <= 200; i += 2) {
+				double ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, i);
+
+				// test reverse conversion
+				PresetConverter.Zebra2Preset.LFOSync lfoSync2 = PresetConverter.Zebra2Preset.LFOSync.SYNC_0_1s;
+				int lfoValue = 0;
+				PresetConverter.Zebra2Preset.MillisecondsToLFOSyncAndValue((float) ms, out lfoSync2, out lfoValue);
+				double ms2 = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync2, lfoValue);
+				
+				Console.Out.WriteLine("{0} SyncValue:{1} {2:0.000} ms (Reverse: {3} {4} {5:0.000} ms)", lfoSync, i, ms, lfoSync2, lfoValue, ms2 );
+			}
+			
+			Console.ReadKey();
+			return;
+			
+			// TEST THE CALCULATE LFO DELAY METHODS
 			int sampleRate = 44100;
 			string[] filePaths = Directory.GetFiles("../Release", "*.wav");
 			foreach (string wavFilePath in filePaths) {
@@ -142,10 +206,14 @@ namespace ProcessVSTPlugin
 			Console.ReadKey();
 			return;
 
+
+			// TEST THE CALCULATE LFO TIMING METHODS
 			AudioUtils.OutputLFOTimings();
 			Console.ReadKey();
 			return;
 			
+			
+			// TEST ??
 			string[] filePaths = Directory.GetFiles("../..", "*.wav");
 			foreach (string file in filePaths) {
 				// perivar-filter-2022hz.fxp

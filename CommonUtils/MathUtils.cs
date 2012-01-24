@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CommonUtils
 {
@@ -126,7 +128,7 @@ namespace CommonUtils
 		}
 		
 		public static int RoundToNearestInteger(int number, int nearest) {
-			int rounded = (int) Math.Round( (double) number / nearest) * nearest;
+			int rounded = (int) Math.Round( (double) number / nearest, MidpointRounding.AwayFromZero) * nearest;
 			return rounded;
 		}
 
@@ -314,6 +316,89 @@ namespace CommonUtils
 
 			return median;
 
+		}
+		
+		/// <summary>
+		/// Find the closest number in a list of numbers
+		/// Use like this:
+		/// List<int> list = new List<int> { 2, 5, 7, 10 };
+		/// int target = 6;
+		/// int closest = FindClosest(list, target);
+		/// </summary>
+		/// <param name="numbers"></param>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		public static int FindClosest(IEnumerable<int> numbers, int target) {
+			// http://stackoverflow.com/questions/5953552/how-to-get-the-closest-number-from-a-listint-with-linq
+			int closest = numbers.Aggregate((x,y) => Math.Abs(x-target) < Math.Abs(y-target) ? x : y);
+			return closest;
+		}
+		
+		/// <summary>
+		/// Find the closest number in a list of numbers
+		/// Use like this:
+		/// List<float> list = new List<float> { 10f, 20f, 22f, 30f };
+		/// float target = 21f;
+		/// float closest = FindClosest(list, target);
+		/// </summary>
+		/// <param name="numbers"></param>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		public static float FindClosest(IEnumerable<float> numbers, float target) {
+			// http://stackoverflow.com/questions/3723321/linq-to-get-closest-value
+			
+			//gets single number which is closest
+			var closest = numbers.Select( n => new { n, distance = Math.Abs( n - target ) } )
+				.OrderBy( p => p.distance )
+				.First().n;
+			
+			return closest;
+		}
+
+		/// <summary>
+		/// Find the x closest numbers in a list of numbers
+		/// Use like this:
+		/// List<float> list = new List<float> { 10f, 20f, 22f, 30f };
+		/// float target = 21f;
+		/// int take = 2;
+		/// float closest = FindClosest(list, target, take);
+		/// </summary>
+		/// <param name="numbers"></param>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		public static IEnumerable<float> FindClosest(IEnumerable<float> numbers, float target, int take) {
+			// http://stackoverflow.com/questions/3723321/linq-to-get-closest-value
+			
+			//get x closest
+			var closests = numbers.Select( n => new { n, distance = Math.Abs( n - target ) } )
+				.OrderBy( p => p.distance )
+				.Select( p => p.n )
+				.Take( take );
+
+			return closests;
+		}
+		
+		/// <summary>
+		/// Find all numbers that are within x of target
+		/// Use like this:
+		/// List<float> list = new List<float> { 10f, 20f, 22f, 30f };
+		/// float target = 21f;
+		/// float within = 1;
+		/// var result = FindWithinTarget(list, target, within);
+		/// </summary>
+		/// <param name="numbers"></param>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		public static IEnumerable<float> FindWithinTarget(IEnumerable<float> numbers, float target, float within) {
+			// http://stackoverflow.com/questions/3723321/linq-to-get-closest-value
+			
+			//gets any that are within x of target
+			//var within = 1;
+			var withins = numbers.Select( n => new { n, distance = Math.Abs( n - target ) } )
+				.Where( p => p.distance <= within )
+				.Select( p => p.n );
+			
+			return withins;
 		}
 	}
 }
