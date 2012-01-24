@@ -98,27 +98,61 @@ namespace ProcessVSTPlugin
 		[STAThread]
 		static void Main(string[] args)
 		{
+			/*
+			PresetConverter.Zebra2Preset.LFOSync lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_1_4;
+			double ms = 0;
+			int rate = 0;
+			//for (int rate = 0; rate <= 200; rate += 1) {
+			//	ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, rate);
+			//	Console.Out.WriteLine("{0} SyncValue:{1} {2:0.000} ms", lfoSync, rate, ms);
+			//}
 
-			// Z2_LFO_1_4D_100.wav
-			// Sampled:	749,615 ms	1,334 Hz
-			// Calculated:	750,000 ms	1,333 Hz
-			
-			// Z2_LFO_1_4D_150.wav
-			// Sampled:	221,905 ms	4,506 Hz
-			// Calculated:	750,000 ms	1,333 Hz
-			
-			// Z2_LFO_1_4D_50.wav
-			// Sampled:	5999,683 ms	0,167 Hz
-			// Calculated:	750,000 ms	1,333 Hz
+			lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_1_4_trip;
+			rate = 100;
+			ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, rate);
+			Console.Out.WriteLine("{0} SyncValue:{1} {2:0.000} ms", lfoSync, rate, ms);
 
-			PresetConverter.Zebra2Preset.LFOSync lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_1s;
-			double ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, 100);
-			Console.Out.WriteLine("{0} SyncValue:{1} {2:0.000} ms", lfoSync, 100, ms);
+			lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_1_4;
+			rate = 114;
+			ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, rate);
+			Console.Out.WriteLine("{0} SyncValue:{1} {2:0.000} ms", lfoSync, rate, ms);
+
+			lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_1_4_dot;
+			rate = 100;
+			ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, rate);
+			Console.Out.WriteLine("{0} SyncValue:{1} {2:0.000} ms", lfoSync, rate, ms);
+
+			lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_1_4;
+			rate = 87;
+			ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, rate);
+			Console.Out.WriteLine("{0} SyncValue:{1} {2:0.000} ms", lfoSync, rate, ms);
+			
+			Console.ReadKey();
+			return;
+			
+			// TEST THE ZEBRA LFO to MS conversion
+			PresetConverter.Zebra2Preset.LFOSync lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_1_4;
+			double ms = 0;
+			for (int rate = 50; rate <= 200; rate += 50) {
+				ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, rate);
+				Console.Out.WriteLine("{0} SyncValue:{1} {2:0.000} ms", lfoSync, rate, ms);
+			}
+
+			lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_1_4_trip;
+			for (int rate = 50; rate <= 200; rate += 50) {
+				ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, rate);
+				Console.Out.WriteLine("{0} SyncValue:{1} {2:0.000} ms", lfoSync, rate, ms);
+			}
+
+			lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_1_4_dot;
+			for (int rate = 50; rate <= 200; rate += 50) {
+				ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, rate);
+				Console.Out.WriteLine("{0} SyncValue:{1} {2:0.000} ms", lfoSync, rate, ms);
+			}
 
 			Console.ReadKey();
 			return;
 			
-			/*
 			// TEST THE LFO ZEBRA 2 LFO CONVERSION
 			PresetConverter.Zebra2Preset.LFOSync lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_0_1s;
 			for (int i = 0; i <= 200; i += 2) {

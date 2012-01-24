@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 
 using CommonUtils;
+using CommonUtils.Audio;
 
 namespace PresetConverter
 {
@@ -461,7 +462,7 @@ namespace PresetConverter
 			Read(filePath);
 		}
 		
-		public static float EnumUintToFloat(uint uintValue) {			
+		public static float EnumUintToFloat(uint uintValue) {
 			// the values are stored as LittleEndian
 			byte[] bytes = BitConverter.GetBytes(uintValue);
 			return BitConverter.ToSingle(bytes, 0);
@@ -2772,7 +2773,8 @@ namespace PresetConverter
 		                                           string LFOTrigFieldName,
 		                                           string LFOPhseFieldName,
 		                                           string LFOAmpFieldName,
-		                                           string LFOSlewFieldName) {
+		                                           string LFOSlewFieldName,
+		                                           int bpm=120) {
 
 			Zebra2Preset.LFOWave zebraLFOWave = Zebra2Preset.LFOWave.sine;
 			switch (sylenthLFOWave) {
@@ -2832,13 +2834,14 @@ namespace PresetConverter
 				// use LFO preset
 				LFOTIMING timing = LFOTimeFloatToEnum( sylenthLFORate );
 				
-				// TODO: Improve the LFO timing using http://tomhess.net/Tools/DelayCalculator.aspx
 				// Rate (0.00 - 200.00)
 				float rateNormal = 100.00f;
-				float rateDotted = 50.00f;
-				float rateTriple = 150.00f;
+				float rateDotted = 87.00f;  // =8*((50/I15)^3) (87 is the closest)
+				float rateTriple = 114.00f; // =8*((50/I13)^3) (114 is the closest)
 				
 				float zebraLFORate = rateNormal;
+				double msValue = 0;
+				int rate = 0;	
 				Zebra2Preset.LFOSync zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_4;
 				switch (timing) {
 					case LFOTIMING.LFO_UNKNOWN:
@@ -2962,32 +2965,39 @@ namespace PresetConverter
 						zebraLFORate = rateNormal;
 						break;
 					case LFOTIMING.LFO_1_128D:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_0_1s;
-						zebraLFORate = 170.00f;  // Rate (0.00 - 200.00)
+						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_128D, bpm);
+						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
+						zebraLFORate = rate;
 						break;
 					case LFOTIMING.LFO_1_64T:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_0_1s;
-						zebraLFORate = 175.00f;  // Rate (0.00 - 200.00)
+						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_64T, bpm);
+						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
+						zebraLFORate = rate;
 						break;
 					case LFOTIMING.LFO_1_128:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_0_1s;
-						zebraLFORate = 180.00f;  // Rate (0.00 - 200.00)
+						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_128, bpm);
+						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
+						zebraLFORate = rate;
 						break;
 					case LFOTIMING.LFO_1_256D:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_0_1s;
-						zebraLFORate = 185.00f;  // Rate (0.00 - 200.00)
+						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_256D, bpm);
+						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
+						zebraLFORate = rate;
 						break;
 					case LFOTIMING.LFO_1_128T:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_0_1s;
-						zebraLFORate = 190.00f;  // Rate (0.00 - 200.00)
+						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_128T, bpm);
+						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
+						zebraLFORate = rate;
 						break;
 					case LFOTIMING.LFO_1_256:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_0_1s;
-						zebraLFORate = 195.00f;  // Rate (0.00 - 200.00)
+						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_256, bpm);
+						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
+						zebraLFORate = rate;
 						break;
 					case LFOTIMING.LFO_1_256T:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_0_1s;
-						zebraLFORate = 200.00f;  // Rate (0.00 - 200.00)
+						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_256T, bpm);
+						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
+						zebraLFORate = rate;
 						break;
 				}
 				

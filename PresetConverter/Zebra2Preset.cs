@@ -6,6 +6,7 @@ using System.Text;
 using System.Reflection;
 
 using CommonUtils;
+using CommonUtils.Audio;
 
 namespace PresetConverter
 {
@@ -116,10 +117,6 @@ namespace PresetConverter
 		}
 		
 		public enum LFOSync : int {
-			// -3 = 0.1s, -2 = 1s, -1 = 10s, 0 = 1/64, 1 = 1/32, 2 = 1/16, 3 = 1/8,
-			// 4 = 1/4, 5 = 1/2, 6 = 1/1, 7 = 1/32 dot, 8 = 1/16 dot, 9 = 1/8 dot, 10 = 1/4 dot,
-			// 11 = 1/2 dot, 12 = 1/16 trip, 13 = 1/8 trip, 14 = 1/4 trip, 15 = 1/2 trip,
-			// 16 = 1/1 trip, 17 = 2/1, 18 = 3/1 =>23 = 8/1
 			SYNC_0_1s = -3,
 			SYNC_1s = -2,
 			SYNC_10s = -1,
@@ -5197,7 +5194,7 @@ namespace PresetConverter
 				lfoValue = 0;
 				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
 				return;
-			}			
+			}
 			if (timeInMs < 12.5) {
 				Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0} ms.)", timeInMs);
 				lfoValue = 200;
@@ -5243,25 +5240,103 @@ namespace PresetConverter
 			} else {
 				lfoValue = (int) value10s;
 				lfoSync = Zebra2Preset.LFOSync.SYNC_10s;
-			}			
+			}
 		}
 		
-		public static double LFOSyncAndValueToMilliseconds(LFOSync lfoSync, int lfoValue) {
-
+		public static double LFOSyncAndValueToMilliseconds(LFOSync lfoSync, int lfoValue, int bpm=120) {
+			
 			double ms = 0;
 			switch (lfoSync) {
 				case LFOSync.SYNC_0_1s:
 					// =0,8*((50/U3)^3)
 					ms = 1000 * 0.8 * ( Math.Pow(50 / (double) lfoValue, 3) );
-					break;
+					return ms;
 				case LFOSync.SYNC_1s:
 					// =8*((50/U36)^3)
 					ms = 1000 * 8 * ( Math.Pow(50 / (double) lfoValue, 3) );
-					break;
+					return ms;
 				case LFOSync.SYNC_10s:
 					// =80*((50/U69)^3)
 					ms = 1000 * 80 * ( Math.Pow(50 / (double) lfoValue, 3) );
+					return ms;
+				case LFOSync.SYNC_1_64:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_64, bpm);
 					break;
+				case LFOSync.SYNC_1_32:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_32, bpm);
+					break;
+				case LFOSync.SYNC_1_16:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_16, bpm);
+					break;
+				case LFOSync.SYNC_1_8:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_8, bpm);
+					break;
+				case LFOSync.SYNC_1_4:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_4, bpm);
+					break;
+				case LFOSync.SYNC_1_2:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_2, bpm);
+					break;
+				case LFOSync.SYNC_1_1:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_1, bpm);
+					break;
+				case LFOSync.SYNC_1_32_dot:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_32D, bpm);
+					break;
+				case LFOSync.SYNC_1_16_dot:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_16D, bpm);
+					break;
+				case LFOSync.SYNC_1_8_dot:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_8D, bpm);
+					break;
+				case LFOSync.SYNC_1_4_dot:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_4D, bpm);
+					break;
+				case LFOSync.SYNC_1_2_dot:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_2D, bpm);
+					break;
+				case LFOSync.SYNC_1_16_trip:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_16T, bpm);
+					break;
+				case LFOSync.SYNC_1_8_trip:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_8T, bpm);
+					break;
+				case LFOSync.SYNC_1_4_trip:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_4T, bpm);
+					break;
+				case LFOSync.SYNC_1_2_trip:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_2T, bpm);
+					break;
+				case LFOSync.SYNC_1_1_trip:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_1T, bpm);
+					break;
+				case LFOSync.SYNC_2_1:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_2_1, bpm);
+					break;
+				case LFOSync.SYNC_3_1:
+					//ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_3_1, bpm);
+					break;
+				case LFOSync.SYNC_4_1:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_4_1, bpm);
+					break;
+				case LFOSync.SYNC_5_1:
+					//ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_5_1, bpm);
+					break;
+				case LFOSync.SYNC_6_1:
+					//ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_6_1, bpm);
+					break;
+				case LFOSync.SYNC_7_1:
+					//ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_7_1, bpm);
+					break;
+				case LFOSync.SYNC_8_1:
+					ms = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_8_1, bpm);
+					break;
+			}
+			
+			// find multiplication factor
+			if (lfoValue != 100) {
+				double mult = ( Math.Pow(50 / (double) lfoValue, 3) );
+				ms = ms * mult * 8;
 			}
 			return ms;
 		}
