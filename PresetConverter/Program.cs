@@ -35,8 +35,8 @@ namespace PresetConverter
 			string allProjectDir = allProjectDirInfo.FullName;
 			
 			// Build preset file paths
-			//string sylenthPreset = Path.Combine(allProjectDir, "ProcessVSTPlugin", "Per Ivar - Test Preset (Zebra vs Sylenth).fxp");
-			string sylenthPreset = @"C:\Program Files (x86)\Steinberg\Vstplugins\Synth\Sylenth1\www.vengeance-sound.de - Sylenth Trilogy v1 - HandsUpDance Soundset.fxb";
+			string sylenthPreset = Path.Combine(allProjectDir, "SynthAnalysisStudio", "Per Ivar - Test Preset (Zebra vs Sylenth).fxp");
+			//string sylenthPreset = @"C:\Program Files (x86)\Steinberg\Vstplugins\Synth\Sylenth1\www.vengeance-sound.de - Sylenth Trilogy v1 - HandsUpDance Soundset.fxb";
 			
 			Sylenth1Preset sylenth1 = new Sylenth1Preset();
 			sylenth1.Read(sylenthPreset);
@@ -51,11 +51,13 @@ namespace PresetConverter
 			string outFilePath2 = Path.Combine(allProjectDir, "PresetConverter", "Zebra2PresetOutput.txt");
 			TextWriter tw2 = new StreamWriter(outFilePath2);
 			
-			List<Zebra2Preset> zebra2ConvertedList = sylenth1.ToZebra2Preset(zebra2_Sylenth1_PresetTemplate, false);
+			//string convertedPresetOutputDir = @"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets";
+			string convertedPresetOutputDir = Path.Combine(allProjectDir, "PresetConverter");
+			List<Zebra2Preset> zebra2ConvertedList = sylenth1.ToZebra2Preset(zebra2_Sylenth1_PresetTemplate, true);
 			int count = 1;
 			foreach (Zebra2Preset zebra2Converted in zebra2ConvertedList) {
 				string presetName = StringUtils.MakeValidFileName(zebra2Converted.PresetName);
-				string zebraGeneratedPreset = Path.Combine(@"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets", String.Format("{0:000}_{1}.h2p", zebra2Converted.BankIndex, presetName));
+				string zebraGeneratedPreset = Path.Combine(convertedPresetOutputDir, String.Format("{0:000}_{1}.h2p", zebra2Converted.BankIndex, presetName));
 				zebra2Converted.Write(zebraGeneratedPreset);
 				tw2.WriteLine(zebra2Converted);
 				count++;
