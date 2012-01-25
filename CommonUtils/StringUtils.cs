@@ -19,7 +19,6 @@ namespace CommonUtils
 			PascalCase,
 			CamelCase
 		}
-
 		
 		/// <summary>
 		/// Converts the phrase to specified convention.

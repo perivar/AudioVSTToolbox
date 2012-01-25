@@ -5,23 +5,18 @@ using System.IO;
 using System.Timers;
 using System.Data;
 using System.Collections.Generic;
-
 using System.Threading;
 using System.Diagnostics;
-
 using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-
+using CommonUtils.Audio.NAudio;
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 using Jacobi.Vst.Core.Host;
-
 using NAudio.Wave;
-
 using ProcessVSTPlugin;
-
 using CommonUtils;
 using CommonUtils.Audio;
 
@@ -226,7 +221,7 @@ namespace SynthAnalysisStudio
 			string wavFilePath = String.Format("audio-data-{0}.wav", StringUtils.GetCurrentTimestamp());
 
 			VstHost host = VstHost.Instance;
-			AudioUtils.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
+			AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
 		}
 		
 		void AdsrSampleBtnClick(object sender, EventArgs e)
@@ -418,7 +413,7 @@ namespace SynthAnalysisStudio
 				// store this in a wav ouput file.
 				float param = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_ATTACK);
 				string wavFilePath = String.Format("audio-attack-{0:0.00}s-{1}.wav", param, StringUtils.GetCurrentTimestamp());
-				AudioUtils.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
+				AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
 				
 				// store as a png
 				System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
@@ -514,7 +509,7 @@ namespace SynthAnalysisStudio
 				// store this in a wav ouput file.
 				float param = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_DECAY);
 				string wavFilePath = String.Format("audio-decay-{0:0.00}s-{1}.wav", param, StringUtils.GetCurrentTimestamp());
-				AudioUtils.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
+				AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
 				
 				// store as a png
 				System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
@@ -608,7 +603,7 @@ namespace SynthAnalysisStudio
 				// store this in a wav ouput file.
 				float param = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_RELEASE);
 				string wavFilePath = String.Format("audio-release-{0:0.00}s-{1}.wav", param, StringUtils.GetCurrentTimestamp());
-				AudioUtils.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
+				AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
 				
 				// store as a png
 				System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
@@ -733,7 +728,7 @@ namespace SynthAnalysisStudio
 				
 				// store this in a wav ouput file.
 				string wavFilePath = String.Format("audio-LFO-{0}-{1}.wav", StringUtils.MakeValidFileName(paramDisplay), StringUtils.GetCurrentTimestamp());
-				AudioUtils.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
+				AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
 				
 				// store as a png
 				System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);

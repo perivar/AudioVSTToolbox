@@ -10,6 +10,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -31,21 +32,6 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LibFlac">
-      <HintPath>..\CommonUtils\Audio\NAudio\LibFlac.dll</HintPath>
-    </Reference>
-    <Reference Include="NAudio">
-      <HintPath>..\CommonUtils\Audio\NAudio\NAudio.dll</HintPath>
-    </Reference>
-    <Reference Include="NAudio.WindowsMediaFormat">
-      <HintPath>..\CommonUtils\Audio\NAudio\NAudio.WindowsMediaFormat.dll</HintPath>
-    </Reference>
-    <Reference Include="NAudioFLAC">
-      <HintPath>..\CommonUtils\Audio\NAudio\NAudioFLAC.dll</HintPath>
-    </Reference>
-    <Reference Include="NAudioOggVorbis">
-      <HintPath>..\CommonUtils\Audio\NAudio\NAudioOggVorbis.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -63,7 +49,7 @@
     <Compile Include="..\CommonUtils\Arguments.cs">
       <Link>Arguments.cs</Link>
     </Compile>
-    <Compile Include="..\CommonUtils\Audio\NAudio\AudioUtils.cs">
+    <Compile Include="..\CommonUtils\Audio\AudioUtils.cs">
       <Link>AudioUtils.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\BinaryFile.cs">
@@ -88,4 +74,7 @@
     <Compile Include="Zebra2Preset.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(MSBuildProjectDirectory)\_SharedResources\*.*" "$(MSBuildProjectDirectory)\$(OutputPath)"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

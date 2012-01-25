@@ -12,6 +12,7 @@ using NAudio;
 using NAudio.Wave;
 
 using CommonUtils;
+using CommonUtils.Audio;
 
 namespace ProcessVSTPlugin
 {
