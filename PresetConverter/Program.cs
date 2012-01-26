@@ -14,55 +14,50 @@ namespace PresetConverter
 		
 		public static void Main(string[] args)
 		{
-			string zebra2_Sylenth1_PresetTemplate = @"Zebra2-Default Sylenth1 Template.h2p";
-
-			// to get the location the assembly is executing from
-			//(not neccesarily where the it normally resides on disk)
-			// in the case of the using shadow copies, for instance in NUnit tests,
-			// this will be in a temp directory.
-			string execPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-
-			//once you have the path you get the directory with:
-			string execDirectory = System.IO.Path.GetDirectoryName(execPath);
-			
-			// move two directories up to get the base dir when executing from SharpDevelop
-			// since it will then run from either the project-dir/bin/Debug or project-dir/bin/Release directory
-			DirectoryInfo projectDirInfo = new DirectoryInfo(execDirectory).Parent.Parent;
-			string projectDir = projectDirInfo.FullName;
-			
-			// move yeat another dir up to get start dir for all AudioVSTToolbox projects
-			DirectoryInfo allProjectDirInfo = new DirectoryInfo(projectDir).Parent;
-			string allProjectDir = allProjectDirInfo.FullName;
-			
 			// Build preset file paths
-			string sylenthPreset = Path.Combine(allProjectDir, "SynthAnalysisStudio", "Per Ivar - Test Preset (Zebra vs Sylenth).fxp");
-			//string sylenthPreset = @"C:\Program Files (x86)\Steinberg\Vstplugins\Synth\Sylenth1\www.vengeance-sound.de - Sylenth Trilogy v1 - HandsUpDance Soundset.fxb";
+			//string allProjectDir = GetDevelopProjectDir();
+			//string sylenthPreset = Path.Combine(allProjectDir, "SynthAnalysisStudio", "Per Ivar - Test Preset (Zebra vs Sylenth).fxp");
 			
-			Sylenth1Preset sylenth1 = new Sylenth1Preset();
-			sylenth1.Read(sylenthPreset);
+			// define input file and output directory
+			string sylenthPresetDirString = @"C:\Program Files (x86)\Steinberg\Vstplugins\Synth\Sylenth1";
+			string sylenthPreset = @"C:\Program Files (x86)\Steinberg\Vstplugins\Synth\Sylenth1\www.vengeance-sound.de - Sylenth Trilogy v1 - HandsUpDance Soundset.fxb";
+			string convertedPresetOutputDir = @"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets";
+			//string convertedPresetOutputDir = Path.Combine(allProjectDir, "PresetConverter");
+			bool doProcessInitPresets = false;
 
+			// define default sylenth template for Zebra2
+			string zebra2_Sylenth1_PresetTemplate = @"Zebra2-Default Sylenth1 Template.h2p";
+			
 			// Output a dump of the Sylenth1 Preset File
-			string outFilePath = Path.Combine(allProjectDir, "PresetConverter", "Sylenth1PresetOutput.txt");
-			TextWriter tw = new StreamWriter(outFilePath);
-			tw.WriteLine(sylenth1);
-			tw.Close();
+			//string outFilePath = Path.Combine(allProjectDir, "PresetConverter", "Sylenth1PresetOutput.txt");
+			//TextWriter tw = new StreamWriter(outFilePath);
+			//tw.WriteLine(sylenth1);
+			//tw.Close();
 			
-			// Output a dump of the Zebra2 Preset File
-			string outFilePath2 = Path.Combine(allProjectDir, "PresetConverter", "Zebra2PresetOutput.txt");
-			TextWriter tw2 = new StreamWriter(outFilePath2);
+			DirectoryInfo sylenthPresetDir = new DirectoryInfo(sylenthPresetDirString);
+			FileInfo[] presetFiles = sylenthPresetDir.GetFiles("*.fxb");
 			
-			//string convertedPresetOutputDir = @"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets";
-			string convertedPresetOutputDir = Path.Combine(allProjectDir, "PresetConverter");
-			List<Zebra2Preset> zebra2ConvertedList = sylenth1.ToZebra2Preset(zebra2_Sylenth1_PresetTemplate, true);
-			int count = 1;
-			foreach (Zebra2Preset zebra2Converted in zebra2ConvertedList) {
-				string presetName = StringUtils.MakeValidFileName(zebra2Converted.PresetName);
-				string zebraGeneratedPreset = Path.Combine(convertedPresetOutputDir, String.Format("{0:000}_{1}.h2p", zebra2Converted.BankIndex, presetName));
-				zebra2Converted.Write(zebraGeneratedPreset);
-				tw2.WriteLine(zebra2Converted);
-				count++;
+			foreach (FileInfo presetFile in presetFiles) {
+				// read preset file
+				Sylenth1Preset sylenth1 = new Sylenth1Preset();
+				sylenth1.Read(presetFile.FullName);
+				
+				// define output dir
+				string outputDir = Path.Combine(convertedPresetOutputDir, Path.GetFileNameWithoutExtension(presetFile.Name));
+				if (!Directory.Exists(outputDir)) {
+					Directory.CreateDirectory(outputDir);
+				}
+
+				// and convert to zebra 2
+				List<Zebra2Preset> zebra2ConvertedList = sylenth1.ToZebra2Preset(zebra2_Sylenth1_PresetTemplate, doProcessInitPresets);
+				int count = 1;
+				foreach (Zebra2Preset zebra2Converted in zebra2ConvertedList) {
+					string presetName = StringUtils.MakeValidFileName(zebra2Converted.PresetName);
+					string zebraGeneratedPreset = Path.Combine(outputDir, String.Format("{0:000}_{1}.h2p", zebra2Converted.BankIndex, presetName));
+					zebra2Converted.Write(zebraGeneratedPreset);
+					count++;
+				}
 			}
-			tw2.Close();
 			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
@@ -100,5 +95,26 @@ namespace PresetConverter
 			Console.WriteLine();
 		}
 		
+		private static string GetDevelopProjectDir() {
+			// to get the location the assembly is executing from
+			//(not neccesarily where the it normally resides on disk)
+			// in the case of the using shadow copies, for instance in NUnit tests,
+			// this will be in a temp directory.
+			string execPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+
+			//once you have the path you get the directory with:
+			string execDirectory = System.IO.Path.GetDirectoryName(execPath);
+			
+			// move two directories up to get the base dir when executing from SharpDevelop
+			// since it will then run from either the project-dir/bin/Debug or project-dir/bin/Release directory
+			DirectoryInfo projectDirInfo = new DirectoryInfo(execDirectory).Parent.Parent;
+			string projectDir = projectDirInfo.FullName;
+			
+			// move yeat another dir up to get start dir for all AudioVSTToolbox projects
+			DirectoryInfo allProjectDirInfo = new DirectoryInfo(projectDir).Parent;
+			string allProjectDir = allProjectDirInfo.FullName;
+
+			return allProjectDir;
+		}
 	}
 }
