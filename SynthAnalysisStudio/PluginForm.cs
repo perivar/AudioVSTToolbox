@@ -5,10 +5,11 @@ using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 using Jacobi.Vst.Core.Host;
 
-using ProcessVSTPlugin;
 using NAudio.Wave;
 
-namespace ProcessVSTPlugin
+using CommonUtils.VST;
+
+namespace SynthAnalysisStudio
 {
 	partial class PluginForm : Form
 	{

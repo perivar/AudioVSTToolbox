@@ -14,11 +14,12 @@ using Jacobi.Vst.Interop.Host;
 
 using CommonUtils;
 using CommonUtils.Audio;
+using CommonUtils.VST;
 
 using DiffPlex;
 using DiffPlex.Model;
 
-namespace ProcessVSTPlugin
+namespace SynthAnalysisStudio
 {
 	static class Program
 	{
@@ -57,7 +58,8 @@ namespace ProcessVSTPlugin
 		static void StartVstHost(string pluginPath, string waveInputFilePath, string fxpFilePath, string waveOutputFilePath, bool doPlay) {
 
 			VstHost host = VstHost.Instance;
-			host.OpenPlugin(pluginPath);
+			IVstHostCommandStub hostCmdStub = new HostCommandStub();
+			host.OpenPlugin(pluginPath, hostCmdStub);
 			host.InputWave = waveInputFilePath;
 			// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
 			// tblock = 0.15 makes blocksize = 6615.
@@ -457,7 +459,7 @@ namespace ProcessVSTPlugin
 			Console.WriteLine("Process VST Plugin. Version {0}.", _version);
 			Console.WriteLine("Copyright (C) 2009-2012 Per Ivar Nerseth.");
 			Console.WriteLine();
-			Console.WriteLine("Usage: ProcessVSTPlugin.exe <Arguments>");
+			Console.WriteLine("Usage: SynthAnalysisStudio.exe <Arguments>");
 			Console.WriteLine();
 			Console.WriteLine("Mandatory Arguments:");
 			Console.WriteLine("\t-plugin=<path to the vst plugin to use (.dll)>");

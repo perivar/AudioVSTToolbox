@@ -5,7 +5,7 @@ using System.Text;
 using DiffPlex;
 using DiffPlex.Model;
 
-namespace ProcessVSTPlugin
+namespace CommonUtils.Diff
 {
 	public enum UnidiffType : int {
 		NoChange,

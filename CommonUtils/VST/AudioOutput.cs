@@ -13,7 +13,7 @@ using NAudio.Wave;
 
 // http://vstnet.codeplex.com/discussions/228692
 // daniel_s
-namespace ProcessVSTPlugin
+namespace CommonUtils.VST
 {
 	class AudioOutput : IDisposable
 	{

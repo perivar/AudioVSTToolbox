@@ -2190,9 +2190,9 @@ namespace PresetConverter
 			public Object zebraModDepthFieldValue { set; get; }
 
 			public ZebraModulationPair(string zebraModSourceFieldName,
-			                      Object zebraModSourceFieldValue,
-			                      string zebraModDepthFieldName,
-			                      Object zebraModDepthFieldValue) {
+			                           Object zebraModSourceFieldValue,
+			                           string zebraModDepthFieldName,
+			                           Object zebraModDepthFieldValue) {
 				this.zebraModSourceFieldName = zebraModSourceFieldName;
 				this.zebraModSourceFieldValue = zebraModSourceFieldValue;
 				this.zebraModDepthFieldName = zebraModDepthFieldName;
@@ -3007,6 +3007,8 @@ namespace PresetConverter
 						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
 						zebraLFORate = rate;
 						break;
+						
+						// Zebra 2 does not support values lower than 12.5 ms
 					case LFOTIMING.LFO_1_256D:
 						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_256D, bpm);
 						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);

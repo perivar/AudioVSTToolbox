@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ProcessVSTPlugin
+namespace CommonUtils.Diff
 {
 	/// <summary>
 	/// Description of SimpleBinaryDiff.
@@ -63,7 +63,7 @@ namespace ProcessVSTPlugin
 			if (a.Length != b.Length) {
 				// cannot use this binary diff method
 				// since the lengths have changes
-				// assume this means we are dealing with text instead							
+				// assume this means we are dealing with text instead
 				return null;
 			}
 			

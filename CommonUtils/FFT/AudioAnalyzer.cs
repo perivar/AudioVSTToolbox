@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Drawing.Extended;
 
 using Lomont;
+using CommonUtils;
 
 namespace CommonUtils.FFT
 {

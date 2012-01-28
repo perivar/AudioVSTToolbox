@@ -21,7 +21,7 @@ using Jacobi.Vst.Core.Host;
 
 using CommonUtils;
 
-namespace ProcessVSTPlugin
+namespace SynthAnalysisStudio
 {
 	/// <summary>
 	/// Description of InvestigatedPluginPresetDetailsForm.

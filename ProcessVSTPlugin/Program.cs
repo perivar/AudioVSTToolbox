@@ -10,12 +10,13 @@ using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Interop.Host;
 
 using CommonUtils;
+using CommonUtils.VST;
 
 namespace ProcessVSTPlugin
 {
 	static class Program
 	{
-		static string _version = "1.1";
+		static string _version = "1.2";
 		
 		static void StartGUI() {
 			Application.EnableVisualStyles();
@@ -26,7 +27,8 @@ namespace ProcessVSTPlugin
 		static void StartVstHost(string pluginPath, string waveInputFilePath, string fxpFilePath, string waveOutputFilePath, bool doPlay) {
 
 			VstHost host = VstHost.Instance;
-			host.OpenPlugin(pluginPath);
+			ProcessVSTPlugin.HostCommandStub hcs = new HostCommandStub();
+			host.OpenPlugin(pluginPath, hcs);
 			host.InputWave = waveInputFilePath;
 			// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
 			// tblock = 0.15 makes blocksize = 6615.

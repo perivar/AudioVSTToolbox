@@ -1,5 +1,5 @@
 ﻿
-namespace ProcessVSTPlugin
+namespace SynthAnalysisStudio
 {
 	partial class InvestigatedPluginPresetDetailsForm
 	{

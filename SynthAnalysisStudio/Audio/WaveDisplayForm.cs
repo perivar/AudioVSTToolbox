@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
-using System.Timers;
 using System.Data;
 using System.Collections.Generic;
 using System.Threading;
@@ -11,14 +10,17 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using CommonUtils.Audio.NAudio;
+
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 using Jacobi.Vst.Core.Host;
-using NAudio.Wave;
-using ProcessVSTPlugin;
+
 using CommonUtils;
 using CommonUtils.Audio;
+using CommonUtils.Audio.NAudio;
+using CommonUtils.VST;
+
+using NAudio.Wave;
 
 namespace SynthAnalysisStudio
 {
@@ -44,8 +46,7 @@ namespace SynthAnalysisStudio
 		public VstPluginContext PluginContext { get; set; }
 		public VstPlaybackNAudio Playback { get; set; }
 
-		private System.Timers.Timer guiRefreshTimer;
-		public bool DoGUIRefresh = false;
+		private bool DoGUIRefresh = true;
 		
 		public WaveDisplayForm()
 		{
@@ -56,34 +57,6 @@ namespace SynthAnalysisStudio
 			
 			VstHost host = VstHost.Instance;
 			this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
-			
-			StartGUIRefreshTimer();
-		}
-		
-		public void RefreshGUI(object source, ElapsedEventArgs e)
-		{
-			if (DoGUIRefresh) {
-				VstHost host = VstHost.Instance;
-				
-				// update while recording
-				if (host.Record) {
-					this.waveDisplayUserControl1.Resolution = (int) this.waveDisplayUserControl1.MaxResolution;
-				}
-				this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
-			}
-		}
-		
-		public void StartGUIRefreshTimer()
-		{
-			guiRefreshTimer = new System.Timers.Timer();
-			guiRefreshTimer.Interval = 200;
-			guiRefreshTimer.Elapsed += new ElapsedEventHandler(RefreshGUI);
-			guiRefreshTimer.Enabled = true;
-			
-			DoGUIRefresh = true;
-
-			// start gui refresh timer
-			guiRefreshTimer.Start();
 		}
 		
 		void OnOffCheckboxCheckedChanged(object sender, EventArgs e)
@@ -747,6 +720,19 @@ namespace SynthAnalysisStudio
 				stopwatch.Stop();
 				
 				count++;
+			}
+		}
+		
+		void Timer1Tick(object sender, EventArgs e)
+		{
+			if (DoGUIRefresh) {
+				VstHost host = VstHost.Instance;
+				
+				// update while recording
+				if (host.Record) {
+					this.waveDisplayUserControl1.Resolution = (int) this.waveDisplayUserControl1.MaxResolution;
+				}
+				this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
 			}
 		}
 	}

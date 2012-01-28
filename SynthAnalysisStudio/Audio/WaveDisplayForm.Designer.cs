@@ -36,6 +36,7 @@ namespace SynthAnalysisStudio
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.MaxResolutionTrackBar = new System.Windows.Forms.TrackBar();
 			this.waveDisplayUserControl1 = new CommonUtils.GUI.WaveDisplayUserControl();
 			this.label2 = new System.Windows.Forms.Label();
@@ -62,6 +63,7 @@ namespace SynthAnalysisStudio
 			this.measureABtn = new System.Windows.Forms.Button();
 			this.measureRBtn = new System.Windows.Forms.Button();
 			this.measureLFOBtn = new System.Windows.Forms.Button();
+			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.MaxResolutionTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.AmplitudeTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.StartPositionTrackBar)).BeginInit();
@@ -319,6 +321,11 @@ namespace SynthAnalysisStudio
 			this.measureLFOBtn.UseVisualStyleBackColor = true;
 			this.measureLFOBtn.Click += new System.EventHandler(this.MeasureLFOBtnClick);
 			// 
+			// timer1
+			// 
+			this.timer1.Enabled = true;
+			this.timer1.Tick += new System.EventHandler(this.Timer1Tick);
+			// 
 			// WaveDisplayForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -351,13 +358,14 @@ namespace SynthAnalysisStudio
 			this.Controls.Add(this.waveDisplayUserControl1);
 			this.Controls.Add(this.MaxResolutionTrackBar);
 			this.Name = "WaveDisplayForm";
-			this.Text = "WaveDisplayForm";
+			this.Text = "Waveform - Analysis";
 			((System.ComponentModel.ISupportInitialize)(this.MaxResolutionTrackBar)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.AmplitudeTrackBar)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.StartPositionTrackBar)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.Button measureLFOBtn;
 		private System.Windows.Forms.Button measureRBtn;
 		private System.Windows.Forms.Button measureABtn;

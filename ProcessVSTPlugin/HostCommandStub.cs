@@ -6,9 +6,6 @@ using System.ComponentModel; // for BindingList
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Interop.Host;
 
-using DiffPlex;
-using DiffPlex.Model;
-
 using System.Linq;
 
 using CommonUtils;

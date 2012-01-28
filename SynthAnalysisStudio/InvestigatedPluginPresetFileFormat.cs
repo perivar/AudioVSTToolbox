@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 using CommonUtils;
 
-namespace ProcessVSTPlugin
+namespace SynthAnalysisStudio
 {
 	/// <summary>
 	/// InvestigatedPluginPresetFileFormat is used to store information about what binary content that changes in a preset file.

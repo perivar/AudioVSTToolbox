@@ -1,4 +1,4 @@
-﻿namespace ProcessVSTPlugin
+﻿namespace SynthAnalysisStudio
 {
     partial class MainForm
     {

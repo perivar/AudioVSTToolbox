@@ -28,12 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
+        	this.components = new System.ComponentModel.Container();
         	this.LoadBtn = new System.Windows.Forms.Button();
         	this.SaveBtn = new System.Windows.Forms.Button();
         	this.presetComboBox = new System.Windows.Forms.ComboBox();
         	this.presetLabel = new System.Windows.Forms.Label();
         	this.pluginPanel = new System.Windows.Forms.Panel();
+        	this.MidiNoteCheckbox = new System.Windows.Forms.CheckBox();
         	this.AnalyseBtn = new System.Windows.Forms.Button();
+        	this.WaveBtn = new System.Windows.Forms.Button();
+        	this.timer1 = new System.Windows.Forms.Timer(this.components);
         	this.SuspendLayout();
         	// 
         	// LoadBtn
@@ -75,21 +79,45 @@
         	// 
         	// pluginPanel
         	// 
-        	this.pluginPanel.Location = new System.Drawing.Point(1, 36);
+        	this.pluginPanel.Location = new System.Drawing.Point(0, 36);
         	this.pluginPanel.Name = "pluginPanel";
-        	this.pluginPanel.Size = new System.Drawing.Size(484, 230);
+        	this.pluginPanel.Size = new System.Drawing.Size(820, 231);
         	this.pluginPanel.TabIndex = 4;
+        	// 
+        	// MidiNoteCheckbox
+        	// 
+        	this.MidiNoteCheckbox.Location = new System.Drawing.Point(662, 5);
+        	this.MidiNoteCheckbox.Name = "MidiNoteCheckbox";
+        	this.MidiNoteCheckbox.Size = new System.Drawing.Size(45, 24);
+        	this.MidiNoteCheckbox.TabIndex = 8;
+        	this.MidiNoteCheckbox.Text = "Midi";
+        	this.MidiNoteCheckbox.UseVisualStyleBackColor = true;
+        	this.MidiNoteCheckbox.CheckedChanged += new System.EventHandler(this.MidiNoteCheckboxCheckedChanged);
         	// 
         	// AnalyseBtn
         	// 
-        	this.AnalyseBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-        	this.AnalyseBtn.Location = new System.Drawing.Point(428, 6);
+        	this.AnalyseBtn.Location = new System.Drawing.Point(707, 4);
         	this.AnalyseBtn.Name = "AnalyseBtn";
-        	this.AnalyseBtn.Size = new System.Drawing.Size(53, 23);
+        	this.AnalyseBtn.Size = new System.Drawing.Size(42, 23);
         	this.AnalyseBtn.TabIndex = 9;
-        	this.AnalyseBtn.Text = "Analyse";
+        	this.AnalyseBtn.Text = "Freq.";
         	this.AnalyseBtn.UseVisualStyleBackColor = true;
         	this.AnalyseBtn.Click += new System.EventHandler(this.AnalyseBtnClick);
+        	// 
+        	// WaveBtn
+        	// 
+        	this.WaveBtn.Location = new System.Drawing.Point(755, 4);
+        	this.WaveBtn.Name = "WaveBtn";
+        	this.WaveBtn.Size = new System.Drawing.Size(65, 23);
+        	this.WaveBtn.TabIndex = 10;
+        	this.WaveBtn.Text = "Waveform";
+        	this.WaveBtn.UseVisualStyleBackColor = true;
+        	this.WaveBtn.Click += new System.EventHandler(this.WaveBtnClick);
+        	// 
+        	// timer1
+        	// 
+        	this.timer1.Enabled = true;
+        	this.timer1.Tick += new System.EventHandler(this.Timer1Tick);
         	// 
         	// EditorFrame
         	// 
@@ -97,8 +125,10 @@
         	this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         	this.AutoSize = true;
         	this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-        	this.ClientSize = new System.Drawing.Size(486, 266);
+        	this.ClientSize = new System.Drawing.Size(822, 266);
+        	this.Controls.Add(this.WaveBtn);
         	this.Controls.Add(this.AnalyseBtn);
+        	this.Controls.Add(this.MidiNoteCheckbox);
         	this.Controls.Add(this.pluginPanel);
         	this.Controls.Add(this.presetLabel);
         	this.Controls.Add(this.presetComboBox);
@@ -108,13 +138,16 @@
         	this.MaximizeBox = false;
         	this.Name = "EditorFrame";
         	this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-        	this.Text = "EditorFrame";
+        	this.Text = "VST Editor";
         	this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditorFrameFormClosing);
         	this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyDown);
         	this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyUp);
         	this.ResumeLayout(false);
         }
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Button WaveBtn;
         private System.Windows.Forms.Button AnalyseBtn;
+        private System.Windows.Forms.CheckBox MidiNoteCheckbox;
         private System.Windows.Forms.Panel pluginPanel;
         private System.Windows.Forms.Label presetLabel;
         private System.Windows.Forms.ComboBox presetComboBox;

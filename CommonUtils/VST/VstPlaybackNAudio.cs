@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-//using System.Linq;
 
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Core.Host;
@@ -8,7 +7,7 @@ using Jacobi.Vst.Interop.Host;
 
 using NAudio.Wave;
 
-namespace ProcessVSTPlugin
+namespace CommonUtils.VST
 {
 	// Derive the NAudio stream class from WaveProvider32
 	// instead of WaveStream if you don't want to deal with

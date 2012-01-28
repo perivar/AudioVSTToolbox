@@ -6,8 +6,9 @@ using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 
 using SynthAnalysisStudio;
+using CommonUtils.VST;
 
-namespace ProcessVSTPlugin
+namespace SynthAnalysisStudio
 {
 	/// <summary>
 	/// The frame in which a custom plugin editor UI is displayed.

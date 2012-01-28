@@ -5,7 +5,8 @@ using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 using Jacobi.Vst.Core.Host;
 
-using ProcessVSTPlugin;
+using CommonUtils.VST;
+
 using NAudio.Wave;
 
 namespace ProcessVSTPlugin

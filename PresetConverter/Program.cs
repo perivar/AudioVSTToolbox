@@ -32,7 +32,9 @@ namespace PresetConverter
 			if(CommandLine["out"] != null) {
 				presetOutputFileDirectoryPath = CommandLine["out"];
 			}
-			
+			if(CommandLine["init"] != null) {
+				doProcessInitPresets = true;
+			}			
 			if (presetInputFileOrDirectory == "" || presetOutputFileDirectoryPath == "") {
 				PrintUsage();
 				return;
@@ -41,19 +43,6 @@ namespace PresetConverter
 			// Build preset file paths
 			string sylenthPresetDirString = "";
 			string sylenthPreset = "";
-			/*
-			string allProjectDir = GetDevelopProjectDir();
-			//string sylenthPreset = Path.Combine(allProjectDir, "SynthAnalysisStudio", "Per Ivar - Test Preset (Zebra vs Sylenth).fxp");
-			//string sylenthPreset = Path.Combine(allProjectDir, "PresetConverter", "Adam Van Baker Sylenth1 Soundset.fxb");
-			string sylenthPreset = Path.Combine(allProjectDir, "PresetConverter", "Adam Van Baker Sylenth1 Soundset Part 2.fxb");
-			//string convertedPresetOutputDir = Path.Combine(allProjectDir, "PresetConverter");
-			string convertedPresetOutputDir = "";
-			
-			// define input file and output directory
-			string sylenthPresetDirString = @"C:\Program Files (x86)\Steinberg\Vstplugins\Synth\Sylenth1";
-			//string sylenthPreset = @"C:\Program Files (x86)\Steinberg\Vstplugins\Synth\Sylenth1\www.vengeance-sound.de - Sylenth Trilogy v1 - HandsUpDance Soundset.fxb";
-			//string convertedPresetOutputDir = @"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets";
-			 */
 			
 			// check if input is file or directory
 			if (IOUtils.IsDirectory(presetInputFileOrDirectory)) {
@@ -124,13 +113,16 @@ namespace PresetConverter
 		public static void PrintUsage() {
 			Console.WriteLine("Preset Converter. Version {0}.", _version);
 			Console.WriteLine("Copyright (C) 2010-2012 Per Ivar Nerseth.");
-			Console.WriteLine("NOTE! This version only supports Sylenth1 to Zebra2 conversion");
+			Console.WriteLine("NOTE! This version only supports Sylenth1 to Zebra2 preset conversion");
 			Console.WriteLine();
 			Console.WriteLine("Usage: PresetConverter.exe <Arguments>");
 			Console.WriteLine();
 			Console.WriteLine("Mandatory Arguments:");
 			Console.WriteLine("\t-in=<path to a preset file or a directory to convert from>");
 			Console.WriteLine("\t-out=<path to the directory to convert to>");
+			Console.WriteLine();
+			Console.WriteLine("Optional Arguments:");
+			Console.WriteLine("\t-init <do process presets with name 'init'. Default = disabled>");
 			Console.WriteLine();
 		}
 		

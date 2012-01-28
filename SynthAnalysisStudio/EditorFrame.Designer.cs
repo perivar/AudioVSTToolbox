@@ -1,4 +1,4 @@
-﻿namespace ProcessVSTPlugin
+﻿namespace SynthAnalysisStudio
 {
     partial class EditorFrame
     {
@@ -89,7 +89,7 @@
         	// 
         	// InvestigatePluginPresetFileCheckbox
         	// 
-        	this.InvestigatePluginPresetFileCheckbox.Location = new System.Drawing.Point(542, 6);
+        	this.InvestigatePluginPresetFileCheckbox.Location = new System.Drawing.Point(531, 6);
         	this.InvestigatePluginPresetFileCheckbox.Name = "InvestigatePluginPresetFileCheckbox";
         	this.InvestigatePluginPresetFileCheckbox.Size = new System.Drawing.Size(87, 24);
         	this.InvestigatePluginPresetFileCheckbox.TabIndex = 5;
@@ -99,7 +99,7 @@
         	// 
         	// PresetContentBtn
         	// 
-        	this.PresetContentBtn.Location = new System.Drawing.Point(445, 6);
+        	this.PresetContentBtn.Location = new System.Drawing.Point(434, 6);
         	this.PresetContentBtn.Name = "PresetContentBtn";
         	this.PresetContentBtn.Size = new System.Drawing.Size(93, 23);
         	this.PresetContentBtn.TabIndex = 6;
@@ -109,7 +109,7 @@
         	// 
         	// TextDiffCheckbox
         	// 
-        	this.TextDiffCheckbox.Location = new System.Drawing.Point(622, 6);
+        	this.TextDiffCheckbox.Location = new System.Drawing.Point(613, 6);
         	this.TextDiffCheckbox.Name = "TextDiffCheckbox";
         	this.TextDiffCheckbox.Size = new System.Drawing.Size(63, 24);
         	this.TextDiffCheckbox.TabIndex = 7;
@@ -119,7 +119,7 @@
         	// 
         	// MidiNoteCheckbox
         	// 
-        	this.MidiNoteCheckbox.Location = new System.Drawing.Point(682, 6);
+        	this.MidiNoteCheckbox.Location = new System.Drawing.Point(673, 6);
         	this.MidiNoteCheckbox.Name = "MidiNoteCheckbox";
         	this.MidiNoteCheckbox.Size = new System.Drawing.Size(45, 24);
         	this.MidiNoteCheckbox.TabIndex = 8;
@@ -129,21 +129,21 @@
         	// 
         	// AnalyseBtn
         	// 
-        	this.AnalyseBtn.Location = new System.Drawing.Point(723, 6);
+        	this.AnalyseBtn.Location = new System.Drawing.Point(714, 6);
         	this.AnalyseBtn.Name = "AnalyseBtn";
-        	this.AnalyseBtn.Size = new System.Drawing.Size(57, 23);
+        	this.AnalyseBtn.Size = new System.Drawing.Size(42, 23);
         	this.AnalyseBtn.TabIndex = 9;
-        	this.AnalyseBtn.Text = "Analyse";
+        	this.AnalyseBtn.Text = "Freq.";
         	this.AnalyseBtn.UseVisualStyleBackColor = true;
         	this.AnalyseBtn.Click += new System.EventHandler(this.AnalyseBtnClick);
         	// 
         	// WaveBtn
         	// 
-        	this.WaveBtn.Location = new System.Drawing.Point(781, 6);
+        	this.WaveBtn.Location = new System.Drawing.Point(756, 6);
         	this.WaveBtn.Name = "WaveBtn";
-        	this.WaveBtn.Size = new System.Drawing.Size(40, 23);
+        	this.WaveBtn.Size = new System.Drawing.Size(65, 23);
         	this.WaveBtn.TabIndex = 10;
-        	this.WaveBtn.Text = "Wav";
+        	this.WaveBtn.Text = "Waveform";
         	this.WaveBtn.UseVisualStyleBackColor = true;
         	this.WaveBtn.Click += new System.EventHandler(this.WaveBtnClick);
         	// 
@@ -174,7 +174,7 @@
         	this.MaximizeBox = false;
         	this.Name = "EditorFrame";
         	this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-        	this.Text = "EditorFrame";
+        	this.Text = "VST Editor";
         	this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditorFrameFormClosing);
         	this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyDown);
         	this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyUp);

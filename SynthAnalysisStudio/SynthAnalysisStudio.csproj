@@ -120,6 +120,12 @@
     <Compile Include="..\CommonUtils\CSVWriter.cs">
       <Link>CSVWriter.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\Diff\SimpleBinaryDiff.cs">
+      <Link>SimpleBinaryDiff.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\Diff\UnidiffSeqFormatter.cs">
+      <Link>UnidiffSeqFormatter.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\Export.cs">
       <Link>Export.cs</Link>
     </Compile>
@@ -185,6 +191,15 @@
     <Compile Include="..\CommonUtils\StringUtils.cs">
       <Link>StringUtils.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\VST\AudioOutput.cs">
+      <Link>AudioOutput.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\VST\VstHost.cs">
+      <Link>VstHost.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\VST\VstPlaybackNAudio.cs">
+      <Link>VstPlaybackNAudio.cs</Link>
+    </Compile>
     <Compile Include="..\PresetConverter\Preset.cs">
       <Link>Preset.cs</Link>
     </Compile>
@@ -194,7 +209,6 @@
     <Compile Include="..\PresetConverter\Zebra2Preset.cs">
       <Link>Zebra2Preset.cs</Link>
     </Compile>
-    <Compile Include="AudioOutput.cs" />
     <Compile Include="Audio\AnalyseForm.cs" />
     <Compile Include="Audio\AnalyseForm.Designer.cs">
       <DependentUpon>AnalyseForm.cs</DependentUpon>
@@ -208,7 +222,6 @@
       <DependentUpon>InvestigatedPluginPresetDetailsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="InvestigatedPluginPresetFileFormat.cs" />
-    <Compile Include="SimpleBinaryDiff.cs" />
     <Compile Include="EditorFrame.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -230,9 +243,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnidiffSeqFormatter.cs" />
-    <Compile Include="VstHost.cs" />
-    <Compile Include="VstPlaybackNAudio.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CommonUtils\GUI\FrequencyAnalyserUserControl.resx">

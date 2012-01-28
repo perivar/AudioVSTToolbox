@@ -29,12 +29,14 @@ namespace ProcessVSTPlugin
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.frequencyAnalyserUserControl1 = new CommonUtils.GUI.FrequencyAnalyserUserControl();
 			this.OnOffCheckbox = new System.Windows.Forms.CheckBox();
 			this.WindowsSizeComboBox = new System.Windows.Forms.ComboBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this.trackBar1 = new System.Windows.Forms.TrackBar();
 			this.label2 = new System.Windows.Forms.Label();
+			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -111,6 +113,11 @@ namespace ProcessVSTPlugin
 			this.label2.TabIndex = 5;
 			this.label2.Text = "Max Freq.";
 			// 
+			// timer1
+			// 
+			this.timer1.Enabled = true;
+			this.timer1.Tick += new System.EventHandler(this.Timer1Tick);
+			// 
 			// AnalyseForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -123,11 +130,12 @@ namespace ProcessVSTPlugin
 			this.Controls.Add(this.OnOffCheckbox);
 			this.Controls.Add(this.frequencyAnalyserUserControl1);
 			this.Name = "AnalyseForm";
-			this.Text = "AnalyseForm";
+			this.Text = "Frequency Analyser";
 			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.TrackBar trackBar1;
 		private CommonUtils.GUI.FrequencyAnalyserUserControl frequencyAnalyserUserControl1;

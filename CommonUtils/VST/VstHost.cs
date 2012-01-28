@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.IO;
 
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Core.Plugin;
@@ -11,8 +12,9 @@ using NAudio;
 using NAudio.Wave;
 
 using CommonUtils;
+using CommonUtils.Audio;
 
-namespace ProcessVSTPlugin
+namespace CommonUtils.VST
 {
 	/// <summary>
 	/// Description of VstHost.
@@ -31,10 +33,9 @@ namespace ProcessVSTPlugin
 		public int SampleRate { get; set; }
 		public int Channels { get; set; }
 
-		// these are used for continous midi note playing
-		public bool DoSendContinousMidiNote { get; set; }
+		// these are used for midi note playing
 		public byte SendContinousMidiNoteVelocity = 100;
-		public byte SendContinousMidiNote = 72;
+		public byte SendContinousMidiNote = 72; // C 5
 		
 		private WaveChannel32 wavStream;
 		private WaveFileReader wavFileReader;
@@ -43,8 +44,14 @@ namespace ProcessVSTPlugin
 		
 		private bool initialisedMainOut = false;
 		
+		// can be used for spectrum analysis and spectrogram
 		private float[] lastProcessedBufferRight;
 		private float[] lastProcessedBufferLeft;
+		
+		// for recording
+		private bool doRecord = false;
+		private List<float> recordedRight = new List<float>();
+		private List<float> recordedLeft = new List<float>();
 		
 		// Explicit static constructor to tell C# compiler
 		// not to mark type as beforefieldinit
@@ -58,10 +65,7 @@ namespace ProcessVSTPlugin
 		
 		public static VstHost Instance
 		{
-			get
-			{
-				return instance;
-			}
+			get { return instance; }
 		}
 		
 		public string InputWave
@@ -77,37 +81,70 @@ namespace ProcessVSTPlugin
 
 		public int TailWaitForNumberOfSeconds
 		{
-			get
-			{
-				return this.tailWaitForNumberOfSeconds;
-			}
-			set
-			{
-				this.tailWaitForNumberOfSeconds = value;
-			}
+			get { return this.tailWaitForNumberOfSeconds; }
+			set { this.tailWaitForNumberOfSeconds = value; }
 		}
 		
 		public float[] LastProcessedBufferRight
 		{
-			get
-			{
-				return this.lastProcessedBufferRight;
-			}
+			get { return this.lastProcessedBufferRight; }
 		}
 
 		public float[] LastProcessedBufferLeft
 		{
-			get
-			{
-				return this.lastProcessedBufferLeft;
+			get { return this.lastProcessedBufferLeft; }
+		}
+
+		public bool LastProcessedBufferLeftPlaying
+		{
+			get {
+				return AudioUtils.HasDataAboveThreshold(lastProcessedBufferLeft, 0);
 			}
 		}
 		
-		public void OpenPlugin(string pluginPath)
+		public bool LastProcessedBufferRightPlaying
+		{
+			get {
+				return AudioUtils.HasDataAboveThreshold(lastProcessedBufferRight, 0);
+			}
+		}
+		
+		public List<float> RecordedRight
+		{
+			get { return this.recordedRight; }
+			set { this.recordedRight = value; }
+		}
+
+		public List<float> RecordedLeft
+		{
+			get { return this.recordedLeft; }
+			set { this.recordedLeft = value; }
+		}
+		
+		public bool Record {
+			get { return this.doRecord; }
+			set {this.doRecord = value; }
+		}
+
+		public void ClearRecording() {
+			this.recordedLeft.Clear();
+			this.recordedRight.Clear();
+		}
+		
+		public void ClearLastProcessedBuffers() {
+			for (int i = 0; i < this.lastProcessedBufferRight.Length; i++) {
+				this.lastProcessedBufferRight[i] = 0.0f;
+			}
+			for (int i = 0; i < this.lastProcessedBufferLeft.Length; i++) {
+				this.lastProcessedBufferLeft[i] = 0.0f;
+			}
+		}
+		
+		public void OpenPlugin(string pluginPath, Jacobi.Vst.Core.Host.IVstHostCommandStub hostCmdStub)
 		{
 			try
 			{
-				HostCommandStub hostCmdStub = new HostCommandStub();
+				//HostCommandStub hostCmdStub = new HostCommandStub();
 				//hostCmdStub.PluginCalled += new EventHandler<PluginCalledEventArgs>(HostCmdStub_PluginCalled);
 
 				VstPluginContext ctx = VstPluginContext.Create(pluginPath, hostCmdStub);
@@ -160,8 +197,8 @@ namespace ProcessVSTPlugin
 			this.PluginContext.PluginCommandStub.SetSampleRate((float)sampleRate);
 			this.PluginContext.PluginCommandStub.SetProcessPrecision(VstProcessPrecision.Process32);
 			
-			this.lastProcessedBufferRight = new float[blockSize*Channels];
-			this.lastProcessedBufferLeft = new float[blockSize*Channels];
+			this.lastProcessedBufferRight = new float[BlockSize];
+			this.lastProcessedBufferLeft = new float[BlockSize];
 		}
 		
 		public void doPluginOpen() {
@@ -235,6 +272,7 @@ namespace ProcessVSTPlugin
 					}
 					
 					// populate the inputbuffers with the incoming wave stream
+					// TODO: do not use unsafe - like this http://vstnet.codeplex.com/discussions/246206 ?
 					unsafe
 					{
 						fixed (byte* byteBuf = &naudioBuf[0])
@@ -255,27 +293,37 @@ namespace ProcessVSTPlugin
 				// make sure the plugin has been opened.
 				doPluginOpen();
 				
-				// check if we are playing a continous midi not automatically
-				//if (DoSendContinousMidiNote) {
-				//	SendMidiNote(SendContinousMidiNote, SendContinousMidiNoteVelocity);
-				//}
-				
 				// and do the vst processing
-				PluginContext.PluginCommandStub.ProcessReplacing(vstInputBuffers, vstOutputBuffers);
-				
-				// read from the vstOutputBuffers
-				unsafe
+				try
 				{
-					float* tmpBufL = ((IDirectBufferAccess32)vstOutputBuffers[0]).Buffer;
-					float* tmpBufR = ((IDirectBufferAccess32)vstOutputBuffers[1]).Buffer;
-					int j = 0;
-					for (int i = 0; i < loopSize; i++)
+					PluginContext.PluginCommandStub.ProcessReplacing(vstInputBuffers, vstOutputBuffers);
+				}
+				catch (Exception)
+				{
+				}
+
+				// store the output into the last processed buffers
+				for (int channelNumber = 0; channelNumber < Channels; channelNumber++)
+				{
+					for (int samples = 0; samples < vstOutputBuffers[channelNumber].SampleCount; samples++)
 					{
-						lastProcessedBufferLeft[j] = *(tmpBufL + i);
-						lastProcessedBufferRight[j] = *(tmpBufR + i);
-						j++;
+						switch (channelNumber) {
+							case 0:
+								lastProcessedBufferLeft[samples] = vstOutputBuffers[channelNumber][samples];
+								break;
+							case 1:
+								lastProcessedBufferRight[samples] = vstOutputBuffers[channelNumber][samples];
+								break;
+						}
 					}
 				}
+				
+				// Record audio
+				if (doRecord) {
+					recordedRight.AddRange(lastProcessedBufferLeft);
+					recordedLeft.AddRange(lastProcessedBufferRight);
+				}
+				
 				count++;
 			}
 			return (int) sampleCount;
@@ -291,18 +339,24 @@ namespace ProcessVSTPlugin
 				PluginContext.PluginCommandStub.SetProgram(programNumber);
 			}
 		}
-		
-		private VstEvent[] CreateMidiEvent(byte midiNote, byte midiVelocity) {
+
+		private VstEvent[] CreateMidiEvent(byte statusByte, byte midiNote, byte midiVelocity) {
 			/* 
 			 * Just a small note on the code for setting up a midi event:
 			 * You can use the VstEventCollection class (Framework) to setup one or more events
 			 * and then call the ToArray() method on the collection when passing it to
 			 * ProcessEvents. This will save you the hassle of dealing with arrays explicitly.
 			 * http://computermusicresource.com/MIDI.Commands.html
+			 * 
+			 * Freq to Midi notes etc:
+			 * http://www.sengpielaudio.com/calculator-notenames.htm
+			 * 
+			 * Example to use NAudio Midi support
+			 * http://stackoverflow.com/questions/6474388/naudio-and-midi-file-reading
 			 */
 			byte[] midiData = new byte[4];
 			
-			midiData[0] = 144; 			// Send note on midi channel 1
+			midiData[0] = statusByte;
 			midiData[1] = midiNote;   	// Midi note
 			midiData[2] = midiVelocity; // Note strike velocity
 			midiData[3] = 0;    		// Reserved, unused
@@ -318,12 +372,16 @@ namespace ProcessVSTPlugin
 			ve[0] = vse1;
 			return ve;
 		}
-
-		public void SendMidiNote(byte midiNote, byte midiVelocity) {
+		
+		public void SendMidiNote(byte statusByte, byte midiNote, byte midiVelocity) {
 			// make sure the plugin has been opened.
 			doPluginOpen();
-			VstEvent[] vEvent = CreateMidiEvent(midiNote, midiVelocity);
+			VstEvent[] vEvent = CreateMidiEvent(statusByte, midiNote, midiVelocity);
 			PluginContext.PluginCommandStub.ProcessEvents(vEvent);
+		}
+		
+		public void SendMidiNote(byte midiNote, byte midiVelocity) {
+			SendMidiNote(MidiUtils.CHANNEL1_NOTE_ON, midiNote, midiVelocity);
 		}
 		
 		public string getPluginInfo() {
@@ -386,8 +444,9 @@ namespace ProcessVSTPlugin
 					string name = PluginContext.PluginCommandStub.GetParameterName(i);
 					string label = PluginContext.PluginCommandStub.GetParameterLabel(i);
 					string display = PluginContext.PluginCommandStub.GetParameterDisplay(i);
+					bool canBeAutomated = PluginContext.PluginCommandStub.CanParameterBeAutomated(i);
 					
-					pluginInfo.Add(String.Format("Parameter Name: {0} Display: {1} Label: {2}", name, display, label));
+					pluginInfo.Add(String.Format("Parameter Index: {0} Parameter Name: {1} Display: {2} Label: {3} Can be automated: {4}", i, name, display, label, canBeAutomated));
 				}
 				return string.Join("\n", pluginInfo.ToArray());
 			}
@@ -396,12 +455,14 @@ namespace ProcessVSTPlugin
 		
 		public void ShowPluginEditor()
 		{
+			/*
 			EditorFrame dlg = new EditorFrame();
 			dlg.PluginContext = PluginContext;
 
 			PluginContext.PluginCommandStub.MainsChanged(true);
 			dlg.ShowDialog();
 			PluginContext.PluginCommandStub.MainsChanged(false);
+			*/
 		}
 
 		private int EffSetChunk(byte[] data, bool isPreset) {

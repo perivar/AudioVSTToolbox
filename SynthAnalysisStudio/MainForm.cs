@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 
-namespace ProcessVSTPlugin
+namespace SynthAnalysisStudio
 {
 	partial class MainForm : Form
 	{
