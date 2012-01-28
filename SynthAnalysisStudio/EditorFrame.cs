@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Timers;
 
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
@@ -17,50 +16,21 @@ namespace ProcessVSTPlugin
 	{
 		VstPlaybackNAudio playback;
 		bool hasNoKeyDown = true;
-		System.Timers.Timer guiRefreshTimer;
-		public bool doGUIRefresh = false;
+		public bool doGUIRefresh = true;
 
 		/// <summary>
-		/// Default ctor.
+		/// Default constructor.
 		/// </summary>
 		public EditorFrame()
 		{
 			InitializeComponent();
-			KeyPreview = true;
-			
-			StartGUIRefreshTimer();
+			KeyPreview = true;			
 		}
 		
 		/// <summary>
 		/// Gets or sets the Plugin Contex.
 		/// </summary>
 		public VstPluginContext PluginContext { get; set; }
-		
-		public void RefreshGUI(object source, ElapsedEventArgs e)
-		{
-			// Call these three functions 'getEditorSize', 'processIdle' and 'processReplacing' continually while the GUI is open.
-			// If size don't change and you don't need to process audio call the functions anyway because plugins can rely on them being called frequently for their redrawing.
-			// http://vstnet.codeplex.com/discussions/281497
-			
-			// In fact all I had to call was  Jacobi.Vst.Core.Host.IVstPluginCommandStub.EditorIdle()
-			// which I do every 100 ms.  This works great ;)
-			if (doGUIRefresh) {
-				PluginContext.PluginCommandStub.EditorIdle();
-			}
-		}
-
-		public void StartGUIRefreshTimer()
-		{
-			guiRefreshTimer = new System.Timers.Timer();
-			guiRefreshTimer.Interval = 100;
-			guiRefreshTimer.Elapsed += new ElapsedEventHandler(RefreshGUI);
-			guiRefreshTimer.AutoReset = true;
-			//guiRefreshTimer.Enabled = true;
-			
-			// start gui refresh timer
-			guiRefreshTimer.Start();
-			doGUIRefresh = true;
-		}
 		
 		/// <summary>
 		/// Shows the custom plugin editor UI.
@@ -494,6 +464,19 @@ namespace ProcessVSTPlugin
 			
 			//dlg2.ShowDialog(this); // modal
 			dlg2.Show(); // modeless
+		}
+		
+		void Timer1Tick(object sender, EventArgs e)
+		{
+			// Call these three functions 'getEditorSize', 'processIdle' and 'processReplacing' continually while the GUI is open.
+			// If size don't change and you don't need to process audio call the functions anyway because plugins can rely on them being called frequently for their redrawing.
+			// http://vstnet.codeplex.com/discussions/281497
+			
+			// In fact all I had to call was  Jacobi.Vst.Core.Host.IVstPluginCommandStub.EditorIdle()
+			// which I do every 100 ms.  This works great ;)
+			if (doGUIRefresh) {
+				PluginContext.PluginCommandStub.EditorIdle();
+			}			
 		}
 	}
 }

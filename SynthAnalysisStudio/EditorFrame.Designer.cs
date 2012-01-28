@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+        	this.components = new System.ComponentModel.Container();
         	this.LoadBtn = new System.Windows.Forms.Button();
         	this.SaveBtn = new System.Windows.Forms.Button();
         	this.presetComboBox = new System.Windows.Forms.ComboBox();
@@ -39,6 +40,7 @@
         	this.MidiNoteCheckbox = new System.Windows.Forms.CheckBox();
         	this.AnalyseBtn = new System.Windows.Forms.Button();
         	this.WaveBtn = new System.Windows.Forms.Button();
+        	this.timer1 = new System.Windows.Forms.Timer(this.components);
         	this.SuspendLayout();
         	// 
         	// LoadBtn
@@ -145,6 +147,11 @@
         	this.WaveBtn.UseVisualStyleBackColor = true;
         	this.WaveBtn.Click += new System.EventHandler(this.WaveBtnClick);
         	// 
+        	// timer1
+        	// 
+        	this.timer1.Enabled = true;
+        	this.timer1.Tick += new System.EventHandler(this.Timer1Tick);
+        	// 
         	// EditorFrame
         	// 
         	this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -173,6 +180,7 @@
         	this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyUp);
         	this.ResumeLayout(false);
         }
+        private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Button WaveBtn;
         private System.Windows.Forms.Button AnalyseBtn;
         private System.Windows.Forms.CheckBox MidiNoteCheckbox;

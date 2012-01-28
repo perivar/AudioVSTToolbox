@@ -8,9 +8,9 @@ namespace PresetConverter
 	public interface Preset
 	{
 
-		void Read(string filePath);
+		bool Read(string filePath);
 		
-		void Write(string filePath);
+		bool Write(string filePath);
 		
 	}
 }

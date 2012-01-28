@@ -10,88 +10,127 @@ namespace PresetConverter
 {
 	class Program
 	{
+		// define the log file
+		static FileInfo outputStatusLog = new FileInfo("preset_converter_log.txt");
+		
 		static string _version = "1.1";
 		
 		public static void Main(string[] args)
 		{
-			// Build preset file paths
-			//string allProjectDir = GetDevelopProjectDir();
-			//string sylenthPreset = Path.Combine(allProjectDir, "SynthAnalysisStudio", "Per Ivar - Test Preset (Zebra vs Sylenth).fxp");
-			
-			// define input file and output directory
-			string sylenthPresetDirString = @"C:\Program Files (x86)\Steinberg\Vstplugins\Synth\Sylenth1";
-			string sylenthPreset = @"C:\Program Files (x86)\Steinberg\Vstplugins\Synth\Sylenth1\www.vengeance-sound.de - Sylenth Trilogy v1 - HandsUpDance Soundset.fxb";
-			string convertedPresetOutputDir = @"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets";
-			//string convertedPresetOutputDir = Path.Combine(allProjectDir, "PresetConverter");
+			bool processDirectory = false;
 			bool doProcessInitPresets = false;
-
-			// define default sylenth template for Zebra2
-			string zebra2_Sylenth1_PresetTemplate = @"Zebra2-Default Sylenth1 Template.h2p";
-			
-			// Output a dump of the Sylenth1 Preset File
-			//string outFilePath = Path.Combine(allProjectDir, "PresetConverter", "Sylenth1PresetOutput.txt");
-			//TextWriter tw = new StreamWriter(outFilePath);
-			//tw.WriteLine(sylenth1);
-			//tw.Close();
-			
-			DirectoryInfo sylenthPresetDir = new DirectoryInfo(sylenthPresetDirString);
-			FileInfo[] presetFiles = sylenthPresetDir.GetFiles("*.fxb");
-			
-			foreach (FileInfo presetFile in presetFiles) {
-				// read preset file
-				Sylenth1Preset sylenth1 = new Sylenth1Preset();
-				sylenth1.Read(presetFile.FullName);
-				
-				// define output dir
-				string outputDir = Path.Combine(convertedPresetOutputDir, Path.GetFileNameWithoutExtension(presetFile.Name));
-				if (!Directory.Exists(outputDir)) {
-					Directory.CreateDirectory(outputDir);
-				}
-
-				// and convert to zebra 2
-				List<Zebra2Preset> zebra2ConvertedList = sylenth1.ToZebra2Preset(zebra2_Sylenth1_PresetTemplate, doProcessInitPresets);
-				int count = 1;
-				foreach (Zebra2Preset zebra2Converted in zebra2ConvertedList) {
-					string presetName = StringUtils.MakeValidFileName(zebra2Converted.PresetName);
-					string zebraGeneratedPreset = Path.Combine(outputDir, String.Format("{0:000}_{1}.h2p", zebra2Converted.BankIndex, presetName));
-					zebra2Converted.Write(zebraGeneratedPreset);
-					count++;
-				}
-			}
-			
-			Console.Write("Press any key to continue . . . ");
-			Console.ReadKey(true);
-
-			return;
+			bool outputSylenthPresetTextDump = true;
 			
 			// Command line parsing
-			string presetInputFilePath = "";
-			string presetOutputFilePath = "";
+			string presetInputFileOrDirectory = "";
+			string presetOutputFileDirectoryPath = "";
 			
 			Arguments CommandLine = new Arguments(args);
 			if(CommandLine["in"] != null) {
-				presetInputFilePath = CommandLine["in"];
+				presetInputFileOrDirectory = CommandLine["in"];
 			}
 			if(CommandLine["out"] != null) {
-				presetOutputFilePath = CommandLine["presetOutputFilePath"];
+				presetOutputFileDirectoryPath = CommandLine["out"];
 			}
 			
-			if (presetInputFilePath == "" || presetOutputFilePath == "") {
+			if (presetInputFileOrDirectory == "" || presetOutputFileDirectoryPath == "") {
 				PrintUsage();
 				return;
 			}
 			
+			// Build preset file paths
+			string sylenthPresetDirString = "";
+			string sylenthPreset = "";
+			/*
+			string allProjectDir = GetDevelopProjectDir();
+			//string sylenthPreset = Path.Combine(allProjectDir, "SynthAnalysisStudio", "Per Ivar - Test Preset (Zebra vs Sylenth).fxp");
+			//string sylenthPreset = Path.Combine(allProjectDir, "PresetConverter", "Adam Van Baker Sylenth1 Soundset.fxb");
+			string sylenthPreset = Path.Combine(allProjectDir, "PresetConverter", "Adam Van Baker Sylenth1 Soundset Part 2.fxb");
+			//string convertedPresetOutputDir = Path.Combine(allProjectDir, "PresetConverter");
+			string convertedPresetOutputDir = "";
+			
+			// define input file and output directory
+			string sylenthPresetDirString = @"C:\Program Files (x86)\Steinberg\Vstplugins\Synth\Sylenth1";
+			//string sylenthPreset = @"C:\Program Files (x86)\Steinberg\Vstplugins\Synth\Sylenth1\www.vengeance-sound.de - Sylenth Trilogy v1 - HandsUpDance Soundset.fxb";
+			//string convertedPresetOutputDir = @"C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets";
+			 */
+			
+			// check if input is file or directory
+			if (IOUtils.IsDirectory(presetInputFileOrDirectory)) {
+				sylenthPresetDirString = presetInputFileOrDirectory;
+				processDirectory = true;
+			} else {
+				sylenthPreset = presetInputFileOrDirectory;
+				processDirectory = false;
+			}
+			
+			// define default sylenth template for Zebra2
+			string zebra2_Sylenth1_PresetTemplate = @"Zebra2-Default Sylenth1 Template.h2p";
+			
+			FileInfo[] presetFiles;
+			if (processDirectory) {
+				// process directory
+				DirectoryInfo sylenthPresetDir = new DirectoryInfo(sylenthPresetDirString);
+				presetFiles = sylenthPresetDir.GetFilesByExtensions(".fxb", ".fxp");
+				
+				Console.WriteLine("Processing {0} files in directory: '{1}' ...", presetFiles.Length, sylenthPresetDir.Name);
+				IOUtils.LogMessageToFile(outputStatusLog, String.Format("Processing {0} files in directory: '{1}' ...", presetFiles.Length, sylenthPresetDir.Name));
+			} else {
+				// process single preset
+				FileInfo sylenthPresetFile = new FileInfo(sylenthPreset);
+				presetFiles = new FileInfo[] { sylenthPresetFile };
+
+				Console.WriteLine("Processing preset file '{0}' ...", sylenthPresetFile.Name);
+				IOUtils.LogMessageToFile(outputStatusLog, String.Format("Processing preset file '{0}' ...", sylenthPresetFile.Name));
+			}
+			
+			foreach (FileInfo presetFile in presetFiles) {
+				// read preset file
+				Sylenth1Preset sylenth1 = new Sylenth1Preset();
+				if (sylenth1.Read(presetFile.FullName)) {
+					
+					// Output a dump of the Sylenth1 Preset File
+					if (outputSylenthPresetTextDump) {
+						string outSylenthPresetTextDumpPath = Path.GetFileNameWithoutExtension(presetFile.Name) + "_Text.txt";
+						TextWriter tw = new StreamWriter(outSylenthPresetTextDumpPath);
+						tw.WriteLine(sylenth1);
+						tw.Close();
+					}
+
+					// define output dir
+					string outputDir = "";
+					if (presetFile.Name.EndsWith(".fxb")) {
+						outputDir = Path.Combine(presetOutputFileDirectoryPath, Path.GetFileNameWithoutExtension(presetFile.Name));
+						if (!Directory.Exists(outputDir)) {
+							Directory.CreateDirectory(outputDir);
+						}
+					} else {
+						outputDir = presetOutputFileDirectoryPath;
+					}
+					
+					// and convert to zebra 2
+					List<Zebra2Preset> zebra2ConvertedList = sylenth1.ToZebra2Preset(zebra2_Sylenth1_PresetTemplate, doProcessInitPresets);
+					int count = 1;
+					foreach (Zebra2Preset zebra2Converted in zebra2ConvertedList) {
+						string presetName = StringUtils.MakeValidFileName(zebra2Converted.PresetName);
+						string zebraGeneratedPreset = Path.Combine(outputDir, String.Format("{0:000}_{1}.h2p", zebra2Converted.BankIndex, presetName));
+						zebra2Converted.Write(zebraGeneratedPreset);
+						count++;
+					}
+				}
+			}
 		}
 		
 		public static void PrintUsage() {
 			Console.WriteLine("Preset Converter. Version {0}.", _version);
-			Console.WriteLine("Copyright (C) 2009-2012 Per Ivar Nerseth.");
+			Console.WriteLine("Copyright (C) 2010-2012 Per Ivar Nerseth.");
+			Console.WriteLine("NOTE! This version only supports Sylenth1 to Zebra2 conversion");
 			Console.WriteLine();
 			Console.WriteLine("Usage: PresetConverter.exe <Arguments>");
 			Console.WriteLine();
 			Console.WriteLine("Mandatory Arguments:");
-			Console.WriteLine("\t-in=<path to the preset file to convert from>");
-			Console.WriteLine("\t-out=<path to the preset file to convert to>");
+			Console.WriteLine("\t-in=<path to a preset file or a directory to convert from>");
+			Console.WriteLine("\t-out=<path to the directory to convert to>");
 			Console.WriteLine();
 		}
 		

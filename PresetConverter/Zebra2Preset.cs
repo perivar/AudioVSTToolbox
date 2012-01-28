@@ -15,6 +15,9 @@ namespace PresetConverter
 	/// </summary>
 	public class Zebra2Preset : Preset
 	{
+		// define the log file
+		static FileInfo outputStatusLog = new FileInfo("preset_converter_log.txt");
+		
 		private int bankIndex;
 		public int BankIndex {
 			get {
@@ -5191,12 +5194,14 @@ namespace PresetConverter
 			
 			if (float.IsNaN(timeInMs) || float.IsInfinity(timeInMs)) {
 				Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0} ms.)", timeInMs);
+				IOUtils.LogMessageToFile(outputStatusLog, String.Format("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0} ms.)", timeInMs));
 				lfoValue = 0;
 				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
 				return;
 			}
 			if (timeInMs < 12.5) {
 				Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0} ms.)", timeInMs);
+				IOUtils.LogMessageToFile(outputStatusLog, String.Format("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0} ms.)", timeInMs));
 				lfoValue = 200;
 				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
 				return;
@@ -5422,11 +5427,11 @@ namespace PresetConverter
 			return newValue;
 		}
 		
-		public void Read(string filePath) {
-			Read(filePath, false);
+		public bool Read(string filePath) {
+			return Read(filePath, false);
 		}
 		
-		public void Read(string filePath, bool noConsoleOutput) {
+		public bool Read(string filePath, bool noConsoleOutput) {
 			int counter = 0;
 			string line;
 			bool startSavingBinaryData = false;
@@ -5499,6 +5504,7 @@ namespace PresetConverter
 								field.SetValue(this, val);
 							} catch (Exception) {
 								Console.Out.WriteLine("Could not find field {0} and store {1} {2}!", fieldName, valueType, val);
+								IOUtils.LogMessageToFile(outputStatusLog, String.Format("Could not find field {0} and store {1} {2}!", fieldName, valueType, val));
 							}
 						}
 					}
@@ -5517,9 +5523,10 @@ namespace PresetConverter
 			file.Close();
 
 			if (!noConsoleOutput) Console.Out.WriteLine("Finished reading preset file {0} ...", filePath);
+			return true;
 		}
 		
-		public void Write(string filePath) {
+		public bool Write(string filePath) {
 			string presetString = ToString();
 			
 			// create a writer and open the file
@@ -5533,6 +5540,8 @@ namespace PresetConverter
 			tw.Close();
 			
 			Console.Out.WriteLine("Finished writing preset file: {0} ...", filePath);
+			IOUtils.LogMessageToFile(outputStatusLog, String.Format("Finished writing preset file: {0} ...", filePath));
+			return true;
 		}
 		
 	}

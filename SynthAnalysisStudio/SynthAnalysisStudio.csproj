@@ -170,6 +170,9 @@
       <Link>GUI\WaveDisplayUserControl.Designer.cs</Link>
       <DependentUpon>WaveDisplayUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="..\CommonUtils\IOUtils.cs">
+      <Link>IOUtils.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\MathUtils.cs">
       <Link>MathUtils.cs</Link>
     </Compile>
