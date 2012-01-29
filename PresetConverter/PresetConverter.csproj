@@ -18,7 +18,7 @@
     <NoStdLib>False</NoStdLib>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <StartArguments>-in="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter" -out="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\SynthAnalysisStudio\Zebra2.data\Presets\Zebra2"</StartArguments>
+    <StartArguments>-in="C:\Program Files (x86)\Steinberg\Vstplugins\Synth\Sylenth1\Arksun Soundbank.fxb" -out="C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets"</StartArguments>
     <RunCodeAnalysis>False</RunCodeAnalysis>
     <RunSourceAnalysis>False</RunSourceAnalysis>
   </PropertyGroup>

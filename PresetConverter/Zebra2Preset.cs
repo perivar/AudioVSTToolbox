@@ -17,6 +17,9 @@ namespace PresetConverter
 	{
 		// define the log file
 		static FileInfo outputStatusLog = new FileInfo("preset_converter_log.txt");
+
+		// define the error log file
+		static FileInfo outputErrorLog = new FileInfo("preset_converter_error_log.txt");
 		
 		private int bankIndex;
 		public int BankIndex {
@@ -5194,14 +5197,14 @@ namespace PresetConverter
 			
 			if (float.IsNaN(timeInMs) || float.IsInfinity(timeInMs)) {
 				Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0} ms.)", timeInMs);
-				IOUtils.LogMessageToFile(outputStatusLog, String.Format("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0} ms.)", timeInMs));
+				IOUtils.LogMessageToFile(outputStatusLog, String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0} ms.)", timeInMs));
 				lfoValue = 0;
 				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
 				return;
 			}
 			if (timeInMs < 12.5) {
 				Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0} ms.)", timeInMs);
-				IOUtils.LogMessageToFile(outputStatusLog, String.Format("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0} ms.)", timeInMs));
+				IOUtils.LogMessageToFile(outputStatusLog, String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0} ms.)", timeInMs));
 				lfoValue = 200;
 				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
 				return;
@@ -5503,8 +5506,8 @@ namespace PresetConverter
 								var field = type.GetField(fieldName);
 								field.SetValue(this, val);
 							} catch (Exception) {
-								Console.Out.WriteLine("Could not find field {0} and store {1} {2}!", fieldName, valueType, val);
-								IOUtils.LogMessageToFile(outputStatusLog, String.Format("Could not find field {0} and store {1} {2}!", fieldName, valueType, val));
+								Console.Out.WriteLine("Warning! Could not find field {0} and store {1} {2}!", fieldName, valueType, val);
+								IOUtils.LogMessageToFile(outputStatusLog, String.Format("Warning! Could not find field {0} and store {1} {2}!", fieldName, valueType, val));
 							}
 						}
 					}

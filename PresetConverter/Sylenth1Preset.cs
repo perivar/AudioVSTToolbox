@@ -20,6 +20,9 @@ namespace PresetConverter
 		
 		// define the log file
 		static FileInfo outputStatusLog = new FileInfo("preset_converter_log.txt");
+
+		// define the error log file
+		static FileInfo outputErrorLog = new FileInfo("preset_converter_error_log.txt");
 		
 		// define the log level
 		static LogLevel logLevel = LogLevel.Normal;
@@ -1649,7 +1652,7 @@ namespace PresetConverter
 			public YPARTSELECT YPartSelect;         // index 986:987
 			public ZEQMODE ZEQMode;                 // index 990:991
 
-			public Syl1PresetContent(BinaryFile bFile) {
+			public Syl1PresetContent(BinaryFile bFile, bool newPresetVersion = true) {
 				this.AmpEnvAAttack = bFile.ReadSingle();              // index 20:23 (value range 0 -> 10)
 				this.AmpEnvADecay = bFile.ReadSingle();               // index 24:27 (value range 0 -> 10)
 				this.AmpEnvARelease = bFile.ReadSingle();             // index 28:31 (value range 0 -> 10)
@@ -1892,7 +1895,10 @@ namespace PresetConverter
 				this.YModMisc2BDest1 = (YMODDEST) bFile.ReadUInt32();        // index 978:979
 				this.YModMisc2BDest2 = (YMODDEST) bFile.ReadUInt32();        // index 982:983
 				this.YPartSelect = (YPARTSELECT) bFile.ReadUInt32();         // index 986:987
-				this.ZEQMode = (ZEQMODE) bFile.ReadUInt32();                 // index 990:991
+				
+				if (newPresetVersion) {
+					this.ZEQMode = (ZEQMODE) bFile.ReadUInt32();                 // index 990:991
+				}
 				
 				byte[] presetNameArray = StringUtils.RemoveTrailingBytes(bFile.ReadBytes(36));
 				this.PresetName = BinaryFile.ByteArrayToString(presetNameArray);
@@ -2414,7 +2420,8 @@ namespace PresetConverter
 						zebraModSourceFieldName = "VCF1_FS1";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF1_FM1";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2424,7 +2431,8 @@ namespace PresetConverter
 						zebraModSourceFieldName = "VCF2_FS1";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF2_FM1";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2434,13 +2442,15 @@ namespace PresetConverter
 						zebraModSourceFieldName = "VCF1_FS1";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF1_FM1";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 
 						zebraModSourceFieldName = "VCF2_FS1";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF2_FM1";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2450,7 +2460,8 @@ namespace PresetConverter
 						zebraModSourceFieldName = "VCF1_FS2";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF1_FM2";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2460,7 +2471,8 @@ namespace PresetConverter
 						zebraModSourceFieldName = "VCF2_FS2";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF2_FM2";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2470,13 +2482,15 @@ namespace PresetConverter
 						zebraModSourceFieldName = "VCF1_FS2";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF1_FM2";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 
 						zebraModSourceFieldName = "VCF2_FS2";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF2_FM2";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2583,7 +2597,7 @@ namespace PresetConverter
 			// check if we have already processed this exact XMODSOURCE and YMODDEST
 			KeyValuePair<string, string> currentModSourceAndDest = new KeyValuePair<string, string>(String.Format("{0}_{1}", sylenthModSource, sylenthModDestination), "");
 			if (processedZebraSourceAndDest.Contains(currentModSourceAndDest)) {
-				if (logLevel == LogLevel.Debug) IOUtils.LogMessageToFile(outputStatusLog, String.Format("Discarding! Sylenth1 Modulation Source has already been processed in the Mod Matrix: {0}_{1}", sylenthModSource, sylenthModDestination));
+				if (logLevel == LogLevel.Debug) IOUtils.LogMessageToFile(outputStatusLog, String.Format("Sylenth1 Modulation Source has already been processed in the Mod Matrix: {0}_{1}. Skipping!", sylenthModSource, sylenthModDestination));
 				return;
 			} else {
 				processedZebraSourceAndDest.Add(currentModSourceAndDest);
@@ -2786,8 +2800,8 @@ namespace PresetConverter
 			int fieldIndex = startMatrixSlot + slotIndex -1;
 			string fieldName = String.Format("{0}{1}", fieldNamePrefix,  fieldIndex);
 			if (fieldIndex > 12) {
-				Console.Out.WriteLine("Not enough matrix slots available. Discarding matrix slot: {0}={1} !", fieldName, fieldValue);
-				IOUtils.LogMessageToFile(outputStatusLog, String.Format("Not enough matrix slots available. Discarding matrix slot: {0}={1} !", fieldName, fieldValue));
+				Console.Out.WriteLine("Warning! Not enough matrix slots available. Discarding matrix slot: {0}={1} !", fieldName, fieldValue);
+				IOUtils.LogMessageToFile(outputStatusLog, String.Format("Warning! Not enough matrix slots available. Discarding matrix slot: {0}={1} !", fieldName, fieldValue));
 				return;
 			}
 			if (logLevel == LogLevel.Debug) IOUtils.LogMessageToFile(outputStatusLog, String.Format("Setting Zebra2 Matrix Element: {0}->{1} {2}={3}" , sylenthModSource, sylenthModDestination, fieldName, fieldValue));
@@ -3052,7 +3066,7 @@ namespace PresetConverter
 				convertCounter++;
 				
 				// Skip if the Preset Name is Init
-				if (!doProcessInitPresets && Content.PresetName == "Init") { //  || !Content.PresetName.StartsWith("SEQ Afrodiseq"
+				if (!doProcessInitPresets && (Content.PresetName == "Init" || Content.PresetName == "Default")) { //  || !Content.PresetName.StartsWith("SEQ Afrodiseq"
 					// skipping
 					Console.Out.WriteLine("Skipping Sylenth preset number {0} - {1} ...", convertCounter, Content.PresetName);
 					IOUtils.LogMessageToFile(outputStatusLog, String.Format("Skipping preset number {0} - {1} ...", convertCounter, Content.PresetName));
@@ -3403,28 +3417,28 @@ namespace PresetConverter
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvAAttack, "ENV1_TBase", "ENV1_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvADecay, "ENV1_TBase", "ENV1_Dec");
 					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvARelease, "ENV1_TBase", "ENV1_Rel");
-					zebra2Preset.ENV1_Rel = ConvertSylenthValueToZebra(Content.AmpEnvARelease, 0, 10, 0, 100);
+					zebra2Preset.ENV1_Rel = ConvertSylenthValueToZebra(Content.AmpEnvARelease, 0, 10, 6, 100);
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvASustain, "ENV1_TBase", "ENV1_Sus");
 					
 					// Envelope 2 - Used as Amp Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBAttack, "ENV2_TBase", "ENV2_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBDecay, "ENV2_TBase", "ENV2_Dec");
 					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBRelease, "ENV2_TBase", "ENV2_Rel");
-					zebra2Preset.ENV2_Rel = ConvertSylenthValueToZebra(Content.AmpEnvBRelease, 0, 10, 0, 100);
+					zebra2Preset.ENV2_Rel = ConvertSylenthValueToZebra(Content.AmpEnvBRelease, 0, 10, 6, 100);
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBSustain, "ENV2_TBase", "ENV2_Sus");
 
 					// Envelope 3 - Used as Mod Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Attack, "ENV3_TBase", "ENV3_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Decay, "ENV3_TBase", "ENV3_Dec");
 					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Release, "ENV3_TBase", "ENV3_Rel");
-					zebra2Preset.ENV3_Rel = ConvertSylenthValueToZebra(Content.ModEnv1Release, 0, 10, 0, 100);
+					zebra2Preset.ENV3_Rel = ConvertSylenthValueToZebra(Content.ModEnv1Release, 0, 10, 6, 100);
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Sustain, "ENV3_TBase", "ENV3_Sus");
 
 					// Envelope 4 - Used as Mod Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Attack, "ENV4_TBase", "ENV4_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Decay, "ENV4_TBase", "ENV4_Dec");
 					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Release, "ENV4_TBase", "ENV4_Rel");
-					zebra2Preset.ENV4_Rel = ConvertSylenthValueToZebra(Content.ModEnv2Release, 0, 10, 0, 100);
+					zebra2Preset.ENV4_Rel = ConvertSylenthValueToZebra(Content.ModEnv2Release, 0, 10, 6, 100);
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Sustain, "ENV4_TBase", "ENV4_Sus");
 					
 					// Matrix
@@ -3457,10 +3471,12 @@ namespace PresetConverter
 			BinaryFile bFile = new BinaryFile(fxp.chunkDataByteArray, BinaryFile.ByteOrder.LittleEndian);
 			
 			string presetType = bFile.ReadString(4);
-			int UNKNOWN1 = bFile.ReadInt32();
+			int presetVersion1 = bFile.ReadInt32();
 			int fxVersion = bFile.ReadInt32();
 			int numProgramsUnused = bFile.ReadInt32();
-			int UNKNOWN2 = bFile.ReadInt32();
+			int presetVersion2 = bFile.ReadInt32();
+			
+			IOUtils.LogMessageToFile(outputStatusLog, String.Format("Preset Type: '{0}', Preset Version1: '{1}', fxVersion: '{2}',  numProgramsUnused: '{3}', presetVersion2: '{4}'", presetType, presetVersion1, fxVersion, numProgramsUnused, presetVersion2));
 			
 			// if Sylenth 1 preset format
 			if (presetType == "1lys") { // '1lys' = 'syl1' backwards
@@ -3471,22 +3487,36 @@ namespace PresetConverter
 					
 					// use numberOfPrograms to read in an array of Sylenth Presets
 					int numPrograms = fxp.numPrograms;
-					this.ContentArray = new Syl1PresetContent[numPrograms];
-					for (int i = 0; i < numPrograms; i++) {
-						this.ContentArray[i] = new Sylenth1Preset.Syl1PresetContent(bFile);
+					List<Sylenth1Preset.Syl1PresetContent> contentList = new List<Sylenth1Preset.Syl1PresetContent>();
+					int i = 0;
+					try {
+						for (i = 0; i < numPrograms; i++) {
+							contentList.Add(new Sylenth1Preset.Syl1PresetContent(bFile, (presetVersion1==2202 || presetVersion1 == 2211)));
+						}
+					} catch(EndOfStreamException eose) {
+						Console.Out.WriteLine("Error! Failed reading presets from bank {0}. Read {1} presets. (Expected {2}) Msg: {3}!", filePath, i, numPrograms, eose.Message);
+						IOUtils.LogMessageToFile(outputStatusLog, String.Format("Error! Failed reading presets from bank {0}. Read {1} presets. (Expected {2}) Msg: {3}!", filePath, i, numPrograms, eose.Message));
+						IOUtils.LogMessageToFile(outputErrorLog, String.Format("Error! Failed reading presets from bank {0}. Read {1} presets. (Expected {2}) Msg: {3}!", filePath, i, numPrograms, eose.Message));
+						return false;
 					}
-					//Console.Out.WriteLine("Finished reading {0} presets from bank {1} ...", numPrograms, filePath);
+
+					// store list as array
+					this.ContentArray = contentList.ToArray();
+					
+					IOUtils.LogMessageToFile(outputStatusLog, String.Format("Finished reading {0} presets from bank {1} ...", numPrograms, filePath));
 					return true;
 				} else if (fxp.fxMagic == "FPCh") {
 					// single preset file
 					this.ContentArray = new Syl1PresetContent[1];
-					this.ContentArray[0] = new Sylenth1Preset.Syl1PresetContent(bFile);
-					//Console.Out.WriteLine("Finished reading preset file {0} ...", filePath);
+					this.ContentArray[0] = new Sylenth1Preset.Syl1PresetContent(bFile, presetVersion1==2202);
+
+					IOUtils.LogMessageToFile(outputStatusLog, String.Format("Finished reading preset file {0} ...", filePath));
 					return true;
 				}
 			} else {
-				Console.Out.WriteLine("Error! The preset file is not a valid Sylenth1 Preset! ({0})", filePath);
-				IOUtils.LogMessageToFile(outputStatusLog, String.Format("Error! The preset file is not a valid Sylenth1 Preset! ({0})", filePath));
+				Console.Out.WriteLine("Error! The preset file is not a valid Sylenth1 Preset! ({0}). If you are sure it is a Sylenth preset, try to open it in Sylenth and resave (Tip! init full bank before loading and resaving)", filePath);
+				IOUtils.LogMessageToFile(outputStatusLog, String.Format("Error! The preset file is not a valid Sylenth1 Preset! ({0}). If you are sure it is a Sylenth preset, try to open it in Sylenth and resave (Tip! init full bank before loading and resaving)", filePath));
+				IOUtils.LogMessageToFile(outputErrorLog, String.Format("Error! The preset file is not a valid Sylenth1 Preset! ({0}). If you are sure it is a Sylenth preset, try to open it in Sylenth and resave (Tip! init full bank before loading and resaving)", filePath));
 				return false;
 			}
 			return false;
@@ -3501,8 +3531,6 @@ namespace PresetConverter
 			fxp.ReadFile(filePath);
 			
 			if (!ReadFXP(fxp, filePath)) {
-				Console.Out.WriteLine("Error! Could not read the preset file");
-				IOUtils.LogMessageToFile(outputStatusLog, "Error! Could not read the preset file");
 				return false;
 			}
 			return true;

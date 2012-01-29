@@ -19,7 +19,7 @@ namespace PresetConverter
 		{
 			bool processDirectory = false;
 			bool doProcessInitPresets = false;
-			bool outputSylenthPresetTextDump = true;
+			bool outputSylenthPresetTextDump = false;
 			
 			// Command line parsing
 			string presetInputFileOrDirectory = "";
@@ -34,7 +34,10 @@ namespace PresetConverter
 			}
 			if(CommandLine["init"] != null) {
 				doProcessInitPresets = true;
-			}			
+			}
+			if(CommandLine["text"] != null) {
+				outputSylenthPresetTextDump = true;
+			}
 			if (presetInputFileOrDirectory == "" || presetOutputFileDirectoryPath == "") {
 				PrintUsage();
 				return;
@@ -122,7 +125,8 @@ namespace PresetConverter
 			Console.WriteLine("\t-out=<path to the directory to convert to>");
 			Console.WriteLine();
 			Console.WriteLine("Optional Arguments:");
-			Console.WriteLine("\t-init <do process presets with name 'init'. Default = disabled>");
+			Console.WriteLine("\t-init <Do process presets with name 'init'. Default = disabled>");
+			Console.WriteLine("\t-text <Dump the Sylenth1 Presets to text files. Default = disabled>");
 			Console.WriteLine();
 		}
 		
