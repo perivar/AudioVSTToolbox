@@ -1,0 +1,1 @@
+PresetConverter.exe -in="C:\Program Files (x86)\Steinberg\Vstplugins\Synth\Sylenth1\BANKS" -out="C:\Program Files\Steinberg\Vstplugins\Synth\u-he\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets"
