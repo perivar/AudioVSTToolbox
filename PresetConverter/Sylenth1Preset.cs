@@ -1132,14 +1132,14 @@ namespace PresetConverter
 				buffer.AppendFormat("// PresetName: {0}\n", Content.PresetName);
 				buffer.AppendLine("//");
 				
-				buffer.AppendFormat("AmpEnvAAttack: {0}\n", ValueToString(Content.AmpEnvAAttack, 0, 10));	// index 20:23 (value range 0 -> 10)
-				buffer.AppendFormat("AmpEnvADecay: {0}\n", ValueToString(Content.AmpEnvADecay, 0, 10));		// index 24:27 (value range 0 -> 10)
-				buffer.AppendFormat("AmpEnvARelease: {0}\n", ValueToString(Content.AmpEnvARelease, 0, 10));	// index 28:31 (value range 0 -> 10)
+				buffer.AppendFormat("AmpEnvAAttack: {0} ({1})\n", ValueToString(Content.AmpEnvAAttack, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvAAttack));	// index 20:23 (value range 0 -> 10)
+				buffer.AppendFormat("AmpEnvADecay: {0} ({1})\n", ValueToString(Content.AmpEnvADecay, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvADecay));		// index 24:27 (value range 0 -> 10)
+				buffer.AppendFormat("AmpEnvARelease: {0} ({1})\n", ValueToString(Content.AmpEnvARelease, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvARelease));	// index 28:31 (value range 0 -> 10)
 				buffer.AppendFormat("AmpEnvASustain: {0}\n", ValueToString(Content.AmpEnvASustain, 0, 10));	// index 32:35 (value range 0 -> 10)
 				buffer.AppendLine();
-				buffer.AppendFormat("AmpEnvBAttack: {0}\n", ValueToString(Content.AmpEnvBAttack, 0, 10));	// index 36:39 (value range 0 -> 10)
-				buffer.AppendFormat("AmpEnvBDecay: {0}\n", ValueToString(Content.AmpEnvBDecay, 0, 10));		// index 40:43 (value range 0 -> 10)
-				buffer.AppendFormat("AmpEnvBRelease: {0}\n", ValueToString(Content.AmpEnvBRelease, 0, 10));	// index 44:47 (value range 0 -> 10)
+				buffer.AppendFormat("AmpEnvBAttack: {0} ({1})\n", ValueToString(Content.AmpEnvBAttack, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvBAttack));	// index 36:39 (value range 0 -> 10)
+				buffer.AppendFormat("AmpEnvBDecay: {0} ({1})\n", ValueToString(Content.AmpEnvBDecay, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvBDecay));		// index 40:43 (value range 0 -> 10)
+				buffer.AppendFormat("AmpEnvBRelease: {0} ({1})\n", ValueToString(Content.AmpEnvBRelease, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvBRelease));	// index 44:47 (value range 0 -> 10)
 				buffer.AppendFormat("AmpEnvBSustain: {0}\n", ValueToString(Content.AmpEnvBSustain, 0, 10));	// index 48:51 (value range 0 -> 10)
 				buffer.AppendLine();
 				buffer.AppendFormat("ArpGate: {0}\n", ValueToString(Content.ArpGate, 0, 100, "%"));				// index 52:55 (value range 0 -> 100)
@@ -1998,47 +1998,9 @@ namespace PresetConverter
 		}
 
 		private static float ConvertSylenthDetuneToZebra(float osc_detune) {
-			// in sylenth detune goes from 0 - 10 (where 0 is no detune at all)
+			// in sylenth detune goes from 0 - 10 where 0 is no detune at all.
 			// in zebra detune goes from -50 to 50 where 0 (middle) is no detune at all.
-			return ConvertSylenthValueToZebra(osc_detune, 0, 10, 0, 50);
-		}
-		
-		public static float ConvertSylenthFrequencyToZebraOLD(float filterFrequency, float filterControlFrequency, FloatToHz mode) {
-			// i.e.
-			// Sylenth Filter A = 139,38 Hz
-			// +
-			// Sylenth FilterControl = 361,17 Hz
-			// Gives Zebra Cutoff = ca midinote 110 = 2 349,318 Hz
-			
-			float filterFrequencyHertz = ValueToHz(filterFrequency, mode);
-			int midiNote = Zebra2Preset.FilterFrequencyToMidiNote(filterFrequencyHertz);
-			
-			float filterControlFrequencyHertz = ValueToHz(filterControlFrequency, mode);
-			int midiNoteControl = Zebra2Preset.FilterFrequencyToMidiNote(filterControlFrequencyHertz);
-			
-			return midiNote + (int)(midiNoteControl / 1.4) + 4;
-		}
-
-		public static float ConvertSylenthFrequencyToHertzNew(float filterFrequency, float filterControlFrequency, FloatToHz mode) {
-			// i.e.
-			// Sylenth Filter A = 139,38 Hz
-			// +
-			// Sylenth FilterControl = 361,17 Hz
-			// Gives Zebra Cutoff = ca midinote 110 = 2 349,318 Hz
-			
-			// first get values in Hz
-			float filterFrequencyHertz = ValueToHz(filterFrequency, mode);
-			//float filterControlFrequencyHertz = ValueToHz(filterControlFrequency, mode);
-			
-			// Excel: 13,801 -10,02
-			// =FilterACutoffString/13,801*EXP(-10,02*FilterCtrlCutoff)
-			// 
-			float actualFrequencyHertz = (float) (filterFrequencyHertz / (13.801 * Math.Exp(-10.02 * filterControlFrequency)));
-			if (actualFrequencyHertz > 21341.31f) {
-				actualFrequencyHertz = 21341.31f;
-			}
-			
-			return actualFrequencyHertz;
+			return ConvertSylenthValueToZebra(osc_detune, 0, 5, 0, 50);
 		}
 
 		public static float ConvertSylenthFrequencyToHertz(float filterFrequency, float filterControlFrequency, FloatToHz mode) {
@@ -2421,7 +2383,7 @@ namespace PresetConverter
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF1_FM1";
 						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -70, 70);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2432,7 +2394,7 @@ namespace PresetConverter
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF2_FM1";
 						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -70, 70);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2443,14 +2405,14 @@ namespace PresetConverter
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF1_FM1";
 						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -70, 70);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 
 						zebraModSourceFieldName = "VCF2_FS1";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF2_FM1";
 						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -70, 70);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2460,8 +2422,8 @@ namespace PresetConverter
 						zebraModSourceFieldName = "VCF1_FS2";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF1_FM2";
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2471,8 +2433,8 @@ namespace PresetConverter
 						zebraModSourceFieldName = "VCF2_FS2";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF2_FM2";
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2482,15 +2444,15 @@ namespace PresetConverter
 						zebraModSourceFieldName = "VCF1_FS2";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF1_FM2";
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 
 						zebraModSourceFieldName = "VCF2_FS2";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF2_FM2";
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2787,7 +2749,8 @@ namespace PresetConverter
 					
 					// set the modulation depth amount
 					// have to constrain the amount due to too high converstion (real zebra range is 0 - 100)
-					SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixDepthPrefix, _zebraNextFreeModMatrixSlot, i, ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100));
+					//SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixDepthPrefix, _zebraNextFreeModMatrixSlot, i, ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100));
+					SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixDepthPrefix, _zebraNextFreeModMatrixSlot, i, ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -35, 35));
 				}
 				
 				_zebraNextFreeModMatrixSlot += zebraNumberOfSlotsUsed;
@@ -3416,30 +3379,30 @@ namespace PresetConverter
 					// Envelope 1 - Used as Amp Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvAAttack, "ENV1_TBase", "ENV1_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvADecay, "ENV1_TBase", "ENV1_Dec");
-					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvARelease, "ENV1_TBase", "ENV1_Rel");
-					zebra2Preset.ENV1_Rel = ConvertSylenthValueToZebra(Content.AmpEnvARelease, 0, 10, 6, 100);
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvASustain, "ENV1_TBase", "ENV1_Sus");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvARelease, "ENV1_TBase", "ENV1_Rel");					
+					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvASustain, "ENV1_TBase", "ENV1_Sus");
+					zebra2Preset.ENV1_Sus = ConvertSylenthValueToZebra(Content.AmpEnvASustain, 0, 10, 0, 100);
 					
 					// Envelope 2 - Used as Amp Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBAttack, "ENV2_TBase", "ENV2_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBDecay, "ENV2_TBase", "ENV2_Dec");
-					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBRelease, "ENV2_TBase", "ENV2_Rel");
-					zebra2Preset.ENV2_Rel = ConvertSylenthValueToZebra(Content.AmpEnvBRelease, 0, 10, 6, 100);
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBSustain, "ENV2_TBase", "ENV2_Sus");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBRelease, "ENV2_TBase", "ENV2_Rel");
+					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBSustain, "ENV2_TBase", "ENV2_Sus");
+					zebra2Preset.ENV2_Sus = ConvertSylenthValueToZebra(Content.AmpEnvBSustain, 0, 10, 0, 100);
 
 					// Envelope 3 - Used as Mod Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Attack, "ENV3_TBase", "ENV3_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Decay, "ENV3_TBase", "ENV3_Dec");
-					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Release, "ENV3_TBase", "ENV3_Rel");
-					zebra2Preset.ENV3_Rel = ConvertSylenthValueToZebra(Content.ModEnv1Release, 0, 10, 6, 100);
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Sustain, "ENV3_TBase", "ENV3_Sus");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Release, "ENV3_TBase", "ENV3_Rel");
+					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Sustain, "ENV3_TBase", "ENV3_Sus");
+					zebra2Preset.ENV3_Sus = ConvertSylenthValueToZebra(Content.ModEnv1Sustain, 0, 10, 0, 100);
 
 					// Envelope 4 - Used as Mod Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Attack, "ENV4_TBase", "ENV4_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Decay, "ENV4_TBase", "ENV4_Dec");
-					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Release, "ENV4_TBase", "ENV4_Rel");
-					zebra2Preset.ENV4_Rel = ConvertSylenthValueToZebra(Content.ModEnv2Release, 0, 10, 6, 100);
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Sustain, "ENV4_TBase", "ENV4_Sus");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Release, "ENV4_TBase", "ENV4_Rel");
+					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Sustain, "ENV4_TBase", "ENV4_Sus");
+					zebra2Preset.ENV4_Sus = ConvertSylenthValueToZebra(Content.ModEnv2Sustain, 0, 10, 0, 100);
 					
 					// Matrix
 					ICollection<KeyValuePair<string, string>> processedZebraSourceAndDest = new Dictionary<string, string>();
