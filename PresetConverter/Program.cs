@@ -19,7 +19,8 @@ namespace PresetConverter
 		{
 			bool processDirectory = false;
 			bool doProcessInitPresets = false;
-			bool outputSylenthPresetTextDump = false;
+			bool doOutputSylenthPresetTextDump = false;
+			bool doDebug = false;
 			
 			// Command line parsing
 			string presetInputFileOrDirectory = "";
@@ -36,7 +37,10 @@ namespace PresetConverter
 				doProcessInitPresets = true;
 			}
 			if(CommandLine["text"] != null) {
-				outputSylenthPresetTextDump = true;
+				doOutputSylenthPresetTextDump = true;
+			}
+			if(CommandLine["debug"] != null) {
+				doDebug = true;
 			}
 			if (presetInputFileOrDirectory == "" || presetOutputFileDirectoryPath == "") {
 				PrintUsage();
@@ -79,10 +83,12 @@ namespace PresetConverter
 			foreach (FileInfo presetFile in presetFiles) {
 				// read preset file
 				Sylenth1Preset sylenth1 = new Sylenth1Preset();
+				if (doDebug) sylenth1.logLevel = Sylenth1Preset.LogLevel.Debug;
+				
 				if (sylenth1.Read(presetFile.FullName)) {
 					
 					// Output a dump of the Sylenth1 Preset File
-					if (outputSylenthPresetTextDump) {
+					if (doOutputSylenthPresetTextDump) {
 						string outSylenthPresetTextDumpPath = Path.GetFileNameWithoutExtension(presetFile.Name) + "_Text.txt";
 						TextWriter tw = new StreamWriter(outSylenthPresetTextDumpPath);
 						tw.WriteLine(sylenth1);
@@ -127,6 +133,7 @@ namespace PresetConverter
 			Console.WriteLine("Optional Arguments:");
 			Console.WriteLine("\t-init <Do process presets with name 'init'. Default = disabled>");
 			Console.WriteLine("\t-text <Dump the Sylenth1 Presets to text files. Default = disabled>");
+			Console.WriteLine("\t-debug <Output debug information to the log file>");
 			Console.WriteLine();
 		}
 		

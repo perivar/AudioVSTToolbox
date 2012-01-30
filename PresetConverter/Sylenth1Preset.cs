@@ -25,7 +25,7 @@ namespace PresetConverter
 		static FileInfo outputErrorLog = new FileInfo("preset_converter_error_log.txt");
 		
 		// define the log level
-		static LogLevel logLevel = LogLevel.Normal;
+		public LogLevel logLevel = LogLevel.Normal;
 		
 		#region Enums
 		public enum FloatToHz {
@@ -1132,14 +1132,14 @@ namespace PresetConverter
 				buffer.AppendFormat("// PresetName: {0}\n", Content.PresetName);
 				buffer.AppendLine("//");
 				
-				buffer.AppendFormat("AmpEnvAAttack: {0} ({1})\n", ValueToString(Content.AmpEnvAAttack, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvAAttack));	// index 20:23 (value range 0 -> 10)
-				buffer.AppendFormat("AmpEnvADecay: {0} ({1})\n", ValueToString(Content.AmpEnvADecay, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvADecay));		// index 24:27 (value range 0 -> 10)
-				buffer.AppendFormat("AmpEnvARelease: {0} ({1})\n", ValueToString(Content.AmpEnvARelease, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvARelease));	// index 28:31 (value range 0 -> 10)
+				buffer.AppendFormat("AmpEnvAAttack: {0} ({1:0.00} ms)\n", ValueToString(Content.AmpEnvAAttack, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvAAttack));	// index 20:23 (value range 0 -> 10)
+				buffer.AppendFormat("AmpEnvADecay: {0} ({1:0.00} ms)\n", ValueToString(Content.AmpEnvADecay, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvADecay));		// index 24:27 (value range 0 -> 10)
+				buffer.AppendFormat("AmpEnvARelease: {0} ({1:0.00} ms)\n", ValueToString(Content.AmpEnvARelease, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvARelease));	// index 28:31 (value range 0 -> 10)
 				buffer.AppendFormat("AmpEnvASustain: {0}\n", ValueToString(Content.AmpEnvASustain, 0, 10));	// index 32:35 (value range 0 -> 10)
 				buffer.AppendLine();
-				buffer.AppendFormat("AmpEnvBAttack: {0} ({1})\n", ValueToString(Content.AmpEnvBAttack, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvBAttack));	// index 36:39 (value range 0 -> 10)
-				buffer.AppendFormat("AmpEnvBDecay: {0} ({1})\n", ValueToString(Content.AmpEnvBDecay, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvBDecay));		// index 40:43 (value range 0 -> 10)
-				buffer.AppendFormat("AmpEnvBRelease: {0} ({1})\n", ValueToString(Content.AmpEnvBRelease, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvBRelease));	// index 44:47 (value range 0 -> 10)
+				buffer.AppendFormat("AmpEnvBAttack: {0} ({1:0.00} ms)\n", ValueToString(Content.AmpEnvBAttack, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvBAttack));	// index 36:39 (value range 0 -> 10)
+				buffer.AppendFormat("AmpEnvBDecay: {0} ({1:0.00} ms)\n", ValueToString(Content.AmpEnvBDecay, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvBDecay));		// index 40:43 (value range 0 -> 10)
+				buffer.AppendFormat("AmpEnvBRelease: {0} ({1:0.00} ms)\n", ValueToString(Content.AmpEnvBRelease, 0, 10), EnvelopePresetFileValueToMilliseconds(Content.AmpEnvBRelease));	// index 44:47 (value range 0 -> 10)
 				buffer.AppendFormat("AmpEnvBSustain: {0}\n", ValueToString(Content.AmpEnvBSustain, 0, 10));	// index 48:51 (value range 0 -> 10)
 				buffer.AppendLine();
 				buffer.AppendFormat("ArpGate: {0}\n", ValueToString(Content.ArpGate, 0, 100, "%"));				// index 52:55 (value range 0 -> 100)
@@ -1188,6 +1188,7 @@ namespace PresetConverter
 				buffer.AppendFormat("FilterAReso: {0}\n", ValueToString(Content.FilterAReso, 0, 10));		// index 200:203 (value range 0 -> 10)
 				buffer.AppendFormat("FilterAType: {0}\n", Content.FilterAType);           					// index 204:207
 				buffer.AppendFormat("FilterADB: {0}\n", Content.FilterADB);									// index 210:211 (value range 12 -> 12)
+				buffer.AppendFormat("FilterA actual Hz: {0} (FilterACutoff + FilterCtrlCutoff)\n", ConvertSylenthFrequencyToHertz(Content.FilterACutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff));
 				buffer.AppendLine();
 				buffer.AppendFormat("FilterBCutoff: {0}\n", ValueToStringHz(Content.FilterBCutoff, 1.0f, 21341.28f, FloatToHz.FilterCutoff));	// index 212:215 (value range 1 -> 21341,28)
 				buffer.AppendFormat("FilterBDrive: {0}\n", ValueToString(Content.FilterBDrive, 0, 10));		// index 216:219 (value range 0 -> 10)
@@ -1195,6 +1196,7 @@ namespace PresetConverter
 				buffer.AppendFormat("FilterBReso: {0}\n", ValueToString(Content.FilterBReso, 0, 10));		// index 224:227 (value range 0 -> 10)
 				buffer.AppendFormat("FilterBType: {0}\n", Content.FilterBType);           					// index 228:231
 				buffer.AppendFormat("FilterBDB: {0}\n", Content.FilterBDB);									// index 234:235 (value range 12 -> 24)
+				buffer.AppendFormat("FilterB actual Hz: {0} (FilterBCutoff + FilterCtrlCutoff)\n", ConvertSylenthFrequencyToHertz(Content.FilterBCutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff));
 				buffer.AppendLine();
 				buffer.AppendFormat("FilterCtlCutoff: {0}\n", ValueToStringHz(Content.FilterCtlCutoff, 1.0f, 21341.28f, FloatToHz.FilterCutoff)); 	// index 236:239 (value range 1 -> 21341,28)
 				buffer.AppendFormat("FilterCtlKeyTrk: {0}\n", ValueToString(Content.FilterCtlKeyTrk, 0, 10));	// index 240:243 (value range 0 -> 10)
@@ -3208,18 +3210,48 @@ namespace PresetConverter
 
 					// FilterA
 					if (Content.FilterAType != FILTERTYPE.Bypass) {
-						zebra2Preset.VCF1_Cut = ConvertSylenthFrequencyToZebra(Content.FilterACutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
-						zebra2Preset.VCF1_Drv = ConvertSylenthValueToZebra(Content.FilterADrive, 0, 10, 0, 100);
-						zebra2Preset.VCF1_Res = ConvertSylenthValueToZebra(Content.FilterAReso, 0, 10, 0, 100);
-						zebra2Preset.VCF1_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterAType, Content.FilterADB, Content.FilterCtlWarmDrive);
+						if (Content.FilterAInput == FILTERAINPUT.FILTER_A) {
+							zebra2Preset.VCF1_Cut = ConvertSylenthFrequencyToZebra(Content.FilterACutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
+							zebra2Preset.VCF1_Drv = ConvertSylenthValueToZebra(Content.FilterADrive, 0, 10, 0, 100);
+							//zebra2Preset.VCF1_Res = ConvertSylenthValueToZebra(Content.FilterAReso, 0, 10, 0, 100);
+							zebra2Preset.VCF1_Res = ConvertSylenthFrequencyToZebra(Content.FilterAReso, Content.FilterCtlReso, FloatToHz.FilterCutoff);
+							zebra2Preset.VCF1_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterAType, Content.FilterADB, Content.FilterCtlWarmDrive);
+						} else if (Content.FilterAInput == FILTERAINPUT.FILTER_A_B) {
+							zebra2Preset.VCF1_Cut = ConvertSylenthFrequencyToZebra(Content.FilterACutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
+							zebra2Preset.VCF1_Drv = ConvertSylenthValueToZebra(Content.FilterADrive, 0, 10, 0, 100);
+							//zebra2Preset.VCF1_Res = ConvertSylenthValueToZebra(Content.FilterAReso, 0, 10, 0, 100);
+							zebra2Preset.VCF1_Res = ConvertSylenthFrequencyToZebra(Content.FilterAReso, Content.FilterCtlReso, FloatToHz.FilterCutoff);
+							zebra2Preset.VCF1_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterAType, Content.FilterADB, Content.FilterCtlWarmDrive);
+							
+							zebra2Preset.VCF2_Cut = ConvertSylenthFrequencyToZebra(Content.FilterACutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
+							zebra2Preset.VCF2_Drv = ConvertSylenthValueToZebra(Content.FilterADrive, 0, 10, 0, 100);
+							//zebra2Preset.VCF2_Res = ConvertSylenthValueToZebra(Content.FilterAReso, 0, 10, 0, 100);
+							zebra2Preset.VCF2_Res = ConvertSylenthFrequencyToZebra(Content.FilterAReso, Content.FilterCtlReso, FloatToHz.FilterCutoff);
+							zebra2Preset.VCF2_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterAType, Content.FilterADB, Content.FilterCtlWarmDrive);
+						}
 					}
 
 					// FilterB
 					if (Content.FilterBType != FILTERTYPE.Bypass) {
-						zebra2Preset.VCF2_Cut = ConvertSylenthFrequencyToZebra(Content.FilterBCutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
-						zebra2Preset.VCF2_Drv = ConvertSylenthValueToZebra(Content.FilterBDrive, 0, 10, 0, 100);
-						zebra2Preset.VCF2_Res = ConvertSylenthValueToZebra(Content.FilterBReso, 0, 10, 0, 100);
-						zebra2Preset.VCF2_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterBType, Content.FilterBDB, Content.FilterCtlWarmDrive);
+						if (Content.FilterBInput == FILTERBINPUT.FILTER_B) {
+							zebra2Preset.VCF2_Cut = ConvertSylenthFrequencyToZebra(Content.FilterBCutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
+							zebra2Preset.VCF2_Drv = ConvertSylenthValueToZebra(Content.FilterBDrive, 0, 10, 0, 100);
+							//zebra2Preset.VCF2_Res = ConvertSylenthValueToZebra(Content.FilterBReso, 0, 10, 0, 100);
+							zebra2Preset.VCF2_Res = ConvertSylenthFrequencyToZebra(Content.FilterBReso, Content.FilterCtlReso, FloatToHz.FilterCutoff);
+							zebra2Preset.VCF2_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterBType, Content.FilterBDB, Content.FilterCtlWarmDrive);
+						} else if (Content.FilterBInput == FILTERBINPUT.FILTER_B_A) {
+							zebra2Preset.VCF2_Cut = ConvertSylenthFrequencyToZebra(Content.FilterBCutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
+							zebra2Preset.VCF2_Drv = ConvertSylenthValueToZebra(Content.FilterBDrive, 0, 10, 0, 100);
+							//zebra2Preset.VCF2_Res = ConvertSylenthValueToZebra(Content.FilterBReso, 0, 10, 0, 100);
+							zebra2Preset.VCF2_Res = ConvertSylenthFrequencyToZebra(Content.FilterBReso, Content.FilterCtlReso, FloatToHz.FilterCutoff);
+							zebra2Preset.VCF2_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterBType, Content.FilterBDB, Content.FilterCtlWarmDrive);
+
+							zebra2Preset.VCF1_Cut = ConvertSylenthFrequencyToZebra(Content.FilterBCutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
+							zebra2Preset.VCF1_Drv = ConvertSylenthValueToZebra(Content.FilterBDrive, 0, 10, 0, 100);
+							//zebra2Preset.VCF1_Res = ConvertSylenthValueToZebra(Content.FilterBReso, 0, 10, 0, 100);
+							zebra2Preset.VCF1_Res = ConvertSylenthFrequencyToZebra(Content.FilterBReso, Content.FilterCtlReso, FloatToHz.FilterCutoff);
+							zebra2Preset.VCF1_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterBType, Content.FilterBDB, Content.FilterCtlWarmDrive);
+						}
 					}
 					
 					// LFO1 is used for something
@@ -3379,29 +3411,25 @@ namespace PresetConverter
 					// Envelope 1 - Used as Amp Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvAAttack, "ENV1_TBase", "ENV1_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvADecay, "ENV1_TBase", "ENV1_Dec");
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvARelease, "ENV1_TBase", "ENV1_Rel");					
-					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvASustain, "ENV1_TBase", "ENV1_Sus");
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvARelease, "ENV1_TBase", "ENV1_Rel");
 					zebra2Preset.ENV1_Sus = ConvertSylenthValueToZebra(Content.AmpEnvASustain, 0, 10, 0, 100);
 					
 					// Envelope 2 - Used as Amp Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBAttack, "ENV2_TBase", "ENV2_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBDecay, "ENV2_TBase", "ENV2_Dec");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBRelease, "ENV2_TBase", "ENV2_Rel");
-					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBSustain, "ENV2_TBase", "ENV2_Sus");
 					zebra2Preset.ENV2_Sus = ConvertSylenthValueToZebra(Content.AmpEnvBSustain, 0, 10, 0, 100);
 
 					// Envelope 3 - Used as Mod Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Attack, "ENV3_TBase", "ENV3_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Decay, "ENV3_TBase", "ENV3_Dec");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Release, "ENV3_TBase", "ENV3_Rel");
-					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Sustain, "ENV3_TBase", "ENV3_Sus");
 					zebra2Preset.ENV3_Sus = ConvertSylenthValueToZebra(Content.ModEnv1Sustain, 0, 10, 0, 100);
 
 					// Envelope 4 - Used as Mod Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Attack, "ENV4_TBase", "ENV4_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Decay, "ENV4_TBase", "ENV4_Dec");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Release, "ENV4_TBase", "ENV4_Rel");
-					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Sustain, "ENV4_TBase", "ENV4_Sus");
 					zebra2Preset.ENV4_Sus = ConvertSylenthValueToZebra(Content.ModEnv2Sustain, 0, 10, 0, 100);
 					
 					// Matrix
