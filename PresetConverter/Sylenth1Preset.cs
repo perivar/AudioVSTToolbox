@@ -3457,6 +3457,46 @@ namespace PresetConverter
 			return zebra2PresetList;
 		}
 
+		private bool IsConsistant(Sylenth1Preset.Syl1PresetContent presetContent) {
+			
+			// check if any of the enums are undefined
+			if (!Enum.IsDefined(typeof(ARPMODE), presetContent.ArpMode)) {
+				return false;
+			}
+			if (!Enum.IsDefined(typeof(ARPVELO), presetContent.ArpVelo)) {
+				return false;
+			}
+			if (!Enum.IsDefined(typeof(CHORUSMODE), presetContent.ChorusMode)) {
+				return false;
+			}
+			if (!Enum.IsDefined(typeof(FILTERAINPUT), presetContent.FilterAInput)) {
+				return false;
+			}
+			if (!Enum.IsDefined(typeof(FILTERTYPE), presetContent.FilterAType)) {
+				return false;
+			}
+			if (!Enum.IsDefined(typeof(FILTERDB), presetContent.FilterADB)) {
+				return false;
+			}
+			if (!Enum.IsDefined(typeof(FILTERBINPUT), presetContent.FilterBInput)) {
+				return false;
+			}
+			if (!Enum.IsDefined(typeof(FILTERTYPE), presetContent.FilterBType)) {
+				return false;
+			}
+			if (!Enum.IsDefined(typeof(FILTERDB), presetContent.FilterBDB)) {
+				return false;
+			}
+			if (!Enum.IsDefined(typeof(LFOWAVE), presetContent.LFO1Wave)) {
+				return false;
+			}
+			if (!Enum.IsDefined(typeof(LFOWAVE), presetContent.LFO2Wave)) {
+				return false;
+			}
+			
+			return true;
+		}
+		
 		public bool ReadFXP(FXP fxp, string filePath="")
 		{
 			BinaryFile bFile = new BinaryFile(fxp.chunkDataByteArray, BinaryFile.ByteOrder.LittleEndian);
@@ -3481,8 +3521,16 @@ namespace PresetConverter
 					List<Sylenth1Preset.Syl1PresetContent> contentList = new List<Sylenth1Preset.Syl1PresetContent>();
 					int i = 0;
 					try {
+						Sylenth1Preset.Syl1PresetContent presetContent = null;
 						for (i = 0; i < numPrograms; i++) {
-							contentList.Add(new Sylenth1Preset.Syl1PresetContent(bFile, (presetVersion1==2202 || presetVersion1 == 2211)));
+							presetContent = new Sylenth1Preset.Syl1PresetContent(bFile, (presetVersion1==2202 || presetVersion1 == 2211));
+							if (IsConsistant(presetContent)) {
+								contentList.Add(presetContent);
+							} else {
+								Console.Out.WriteLine("Error! The loaded preset failed the consistency check! {0} '{1}' ({2})", i, presetContent.PresetName, filePath);
+								IOUtils.LogMessageToFile(outputStatusLog, String.Format("Error! The loaded preset failed the consistency check! {0} '{1}' ({2})", i, presetContent.PresetName, filePath));
+								IOUtils.LogMessageToFile(outputErrorLog, String.Format("Error! The loaded preset failed the consistency check! {0} '{1}' ({2})", i, presetContent.PresetName, filePath));
+							}
 						}
 					} catch(EndOfStreamException eose) {
 						Console.Out.WriteLine("Error! Failed reading presets from bank {0}. Read {1} presets. (Expected {2}) Msg: {3}!", filePath, i, numPrograms, eose.Message);
