@@ -38,16 +38,16 @@ namespace PresetConverter
 		}
 		
 		public enum ARPMODE : uint {
+			Up         = 0x00000000,
 			Chord      = 0x00003F80,
 			Down       = 0x3DE38E39,
+			Up_Down    = 0x3E638E39,
+			Up_Down2   = 0x3EAAAAAB,
 			Down_Up    = 0x3EE38E39,
 			Down_Up2   = 0x3F0E38E4,
-			Ordered    = 0x3F471C72,
 			Random     = 0x3F2AAAAB,
-			Step       = 0x3F638E39,
-			Up         = 0x00000000,
-			Up_Down    = 0x3E638E39,
-			Up_Down2   = 0x3EAAAAAB
+			Ordered    = 0x3F471C72,
+			Step       = 0x3F638E39
 		}
 
 		public enum ARPVELO : uint {
@@ -294,7 +294,7 @@ namespace PresetConverter
 			LFO_Lorenz    = 0x3F4CCCCD,
 			LFO_Pulse     = 0x3ECCCCCD,
 			LFO_QPulse    = 0x3F19999A,
-			LFO_Ramp      = 0x844445CC,
+			LFO_Ramp      = 0x3E4CCCCD,
 			LFO_Ramp2     = 0xCCCD3E4C,
 			LFO_Random    = 0x3F800000,
 			LFO_Saw       = 0x3DCCCCCD,
@@ -3457,44 +3457,123 @@ namespace PresetConverter
 			return zebra2PresetList;
 		}
 
-		private bool IsConsistant(Sylenth1Preset.Syl1PresetContent presetContent) {
+		private static void DoError(string errorMsg) {
+			Console.Out.WriteLine(errorMsg);
+			IOUtils.LogMessageToFile(outputStatusLog, errorMsg);
+			IOUtils.LogMessageToFile(outputErrorLog, errorMsg);
+		}
+		
+		private static string EnumToLongText(object enumValue) {
+			string enumString = null;
+			uint i = Convert.ToUInt32(enumValue);
+			float f = BinaryFile.ByteArrayToSingle(BitConverter.GetBytes(i), BinaryFile.ByteOrder.LittleEndian);
+			enumString = String.Format("0x{0} (float: {1} uint: {2})", ((Enum)enumValue).ToString("X"), f, i);
+			return enumString;
+		}
+
+		// find closest enum based on value
+		private static string FindClosestEnum<T>(Enum enumValue) {
 			
-			// check if any of the enums are undefined
-			if (!Enum.IsDefined(typeof(ARPMODE), presetContent.ArpMode)) {
-				return false;
-			}
-			if (!Enum.IsDefined(typeof(ARPVELO), presetContent.ArpVelo)) {
-				return false;
-			}
-			if (!Enum.IsDefined(typeof(CHORUSMODE), presetContent.ChorusMode)) {
-				return false;
-			}
-			if (!Enum.IsDefined(typeof(FILTERAINPUT), presetContent.FilterAInput)) {
-				return false;
-			}
-			if (!Enum.IsDefined(typeof(FILTERTYPE), presetContent.FilterAType)) {
-				return false;
-			}
-			if (!Enum.IsDefined(typeof(FILTERDB), presetContent.FilterADB)) {
-				return false;
-			}
-			if (!Enum.IsDefined(typeof(FILTERBINPUT), presetContent.FilterBInput)) {
-				return false;
-			}
-			if (!Enum.IsDefined(typeof(FILTERTYPE), presetContent.FilterBType)) {
-				return false;
-			}
-			if (!Enum.IsDefined(typeof(FILTERDB), presetContent.FilterBDB)) {
-				return false;
-			}
-			if (!Enum.IsDefined(typeof(LFOWAVE), presetContent.LFO1Wave)) {
-				return false;
-			}
-			if (!Enum.IsDefined(typeof(LFOWAVE), presetContent.LFO2Wave)) {
-				return false;
-			}
+			List<T> enumList = StringUtils.EnumValuesToList<T>();
 			
+			List<float> floatList = enumList.ConvertAll<float>( x => BinaryFile.UIntToSingle(Convert.ToUInt32(x), BinaryFile.ByteOrder.LittleEndian));
+			float target = BinaryFile.UIntToSingle(Convert.ToUInt32(enumValue), BinaryFile.ByteOrder.LittleEndian);
+			float closestFloat = MathUtils.FindClosest(floatList, target);
+			uint closestValue = BinaryFile.SingleToUInt(closestFloat, BinaryFile.ByteOrder.LittleEndian);
+			
+			//List<uint> uintList = enumList.ConvertAll<uint>( x => Convert.ToUInt32(x) );
+			//uint target = Convert.ToUInt32(enumValue);
+			//uint closestValue = MathUtils.FindClosest(uintList, target);
+			
+			// convert to Enum type
+			T closest = (T)Enum.ToObject(typeof(T), closestValue);
+
+			// build result text
+			string enumFoundText = closest.ToString() + " " + EnumToLongText(closest);
+			List<string> enumAllTextList = enumList.ConvertAll<string>(x => x.ToString() + " " + EnumToLongText(x));
+			string enumAllString = "";
+			foreach (string s in enumAllTextList) {
+				if (enumFoundText == s) {
+					enumAllString += "\t" + s + " <----- Closest match! \n";
+				} else {
+					enumAllString += "\t" + s + "\n";
+				}
+			}
+			return String.Format("\nClosest enum is {0} in: \n{1}", enumFoundText, enumAllString);
+		}
+		
+		private bool IsEnumConsistant<T>(Enum enumValue) {
+			string errorMsg = "";
+			if (!Enum.IsDefined(typeof(T), enumValue)) {
+				errorMsg = String.Format("Error! Consistency check failed for {0}!\n{1} is not a valid entry.", typeof(T), EnumToLongText(enumValue));
+				errorMsg += FindClosestEnum<T>(enumValue);
+				DoError(errorMsg);
+				return false;
+			}
 			return true;
+		}
+		
+		private bool IsConsistant(Sylenth1Preset.Syl1PresetContent presetContent) {
+			bool result = true;
+
+			// check if any of the enums are undefined
+			if (!IsEnumConsistant<ARPMODE>(presetContent.ArpMode)) {
+				result = false;
+			}
+			if (!IsEnumConsistant<ARPVELO>(presetContent.ArpVelo)) {
+				result = false;
+			}
+			if (!IsEnumConsistant<CHORUSMODE>(presetContent.ChorusMode)) {
+				result = false;
+			}
+
+			if (!IsEnumConsistant<ONOFF>(presetContent.DelayPingPong)) {
+				result = false;
+			}
+
+			if (!IsEnumConsistant<DISTORTTYPE>(presetContent.DistortType)) {
+				result = false;
+			}
+
+			if (!IsEnumConsistant<FILTERAINPUT>(presetContent.FilterAInput)) {
+				result = false;
+			}
+			if (!IsEnumConsistant<FILTERTYPE>(presetContent.FilterAType)) {
+				result = false;
+			}
+			if (!IsEnumConsistant<FILTERDB>(presetContent.FilterADB)) {
+				result = false;
+			}
+			if (!IsEnumConsistant<FILTERBINPUT>(presetContent.FilterBInput)) {
+				result = false;
+			}
+			if (!IsEnumConsistant<FILTERTYPE>(presetContent.FilterBType)) {
+				result = false;
+			}
+			if (!IsEnumConsistant<FILTERDB>(presetContent.FilterBDB)) {
+				result = false;
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.FilterCtlWarmDrive)) {
+				result = false;
+			}
+
+			if (!IsEnumConsistant<ONOFF>(presetContent.LFO1Free)) {
+				result = false;
+			}
+			if (!IsEnumConsistant<LFOWAVE>(presetContent.LFO1Wave)) {
+				result = false;
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.LFO2Free)) {
+				result = false;
+			}
+			if (!IsEnumConsistant<LFOWAVE>(presetContent.LFO2Wave)) {
+				result = false;
+			}
+			
+			if (!IsEnumConsistant<ONOFF>(presetContent.MonoLegato)) {
+				result = false;
+			}
+			return result;
 		}
 		
 		public bool ReadFXP(FXP fxp, string filePath="")
@@ -3524,6 +3603,7 @@ namespace PresetConverter
 						Sylenth1Preset.Syl1PresetContent presetContent = null;
 						for (i = 0; i < numPrograms; i++) {
 							presetContent = new Sylenth1Preset.Syl1PresetContent(bFile, (presetVersion1==2202 || presetVersion1 == 2211));
+							IOUtils.LogMessageToFile(outputStatusLog, String.Format("Start processing {0} '{1}' ...", i, presetContent.PresetName));
 							if (IsConsistant(presetContent)) {
 								contentList.Add(presetContent);
 							} else {

@@ -152,5 +152,17 @@ namespace CommonUtils
 		{
 			return (T)Enum.Parse(typeof(T), name);
 		}
+		
+		// return all the enum values as a list
+		public static List<T> EnumValuesToList<T>()
+		{
+			Type enumType = typeof(T);
+			
+			// Can't use type constraints on value types, so have to do check like this
+			if (enumType.BaseType != typeof(Enum))
+				throw new ArgumentException("T must be of type System.Enum");
+
+			return new List<T>(Enum.GetValues(enumType) as IEnumerable<T>);
+		}
 	}
 }

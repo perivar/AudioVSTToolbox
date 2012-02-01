@@ -333,6 +333,22 @@ namespace CommonUtils
 			int closest = numbers.Aggregate((x,y) => Math.Abs(x-target) < Math.Abs(y-target) ? x : y);
 			return closest;
 		}
+
+		/// <summary>
+		/// Find the closest number in a list of numbers
+		/// Use like this:
+		/// List<int> list = new List<int> { 2, 5, 7, 10 };
+		/// int target = 6;
+		/// int closest = FindClosest(list, target);
+		/// </summary>
+		/// <param name="numbers"></param>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		public static uint FindClosest(IEnumerable<uint> numbers, uint target) {
+			// http://stackoverflow.com/questions/5953552/how-to-get-the-closest-number-from-a-listint-with-linq
+			uint closest = numbers.Aggregate((x,y) => Math.Abs(x-target) < Math.Abs(y-target) ? x : y);
+			return closest;
+		}
 		
 		/// <summary>
 		/// Find the closest number in a list of numbers

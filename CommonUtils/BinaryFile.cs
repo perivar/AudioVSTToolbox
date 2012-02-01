@@ -431,6 +431,14 @@ namespace CommonUtils
 		 * 
 		 ********************************/
 
+		public static float UIntToSingle(uint x, ByteOrder byteOrder) {
+			return ByteArrayToSingle(BitConverter.GetBytes(x), byteOrder);
+		}
+
+		public static uint SingleToUInt(float x, ByteOrder byteOrder) {
+			return ByteArrayToUInt32(BitConverter.GetBytes(x), byteOrder);
+		}
+		
 		public static byte[] HexStringToByteArray(string s)
 		{
 			var r = new byte[s.Length / 2];
@@ -501,6 +509,50 @@ namespace CommonUtils
 			}
 		}
 
+		public static UInt16 ByteArrayToUInt16(byte [] b, ByteOrder byteOrder) {
+			if (b == null || b.Length < 2) return 0;
+
+			if (byteOrder == ByteOrder.LittleEndian)
+			{
+				return BitConverter.ToUInt16(b, 0);
+			}
+			else // Big-Endian
+			{
+				byte [] bClone = (byte[])b.Clone();
+				Array.Reverse(bClone);
+				return BitConverter.ToUInt16(bClone, 0);
+			}
+		}
+
+		public static UInt32 ByteArrayToUInt32(byte [] b, ByteOrder byteOrder) {
+			if (b == null || b.Length < 4) return 0;
+
+			if (byteOrder == ByteOrder.LittleEndian)
+			{
+				return BitConverter.ToUInt32(b, 0);
+			}
+			else // Big-Endian
+			{
+				byte [] bClone = (byte[])b.Clone();
+				Array.Reverse(bClone);
+				return BitConverter.ToUInt32(bClone, 0);
+			}
+		}
+		
+		public static UInt64 ByteArrayToUInt64(byte [] b, ByteOrder byteOrder) {
+			if (b == null || b.Length < 8) return 0;
+
+			if (byteOrder == ByteOrder.LittleEndian)
+			{
+				return BitConverter.ToUInt64(b, 0);
+			}
+			else // Big-Endian
+			{
+				byte [] bClone = (byte[])b.Clone();
+				Array.Reverse(bClone);
+				return BitConverter.ToUInt64(bClone, 0);
+			}
+		}
 		
 		public static int HexToInt(string sHexString) {
 			return Convert.ToInt32(sHexString, 16);
