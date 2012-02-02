@@ -2174,7 +2174,7 @@ namespace PresetConverter
 		                                           ICollection<KeyValuePair<string, string>> processedZebraSourceAndDest) {
 			
 			if (sylenthModSource != XMODSOURCE.SOURCE_None && sylenthModDestination != YMODDEST.None) {
-				if (logLevel == LogLevel.Debug) IOUtils.LogMessageToFile(outputStatusLog, String.Format("Processing Sylenth1 Modulation Source: {0} {1} {2}", sylenthModSource, sylenthModDestination, sylenthXModDestAm));
+				DoDebug(String.Format("Processing Sylenth1 Modulation Source: {0} {1} {2}", sylenthModSource, sylenthModDestination, sylenthXModDestAm));
 				
 				Zebra2Preset.ModulationSource zebraModSource = ConvertSylenthModSourceToZebra(sylenthModSource);
 				
@@ -2193,36 +2193,61 @@ namespace PresetConverter
 						
 						// Oscillators
 					case YMODDEST.Volume_A:
-						// Volume A:
-						zebraModSourceFieldName = "VCA1_ModSrc1";
+						// Volume A:	
+						zebraModSourceFieldName = "OSC1_VolSc";
 						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCA1_ModDpt1";
+						zebraModDepthFieldName = "OSC1_VolDt";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
+
+						zebraModSourceFieldName = "OSC2_VolSc";
+						zebraModSourceFieldValue = (int) zebraModSource;
+						zebraModDepthFieldName = "OSC2_VolDt";
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
 
 						break;
 					case YMODDEST.Volume_B:
 						// Volume B:
-						zebraModSourceFieldName = "VCA1_ModSrc2";
+						zebraModSourceFieldName = "OSC3_VolSc";
 						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCA1_ModDpt2";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);			// Mod Depth2
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
+						zebraModDepthFieldName = "OSC3_VolDt";
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
 
+						zebraModSourceFieldName = "OSC4_VolSc";
+						zebraModSourceFieldValue = (int) zebraModSource;
+						zebraModDepthFieldName = "OSC4_VolDt";
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
+						
 						break;
 					case YMODDEST.VolumeAB:
-						// Volume A and B:
-						zebraModSourceFieldName = "VCA1_ModSrc1";
+						// Volume A:	
+						zebraModSourceFieldName = "OSC1_VolSc";
 						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCA1_ModDpt1";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);			// Mod Depth1
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
+						zebraModDepthFieldName = "OSC1_VolDt";
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
 
-						zebraModSourceFieldName = "VCA1_ModSrc2";
+						zebraModSourceFieldName = "OSC2_VolSc";
 						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCA1_ModDpt2";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);			// Mod Depth2
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
+						zebraModDepthFieldName = "OSC2_VolDt";
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
+
+						// Volume B:
+						zebraModSourceFieldName = "OSC3_VolSc";
+						zebraModSourceFieldValue = (int) zebraModSource;
+						zebraModDepthFieldName = "OSC3_VolDt";
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
+
+						zebraModSourceFieldName = "OSC4_VolSc";
+						zebraModSourceFieldValue = (int) zebraModSource;
+						zebraModDepthFieldName = "OSC4_VolDt";
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
 
 						break;
 					case YMODDEST.Pitch_A:
@@ -2425,7 +2450,6 @@ namespace PresetConverter
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF1_FM2";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2436,7 +2460,6 @@ namespace PresetConverter
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF2_FM2";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2447,14 +2470,12 @@ namespace PresetConverter
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF1_FM2";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 
 						zebraModSourceFieldName = "VCF2_FS2";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF2_FM2";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -2462,12 +2483,45 @@ namespace PresetConverter
 						// Misc
 					case YMODDEST.PhsrFreq:
 						break;
+						
 					case YMODDEST.Mix_A:
+						// Volume A:
+						zebraModSourceFieldName = "VCA1_ModSrc1";
+						zebraModSourceFieldValue = (int) zebraModSource;
+						zebraModDepthFieldName = "VCA1_ModDpt1";
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));						
+						zebraUsedModSources.Add(zebraModSourceFieldName); // force using the matrix
+						
 						break;
 					case YMODDEST.Mix_B:
+						// Volume B:
+						zebraModSourceFieldName = "VCA1_ModSrc2";
+						zebraModSourceFieldValue = (int) zebraModSource;
+						zebraModDepthFieldName = "VCA1_ModDpt2";
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);			// Mod Depth2
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
+						zebraUsedModSources.Add(zebraModSourceFieldName); // force using the matrix
+						
 						break;
 					case YMODDEST.Mix_AB:
+						// Volume A and B:
+						zebraModSourceFieldName = "VCA1_ModSrc1";
+						zebraModSourceFieldValue = (int) zebraModSource;
+						zebraModDepthFieldName = "VCA1_ModDpt1";
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);			// Mod Depth1
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
+						zebraUsedModSources.Add(zebraModSourceFieldName); // force using the matrix						
+
+						zebraModSourceFieldName = "VCA1_ModSrc2";
+						zebraModSourceFieldValue = (int) zebraModSource;
+						zebraModDepthFieldName = "VCA1_ModDpt2";
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);			// Mod Depth2
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
+						zebraUsedModSources.Add(zebraModSourceFieldName); // force using the matrix
+
 						break;
+
 					case YMODDEST.LFO1Rate:
 						// FMS = FreqMod Src1=none
 						// FMD = FreqMod Dpt (-100.00 - 100.00)
@@ -2544,13 +2598,13 @@ namespace PresetConverter
 			
 			if (!zebraUsedModSources.Contains(zebraModSourceFieldName)) {
 				// setting modulation source directly on the source (not via the mod matrix)
-				if (logLevel == LogLevel.Debug) IOUtils.LogMessageToFile(outputStatusLog, String.Format("Setting Zebra2 Modulation Source: {0}={1} {2}={3}", zebraModSourceFieldName, Enum.GetName(typeof(Zebra2Preset.ModulationSource), zebraModSourceFieldValue), zebraModDepthFieldName, zebraModDepthFieldValue));
+				DoDebug(String.Format("Setting Zebra2 Modulation Source: {0}={1} {2}={3}", zebraModSourceFieldName, Enum.GetName(typeof(Zebra2Preset.ModulationSource), zebraModSourceFieldValue), zebraModDepthFieldName, zebraModDepthFieldValue));
 				zebraUsedModSources.Add(zebraModSourceFieldName);
 				ObjectUtils.SetField(z2, zebraModSourceFieldName, zebraModSourceFieldValue);
 				ObjectUtils.SetField(z2, zebraModDepthFieldName, zebraModDepthFieldValue);
 			} else {
 				// Already used the mod source, must revert to mod matrix way
-				if (logLevel == LogLevel.Debug) IOUtils.LogMessageToFile(outputStatusLog, String.Format("Already processed the Zebra2 Modulation Source. Testing the Mod Matrix instead: {0}={1} {2}={3}", zebraModSourceFieldName, Enum.GetName(typeof(Zebra2Preset.ModulationSource), zebraModSourceFieldValue), zebraModDepthFieldName, zebraModDepthFieldValue));
+				DoDebug(String.Format("Already processed the Zebra2 Modulation Source. Testing the Mod Matrix instead: {0}={1} {2}={3}", zebraModSourceFieldName, Enum.GetName(typeof(Zebra2Preset.ModulationSource), zebraModSourceFieldValue), zebraModDepthFieldName, zebraModDepthFieldValue));
 				SetZebraModMatrixFromSylenth(z2, sylenthModSource, sylenthModDestination, sylenthXModDestAm, processedZebraSourceAndDest);
 			}
 		}
@@ -2561,7 +2615,7 @@ namespace PresetConverter
 			// check if we have already processed this exact XMODSOURCE and YMODDEST
 			KeyValuePair<string, string> currentModSourceAndDest = new KeyValuePair<string, string>(String.Format("{0}_{1}", sylenthModSource, sylenthModDestination), "");
 			if (processedZebraSourceAndDest.Contains(currentModSourceAndDest)) {
-				if (logLevel == LogLevel.Debug) IOUtils.LogMessageToFile(outputStatusLog, String.Format("Sylenth1 Modulation Source has already been processed in the Mod Matrix: {0}_{1}. Skipping!", sylenthModSource, sylenthModDestination));
+				DoDebug(String.Format("Sylenth1 Modulation Source has already been processed in the Mod Matrix: {0}_{1}. Skipping!", sylenthModSource, sylenthModDestination));
 				return;
 			} else {
 				processedZebraSourceAndDest.Add(currentModSourceAndDest);
@@ -2585,17 +2639,21 @@ namespace PresetConverter
 						
 						// Oscillators
 					case YMODDEST.Volume_A:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCA1:Vol1");
-						zebraNumberOfSlotsUsed = 1;
+						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "OSC1:Vol");
+						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "OSC2:Vol");
+						zebraNumberOfSlotsUsed = 2;
 						break;
 					case YMODDEST.Volume_B:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCA1:Vol2");
-						zebraNumberOfSlotsUsed = 1;
+						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "OSC3:Vol");
+						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "OSC4:Vol");
+						zebraNumberOfSlotsUsed = 2;
 						break;
 					case YMODDEST.VolumeAB:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCA1:Vol1");
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "VCA1:Vol2");
-						zebraNumberOfSlotsUsed = 2;
+						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "OSC1:Vol");
+						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "OSC2:Vol");
+						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 3, "OSC3:Vol");
+						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 4, "OSC4:Vol");
+						zebraNumberOfSlotsUsed = 4;
 						break;
 					case YMODDEST.Pitch_A:
 						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "OSC1:Tune");
@@ -2677,15 +2735,21 @@ namespace PresetConverter
 					case YMODDEST.PhsrFreq:
 						zebraNumberOfSlotsUsed = 0;
 						break;
+
 					case YMODDEST.Mix_A:
-						zebraNumberOfSlotsUsed = 0;
+						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCA1:Vol1");
+						zebraNumberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.Mix_B:
-						zebraNumberOfSlotsUsed = 0;
+						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCA1:Vol2");
+						zebraNumberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.Mix_AB:
-						zebraNumberOfSlotsUsed = 0;
+						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCA1:Vol1");
+						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "VCA1:Vol2");
+						zebraNumberOfSlotsUsed = 2;
 						break;
+
 					case YMODDEST.LFO1Rate:
 						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "LFO1:Rate");
 						zebraNumberOfSlotsUsed = 1;
@@ -2745,7 +2809,8 @@ namespace PresetConverter
 							SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.ATouch);
 							break;
 						case XMODSOURCE.SOURCE_StepVlty:
-							SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Xpress);
+							//SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Xpress);
+							SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Velocity);
 							break;
 					}
 					
@@ -2769,7 +2834,7 @@ namespace PresetConverter
 				IOUtils.LogMessageToFile(outputStatusLog, String.Format("Warning! Not enough matrix slots available. Discarding matrix slot: {0}={1} !", fieldName, fieldValue));
 				return;
 			}
-			if (logLevel == LogLevel.Debug) IOUtils.LogMessageToFile(outputStatusLog, String.Format("Setting Zebra2 Matrix Element: {0}->{1} {2}={3}" , sylenthModSource, sylenthModDestination, fieldName, fieldValue));
+			DoDebug(String.Format("Setting Zebra2 Matrix Element: {0}->{1} {2}={3}" , sylenthModSource, sylenthModDestination, fieldName, fieldValue));
 			ObjectUtils.SetField(z2, fieldName, fieldValue);
 		}
 		
@@ -3051,7 +3116,7 @@ namespace PresetConverter
 					zebra2Preset.PresetName = Content.PresetName;
 					
 					// set master volume (50?)
-					zebra2Preset.Main_CcOp = ConvertSylenthValueToZebra(Content.MainVolume, 0, 10, 0, 60); // restrict the limit from 100 - x
+					zebra2Preset.Main_CcOp = ConvertSylenthValueToZebra(Content.MainVolume, 0, 10, 0, 100); // restrict the limit from 100 - x
 					zebra2Preset.ZMas_Mast = 80;
 					
 					// set mix volume
@@ -3333,12 +3398,12 @@ namespace PresetConverter
 						zebra2Preset.Shape3_Depth = ConvertSylenthValueToZebra(Content.DistortDryWet, 0, 10, 0, 100);
 						zebra2Preset.Shape3_Edge = ConvertSylenthValueToZebra(Content.DistortAmount, 0, 10, 0, 100);
 						zebra2Preset.Shape3_Input = 13;
-						zebra2Preset.Shape3_Output = 0;
+						zebra2Preset.Shape3_Output =10;
 						zebra2Preset.Shape3_HiOut = 16;
 						
 						switch(Content.DistortType) {
 							case DISTORTTYPE.OverDrv:
-								zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.Wedge;
+								zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.T_Drive;
 								break;
 							case DISTORTTYPE.Clip:
 							case DISTORTTYPE.Decimate:
@@ -3346,7 +3411,7 @@ namespace PresetConverter
 								zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.Crush;
 								break;
 							case DISTORTTYPE.FoldBack:
-								zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.T_Drive;
+								zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.Shape;
 								break;
 						}
 					} else {
@@ -3457,12 +3522,22 @@ namespace PresetConverter
 			return zebra2PresetList;
 		}
 
+		private static void DoLog(string logMsg) {
+			Console.Out.WriteLine(logMsg);
+			IOUtils.LogMessageToFile(outputStatusLog, logMsg);
+		}
+		
+		private void DoDebug(string debugMsg) {
+			if (logLevel == LogLevel.Debug) IOUtils.LogMessageToFile(outputStatusLog, debugMsg);
+		}
+
 		private static void DoError(string errorMsg) {
 			Console.Out.WriteLine(errorMsg);
 			IOUtils.LogMessageToFile(outputStatusLog, errorMsg);
 			IOUtils.LogMessageToFile(outputErrorLog, errorMsg);
 		}
 		
+		// find out what value is stored in the Enum Value and return a text string
 		private static string EnumToLongText(object enumValue) {
 			string enumString = null;
 			uint i = Convert.ToUInt32(enumValue);
@@ -3471,8 +3546,8 @@ namespace PresetConverter
 			return enumString;
 		}
 
-		// find closest enum based on value
-		private static string FindClosestEnum<T>(Enum enumValue) {
+		// find closest enum based on value, return text
+		private static T FindClosestEnum<T>(Enum enumValue) {
 			
 			List<T> enumList = StringUtils.EnumValuesToList<T>();
 			
@@ -3481,12 +3556,19 @@ namespace PresetConverter
 			float closestFloat = MathUtils.FindClosest(floatList, target);
 			uint closestValue = BinaryFile.SingleToUInt(closestFloat, BinaryFile.ByteOrder.LittleEndian);
 			
-			//List<uint> uintList = enumList.ConvertAll<uint>( x => Convert.ToUInt32(x) );
-			//uint target = Convert.ToUInt32(enumValue);
-			//uint closestValue = MathUtils.FindClosest(uintList, target);
-			
 			// convert to Enum type
 			T closest = (T)Enum.ToObject(typeof(T), closestValue);
+			
+			return closest;
+		}
+
+		// find closest enum based on value, return text
+		private static string FindClosestEnumText<T>(Enum enumValue) {
+			
+			List<T> enumList = StringUtils.EnumValuesToList<T>();
+			
+			// find closest Enum
+			T closest = FindClosestEnum<T>(enumValue);
 
 			// build result text
 			string enumFoundText = closest.ToString() + " " + EnumToLongText(closest);
@@ -3502,77 +3584,296 @@ namespace PresetConverter
 			return String.Format("\nClosest enum is {0} in: \n{1}", enumFoundText, enumAllString);
 		}
 		
-		private bool IsEnumConsistant<T>(Enum enumValue) {
+		private static bool IsEnumConsistant<T>(Enum enumValue, bool doTryToFix) {
 			string errorMsg = "";
 			if (!Enum.IsDefined(typeof(T), enumValue)) {
-				errorMsg = String.Format("Error! Consistency check failed for {0}!\n{1} is not a valid entry.", typeof(T), EnumToLongText(enumValue));
-				errorMsg += FindClosestEnum<T>(enumValue);
+				errorMsg = String.Format("Error! Consistency check failed for {0}! {1} is not a valid entry.", typeof(T), EnumToLongText(enumValue));
+				if (!doTryToFix) {
+					errorMsg += FindClosestEnumText<T>(enumValue);
+				}
 				DoError(errorMsg);
 				return false;
 			}
 			return true;
 		}
+
+		private static bool MakeEnumConsistant<T>(Sylenth1Preset.Syl1PresetContent presetContent, Enum enumValue, string fieldName, bool doTryToFix) {
+			if (doTryToFix) {
+				T enumFound = FindClosestEnum<T>(enumValue);
+				
+				// use reflection to try to add correct field
+				try {
+					var type = typeof(Sylenth1Preset.Syl1PresetContent);
+					var field = type.GetField(fieldName);
+					field.SetValue(presetContent, enumFound);
+				} catch (Exception) {
+					DoError(String.Format("Warning! Could not find field {0} and store {1}!", fieldName, enumFound));
+					return false;
+				}
+				
+				DoLog(String.Format("Stored closest match for {0}: {1} {2}", typeof(ARPMODE), enumFound.ToString(), EnumToLongText(enumFound)));
+			}
+			return true;
+		}
 		
-		private bool IsConsistant(Sylenth1Preset.Syl1PresetContent presetContent) {
+		private static bool IsConsistant(Sylenth1Preset.Syl1PresetContent presetContent, bool doTryToFix) {
 			bool result = true;
 
 			// check if any of the enums are undefined
-			if (!IsEnumConsistant<ARPMODE>(presetContent.ArpMode)) {
-				result = false;
+			if (!IsEnumConsistant<ARPMODE>(presetContent.ArpMode, doTryToFix)) {
+				result = MakeEnumConsistant<ARPMODE>(presetContent, presetContent.ArpMode, "ArpMode", doTryToFix);
 			}
-			if (!IsEnumConsistant<ARPVELO>(presetContent.ArpVelo)) {
-				result = false;
+			if (!IsEnumConsistant<ARPVELO>(presetContent.ArpVelo, doTryToFix)) {
+				result = MakeEnumConsistant<ARPVELO>(presetContent, presetContent.ArpVelo, "ArpVelo", doTryToFix);
 			}
-			if (!IsEnumConsistant<CHORUSMODE>(presetContent.ChorusMode)) {
-				result = false;
+			if (!IsEnumConsistant<CHORUSMODE>(presetContent.ChorusMode, doTryToFix)) {
+				result = MakeEnumConsistant<CHORUSMODE>(presetContent, presetContent.ChorusMode, "ChorusMode", doTryToFix);
 			}
-
-			if (!IsEnumConsistant<ONOFF>(presetContent.DelayPingPong)) {
-				result = false;
+			if (!IsEnumConsistant<ONOFF>(presetContent.DelayPingPong, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.DelayPingPong, "DelayPingPong", doTryToFix);
 			}
-
-			if (!IsEnumConsistant<DISTORTTYPE>(presetContent.DistortType)) {
-				result = false;
-			}
-
-			if (!IsEnumConsistant<FILTERAINPUT>(presetContent.FilterAInput)) {
-				result = false;
-			}
-			if (!IsEnumConsistant<FILTERTYPE>(presetContent.FilterAType)) {
-				result = false;
-			}
-			if (!IsEnumConsistant<FILTERDB>(presetContent.FilterADB)) {
-				result = false;
-			}
-			if (!IsEnumConsistant<FILTERBINPUT>(presetContent.FilterBInput)) {
-				result = false;
-			}
-			if (!IsEnumConsistant<FILTERTYPE>(presetContent.FilterBType)) {
-				result = false;
-			}
-			if (!IsEnumConsistant<FILTERDB>(presetContent.FilterBDB)) {
-				result = false;
-			}
-			if (!IsEnumConsistant<ONOFF>(presetContent.FilterCtlWarmDrive)) {
-				result = false;
-			}
-
-			if (!IsEnumConsistant<ONOFF>(presetContent.LFO1Free)) {
-				result = false;
-			}
-			if (!IsEnumConsistant<LFOWAVE>(presetContent.LFO1Wave)) {
-				result = false;
-			}
-			if (!IsEnumConsistant<ONOFF>(presetContent.LFO2Free)) {
-				result = false;
-			}
-			if (!IsEnumConsistant<LFOWAVE>(presetContent.LFO2Wave)) {
-				result = false;
+			if (!IsEnumConsistant<DISTORTTYPE>(presetContent.DistortType, doTryToFix)) {
+				result = MakeEnumConsistant<DISTORTTYPE>(presetContent, presetContent.DistortType, "DistortType", doTryToFix);
 			}
 			
-			if (!IsEnumConsistant<ONOFF>(presetContent.MonoLegato)) {
-				result = false;
+			if (!IsEnumConsistant<FILTERAINPUT>(presetContent.FilterAInput, doTryToFix)) {
+				result = MakeEnumConsistant<FILTERAINPUT>(presetContent, presetContent.FilterAInput, "FilterAInput", doTryToFix);
 			}
+			if (!IsEnumConsistant<FILTERTYPE>(presetContent.FilterAType, doTryToFix)) {
+				result = MakeEnumConsistant<FILTERTYPE>(presetContent, presetContent.FilterAType, "FilterAType", doTryToFix);
+			}
+			if (!IsEnumConsistant<FILTERDB>(presetContent.FilterADB, doTryToFix)) {
+				result = MakeEnumConsistant<FILTERDB>(presetContent, presetContent.FilterADB, "FilterADB", doTryToFix);
+			}
+			if (!IsEnumConsistant<FILTERBINPUT>(presetContent.FilterBInput, doTryToFix)) {
+				result = MakeEnumConsistant<FILTERBINPUT>(presetContent, presetContent.FilterBInput, "FilterBInput", doTryToFix);
+			}
+			if (!IsEnumConsistant<FILTERTYPE>(presetContent.FilterBType, doTryToFix)) {
+				result = MakeEnumConsistant<FILTERTYPE>(presetContent, presetContent.FilterBType, "FilterBType", doTryToFix);
+			}
+			if (!IsEnumConsistant<FILTERDB>(presetContent.FilterBDB, doTryToFix)) {
+				result = MakeEnumConsistant<FILTERDB>(presetContent, presetContent.FilterBDB, "FilterBDB", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.FilterCtlWarmDrive, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.FilterCtlWarmDrive, "FilterCtlWarmDrive", doTryToFix);
+			}
+
+			if (!IsEnumConsistant<ONOFF>(presetContent.LFO1Free, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.LFO1Free, "LFO1Free", doTryToFix);
+			}
+			if (!IsEnumConsistant<LFOWAVE>(presetContent.LFO1Wave, doTryToFix)) {
+				result = MakeEnumConsistant<LFOWAVE>(presetContent, presetContent.LFO1Wave, "LFO1Wave", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.LFO2Free, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.LFO2Free, "LFO2Free", doTryToFix);
+			}
+			if (!IsEnumConsistant<LFOWAVE>(presetContent.LFO2Wave, doTryToFix)) {
+				result = MakeEnumConsistant<LFOWAVE>(presetContent, presetContent.LFO2Wave, "LFO2Wave", doTryToFix);
+			}
+			
+			if (!IsEnumConsistant<ONOFF>(presetContent.MonoLegato, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.MonoLegato, "MonoLegato", doTryToFix);
+			}
+
+			if (!IsEnumConsistant<ONOFF>(presetContent.OscA1Invert, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.OscA1Invert, "OscA1Invert", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.OscA1Retrig, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.OscA1Retrig, "OscA1Retrig", doTryToFix);
+			}
+			if (!IsEnumConsistant<VOICES>(presetContent.OscA1Voices, doTryToFix)) {
+				result = MakeEnumConsistant<VOICES>(presetContent, presetContent.OscA1Voices, "OscA1Voices", doTryToFix);
+			}
+			if (!IsEnumConsistant<OSCWAVE>(presetContent.OscA1Wave, doTryToFix)) {
+				result = MakeEnumConsistant<OSCWAVE>(presetContent, presetContent.OscA1Wave, "OscA1Wave", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.OscA2Invert, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.OscA2Invert, "OscA2Invert", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.OscA2Retrig, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.OscA2Retrig, "OscA2Retrig", doTryToFix);
+			}
+			if (!IsEnumConsistant<VOICES>(presetContent.OscA2Voices, doTryToFix)) {
+				result = MakeEnumConsistant<VOICES>(presetContent, presetContent.OscA2Voices, "OscA2Voices", doTryToFix);
+			}
+			if (!IsEnumConsistant<OSCWAVE>(presetContent.OscA2Wave, doTryToFix)) {
+				result = MakeEnumConsistant<OSCWAVE>(presetContent, presetContent.OscA2Wave, "OscA2Wave", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.OscB1Invert, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.OscB1Invert, "OscB1Invert", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.OscB1Retrig, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.OscB1Retrig, "OscB1Retrig", doTryToFix);
+			}
+			if (!IsEnumConsistant<VOICES>(presetContent.OscB1Voices, doTryToFix)) {
+				result = MakeEnumConsistant<VOICES>(presetContent, presetContent.OscB1Voices, "OscB1Voices", doTryToFix);
+			}
+			if (!IsEnumConsistant<OSCWAVE>(presetContent.OscB1Wave, doTryToFix)) {
+				result = MakeEnumConsistant<OSCWAVE>(presetContent, presetContent.OscB1Wave, "OscB1Wave", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.OscB2Invert, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.OscB2Invert, "OscB2Invert", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.OscB2Retrig, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.OscB2Retrig, "OscB2Retrig", doTryToFix);
+			}
+			if (!IsEnumConsistant<VOICES>(presetContent.OscB2Voices, doTryToFix)) {
+				result = MakeEnumConsistant<VOICES>(presetContent, presetContent.OscB2Voices, "OscB2Voices", doTryToFix);
+			}
+			if (!IsEnumConsistant<OSCWAVE>(presetContent.OscB2Wave, doTryToFix)) {
+				result = MakeEnumConsistant<OSCWAVE>(presetContent, presetContent.OscB2Wave, "OscB2Wave", doTryToFix);
+			}
+			
+			if (!IsEnumConsistant<PORTAMODE>(presetContent.PortaMode, doTryToFix)) {
+				result = MakeEnumConsistant<PORTAMODE>(presetContent, presetContent.PortaMode, "PortaMode", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.Solo, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.Solo, "Solo", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.Sync, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.Sync, "Sync", doTryToFix);
+			}
+
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold01, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold01, "XArpHold01", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold02, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold02, "XArpHold02", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold03, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold03, "XArpHold03", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold04, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold04, "XArpHold04", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold05, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold05, "XArpHold05", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold06, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold06, "XArpHold06", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold07, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold07, "XArpHold07", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold08, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold08, "XArpHold08", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold09, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold09, "XArpHold09", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold10, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold10, "XArpHold10", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold11, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold11, "XArpHold11", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold12, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold12, "XArpHold12", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold13, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold13, "XArpHold13", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold14, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold14, "XArpHold14", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold15, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold15, "XArpHold15", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XArpHold16, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XArpHold16, "XArpHold16", doTryToFix);
+			}
+			
+			if (!IsEnumConsistant<XMODSOURCE>(presetContent.XModMisc1ASource, doTryToFix)) {
+				result = MakeEnumConsistant<XMODSOURCE>(presetContent, presetContent.XModMisc1ASource, "XModMisc1ASource", doTryToFix);
+			}
+			if (!IsEnumConsistant<XMODSOURCE>(presetContent.XModMisc1BSource, doTryToFix)) {
+				result = MakeEnumConsistant<XMODSOURCE>(presetContent, presetContent.XModMisc1BSource, "XModMisc1BSource", doTryToFix);
+			}
+			if (!IsEnumConsistant<XMODSOURCE>(presetContent.XModMisc2ASource, doTryToFix)) {
+				result = MakeEnumConsistant<XMODSOURCE>(presetContent, presetContent.XModMisc2ASource, "XModMisc2ASource", doTryToFix);
+			}
+			if (!IsEnumConsistant<XMODSOURCE>(presetContent.XModMisc2BSource, doTryToFix)) {
+				result = MakeEnumConsistant<XMODSOURCE>(presetContent, presetContent.XModMisc2BSource, "XModMisc2BSource", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XSwArpOnOff, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XSwArpOnOff, "XSwArpOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XSwChorusOnOff, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XSwChorusOnOff, "XSwChorusOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XSwCompOnOff, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XSwCompOnOff, "XSwCompOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XSwDelayOnOff, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XSwDelayOnOff, "XSwDelayOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XSwDistOnOff, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XSwDistOnOff, "XSwDistOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XSwEQOnOff, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XSwEQOnOff, "XSwEQOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XSwPhaserOnOff, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XSwPhaserOnOff, "XSwPhaserOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistant<ONOFF>(presetContent.XSwReverbOnOff, doTryToFix)) {
+				result = MakeEnumConsistant<ONOFF>(presetContent, presetContent.XSwReverbOnOff, "XSwReverbOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModEnv1Dest1, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModEnv1Dest1, "YModEnv1Dest1", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModEnv1Dest2, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModEnv1Dest2, "YModEnv1Dest2", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModEnv2Dest1, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModEnv2Dest1, "YModEnv2Dest1", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModEnv2Dest2, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModEnv2Dest2, "YModEnv2Dest2", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModLFO1Dest1, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModLFO1Dest1, "YModLFO1Dest1", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModLFO1Dest2, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModLFO1Dest2, "YModLFO1Dest2", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModLFO2Dest1, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModLFO2Dest1, "YModLFO2Dest1", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModLFO2Dest2, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModLFO2Dest2, "YModLFO2Dest2", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModMisc1ADest1, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModMisc1ADest1, "YModMisc1ADest1", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModMisc1ADest2, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModMisc1ADest2, "YModMisc1ADest2", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModMisc1BDest1, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModMisc1BDest1, "YModMisc1BDest1", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModMisc1BDest2, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModMisc1BDest2, "YModMisc1BDest2", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModMisc2ADest1, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModMisc2ADest1, "YModMisc2ADest1", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModMisc2ADest2, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModMisc2ADest2, "YModMisc2ADest2", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModMisc2BDest1, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModMisc2BDest1, "YModMisc2BDest1", doTryToFix);
+			}
+			if (!IsEnumConsistant<YMODDEST>(presetContent.YModMisc2BDest2, doTryToFix)) {
+				result = MakeEnumConsistant<YMODDEST>(presetContent, presetContent.YModMisc2BDest2, "YModMisc2BDest2", doTryToFix);
+			}
+			if (!IsEnumConsistant<YPARTSELECT>(presetContent.YPartSelect, doTryToFix)) {
+				result = MakeEnumConsistant<YPARTSELECT>(presetContent, presetContent.YPartSelect, "YPartSelect", doTryToFix);
+			}
+			if (!IsEnumConsistant<ZEQMODE>(presetContent.ZEQMode, doTryToFix)) {
+				result = MakeEnumConsistant<ZEQMODE>(presetContent, presetContent.ZEQMode, "ZEQMode", doTryToFix);
+			}
+			
 			return result;
 		}
 		
@@ -3586,7 +3887,7 @@ namespace PresetConverter
 			int numProgramsUnused = bFile.ReadInt32();
 			int presetVersion2 = bFile.ReadInt32();
 			
-			IOUtils.LogMessageToFile(outputStatusLog, String.Format("Preset Type: '{0}', Preset Version1: '{1}', fxVersion: '{2}',  numProgramsUnused: '{3}', presetVersion2: '{4}'", presetType, presetVersion1, fxVersion, numProgramsUnused, presetVersion2));
+			DoLog(String.Format("Preset Type: '{0}', Preset Version1: '{1}', fxVersion: '{2}',  numProgramsUnused: '{3}', presetVersion2: '{4}'", presetType, presetVersion1, fxVersion, numProgramsUnused, presetVersion2));
 			
 			// if Sylenth 1 preset format
 			if (presetType == "1lys") { // '1lys' = 'syl1' backwards
@@ -3603,39 +3904,32 @@ namespace PresetConverter
 						Sylenth1Preset.Syl1PresetContent presetContent = null;
 						for (i = 0; i < numPrograms; i++) {
 							presetContent = new Sylenth1Preset.Syl1PresetContent(bFile, (presetVersion1==2202 || presetVersion1 == 2211));
-							IOUtils.LogMessageToFile(outputStatusLog, String.Format("Start processing {0} '{1}' ...", i, presetContent.PresetName));
-							if (IsConsistant(presetContent)) {
+							DoLog(String.Format("Start processing {0} '{1}' ...", i, presetContent.PresetName));
+							if (IsConsistant(presetContent, true)) {
 								contentList.Add(presetContent);
 							} else {
-								Console.Out.WriteLine("Error! The loaded preset failed the consistency check! {0} '{1}' ({2})", i, presetContent.PresetName, filePath);
-								IOUtils.LogMessageToFile(outputStatusLog, String.Format("Error! The loaded preset failed the consistency check! {0} '{1}' ({2})", i, presetContent.PresetName, filePath));
-								IOUtils.LogMessageToFile(outputErrorLog, String.Format("Error! The loaded preset failed the consistency check! {0} '{1}' ({2})", i, presetContent.PresetName, filePath));
+								DoError(String.Format("Error! The loaded preset failed the consistency check! {0} '{1}' ({2})", i, presetContent.PresetName, filePath));
 							}
 						}
 					} catch(EndOfStreamException eose) {
-						Console.Out.WriteLine("Error! Failed reading presets from bank {0}. Read {1} presets. (Expected {2}) Msg: {3}!", filePath, i, numPrograms, eose.Message);
-						IOUtils.LogMessageToFile(outputStatusLog, String.Format("Error! Failed reading presets from bank {0}. Read {1} presets. (Expected {2}) Msg: {3}!", filePath, i, numPrograms, eose.Message));
-						IOUtils.LogMessageToFile(outputErrorLog, String.Format("Error! Failed reading presets from bank {0}. Read {1} presets. (Expected {2}) Msg: {3}!", filePath, i, numPrograms, eose.Message));
+						DoError(String.Format("Error! Failed reading presets from bank {0}. Read {1} presets. (Expected {2}) Msg: {3}!", filePath, i, numPrograms, eose.Message));
 						return false;
 					}
 
 					// store list as array
 					this.ContentArray = contentList.ToArray();
-					
-					IOUtils.LogMessageToFile(outputStatusLog, String.Format("Finished reading {0} presets from bank {1} ...", numPrograms, filePath));
+					DoLog(String.Format("Finished reading {0} presets from bank {1} ...", numPrograms, filePath));
 					return true;
 				} else if (fxp.fxMagic == "FPCh") {
 					// single preset file
 					this.ContentArray = new Syl1PresetContent[1];
 					this.ContentArray[0] = new Sylenth1Preset.Syl1PresetContent(bFile, presetVersion1==2202);
 
-					IOUtils.LogMessageToFile(outputStatusLog, String.Format("Finished reading preset file {0} ...", filePath));
+					DoLog(String.Format("Finished reading preset file {0} ...", filePath));
 					return true;
 				}
 			} else {
-				Console.Out.WriteLine("Error! The preset file is not a valid Sylenth1 Preset! ({0}). If you are sure it is a Sylenth preset, try to open it in Sylenth and resave (Tip! init full bank before loading and resaving)", filePath);
-				IOUtils.LogMessageToFile(outputStatusLog, String.Format("Error! The preset file is not a valid Sylenth1 Preset! ({0}). If you are sure it is a Sylenth preset, try to open it in Sylenth and resave (Tip! init full bank before loading and resaving)", filePath));
-				IOUtils.LogMessageToFile(outputErrorLog, String.Format("Error! The preset file is not a valid Sylenth1 Preset! ({0}). If you are sure it is a Sylenth preset, try to open it in Sylenth and resave (Tip! init full bank before loading and resaving)", filePath));
+				DoError(String.Format("Error! The preset file is not a valid Sylenth1 Preset! ({0}). If you are sure it is a Sylenth preset, try to open it in Sylenth and resave (Tip! init full bank before loading and resaving)", filePath));
 				return false;
 			}
 			return false;
