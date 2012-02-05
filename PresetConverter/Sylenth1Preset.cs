@@ -2196,6 +2196,11 @@ namespace PresetConverter
 			if (arpHoldValue == ONOFF.On) {
 				arpGateFieldValue = 5;
 			}
+			// If the velocity is 0 - use the voices to "zero" this note
+			// set voices to 0 as well
+			if (arpGateVelocity == 0) {
+				arpGateFieldValue = 0;
+			}			
 			ObjectUtils.SetField(z2, arpGateFieldName, arpGateFieldValue);
 			
 			string arpTransposeFieldName = "VCC_Atrp" + index;
@@ -2357,6 +2362,10 @@ namespace PresetConverter
 			string arpVoicesFieldName = "VCC_Avoc" + index;
 			// Voices range: 0 - 6 (1 = Default)
 			int arpVoicesFieldValue = 6;
+			// If the velocity is 0 - use the voices to "zero" this note
+			if (arpGateVelocity == 0) {
+				arpVoicesFieldValue = 0;
+			}			
 			ObjectUtils.SetField(z2, arpVoicesFieldName, arpVoicesFieldValue);
 			
 			string arpDurationFieldName = "VCC_Amul" + index;
@@ -3642,7 +3651,7 @@ namespace PresetConverter
 					zebra2Preset.PresetName = Content.PresetName;
 					
 					// set master volume (50?)
-					zebra2Preset.Main_CcOp = ConvertSylenthValueToZebra(Content.MainVolume, 0, 10, 0, 100); // restrict the limit from 100 - x
+					zebra2Preset.Main_CcOp = ConvertSylenthValueToZebra(Content.MainVolume, 0, 10, 0, 80); // restrict the limit from 100 - x
 					zebra2Preset.ZMas_Mast = 80;
 					
 					// set mix volume
@@ -3921,10 +3930,17 @@ namespace PresetConverter
 					
 					// Distortion = Shaper 3
 					if (Content.XSwDistOnOff == ONOFF.On) {
-						zebra2Preset.Shape3_Depth = ConvertSylenthValueToZebra(Content.DistortDryWet, 0, 10, 0, 100);
-						zebra2Preset.Shape3_Edge = ConvertSylenthValueToZebra(Content.DistortAmount, 0, 10, 0, 100);
+						// get how hard to distort
+						float distortionAmount = ConvertSylenthValueToZebra(Content.DistortAmount, 0, 10, 0, 100);
+						
+						// regulate using the dry / wet percentage
+						float distortDryWet = ConvertSylenthValueToZebra(Content.DistortDryWet, 0, 10, 0, 100);
+						
+						zebra2Preset.Shape3_Depth = distortionAmount * distortDryWet / 100;
+						zebra2Preset.Shape3_Edge = distortionAmount * distortDryWet / 100;
+						
 						zebra2Preset.Shape3_Input = 13;
-						zebra2Preset.Shape3_Output =10;
+						zebra2Preset.Shape3_Output = 13;
 						zebra2Preset.Shape3_HiOut = 16;
 						
 						switch(Content.DistortType) {
@@ -4024,6 +4040,8 @@ namespace PresetConverter
 						// ArpLoopLength (1 - 16)
 						switch (Content.ArpWrap) {
 							case ARPWRAP.WRAP_0:
+								zebra2Preset.VCC_ArLL = 16;
+								break;
 							case ARPWRAP.WRAP_1:
 								zebra2Preset.VCC_ArLL = 1;
 								break;
