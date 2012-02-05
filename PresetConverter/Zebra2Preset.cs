@@ -31,6 +31,11 @@ namespace PresetConverter
 			}
 		}
 		
+		public enum ReverbMode : int {
+			Reverb = 0,
+			MetalVerb = 1
+		}
+		
 		#region Zebra2 Enums
 		public enum VoiceMode : int {
 			poly = 0,
@@ -323,8 +328,60 @@ namespace PresetConverter
 			Delay_1_8_trip = 13,
 			Delay_1_4_trip = 14,
 			Delay_1_2_trip = 15,
-			Delay_1_1_trip = 16,
+			Delay_1_1_trip = 16
 		}
+		
+		public enum ArpSync : int {
+			Sync_1_64 = 0,
+			Sync_1_32 = 1,
+			Sync_1_16 = 2,
+			Sync_1_8 = 3,
+			Sync_1_4 = 4,
+			Sync_1_2 = 5,
+			Sync_1_1 = 6,
+			Sync_1_32_dot = 7,
+			Sync_1_16_dot = 8,
+			Sync_1_8_dot = 9,
+			Sync_1_4_dot = 10,
+			Sync_1_2_dot = 11,
+			Sync_1_16_trip = 12,
+			Sync_1_8_trip = 13,
+			Sync_1_4_trip = 14,
+			Sync_1_2_trip = 15,
+			Sync_1_1_trip = 16
+		}
+
+		public enum ArpOrder : int {
+			By_Note = 0,
+			As_Played = 1
+		}
+
+		public enum ArpLoop : int {
+			Forward  = 0,
+			Backward = 1,
+			ForwardBackward = 2,
+			BackwardForward = 3
+		}
+
+		public enum ArpPortamento : int {
+			Off = 0,
+			On = 1
+		}
+		
+		public enum ArpNoteDuration : int {
+			Sixteenth = 1,
+			Eight = 2,
+			Eight_dot = 3,
+			Quarter = 4
+		}
+
+		public enum ArpNoteStep : int {
+			Next = 0,
+			Same = 1,
+			First = 2,
+			Last = 3
+		}
+		
 		#endregion
 		
 		#region Zebra2 Fields
@@ -3270,11 +3327,6 @@ namespace PresetConverter
 			return buffer.ToString();
 		}
 		
-		public enum ReverbMode : int {
-			Reverb = 0,
-			MetalVerb = 1
-		}
-		
 		private string GeneratePresetReverb(string name) {
 			StringBuilder buffer = new StringBuilder();
 			buffer.AppendLine();
@@ -3498,121 +3550,6 @@ namespace PresetConverter
 		 * 
 		 * */
 		#endregion
-		
-		public string GeneratePresetContentOLD() {
-			StringBuilder buffer = new StringBuilder();
-			
-			buffer.Append(GeneratePresetHeader());
-			buffer.Append(GenerateModulatorReferenceTable());
-			buffer.Append(GeneratePresetMainLoopCircuit());
-			buffer.Append(GeneratePresetCore());
-			
-			buffer.Append(GeneratePresetLFOG("LfoG1", "LFOG", 3));
-			buffer.Append(GeneratePresetLFOG("LfoG2", "LFOG2", 4));
-			
-			buffer.Append(GeneratePresetVoiceCircuit());
-			
-			/*
-			buffer.Append(GeneratePresetEnvelope("Envelope1", "Env1"));
-			buffer.Append(GeneratePresetEnvelope("Envelope2", "Env2"));
-			buffer.Append(GeneratePresetEnvelope("Envelope3", "Env3"));
-			buffer.Append(GeneratePresetEnvelope("Envelope4", "Env4"));
-			 */
-
-			buffer.Append(GeneratePresetMSEG("MSEG1", 7));
-			buffer.Append(GeneratePresetMSEG("MSEG2", 8));
-			buffer.Append(GeneratePresetMSEG("MSEG3", 9));
-			buffer.Append(GeneratePresetMSEG("MSEG4", 10));
-
-			/*
-			buffer.Append(GeneratePresetLFO("Lfo 1", "LFO1", 11));
-			buffer.Append(GeneratePresetLFO("Lfo 2", "LFO2", 12));
-			buffer.Append(GeneratePresetLFO("Lfo 3", "LFO3", 13));
-			buffer.Append(GeneratePresetLFO("Lfo 4", "LFO4", 14));
-			 */
-			
-			buffer.Append(GeneratePresetMMap("MMap1", 15));
-			buffer.Append(GeneratePresetMMap("MMap2", 16));
-			
-			buffer.Append(GeneratePresetMMix("MMix1"));
-			buffer.Append(GeneratePresetMMix("MMix2"));
-			buffer.Append(GeneratePresetMMix("MMix3"));
-			buffer.Append(GeneratePresetMMix("MMix4"));
-			
-			buffer.Append(GeneratePresetGrid("Grid", 17));
-
-			/*
-			buffer.Append(GeneratePresetOscillator("Oscillator1", "Osc1", 18, 19, 20));
-			buffer.Append(GeneratePresetOscillator("Oscillator2", "Osc2", 21, 22, 23));
-			buffer.Append(GeneratePresetOscillator("Oscillator3", "Osc3", 24, 25, 26));
-			buffer.Append(GeneratePresetOscillator("Oscillator4", "Osc4", 27, 28, 29));
-			 */
-			
-			buffer.Append(GeneratePresetNoise("Noise1", 30));
-			buffer.Append(GeneratePresetNoise("Noise2", 31));
-			
-			//buffer.Append(GeneratePresetFilter("Filter1", "VCF1"));
-			//buffer.Append(GeneratePresetFilter("Filter2", "VCF2"));
-			//buffer.Append(GeneratePresetFilter("Filter3", "VCF3"));
-			//buffer.Append(GeneratePresetFilter("Filter4", "VCF4"));
-
-			buffer.Append(GeneratePresetFMO("FMO1", 32));
-			buffer.Append(GeneratePresetFMO("FMO2", 33));
-			buffer.Append(GeneratePresetFMO("FMO3", 34));
-			buffer.Append(GeneratePresetFMO("FMO4", 35));
-			
-			buffer.Append(GeneratePresetComb("Comb1"));
-			buffer.Append(GeneratePresetComb("Comb2"));
-			
-			buffer.Append(GeneratePresetShape("Shape1"));
-			buffer.Append(GeneratePresetShape("Shape2"));
-			
-			buffer.Append(GeneratePresetChannelMix("ChannelMix1", "Mix1"));
-			buffer.Append(GeneratePresetChannelMix("ChannelMix2", "Mix2"));
-			buffer.Append(GeneratePresetChannelMix("ChannelMix3", "Mix3"));
-			buffer.Append(GeneratePresetChannelMix("ChannelMix4", "Mix4"));
-			
-			buffer.Append(GeneratePresetXMF("Xmf1"));
-			buffer.Append(GeneratePresetXMF("Xmf2"));
-			
-			buffer.Append(GeneratePresetSideBand("SideBand1", "SB1"));
-			buffer.Append(GeneratePresetSideBand("SideBand2", "SB2"));
-			
-			buffer.Append(GeneratePresetVoiceMix());
-			
-			buffer.Append(GeneratePresetFXGrid(36));
-			
-			buffer.Append(GeneratePresetModFX("ModFX1"));
-			buffer.Append(GeneratePresetModFX("ModFX2"));
-			
-			//buffer.Append(GeneratePresetDelay("Delay1"));
-			//buffer.Append(GeneratePresetDelay("Delay2"));
-			
-			buffer.Append(GeneratePresetShape("Shape3"));
-			buffer.Append(GeneratePresetShape("Shape4"));
-			
-			buffer.Append(GeneratePresetChannelMix("ChannelMix5", "Mix5"));
-			buffer.Append(GeneratePresetChannelMix("ChannelMix6", "Mix6"));
-			
-			buffer.Append(GeneratePresetReverb("Rev1"));
-			
-			buffer.Append(GeneratePresetCompressor("Compressor1", "Comp1"));
-			buffer.Append(GeneratePresetCompressor("Compressor2", "Comp2"));
-			
-			buffer.Append(GeneratePresetEqualizer("Equalizer1", "EQ1"));
-			buffer.Append(GeneratePresetEqualizer("Equalizer2", "EQ2"));
-
-			//buffer.Append(GeneratePresetFilter("Filter5", "VCF5"));
-			//buffer.Append(GeneratePresetFilter("Filter6", "VCF6"));
-			
-			buffer.Append(GeneratePresetSideBand("SideBand3", "SB3"));
-			
-			buffer.Append(GeneratePresetMaster());
-			
-			buffer.Append(GeneratePresetUglyCompressedBinaryData());
-			
-			return buffer.ToString();
-		}
 		
 		public override string ToString() {
 			StringBuilder buffer = new StringBuilder();
@@ -3932,12 +3869,16 @@ namespace PresetConverter
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Porta={0:0.00}", VCC_Porta).PadRight(20)).AppendLine("// Portamento (0.00 - 100.00)");
 			buffer.Append(String.Format("PB={0}", VCC_PB).PadRight(20)).AppendLine("// PitchBendUp");
 			buffer.Append(String.Format("PBD={0}", VCC_PBD).PadRight(20)).AppendLine("// PitchBendDown");
-			buffer.Append(String.Format("ArSc={0}", VCC_ArSc).PadRight(20)).AppendLine("// ArpSync");
-			buffer.Append(String.Format("ArOrd={0}", VCC_ArOrd).PadRight(20)).AppendLine("// ArpOrder");
-			buffer.Append(String.Format("ArLp={0}", VCC_ArLp).PadRight(20)).AppendLine("// ArpLoop");
-			buffer.Append(String.Format("ArOct={0}", VCC_ArOct).PadRight(20)).AppendLine("// ArpOctave");
-			buffer.Append(String.Format("ArLL={0}", VCC_ArLL).PadRight(20)).AppendLine("// ArpLoopLength");
-			buffer.Append(String.Format("ArTr={0}", VCC_ArTr).PadRight(20)).AppendLine("// ArpPortamento");
+			
+			// Arpeggiator Main
+			buffer.Append(String.Format("ArSc={0}", VCC_ArSc).PadRight(20)).AppendLine("// ArpSync (0=1:64, 1=1:32, 2=1:16, 3=1:8, 4=1:4, 5=1:2, 6=1:1, 7=1:32 dot, 8=1:16 dot, 9=1:8 dot, 10=1:4 dot, 11=1:2 dot, 12=1:16 trip, 13=1:8 trip, 14=1:4 trip, 15=1:2 trip, 16=1:1 trip)");
+			buffer.Append(String.Format("ArOrd={0}", VCC_ArOrd).PadRight(20)).AppendLine("// ArpOrder (0 = By Note, 1 = As Played)");
+			buffer.Append(String.Format("ArLp={0}", VCC_ArLp).PadRight(20)).AppendLine("// ArpLoop (0 = Forward F-->, 1 = Backward B <--, 2 = ForwardBackward FB <->, 3 = BackwardForward BF >-<)");
+			buffer.Append(String.Format("ArOct={0}", VCC_ArOct).PadRight(20)).AppendLine("// ArpOctave (0, 1, 2)");
+			buffer.Append(String.Format("ArLL={0}", VCC_ArLL).PadRight(20)).AppendLine("// ArpLoopLength (1 - 16)");
+			buffer.Append(String.Format("ArTr={0}", VCC_ArTr).PadRight(20)).AppendLine("// ArpPortamento ( 0 = Off, 1 = On)");
+			
+			// Drift, Portamento etc
 			buffer.Append(String.Format("Drft={0}", VCC_Drft).PadRight(20)).AppendLine("// Drift");
 			buffer.Append(String.Format("MTunS={0}", VCC_MTunS).PadRight(20)).AppendLine("// TuningMode");
 			buffer.Append(String.Format("MTunN={0}", VCC_MTunN).PadRight(20)).AppendLine("// binary data for Tuning");
@@ -3947,6 +3888,8 @@ namespace PresetConverter
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "PortRg={0:0.00}", VCC_PortRg).PadRight(20)).AppendLine("// PortaRange");
 			buffer.Append(String.Format("PortaM={0}", VCC_PortaM).PadRight(20)).AppendLine("// PortamentoMode");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Porta2={0:0.00}", VCC_Porta2).PadRight(20)).AppendLine("// Portamento2");
+			
+			// Arpeggiator
 			buffer.Append(String.Format("Agte1={0}", VCC_Agte1).PadRight(20)).AppendLine("// Arp Gate1");
 			buffer.Append(String.Format("Atrp1={0}", VCC_Atrp1).PadRight(20)).AppendLine("// Arp Transpose1");
 			buffer.Append(String.Format("Avoc1={0}", VCC_Avoc1).PadRight(20)).AppendLine("// Arp Voices1");

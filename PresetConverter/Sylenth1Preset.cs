@@ -57,6 +57,33 @@ namespace PresetConverter
 			VEL_StepHold   = 0x3F800000,
 			VEL_StepKey    = 0x3F400000
 		}
+		
+		public enum ARPOCTAVE : uint {
+			OCTAVE_1 = 0x00000000,
+			OCTAVE_2 = 0x3EAAAAAB,
+			OCTAVE_3 = 0x3F2AAAAB,
+			OCTAVE_4 = 0x3F800000
+		}
+		
+		public enum ARPWRAP : uint {
+			WRAP_0 = 0x00000000,
+			WRAP_1 = 0x3D800000,
+			WRAP_2 = 0x3E000000,
+			WRAP_3 = 0x3E400000,
+			WRAP_4 = 0x3E800000,
+			WRAP_5 = 0x3EA00000,
+			WRAP_6 = 0x3EC00000,
+			WRAP_7 = 0x3EE00000,
+			WRAP_8 = 0x3F000000,
+			WRAP_9 = 0x3F100000,
+			WRAP_10 = 0x3F200000,
+			WRAP_11 = 0x3F300000,
+			WRAP_12 = 0x3F400000,
+			WRAP_13 = 0x3F500000,
+			WRAP_14 = 0x3F600000,
+			WRAP_15 = 0x3F700000,
+			WRAP_16 = 0x3F800000
+		}
 
 		public enum CHORUSMODE : uint {
 			Dual    = 0x3F800000,
@@ -398,6 +425,81 @@ namespace PresetConverter
 			VOICES_7       = 0x3F600000,
 			VOICES_8       = 0x3F800000
 		}
+
+		public enum ARPTRANSPOSE {
+			MINUS_24 = -24,
+			MINUS_23 = -23,
+			MINUS_22 = -22,
+			MINUS_21 = -21,
+			MINUS_20 = -20,
+			MINUS_19 = -19,
+			MINUS_18 = -18,
+			MINUS_17 = -17,
+			MINUS_16 = -16,
+			MINUS_15 = -15,
+			MINUS_14 = -14,
+			MINUS_13 = -13,
+			MINUS_12 = -12,
+			MINUS_11 = -11,
+			MINUS_10 = -10,
+			MINUS_9 = -9,
+			MINUS_8 = -8,
+			MINUS_7 = -7,
+			MINUS_6 = -6,
+			MINUS_5 = -5,
+			MINUS_4 = -4,
+			MINUS_3 = -3,
+			MINUS_2 = -2,
+			MINUS_1 = -1,
+			ZERO = 0,
+			PLUSS_1 = 1,
+			PLUSS_2 = 2,
+			PLUSS_3 = 3,
+			PLUSS_4 = 4,
+			PLUSS_5 = 5,
+			PLUSS_6 = 6,
+			PLUSS_7 = 7,
+			PLUSS_8 = 8,
+			PLUSS_9 = 9,
+			PLUSS_10 = 10,
+			PLUSS_11 = 11,
+			PLUSS_12 = 12,
+			PLUSS_13 = 13,
+			PLUSS_14 = 14,
+			PLUSS_15 = 15,
+			PLUSS_16 = 16,
+			PLUSS_17 = 17,
+			PLUSS_18 = 18,
+			PLUSS_19 = 19,
+			PLUSS_20 = 20,
+			PLUSS_21 = 21,
+			PLUSS_22 = 22,
+			PLUSS_23 = 23,
+			PLUSS_24 = 24
+		}
+		
+		public enum ARPSYNCTIMING {
+			ARPSYNC_UNKNOWN = -1,
+			ARPSYNC_1_64 = 0,
+			ARPSYNC_1_32T = 1,
+			ARPSYNC_1_64D = 2,
+			ARPSYNC_1_32 = 3,
+			ARPSYNC_1_16T = 4,
+			ARPSYNC_1_32D = 5,
+			ARPSYNC_1_16 = 6,
+			ARPSYNC_1_8T = 7,
+			ARPSYNC_1_16D = 8,
+			ARPSYNC_1_8 = 9,
+			ARPSYNC_1_4T = 10,
+			ARPSYNC_1_8D = 11,
+			ARPSYNC_1_4 = 12,
+			ARPSYNC_1_2T = 13,
+			ARPSYNC_1_4D = 14,
+			ARPSYNC_1_2 = 15,
+			ARPSYNC_1_1T = 16,
+			ARPSYNC_1_2D = 17,
+			ARPSYNC_1_1 = 18
+		}
 		
 		public enum DELAYTIMING {
 			DELAY_UNKNOWN = -1,
@@ -482,6 +584,158 @@ namespace PresetConverter
 			byte[] bytes = BitConverter.GetBytes(uintValue);
 			return BitConverter.ToSingle(bytes, 0);
 		}
+
+		private static ARPTRANSPOSE ArpeggiatorTransposeFloatToEnum(float value) {
+			float x = value;
+			ARPTRANSPOSE transpose = ARPTRANSPOSE.ZERO;
+
+			if (x >= 0.00f && x < 0.020408163f) {
+				transpose = ARPTRANSPOSE.MINUS_24;
+			} else if (x >= 0.020408163f && x < 0.040816327f) {
+				transpose = ARPTRANSPOSE.MINUS_23;
+			} else if (x >= 0.040816327f && x < 0.06122449f) {
+				transpose = ARPTRANSPOSE.MINUS_22;
+			} else if (x >= 0.06122449f && x < 0.081632653f) {
+				transpose = ARPTRANSPOSE.MINUS_21;
+			} else if (x >= 0.081632653f && x < 0.102040816f) {
+				transpose = ARPTRANSPOSE.MINUS_20;
+			} else if (x >= 0.102040816f && x < 0.12244898f) {
+				transpose = ARPTRANSPOSE.MINUS_19;
+			} else if (x >= 0.12244898f && x < 0.142857143f) {
+				transpose = ARPTRANSPOSE.MINUS_18;
+			} else if (x >= 0.142857143f && x < 0.163265306f) {
+				transpose = ARPTRANSPOSE.MINUS_17;
+			} else if (x >= 0.163265306f && x < 0.183673469f) {
+				transpose = ARPTRANSPOSE.MINUS_16;
+			} else if (x >= 0.183673469f && x < 0.204081633f) {
+				transpose = ARPTRANSPOSE.MINUS_15;
+			} else if (x >= 0.204081633f && x < 0.224489796f) {
+				transpose = ARPTRANSPOSE.MINUS_14;
+			} else if (x >= 0.224489796f && x < 0.244897959f) {
+				transpose = ARPTRANSPOSE.MINUS_13;
+			} else if (x >= 0.244897959f && x < 0.265306122f) {
+				transpose = ARPTRANSPOSE.MINUS_12;
+			} else if (x >= 0.265306122f && x < 0.285714286f) {
+				transpose = ARPTRANSPOSE.MINUS_11;
+			} else if (x >= 0.285714286f && x < 0.306122449f) {
+				transpose = ARPTRANSPOSE.MINUS_10;
+			} else if (x >= 0.306122449f && x < 0.326530612f) {
+				transpose = ARPTRANSPOSE.MINUS_9;
+			} else if (x >= 0.326530612f && x < 0.346938776f) {
+				transpose = ARPTRANSPOSE.MINUS_8;
+			} else if (x >= 0.346938776f && x < 0.367346939f) {
+				transpose = ARPTRANSPOSE.MINUS_7;
+			} else if (x >= 0.367346939f && x < 0.387755102f) {
+				transpose = ARPTRANSPOSE.MINUS_6;
+			} else if (x >= 0.387755102f && x < 0.408163265f) {
+				transpose = ARPTRANSPOSE.MINUS_5;
+			} else if (x >= 0.408163265f && x < 0.428571429f) {
+				transpose = ARPTRANSPOSE.MINUS_4;
+			} else if (x >= 0.428571429f && x < 0.448979592f) {
+				transpose = ARPTRANSPOSE.MINUS_3;
+			} else if (x >= 0.448979592f && x < 0.469387755f) {
+				transpose = ARPTRANSPOSE.MINUS_2;
+			} else if (x >= 0.469387755f && x < 0.489795918f) {
+				transpose = ARPTRANSPOSE.MINUS_1;
+			} else if (x >= 0.489795918f && x < 0.510204082f) {
+				transpose = ARPTRANSPOSE.ZERO;
+			} else if (x >= 0.510204082f && x < 0.530612245f) {
+				transpose = ARPTRANSPOSE.PLUSS_1;
+			} else if (x >= 0.530612245f && x < 0.551020408f) {
+				transpose = ARPTRANSPOSE.PLUSS_2;
+			} else if (x >= 0.551020408f && x < 0.571428571f) {
+				transpose = ARPTRANSPOSE.PLUSS_3;
+			} else if (x >= 0.571428571f && x < 0.591836735f) {
+				transpose = ARPTRANSPOSE.PLUSS_4;
+			} else if (x >= 0.591836735f && x < 0.612244898f) {
+				transpose = ARPTRANSPOSE.PLUSS_5;
+			} else if (x >= 0.612244898f && x < 0.632653061f) {
+				transpose = ARPTRANSPOSE.PLUSS_6;
+			} else if (x >= 0.632653061f && x < 0.653061224f) {
+				transpose = ARPTRANSPOSE.PLUSS_7;
+			} else if (x >= 0.653061224f && x < 0.673469388f) {
+				transpose = ARPTRANSPOSE.PLUSS_8;
+			} else if (x >= 0.673469388f && x < 0.693877551f) {
+				transpose = ARPTRANSPOSE.PLUSS_9;
+			} else if (x >= 0.693877551f && x < 0.714285714f) {
+				transpose = ARPTRANSPOSE.PLUSS_10;
+			} else if (x >= 0.714285714f && x < 0.734693878f) {
+				transpose = ARPTRANSPOSE.PLUSS_11;
+			} else if (x >= 0.734693878f && x < 0.755102041f) {
+				transpose = ARPTRANSPOSE.PLUSS_12;
+			} else if (x >= 0.755102041f && x < 0.775510204f) {
+				transpose = ARPTRANSPOSE.PLUSS_13;
+			} else if (x >= 0.775510204f && x < 0.795918367f) {
+				transpose = ARPTRANSPOSE.PLUSS_14;
+			} else if (x >= 0.795918367f && x < 0.816326531f) {
+				transpose = ARPTRANSPOSE.PLUSS_15;
+			} else if (x >= 0.816326531f && x < 0.836734694f) {
+				transpose = ARPTRANSPOSE.PLUSS_16;
+			} else if (x >= 0.836734694f && x < 0.857142857f) {
+				transpose = ARPTRANSPOSE.PLUSS_17;
+			} else if (x >= 0.857142857f && x < 0.87755102f) {
+				transpose = ARPTRANSPOSE.PLUSS_18;
+			} else if (x >= 0.87755102f && x < 0.897959184f) {
+				transpose = ARPTRANSPOSE.PLUSS_19;
+			} else if (x >= 0.897959184f && x < 0.918367347f) {
+				transpose = ARPTRANSPOSE.PLUSS_20;
+			} else if (x >= 0.918367347f && x < 0.93877551f) {
+				transpose = ARPTRANSPOSE.PLUSS_21;
+			} else if (x >= 0.93877551f && x < 0.959183673f) {
+				transpose = ARPTRANSPOSE.PLUSS_22;
+			} else if (x >= 0.959183673f && x < 0.979591837f) {
+				transpose = ARPTRANSPOSE.PLUSS_23;
+			} else if (x >= 0.979591837f && x <= 1.0f) {
+				transpose = ARPTRANSPOSE.PLUSS_24;
+			}
+			return transpose;
+		}
+
+		private static ARPSYNCTIMING ArpeggiatorSyncTimeFloatToEnum(float value) {
+			float x = value;
+			ARPSYNCTIMING timing = ARPSYNCTIMING.ARPSYNC_UNKNOWN;
+
+			if (x >= 0.0000000000f && x < 0.0380952656f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_1;
+			} else if (x >= 0.0428571440f && x < 0.0904762200f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_2D;
+			} else if (x >= 0.0952380747f && x < 0.1476190690f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_1T;
+			} else if (x >= 0.1523809580f && x < 0.2000000630f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_2;
+			} else if (x >= 0.2047619000f && x < 0.2571429000f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_4D;
+			} else if (x >= 0.2619047460f && x < 0.3095238210f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_2T;
+			} else if (x >= 0.3142857000f && x < 0.3666666750f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_4;
+			} else if (x >= 0.3714285490f && x < 0.4190476240f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_8D;
+			} else if (x >= 0.4238095280f && x < 0.4761905370f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_4T;
+			} else if (x >= 0.4809523820f && x < 0.5285714000f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_8;
+			} else if (x >= 0.5333333610f && x < 0.5857143400f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_16D;
+			} else if (x >= 0.5904761550f && x < 0.6428571340f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_8T;
+			} else if (x >= 0.6476190690f && x < 0.6952381000f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_16;
+			} else if (x >= 0.7000000000f && x < 0.7523809670f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_32D;
+			} else if (x >= 0.7571428420f && x < 0.8047619000f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_16T;
+			} else if (x >= 0.8095238000f && x < 0.8619048000f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_32;
+			} else if (x >= 0.8666667000f && x < 0.9142858000f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_64D;
+			} else if (x >= 0.9190476000f && x < 0.9714286330f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_32T;
+			} else if (x >= 0.9761904480f && x <= 1.0000000000f) {
+				timing = ARPSYNCTIMING.ARPSYNC_1_64;
+			}
+			return timing;
+		}
 		
 		private static DELAYTIMING DelayTimeFloatToEnum(float value) {
 			// the rule for finding the Delay timing float ranges in a Sylenth presets
@@ -529,7 +783,7 @@ namespace PresetConverter
 				timing = DELAYTIMING.DELAY_1_2T;
 			} else if (x >= 0.9095238095f && x < 0.9809523810f) {
 				timing = DELAYTIMING.DELAY_1_4D;
-			} else if (x >= 0.9809523810f && x < 1.0000000000f) {
+			} else if (x >= 0.9809523810f && x <= 1.0000000000f) {
 				timing = DELAYTIMING.DELAY_1_2;
 			}
 			return timing;
@@ -619,7 +873,7 @@ namespace PresetConverter
 				timing = LFOTIMING.LFO_1_128T;
 			} else if (x >= 0.9571428571f && x < 0.9857142857f) {
 				timing = LFOTIMING.LFO_1_256;
-			} else if (x >= 0.9857142857f && x < 1.0000000000f) {
+			} else if (x >= 0.9857142857f && x <= 1.0000000000f) {
 				timing = LFOTIMING.LFO_1_256T;
 			}
 
@@ -1420,10 +1674,10 @@ namespace PresetConverter
 			public float AmpEnvBSustain;             // index 48:51 (value range 0 -> 10)
 			public float ArpGate;                    // index 52:55 (value range 0 -> 100)
 			public ARPMODE ArpMode;                  // index 56:59
-			public float ArpOctave;                  // index 60:63 (value range 1 -> 4)
+			public ARPOCTAVE ArpOctave;              // index 60:63 (value range 1 -> 4)
 			public float ArpTime;                    // index 64:67 (value range 1/1 -> 1/64)
 			public ARPVELO ArpVelo;                  // index 70:71
-			public float ArpWrap;                    // index 72:75 (value range 0 -> 16)
+			public ARPWRAP ArpWrap;                  // index 72:75 (value range 0 -> 16)
 			public float ChorusDelay;                // index 76:79 (value range 1 -> 40)
 			public float ChorusDepth;                // index 80:83 (value range 0 -> 100)
 			public float ChorusDry_Wet;              // index 84:87 (value range 0 -> 100)
@@ -1665,10 +1919,10 @@ namespace PresetConverter
 				this.AmpEnvBSustain = bFile.ReadSingle();             // index 48:51 (value range 0 -> 10)
 				this.ArpGate = bFile.ReadSingle();                    // index 52:55 (value range 0 -> 100)
 				this.ArpMode = (ARPMODE) bFile.ReadUInt32();          // index 56:59
-				this.ArpOctave = bFile.ReadSingle();                  // index 60:63 (value range 1 -> 4)
+				this.ArpOctave = (ARPOCTAVE) bFile.ReadUInt32();      // index 60:63 (value range 1 -> 4)
 				this.ArpTime = bFile.ReadSingle();                    // index 64:67 (value range 1/1 -> 1/64)
 				this.ArpVelo = (ARPVELO) bFile.ReadUInt32();          // index 70:71
-				this.ArpWrap = bFile.ReadSingle();                    // index 72:75 (value range 0 -> 16)
+				this.ArpWrap = (ARPWRAP) bFile.ReadUInt32();          // index 72:75 (value range 0 -> 16)
 				this.ChorusDelay = bFile.ReadSingle();                // index 76:79 (value range 1 -> 40)
 				this.ChorusDepth = bFile.ReadSingle();                // index 80:83 (value range 0 -> 100)
 				this.ChorusDry_Wet = bFile.ReadSingle();              // index 84:87 (value range 0 -> 100)
@@ -1926,6 +2180,212 @@ namespace PresetConverter
 			ObjectUtils.SetField(z2, envelopeFieldName, (float) envValue);
 		}
 		
+		private static void SetZebraArpeggiatorNoteFromSylenth(Zebra2Preset z2, float storedSylenthArpGateValue, ONOFF arpHoldValue, float storedSylenthArpTransposeValue, float storedSylenthArpVelocityValue, int index) {
+			
+			// TODO: use storedSylenthArpGateValue for something?
+			// range: 0% - 100%
+			float arpGatePercentage = MathUtils.ConvertAndMainainRatio(storedSylenthArpGateValue, 0, 1, 0, 100);
+
+			// TODO: use storedSylenthArpVelocityValue for something?
+			// range = 0 - 127
+			float arpGateVelocity = MathUtils.ConvertAndMainainRatio(storedSylenthArpVelocityValue, 0, 1, 0, 127);
+			
+			string arpGateFieldName = "VCC_Agte" + index;
+			// Gate range: 0 - 5 (2 = Default)
+			int arpGateFieldValue = 2;
+			if (arpHoldValue == ONOFF.On) {
+				arpGateFieldValue = 5;
+			}
+			ObjectUtils.SetField(z2, arpGateFieldName, arpGateFieldValue);
+			
+			string arpTransposeFieldName = "VCC_Atrp" + index;
+			// Transpose range: -12 - 0 - 12 (0 = Default)
+			int arpTransposeFieldValue = 0;
+			ARPTRANSPOSE transpose = ArpeggiatorTransposeFloatToEnum(storedSylenthArpTransposeValue);
+			switch (transpose) {
+				case ARPTRANSPOSE.MINUS_24:
+					arpTransposeFieldValue = -12;
+					break;
+				case ARPTRANSPOSE.MINUS_23:
+					arpTransposeFieldValue = -11;
+					break;
+				case ARPTRANSPOSE.MINUS_22:
+					arpTransposeFieldValue = -10;
+					break;
+				case ARPTRANSPOSE.MINUS_21:
+					arpTransposeFieldValue = -9;
+					break;
+				case ARPTRANSPOSE.MINUS_20:
+					arpTransposeFieldValue = -8;
+					break;
+				case ARPTRANSPOSE.MINUS_19:
+					arpTransposeFieldValue = -7;
+					break;
+				case ARPTRANSPOSE.MINUS_18:
+					arpTransposeFieldValue = -6;
+					break;
+				case ARPTRANSPOSE.MINUS_17:
+					arpTransposeFieldValue = -5;
+					break;
+				case ARPTRANSPOSE.MINUS_16:
+					arpTransposeFieldValue = -4;
+					break;
+				case ARPTRANSPOSE.MINUS_15:
+					arpTransposeFieldValue = -3;
+					break;
+				case ARPTRANSPOSE.MINUS_14:
+					arpTransposeFieldValue = -2;
+					break;
+				case ARPTRANSPOSE.MINUS_13:
+					arpTransposeFieldValue = -1;
+					break;
+				case ARPTRANSPOSE.MINUS_12:
+					arpTransposeFieldValue = -12;
+					break;
+				case ARPTRANSPOSE.MINUS_11:
+					arpTransposeFieldValue = -11;
+					break;
+				case ARPTRANSPOSE.MINUS_10:
+					arpTransposeFieldValue = -10;
+					break;
+				case ARPTRANSPOSE.MINUS_9:
+					arpTransposeFieldValue = -9;
+					break;
+				case ARPTRANSPOSE.MINUS_8:
+					arpTransposeFieldValue = -8;
+					break;
+				case ARPTRANSPOSE.MINUS_7:
+					arpTransposeFieldValue = -7;
+					break;
+				case ARPTRANSPOSE.MINUS_6:
+					arpTransposeFieldValue = -6;
+					break;
+				case ARPTRANSPOSE.MINUS_5:
+					arpTransposeFieldValue = -5;
+					break;
+				case ARPTRANSPOSE.MINUS_4:
+					arpTransposeFieldValue = -4;
+					break;
+				case ARPTRANSPOSE.MINUS_3:
+					arpTransposeFieldValue = -3;
+					break;
+				case ARPTRANSPOSE.MINUS_2:
+					arpTransposeFieldValue = -2;
+					break;
+				case ARPTRANSPOSE.MINUS_1:
+					arpTransposeFieldValue = -1;
+					break;
+				case ARPTRANSPOSE.ZERO:
+					arpTransposeFieldValue = 0;
+					break;
+				case ARPTRANSPOSE.PLUSS_1:
+					arpTransposeFieldValue = 1;
+					break;
+				case ARPTRANSPOSE.PLUSS_2:
+					arpTransposeFieldValue = 2;
+					break;
+				case ARPTRANSPOSE.PLUSS_3:
+					arpTransposeFieldValue = 3;
+					break;
+				case ARPTRANSPOSE.PLUSS_4:
+					arpTransposeFieldValue = 4;
+					break;
+				case ARPTRANSPOSE.PLUSS_5:
+					arpTransposeFieldValue = 5;
+					break;
+				case ARPTRANSPOSE.PLUSS_6:
+					arpTransposeFieldValue = 6;
+					break;
+				case ARPTRANSPOSE.PLUSS_7:
+					arpTransposeFieldValue = 7;
+					break;
+				case ARPTRANSPOSE.PLUSS_8:
+					arpTransposeFieldValue = 8;
+					break;
+				case ARPTRANSPOSE.PLUSS_9:
+					arpTransposeFieldValue = 9;
+					break;
+				case ARPTRANSPOSE.PLUSS_10:
+					arpTransposeFieldValue = 10;
+					break;
+				case ARPTRANSPOSE.PLUSS_11:
+					arpTransposeFieldValue = 11;
+					break;
+				case ARPTRANSPOSE.PLUSS_12:
+					arpTransposeFieldValue = 12;
+					break;
+				case ARPTRANSPOSE.PLUSS_13:
+					arpTransposeFieldValue = 1;
+					break;
+				case ARPTRANSPOSE.PLUSS_14:
+					arpTransposeFieldValue = 2;
+					break;
+				case ARPTRANSPOSE.PLUSS_15:
+					arpTransposeFieldValue = 3;
+					break;
+				case ARPTRANSPOSE.PLUSS_16:
+					arpTransposeFieldValue = 4;
+					break;
+				case ARPTRANSPOSE.PLUSS_17:
+					arpTransposeFieldValue = 5;
+					break;
+				case ARPTRANSPOSE.PLUSS_18:
+					arpTransposeFieldValue = 6;
+					break;
+				case ARPTRANSPOSE.PLUSS_19:
+					arpTransposeFieldValue = 7;
+					break;
+				case ARPTRANSPOSE.PLUSS_20:
+					arpTransposeFieldValue = 8;
+					break;
+				case ARPTRANSPOSE.PLUSS_21:
+					arpTransposeFieldValue = 9;
+					break;
+				case ARPTRANSPOSE.PLUSS_22:
+					arpTransposeFieldValue = 10;
+					break;
+				case ARPTRANSPOSE.PLUSS_23:
+					arpTransposeFieldValue = 11;
+					break;
+				case ARPTRANSPOSE.PLUSS_24:
+					arpTransposeFieldValue = 12;
+					break;
+			}
+			
+			ObjectUtils.SetField(z2, arpTransposeFieldName, arpTransposeFieldValue);
+			
+			string arpVoicesFieldName = "VCC_Avoc" + index;
+			// Voices range: 0 - 6 (1 = Default)
+			int arpVoicesFieldValue = 6;
+			ObjectUtils.SetField(z2, arpVoicesFieldName, arpVoicesFieldValue);
+			
+			string arpDurationFieldName = "VCC_Amul" + index;
+			// Duration range: 1 - 4 (1 = Default)
+			// 4 = quarter
+			// 3 = eigth dotted
+			// 2 = eigth
+			// 1 = sixteenth
+			int arpDurationFieldValue = (int) Zebra2Preset.ArpNoteDuration.Sixteenth;
+			ObjectUtils.SetField(z2, arpDurationFieldName, arpDurationFieldValue);
+			
+			string arpStepControlFieldName = "VCC_Amod" + index;
+			// Step range:
+			// Next = 0,
+			// Same = 1,
+			// First = 2,
+			// Last = 3
+			int arpStepControlFieldValue = (int) Zebra2Preset.ArpNoteStep.Next;
+			ObjectUtils.SetField(z2, arpStepControlFieldName, arpStepControlFieldValue);
+
+			string arpStepModAFieldName = "VCC_AMDpt" + index;
+			float arpStepModAFieldValue = 00.00f;
+			ObjectUtils.SetField(z2, arpStepModAFieldName, arpStepModAFieldValue);
+			
+			string arpStepModBFieldName = "VCC_AMDpB" + index;
+			float arpStepModBFieldValue = 00.00f;
+			ObjectUtils.SetField(z2, arpStepModBFieldName, arpStepModBFieldValue);
+		}
+		
 		private static int ConvertSylenthVoicesToZebra(VOICES numberOfVoices) {
 			int zebraVoices = (int) Zebra2Preset.OscillatorPoly.single;
 			
@@ -2088,6 +2548,72 @@ namespace PresetConverter
 			}
 			return (int) delaySync;
 		}
+
+		private static int ConvertSylenthArpSyncTimingsToZebra(float arpSyncTime) {
+			ARPSYNCTIMING arpSyncTiming = ArpeggiatorSyncTimeFloatToEnum(arpSyncTime);
+			
+			Zebra2Preset.ArpSync arpSync = Zebra2Preset.ArpSync.Sync_1_4;
+			switch(arpSyncTiming) {
+				case ARPSYNCTIMING.ARPSYNC_1_64:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_64;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_32T:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_32;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_64D:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_64;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_32:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_32;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_16T:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_16_trip;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_32D:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_32_dot;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_16:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_16;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_8T:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_8_trip;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_16D:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_16_dot;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_8:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_8;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_4T:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_4_trip;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_8D:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_8_dot;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_4:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_4;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_2T:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_2_trip;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_4D:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_4_dot;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_2:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_2;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_1T:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_1_trip;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_2D:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_2_dot;
+					break;
+				case ARPSYNCTIMING.ARPSYNC_1_1:
+					arpSync = Zebra2Preset.ArpSync.Sync_1_1;
+					break;
+			}
+			return (int) arpSync;
+		}
 		
 		private static Zebra2Preset.ModulationSource ConvertSylenthModSourceToZebra(XMODSOURCE sylenthModSource) {
 			Zebra2Preset.ModulationSource zebraModSource = Zebra2Preset.ModulationSource.ModWhl;
@@ -2193,18 +2719,18 @@ namespace PresetConverter
 						
 						// Oscillators
 					case YMODDEST.Volume_A:
-						// Volume A:	
+						// Volume A:
 						zebraModSourceFieldName = "OSC1_VolSc";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "OSC1_VolDt";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 
 						zebraModSourceFieldName = "OSC2_VolSc";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "OSC2_VolDt";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 
 						break;
 					case YMODDEST.Volume_B:
@@ -2213,41 +2739,41 @@ namespace PresetConverter
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "OSC3_VolDt";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 
 						zebraModSourceFieldName = "OSC4_VolSc";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "OSC4_VolDt";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
 					case YMODDEST.VolumeAB:
-						// Volume A:	
+						// Volume A:
 						zebraModSourceFieldName = "OSC1_VolSc";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "OSC1_VolDt";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 
 						zebraModSourceFieldName = "OSC2_VolSc";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "OSC2_VolDt";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 
 						// Volume B:
 						zebraModSourceFieldName = "OSC3_VolSc";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "OSC3_VolDt";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 
 						zebraModSourceFieldName = "OSC4_VolSc";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "OSC4_VolDt";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));												
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 
 						break;
 					case YMODDEST.Pitch_A:
@@ -2490,7 +3016,7 @@ namespace PresetConverter
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCA1_ModDpt1";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));						
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						zebraUsedModSources.Add(zebraModSourceFieldName); // force using the matrix
 						
 						break;
@@ -2511,7 +3037,7 @@ namespace PresetConverter
 						zebraModDepthFieldName = "VCA1_ModDpt1";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);			// Mod Depth1
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						zebraUsedModSources.Add(zebraModSourceFieldName); // force using the matrix						
+						zebraUsedModSources.Add(zebraModSourceFieldName); // force using the matrix
 
 						zebraModSourceFieldName = "VCA1_ModSrc2";
 						zebraModSourceFieldValue = (int) zebraModSource;
@@ -3445,6 +3971,129 @@ namespace PresetConverter
 					} else {
 						zebra2Preset.ModFX1_Mode = (int) Zebra2Preset.ModFXType.Chorus;
 						zebra2Preset.ModFX1_Mix = 0;
+					}
+					
+					// Arpeggiator
+					if (Content.XSwArpOnOff == ONOFF.On) {
+						
+						// Set correct voice mode
+						zebra2Preset.VCC_Mode = (int) Zebra2Preset.VoiceMode.arpeggiator;
+
+						// ArpSync (0=1:64, 1=1:32, 2=1:16, 3=1:8, 4=1:4, 5=1:2, 6=1:1, 7=1:32 dot, 8=1:16 dot, 9=1:8 dot, 10=1:4 dot, 11=1:2 dot, 12=1:16 trip, 13=1:8 trip, 14=1:4 trip, 15=1:2 trip, 16=1:1 trip)
+						zebra2Preset.VCC_ArSc = ConvertSylenthArpSyncTimingsToZebra(Content.ArpTime);
+						
+						// ArpOrder (0 = By Note, 1 = As Played)
+						zebra2Preset.VCC_ArOrd = (int) Zebra2Preset.ArpOrder.By_Note;
+						
+						// ArpLoop (0 = Forward F-->, 1 = Backward B <--, 2 = ForwardBackward FB <->, 3 = BackwardForward BF >-<)
+						switch (Content.ArpMode) {
+							case ARPMODE.Up:
+							case ARPMODE.Chord:
+							case ARPMODE.Random:
+							case ARPMODE.Ordered:
+							case ARPMODE.Step:
+								zebra2Preset.VCC_ArLp = (int) Zebra2Preset.ArpLoop.Forward;
+								break;
+							case ARPMODE.Down:
+								zebra2Preset.VCC_ArLp = (int) Zebra2Preset.ArpLoop.Backward;
+								break;
+							case ARPMODE.Up_Down:
+							case ARPMODE.Up_Down2:
+								zebra2Preset.VCC_ArLp = (int) Zebra2Preset.ArpLoop.ForwardBackward;
+								break;
+							case ARPMODE.Down_Up:
+							case ARPMODE.Down_Up2:
+								zebra2Preset.VCC_ArLp = (int) Zebra2Preset.ArpLoop.BackwardForward;
+								break;
+						}
+
+						// ArpOctave (0, 1, 2)
+						switch (Content.ArpOctave) {
+							case ARPOCTAVE.OCTAVE_1:
+								zebra2Preset.VCC_ArOct = 0;
+								break;
+							case ARPOCTAVE.OCTAVE_2:
+								zebra2Preset.VCC_ArOct = 1;
+								break;
+							case ARPOCTAVE.OCTAVE_3:
+							case ARPOCTAVE.OCTAVE_4:
+								zebra2Preset.VCC_ArOct = 2;
+								break;
+						}
+
+						// ArpLoopLength (1 - 16)
+						switch (Content.ArpWrap) {
+							case ARPWRAP.WRAP_0:
+							case ARPWRAP.WRAP_1:
+								zebra2Preset.VCC_ArLL = 1;
+								break;
+							case ARPWRAP.WRAP_2:
+								zebra2Preset.VCC_ArLL = 2;
+								break;
+							case ARPWRAP.WRAP_3:
+								zebra2Preset.VCC_ArLL = 3;
+								break;
+							case ARPWRAP.WRAP_4:
+								zebra2Preset.VCC_ArLL = 4;
+								break;
+							case ARPWRAP.WRAP_5:
+								zebra2Preset.VCC_ArLL = 5;
+								break;
+							case ARPWRAP.WRAP_6:
+								zebra2Preset.VCC_ArLL = 6;
+								break;
+							case ARPWRAP.WRAP_7:
+								zebra2Preset.VCC_ArLL = 7;
+								break;
+							case ARPWRAP.WRAP_8:
+								zebra2Preset.VCC_ArLL = 8;
+								break;
+							case ARPWRAP.WRAP_9:
+								zebra2Preset.VCC_ArLL = 9;
+								break;
+							case ARPWRAP.WRAP_10:
+								zebra2Preset.VCC_ArLL = 10;
+								break;
+							case ARPWRAP.WRAP_11:
+								zebra2Preset.VCC_ArLL = 11;
+								break;
+							case ARPWRAP.WRAP_12:
+								zebra2Preset.VCC_ArLL = 12;
+								break;
+							case ARPWRAP.WRAP_13:
+								zebra2Preset.VCC_ArLL = 13;
+								break;
+							case ARPWRAP.WRAP_14:
+								zebra2Preset.VCC_ArLL = 14;
+								break;
+							case ARPWRAP.WRAP_15:
+								zebra2Preset.VCC_ArLL = 15;
+								break;
+							case ARPWRAP.WRAP_16:
+								zebra2Preset.VCC_ArLL = 16;
+								break;
+						}
+						
+						// ArpPortamento ( 0 = Off, 1 = On)
+						zebra2Preset.VCC_ArTr = (int) Zebra2Preset.ArpPortamento.On;
+						
+						// Set each of the 16 arp notes
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold01, Content.XArpTransp01, Content.XArpVelo01, 1);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold02, Content.XArpTransp02, Content.XArpVelo02, 2);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold03, Content.XArpTransp03, Content.XArpVelo03, 3);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold04, Content.XArpTransp04, Content.XArpVelo04, 4);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold05, Content.XArpTransp05, Content.XArpVelo05, 5);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold06, Content.XArpTransp06, Content.XArpVelo06, 6);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold07, Content.XArpTransp07, Content.XArpVelo07, 7);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold08, Content.XArpTransp08, Content.XArpVelo08, 8);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold09, Content.XArpTransp09, Content.XArpVelo09, 9);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold10, Content.XArpTransp10, Content.XArpVelo10, 10);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold11, Content.XArpTransp11, Content.XArpVelo11, 11);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold12, Content.XArpTransp12, Content.XArpVelo12, 12);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold13, Content.XArpTransp13, Content.XArpVelo13, 13);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold14, Content.XArpTransp14, Content.XArpVelo14, 14);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold15, Content.XArpTransp15, Content.XArpVelo15, 15);
+						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold16, Content.XArpTransp16, Content.XArpVelo16, 16);
 					}
 					
 					// Equaliser on MasterBus

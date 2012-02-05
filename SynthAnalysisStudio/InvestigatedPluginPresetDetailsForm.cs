@@ -127,7 +127,7 @@ namespace SynthAnalysisStudio
 					writer.WriteStartElement("Row");
 					for (int j = 0; j < dataGridView1.Rows[i].Cells.Count; j++)
 					{
-						if (!string.IsNullOrEmpty(dataGridView1[j, i].Value.ToString()))
+						if (dataGridView1[j, i].Value != null && !string.IsNullOrEmpty(dataGridView1[j, i].Value.ToString()))
 						{
 							writer.WriteElementString(dataGridView1.Columns[j].Name, dataGridView1[j, i].Value.ToString());
 						} else {
