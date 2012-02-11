@@ -14,6 +14,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 
 using System.Collections.Generic;
+using CommonUtils;
+
 
 namespace Wave2Zebra2Preset
 {
@@ -23,7 +25,7 @@ namespace Wave2Zebra2Preset
 	public class VB6Spectrogram
 	{
 		private const int RangedB = 100; // used for color calculations, maps from -RangedB to 0 dB
-		private const int RangePaletteIndex = 255;
+		private const int RangePaletteIndex = 256;
 		private static double Log10 = Math.Log(10); //2.30258509299405;
 
 		//public long[] LevelPalette = new long[RangePaletteIndex];
@@ -34,18 +36,19 @@ namespace Wave2Zebra2Preset
 		public void ComputeColorPalette()
 		{
 			long col = 0;
-			byte[,] Legendpixelmatrix = new byte[100, RangePaletteIndex];
+			int imageHeight = 200;
+			byte[,] Legendpixelmatrix = new byte[imageHeight, RangePaletteIndex];
 			
 			for (col = 0; col < RangePaletteIndex; col++)
 			{
 				//LevelPalette[col] = PaletteValue(col, RangePaletteIndex);
 				LevelPaletteDictionary.Add(col, PaletteValueColor(col, RangePaletteIndex));
-				for (int i = 0; i < 100; i++) {
+				for (int i = 0; i < imageHeight; i++) {
 					Legendpixelmatrix[i, col] = (byte) col;					
 				}
 			}
 			
-			//SaveBitmap("VB6", "Colorpalette", Legendpixelmatrix, 8, LevelPaletteDictionary);
+			SaveBitmap("VB6", "Colorpalette", Legendpixelmatrix, 8, LevelPaletteDictionary);
 		}
 
 		// loads a wav-file and displays the recorded signal in chart #1
@@ -65,9 +68,6 @@ namespace Wave2Zebra2Preset
 			int c = 0;
 			
 			NumSamples = data.Length;
-
-			//DynaPlot1.Axes.XAxis.From = 0;
-			//DynaPlot1.Axes.XAxis.To = NumSamples / (double)SampleRate;
 
 			fftOverlapPercentage = fftOverlapPercentage / 100;
 			// calculate the number of samples one column will make up using the actual overlap
@@ -115,7 +115,7 @@ namespace Wave2Zebra2Preset
 				// set up one column of the spectrogram
 				for (c = 0; c < fftWindowsSize / 2; c++)
 				{
-					Pixelmatrix[c, col] = (byte) MapToPixelindex(magnitude[c], RangedB, RangePaletteIndex);
+					Pixelmatrix[c, col] = (byte) MapToPixelIndex(magnitude[c], RangedB, RangePaletteIndex);
 				}
 
 				frames[col] = magnitude;
@@ -138,8 +138,7 @@ namespace Wave2Zebra2Preset
 				T[i-1] = (double) i * timeIncrement; // in milliseconds
 			}
 					
-			Program.exportCSV(@"c:\VB-magnitude-freq.csv", frames[0], F);
-
+			Export.exportCSV(@"c:\VB-magnitude-freq.csv", frames[0], F);
 			//System.Diagnostics.Debug.WriteLine(String.Format("TimeslotWidth: {0}, TimeslotIncrement: {1}.", TimeslotWidth, TimeslotIncrement));
 
 			// save the Pixelmatrix as a bitmap file to disk
@@ -150,33 +149,32 @@ namespace Wave2Zebra2Preset
 
 		// Maps magnitudes in the range [-RangedB .. 0] dB to palette index values in the range [0 .. Rangeindex-1]
 		// and computes and returns the index value which corresponds to passed-in magnitude Mag
-		public static double MapToPixelindex(double Mag, double RangedB, long Rangeindex)
+		public static double MapToPixelIndex(double Mag, double RangedB, long Rangeindex)
 		{
-			double tempMapToPixelindex = 0;
+			double tempMapToPixelIndex = 0;
 			double LevelIndB = 0;
 			if (Mag == 0)
 			{
-				tempMapToPixelindex = 0;
+				tempMapToPixelIndex = 0;
 			}
 			else
 			{
 				LevelIndB = 20 * Math.Log(Mag) / Log10;
-				if (LevelIndB < -RangedB)
-				{
-					tempMapToPixelindex = 0;
-				}
-				else
-				{
-					tempMapToPixelindex = Rangeindex * (LevelIndB + RangedB) / RangedB;
+				if (LevelIndB < -RangedB) {
+					tempMapToPixelIndex = 0;
+				} else if (LevelIndB > 0) {
+					tempMapToPixelIndex  = Rangeindex;
+				} else {
+					tempMapToPixelIndex = Rangeindex * (LevelIndB + RangedB) / RangedB;
 				}
 			}
-			return tempMapToPixelindex;
+			return tempMapToPixelIndex;
 		}
 
 		// The inverse function of the above
 		// Maps magnitudes in the range [-RangedB .. 0] dB to palette index values in the range [0 .. Rangeindex-1]
 		// Computes and returns the Level in dB which coresponds to palette index Index
-		private double PixelindexToLevel(long Index, double RangedB, long Rangeindex)
+		private double PixelIndexToLevel(long Index, double RangedB, long Rangeindex)
 		{
 			return -RangedB + Index / (double)Rangeindex * RangedB;
 		}
@@ -195,7 +193,7 @@ namespace Wave2Zebra2Preset
 			{
 				if (LevelPalette[i] == Color)
 				{
-					Level = PixelindexToLevel(i, RangedB, RangePaletteIndex);
+					Level = PixelIndexToLevel(i, RangedB, RangePaletteIndex);
 					Text = Text + "  z: " + Level.ToString("00.0 dB");
 					break;
 				}
@@ -260,6 +258,7 @@ namespace Wave2Zebra2Preset
 			double R = 0;
 			double G = 0;
 			double B = 0;
+			
 			double r4 = 0;
 			double U = 0;
 

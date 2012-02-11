@@ -132,6 +132,11 @@ namespace CommonUtils
 			return rounded;
 		}
 
+		public static double RoundDown(double number, int decimalPlaces)
+		{
+			return Math.Floor(number * Math.Pow(10, decimalPlaces)) / Math.Pow(10, decimalPlaces);
+		}
+		
 		public static void ComputeMinAndMax(double[] data, out double min, out double max) {
 			// prepare the data:
 			double maxVal = double.MinValue;

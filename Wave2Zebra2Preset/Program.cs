@@ -24,6 +24,9 @@ using Un4seen.Bass.Misc;
 
 using Wave2Zebra2Preset.HermitGauges;
 
+using CommonUtils;
+using CommonUtils.FFT;
+
 namespace Wave2Zebra2Preset
 {
 	class Program
@@ -49,10 +52,17 @@ namespace Wave2Zebra2Preset
 			
 			RepositoryGateway repositoryGateway = new RepositoryGateway();
 			FingerprintManager manager = new FingerprintManager();
+
+			//double sampleRate = 44100;// 44100  default 5512
+			//int fftWindowsSize = 16384; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
+			// overlap must be an integer smaller than the window size
+			// half the windows size is quite normal, sometimes 80% is best?!
+			//int fftOverlap = fftWindowsSize / 2; //64;
 			/*
 
 			// extract tags
 			TAG_INFO tag = repositoryGateway._proxy.GetTagInfoFromFile(fileName);
+			 */
 			
 			// VB6 FFT
 			double sampleRate = 44100;// 44100  default 5512
@@ -63,8 +73,7 @@ namespace Wave2Zebra2Preset
 			VB6Spectrogram vb6Spect = new VB6Spectrogram();
 			vb6Spect.ComputeColorPalette();
 			float[][] vb6Spectrogram = vb6Spect.Compute(wavDataVB6, sampleRate, fftWindowsSize, fftOverlapPercentage);
-			//exportCSV (@"c:\VB6Spectrogram-full.csv", vb6Spectrogram);
-			 */
+			Export.exportCSV (@"c:\VB6Spectrogram-full.csv", vb6Spectrogram);
 			
 			/*
 			StreamWriter writer = File.CreateText(@"C:\audiofile.dat");
@@ -79,7 +88,6 @@ namespace Wave2Zebra2Preset
 			LogPlotter logPlotter = new LogPlotter();
 			logPlotter.Render( new double[] {1, 2, 4, 8, 16, 32}, new double[] {1, 2, 3, 4, 5, 6}, @"c:\logplot.png" );
 			return;
-			 */
 			
 			// Lomont FFT
 			double sampleRate = 44100;// 44100  default 5512
@@ -99,6 +107,7 @@ namespace Wave2Zebra2Preset
 			float maxNew = 0.0f;
 			ComputeMinAndMax(wavDataFixed, out minNew, out maxNew);
 			System.Diagnostics.Debug.WriteLine(String.Format("New data value range: Min: {0}. Max: {1}.", minNew, maxNew));
+			 */
 
 			/*
 			float[] wavDataDb = ConvertRangeAndMainainRatioLog(wavData, min, max, 0, 100);
@@ -122,173 +131,35 @@ namespace Wave2Zebra2Preset
 			//prepareAndDrawSpectrumAnalysis(repositoryGateway, "Lomont", fileName, lomontSpectrogram, sampleRate, fftWindowsSize, fftOverlap);
 
 			// draw waveform
+			/*
 			exportCSV (String.Format("c:\\{0}-samples-{1}-{2}.csv", System.IO.Path.GetFileNameWithoutExtension(fileName), sampleRate, fftWindowsSize), wavData);
 			repositoryGateway.drawWaveform("Waveform", fileName, wavData);
 			repositoryGateway.drawWaveform2("WaveformV2", fileName, wavDataFixed, false);
 			FingerprintManager.NormalizeInPlace(wavData);
 			exportCSV (String.Format("c:\\{0}-samples-normalized-{1}-{2}.csv", System.IO.Path.GetFileNameWithoutExtension(fileName), sampleRate, fftWindowsSize), wavData);
 			repositoryGateway.drawWaveform("Waveform-Normalized", fileName, wavData);
-			/*
+			*/
 			
 			// Exocortex.DSP FFT
 			// read 5512 Hz, Mono, PCM, with a specific proxy
 			float[][] exoSpectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START, false);
-			repositoryGateway.drawSpectrogram("ExoSpectrum", fileName, exoSpectrogram);
-			//exportCSV (@"c:\ExoSpectrogram-full-not-normalized.csv", exoSpectrogram);
-			prepareAndDrawSpectrumAnalysis(repositoryGateway, "Exo", fileName, exoSpectrogram, manager.SampleRate, manager.WdftSize, fftOverlap);			
-			*/
+			repositoryGateway.drawSpectrogram("Spectrogram", fileName, exoSpectrogram);
+			Export.exportCSV (@"c:\exoSpectrogram-full.csv", exoSpectrogram);
+			
+			//float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
+			//repositoryGateway.drawSpectrogram2("LogSpectrogram", fileName, logSpectrogram, sampleRate, fftWindowsSize);
+			//repositoryGateway.drawSpectrogram("LogSpectrogram", fileName, logSpectrogram);
 			
 			/*
-			float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
-			repositoryGateway.drawSpectrum("LogSpectrogram", fileName, logSpectrogram);
-			
 			List<bool[]> dbFingers = manager.CreateFingerprints(logSpectrogram, repositoryGateway._createStride);
 			
 			List<string> musicFiles = Helper.GetMusicFiles(path, Program._musicFileFilters, true); //get music file names
 			List<Track> processedMusicFiles = repositoryGateway.ProcessFiles(musicFiles, null);
-			 */
+			*/
 			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
 		}
-
-		#region exportCSV
-		public static void exportCSV(string filenameToSave, float[] data) {
-			object[][] arr = new object[data.Length][];
-			
-			int count = 1;
-			for (int i = 0; i < data.Length; i++)
-			{
-				arr[i] = new object[2] {
-					count,
-					data[i]
-				};
-				count++;
-			};
-			
-			CSVWriter csv = new CSVWriter(filenameToSave);
-			csv.Write(arr);
-		}
-
-		public static void exportCSV(string filenameToSave, double[] data) {
-			object[][] arr = new object[data.Length][];
-			
-			int count = 1;
-			for (int i = 0; i < data.Length; i++)
-			{
-				arr[i] = new object[2] {
-					count,
-					data[i]
-				};
-				count++;
-			};
-			
-			CSVWriter csv = new CSVWriter(filenameToSave);
-			csv.Write(arr);
-		}
-		
-		public static void exportCSV(string filenameToSave, float[][] data) {
-			object[][] arr = new object[data.Length][];
-
-			for (int i = 0; i < data.Length; i++)
-			{
-				arr[i] = new object[data[i].Length];
-				for (int j = 0; j < data[i].Length; j++)
-				{
-					arr[i][j] = data[i][j];
-				}
-			};
-			
-			CSVWriter csv = new CSVWriter(filenameToSave);
-			csv.Write(arr);
-		}
-
-		public static void exportCSV(string filenameToSave, float[] column1, float[] column2) {
-			if (column1.Length != column2.Length) return;
-			
-			object[][] arr = new object[column1.Length][];
-
-			int count = 1;
-			for (int i = 0; i < column1.Length; i++)
-			{
-				arr[i] = new object[3] {
-					count,
-					column1[i],
-					column2[i]
-				};
-				count++;
-			};
-			
-			CSVWriter csv = new CSVWriter(filenameToSave);
-			csv.Write(arr);
-		}
-
-		public static void exportCSV(string filenameToSave, float[] column1, float[] column2, float[] column3) {
-			if (column1.Length != column2.Length || column1.Length != column3.Length) return;
-			
-			object[][] arr = new object[column1.Length][];
-
-			int count = 1;
-			for (int i = 0; i < column1.Length; i++)
-			{
-				arr[i] = new object[4] {
-					count,
-					column1[i],
-					column2[i],
-					column3[i]
-				};
-				count++;
-			};
-			
-			CSVWriter csv = new CSVWriter(filenameToSave);
-			csv.Write(arr);
-		}
-
-		public static void exportCSV(string filenameToSave, object[] column1, object[] column2, object[] column3, object[] column4) {
-			if (column1.Length != column2.Length || column1.Length != column3.Length || column1.Length != column4.Length) return;
-			
-			object[][] arr = new object[column1.Length][];
-
-			int count = 1;
-			for (int i = 0; i < column1.Length; i++)
-			{
-				arr[i] = new object[5] {
-					count,
-					column1[i],
-					column2[i],
-					column3[i],
-					column4[i]
-				};
-				count++;
-			};
-			
-			CSVWriter csv = new CSVWriter(filenameToSave);
-			csv.Write(arr);
-		}
-
-		public static void exportCSV(string filenameToSave, float[] column1, float[] column2, float[] column3, float[] column4, string[] column5) {
-			if (column1.Length != column2.Length || column1.Length != column3.Length || column1.Length != column4.Length || column1.Length != column5.Length) return;
-			
-			object[][] arr = new object[column1.Length][];
-
-			int count = 1;
-			for (int i = 0; i < column1.Length; i++)
-			{
-				arr[i] = new object[6] {
-					count,
-					column1[i],
-					column2[i],
-					column3[i],
-					column4[i],
-					column5[i],
-				};
-				count++;
-			};
-			
-			CSVWriter csv = new CSVWriter(filenameToSave);
-			csv.Write(arr);
-		}
-		#endregion
 		
 		public static float[][] CreateSpectrogram(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
 		{
@@ -473,7 +344,7 @@ namespace Wave2Zebra2Preset
 				m_time[i] = GetSampleTimeString( (int)sampleIndex, (int)sampleRate);
 			}
 
-			exportCSV ("c:\\" + prefix + "-spectrogram-mag-freq-freqV2-time.csv", spectrogramData[0], m_mag, m_freq, m_freqV2, m_time);
+			Export.exportCSV ("c:\\" + prefix + "-spectrogram-mag-freq-freqV2-time.csv", spectrogramData[0], m_mag, m_freq, m_freqV2, m_time);
 
 			repositoryGateway.drawSpectrumAnalysis(prefix + "SpectrumAnalysis", fileName, m_mag, m_freqV2);
 		}
@@ -699,7 +570,7 @@ namespace Wave2Zebra2Preset
 		{
 			int sign = a < 0 ? -1 : 1;
 			double dout = Math.Abs(a);
-			double output = RepositoryGateway.RoundDown(dout, 0);
+			double output = MathUtils.RoundDown(dout, 0);
 			//float output = (float) (Math.Floor(a) * sign);
 			return (int)output;
 		}

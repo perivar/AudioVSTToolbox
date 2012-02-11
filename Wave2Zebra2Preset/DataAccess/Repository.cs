@@ -8,10 +8,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using CommonUtils.Audio;
+
 using Wave2Zebra2Preset.Fingerprinting;
 using Wave2Zebra2Preset.Model;
+
 using Un4seen.Bass.AddOn.Tags;
+
+using CommonUtils;
+using CommonUtils.Audio;
 
 namespace Wave2Zebra2Preset.DataAccess
 {

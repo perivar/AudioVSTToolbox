@@ -67,11 +67,40 @@
     <Compile Include="..\CommonUtils\Audio\Bass\IAudio.cs">
       <Link>IAudio.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\CSVWriter.cs">
+      <Link>CSVWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\Export.cs">
+      <Link>Export.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Complex.cs">
+      <Link>Fingerprinting\MathUtils\Complex.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\ComplexArray.cs">
+      <Link>Fingerprinting\MathUtils\ComplexArray.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\ComplexF.cs">
+      <Link>Fingerprinting\MathUtils\ComplexF.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Fourier.cs">
+      <Link>Fingerprinting\MathUtils\Fourier.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\FourierDirection.cs">
+      <Link>Fingerprinting\MathUtils\FourierDirection.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\FFTWindows.cs">
+      <Link>Fingerprinting\MathUtils\FFTWindows.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\LomontFFT.cs">
+      <Link>LomontFFT.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\MathUtils.cs">
+      <Link>MathUtils.cs</Link>
+    </Compile>
     <Compile Include="AColor.cs" />
     <Compile Include="Axis.cs" />
     <Compile Include="CWT.cs" />
     <Compile Include="CWTForm.cs" />
-    <Compile Include="FFTWindows.cs" />
     <Compile Include="DataAccess\Hashes.cs" />
     <Compile Include="DataAccess\HashType.cs" />
     <Compile Include="DataAccess\IPermutations.cs" />
@@ -80,19 +109,12 @@
     <Compile Include="DataAccess\RamStorage.cs" />
     <Compile Include="DataAccess\Repository.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="Fingerprinting\CSVWriter.cs" />
     <Compile Include="Fingerprinting\FingerprintManager.cs" />
     <Compile Include="Fingerprinting\IncrementalRandomStride.cs" />
     <Compile Include="Fingerprinting\IncrementalStaticStride.cs" />
     <Compile Include="Fingerprinting\IStride.cs" />
-    <Compile Include="Fingerprinting\MathUtils\Complex.cs" />
-    <Compile Include="Fingerprinting\MathUtils\ComplexF.cs" />
-    <Compile Include="Fingerprinting\MathUtils\Fourier.cs" />
-    <Compile Include="Fingerprinting\MathUtils\FourierDirection.cs" />
     <Compile Include="Fingerprinting\MathUtils\HaarWavelet.cs" />
-    <Compile Include="Fingerprinting\MathUtils\HanningWindow.cs" />
     <Compile Include="Fingerprinting\MathUtils\IWaveletDecomposition.cs" />
-    <Compile Include="Fingerprinting\MathUtils\IWindowFunction.cs" />
     <Compile Include="Fingerprinting\MinHash.cs" />
     <Compile Include="Fingerprinting\RandomStride.cs" />
     <Compile Include="Fingerprinting\StaticStride.cs" />
@@ -109,7 +131,6 @@
     <Compile Include="HermitGauges\WaveformGauge.cs" />
     <Compile Include="HermitGauges\Window.cs" />
     <Compile Include="LogPlotter.cs" />
-    <Compile Include="LomontFFT.cs" />
     <Compile Include="Model\HashSignature.cs" />
     <Compile Include="Model\Item.cs" />
     <Compile Include="Model\ResultItem.cs" />

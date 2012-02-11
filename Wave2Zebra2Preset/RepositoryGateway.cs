@@ -8,10 +8,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-using CommonUtils.Audio;
 using Wave2Zebra2Preset.Fingerprinting;
 using Wave2Zebra2Preset.DataAccess;
 using Wave2Zebra2Preset.Model;
+
+using CommonUtils;
+using CommonUtils.Audio;
+
 using Un4seen.Bass.AddOn.Tags;
 
 namespace Wave2Zebra2Preset
@@ -611,15 +614,10 @@ namespace Wave2Zebra2Preset
 				System.Diagnostics.Debug.WriteLine(ex);
 			}
 		}
-
-		public static double RoundDown(double number, int decimalPlaces)
-		{
-			return Math.Floor(number * Math.Pow(10, decimalPlaces)) / Math.Pow(10, decimalPlaces);
-		}
 		
 		// see https://code.google.com/p/jstk/source/browse/trunk/jstk/src/de/fau/cs/jstk/?r=154#jstk%2Fvc
 		public void drawSpectrogram(String prefix, String filename, float[][] data) {
-			try {
+			//try {
 				VB6Spectrogram vb6Spectrogram = new VB6Spectrogram();
 				vb6Spectrogram.ComputeColorPalette();
 				
@@ -677,8 +675,8 @@ namespace Wave2Zebra2Preset
 				{
 					for (int j = 0; j < numberOfSamplesY; j += incrementY)
 					{
-						int x = (int) RoundDown(i*horizontalScaleFactor,0);
-						int y = (int) RoundDown(j*verticalScaleFactor,0);
+						int x = (int) MathUtils.RoundDown(i*horizontalScaleFactor,0);
+						int y = (int) MathUtils.RoundDown(j*verticalScaleFactor,0);
 
 						float f = data[i][j];
 						double d = (f + minIntensity) * scaleFactor;
@@ -686,7 +684,8 @@ namespace Wave2Zebra2Preset
 						Color c = Color.White;
 						int RangedB = 100;
 						int RangePaletteIndex = 255;
-						byte vb6Index = (byte) VB6Spectrogram.MapToPixelindex(f, RangedB, RangePaletteIndex);
+						double indexDouble = VB6Spectrogram.MapToPixelIndex(f, RangedB, RangePaletteIndex);						
+						byte vb6Index = (byte) indexDouble;
 						c = vb6Spectrogram.LevelPaletteDictionary[vb6Index];
 						png.SetPixel(x, maxYIndex - y, c);
 					}
@@ -694,13 +693,13 @@ namespace Wave2Zebra2Preset
 				
 				png.Save(filenameToSave);
 				g.Dispose();
-			} catch (Exception ex) {
-				System.Diagnostics.Debug.WriteLine(ex);
-			}
+			//} catch (Exception ex) {
+			//	System.Diagnostics.Debug.WriteLine(ex);
+			//}
 		}
 
 		public void drawSpectrogram2(String prefix, String filename, float[][] data, double sampleRate, double fftWindowsSize) {
-			try {
+			//try {
 				VB6Spectrogram vb6Spectrogram = new VB6Spectrogram();
 				vb6Spectrogram.ComputeColorPalette();
 				
@@ -715,7 +714,7 @@ namespace Wave2Zebra2Preset
 				Graphics g = Graphics.FromImage(png);
 
 				Axis.drawAxis(Axis.X_AXIS, 10, 5, 0, (float)Program.ConvertIndexToTime(sampleRate, (int)numberOfSamplesX), 50, width-50, 50, false, height, g);
-				Axis.drawAxis(Axis.Y_AXIS, 10, 5, 0, (float)(sampleRate/2), 50, height-50, 50, true, height, g);
+				Axis.drawAxis(Axis.Y_AXIS, 10, 5, 1, (float)(sampleRate/2), 50, height-50, 50, true, height, g);
 				
 				for(int x = 0; x < numberOfSamplesX; x++)
 				{
@@ -728,7 +727,7 @@ namespace Wave2Zebra2Preset
 						Color c = Color.White;
 						int RangedB = 100;
 						int RangePaletteIndex = 255;
-						byte vb6Index = (byte) VB6Spectrogram.MapToPixelindex(f, RangedB, RangePaletteIndex);
+						byte vb6Index = (byte) VB6Spectrogram.MapToPixelIndex(f, RangedB, RangePaletteIndex);
 						c = vb6Spectrogram.LevelPaletteDictionary[vb6Index];
 						if (x1 > 0 && x1 < width && y1 > 0 && y1 < height)
 							png.SetPixel(x1+50, height - y1 - 50, c);
@@ -737,9 +736,9 @@ namespace Wave2Zebra2Preset
 				
 				png.Save(filenameToSave);
 				g.Dispose();
-			} catch (Exception ex) {
-				System.Diagnostics.Debug.WriteLine(ex);
-			}
+			//} catch (Exception ex) {
+			//	System.Diagnostics.Debug.WriteLine(ex);
+			//}
 		}
 		
 		public void drawSpectrum(String prefix, String filename, float[][] data) {
