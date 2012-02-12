@@ -19,6 +19,8 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
+using CommonUtils;
+
 namespace Wave2Zebra2Preset.HermitGauges
 {
 	///
@@ -832,7 +834,7 @@ namespace Wave2Zebra2Preset.HermitGauges
 		protected internal virtual void drawBody(Graphics graphics, Pen pen, long now)
 		{
 			// If not overridden, just fill with BG colour.
-			SolidBrush drawBrush = new SolidBrush(AColor.UIntToColor(colBg));
+			SolidBrush drawBrush = new SolidBrush(ColorUtils.UIntToColor(colBg));
 			graphics.FillRectangle(drawBrush, Bounds);
 		}
 

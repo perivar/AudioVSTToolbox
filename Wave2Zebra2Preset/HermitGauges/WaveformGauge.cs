@@ -20,6 +20,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
 
+using CommonUtils;
+
 namespace Wave2Zebra2Preset.HermitGauges
 {
 	///
@@ -113,17 +115,17 @@ namespace Wave2Zebra2Preset.HermitGauges
 			// Now actually do the drawing.
 			lock (this)
 			{
-				graphics.Clear(AColor.UIntToColor(0xff000000));
+				graphics.Clear(ColorUtils.UIntToColor(0xff000000));
 
 				// Draw the axes.
-				pen.Color = AColor.UIntToColor(0xffffff00);
+				pen.Color = ColorUtils.UIntToColor(0xffffff00);
 				pen.DashStyle = DashStyle.Dash;
 				graphics.DrawLine(pen, margin, 0, margin, dispHeight - 1);
 
 				// Draw the waveform. Drawing vertical lines up/down to the
 				// waveform creates a "filled" effect, and is *much* faster
 				// than drawing the waveform itself with diagonal lines.
-				pen.Color = AColor.UIntToColor(0xffffff00);
+				pen.Color = ColorUtils.UIntToColor(0xffffff00);
 				pen.DashStyle = DashStyle.Dash;
 				for (int i = 0; i < len; ++i)
 				{

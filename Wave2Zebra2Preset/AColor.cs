@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using CommonUtils;
 
 namespace Wave2Zebra2Preset
 {
@@ -136,7 +137,7 @@ namespace Wave2Zebra2Preset
 			int c2_b = colorHighlightedSignal.B;
 
 			if (colorSpectrogram) {
-				Color c = HSBtoColor((255 - f) / 360.0f, 1.0f,
+				Color c = ColorUtils.HsbToRgb((255 - f) / 360.0f, 1.0f,
 				                   (float) (brightness + (1.0 - brightness) * f / 255.0));
 
 				if (selected) {
@@ -161,53 +162,7 @@ namespace Wave2Zebra2Preset
 				return Color.FromArgb(255 - f, 255 - f, 255 - f);
 			}
 
-		}
-
-		// HELPER FUNCTIONS
-		public static long ColorToLong(Color color)
-		{
-			return (long)((color.A << 24) | (color.R << 16) |
-			              (color.G << 8)  | (color.B << 0));
-		}
-		
-		public static Color LongToColor(long color)
-		{
-			return UIntToColor((uint) color);
-		}
-		
-		public static uint ColorToUInt(Color color)
-		{
-			return (uint)((color.A << 24) | (color.R << 16) |
-			              (color.G << 8)  | (color.B << 0));
-		}
-		
-		// white = 0xFFFFFFFF, black = 0xFF000000
-		public static Color UIntToColor(uint color)
-		{
-			uint transparency = (color & 0xff000000) >> 24;
-			uint red = (color & 0xff0000) >> 16;
-			uint green = (color & 0x00ff00) >> 8;
-			uint blue = color & 0x0000ff;
-			
-			return Color.FromArgb((int)transparency, (int)red, (int)green, (int)blue);
-		}
-		
-		// Color conversion
-		public static Color IntToColor(int number) {
-			byte[] values = BitConverter.GetBytes(number);
-			
-			if (!BitConverter.IsLittleEndian) Array.Reverse(values);
-			
-			// The array will have four bytes. The first three bytes contain your number:
-			byte b = values[0];
-			byte g = values[1];
-			byte r = values[2];
-			
-			Color c = Color.FromArgb( r, g, b );
-			return c;
-		}
-
-		
+		}		
 		
 		public static Color GetColorGradient(float percentage)
 		{
@@ -469,69 +424,15 @@ namespace Wave2Zebra2Preset
 			}
 			h /= 6.0;
 		}
-		
-		//public static Color AHSBtoRGB(byte a, double h, double s, double b)
-		//{
-		//	var color = HSBtoColor(h, s, b);
-		//	return Color.FromArgb(a, color.R, color.G, color.B);
-		//}
-		
+				
 		// HSV stands for hue, saturation, and value, 
 		// and is also often called HSB (B for brightness).
 		public static Color HSVToColor(float[] paintColor) {
 			if (paintColor.Length == 3) {
-				return HSBtoColor(paintColor[0], paintColor[1], paintColor[2]);
+				return ColorUtils.HsbToRgb(paintColor[0], paintColor[1], paintColor[2]);
 			} else {
 				return Color.DeepPink;
 			}
-		}
-		
-		// HSV stands for hue, saturation, and value, 
-		// and is also often called HSB (B for brightness).
-		public static Color HSVToColor(double h, double s, double b) {
-			return HSBtoColor(h, s, b);
-		}
-		
-		// HSV stands for hue, saturation, and value, 
-		// and is also often called HSB (B for brightness).
-		public static Color HSBtoColor(double h, double s, double b)
-		{
-			if (s == 0)
-				return RawRgbToRgb(b, b, b);
-			else
-			{
-				var sector = h / 60;
-				var sectorNumber = (int)Math.Truncate(sector);
-				var sectorFraction = sector - sectorNumber;
-				var b1 = b * (1 - s);
-				var b2 = b * (1 - s * sectorFraction);
-				var b3 = b * (1 - s * (1 - sectorFraction));
-				switch (sectorNumber)
-				{
-					case 0:
-						return RawRgbToRgb(b, b3, b1);
-					case 1:
-						return RawRgbToRgb(b2, b, b1);
-					case 2:
-						return RawRgbToRgb(b1, b, b3);
-					case 3:
-						return RawRgbToRgb(b1, b2, b);
-					case 4:
-						return RawRgbToRgb(b3, b1, b);
-					case 5:
-						return RawRgbToRgb(b, b1, b2);
-					default:
-						throw new ArgumentException("Hue must be between 0 and 360");
-				}
-			}
-		}
-		
-		private static Color RawRgbToRgb(double rawR, double rawG, double rawB)
-		{
-			return Color.FromArgb(
-				(int)Math.Round(rawR * 255),
-				(int)Math.Round(rawG * 255),
-				(int)Math.Round(rawB * 255));
 		}
 		
 		//

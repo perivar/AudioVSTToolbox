@@ -14,8 +14,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 
 using System.Collections.Generic;
-using CommonUtils;
 
+using CommonUtils;
 
 namespace Wave2Zebra2Preset
 {
@@ -60,29 +60,25 @@ namespace Wave2Zebra2Preset
 		// fftWindowsSize aka NFFT (width of FFT window)
 		public float[][] Compute(float[] data, double sampleRate, int fftWindowsSize, float fftOverlapPercentage)
 		{
-			long NumSamples = 0;
-			long NumCols = 0;
-			long ColSampleWidth = 0;
-
 			long col = 0;
 			int c = 0;
 			
-			NumSamples = data.Length;
+			long NumSamples = data.Length;
 
 			fftOverlapPercentage = fftOverlapPercentage / 100;
+			
 			// calculate the number of samples one column will make up using the actual overlap
-			ColSampleWidth = (long)(fftWindowsSize * (1 - fftOverlapPercentage));
+			long ColSampleWidth = (long)(fftWindowsSize * (1 - fftOverlapPercentage));
 			double fftOverlapSamples = fftWindowsSize * fftOverlapPercentage;
 			// calculate the number of columns when each column which has the specified sample width
-			NumCols = NumSamples / ColSampleWidth;
+			long NumCols = NumSamples / ColSampleWidth;
 
-			System.Diagnostics.Debug.WriteLine(String.Format("Samples: {0}, Sample Rate {1}, Seconds: {2}.", NumSamples, sampleRate, NumSamples/sampleRate));
-			System.Diagnostics.Debug.WriteLine(String.Format("NFFT (fftWindowsSize): {0}, Overlap percentage: {1}%, Overlap samples (NOverlap): {2:n2}.", fftWindowsSize, fftOverlapPercentage*100, fftOverlapSamples ));
-			System.Diagnostics.Debug.WriteLine(String.Format("Dividing the samples into {0} columns with width {1}.", NumCols, ColSampleWidth));
-			System.Diagnostics.Debug.WriteLine(String.Format("Max magnitude: {0}.", fftWindowsSize/2));
+			System.Console.Out.WriteLine(String.Format("Samples: {0}, Sample Rate {1}, Seconds: {2}.", NumSamples, sampleRate, NumSamples/sampleRate));
+			System.Console.Out.WriteLine(String.Format("NFFT (fftWindowsSize): {0}, Overlap percentage: {1}%, Overlap samples (NOverlap): {2:n2}.", fftWindowsSize, fftOverlapPercentage*100, fftOverlapSamples ));
+			System.Console.Out.WriteLine(String.Format("Dividing the samples into {0} columns with width {1}.", NumCols, ColSampleWidth));
 
-			System.Diagnostics.Debug.WriteLine(String.Format("Width: {0}.", NumCols));
-			System.Diagnostics.Debug.WriteLine(String.Format("Height: {0}.", fftWindowsSize/2));
+			System.Console.Out.WriteLine(String.Format("Width: {0}.", NumCols));
+			System.Console.Out.WriteLine(String.Format("Height: {0}.", fftWindowsSize/2));
 			
 			double[] real = new double[fftWindowsSize];
 			double[] imag = new double[fftWindowsSize];
@@ -102,7 +98,7 @@ namespace Wave2Zebra2Preset
 						real[c] = data[sampleIndex] * VB6Fourier.Hanning(fftWindowsSize, c);
 						imag[c] = 0; // clear the phase
 					} else {
-						//System.Diagnostics.Debug.WriteLine(String.Format("Outside boundries: col: {0} c: {1}", col, c));
+						//System.Console.Out.WriteLine(String.Format("Outside boundries: col: {0} c: {1}", col, c));
 					}
 				}
 
@@ -129,9 +125,8 @@ namespace Wave2Zebra2Preset
 			}
 			
 			// the total time NumSamples / sampleRate * 1000 (ms) must be divided by numColumns
-			//double TimeslotWidth = (fftWindowsSize / (double) sampleRate) * 1000;
-			//double TimeslotIncrement = (ColSampleWidth / (double) sampleRate) * 1000;
-			//System.Diagnostics.Debug.WriteLine(String.Format("TimeslotWidth: {0}, TimeslotIncrement: {1}.", TimeslotWidth, TimeslotIncrement));
+			double TimeslotWidth = (fftWindowsSize / (double) sampleRate) * 1000;
+			double TimeslotIncrement = (ColSampleWidth / (double) sampleRate) * 1000;
 			double timeIncrement = (NumSamples/sampleRate*1000) / NumCols;
 			double[] T = new double[NumCols];
 			for (int i = 1; i < NumCols + 1; i++) {
@@ -139,7 +134,7 @@ namespace Wave2Zebra2Preset
 			}
 					
 			Export.exportCSV(@"c:\VB-magnitude-freq.csv", frames[0], F);
-			//System.Diagnostics.Debug.WriteLine(String.Format("TimeslotWidth: {0}, TimeslotIncrement: {1}.", TimeslotWidth, TimeslotIncrement));
+			System.Console.Out.WriteLine(String.Format("TimeslotWidth: {0}, TimeslotIncrement: {1}.", TimeslotWidth, TimeslotIncrement));
 
 			// save the Pixelmatrix as a bitmap file to disk
 			SaveBitmap ("VB6", String.Format("C:\\Spectrogram-{0}x{1}", NumCols, fftWindowsSize / 2), Pixelmatrix, 8, LevelPaletteDictionary);
@@ -245,9 +240,8 @@ namespace Wave2Zebra2Preset
 			B = (int)(Math.Sqrt(B) * U) & 0XFF;
 
 			Color c = Color.FromArgb((int)R, (int)G, (int)B);
-			long col = AColor.ColorToLong(c);
+			long col = ColorUtils.ColorToLong(c);
 			return col;
-			//return (long)(R + G * 0X100 + B * 0X10000);
 		}
 
 		// return pseudo color value for a value x in range [0...range-1]
@@ -377,7 +371,7 @@ namespace Wave2Zebra2Preset
 			
 			try {
 				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
-				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
+				System.Console.Out.WriteLine("Writing " + filenameToSave);
 
 				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
 				Graphics g = Graphics.FromImage(png);
@@ -389,15 +383,13 @@ namespace Wave2Zebra2Preset
 					{
 						OneRow[col] = Convert.ToByte(Convert.ToInt32(Pixelmatrix[row, col]) & 0xFF);
 						Color c = PaletteDictionary[OneRow[col]];
-						//Pen pen = new Pen(c);
-						//g.DrawLine(pen, col, 0, col, row);
 						png.SetPixel(col, height-row-1, c);
 					}
 				}
 				
 				png.Save(filenameToSave);
 			} catch (Exception ex) {
-				System.Diagnostics.Debug.WriteLine(ex);
+				System.Console.Out.WriteLine(ex);
 			}
 			
 		}

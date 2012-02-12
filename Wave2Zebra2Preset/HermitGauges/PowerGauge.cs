@@ -20,6 +20,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
 
+using CommonUtils;
+
 namespace Wave2Zebra2Preset.HermitGauges
 {
 	///
@@ -208,10 +210,10 @@ namespace Wave2Zebra2Preset.HermitGauges
 		///
 		protected internal override void drawBackgroundBody(Graphics graphics, Pen pen)
 		{
-			SolidBrush drawBrush = new SolidBrush(AColor.UIntToColor(0xff000000));
+			SolidBrush drawBrush = new SolidBrush(ColorUtils.UIntToColor(0xff000000));
 			graphics.FillRectangle(drawBrush, Bounds);
 			pen.DashStyle = DashStyle.Dash;
-			pen.Color = AColor.UIntToColor(0xffffff00);
+			pen.Color = ColorUtils.UIntToColor(0xffffff00);
 
 			// Draw the grid.
 			float mx = dispX + meterBarMargin;
@@ -304,7 +306,7 @@ namespace Wave2Zebra2Preset.HermitGauges
 				// Re-calculate the peak markers.
 				calculatePeaks(now, currentPower, prevPower);
 
-				pen.Color = AColor.UIntToColor(0xffffff00);
+				pen.Color = ColorUtils.UIntToColor(0xffffff00);
 				pen.DashStyle = DashStyle.Dash;
 
 				// Position parameters.
@@ -318,14 +320,14 @@ namespace Wave2Zebra2Preset.HermitGauges
 				// Draw the average bar.
 				float pa = (averagePower / 100f + 1f) * bw;
 				//pen.Style = Graphics.Style.FILL;
-				pen.Color = AColor.UIntToColor(METER_AVERAGE_COL);
+				pen.Color = ColorUtils.UIntToColor(METER_AVERAGE_COL);
 
 				graphics.DrawRectangle(pen, mx + 1, by + 1, mx + pa + 1, by + bh - 1);
 
 				// Draw the power bar.
 				float p = (currentPower / 100f + 1f) * bw;
 				//pen.Style = Graphics.Style.FILL;
-				pen.Color = AColor.UIntToColor(METER_POWER_COL);
+				pen.Color = ColorUtils.UIntToColor(METER_POWER_COL);
 				graphics.DrawRectangle(pen, mx + 1, by + gap, mx + p + 1, by + bh - gap);
 
 				// Now, draw in the peaks.
@@ -338,7 +340,7 @@ namespace Wave2Zebra2Preset.HermitGauges
 						long age = now - meterPeakTimes[i];
 						float fac = 1f - ((float) age / (float) METER_PEAK_TIME);
 						int alpha = (int)(fac * 255f);
-						pen.Color = AColor.UIntToColor((uint)(METER_PEAK_COL | (alpha << 24)));
+						pen.Color = ColorUtils.UIntToColor((uint)(METER_PEAK_COL | (alpha << 24)));
 						// Draw it in.
 						float pp = (meterPeaks[i] / 100f + 1f) * bw;
 						graphics.DrawRectangle(pen, mx + pp - 1, by + gap, mx + pp + 3, by + bh - gap);
@@ -350,7 +352,7 @@ namespace Wave2Zebra2Preset.HermitGauges
 				float ty = dispY + meterTextY;
 				dbBuffer = String.Format("{0:0.#}", averagePower);
 				pen.DashStyle = DashStyle.Dash;
-				pen.Color = AColor.UIntToColor(0xff00ffff);
+				pen.Color = ColorUtils.UIntToColor(0xff00ffff);
 				//pen.TextSize = meterTextSize;
 				graphics.DrawString(dbBuffer, TextFont, TextBrush, tx, ty);
 

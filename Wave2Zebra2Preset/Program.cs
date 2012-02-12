@@ -68,7 +68,7 @@ namespace Wave2Zebra2Preset
 			double sampleRate = 44100;// 44100  default 5512
 			int fftWindowsSize = 4096; //4096  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
 			float fftOverlapPercentage = 95.0f; // number between 0 and 100
-			int secondsToSample = 15; //15;
+			int secondsToSample = 3; //15;
 			float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 20*1000 );
 			VB6Spectrogram vb6Spect = new VB6Spectrogram();
 			vb6Spect.ComputeColorPalette();
@@ -141,8 +141,18 @@ namespace Wave2Zebra2Preset
 			*/
 			
 			// Exocortex.DSP FFT
-			// read 5512 Hz, Mono, PCM, with a specific proxy
-			float[][] exoSpectrogram = manager.CreateSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START, false);
+			int numberOfSamples = wavDataVB6.Length; 
+			fftOverlapPercentage = fftOverlapPercentage / 100;
+			long ColSampleWidth = (long)(fftWindowsSize * (1 - fftOverlapPercentage));
+			double fftOverlapSamples = fftWindowsSize * fftOverlapPercentage;
+			long NumCols = numberOfSamples / ColSampleWidth;
+			
+			int fftOverlap = (int)((numberOfSamples - fftWindowsSize) / NumCols);
+			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap;
+			
+			System.Console.Out.WriteLine(String.Format("EXO: fftWindowsSize: {0}, Overlap samples: {1:n2}.", fftWindowsSize, fftOverlap ));
+
+			float[][] exoSpectrogram = AudioAnalyzer.CreateSpectrogramExocortex(wavDataVB6, sampleRate, fftWindowsSize, fftOverlap);
 			repositoryGateway.drawSpectrogram("Spectrogram", fileName, exoSpectrogram);
 			Export.exportCSV (@"c:\exoSpectrogram-full.csv", exoSpectrogram);
 			
@@ -161,47 +171,6 @@ namespace Wave2Zebra2Preset
 			Console.ReadKey(true);
 		}
 		
-		public static float[][] CreateSpectrogram(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
-		{
-			// overlap must be an integer smaller than the window size
-			// half the windows size is quite normal
-			
-			//HanningWindow window = new HanningWindow();
-			//double[] windowArray = window.GetWindow(fftWindowsSize);
-			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
-			
-			LomontFFT fft = new LomontFFT();
-			int numberOfSamples = samples.Length;
-			double seconds = numberOfSamples / sampleRate;
-			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap; 	// width of the segment - i.e. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
-			float[][] frames = new float[numberOfSegments][];
-			double[] complexSignal = new double[2*fftWindowsSize]; 		// even - Re, odd - Img
-			for (int i = 0; i < numberOfSegments; i++)
-			{
-				// apply Hanning Window
-				for (int j = 0; j < fftWindowsSize; j++)
-				{
-					// add window with (4.0 / (fftWindowsSize - 1)
-					complexSignal[2*j] = (double) ((4.0/(fftWindowsSize - 1)) * windowArray[j] * samples[i * fftOverlap + j]); 	// Weight by Hann Window
-					//complexSignal[2*j] = (double) (windowArray[j] * samples[i * fftOverlap + j]); 	// Weight by Hann Window
-					complexSignal[2*j + 1] = 0;  // need to clear out as fft modifies buffer (phase)
-				}
-
-				// FFT transform for gathering the spectrum
-				fft.FFT(complexSignal, true);
-				float[] band = new float[fftWindowsSize/2];
-				for (int j = 0; j < fftWindowsSize/2; j++)
-				{
-					double re = complexSignal[2*j];
-					double img = complexSignal[2*j + 1];
-					band[j] = (float) Math.Sqrt(re*re + img*img);
-				}
-				frames[i] = band;
-			}
-			
-			return frames;
-		}
-
 		// http://www.triplecorrelation.com/courses/fundsp/showspectrogram.html
 		// R Kakarala, PhD
 		// U C Berkeley Extesion
@@ -308,47 +277,7 @@ namespace Wave2Zebra2Preset
 			
 			return B;
 		}
-		
-		public static void prepareAndDrawSpectrumAnalysis(RepositoryGateway repositoryGateway, String prefix, String fileName, float[][] spectrogramData, double sampleRate, int fftWindowsSize, int fftOverlap) {
-			/*
-			 * freq = index * samplerate / fftsize;
-			 * db = 20 * log10(fft[index]);
-			 * 20 log10 (mag) => 20/ ln(10) ln(mag)
-			 * 
-			 * 
-			 * 
-				int numberOfSamples = samples.Length;
-				double seconds = numberOfSamples / sampleRate;
-				int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap; 	// width of the segment - i.e. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
-
-				fftOverlap * numberOfSegments = numberOfSamples - fftWindowsSize
-				numberOfSamples = (fftOverlap * numberOfSegments) + fftWindowsSize
-			 */
-			
-			int numberOfSegments = spectrogramData.Length; // i.e. 78 images which containt a spectrum which is half the fftWindowsSize (2048)
-			int spectrogramLength = spectrogramData[0].Length; // 1024 - half the fftWindowsSize (2048)
-			double numberOfSamples = (fftOverlap * numberOfSegments) + fftWindowsSize;
-			double seconds = numberOfSamples / sampleRate;
-			
-			float[] m_mag = new float[spectrogramLength];
-			float[] m_freq = new float[spectrogramLength];
-			float[] m_freqV2 = new float[spectrogramLength];
-			string[] m_time = new string[spectrogramLength];
-			for (int i = 0; i < spectrogramLength; i++)
-			{
-				m_mag[i] = ConvertAmplitudeToDB((float) spectrogramData[0][i], -120.0f, 18.0f);
-				m_freq[i] = ( i + 1 ) * (float) sampleRate / fftWindowsSize;
-				m_freqV2[i] = ConvertIndexToHz (i, spectrogramLength, sampleRate, fftWindowsSize);
-
-				double sampleIndex = (numberOfSamples * i) / spectrogramLength; // since we are not iteration on the actual sample length, we need to convert spectrogram index to sample index
-				m_time[i] = GetSampleTimeString( (int)sampleIndex, (int)sampleRate);
-			}
-
-			Export.exportCSV ("c:\\" + prefix + "-spectrogram-mag-freq-freqV2-time.csv", spectrogramData[0], m_mag, m_freq, m_freqV2, m_time);
-
-			repositoryGateway.drawSpectrumAnalysis(prefix + "SpectrumAnalysis", fileName, m_mag, m_freqV2);
-		}
-		
+				
 		public static void GetAudioInformation(string filename)
 		{
 			float lFrequency = 0;
@@ -375,165 +304,7 @@ namespace Wave2Zebra2Preset
 			int nSamplesPerSec = info.freq;
 			System.Diagnostics.Debug.WriteLine("SamplesPerSec: " + nSamplesPerSec);
 		}
-		
-		public static float[] ConvertRangeAndMainainRatioLog(float[] oldValueArray, float oldMin, float oldMax, float newMin, float newMax) {
-			float[] newValueArray = new float[oldValueArray.Length];
-			
-			// TODO: Addition of Epsilon prevents log from returning minus infinity if value is zero
-			float newRange = (newMax - newMin);
-			float log_oldMin = Axis.flog10(Math.Abs(oldMin) + float.Epsilon);
-			float log_oldMax = Axis.flog10(oldMax + float.Epsilon);
-			float oldRange = (oldMax - oldMin);
-			float log_oldRange = (log_oldMax - log_oldMin);
-			float data_per_log_unit = newRange / log_oldRange;
-			
-			for(int x = 0; x < oldValueArray.Length; x++)
-			{
-				float log_oldValue = Axis.flog10(oldValueArray[x] + float.Epsilon);
-				float newValue = (((log_oldValue - log_oldMin) * newRange) / log_oldRange) + newMin;
-				newValueArray[x] = newValue;
-			}
-
-			return newValueArray;
-		}
-		
-		public static double[] ConvertRangeAndMainainRatio(double[] oldValueArray, double oldMin, double oldMax, double newMin, double newMax) {
-			double[] newValueArray = new double[oldValueArray.Length];
-			double oldRange = (oldMax - oldMin);
-			double newRange = (newMax - newMin);
-			
-			for(int x = 0; x < oldValueArray.Length; x++)
-			{
-				double newValue = (((oldValueArray[x] - oldMin) * newRange) / oldRange) + newMin;
-				newValueArray[x] = newValue;
-			}
-			
-			return newValueArray;
-		}
-		
-		public static float[] ConvertRangeAndMainainRatio(float[] oldValueArray, float oldMin, float oldMax, float newMin, float newMax) {
-			float[] newValueArray = new float[oldValueArray.Length];
-			float oldRange = (oldMax - oldMin);
-			float newRange = (newMax - newMin);
-			
-			for(int x = 0; x < oldValueArray.Length; x++)
-			{
-				float newValue = (((oldValueArray[x] - oldMin) * newRange) / oldRange) + newMin;
-				newValueArray[x] = newValue;
-			}
-
-			return newValueArray;
-		}
-
-		public static void ComputeMinAndMax(double[] data, out double min, out double max) {
-			// prepare the data:
-			double maxVal = double.MinValue;
-			double minVal = double.MaxValue;
-			
-			for(int x = 0; x < data.Length; x++)
-			{
-				if (data[x] > maxVal)
-					maxVal = data[x];
-				if (data[x] < minVal)
-					minVal = data[x];
-			}
-			min = minVal;
-			max = maxVal;
-		}
-		
-		public static void ComputeMinAndMax(double[][] data, out double min, out double max) {
-			// prepare the data:
-			double maxVal = double.MinValue;
-			double minVal = double.MaxValue;
-			
-			for(int x = 0; x < data.Length; x++)
-			{
-				for(int y = 0; y < data[x].Length; y++)
-				{
-					if (data[x][y] > maxVal)
-						maxVal = data[x][y];
-					if (data[x][y] < minVal)
-						minVal = data[x][y];
-				}
-			}
-			min = minVal;
-			max = maxVal;
-		}
-
-		public static void ComputeMinAndMax(float[] data, out float min, out float max) {
-			// prepare the data:
-			float maxVal = float.MinValue;
-			float minVal = float.MaxValue;
-			
-			for(int x = 0; x < data.Length; x++)
-			{
-				if (data[x] > maxVal)
-					maxVal = data[x];
-				if (data[x] < minVal)
-					minVal = data[x];
-			}
-			min = minVal;
-			max = maxVal;
-		}
-		
-		public static void ComputeMinAndMax(float[][] data, out float min, out float max) {
-			// prepare the data:
-			float maxVal = float.MinValue;
-			float minVal = float.MaxValue;
-			
-			for(int x = 0; x < data.Length; x++)
-			{
-				for(int y = 0; y < data[x].Length; y++)
-				{
-					if (data[x][y] > maxVal)
-						maxVal = data[x][y];
-					if (data[x][y] < minVal)
-						minVal = data[x][y];
-				}
-			}
-			min = minVal;
-			max = maxVal;
-		}
-
-		// look at this http://jvalentino2.tripod.com/dft/index.html
-		public static float ConvertAmplitudeToDB(float amplitude, float MinDb, float MaxDb) {
-			// db = 20 * log10( fft[index] );
-			
-			// Convert float to dB
-			//float MinDb = -120.0f;
-			//float MaxDb = 18.0f;
-
-			// TODO: Addition of the smallest positive number (Epsilon) prevents log from returning minus infinity if value is zero
-			float smallestNumber = float.Epsilon;
-			float db = 20 * (float) Math.Log10( (float) (amplitude + smallestNumber) );
-			
-			if (db < MinDb) db = MinDb;
-			if (db > MaxDb) db = MaxDb;
-			
-			//float percentage = (db - MinDb) / (MaxDb - MinDb);
-			
-			return db;
-		}
-		
-		public static float ConvertIndexToHz(int i, int numberOfSamples, double sampleRate, double fftWindowsSize) {
-			// either
-			// freq = index * samplerate / fftsize;
-			// frequency = ( i + 1 ) * (float) sampleRate / fftWindowsSize;
-			
-			// or
-			// ( i + 1 ) * ((sampleRate / 2) / numberOfSamples)
-			double nyquistFreq = sampleRate / 2;
-			double firstFrequency = nyquistFreq / numberOfSamples;
-			double frequency = firstFrequency * ( i + 1 );
-			return (float) frequency;
-		}
-		
-		public static double ConvertIndexToTime(double sampleRate, int numberOfSamples) {
-			//T = ( fftWindowSize / 2 + shift * (0:num_segs - 1) ) / fs;
-			double time = sampleRate / numberOfSamples;
-			return time;
-		}
-		
+				
 		public static int GetSampleForTime(int msecs, int nSamplesPerSec)
 		{
 			double t = 1.0 / nSamplesPerSec;

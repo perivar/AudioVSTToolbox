@@ -393,7 +393,7 @@ namespace Wave2Zebra2Preset
 				pen.Width = 2.0F;
 				g.DrawLine(pen, X_0, Y_0 + (5 * Y_Slot), X_1, Y_0 + (5 * Y_Slot));
 				g.DrawLine(pen, X_0 + (5 * X_Slot), Y_0, X_0 + (5 * X_Slot), Y_1);
-					
+				
 				X_Unit = (float) (0.8 * width / data.Length);
 				
 				PointF[] pointArray = new PointF[data.Length];
@@ -617,128 +617,122 @@ namespace Wave2Zebra2Preset
 		
 		// see https://code.google.com/p/jstk/source/browse/trunk/jstk/src/de/fau/cs/jstk/?r=154#jstk%2Fvc
 		public void drawSpectrogram(String prefix, String filename, float[][] data) {
-			//try {
-				VB6Spectrogram vb6Spectrogram = new VB6Spectrogram();
-				vb6Spectrogram.ComputeColorPalette();
-				
-				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
-				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
-				int width = 1000;
-				int height = 600;
-				int maxYIndex = height - 1;
-				double numberOfSamplesX = data.Length;
-				double numberOfSamplesY = data[0].Length;
-				
-				double horizontalScaleFactor = (double) width / numberOfSamplesX;
-				double verticalScaleFactor = (double) height/ numberOfSamplesY;
-				
-				// Now, you need to figure out the incremental jump between samples to adjust for the scale factor. This works out to be:
-				int incrementX = (int) (numberOfSamplesX / (numberOfSamplesX * horizontalScaleFactor));
-				if (incrementX == 0) incrementX = 1;
-				
-				int incrementY = (int) (numberOfSamplesY / (numberOfSamplesY * verticalScaleFactor));
-				if (incrementY == 0) incrementY = 1;
-				
-				// prepare the data:
-				double maxVal = double.MinValue;
-				double minVal = double.MaxValue;
-				
-				for(int x = 0; x < data.Length; x++)
+			VB6Spectrogram vb6Spectrogram = new VB6Spectrogram();
+			vb6Spectrogram.ComputeColorPalette();
+			
+			double numberOfSamplesX = data.Length;
+			double numberOfSamplesY = data[0].Length;
+
+			int width = (int) numberOfSamplesX;
+			int height = (int) numberOfSamplesY;
+
+			String filenameToSave = String.Format("C:\\{0}-{1}x{2}-{3}.png", prefix, width, height, System.IO.Path.GetFileNameWithoutExtension(filename));
+			
+			System.Console.Out.WriteLine("Writing " + filenameToSave);
+			
+			int maxYIndex = height - 1;
+			double horizontalScaleFactor = (double) width / numberOfSamplesX;
+			double verticalScaleFactor = (double) height/ numberOfSamplesY;
+			
+			// Now, you need to figure out the incremental jump between samples to adjust for the scale factor. This works out to be:
+			int incrementX = (int) (numberOfSamplesX / (numberOfSamplesX * horizontalScaleFactor));
+			if (incrementX == 0) incrementX = 1;
+			
+			int incrementY = (int) (numberOfSamplesY / (numberOfSamplesY * verticalScaleFactor));
+			if (incrementY == 0) incrementY = 1;
+			
+			// prepare the data:
+			double maxVal = double.MinValue;
+			double minVal = double.MaxValue;
+			
+			for(int x = 0; x < data.Length; x++)
+			{
+				for(int y = 0; y < data[x].Length; y++)
 				{
-					for(int y = 0; y < data[x].Length; y++)
-					{
-						if (data[x][y] > maxVal)
-							maxVal = data[x][y];
-						if (data[x][y] < minVal)
-							minVal = data[x][y];
-					}
+					if (data[x][y] > maxVal)
+						maxVal = data[x][y];
+					if (data[x][y] < minVal)
+						minVal = data[x][y];
 				}
+			}
 
-				double minIntensity = Math.Abs(minVal);
-				double maxIntensity = maxVal + minIntensity;
-				
-				/* Create the image for displaying the data.
-				 */
-				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
-				Graphics g = Graphics.FromImage(png);
+			double minIntensity = Math.Abs(minVal);
+			double maxIntensity = maxVal + minIntensity;
+			
+			/* Create the image for displaying the data.
+			 */
+			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(png);
 
-				Rectangle rect = new Rectangle(0, 0, width, height);
-				g.FillRectangle(Brushes.White, rect);
-				
-				/* Set scaleFactor so that the maximum value, after removing
-				 * the offset, will be 0xff.
-				 */
-				//int scaleFactor = (int)((0xff + offsetFactor) / maxIntensity);
-				float scaleFactor = (float)(0xff / maxIntensity);
-				
-				for (int i = 0; i < numberOfSamplesX; i += incrementX)
+			Rectangle rect = new Rectangle(0, 0, width, height);
+			g.FillRectangle(Brushes.White, rect);
+			
+			/* Set scaleFactor so that the maximum value, after removing
+			 * the offset, will be 0xff.
+			 */
+			float scaleFactor = (float)(0xff / maxIntensity);
+			
+			for (int i = 0; i < numberOfSamplesX; i += incrementX)
+			{
+				for (int j = 0; j < numberOfSamplesY; j += incrementY)
 				{
-					for (int j = 0; j < numberOfSamplesY; j += incrementY)
-					{
-						int x = (int) MathUtils.RoundDown(i*horizontalScaleFactor,0);
-						int y = (int) MathUtils.RoundDown(j*verticalScaleFactor,0);
+					int x = (int) MathUtils.RoundDown(i*horizontalScaleFactor,0);
+					int y = (int) MathUtils.RoundDown(j*verticalScaleFactor,0);
 
-						float f = data[i][j];
-						double d = (f + minIntensity) * scaleFactor;
-						
-						Color c = Color.White;
-						int RangedB = 100;
-						int RangePaletteIndex = 255;
-						double indexDouble = VB6Spectrogram.MapToPixelIndex(f, RangedB, RangePaletteIndex);						
-						byte vb6Index = (byte) indexDouble;
-						c = vb6Spectrogram.LevelPaletteDictionary[vb6Index];
-						png.SetPixel(x, maxYIndex - y, c);
-					}
+					float f = data[i][j];
+					double d = (f + minIntensity) * scaleFactor;
+					
+					Color c = Color.White;
+					int RangedB = 100;
+					int RangePaletteIndex = 256;
+					double indexDouble = VB6Spectrogram.MapToPixelIndex(f, RangedB, RangePaletteIndex);
+					byte vb6Index = (byte) indexDouble;
+					c = vb6Spectrogram.LevelPaletteDictionary[vb6Index];
+					png.SetPixel(x, maxYIndex - y, c);
 				}
-				
-				png.Save(filenameToSave);
-				g.Dispose();
-			//} catch (Exception ex) {
-			//	System.Diagnostics.Debug.WriteLine(ex);
-			//}
+			}
+			
+			png.Save(filenameToSave);
+			g.Dispose();
 		}
 
 		public void drawSpectrogram2(String prefix, String filename, float[][] data, double sampleRate, double fftWindowsSize) {
-			//try {
-				VB6Spectrogram vb6Spectrogram = new VB6Spectrogram();
-				vb6Spectrogram.ComputeColorPalette();
-				
-				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
-				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
-				int width = 1000;
-				int height = 600;
-				float numberOfSamplesX = data.Length;
-				float numberOfSamplesY = data[0].Length;
+			VB6Spectrogram vb6Spectrogram = new VB6Spectrogram();
+			vb6Spectrogram.ComputeColorPalette();
+			
+			String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
+			System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
+			int width = 1000;
+			int height = 600;
+			float numberOfSamplesX = data.Length;
+			float numberOfSamplesY = data[0].Length;
 
-				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
-				Graphics g = Graphics.FromImage(png);
+			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(png);
 
-				Axis.drawAxis(Axis.X_AXIS, 10, 5, 0, (float)Program.ConvertIndexToTime(sampleRate, (int)numberOfSamplesX), 50, width-50, 50, false, height, g);
-				Axis.drawAxis(Axis.Y_AXIS, 10, 5, 1, (float)(sampleRate/2), 50, height-50, 50, true, height, g);
-				
-				for(int x = 0; x < numberOfSamplesX; x++)
+			Axis.drawAxis(Axis.X_AXIS, 10, 5, 0, (float)MathUtils.ConvertIndexToTime(sampleRate, (int)numberOfSamplesX), 50, width-50, 50, false, height, g);
+			Axis.drawAxis(Axis.Y_AXIS, 10, 5, 1, (float)(sampleRate/2), 50, height-50, 50, true, height, g);
+			
+			for(int x = 0; x < numberOfSamplesX; x++)
+			{
+				for(int y = 0; y < numberOfSamplesY; y++)
 				{
-					for(int y = 0; y < numberOfSamplesY; y++)
-					{
-						float f = data[x][y];
-						int x1 = Axis.plotValue(x+1, 1, numberOfSamplesX+1, 50, width-50, false, height);
-						int y1 = Axis.plotValue(y+1, 1, numberOfSamplesY+1, 50, height-50, true, height);
+					float f = data[x][y];
+					int x1 = Axis.plotValue(x+1, 1, numberOfSamplesX+1, 50, width-50, false, height);
+					int y1 = Axis.plotValue(y+1, 1, numberOfSamplesY+1, 50, height-50, true, height);
 
-						Color c = Color.White;
-						int RangedB = 100;
-						int RangePaletteIndex = 255;
-						byte vb6Index = (byte) VB6Spectrogram.MapToPixelIndex(f, RangedB, RangePaletteIndex);
-						c = vb6Spectrogram.LevelPaletteDictionary[vb6Index];
-						if (x1 > 0 && x1 < width && y1 > 0 && y1 < height)
-							png.SetPixel(x1+50, height - y1 - 50, c);
-					}
+					Color c = Color.White;
+					int RangedB = 100;
+					int RangePaletteIndex = 255;
+					byte vb6Index = (byte) VB6Spectrogram.MapToPixelIndex(f, RangedB, RangePaletteIndex);
+					c = vb6Spectrogram.LevelPaletteDictionary[vb6Index];
+					if (x1 > 0 && x1 < width && y1 > 0 && y1 < height)
+						png.SetPixel(x1+50, height - y1 - 50, c);
 				}
-				
-				png.Save(filenameToSave);
-				g.Dispose();
-			//} catch (Exception ex) {
-			//	System.Diagnostics.Debug.WriteLine(ex);
-			//}
+			}
+			
+			png.Save(filenameToSave);
+			g.Dispose();
 		}
 		
 		public void drawSpectrum(String prefix, String filename, float[][] data) {

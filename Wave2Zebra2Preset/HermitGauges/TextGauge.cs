@@ -19,6 +19,8 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
+using CommonUtils;
+
 namespace Wave2Zebra2Preset.HermitGauges
 {
 	///
@@ -375,7 +377,7 @@ namespace Wave2Zebra2Preset.HermitGauges
 		protected internal override void drawBody(Graphics graphics, Pen pen, long now)
 		{
 			// Set up the display style.
-			pen.Color = AColor.UIntToColor(PlotColor);
+			pen.Color = ColorUtils.UIntToColor(PlotColor);
 			//pen.TextSize = textSize;
 
 			//JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':

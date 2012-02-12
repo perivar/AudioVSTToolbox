@@ -67,11 +67,20 @@
     <Compile Include="..\CommonUtils\Audio\Bass\IAudio.cs">
       <Link>IAudio.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\ColorUtils.cs">
+      <Link>ColorUtils.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\CSVWriter.cs">
       <Link>CSVWriter.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\Export.cs">
       <Link>Export.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\ExtendedGraphics.cs">
+      <Link>ExtendedGraphics.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\AudioAnalyzer.cs">
+      <Link>AudioAnalyzer.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Complex.cs">
       <Link>Fingerprinting\MathUtils\Complex.cs</Link>
@@ -96,6 +105,9 @@
     </Compile>
     <Compile Include="..\CommonUtils\MathUtils.cs">
       <Link>MathUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\MidiUtils.cs">
+      <Link>MidiUtils.cs</Link>
     </Compile>
     <Compile Include="AColor.cs" />
     <Compile Include="Axis.cs" />

@@ -20,6 +20,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;  
 
+using CommonUtils;
+
 namespace Wave2Zebra2Preset.HermitGauges
 {
 	
@@ -199,10 +201,10 @@ namespace Wave2Zebra2Preset.HermitGauges
 			float lx;
 			float ly;
 			graphics.Clear(Color.LightBlue);
-			SolidBrush drawBrush = new SolidBrush(AColor.UIntToColor(0xff000000));
+			SolidBrush drawBrush = new SolidBrush(ColorUtils.UIntToColor(0xff000000));
 			graphics.FillRectangle(drawBrush, sonaGraphX, sonaGraphY, sonaGraphWidth, sonaGraphHeight);
 
-			pen.Color = AColor.UIntToColor(0xffffff00);
+			pen.Color = ColorUtils.UIntToColor(0xffffff00);
 			pen.DashStyle = DashStyle.Dash;
 
 			// Draw the grid.

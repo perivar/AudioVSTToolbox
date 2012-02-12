@@ -72,7 +72,7 @@ namespace CommonUtils.FFT
 			int numberOfSamples = samples.Length;
 			double seconds = numberOfSamples / sampleRate;
 			
-			// width of the segment - i.e. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
+			// width of the segment - i.e. split the file into X time slots (numberOfSegments) and do analysis on each slot
 			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap;
 			float[][] frames = new float[numberOfSegments][];
 			

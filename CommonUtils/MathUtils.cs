@@ -255,6 +255,11 @@ namespace CommonUtils
 			return (float) frequency;
 		}
 		
+		public static double ConvertIndexToTime(double sampleRate, int numberOfSamples) {
+			double time = sampleRate / numberOfSamples;
+			return time;
+		}		
+		
 		public static double[] FloatToDouble(float[] floatArray) {
 			double[] doubleArray = Array.ConvertAll(floatArray, x => (double)x);
 			return doubleArray;
