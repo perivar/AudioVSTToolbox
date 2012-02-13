@@ -55,7 +55,10 @@ namespace CommonUtils.FFT
 				{
 					double re = complexSignal[2*j];
 					double img = complexSignal[2*j + 1];
-					band[j] = (float) Math.Sqrt(re*re + img*img);
+
+					// get the magnitude spectrum
+					//band[j] = (float) Math.Sqrt(re*re + img*img);
+					band[j] = (float) Math.Sqrt(re*re + img*img) * 4;
 				}
 				frames[i] = band;
 			}
@@ -102,7 +105,9 @@ namespace CommonUtils.FFT
 					double img = complexSignal[2*j + 1];
 					
 					// do the Abs calculation and multiply by 1/N (2/N cause of the using half the window size)
-					band[j] = (float) Math.Sqrt(re*re + img*img) * 2/fftWindowsSize;
+					// i.e. the magnitude spectrum
+					//band[j] = (float) Math.Sqrt(re*re + img*img) * 2/fftWindowsSize;
+					band[j] = (float) Math.Sqrt(re*re + img*img) * 4/fftWindowsSize;
 				}
 				frames[i] = band;
 			}
@@ -146,6 +151,7 @@ namespace CommonUtils.FFT
 				double img = complexSignal[2*j + 1] / (float) Math.Sqrt(fftWindowsSize);
 				
 				// do the Abs calculation and add with Math.Sqrt(audio_data.Length);
+				// i.e. the magnitude spectrum
 				band[j] = (float) Math.Sqrt(re*re + img*img) * 4;
 			}
 			return band;
@@ -185,6 +191,7 @@ namespace CommonUtils.FFT
 				double img = complexSignal[2*j + 1];
 				
 				// do the Abs calculation and multiply by 1/N (2/N cause of the using half the window size)
+				// i.e. the magnitude spectrum
 				band[j] = (float) Math.Sqrt(re*re + img*img) * 4/fftWindowsSize;
 			}
 			return band;

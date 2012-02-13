@@ -41,29 +41,11 @@ namespace Wave2Zebra2Preset
 			//String fileName = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
 			//String fileName = @"G:\Cubase and Nuendo Projects\Music To Copy Learn\Britney Spears - Hold It Against Me\02 Hold It Against Me (Instrumental) 1.mp3";
 
-			/*
-			InstrumentPanel panel = new InstrumentPanel(800, 600);
-			panel.Instrument = InstrumentPanel.Instruments.SPECTRUM_P_W;
-			AudioAnalyser analyser = panel.AudioAnalyser;
-			
-			//String path = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl";
-			 */
 			Console.WriteLine("Analyzer starting ...");
 			
 			RepositoryGateway repositoryGateway = new RepositoryGateway();
 			FingerprintManager manager = new FingerprintManager();
 
-			//double sampleRate = 44100;// 44100  default 5512
-			//int fftWindowsSize = 16384; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
-			// overlap must be an integer smaller than the window size
-			// half the windows size is quite normal, sometimes 80% is best?!
-			//int fftOverlap = fftWindowsSize / 2; //64;
-			/*
-
-			// extract tags
-			TAG_INFO tag = repositoryGateway._proxy.GetTagInfoFromFile(fileName);
-			 */
-			
 			// VB6 FFT
 			double sampleRate = 44100;// 44100  default 5512
 			int fftWindowsSize = 4096; //4096  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
@@ -73,73 +55,8 @@ namespace Wave2Zebra2Preset
 			VB6Spectrogram vb6Spect = new VB6Spectrogram();
 			vb6Spect.ComputeColorPalette();
 			float[][] vb6Spectrogram = vb6Spect.Compute(wavDataVB6, sampleRate, fftWindowsSize, fftOverlapPercentage);
-			Export.exportCSV (@"c:\VB6Spectrogram-full.csv", vb6Spectrogram);
-			
-			/*
-			StreamWriter writer = File.CreateText(@"C:\audiofile.dat");
-			writer.WriteLine(wavDataVB6.Length);
-			writer.WriteLine(sampleRate);
-			for (int i = 0; i < wavDataVB6.Length; i++) {
-				writer.WriteLine(wavDataVB6[i]);
-			}
-			writer.Flush();
-			writer.Close();
-			
-			LogPlotter logPlotter = new LogPlotter();
-			logPlotter.Render( new double[] {1, 2, 4, 8, 16, 32}, new double[] {1, 2, 3, 4, 5, 6}, @"c:\logplot.png" );
-			return;
-			
-			// Lomont FFT
-			double sampleRate = 44100;// 44100  default 5512
-			int fftWindowsSize = 16384; //16384  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
-			// overlap must be an integer smaller than the window size
-			// half the windows size is quite normal, sometimes 80% is best?!
-			int fftOverlap = fftWindowsSize / 2; //64;
-			float[] wavData = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, 15*1000, 20*1000 );
-			
-			float min = 0.0f;
-			float max = 0.0f;
-			ComputeMinAndMax(wavData, out min, out max);
-			System.Diagnostics.Debug.WriteLine(String.Format("Wav data value range: Min: {0}. Max: {1}.", min, max));
-			float[] wavDataFixed = ConvertRangeAndMainainRatio(wavData, min, max, -32768, 32767);
-			
-			float minNew = 0.0f;
-			float maxNew = 0.0f;
-			ComputeMinAndMax(wavDataFixed, out minNew, out maxNew);
-			System.Diagnostics.Debug.WriteLine(String.Format("New data value range: Min: {0}. Max: {1}.", minNew, maxNew));
-			 */
-
-			/*
-			float[] wavDataDb = ConvertRangeAndMainainRatioLog(wavData, min, max, 0, 100);
-			exportCSV (String.Format("c:\\{0}-samples-and-short-range-conversion-{1}-{2}.csv", System.IO.Path.GetFileNameWithoutExtension(fileName), sampleRate, fftWindowsSize), wavData, wavDataFixed, wavDataDb);
-			
-			short[] shortData = new short[wavDataFixed.Length];
-			for (int z = 0; z < wavDataFixed.Length; z++) {
-				float f = wavDataFixed[z];
-				double d = (double) f;
-				short s = (short) d;
-				shortData[z] = s;
-			}
-			analyser.SampleRate = (int) sampleRate;
-			analyser.ProcessAudio(shortData);
-			//return;
-			 */
-			
-			//float[][] lomontSpectrogram = CreateSpectrogram(wavData, sampleRate, fftWindowsSize, fftOverlap);
-			//repositoryGateway.drawSpectrogram2("LomontSpectrum", fileName, lomontSpectrogram, sampleRate, fftWindowsSize);
-			//exportCSV (@"c:\LomontSpectrogram-full-not-normalized.csv", lomontSpectrogram);
-			//prepareAndDrawSpectrumAnalysis(repositoryGateway, "Lomont", fileName, lomontSpectrogram, sampleRate, fftWindowsSize, fftOverlap);
-
-			// draw waveform
-			/*
-			exportCSV (String.Format("c:\\{0}-samples-{1}-{2}.csv", System.IO.Path.GetFileNameWithoutExtension(fileName), sampleRate, fftWindowsSize), wavData);
-			repositoryGateway.drawWaveform("Waveform", fileName, wavData);
-			repositoryGateway.drawWaveform2("WaveformV2", fileName, wavDataFixed, false);
-			FingerprintManager.NormalizeInPlace(wavData);
-			exportCSV (String.Format("c:\\{0}-samples-normalized-{1}-{2}.csv", System.IO.Path.GetFileNameWithoutExtension(fileName), sampleRate, fftWindowsSize), wavData);
-			repositoryGateway.drawWaveform("Waveform-Normalized", fileName, wavData);
-			*/
-			
+			//Export.exportCSV (@"c:\VB6Spectrogram-full.csv", vb6Spectrogram);
+						
 			// Exocortex.DSP FFT
 			int numberOfSamples = wavDataVB6.Length; 
 			fftOverlapPercentage = fftOverlapPercentage / 100;
@@ -153,20 +70,10 @@ namespace Wave2Zebra2Preset
 			System.Console.Out.WriteLine(String.Format("EXO: fftWindowsSize: {0}, Overlap samples: {1:n2}.", fftWindowsSize, fftOverlap ));
 
 			float[][] exoSpectrogram = AudioAnalyzer.CreateSpectrogramExocortex(wavDataVB6, sampleRate, fftWindowsSize, fftOverlap);
-			repositoryGateway.drawSpectrogram("Spectrogram", fileName, exoSpectrogram);
-			Export.exportCSV (@"c:\exoSpectrogram-full.csv", exoSpectrogram);
-			
-			//float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, RepositoryGateway.MILLISECONDS_TO_PROCESS, RepositoryGateway.MILLISECONDS_START);
-			//repositoryGateway.drawSpectrogram2("LogSpectrogram", fileName, logSpectrogram, sampleRate, fftWindowsSize);
-			//repositoryGateway.drawSpectrogram("LogSpectrogram", fileName, logSpectrogram);
-			
-			/*
-			List<bool[]> dbFingers = manager.CreateFingerprints(logSpectrogram, repositoryGateway._createStride);
-			
-			List<string> musicFiles = Helper.GetMusicFiles(path, Program._musicFileFilters, true); //get music file names
-			List<Track> processedMusicFiles = repositoryGateway.ProcessFiles(musicFiles, null);
-			*/
-			
+			repositoryGateway.drawSpectrogram3("Spectrogram", fileName, exoSpectrogram);
+			repositoryGateway.drawColorGradient("ColorGradient", fileName);
+			//Export.exportCSV (@"c:\exoSpectrogram-full.csv", exoSpectrogram);
+						
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
 		}

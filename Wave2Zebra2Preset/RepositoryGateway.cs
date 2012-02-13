@@ -734,6 +734,133 @@ namespace Wave2Zebra2Preset
 			png.Save(filenameToSave);
 			g.Dispose();
 		}
+
+		public void drawColorGradient(String prefix, String filename) {
+			
+			String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
+			System.Console.Out.WriteLine("Writing " + filenameToSave);
+			
+			int width = 360;
+			int height = 200;
+			
+			// Create the image for displaying the data.
+			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(png);
+
+			float saturation = 1.0f;
+			
+			// http://en.wikipedia.org/wiki/HSL_and_HSV
+			for (int x = 0; x < width; x++) {
+				for (int y = 0; y < height; y++) {
+					float brightness = 1 - ((float)y / height);
+					
+					// HSL
+					Color c = ColorUtils.AhslToArgb(255, x, saturation, brightness);
+					
+					// HSB
+					//Color c = ColorUtils.AhsbToArgb(255, x, saturation, brightness);
+					
+					png.SetPixel(x, y, c);
+				}
+			}
+			
+			png.Save(filenameToSave);
+			g.Dispose();
+		}
+
+		public void drawSpectrogram3(String prefix, String filename, float[][] data) {
+
+			float minDb = -90.0f;
+			float maxDb = 0.0f;
+
+			double numberOfSamplesX = data.Length;
+			double numberOfSamplesY = data[0].Length;
+
+			// set width and height
+			int width = (int) numberOfSamplesX;
+			int height = (int) numberOfSamplesY / 2;
+
+			String filenameToSave = String.Format("C:\\{0}-{1}x{2}-{3}.png", prefix, width, height, System.IO.Path.GetFileNameWithoutExtension(filename));
+			
+			System.Console.Out.WriteLine("Writing " + filenameToSave);
+			
+			double horizontalScaleFactor = (double) width / numberOfSamplesX;
+			double verticalScaleFactor = (double) height/ numberOfSamplesY;
+			
+			int maxYIndex = height - 1;
+			
+			// Now, you need to figure out the incremental jump between samples to adjust for the scale factor. This works out to be:
+			int incrementX = (int) (numberOfSamplesX / (numberOfSamplesX * horizontalScaleFactor));
+			if (incrementX == 0) incrementX = 1;
+			
+			int incrementY = (int) (numberOfSamplesY / (numberOfSamplesY * verticalScaleFactor));
+			if (incrementY == 0) incrementY = 1;
+			
+			// prepare the data
+			// retrieve the highest and lowest value
+			double maxVal = double.MinValue;
+			double minVal = double.MaxValue;
+			
+			for(int x = 0; x < data.Length; x++)
+			{
+				for(int y = 0; y < data[x].Length; y++)
+				{
+					if (data[x][y] > maxVal) {
+						maxVal = data[x][y];
+					}
+					
+					if (data[x][y] < minVal) {
+						minVal = data[x][y];
+					}
+				}
+			}
+
+			float maxValdB = MathUtils.ConvertAmplitudeToDB((float)maxVal, minDb, maxDb);
+			float minValdB = MathUtils.ConvertAmplitudeToDB((float)minVal, minDb, maxDb);
+
+			double minIntensity = Math.Abs(minVal);
+			double maxIntensity = maxVal + minIntensity;
+			
+			System.Console.Out.WriteLine("min value: {0}", minVal);
+			System.Console.Out.WriteLine("max value: {0}", maxVal);
+			System.Console.Out.WriteLine("min value: {0} dB", minValdB);
+			System.Console.Out.WriteLine("max value: {0} dB", maxValdB);
+			System.Console.Out.WriteLine("min intensity: {0}", minIntensity);
+			System.Console.Out.WriteLine("max intensity: {0}", maxIntensity);
+			
+			// Create the image for displaying the data.
+			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(png);
+
+			Rectangle rect = new Rectangle(0, 0, width, height);
+			g.FillRectangle(Brushes.White, rect);
+			
+			for (int i = 0; i < numberOfSamplesX; i += incrementX)
+			{
+				for (int j = 0; j < numberOfSamplesY; j += incrementY)
+				{
+					int x = (int) MathUtils.RoundDown(i*horizontalScaleFactor,0);
+					int y = (int) MathUtils.RoundDown(j*verticalScaleFactor,0);
+
+					float amplitude = data[i][j];
+					float dB = MathUtils.ConvertAmplitudeToDB(amplitude, minDb, maxDb);
+						
+					int test = 250;
+					int H = test - (int) MathUtils.ConvertAndMainainRatio(dB, minValdB, maxValdB, 0, test);
+					float S = 1.0f; // Saturation
+					float B = MathUtils.ConvertAndMainainRatio(dB, minValdB, maxValdB, 0.05f, 0.8f);
+
+					//Color c = ColorUtils.HslToRgb(H, S, B);
+					int color = (int) MathUtils.ConvertAndMainainRatio(dB, minValdB, maxValdB, 0, 256);
+					Color c = VB6Spectrogram.PaletteValueColor(color, 256);
+					//Color c = VB6Spectrogram.GreyPaletteValueColor(color, 256);
+					png.SetPixel(x, maxYIndex - y, c);
+				}
+			}
+			
+			png.Save(filenameToSave);
+			g.Dispose();
+		}
 		
 		public void drawSpectrum(String prefix, String filename, float[][] data) {
 			try {

@@ -51,7 +51,7 @@ namespace CommonUtils
 			return c;
 		}
 		
-		// http://stackoverflow.com/questions/2900837/does-the-net-framework-3-5-have-an-hsbtorgb-converter-or-do-i-need-to-roll-my-o
+		// HSV stands for hue, saturation, and value, and is also often called HSB (B for brightness)
 		// alpha channel, hue, saturation, and brightness
 		public static Color AhsbToArgb(byte a, double h, double s, double b)
 		{
@@ -59,14 +59,8 @@ namespace CommonUtils
 			return Color.FromArgb(a, color.R, color.G, color.B);
 		}
 		
-		// HSV stands for hue, saturation, and value,
-		// and is also often called HSB (B for brightness).
-		public static Color HsvToRgb(double h, double s, double b) {
-			return HsbToRgb(h, s, b);
-		}
-		
-		// HSV stands for hue, saturation, and value,
-		// and is also often called HSB (B for brightness).
+		// HSV stands for hue, saturation, and value, 
+		// and is also often called HSB (B for brightness)
 		public static Color HsbToRgb(double h, double s, double b)
 		{
 			if (s == 0)
@@ -105,6 +99,81 @@ namespace CommonUtils
 				(int)Math.Round(rawR * 255),
 				(int)Math.Round(rawG * 255),
 				(int)Math.Round(rawB * 255));
+		}
+
+		// HSL stands for hue, saturation, and lightness, and is often also called HLS
+		// alpha channel, hue, saturation, and brightness
+		public static Color HslToRgb(float h, float s, float l)
+		{
+			return AhslToArgb(255, h, s, l);
+		}
+		
+		// HSL stands for hue, saturation, and lightness, and is often also called HLS
+		public static Color AhslToArgb(int a, float h, float s, float l) {
+
+			if (0 > a || 255 < a) {
+				throw new ArgumentOutOfRangeException("a", a,
+				                                      "InvalidAlpha");
+			}
+			if (0f > h || 360f < h) {
+				throw new ArgumentOutOfRangeException("h", h,
+				                                      "InvalidHue");
+			}
+			if (0f > s || 1f < s) {
+				throw new ArgumentOutOfRangeException("s", s,
+				                                      "InvalidSaturation");
+			}
+			if (0f > l || 1f < l) {
+				throw new ArgumentOutOfRangeException("l", l,
+				                                      "InvalidBrightness");
+			}
+
+			if (0 == s) {
+				return Color.FromArgb(a, Convert.ToInt32(l * 255),
+				                      Convert.ToInt32(l * 255), Convert.ToInt32(l * 255));
+			}
+
+			float fMax, fMid, fMin;
+			int iSextant, iMax, iMid, iMin;
+
+			if (0.5 < l) {
+				fMax = l - (l * s) + s;
+				fMin = l + (l * s) - s;
+			} else {
+				fMax = l + (l * s);
+				fMin = l - (l * s);
+			}
+
+			iSextant = (int)Math.Floor(h / 60f);
+			if (300f <= h) {
+				h -= 360f;
+			}
+			h /= 60f;
+			h -= 2f * (float)Math.Floor(((iSextant + 1f) % 6f) / 2f);
+			if (0 == iSextant % 2) {
+				fMid = h * (fMax - fMin) + fMin;
+			} else {
+				fMid = fMin - h * (fMax - fMin);
+			}
+			
+			iMax = Convert.ToInt32(fMax * 255);
+			iMid = Convert.ToInt32(fMid * 255);
+			iMin = Convert.ToInt32(fMin * 255);
+
+			switch (iSextant) {
+				case 1:
+					return Color.FromArgb(a, iMid, iMax, iMin);
+				case 2:
+					return Color.FromArgb(a, iMin, iMax, iMid);
+				case 3:
+					return Color.FromArgb(a, iMin, iMid, iMax);
+				case 4:
+					return Color.FromArgb(a, iMid, iMin, iMax);
+				case 5:
+					return Color.FromArgb(a, iMax, iMin, iMid);
+				default:
+					return Color.FromArgb(a, iMax, iMid, iMin);
+			}
 		}
 	}
 }

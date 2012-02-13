@@ -44,7 +44,7 @@ namespace Wave2Zebra2Preset
 				//LevelPalette[col] = PaletteValue(col, RangePaletteIndex);
 				LevelPaletteDictionary.Add(col, PaletteValueColor(col, RangePaletteIndex));
 				for (int i = 0; i < imageHeight; i++) {
-					Legendpixelmatrix[i, col] = (byte) col;					
+					Legendpixelmatrix[i, col] = (byte) col;
 				}
 			}
 			
@@ -86,7 +86,7 @@ namespace Wave2Zebra2Preset
 			byte[,] Pixelmatrix = new byte[fftWindowsSize / 2, NumCols];
 			float[][] frames = new float[NumCols][];
 
-			long sampleIndex = 0;	
+			long sampleIndex = 0;
 			for (col = 0; col < NumCols; col++)
 			{
 				// read a segment of the audio file
@@ -117,7 +117,7 @@ namespace Wave2Zebra2Preset
 				frames[col] = magnitude;
 			}
 
-			// the sampleRate / 2 (nyquistFreq) has a total of fftWindowsSize / 2 unique frequencies 
+			// the sampleRate / 2 (nyquistFreq) has a total of fftWindowsSize / 2 unique frequencies
 			double nyquistFreq = sampleRate / 2;
 			float[] F = new float[fftWindowsSize/2];
 			for (int i = 1; i < fftWindowsSize/2 + 1; i++) {
@@ -132,8 +132,8 @@ namespace Wave2Zebra2Preset
 			for (int i = 1; i < NumCols + 1; i++) {
 				T[i-1] = (double) i * timeIncrement; // in milliseconds
 			}
-					
-			Export.exportCSV(@"c:\VB-magnitude-freq.csv", frames[0], F);
+			
+			//Export.exportCSV(@"c:\VB-magnitude-freq.csv", frames[0], F);
 			System.Console.Out.WriteLine(String.Format("TimeslotWidth: {0}, TimeslotIncrement: {1}.", TimeslotWidth, TimeslotIncrement));
 
 			// save the Pixelmatrix as a bitmap file to disk
@@ -297,10 +297,18 @@ namespace Wave2Zebra2Preset
 		// this is just one of many possible palettes
 		public static long GreyPaletteValue(long x, long range)
 		{
-			long V = 0;
-			V = (x * 0XFF / range) & 0XFF;
-
+			long V = (x * 0XFF / range) & 0XFF;
 			return V * 0X10101;
+		}
+
+		// return pseudo color value for a value x in range [0...range-1]
+		// colors go from black - white
+		// this is just one of many possible palettes
+		public static Color GreyPaletteValueColor(long x, long range)
+		{
+			long V = (x * 0XFF / range) & 0XFF;
+			int v = (int)(V * 0X10101);
+			return ColorUtils.IntToColor(v);
 		}
 
 		private static long SwapColors(long col)
