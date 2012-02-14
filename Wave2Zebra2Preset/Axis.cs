@@ -119,10 +119,11 @@ namespace Wave2Zebra2Preset
 				throw new System.ArgumentException("Axis.drawAxis: zero range value not allowed in log axes");
 			}
 
-			Pen pen = Pens.Blue;
-			Font font = new Font("Arial", 8);
+			Color textColor = Color.Black;
+			Pen pen = new Pen(textColor, 1);
+			Font font = new Font("Arial", 7);
 			SolidBrush brush = new SolidBrush(pen.Color);
-
+			
 			if(axis == X_AXIS) // horizontal baseline
 			{
 				g.DrawLine(pen, screenStart, screenHeight-screenOffset, screenEnd, screenHeight-screenOffset);

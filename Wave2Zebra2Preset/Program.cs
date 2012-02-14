@@ -50,7 +50,7 @@ namespace Wave2Zebra2Preset
 			double sampleRate = 44100;// 44100  default 5512
 			int fftWindowsSize = 4096; //4096  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
 			float fftOverlapPercentage = 95.0f; // number between 0 and 100
-			int secondsToSample = 3; //15;
+			int secondsToSample = 5; //15;
 			float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 20*1000 );
 			VB6Spectrogram vb6Spect = new VB6Spectrogram();
 			vb6Spect.ComputeColorPalette();
@@ -70,9 +70,14 @@ namespace Wave2Zebra2Preset
 			System.Console.Out.WriteLine(String.Format("EXO: fftWindowsSize: {0}, Overlap samples: {1:n2}.", fftWindowsSize, fftOverlap ));
 
 			float[][] exoSpectrogram = AudioAnalyzer.CreateSpectrogramExocortex(wavDataVB6, sampleRate, fftWindowsSize, fftOverlap);
-			repositoryGateway.drawSpectrogram3("Spectrogram", fileName, exoSpectrogram);
-			repositoryGateway.drawColorGradient("ColorGradient", fileName);
+			repositoryGateway.drawSpectrogram1("Spectrogram1", fileName, exoSpectrogram);
+			repositoryGateway.drawSpectrogram2("Spectrogram2", fileName, exoSpectrogram, sampleRate, numberOfSamples, fftWindowsSize);
+			repositoryGateway.drawSpectrogram3("Spectrogram3", fileName, exoSpectrogram);
+			//repositoryGateway.drawSpectrogram4("Spectrogram4", fileName, exoSpectrogram);
 			//Export.exportCSV (@"c:\exoSpectrogram-full.csv", exoSpectrogram);
+			
+			//ColorUtils.drawColorGradient(@"C:\", "ColorGradient.png", true);
+			//ColorUtils.drawColorGradient(@"C:\", "ColorGradient.png", false);
 						
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);

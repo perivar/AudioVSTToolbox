@@ -248,15 +248,15 @@ namespace CommonUtils
 			return (float) result;
 		}
 		
-		public static float ConvertIndexToHz(int i, int numberOfSamples, double sampleRate, double fftWindowsSize) {
+		public static float ConvertIndexToHz(int i, int spectrumDataLength, double sampleRate, double fftWindowsSize) {
 			double nyquistFreq = sampleRate / 2;
-			double firstFrequency = nyquistFreq / numberOfSamples;
+			double firstFrequency = nyquistFreq / spectrumDataLength;
 			double frequency = firstFrequency *  i ;
 			return (float) frequency;
 		}
 		
-		public static double ConvertIndexToTime(double sampleRate, int numberOfSamples) {
-			double time = sampleRate / numberOfSamples;
+		public static double ConvertToTime(double sampleRate, int numberOfSamples) {
+			double time = numberOfSamples / sampleRate;
 			return time;
 		}		
 		

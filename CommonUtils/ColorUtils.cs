@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace CommonUtils
 {
@@ -59,7 +60,7 @@ namespace CommonUtils
 			return Color.FromArgb(a, color.R, color.G, color.B);
 		}
 		
-		// HSV stands for hue, saturation, and value, 
+		// HSV stands for hue, saturation, and value,
 		// and is also often called HSB (B for brightness)
 		public static Color HsbToRgb(double h, double s, double b)
 		{
@@ -175,5 +176,47 @@ namespace CommonUtils
 					return Color.FromArgb(a, iMax, iMid, iMin);
 			}
 		}
+		
+		public static void drawColorGradient(string directory, string filename, bool useHSL) {
+			
+			string mode = "";
+			if (useHSL) {
+				mode = "HSL";
+			} else {
+				mode = "HSB";
+			}
+			String filenameToSave = String.Format("{0}/{1}_{2}.png", directory, System.IO.Path.GetFileNameWithoutExtension(filename), mode);
+			System.Console.Out.WriteLine("Writing " + filenameToSave);
+			
+			int width = 360;
+			int height = 200;
+			
+			// Create the image for displaying the data.
+			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(png);
+
+			float saturation = 1.0f;
+			
+			// http://en.wikipedia.org/wiki/HSL_and_HSV
+			for (int x = 0; x < width; x++) {
+				for (int y = 0; y < height; y++) {
+					float brightness = 1 - ((float)y / height);
+					
+					Color c = Color.White;
+					if (useHSL) {
+						// HSL
+						c = ColorUtils.AhslToArgb(255, x, saturation, brightness);
+					} else {
+						// HSB
+						c = ColorUtils.AhsbToArgb(255, x, saturation, brightness);
+					}
+					
+					png.SetPixel(x, y, c);
+				}
+			}
+			
+			png.Save(filenameToSave);
+			g.Dispose();
+		}		
 	}
 }

@@ -417,206 +417,8 @@ namespace Wave2Zebra2Preset
 		#endregion
 		
 		#region spectrum
-		public void drawSpectrum(String prefix, String filename, float[] data) {
-			try {
-				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
-				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
-
-				int width = data.Length;
-				int fftWindowsSize = 2048;
-				int height = fftWindowsSize/2 + 1;
-				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
-				
-				for (int x = 0; x < data.Length; x++)
-				{
-					int c1 = (int) (data[x] * 255f);
-					int c2 = Math.Min( 255, Math.Max( 0, c1) );
-					System.Drawing.Color c = System.Drawing.Color.FromArgb( c2, c2, c2 );
-					png.SetPixel(x, 255, c);
-				}
-				png.Save(filenameToSave);
-			} catch (Exception ex) {
-				System.Diagnostics.Debug.WriteLine(ex);
-			}
-		}
-		
-		/**
-		 * Draw a graph of the spectrum
-		 *
-		 * Released under the MIT License
-		 *
-		 * Copyright (c) 2010 Gerald T. Beauregard
-		 *
-		 * Permission is hereby granted, free of charge, to any person obtaining a copy
-		 * of this software and associated documentation files (the "Software"), to
-		 * deal in the Software without restriction, including without limitation the
-		 * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-		 * sell copies of the Software, and to permit persons to whom the Software is
-		 * furnished to do so, subject to the following conditions:
-		 *
-		 * The above copyright notice and this permission notice shall be included in
-		 * all copies or substantial portions of the Software.
-		 *
-		 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-		 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-		 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-		 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-		 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-		 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-		 * IN THE SOFTWARE.
-		 */
-		public void drawSpectrumAnalysis( string prefix, string filename, float[] mag, float[] freq )
-		{
-			// Basic constants
-			float MIN_FREQ = 0;                 // Minimum frequency (Hz) on horizontal axis.
-			float MAX_FREQ = 20000; //4000      // Maximum frequency (Hz) on horizontal axis.
-			float FREQ_STEP = 500;             	// Interval between ticks (Hz) on horizontal axis.
-			float MAX_DB = -0.0f;           	// Maximum dB magnitude on vertical axis.
-			float MIN_DB = -180.0f; //-60       // Minimum dB magnitude on vertical axis.
-			float DB_STEP = 30;                	// Interval between ticks (dB) on vertical axis.
-			int TOP = 50;                     	// Top of graph
-			int LEFT = 60;                    	// Left edge of graph
-			int HEIGHT = 400;                 	// Height of graph
-			int WIDTH = 1200;                  	// Width of graph
-			int TICK_LEN = 10;                	// Length of tick in pixels
-			String LABEL_X = "Frequency (Hz)"; 	// Label for X axis
-			String LABEL_Y = "dB";             	// Label for Y axis
-			
-			// Derived constants
-			int BOTTOM = TOP+HEIGHT;                   				// Bottom of graph
-			float DBTOPIXEL = (float) HEIGHT/(MAX_DB-MIN_DB);    	// Pixels/tick
-			float FREQTOPIXEL = (float) WIDTH/(MAX_FREQ-MIN_FREQ);	// Pixels/Hz
-			
-			try {
-				//-----------------------
-				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
-				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
-				
-				Bitmap png = new Bitmap( WIDTH+150, HEIGHT+150, PixelFormat.Format32bppArgb );
-				Graphics g = Graphics.FromImage(png);
-				
-				int numPoints = mag.Length;
-				if ( mag.Length != freq.Length )
-					System.Diagnostics.Debug.WriteLine( "mag.length != freq.length" );
-				
-				// Draw a rectangular box marking the boundaries of the graph
-				Pen linePen = new Pen(Color.DarkGray, 0.5f);
-				Pen textPen = new Pen(Color.Black, 1);
-				Pen samplePen = new Pen(Color.DarkBlue, 1);
-				
-				// Create rectangle.
-				Rectangle rect = new Rectangle(LEFT, TOP, WIDTH, HEIGHT);
-				g.FillRectangle(Brushes.White, rect);
-				g.DrawRectangle(linePen, rect);
-				
-				//--------------------------------------------
-				
-				// Tick marks on the vertical axis
-				float y = 0;
-				float x = 0;
-				bool m_tickTextAdded = false;
-				for ( float dBTick = MIN_DB; dBTick <= MAX_DB; dBTick += DB_STEP )
-				{
-					y = BOTTOM - DBTOPIXEL*(dBTick-MIN_DB);
-					//g.DrawLine(linePen, LEFT-TICK_LEN/2, y, LEFT+TICK_LEN/2, y);
-					g.DrawLine(linePen, LEFT-TICK_LEN/2, y, LEFT+WIDTH, y);
-					if ( m_tickTextAdded == false )
-					{
-						// Numbers on the tick marks
-						Font drawFont = new Font("Arial", 8);
-						SolidBrush drawBrush = new SolidBrush(textPen.Color);
-						g.DrawString("" + dBTick, drawFont, drawBrush, LEFT-20, y - drawFont.GetHeight(g)/2);
-					}
-				}
-				
-				// Label for vertical axis
-				if ( m_tickTextAdded == false )
-				{
-					Font drawFont = new Font("Arial", 10);
-					SolidBrush drawBrush = new SolidBrush(textPen.Color);
-					g.DrawString(LABEL_Y, drawFont, drawBrush, (float) LEFT-50, (float) TOP + HEIGHT/2 - drawFont.GetHeight(g)/2);
-				}
-				
-				//--------------------------------------------
-				
-				// Tick marks on the horizontal axis
-				for ( float f = MIN_FREQ; f <= MAX_FREQ; f += FREQ_STEP )
-				{
-					x = LEFT + FREQTOPIXEL*(f-MIN_FREQ);
-					//g.DrawLine(linePen, x, BOTTOM - TICK_LEN/2, x, BOTTOM + TICK_LEN/2);
-					g.DrawLine(linePen, x, BOTTOM + TICK_LEN/2, x, TOP);
-					if ( m_tickTextAdded == false )
-					{
-						// Numbers on the tick marks
-						Font drawFont = new Font("Arial", 8);
-						SolidBrush drawBrush = new SolidBrush(textPen.Color);
-						g.DrawString("" + f, drawFont, drawBrush, x, BOTTOM+7);
-					}
-				}
-				
-				// Label for horizontal axis
-				if ( m_tickTextAdded == false )
-				{
-					Font drawFont = new Font("Arial", 10);
-					SolidBrush drawBrush = new SolidBrush(textPen.Color);
-					g.DrawString(LABEL_X, drawFont, drawBrush, LEFT+WIDTH/2, BOTTOM+30);
-				}
-				
-				m_tickTextAdded = true;
-				
-				// -------------------------------------------------
-				// The line in the graph
-				int i = 0;
-				
-				// Ignore points that are too far to the left
-				for ( i = 0; i < numPoints && freq[i] < MIN_FREQ; i++ )
-				{
-				}
-				
-				// For all remaining points within range of x-axis
-				float oldX = 0;
-				float oldY = TOP;
-				bool firstPoint = true;
-				for ( ; i < numPoints && freq[i] <= MAX_FREQ; i++ )
-				{
-					// Compute horizontal position
-					x = LEFT + FREQTOPIXEL*(freq[i]-MIN_FREQ);
-					
-					// Compute vertical position of point
-					// and clip at top/bottom.
-					y = BOTTOM - DBTOPIXEL*(mag[i]-MIN_DB);
-					
-					if ( y < TOP )
-						y = TOP;
-					else if ( y > BOTTOM )
-						y = BOTTOM;
-					
-					// If it's the first point
-					if ( firstPoint )
-					{
-						// Move to the point
-						oldX = x;
-						oldY = y;
-						firstPoint = false;
-					}
-					else
-					{
-						// Otherwise, draw line from the previous point
-						g.DrawLine(samplePen, oldX, oldY, x, y);
-						oldX = x;
-						oldY = y;
-					}
-				}
-				
-				png.Save(filenameToSave);
-				g.Dispose();
-			} catch (Exception ex) {
-				System.Diagnostics.Debug.WriteLine(ex);
-			}
-		}
-		
 		// see https://code.google.com/p/jstk/source/browse/trunk/jstk/src/de/fau/cs/jstk/?r=154#jstk%2Fvc
-		public void drawSpectrogram(String prefix, String filename, float[][] data) {
+		public void drawSpectrogram1(String prefix, String filename, float[][] data) {
 			VB6Spectrogram vb6Spectrogram = new VB6Spectrogram();
 			vb6Spectrogram.ComputeColorPalette();
 			
@@ -696,71 +498,80 @@ namespace Wave2Zebra2Preset
 			g.Dispose();
 		}
 
-		public void drawSpectrogram2(String prefix, String filename, float[][] data, double sampleRate, double fftWindowsSize) {
-			VB6Spectrogram vb6Spectrogram = new VB6Spectrogram();
-			vb6Spectrogram.ComputeColorPalette();
+		public void drawSpectrogram2(String prefix, String filename, float[][] data, double sampleRate, int numberOfSamples, double fftWindowsSize) {
+			float minDb = -100.0f;
+			float maxDb = 0.0f;
 			
-			String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
-			System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
-			int width = 1000;
-			int height = 600;
 			float numberOfSamplesX = data.Length;
 			float numberOfSamplesY = data[0].Length;
+			
+			// set width and height
+			int width = (int) numberOfSamplesX;
+			int height = (int) numberOfSamplesY;
 
+			String filenameToSave = String.Format("C:\\{0}-{1}x{2}-{3}.png", prefix, width, height, System.IO.Path.GetFileNameWithoutExtension(filename));
+			System.Console.Out.WriteLine("Writing " + filenameToSave);
+			
 			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
 			Graphics g = Graphics.FromImage(png);
+			Pen pen = new Pen(Color.Black, 1);
 
-			Axis.drawAxis(Axis.X_AXIS, 10, 5, 0, (float)MathUtils.ConvertIndexToTime(sampleRate, (int)numberOfSamplesX), 50, width-50, 50, false, height, g);
-			Axis.drawAxis(Axis.Y_AXIS, 10, 5, 1, (float)(sampleRate/2), 50, height-50, 50, true, height, g);
+			// prepare the data
+			// retrieve the highest and lowest value
+			double maxVal = double.MinValue;
+			double minVal = double.MaxValue;
 			
+			for(int x = 0; x < data.Length; x++)
+			{
+				for(int y = 0; y < data[x].Length; y++)
+				{
+					if (data[x][y] > maxVal) {
+						maxVal = data[x][y];
+					}
+					
+					if (data[x][y] < minVal) {
+						minVal = data[x][y];
+					}
+				}
+			}
+
+			float maxValdB = MathUtils.ConvertAmplitudeToDB((float)maxVal, minDb, maxDb);
+			float minValdB = MathUtils.ConvertAmplitudeToDB((float)minVal, minDb, maxDb);
+			
+			Axis.drawAxis(Axis.X_AXIS, 10, 10, 0, (float)MathUtils.ConvertToTime(sampleRate, numberOfSamples), 50, width-50, 50, false, height, g);
+			Axis.drawAxis(Axis.Y_AXIS, 500, 10, 20, (float)(sampleRate/2), 50, height-50, 50, true, height, g);
+			
+			int xCoord = 1;
+			int yCoord = 1;
+			int oldX = 1;
 			for(int x = 0; x < numberOfSamplesX; x++)
 			{
+				int oldY = 1;
 				for(int y = 0; y < numberOfSamplesY; y++)
 				{
-					float f = data[x][y];
 					int x1 = Axis.plotValue(x+1, 1, numberOfSamplesX+1, 50, width-50, false, height);
 					int y1 = Axis.plotValue(y+1, 1, numberOfSamplesY+1, 50, height-50, true, height);
 
-					Color c = Color.White;
-					int RangedB = 100;
-					int RangePaletteIndex = 255;
-					byte vb6Index = (byte) VB6Spectrogram.MapToPixelIndex(f, RangedB, RangePaletteIndex);
-					c = vb6Spectrogram.LevelPaletteDictionary[vb6Index];
-					if (x1 > 0 && x1 < width && y1 > 0 && y1 < height)
-						png.SetPixel(x1+50, height - y1 - 50, c);
-				}
-			}
-			
-			png.Save(filenameToSave);
-			g.Dispose();
-		}
-
-		public void drawColorGradient(String prefix, String filename) {
-			
-			String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
-			System.Console.Out.WriteLine("Writing " + filenameToSave);
-			
-			int width = 360;
-			int height = 200;
-			
-			// Create the image for displaying the data.
-			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
-			Graphics g = Graphics.FromImage(png);
-
-			float saturation = 1.0f;
-			
-			// http://en.wikipedia.org/wiki/HSL_and_HSV
-			for (int x = 0; x < width; x++) {
-				for (int y = 0; y < height; y++) {
-					float brightness = 1 - ((float)y / height);
+					float amplitude = data[x][y];
+					float dB = MathUtils.ConvertAmplitudeToDB(amplitude, minDb, maxDb);
+					int color = (int) MathUtils.ConvertAndMainainRatio(dB, minValdB, maxValdB, 0, 256);
+					Color c = VB6Spectrogram.PaletteValueColor(color, 256);
 					
-					// HSL
-					Color c = ColorUtils.AhslToArgb(255, x, saturation, brightness);
+					if (x1 > 0 && x1 < width && y1 > 0 && y1 < height) {
+						pen.Color = c;
+						xCoord = x1+50;
+						g.DrawLine(pen, xCoord, height - oldY - 50, xCoord, height - y1 - 50);
+						/*
+						for (int yLoop = oldY; yLoop <= y1; yLoop++) {
+							xCoord = x1+50;
+							yCoord = height - yLoop - 50;
+							png.SetPixel(xCoord, yCoord, c);
+						}
+						 */
+						oldX = x1;
+						oldY = y1;
+					}
 					
-					// HSB
-					//Color c = ColorUtils.AhsbToArgb(255, x, saturation, brightness);
-					
-					png.SetPixel(x, y, c);
 				}
 			}
 			
@@ -770,7 +581,7 @@ namespace Wave2Zebra2Preset
 
 		public void drawSpectrogram3(String prefix, String filename, float[][] data) {
 
-			float minDb = -90.0f;
+			float minDb = -100.0f;
 			float maxDb = 0.0f;
 
 			double numberOfSamplesX = data.Length;
@@ -778,10 +589,9 @@ namespace Wave2Zebra2Preset
 
 			// set width and height
 			int width = (int) numberOfSamplesX;
-			int height = (int) numberOfSamplesY / 2;
+			int height = (int) numberOfSamplesY;
 
 			String filenameToSave = String.Format("C:\\{0}-{1}x{2}-{3}.png", prefix, width, height, System.IO.Path.GetFileNameWithoutExtension(filename));
-			
 			System.Console.Out.WriteLine("Writing " + filenameToSave);
 			
 			double horizontalScaleFactor = (double) width / numberOfSamplesX;
@@ -844,16 +654,9 @@ namespace Wave2Zebra2Preset
 
 					float amplitude = data[i][j];
 					float dB = MathUtils.ConvertAmplitudeToDB(amplitude, minDb, maxDb);
-						
-					int test = 250;
-					int H = test - (int) MathUtils.ConvertAndMainainRatio(dB, minValdB, maxValdB, 0, test);
-					float S = 1.0f; // Saturation
-					float B = MathUtils.ConvertAndMainainRatio(dB, minValdB, maxValdB, 0.05f, 0.8f);
-
-					//Color c = ColorUtils.HslToRgb(H, S, B);
+					
 					int color = (int) MathUtils.ConvertAndMainainRatio(dB, minValdB, maxValdB, 0, 256);
 					Color c = VB6Spectrogram.PaletteValueColor(color, 256);
-					//Color c = VB6Spectrogram.GreyPaletteValueColor(color, 256);
 					png.SetPixel(x, maxYIndex - y, c);
 				}
 			}
@@ -862,122 +665,62 @@ namespace Wave2Zebra2Preset
 			g.Dispose();
 		}
 		
-		public void drawSpectrum(String prefix, String filename, float[][] data) {
-			try {
-				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
-				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
-				int width = 1200;
-				int height = 600;
-				float amplitude;
-				int numberOfSamplesX = data.Length;
-				int numberOfSamplesY = data[0].Length;
+		public void drawSpectrogram4(String prefix, String filename, float[][] data) {
 
-				// horizontalScaleFactor between 0.25 and 0.5 is quite good
-				double horizontalScaleFactor = (double) width / numberOfSamplesX;
+			float amplitude;
 
-				double verticalScaleFactor = (double) height/ numberOfSamplesY;
-				
-				// Now, you need to figure out the incremental jump between samples to adjust for the scale factor. This works out to be:
-				int incrementX = (int) (numberOfSamplesX / (numberOfSamplesX * horizontalScaleFactor));
-				if (incrementX == 0) incrementX = 1;
+			double numberOfSamplesX = data.Length;
+			double numberOfSamplesY = data[0].Length;
 
-				int incrementY = (int) (numberOfSamplesY / (numberOfSamplesY * verticalScaleFactor));
-				if (incrementY == 0) incrementY = 1;
-				
-				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
-				Graphics g = Graphics.FromImage(png);
+			// set width and height
+			int width = (int) numberOfSamplesX;
+			int height = (int) numberOfSamplesY;
 
-				Rectangle rect = new Rectangle(0, 0, width, height);
-				g.FillRectangle(Brushes.White, rect);
+			String filenameToSave = String.Format("C:\\{0}-{1}x{2}-{3}.png", prefix, width, height, System.IO.Path.GetFileNameWithoutExtension(filename));
+			System.Console.Out.WriteLine("Writing " + filenameToSave);
+			
+			double horizontalScaleFactor = (double) width / numberOfSamplesX;
+			double verticalScaleFactor = (double) height/ numberOfSamplesY;
+			
+			// Now, you need to figure out the incremental jump between samples to adjust for the scale factor. This works out to be:
+			int incrementX = (int) (numberOfSamplesX / (numberOfSamplesX * horizontalScaleFactor));
+			if (incrementX == 0) incrementX = 1;
 
-				int x = 0;
-				int y = 0;
-				int xCoord = 0;
-				int yCoord = 0;
-				for (x = 0; x < numberOfSamplesX; x += incrementX)
+			int incrementY = (int) (numberOfSamplesY / (numberOfSamplesY * verticalScaleFactor));
+			if (incrementY == 0) incrementY = 1;
+			
+			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(png);
+
+			Rectangle rect = new Rectangle(0, 0, width, height);
+			g.FillRectangle(Brushes.White, rect);
+
+			int x = 0;
+			int y = 0;
+			for (x = 0; x < numberOfSamplesX; x += incrementX)
+			{
+				for (y = 0; y < numberOfSamplesY; y += incrementY)
 				{
-					for (y = 0; y < numberOfSamplesY; y += incrementY)
-					{
-						amplitude = data[x][y];
-						
-						// Convert float to dB
-						float MinDb = -60.0f; //-60
-						float MaxDb = 0.0f; //18
+					int xCoord = (int) MathUtils.RoundDown(x*horizontalScaleFactor,0);
+					int yCoord = (int) MathUtils.RoundDown(y*verticalScaleFactor,0);
 
-						float db = 20 * (float) Math.Log10( (float) amplitude);
-						if (db < MinDb) db = MinDb;
-						if (db > MaxDb) db = MaxDb;
-						float percentage = (db - MinDb) / (MaxDb - MinDb);
-						
-						//int black = Convert.ToInt32(Color.Blue.ToArgb());
-						//c = Color.FromArgb( (int)(black*percentage) );
-						Color c = AColor.GetColorGradient(percentage);
-						png.SetPixel(xCoord, yCoord, c);
-						yCoord++;
-					}
-					xCoord++;
+					amplitude = data[x][y];
+					
+					// Convert float to dB
+					float MinDb = -60.0f;
+					float MaxDb = 0.0f;
+
+					float db = 20 * (float) Math.Log10( (float) amplitude);
+					if (db < MinDb) db = MinDb;
+					if (db > MaxDb) db = MaxDb;
+					float percentage = (db - MinDb) / (MaxDb - MinDb);
+					
+					Color c = AColor.GetColorGradient(percentage);
+					png.SetPixel(xCoord, yCoord, c);
 				}
-				png.Save(filenameToSave);
-				g.Dispose();
-			} catch (Exception ex) {
-				System.Diagnostics.Debug.WriteLine(ex);
 			}
-		}
-		
-		/*
-		 *  Volume Meter
-		 * 
-		 *  MinDb = -60;
-            MaxDb = 18;
-            Amplitude = 0;
-
-			pe.Graphics.DrawRectangle(Pens.Black, 0, 0, this.Width - 1, this.Height - 1);
-            
-            double db = 20 * Math.Log10(Amplitude);
-            if (db < MinDb)
-                db = MinDb;
-            if (db > MaxDb)
-                db = MaxDb;
-            double percent = (db - MinDb) / (MaxDb - MinDb);
-
-            int width = this.Width - 2;
-            int height = this.Height - 2;
-            if (Orientation == Orientation.Horizontal)
-            {
-                width = (int)(width * percent);
-
-                pe.Graphics.FillRectangle(foregroundBrush, 1, 1, width, height);
-            }
-            else
-            {
-                height = (int)(height * percent);
-                pe.Graphics.FillRectangle(foregroundBrush, 1, this.Height - 1 - height, width, height);
-            }
-		 */
-		
-		public void drawSpectrum(String prefix, String filename, bool[] data) {
-			try {
-				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
-				System.Diagnostics.Debug.WriteLine("Writing " + filenameToSave);
-
-				int width = 128; /*128*/
-				int height = 32; /*32*/
-				
-				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
-				
-				for (int x = 0; x < width; x++)
-				{
-					for (int y = 0; y < height; y++)
-					{
-						int i = data[x + y * width] ? 255 : 0;
-						Color c = Color.FromArgb( i, i, i );
-						png.SetPixel(x, y, c);
-					}
-				}
-				png.Save(filenameToSave);
-			} catch (Exception ex) {
-				System.Diagnostics.Debug.WriteLine(ex);
-			}
+			png.Save(filenameToSave);
+			g.Dispose();
 		}
 		#endregion
 		
