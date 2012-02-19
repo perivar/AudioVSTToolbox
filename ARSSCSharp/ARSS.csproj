@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{90A91B0D-3104-4262-93DF-AE312512E395}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>ARSS</RootNamespace>
+    <AssemblyName>ARSS</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <StartupObject>GlobalMembersArss</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="fftwlib">
+      <HintPath>fftwlib.dll</HintPath>
+    </Reference>
+    <Reference Include="libfftw3f-3">
+      <HintPath>libfftw3f-3.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\BinaryFile.cs">
+      <Link>BinaryFile.cs</Link>
+    </Compile>
+    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\CSVWriter.cs">
+      <Link>CSVWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\Export.cs">
+      <Link>Export.cs</Link>
+    </Compile>
+    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\ExocortexDSP\Complex.cs">
+      <Link>FFT\Complex.cs</Link>
+    </Compile>
+    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\ExocortexDSP\ComplexF.cs">
+      <Link>FFT\ComplexF.cs</Link>
+    </Compile>
+    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\ExocortexDSP\ComplexMath.cs">
+      <Link>FFT\ComplexMath.cs</Link>
+    </Compile>
+    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\ExocortexDSP\Fourier.cs">
+      <Link>FFT\Fourier.cs</Link>
+    </Compile>
+    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\ExocortexDSP\FourierDirection.cs">
+      <Link>FFT\FourierDirection.cs</Link>
+    </Compile>
+    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\FFTTesting.cs">
+      <Link>FFT\FFTTesting.cs</Link>
+    </Compile>
+    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\FFTUtils.cs">
+      <Link>FFT\FFTUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\LomontFFT.cs">
+      <Link>FFT\LomontFFT.cs</Link>
+    </Compile>
+    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\IOUtils.cs">
+      <Link>IOUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\MathUtils.cs">
+      <Link>MathUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\StringUtils.cs">
+      <Link>StringUtils.cs</Link>
+    </Compile>
+    <Compile Include="arss.cs" />
+    <Compile Include="dsp.cs" />
+    <Compile Include="image_io.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RandomNumbers.cs" />
+    <Compile Include="sound_io.cs" />
+    <Compile Include="StringFunctions.cs" />
+    <Compile Include="util.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FFT" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+</Project>

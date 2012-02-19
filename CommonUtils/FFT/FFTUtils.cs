@@ -125,7 +125,24 @@ namespace CommonUtils.FFT
 			}
 			return abs;
 		}
-
+		
+		/* This method duplicates the function
+		 * abs(input) in MATLAB for a complex signal array
+		 * i.e. The input data is a complex array, where in[i][0] is the real part and in[i][1] is the imaginary part.
+		 * The MATLAB abs() is equal to sqrt(real(X).^2 + imag(X).^2)
+		 * */
+		public static double[] Abs(double[][] complexSignal, double scale=1) {
+			int N = complexSignal.Length;
+			
+			double[] abs = new double[N];
+			for (int i = 0; i < N; i++) {
+				double re = complexSignal[i][0] * scale;	// Real part
+				double img = complexSignal[i][1] * scale; 	// Imaginary part
+				abs[i] = Math.Sqrt(re*re + img*img) * scale;
+			}
+			return abs;
+		}
+		
 		/* This method duplicates the function
 		 * abs(input) in MATLAB for a complex signal array
 		 * i.e. the array alternates between a real and an imaginary value
@@ -162,6 +179,23 @@ namespace CommonUtils.FFT
 		/* This method duplicates exactly the function
 		 * real(input) in MATLAB
 		 * Requires a complex input number array
+		 * i.e. The input data is a complex array, where in[i][0] is the real part and in[i][1] is the imaginary part.
+		 * */
+		public static double[] Real(double[][] complexSignal, double scale=1) {
+			int N = complexSignal.Length / 2;
+			
+			double[] returnArray = new double[N];
+			for (int i = 0; i < N; i++) {
+				double re = complexSignal[i][0] * scale;	// Real part
+				double img = complexSignal[i][1] * scale; 	// Imaginary part
+				returnArray[i] = re;
+			}
+			return returnArray;
+		}
+		
+		/* This method duplicates exactly the function
+		 * real(input) in MATLAB
+		 * Requires a complex input number array
 		 * */
 		public static float[] Real(float[] complexSignal, float scale=1) {
 			int N = complexSignal.Length / 2;
@@ -194,6 +228,23 @@ namespace CommonUtils.FFT
 		/* This method duplicates exactly the function
 		 * imag(input) in MATLAB
 		 * Requires a complex input number array
+		 * i.e. The input data is a complex array, where in[i][0] is the real part and in[i][1] is the imaginary part.
+		 * */
+		public static double[] Imag(double[][] complexSignal, double scale=1) {
+			int N = complexSignal.Length / 2;
+			
+			double[] returnArray = new double[N];
+			for (int i = 0; i < N; i++) {
+				double re = complexSignal[i][0] * scale;	// Real part
+				double img = complexSignal[i][1] * scale; 	// Imaginary part
+				returnArray[i] = img;
+			}
+			return returnArray;
+		}
+		
+		/* This method duplicates exactly the function
+		 * imag(input) in MATLAB
+		 * Requires a complex input number array
 		 * */
 		public static float[] Imag(float[] complexSignal, float scale=1) {
 			int N = complexSignal.Length / 2;
@@ -207,7 +258,23 @@ namespace CommonUtils.FFT
 			return returnArray;
 		}
 
+		public static double[][] DoubleToComplexDoubleMatrix(double[] input) {
+			// FFTW needs a complex signal to work:
+			// The input/output data is a complex array,
+			// where in[i][0] is the real part and in[i][1] is the imaginary part.
+			
+			int N = input.Length;
+			double[][] complexSignal = new double[N][];
 
+			// Populate data for fftw input
+			for (int i = 0; i < N; i++) {
+				complexSignal[i] = new double[2];
+				complexSignal[i][0] = (double) input[i];  	// Real part
+				complexSignal[i][1] = 0;          			// Imaginary part
+			}
+			return complexSignal;
+		}
+		
 		public static double[] DoubleToComplexDouble(double[] input) {
 			// LomontFFT and ExocortexDSP requires a complex signal to work
 			// i.e. the array alternates between a real and an imaginary value

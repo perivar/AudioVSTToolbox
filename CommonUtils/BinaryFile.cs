@@ -205,11 +205,15 @@ namespace CommonUtils
 			return SeekTo(offset);
 		}
 		
+		public long Seek(long offset, SeekOrigin seekOrigin) {
+			return binaryReader.BaseStream.Seek(offset, seekOrigin);
+		}
+		
 		public long SeekTo(long offset) {
 			return binaryReader.BaseStream.Seek(offset, SeekOrigin.Begin);
 		}
-
-		public bool Write(Int16 value) {
+		
+		public bool Write(short value) {
 			if (byteOrder == ByteOrder.LittleEndian)
 			{
 				binaryWriter.Write(value);
@@ -223,7 +227,7 @@ namespace CommonUtils
 			return true;
 		}
 
-		public bool Write(Int32 value) {
+		public bool Write(int value) {
 			if (byteOrder == ByteOrder.LittleEndian)
 			{
 				binaryWriter.Write(value);
@@ -237,7 +241,21 @@ namespace CommonUtils
 			return true;
 		}
 
-		public bool Write(Int64 value) {
+		public bool Write(long value) {
+			if (byteOrder == ByteOrder.LittleEndian)
+			{
+				binaryWriter.Write(value);
+			}
+			else // Big-Endian
+			{
+				byte[] bytes = BitConverter.GetBytes(value);
+				Array.Reverse(bytes);
+				binaryWriter.Write( bytes );
+			}
+			return true;
+		}
+		
+		public bool Write(ushort value) {
 			if (byteOrder == ByteOrder.LittleEndian)
 			{
 				binaryWriter.Write(value);
@@ -251,6 +269,62 @@ namespace CommonUtils
 			return true;
 		}
 
+		public bool Write(uint value) {
+			if (byteOrder == ByteOrder.LittleEndian)
+			{
+				binaryWriter.Write(value);
+			}
+			else // Big-Endian
+			{
+				byte[] bytes = BitConverter.GetBytes(value);
+				Array.Reverse(bytes);
+				binaryWriter.Write( bytes );
+			}
+			return true;
+		}
+
+		public bool Write(ulong value) {
+			if (byteOrder == ByteOrder.LittleEndian)
+			{
+				binaryWriter.Write(value);
+			}
+			else // Big-Endian
+			{
+				byte[] bytes = BitConverter.GetBytes(value);
+				Array.Reverse(bytes);
+				binaryWriter.Write( bytes );
+			}
+			return true;
+		}
+		
+		public bool Write(float value) {
+			if (byteOrder == ByteOrder.LittleEndian)
+			{
+				binaryWriter.Write(value);
+			}
+			else // Big-Endian
+			{
+				byte[] bytes = BitConverter.GetBytes(value);
+				Array.Reverse(bytes);
+				binaryWriter.Write( bytes );
+			}
+			return true;
+		}
+
+		public bool Write(double value) {
+			if (byteOrder == ByteOrder.LittleEndian)
+			{
+				binaryWriter.Write(value);
+			}
+			else // Big-Endian
+			{
+				byte[] bytes = BitConverter.GetBytes(value);
+				Array.Reverse(bytes);
+				binaryWriter.Write( bytes );
+			}
+			return true;
+		}
+		
 		public bool Write(string value, int length) {
 			binaryWriter.Write(StringToByteArray(value, length) );
 			return true;

@@ -258,7 +258,7 @@ namespace CommonUtils
 		public static double ConvertToTime(double sampleRate, int numberOfSamples) {
 			double time = numberOfSamples / sampleRate;
 			return time;
-		}		
+		}
 		
 		public static double[] FloatToDouble(float[] floatArray) {
 			double[] doubleArray = Array.ConvertAll(floatArray, x => (double)x);
@@ -426,5 +426,40 @@ namespace CommonUtils
 			
 			return withins;
 		}
+		
+		/// <summary>
+		/// Check if a given number is power of two
+		/// </summary>
+		/// <param name="x">the number of check</param>
+		/// <returns>true or false</returns>
+		public static bool IsPowerOfTwo(ulong x)
+		{
+			return (x != 0) && ((x & (x - 1)) == 0);
+		}
+		
+		public static uint NextPowerOfTwo(uint x)
+		{
+			x--; // comment out to always take the next biggest power of two, even if x is already a power of two
+			x |= (x >> 1);
+			x |= (x >> 2);
+			x |= (x >> 4);
+			x |= (x >> 8);
+			x |= (x >> 16);
+			return (x+1);
+		}
+
+		public static uint PreviousPowerOfTwo(uint x) {
+			if (x == 0) {
+				return 0;
+			}
+			// x--; Uncomment this, if you want a strictly less than 'x' result.
+			x |= (x >> 1);
+			x |= (x >> 2);
+			x |= (x >> 4);
+			x |= (x >> 8);
+			x |= (x >> 16);
+			return x - (x >> 1);
+		}
+		
 	}
 }

@@ -147,9 +147,6 @@
     <Compile Include="..\CommonUtils\FFT\ExocortexDSP\FourierDirection.cs">
       <Link>FFT\FourierDirection.cs</Link>
     </Compile>
-    <Compile Include="..\CommonUtils\FFT\FFTTesting.cs">
-      <Link>FFT\FFTTesting.cs</Link>
-    </Compile>
     <Compile Include="..\CommonUtils\FFT\FFTUtils.cs">
       <Link>FFT\FFTUtils.cs</Link>
     </Compile>

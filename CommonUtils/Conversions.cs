@@ -8,6 +8,8 @@ namespace Wav2Zebra2Osc
 		public const double PI = Math.PI; // 3.141593F;
 		public const double TWO_PI = 2 * Math.PI; //6.283186F;
 		
+		// TODO: see http://stackoverflow.com/questions/6876159/how-can-i-transfer-a-discrete-set-of-data-into-the-frequency-domain-and-back-pr
+		// and http://technoburst.blogspot.com/2011/06/matlab-programs-07-finding-dft-and-idft.html
 		public static float[] DFT(float[] waveForm)
 		{
 			int MaxPartials = 128;
