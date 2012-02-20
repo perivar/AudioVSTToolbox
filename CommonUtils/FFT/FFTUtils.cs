@@ -326,6 +326,6 @@ namespace CommonUtils.FFT
 			}
 			return complexSignal;
 		}
-	}
+	}	
 }
 

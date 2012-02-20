@@ -20,6 +20,46 @@ namespace CommonUtils.FFT
 			if (audio_data == null) {
 				audio_data = GetSignalTestData();
 			}
+
+			// prepare the input arrays
+			FFTW.DoubleArray fftwInput = new FFTW.DoubleArray(audio_data);
+			
+			int complexSize = (audio_data.Length >> 1) + 1;
+			FFTW.ComplexArray fftwOutput = new FFTW.ComplexArray(complexSize);
+			
+			// perform the FFT
+			FFTW.ForwardTransform(fftwInput, fftwOutput);
+			
+			// get the result
+			double[] spectrum_fft_real = fftwOutput.Real;
+			double[] spectrum_fft_imag = fftwOutput.Imag;
+			double[] spectrum_fft_abs = fftwOutput.Abs;
+			
+			// prepare the input arrays
+			FFTW.ComplexArray fftwBackwardInput = new FFTW.ComplexArray(spectrum_fft_real, spectrum_fft_imag);
+			FFTW.DoubleArray fftwBackwardOutput = new FFTW.DoubleArray(audio_data.Length);
+			
+			// perform the inverse FFT (IFFT)
+			FFTW.BackwardTransform(fftwOutput, fftwBackwardOutput);
+			
+			// get the result
+			double[] spectrum_inverse_real = fftwBackwardOutput.ValuesDivedByN;
+			
+			// pad for output
+			Array.Resize(ref spectrum_fft_real, audio_data.Length);
+			Array.Resize(ref spectrum_fft_imag, audio_data.Length);
+			Array.Resize(ref spectrum_fft_abs, audio_data.Length);
+			
+			if (CSVFilePath!=null) {
+				CommonUtils.Export.exportCSV(CSVFilePath, audio_data, spectrum_fft_real, spectrum_fft_imag, spectrum_fft_abs, spectrum_inverse_real);
+			}
+		}
+		
+		public static void FFTWTestUsingDoubleOLD(string CSVFilePath=null, double[] audio_data=null) {
+			
+			if (audio_data == null) {
+				audio_data = GetSignalTestData();
+			}
 			
 			// pointer to the FFTW plan object
 			IntPtr plan_fft = IntPtr.Zero;
@@ -30,47 +70,50 @@ namespace CommonUtils.FFT
 			IntPtr pout = IntPtr.Zero;
 
 			// build the complex array
-			int N = audio_data.Length;
+			//int N = audio_data.Length;
 			//double[] complexSignal = FFTUtils.DoubleToComplexDouble(audio_data);
-		
+			
 			// create two managed arrays
 			// N*2 because we are dealing with complex numbers
-			//double[] din = FFTUtils.DoubleToComplexDouble(audio_data);
+			//double[] din = audio_data;
 			//double[] dout = new double[N*2];
 			
-			double[] din = audio_data;
-			double[] dout = new double[N*2];
-
 			//double[] din2 = new double[N*2];
 			//double[] dout2 = new double[N*2];
+
+			double[] realArray = audio_data;
+			double[] complexArray = new double[2 * (realArray.Length / 2 + 1)];
+
+			double[] din = realArray;
+			double[] dout = complexArray;
 			
 			// get handles and pin arrays so the GC doesn't move them
-			//GCHandle hin = GCHandle.Alloc(din, GCHandleType.Pinned);
-			//GCHandle hout = GCHandle.Alloc(dout, GCHandleType.Pinned);
-			//GCHandle complexHandle = GCHandle.Alloc(complexSignal, GCHandleType.Pinned);
+			GCHandle hin = GCHandle.Alloc(din, GCHandleType.Pinned);
+			GCHandle hout = GCHandle.Alloc(dout, GCHandleType.Pinned);
 			
 			// pointers to the unmanaged arrays
 			int dinSize = Marshal.SizeOf(din[0]) * din.Length;
 			int doutSize = Marshal.SizeOf(dout[0]) * dout.Length;
-			
 			pin = fftwf.malloc(dinSize);
 			pout = fftwf.malloc(doutSize);
 
 			try
 			{
-				//copy managed arrays to unmanaged arrays
+				// copy managed arrays to unmanaged arrays
 				Marshal.Copy(din, 0, pin, din.Length);
 				Marshal.Copy(dout, 0, pout, dout.Length);
 
 				//plan_fft = fftwf.dft_1d(N, pin, pout, fftw_direction.Forward, fftw_flags.Estimate);
-				plan_fft = fftwf.r2r_1d(N, pin, pout, fftw_kind.R2HC, fftw_flags.Estimate);
+				//plan_fft = fftwf.r2r_1d(N, pin, pout, fftw_kind.R2HC, fftw_flags.Estimate);
 				//plan_fft = fftwf.dft_1d(N, hin.AddrOfPinnedObject(), hin.AddrOfPinnedObject(), fftw_direction.Forward, fftw_flags.Estimate);
 				//plan_ifft = fftwf.dft_1d(n, pin, pout, fftw_direction.Backward, fftw_flags.Estimate);
 				//plan_fft = fftwf.dft_1d(N, complexHandle.AddrOfPinnedObject(), complexHandle.AddrOfPinnedObject(), fftw_direction.Forward, fftw_flags.Estimate);
+				//plan_fft = fftwf.dft_r2c_1d(realArray.Length, hin.AddrOfPinnedObject(), hout.AddrOfPinnedObject(), fftw_flags.Estimate);
+				plan_fft = fftwf.dft_r2c_1d(din.Length, pin, pout, fftw_flags.Estimate);
 				
 				fftwf.execute(plan_fft);
 
-				//copy unmanaged arrays to managed arrays
+				// copy unmanaged arrays to managed arrays
 				Marshal.Copy(pin, din, 0, din.Length);
 				Marshal.Copy(pout, dout, 0, dout.Length);
 				
@@ -79,15 +122,30 @@ namespace CommonUtils.FFT
 				fftwf.free(pin);
 				fftwf.free(pout);
 				
+				hin.Free();
+				hout.Free();
+				
 				fftwf.destroy_plan(plan_fft);
-
-				//hin.Free();
-				//hout.Free();
+				fftwf.destroy_plan(plan_ifft);
 			}
 			
-			double[] spectrum_fft_real = FFTUtils.Real(dout, N);
-			double[] spectrum_fft_imag = FFTUtils.Imag(dout, N);
-			double[] spectrum_fft_abs = FFTUtils.Abs(dout, N);
+			int length = realArray.Length / 2 + 1;
+			double[] spectrum_fft_real = new double[length];
+			double[] spectrum_fft_imag = new double[length];
+			double[] spectrum_fft_abs = new double[length];
+			for (int i = 0; i < length; i++)
+			{
+				double re = dout[2 * i];
+				double img = dout[2 * i + 1];
+
+				spectrum_fft_real[i] = re;
+				spectrum_fft_imag[i] = img;
+				spectrum_fft_abs[i] = Math.Sqrt(re*re + img*img);
+			}
+			
+			// pad with 1 zero
+			Array.Resize(ref audio_data, length);
+			audio_data[length-1]  = 0;
 			
 			if (CSVFilePath!=null) {
 				CommonUtils.Export.exportCSV(CSVFilePath, audio_data, spectrum_fft_real, spectrum_fft_imag, spectrum_fft_abs);
