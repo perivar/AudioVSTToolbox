@@ -97,6 +97,9 @@
     </Compile>
     <Compile Include="arss.cs" />
     <Compile Include="dsp.cs" />
+    <Compile Include="FFT\FFT.cs" />
+    <Compile Include="FFT\FFTW.cs" />
+    <Compile Include="FFT\ListExtensions.cs" />
     <Compile Include="image_io.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomNumbers.cs" />
