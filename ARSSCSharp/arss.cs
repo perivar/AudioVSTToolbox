@@ -313,13 +313,14 @@ public static class GlobalMembersArss
 
 	public static void Main(string[] args)
 	{
-		
+		/*
 		CommonUtils.FFT.FFTTesting.FFTWTestUsingDouble("fftw.csv", null);
+		CommonUtils.FFT.FFTTesting.FFTWTestUsingDoubleFFTWLIB("fftwlib.csv", null);
 		CommonUtils.FFT.FFTTesting.LomontFFTTestUsingDouble("lomont.csv", null);
 		CommonUtils.FFT.FFTTesting.ExocortexFFTTestUsingComplex("exocortex.csv", null);
 		CommonUtils.FFT.FFTTesting.OctaveFFTWOuput("octave.csv");
 		return;
-		
+		 */
 		
 		int argc = args.Length;
 		
@@ -607,9 +608,19 @@ public static class GlobalMembersArss
 			Console.Write("Output file : ");
 			out_name = GlobalMembersUtil.getstring();
 
-			fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
-			//fout = fopen(out_name, "wb");
+			fout = null;
+			if (out_name != null && out_name != "") fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
 
+			while (fout == null)
+			{
+				Console.Write("Output file : ");
+				out_name = GlobalMembersUtil.getstring();
+
+				if (out_name != null && out_name != "") fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
+				//fout = fopen(out_name, "wb");
+			}
+
+			// we will never get here cause BinaryFile does not return a null
 			while (fout == null)
 			{
 				Console.Error.WriteLine("The output file {0} could not be opened.\nPlease make sure it isn't opened by any other program and press Return.\n", out_name);

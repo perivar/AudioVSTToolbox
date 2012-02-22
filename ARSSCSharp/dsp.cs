@@ -68,74 +68,38 @@ public static class GlobalMembersDsp
 		 * 1 = IDFT
 		 * 2 = DHT
 		 */
-		/*
-		@out = null;
-		
-		switch (method) {
-			case 0: // DFT
-				// perform the FFT
-				@out = FFTUtils.Real(FFTUtils.FFT(@in));
-				break;
-			case 1: // IDFT
-				// perform the FFT
-				@out = FFTUtils.IFFT(@in, true, false);
-				break;
-			case 2: // DHT?!
-				break;
-		}
-		 */
 		
 		//fftw_plan p = fftw_plan_r2r_1d(N, in, out, method, FFTW_ESTIMATE);
 		//fftw_execute(p);
 		//fftw_destroy_plan(p);
 		
-		//handles to managed arrays, keeps them pinned in memory
-		//get handles and pin arrays so the GC doesn't move them
-		//GCHandle hin = GCHandle.Alloc(@in,GCHandleType.Pinned);
-		//GCHandle hout = GCHandle.Alloc(@out,GCHandleType.Pinned);
+		fftw_complexarray complexInput = new fftw_complexarray(@in);
+		fftw_complexarray complexOutput = new fftw_complexarray(@out);
 		
-		
-		
-		//pointer to the FFTW plan object
-		IntPtr p = IntPtr.Zero;
-
-		// pointers to the unmanaged arrays
-		IntPtr pin = fftwf.malloc(Marshal.SizeOf(@in[0]) * @in.Length);
-		IntPtr pout = fftwf.malloc(Marshal.SizeOf(@out[0]) * @out.Length);
-
-		try
-		{
-			//copy managed arrays to unmanaged arrays
-			Marshal.Copy(@in, 0, pin, @in.Length);
-			Marshal.Copy(@out, 0, pout, @out.Length);
-
-			switch (method) {
-				case 0: // DFT: R2HC=0
-					//p = fftwf.r2r_1d(N, hin.AddrOfPinnedObject(), hout.AddrOfPinnedObject(), fftw_kind.R2HC, fftw_flags.Estimate);
-					p = fftwf.r2r_1d(N, pin, pout, fftw_kind.R2HC, fftw_flags.Estimate);
-					break;
-				case 1: // IDFT: HC2R=1
-					//p = fftwf.r2r_1d(N, hin.AddrOfPinnedObject(), hout.AddrOfPinnedObject(), fftw_kind.HC2R, fftw_flags.Estimate);
-					p = fftwf.r2r_1d(N, pin, pout, fftw_kind.HC2R, fftw_flags.Estimate);
-					break;
-				case 2: // DHT: DHT=2
-					//p = fftwf.r2r_1d(N, hin.AddrOfPinnedObject(), hout.AddrOfPinnedObject(), fftw_kind.DHT, fftw_flags.Estimate);
-					p = fftwf.r2r_1d(N, pin, pout, fftw_kind.DHT, fftw_flags.Estimate);
-					break;
-			}
-
-			fftwf.execute(p);
-			fftwf.destroy_plan(p);
-
-			//copy unmanaged arrays to managed arrays
-			Marshal.Copy(pin, @in, 0, @in.Length);
-			Marshal.Copy(pout, @out, 0 , @out.Length);
-			
-		} finally {
-			// Free the unmanaged memory.
-			fftwf.free(pin);
-			fftwf.free(pout);
+		fftw_kind kind = fftw_kind.R2HC;
+		switch(method) {
+			case 0: // DFT
+				kind = fftw_kind.R2HC;
+				fftw_plan fft = fftw_plan.r2r_1d(N, complexInput, complexOutput, kind, fftw_flags.Estimate);
+				//fftw_plan fft = fftw_plan.dft_1d(N, complexInput, complexOutput, fftw_direction.Forward, fftw_flags.Estimate);
+				//fftw_plan fft = fftw_plan.dft_r2c_1d(N, complexInput, complexOutput, fftw_flags.Estimate);
+				fft.Execute();
+				@out = complexOutput.Real;
+				break;
+			case 1: // IDFT
+				kind = fftw_kind.HC2R;
+				fftw_plan ifft = fftw_plan.r2r_1d(N, complexInput, complexOutput, kind, fftw_flags.Estimate);
+				//fftw_plan ifft = fftw_plan.dft_1d(N, complexInput, complexOutput, fftw_direction.Backward, fftw_flags.Estimate);
+				//fftw_plan ifft = fftw_plan.dft_c2r_1d(N, complexInput, complexOutput, fftw_flags.Estimate);
+				ifft.Execute();
+				@out = complexOutput.Real;
+				break;
+			case 2: // DHT
+				kind = fftw_kind.DHT;
+				break;
 		}
+
+		//fftw.cleanup();
 	}
 
 	// normalises a signal to the +/-ratio range
@@ -439,7 +403,9 @@ public static class GlobalMembersDsp
 		for (i=samplecount; i<Mb; i++) s[i] = 0;
 		//--------ZEROPADDING--------
 		
+		Export.exportCSV(String.Format("test/samples_before_fft.csv"), s);
 		GlobalMembersDsp.fft(s, s, Mb, 0); // In-place FFT of the original zero-padded signal
+		Export.exportCSV(String.Format("test/samples_after_fft.csv"), s);
 
 		for (ib = 0; ib<bands; ib++)
 		{

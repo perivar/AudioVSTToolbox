@@ -33,12 +33,6 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="fftwlib">
-      <HintPath>fftwlib.dll</HintPath>
-    </Reference>
-    <Reference Include="libfftw3f-3">
-      <HintPath>libfftw3f-3.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -95,11 +89,16 @@
     <Compile Include="..\..\AudioVSTToolbox\CommonUtils\StringUtils.cs">
       <Link>StringUtils.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\FFT\FFTWindows.cs">
+      <Link>FFT\FFTWindows.cs</Link>
+    </Compile>
     <Compile Include="arss.cs" />
     <Compile Include="dsp.cs" />
     <Compile Include="FFT\FFT.cs" />
     <Compile Include="FFT\FFTW.cs" />
+    <Compile Include="FFT\Interop.cs" />
     <Compile Include="FFT\ListExtensions.cs" />
+    <Compile Include="FFT\Managed.cs" />
     <Compile Include="image_io.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomNumbers.cs" />
