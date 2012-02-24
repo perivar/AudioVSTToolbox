@@ -107,7 +107,6 @@ namespace CommonUtils.FFT
 				return Real(complexSignal);
 			}
 		}
-
 		
 		/* This method duplicates the function
 		 * abs(input) in MATLAB for a complex signal array
@@ -122,23 +121,6 @@ namespace CommonUtils.FFT
 				double re = complexSignal[2*j];
 				double img = complexSignal[2*j + 1];
 				abs[j] = Math.Sqrt(re*re + img*img) * scale;
-			}
-			return abs;
-		}
-		
-		/* This method duplicates the function
-		 * abs(input) in MATLAB for a complex signal array
-		 * i.e. The input data is a complex array, where in[i][0] is the real part and in[i][1] is the imaginary part.
-		 * The MATLAB abs() is equal to sqrt(real(X).^2 + imag(X).^2)
-		 * */
-		public static double[] Abs(double[][] complexSignal, double scale=1) {
-			int N = complexSignal.Length;
-			
-			double[] abs = new double[N];
-			for (int i = 0; i < N; i++) {
-				double re = complexSignal[i][0] * scale;	// Real part
-				double img = complexSignal[i][1] * scale; 	// Imaginary part
-				abs[i] = Math.Sqrt(re*re + img*img) * scale;
 			}
 			return abs;
 		}
@@ -175,23 +157,6 @@ namespace CommonUtils.FFT
 			}
 			return returnArray;
 		}
-
-		/* This method duplicates exactly the function
-		 * real(input) in MATLAB
-		 * Requires a complex input number array
-		 * i.e. The input data is a complex array, where in[i][0] is the real part and in[i][1] is the imaginary part.
-		 * */
-		public static double[] Real(double[][] complexSignal, double scale=1) {
-			int N = complexSignal.Length / 2;
-			
-			double[] returnArray = new double[N];
-			for (int i = 0; i < N; i++) {
-				double re = complexSignal[i][0] * scale;	// Real part
-				double img = complexSignal[i][1] * scale; 	// Imaginary part
-				returnArray[i] = re;
-			}
-			return returnArray;
-		}
 		
 		/* This method duplicates exactly the function
 		 * real(input) in MATLAB
@@ -224,23 +189,6 @@ namespace CommonUtils.FFT
 			}
 			return returnArray;
 		}
-
-		/* This method duplicates exactly the function
-		 * imag(input) in MATLAB
-		 * Requires a complex input number array
-		 * i.e. The input data is a complex array, where in[i][0] is the real part and in[i][1] is the imaginary part.
-		 * */
-		public static double[] Imag(double[][] complexSignal, double scale=1) {
-			int N = complexSignal.Length / 2;
-			
-			double[] returnArray = new double[N];
-			for (int i = 0; i < N; i++) {
-				double re = complexSignal[i][0] * scale;	// Real part
-				double img = complexSignal[i][1] * scale; 	// Imaginary part
-				returnArray[i] = img;
-			}
-			return returnArray;
-		}
 		
 		/* This method duplicates exactly the function
 		 * imag(input) in MATLAB
@@ -256,23 +204,6 @@ namespace CommonUtils.FFT
 				returnArray[j] = img;
 			}
 			return returnArray;
-		}
-
-		public static double[][] DoubleToComplexDoubleMatrix(double[] input) {
-			// FFTW needs a complex signal to work:
-			// The input/output data is a complex array,
-			// where in[i][0] is the real part and in[i][1] is the imaginary part.
-			
-			int N = input.Length;
-			double[][] complexSignal = new double[N][];
-
-			// Populate data for fftw input
-			for (int i = 0; i < N; i++) {
-				complexSignal[i] = new double[2];
-				complexSignal[i][0] = (double) input[i];  	// Real part
-				complexSignal[i][1] = 0;          			// Imaginary part
-			}
-			return complexSignal;
 		}
 		
 		public static double[] DoubleToComplexDouble(double[] input) {
@@ -326,6 +257,50 @@ namespace CommonUtils.FFT
 			}
 			return complexSignal;
 		}
-	}	
+		
+		/// <summary>
+		/// Convert a Half Complex Format to a Complex Format
+		/// This method converts a half complex format to it's real components
+		/// Requires a half complex input number array
+		/// r0, r1, r2, ..., rn/2, i(n+1)/2-1, ..., i2, i1
+		/// Here, rk is the real part of the kth output, and ikis the imaginary part. (Division by 2 is rounded down.)
+		/// For a halfcomplex array hc[n], the kth component thus has its real part in hc[k] and its imaginary part in hc[n-k],
+		/// with the exception of k == 0 or n/2 (the latter only if n is even)—in these two cases, the imaginary part is zero due to symmetries of the real-input DFT, and is not stored.
+		/// Thus, the r2hc transform of n real values is a halfcomplex array of length n, and vice versa for hc2r.
+		/// </summary>
+		/// <param name="halfcomplex_coefficient"></param>
+		/// <returns></returns>
+		public static double[] HC2C(double[] halfcomplex_coefficient) {
+			
+			int n = halfcomplex_coefficient.Length;
+			double[] complex_coefficient = new double[2 * n];
+			
+			complex_coefficient[0] = halfcomplex_coefficient[0];
+			complex_coefficient[1] = 0.0;
+			int i = 0;
+			
+			for (i = 1; i < n - i; i++)
+			{
+				double hc_real = halfcomplex_coefficient[i];
+				double hc_imag = halfcomplex_coefficient[n-i];
+
+				complex_coefficient[2*i] 		= hc_real;
+				complex_coefficient[2*i + 1] 	= hc_imag;
+				
+				int endPos = 2*(n-i+1);
+				complex_coefficient[endPos-2]	= hc_real;
+				complex_coefficient[endPos-1] 	= -hc_imag;
+			}
+			
+			if (i == n - i)
+			{
+				complex_coefficient[n] = halfcomplex_coefficient[i];
+				complex_coefficient[n+1] = 0.0;
+			}
+			
+			return complex_coefficient;
+		}
+		
+	}
 }
 

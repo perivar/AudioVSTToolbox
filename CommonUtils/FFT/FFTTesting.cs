@@ -91,6 +91,101 @@ namespace CommonUtils.FFT
 			}
 		}
 		
+		public enum fftMethod : int {
+			DFT = 0,
+			IDFT = 1,
+			DHT = 2
+		}
+		
+		public static void FFTW_FFT_R2R(ref double[] @in, ref double[] @out, Int32 N, fftMethod method) {
+
+			fftw_complexarray complexInput = new fftw_complexarray(@in);
+			fftw_complexarray complexOutput = new fftw_complexarray(@out);
+			
+			fftw_kind kind = fftw_kind.R2HC;
+			switch(method) {
+				case fftMethod.DFT:
+					kind = fftw_kind.R2HC;
+					fftw_plan fft = fftw_plan.r2r_1d(N, complexInput, complexOutput, kind, fftw_flags.Estimate);
+					fft.Execute();
+					@out = complexOutput.Values;
+					break;
+				case fftMethod.IDFT:
+					kind = fftw_kind.HC2R;
+					fftw_plan ifft = fftw_plan.r2r_1d(N, complexInput, complexOutput, kind, fftw_flags.Estimate);
+					ifft.Execute();
+					@out = complexOutput.ValuesDividedByN;
+					break;
+				case fftMethod.DHT:
+					kind = fftw_kind.DHT;
+					break;
+			}
+		}
+
+		public static void FFTWTestUsingDoubleFFTWLIBR2R_INPLACE(string CSVFilePath=null, double[] audio_data=null) {
+			
+			if (audio_data == null) {
+				audio_data = GetSignalTestData();
+			}
+
+			int N = audio_data.Length;
+
+			// perform the FFT
+			FFTW_FFT_R2R(ref audio_data, ref audio_data, N, fftMethod.DFT);
+			
+			// get the result
+			double[] complexDout = FFTUtils.HC2C(audio_data);
+			double[] spectrum_fft_real = FFTUtils.Real(complexDout);
+			double[] spectrum_fft_imag = FFTUtils.Imag(complexDout);
+			double[] spectrum_fft_abs = FFTUtils.Abs(complexDout);
+			
+			// pad for output
+			if (spectrum_fft_real.Length != audio_data.Length) Array.Resize(ref spectrum_fft_real, audio_data.Length);
+			if (spectrum_fft_imag.Length != audio_data.Length) Array.Resize(ref spectrum_fft_imag, audio_data.Length);
+			if (spectrum_fft_abs.Length != audio_data.Length) Array.Resize(ref spectrum_fft_abs, audio_data.Length);
+			
+			if (CSVFilePath!=null) {
+				CommonUtils.Export.exportCSV(CSVFilePath, audio_data, spectrum_fft_real, spectrum_fft_imag, spectrum_fft_abs);
+			}
+			
+		}
+
+		public static void FFTWTestUsingDoubleFFTWLIBR2R(string CSVFilePath=null, double[] audio_data=null) {
+			
+			if (audio_data == null) {
+				audio_data = GetSignalTestData();
+			}
+			
+			int N = audio_data.Length;
+			double[] din = audio_data;
+			double[] dout = new double[N];
+			double[] dout2 = new double[N];
+			
+			// perform the FFT
+			FFTW_FFT_R2R(ref din, ref dout, N, fftMethod.DFT);
+			
+			// get the result
+			double[] complexDout = FFTUtils.HC2C(dout);
+			double[] spectrum_fft_real = FFTUtils.Real(complexDout);
+			double[] spectrum_fft_imag = FFTUtils.Imag(complexDout);
+			double[] spectrum_fft_abs = FFTUtils.Abs(complexDout);
+			
+			// perform the IFFT
+			FFTW_FFT_R2R(ref dout, ref dout2, N, fftMethod.IDFT);
+			
+			// get the result
+			double[] spectrum_inverse_real = dout2;
+			
+			// pad for output
+			if (spectrum_fft_real.Length != audio_data.Length) Array.Resize(ref spectrum_fft_real, audio_data.Length);
+			if (spectrum_fft_imag.Length != audio_data.Length) Array.Resize(ref spectrum_fft_imag, audio_data.Length);
+			if (spectrum_fft_abs.Length != audio_data.Length) Array.Resize(ref spectrum_fft_abs, audio_data.Length);
+			
+			if (CSVFilePath!=null) {
+				CommonUtils.Export.exportCSV(CSVFilePath, audio_data, spectrum_fft_real, spectrum_fft_imag, spectrum_fft_abs, spectrum_inverse_real);
+			}
+		}
+		
 		public static void LomontFFTTestUsingDouble(string CSVFilePath=null, double[] audio_data=null) {
 			
 			if (audio_data == null) {

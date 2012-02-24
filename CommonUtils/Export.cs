@@ -9,11 +9,16 @@ namespace CommonUtils
 	{
 		
 		#region exportCSV
-		public static void exportCSV(string filenameToSave, Array data) {
-			object[][] arr = new object[data.Length][];
+		public static void exportCSV(string filenameToSave, Array data, int length=0) {
+			
+			if (length == 0) {
+				length = data.Length;
+			}
+			
+			object[][] arr = new object[length][];
 			
 			int count = 1;
-			for (int i = 0; i < data.Length; i++)
+			for (int i = 0; i < length; i++)
 			{
 				arr[i] = new object[2] {
 					count,
@@ -27,6 +32,22 @@ namespace CommonUtils
 		}
 		
 		public static void exportCSV(string filenameToSave, float[][] data) {
+			object[][] arr = new object[data.Length][];
+
+			for (int i = 0; i < data.Length; i++)
+			{
+				arr[i] = new object[data[i].Length];
+				for (int j = 0; j < data[i].Length; j++)
+				{
+					arr[i][j] = data[i][j];
+				}
+			};
+			
+			CSVWriter csv = new CSVWriter(filenameToSave);
+			csv.Write(arr);
+		}
+
+		public static void exportCSV(string filenameToSave, double[][] data) {
 			object[][] arr = new object[data.Length][];
 
 			for (int i = 0; i < data.Length; i++)
