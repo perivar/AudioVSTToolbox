@@ -7,7 +7,7 @@ public static class GlobalMembersSound_io
 	{
 		Int32 i = new Int32();
 		Int32 ic = new Int32();
-		UInt16 @byte = new UInt16();
+		byte @byte = new byte();
 
 		#if DEBUG
 		Console.Write("in_8...\n");
@@ -16,7 +16,7 @@ public static class GlobalMembersSound_io
 		for (i = 0; i<samplecount; i++) {
 			for (ic = 0;ic<channels;ic++)
 			{
-				@byte = wavfile.ReadUInt16();
+				@byte = wavfile.ReadByte();
 				//fread(@byte, 1, 1, wavfile);
 				sound[ic][i] = (double) @byte/128.0 - 1.0;
 			}
@@ -28,7 +28,7 @@ public static class GlobalMembersSound_io
 		Int32 i = new Int32();
 		Int32 ic = new Int32();
 		double val;
-		UInt16 @byte = new UInt16();
+		byte @byte = new byte();
 
 		#if DEBUG
 		Console.Write("out_8...\n");
@@ -44,10 +44,10 @@ public static class GlobalMembersSound_io
 				if (val<0)
 					val = 0;
 
-				@byte = (UInt16) val;
+				@byte = (byte) val;
 
 				wavfile.Write(@byte);
-				//fwrite(@byte, sizeof(UInt16), 1, wavfile);
+				//fwrite(@byte, sizeof(UInt8), 1, wavfile);
 			}
 		}
 	}
@@ -63,7 +63,9 @@ public static class GlobalMembersSound_io
 
 		for (i = 0; i<samplecount; i++) {
 			for (ic = 0; ic<channels; ic++) {
-				sound[ic][i] = (double)(GlobalMembersUtil.fread_le_short(wavfile))/32768.0;
+				double d = (double) wavfile.ReadInt16();
+				d = d / 32768.0;
+				sound[ic][i] = d;
 			}
 		}
 	}
@@ -88,7 +90,7 @@ public static class GlobalMembersSound_io
 				if (val<-32768.0)
 					val = -32768.0;
 
-				GlobalMembersUtil.fwrite_le_short((UInt16) val, wavfile);
+				GlobalMembersUtil.fwrite_le_short((Int16) val, wavfile);
 			}
 		}
 	}
@@ -126,12 +128,12 @@ public static class GlobalMembersSound_io
 			for (ic = 0;ic<channels;ic++)
 			{
 				val = (float) sound[ic][i];
-				GlobalMembersUtil.fwrite_le_word((UInt32) val, wavfile);
+				GlobalMembersUtil.fwrite_le_word((UInt32)val, wavfile);
 			}
 		}
 	}
 	
-	public static double[][] wav_in(BinaryFile wavfile, out Int32 channels, out Int32 samplecount, out Int32 samplerate)
+	public static double[][] wav_in(BinaryFile wavfile, ref Int32 channels, ref Int32 samplecount, ref Int32 samplerate)
 	{
 		double[][] sound;
 

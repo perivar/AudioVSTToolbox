@@ -28,21 +28,15 @@ public static class GlobalMembersArss
 	
 	public const int FILENAME_MAX = 260;
 	public const string MSG_NUMBER_EXPECTED = "A number is expected after {0}\nExiting with error.\n";
-	public const double PI_D = 3.1415926535897932;
+	
+	public const double PI_D = Math.PI;
 	public const int LOGBASE_D = 2;
 	public const double LOOP_SIZE_SEC_D = 10.0;
 	public const int BMSQ_LUT_SIZE_D = 16000;
 	public const double TRANSITION_BW_SYNT = 16.0;
 	
-	public static void settingsinput(out Int32 bands, Int32 samplecount, Int32 samplerate, out double basefreq, out double maxfreq, out double pixpersec, out double bandsperoctave, out Int32 Xsize, Int32 mode)
+	public static void settingsinput(ref Int32 bands, ref Int32 samplecount, ref Int32 samplerate, ref double basefreq, ref double maxfreq, ref double pixpersec, ref double bandsperoctave, ref Int32 Xsize, Int32 mode)
 	{
-		bands = 0;
-		basefreq = 0;
-		maxfreq = 0;
-		pixpersec = 0;
-		bandsperoctave = 0;
-		Xsize = 0;
-
 		/* mode :
 		 * 0 = Analysis mode
 		 * 1 = Synthesis mode
@@ -52,7 +46,7 @@ public static class GlobalMembersArss
 		double f;
 		double trash;
 		double ma; // maximum allowed frequency
-		sbyte @byte;
+		//sbyte @byte;
 		Int32 unset = 0; // count of unset interdependant settings
 		Int32 set_min = 0;
 		Int32 set_max = 0;
@@ -60,7 +54,7 @@ public static class GlobalMembersArss
 		Int32 set_y = 0;
 		Int32 set_pps = 0;
 		Int32 set_x = 0;
-		uint filesize; // boolean indicating if the configuration file's last expected byte is there (to verify the file's integrity)
+		//uint filesize; // boolean indicating if the configuration file's last expected byte is there (to verify the file's integrity)
 		//string conf_path = new string(new char[FILENAME_MAX]); // Path to the configuration file (only used on non-Windows platforms)
 
 		#if DEBUG
@@ -204,12 +198,11 @@ public static class GlobalMembersArss
 			
 			ma = basefreq * Math.Pow(GlobalMembersDsp.LOGBASE, ((i-2) / bandsperoctave)) * samplerate; // max allowed frequency
 
-
 			if (maxfreq > ma)
-				if (Math.IEEERemainder(ma, 1.0) == 0.0)
+				if (GlobalMembersUtil.fmod(ma, 1.0) == 0.0)
 					maxfreq = ma; // replaces the "Upper frequency limit above Nyquist frequency" warning
 				else
-					maxfreq = ma - Math.IEEERemainder(ma, 1.0);
+					maxfreq = ma - GlobalMembersUtil.fmod(ma, 1.0);
 
 			if (mode == 0) // if we're in Analysis mode
 			{
@@ -224,10 +217,10 @@ public static class GlobalMembersArss
 					maxfreq = gf;
 
 				if (maxfreq > ma)
-					if (Math.IEEERemainder(ma, 1.0) == 0.0)
+					if (GlobalMembersUtil.fmod(ma, 1.0) == 0.0)
 						maxfreq = ma; // replaces the "Upper frequency limit above Nyquist frequency" warning
 					else
-						maxfreq = ma - Math.IEEERemainder(ma, 1.0);
+						maxfreq = ma - GlobalMembersUtil.fmod(ma, 1.0);
 			}
 
 			unset++;
@@ -314,6 +307,8 @@ public static class GlobalMembersArss
 	public static void Main(string[] args)
 	{
 		/*
+		CommonUtils.FFT.FFTTesting.FFTWTestUsingDoubleFFTWLIBR2R_INPLACE("fftwr2r_inplace.csv", null);
+		CommonUtils.FFT.FFTTesting.FFTWTestUsingDoubleFFTWLIBR2R("fftwr2r.csv", null);
 		CommonUtils.FFT.FFTTesting.FFTWTestUsingDouble("fftw.csv", null);
 		CommonUtils.FFT.FFTTesting.FFTWTestUsingDoubleFFTWLIB("fftwlib.csv", null);
 		CommonUtils.FFT.FFTTesting.LomontFFTTestUsingDouble("lomont.csv", null);
@@ -347,10 +342,10 @@ public static class GlobalMembersArss
 		string out_name = null;
 
 		// initialisation of global using defaults defined in dsp.h
-		GlobalMembersDsp.pi = PI_D;
-		GlobalMembersDsp.LOGBASE = LOGBASE_D;
-		GlobalMembersDsp.LOOP_SIZE_SEC = LOOP_SIZE_SEC_D;
-		GlobalMembersDsp.BMSQ_LUT_SIZE = BMSQ_LUT_SIZE_D;
+		GlobalMembersDsp.pi 			= PI_D;
+		GlobalMembersDsp.LOGBASE 		= LOGBASE_D;
+		GlobalMembersDsp.LOOP_SIZE_SEC 	= LOOP_SIZE_SEC_D;
+		GlobalMembersDsp.BMSQ_LUT_SIZE 	= BMSQ_LUT_SIZE_D;
 		
 		#if QUIET
 		GlobalMembersUtil.quiet = 1;
@@ -653,16 +648,16 @@ public static class GlobalMembersArss
 
 		if (mode == 1)
 		{
-			sound = GlobalMembersSound_io.wav_in(fin, out channels, out samplecount, out samplerate); // Sound input
+			sound = GlobalMembersSound_io.wav_in(fin, ref channels, ref samplecount, ref samplerate); // Sound input
 
 			#if DEBUG
 			Console.Write("samplecount : {0:D}\nchannels : {1:D}\n", samplecount, channels);
 			#endif
 
-			GlobalMembersArss.settingsinput(out Ysize, samplecount, samplerate, out basefreq, out maxfreq, out pixpersec, out bpo, out Xsize, 0); // User settings input
-			image = GlobalMembersDsp.anal(sound[0], samplecount, samplerate, out Xsize, Ysize, bpo, pixpersec, basefreq); // Analysis
+			GlobalMembersArss.settingsinput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 0); // User settings input
+			image = GlobalMembersDsp.anal(ref sound[0], ref samplecount, ref samplerate, ref Xsize, ref Ysize, ref bpo, ref pixpersec, ref basefreq); // Analysis
 			if (brightness != 1.0)
-				GlobalMembersDsp.brightness_control(image, Ysize, Xsize, 1.0/brightness);
+				GlobalMembersDsp.brightness_control(ref image, ref Ysize, ref Xsize, 1.0/brightness);
 			
 			GlobalMembersImage_io.bmp_out(fout, image, Ysize, Xsize); // Image output
 		}
@@ -673,7 +668,7 @@ public static class GlobalMembersArss
 			//sound = calloc (1, sizeof(double));
 			sound = new double[1][];
 			
-			image = GlobalMembersImage_io.bmp_in(fin, Ysize, Xsize); // Image input
+			image = GlobalMembersImage_io.bmp_in(fin, ref Ysize, ref Xsize); // Image input
 
 			// if the output format parameter is undefined
 			if (format_param == 0) {
@@ -683,15 +678,15 @@ public static class GlobalMembersArss
 					format_param = 32; // default is 32
 			}
 
-			GlobalMembersArss.settingsinput(out Ysize, samplecount, samplerate, out basefreq, out maxfreq, out pixpersec, out bpo, out Xsize, 1); // User settings input
+			GlobalMembersArss.settingsinput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 1); // User settings input
 
 			if (brightness!=1.0)
-				GlobalMembersDsp.brightness_control(image, Ysize, Xsize, brightness);
+				GlobalMembersDsp.brightness_control(ref image, ref Ysize, ref Xsize, brightness);
 
 			if (mode == 2) {
-				sound[0] = GlobalMembersDsp.synt_sine(image, Xsize, Ysize, samplecount, samplerate, basefreq, pixpersec, bpo); // Sine synthesis
+				sound[0] = GlobalMembersDsp.synt_sine(ref image, ref Xsize, ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref pixpersec, ref bpo); // Sine synthesis
 			} else {
-				sound[0] = GlobalMembersDsp.synt_noise(image, Xsize, Ysize, samplecount, samplerate, basefreq, pixpersec, bpo); // Noise synthesis
+				sound[0] = GlobalMembersDsp.synt_noise(ref image, ref Xsize, ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref pixpersec, ref bpo); // Noise synthesis
 			}
 
 			GlobalMembersSound_io.wav_out(fout, sound, 1, samplecount, samplerate, format_param);

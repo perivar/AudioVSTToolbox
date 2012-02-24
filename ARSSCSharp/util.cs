@@ -14,6 +14,31 @@ public static class GlobalMembersUtil
 		}
 	}
 	
+	public static double fmod(double x, double y)
+	{
+		//double var = MathUtils.RoundToNearest(x, 0.0001);
+		//double remainder = x % y;
+		//double remainder = Math.IEEERemainder(var, y);
+		//double remainder = x - var;
+		//return remainder;
+
+		double remainder = Math.IEEERemainder(x, y);
+		if (!Double.IsNaN(remainder) && remainder != 0.0)
+		{
+			if (x >= 0.0)
+			{
+				if (remainder < 0.0)
+					remainder += Math.Abs(y);
+			}
+			else // x < 0.0
+			{
+				if (remainder > 0.0)
+					remainder -= Math.Abs(y);
+			}
+		}
+		return remainder;
+	}
+	
 	public static double roundoff(double x)
 	{
 		if (x > 0)
@@ -24,10 +49,11 @@ public static class GlobalMembersUtil
 	
 	public static Int32 roundup(double x)
 	{
-		if (Math.IEEERemainder(x, 1.0) == 0)
+		if (GlobalMembersUtil.fmod(x, 1.0) == 0) {
 			return (Int32) x;
-		else
+		} else {
 			return (Int32) x + 1;
+		}
 	}
 	
 	public static float getfloat()
@@ -48,17 +74,19 @@ public static class GlobalMembersUtil
 		Int32 i = new Int32();
 		Int32[] p = {2, 3};
 
-		for (i = 0; i<2; i++)
-			while (x%p[i] == 0)
+		for (i = 0; i<2; i++) {
+			while (x%p[i] == 0) {
 				x/=p[i];
-
+			}
+		}
 		return x;
 	}
 	
 	public static Int32 nextsprime(Int32 x)
 	{
-		while (GlobalMembersUtil.smallprimes(x)!=1)
+		while (GlobalMembersUtil.smallprimes(x)!=1) {
 			x++;
+		}
 
 		return x;
 	}
@@ -101,22 +129,32 @@ public static class GlobalMembersUtil
 		return ((double) GlobalMembersUtil.rand_u32() * (1.0 / 2147483648.0)) - 1.0;
 	}
 	
+	// read from file a 16-bit integer in little endian
 	public static UInt16 fread_le_short(BinaryFile file)
 	{
 		return file.ReadUInt16();
 	}
 	
+	// write to file a 16-bit integer in little endian
+	public static void fwrite_le_short(UInt16 s, BinaryFile file)
+	{
+		file.Write(s);
+	}
+
+	// write to file a 16-bit integer in little endian
+	public static void fwrite_le_short(Int16 s, BinaryFile file)
+	{
+		file.Write(s);
+	}
+	
+	// read from file a 32-bit integer in little endian
 	public static UInt32 fread_le_word(BinaryFile file)
 	{
 		return file.ReadUInt32();
 	}
 	
-	public static void fwrite_le_short(ushort s, BinaryFile file)
-	{
-		file.Write(s);
-	}
-	
-	public static void fwrite_le_word(uint w, BinaryFile file)
+	// write to file a 32-bit integer in little endian
+	public static void fwrite_le_word(UInt32 w, BinaryFile file)
 	{
 		file.Write(w);
 	}

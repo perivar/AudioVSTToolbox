@@ -7,19 +7,50 @@ using fftwlib;
 
 public static class GlobalMembersDsp
 {
-	//#define PI_D
-	//#define LOGBASE_D
-	//#define LOOP_SIZE_SEC_D
-	//#define BMSQ_LUT_SIZE_D
-
 	public static double pi;
 	public static double LOGBASE; // Base for log() operations. Anything other than 2 isn't really supported
 	public static double LOOP_SIZE_SEC; // size of the noise loops in seconds
-	public static Int32 BMSQ_LUT_SIZE = new Int32(); // defines the number of elements in the Blackman Square look-up table. It's best to make it small enough to be entirely cached
+	public static Int32 BMSQ_LUT_SIZE; // defines the number of elements in the Blackman Square look-up table. It's best to make it small enough to be entirely cached
 
 	public static Int32 clocka = new Int32();
+	
+	public enum fftMethod : int {
+		DFT = 0,
+		IDFT = 1,
+		DHT = 2
+	}
 
-	public static void normi(double[][] s, Int32 xs, Int32 ys, double ratio)
+	public static void fft(ref double[] @in, ref double[] @out, Int32 N, fftMethod method)
+	{
+		//fftw_plan p = fftw_plan_r2r_1d(N, in, out, method, FFTW_ESTIMATE);
+		//fftw_execute(p);
+		//fftw_destroy_plan(p);
+		
+		fftw_complexarray complexInput = new fftw_complexarray(@in);
+		fftw_complexarray complexOutput = new fftw_complexarray(@out);
+		
+		switch(method) {
+			case fftMethod.DFT:
+				fftw_plan fft = fftw_plan.r2r_1d(N, complexInput, complexOutput, fftw_kind.R2HC, fftw_flags.Estimate);
+				fft.Execute();
+				@out = complexOutput.Values;
+				break;
+			case fftMethod.IDFT:
+				fftw_plan ifft = fftw_plan.r2r_1d(N, complexInput, complexOutput, fftw_kind.HC2R, fftw_flags.Estimate);
+				ifft.Execute();
+				@out = complexOutput.Values;
+				break;
+			case fftMethod.DHT:
+				fftw_plan dht = fftw_plan.r2r_1d(N, complexInput, complexOutput, fftw_kind.DHT, fftw_flags.Estimate);
+				dht.Execute();
+				@out = complexOutput.Values;
+				break;
+		}
+
+	}
+
+	// normalises a signal to the +/-ratio range
+	public static void normi(ref double[][] s, ref Int32 xs, ref Int32 ys, double ratio)
 	{
 		Int32 ix = new Int32();
 		Int32 iy = new Int32();
@@ -32,11 +63,9 @@ public static class GlobalMembersDsp
 			for (ix = 0; ix<xs; ix++)
 				if (Math.Abs(s[iy][ix])>max)
 		{
-			if (!double.IsInfinity(Math.Abs(s[iy][ix]))) {
-				max = Math.Abs(s[iy][ix]);
-				maxx = ix;
-				maxy = iy;
-			}
+			max = Math.Abs(s[iy][ix]);
+			maxx = ix;
+			maxy = iy;
 		}
 
 		#if DEBUG
@@ -61,49 +90,7 @@ public static class GlobalMembersDsp
 	}
 	
 	// normalises a signal to the +/-ratio range
-	public static void fft(double[] @in, double[] @out, Int32 N, UInt16 method)
-	{
-		/* method :
-		 * 0 = DFT
-		 * 1 = IDFT
-		 * 2 = DHT
-		 */
-		
-		//fftw_plan p = fftw_plan_r2r_1d(N, in, out, method, FFTW_ESTIMATE);
-		//fftw_execute(p);
-		//fftw_destroy_plan(p);
-		
-		fftw_complexarray complexInput = new fftw_complexarray(@in);
-		fftw_complexarray complexOutput = new fftw_complexarray(@out);
-		
-		fftw_kind kind = fftw_kind.R2HC;
-		switch(method) {
-			case 0: // DFT
-				kind = fftw_kind.R2HC;
-				fftw_plan fft = fftw_plan.r2r_1d(N, complexInput, complexOutput, kind, fftw_flags.Estimate);
-				//fftw_plan fft = fftw_plan.dft_1d(N, complexInput, complexOutput, fftw_direction.Forward, fftw_flags.Estimate);
-				//fftw_plan fft = fftw_plan.dft_r2c_1d(N, complexInput, complexOutput, fftw_flags.Estimate);
-				fft.Execute();
-				@out = complexOutput.Real;
-				break;
-			case 1: // IDFT
-				kind = fftw_kind.HC2R;
-				fftw_plan ifft = fftw_plan.r2r_1d(N, complexInput, complexOutput, kind, fftw_flags.Estimate);
-				//fftw_plan ifft = fftw_plan.dft_1d(N, complexInput, complexOutput, fftw_direction.Backward, fftw_flags.Estimate);
-				//fftw_plan ifft = fftw_plan.dft_c2r_1d(N, complexInput, complexOutput, fftw_flags.Estimate);
-				ifft.Execute();
-				@out = complexOutput.Real;
-				break;
-			case 2: // DHT
-				kind = fftw_kind.DHT;
-				break;
-		}
-
-		//fftw.cleanup();
-	}
-
-	// normalises a signal to the +/-ratio range
-	public static void normi(double[] s, Int32 xs, double ratio)
+	public static void normi(ref double[] s, ref Int32 xs, double ratio)
 	{
 		Int32 ix = new Int32();
 		Int32 maxx = new Int32();
@@ -164,7 +151,11 @@ public static class GlobalMembersDsp
 	{
 		Int32 i = new Int32(); 		// general purpose iterators
 		Int32 j = new Int32();
+
+		//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
+		//@out = calloc (Mo, sizeof(double));
 		double[] @out = new double[Mo];
+
 		double pos_in; 				// position in the original signal
 		double x; 					// position of the iterator in the blackman(x) formula
 		double ratio; 				// scaling ratio (> 1.0)
@@ -179,9 +170,6 @@ public static class GlobalMembersDsp
 		ratio = (double) Mi/Mo;
 		ratio_i = 1.0/ratio;
 
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
-		//@out = calloc (Mo, sizeof(double));
-
 		for (i = 0; i<Mo; i++)
 		{
 			pos_in = (double) i * ratio;
@@ -193,7 +181,7 @@ public static class GlobalMembersDsp
 				if (j>=0 && j<Mi) // if the read sample is within bounds
 				{
 					x = j - pos_in + ratio; // calculate position within the Blackman function
-					coef = 0.42 - 0.5 *Math.Cos(pi * x * ratio_i) + 0.08 *Math.Cos(2 *pi * x * ratio_i);
+					coef = 0.42 - 0.5 * Math.Cos(pi * x * ratio_i) + 0.08 * Math.Cos(2 *pi * x * ratio_i);
 					coef_sum += coef;
 					@out[i] += @in[j] * coef; // convolve
 				}
@@ -206,7 +194,7 @@ public static class GlobalMembersDsp
 	}
 	
 	// Blackman Square look-up table generator
-	public static double[] bmsq_lut(Int32 size)
+	public static double[] bmsq_lut(ref Int32 size)
 	{
 		Int32 i = new Int32(); // general purpose iterator
 		double coef; // Blackman square final coefficient
@@ -262,7 +250,7 @@ public static class GlobalMembersDsp
 	// which is a Blackman function convolved with a square.
 	// It's like smoothing the result of a nearest neighbour interpolation
 	// with a Blackman FIR
-	public static void blackman_square_interpolation(double[] @in, double[] @out, Int32 Mi, Int32 Mo, double[] lut, Int32 lut_size)
+	public static void blackman_square_interpolation(ref double[] @in, ref double[] @out, ref Int32 Mi, ref Int32 Mo, ref double[] lut, Int32 lut_size)
 	{
 		Int32 i = new Int32(); // general purpose iterators
 		Int32 j = new Int32();
@@ -283,7 +271,7 @@ public static class GlobalMembersDsp
 		/*
 		 * Mi is the original signal's length
 		 * Mo is the output signal's length
-		 */
+i		 */
 		ratio = (double) Mi/Mo;
 		ratio_i = 1.0/ratio;
 
@@ -306,18 +294,20 @@ public static class GlobalMembersDsp
 				pos_lut = x * foo;
 				pos_luti = (Int32) pos_lut;
 
-				mod_pos = Math.IEEERemainder(pos_lut, 1.0); // modulo of the index
+				mod_pos = GlobalMembersUtil.fmod(pos_lut, 1.0); // modulo of the index
 
-				y0 = lut[pos_luti]; // interpolate linearly between the two closest values
-				y1 = lut[pos_luti + 1];
-				coef = y0 + mod_pos * (y1 - y0); // linear interpolation
+				if (pos_luti + 1 < lut.Length) {
+					y0 = lut[pos_luti]; // interpolate linearly between the two closest values
+					y1 = lut[pos_luti + 1];
+					coef = y0 + mod_pos * (y1 - y0); // linear interpolation
 
-				@out[i] += @in[j] * coef; // convolve
+					@out[i] += @in[j] * coef; // convolve
+				}
 			}
 		}
 	}
 	
-	public static double[][] anal(double[] s, Int32 samplecount, Int32 samplerate, out Int32 Xsize, Int32 bands, double bpo, double pixpersec, double basefreq)
+	public static double[][] anal(ref double[] s, ref Int32 samplecount, ref Int32 samplerate, ref Int32 Xsize, ref Int32 bands, ref double bpo, ref double pixpersec, ref double basefreq)
 	{
 		Int32 i = new Int32();
 		Int32 ib = new Int32();
@@ -329,7 +319,7 @@ public static class GlobalMembersDsp
 		double[][] @out;
 		double[] h;
 		double[] freq;
-		//double[] t;
+		double[] t;
 		double coef;
 		double La;
 		double Ld;
@@ -364,7 +354,7 @@ public static class GlobalMembersDsp
 
 		Xsize = (int) (samplecount * pixpersec);
 
-		if (Math.IEEERemainder((double) samplecount * pixpersec, 1.0) != 0.0) // round-up
+		if (GlobalMembersUtil.fmod((double) samplecount * pixpersec, 1.0) != 0.0) // round-up
 			Xsize++;
 		Console.Write("Image size : {0:D}x{1:D}\n", Xsize, bands);
 		
@@ -387,10 +377,6 @@ public static class GlobalMembersDsp
 		Mb = (int) GlobalMembersUtil.roundoff((double) GlobalMembersUtil.nextsprime((Int32) GlobalMembersUtil.roundoff(Mb * pixpersec)) / pixpersec);
 
 		Md = (int) GlobalMembersUtil.roundoff(Mb * pixpersec);
-		
-		// PIN: Make sure the Mb is a power of two
-		// TODO: Check http://www.mathworks.se/support/tech-notes/1700/1702.html
-		//Mb = (int)MathUtils.NextPowerOfTwo((uint)Mb);
 
 		//C++ TO C# CONVERTER TODO TASK: The memory management function 'realloc' has no equivalent in C#:
 		//s = realloc (s, Mb * sizeof(double));
@@ -403,9 +389,9 @@ public static class GlobalMembersDsp
 		for (i=samplecount; i<Mb; i++) s[i] = 0;
 		//--------ZEROPADDING--------
 		
-		Export.exportCSV(String.Format("test/samples_before_fft.csv"), s);
-		GlobalMembersDsp.fft(s, s, Mb, 0); // In-place FFT of the original zero-padded signal
-		Export.exportCSV(String.Format("test/samples_after_fft.csv"), s);
+		//Export.exportCSV(String.Format("test/samples_before_fft.csv"), s, 256);
+		GlobalMembersDsp.fft(ref s, ref s, Mb, fftMethod.DFT); // In-place FFT of the original zero-padded signal
+		//Export.exportCSV(String.Format("test/samples_after_fft.csv"), s, 256);
 
 		for (ib = 0; ib<bands; ib++)
 		{
@@ -436,7 +422,7 @@ public static class GlobalMembersDsp
 
 			//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
 			//@out[bands-ib-1]   calloc(Mc, sizeof(double)); // allocate new band
-			@out[bands-ib-1] = new double[Mc];
+			@out[bands-ib-1] = new double[Mc+1];
 
 			for (i = 0; i<Fd-Fa; i++)
 			{
@@ -444,52 +430,48 @@ public static class GlobalMembersDsp
 				Li = (Li-La)/(Ld-La);
 				coef = 0.5 - 0.5 * Math.Cos(2.0 *pi * Li); // Hann function
 				
-				@out[bands-ib-1][i+1] = s[i+1+Fa] * coef;
-				@out[bands-ib-1][Mc-1-i] = s[Mb-Fa-1-i] * coef;
+				@out[bands-ib-1][i+1] 		= s[i+1+Fa] * coef;
+				@out[bands-ib-1][Mc-1-i] 	= s[Mb-Fa-1-i] * coef;
 			}
 			//--------Filtering--------
-			Export.exportCSV(String.Format("test/band_{0}_filtered.csv", bands-ib-1), @out[bands-ib-1]);
+			//Export.exportCSV(String.Format("test/band_{0}_filtered.csv", bands-ib-1), @out[bands-ib-1]);
 
 			//********90° rotation********
-
 			//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
 			//h = calloc(Mc, sizeof(double)); // allocate the 90° rotated version of the band
-			h = new double[Mc];
+			h = new double[Mc+1];
 			
 			// Rotation : Re' = Im; Im' = -Re
 			for (i = 0; i<Fd-Fa; i++)
 			{
-				h[i+1] = @out[bands-ib-1][Mc-1-i]; 	// Re' = Im
-				h[Mc-1-i] = -@out[bands-ib-1][i+1]; // Im' = -Re
+				h[i+1] 		= @out[bands-ib-1][Mc-1-i]; // Re' = Im
+				h[Mc-1-i] 	= -@out[bands-ib-1][i+1]; 	// Im' = -Re
 			}
 			//--------90° rotation--------
 
 			//********Envelope detection********
-			Export.exportCSV(String.Format("test/band_{0}_rotated.csv", bands-ib-1), @out[bands-ib-1]);
+			//Export.exportCSV(String.Format("test/band_{0}_rotated.csv", bands-ib-1), @out[bands-ib-1]);
 
-			GlobalMembersDsp.fft(@out[bands-ib-1], @out[bands-ib-1], Mc, 1); 	// In-place IFFT of the filtered band signal
-			GlobalMembersDsp.fft(h, h, Mc, 1); 									// In-place IFFT of the filtered band signal rotated by 90°
+			GlobalMembersDsp.fft(ref @out[bands-ib-1], ref @out[bands-ib-1], Mc, fftMethod.IDFT); 	// In-place IFFT of the filtered band signal
+			GlobalMembersDsp.fft(ref h, ref h, Mc, fftMethod.IDFT); 								// In-place IFFT of the filtered band signal rotated by 90°
 
-			Export.exportCSV(String.Format("test/band_{0}_before.csv", bands-ib-1), @out[bands-ib-1]);
+			//Export.exportCSV(String.Format("test/band_{0}_before.csv", bands-ib-1), @out[bands-ib-1]);
 
 			for (i = 0; i<Mc; i++) {
+				// TODO: why does the above crash?!
+				//for (i = 0; i < @out[bands-ib-1].Length; i++) {
 				// Magnitude of the analytic signal
 				double x = @out[bands-ib-1][i];
 				double y = h[i];
 				double xSquared = x*x;
 				double ySquared = y*y;
-				if (double.IsInfinity(xSquared)) {
-					xSquared = 0.0;
-				}
-				if (double.IsInfinity(ySquared)) {
-					ySquared = 0.0;
-				}
 				double mag = Math.Sqrt(xSquared + ySquared);
 				@out[bands-ib-1][i] = mag;
 			}
 
 			//C++ TO C# CONVERTER TODO TASK: The memory management function 'free' has no equivalent in C#:
 			//free(h);
+			Array.Clear(h, 0, h.Length);
 			//--------Envelope detection--------
 
 			//********Downsampling********
@@ -501,11 +483,12 @@ public static class GlobalMembersDsp
 			
 			if (Mc > Md) // If the band *has* to be downsampled
 			{
-				//t = @out[bands-ib-1];
+				t = @out[bands-ib-1];
 				@out[bands-ib-1] = GlobalMembersDsp.blackman_downsampling(@out[bands-ib-1], Mc, Md); // Blackman downsampling
 
 				//C++ TO C# CONVERTER TODO TASK: The memory management function 'free' has no equivalent in C#:
 				//free(t);
+				Array.Clear(t, 0, t.Length);
 			}
 			//--------Downsampling--------
 
@@ -513,12 +496,14 @@ public static class GlobalMembersDsp
 			//@out[bands-ib-1] = realloc(@out[bands-ib-1], Xsize * sizeof(double));
 			Array.Resize<double>(ref @out[bands-ib-1], Xsize); // Tail chopping
 			
-			Export.exportCSV(String.Format("test/band_{0}_after.csv", bands-ib-1), @out[bands-ib-1]);
+			//Export.exportCSV(String.Format("test/band_{0}_after.csv", bands-ib-1), @out[bands-ib-1]);
 		}
 
 		Console.Write("\n");
 
-		GlobalMembersDsp.normi(@out, Xsize, bands, 1.0);
+		GlobalMembersDsp.normi(ref @out, ref Xsize, ref bands, 1.0);
+		
+		//Export.exportCSV(String.Format("out.csv"), @out);
 		return @out;
 	}
 
@@ -553,7 +538,7 @@ public static class GlobalMembersDsp
 		return h;
 	}
 	
-	public static double[] synt_sine(double[][] d, Int32 Xsize, Int32 bands, Int32 samplecount, Int32 samplerate, double basefreq, double pixpersec, double bpo)
+	public static double[] synt_sine(ref double[][] d, ref Int32 Xsize, ref Int32 bands, ref Int32 samplecount, ref Int32 samplerate, ref double basefreq, ref double pixpersec, ref double bpo)
 	{
 		double[] s;
 		double[] freq;
@@ -575,7 +560,7 @@ public static class GlobalMembersDsp
 		 sband is the band's envelope upsampled and shifted up in frequency
 		 sbsize is the length of sband
 		 sine is the random sine look-up table
-		 *samplecount is the output sound's length
+		 samplecount is the output sound's length
 		 ib is the band iterator
 		 i is a general purpose iterator
 		 bands is the total count of bands
@@ -616,12 +601,15 @@ public static class GlobalMembersDsp
 		{
 			//C++ TO C# CONVERTER TODO TASK: The memory management function 'memset' has no equivalent in C#:
 			//memset(sband, 0, sbsize * sizeof(double)); // reset sband
-
+			for (i=0; i<sbsize; i++) sband[i] = 0; // reset sband
+			
 			//********Frequency shifting********
 			rphase = GlobalMembersUtil.dblrand() * pi; // random phase between -pi and +pi
 
-			for (i = 0; i<4; i++) // generating the random sine LUT
+			for (i = 0; i<4; i++) {
+				// generating the random sine LUT
 				sine[i] = Math.Cos(i *2.0 *pi *0.25 + rphase);
+			}
 
 			for (i = 0; i<Xsize; i++) // envelope sampling rate * 2 and frequency shifting by 0.25
 			{
@@ -638,7 +626,7 @@ public static class GlobalMembersDsp
 			}
 			//--------Frequency shifting--------
 
-			GlobalMembersDsp.fft(sband, sband, sbsize, 0); // FFT of the envelope
+			GlobalMembersDsp.fft(ref sband, ref sband, sbsize, fftMethod.DFT); // FFT of the envelope
 			Fc = (int) GlobalMembersUtil.roundoff(freq[ib] * samplecount); // band's centre index (envelope's DC element)
 
 			Console.Write("{0,4:D}/{1:D}   {2:f2} Hz\r", ib+1, bands, (double) Fc *samplerate / samplecount);
@@ -657,15 +645,15 @@ public static class GlobalMembersDsp
 
 		Console.Write("\n");
 
-		GlobalMembersDsp.fft(s, s, samplecount, 1); // IFFT of the final sound
+		GlobalMembersDsp.fft(ref s, ref s, samplecount, fftMethod.IDFT); // IFFT of the final sound
 		samplecount = (int) GlobalMembersUtil.roundoff(Xsize/pixpersec); // chopping tails by ignoring them
 
-		GlobalMembersDsp.normi(s, samplecount, 1.0);
+		GlobalMembersDsp.normi(ref s, ref samplecount, 1.0);
 
 		return s;
 	}
 	
-	public static double[] synt_noise(double[][] d, Int32 Xsize, Int32 bands, Int32 samplecount, Int32 samplerate, double basefreq, double pixpersec, double bpo)
+	public static double[] synt_noise(ref double[][] d, ref Int32 Xsize, ref Int32 bands, ref Int32 samplecount, ref Int32 samplerate, ref double basefreq, ref double pixpersec, ref double bpo)
 	{
 		Int32 i = new Int32(); 					// general purpose iterator
 		Int32 ib = new Int32(); 				// bands iterator
@@ -746,7 +734,7 @@ public static class GlobalMembersDsp
 		//noise = malloc(loop_size * sizeof(double)); // allocate noise
 		noise = new double[loop_size];
 		
-		lut = GlobalMembersDsp.bmsq_lut(BMSQ_LUT_SIZE); // Blackman Square look-up table initalisation
+		lut = GlobalMembersDsp.bmsq_lut(ref BMSQ_LUT_SIZE); // Blackman Square look-up table initalisation
 
 		for (ib = 0; ib<bands; ib++)
 		{
@@ -754,6 +742,7 @@ public static class GlobalMembersDsp
 
 			//C++ TO C# CONVERTER TODO TASK: The memory management function 'memset' has no equivalent in C#:
 			//memset(noise, 0, loop_size * sizeof(double)); // reset filtered noise
+			for (i=0; i<loop_size; i++) noise[i] = 0; // reset sband
 
 			//********Filtering********
 
@@ -780,11 +769,12 @@ public static class GlobalMembersDsp
 			}
 			//--------Filtering--------
 
-			GlobalMembersDsp.fft(noise, noise, loop_size, 1); // IFFT of the filtered noise
+			GlobalMembersDsp.fft(ref noise, ref noise, loop_size, fftMethod.IDFT); // IFFT of the filtered noise
 
 			//C++ TO C# CONVERTER TODO TASK: The memory management function 'memset' has no equivalent in C#:
 			//memset(envelope, 0, samplecount * sizeof(double)); // blank the envelope
-			GlobalMembersDsp.blackman_square_interpolation(d[bands-ib-1], envelope, Xsize, samplecount, lut, BMSQ_LUT_SIZE); // interpolation of the envelope
+			for (i=0; i<samplecount; i++) envelope[i] = 0; // reset sband
+			GlobalMembersDsp.blackman_square_interpolation(ref d[bands-ib-1], ref envelope, ref Xsize, ref samplecount, ref lut, BMSQ_LUT_SIZE); // interpolation of the envelope
 
 			il = 0;
 			for (i = 0; i< samplecount; i++)
@@ -798,12 +788,12 @@ public static class GlobalMembersDsp
 
 		Console.Write("\n");
 
-		GlobalMembersDsp.normi(s, samplecount, 1.0);
+		GlobalMembersDsp.normi(ref s, ref samplecount, 1.0);
 
 		return s;
 	}
 	
-	public static void brightness_control(double[][] image, Int32 width, Int32 height, double ratio)
+	public static void brightness_control(ref double[][] image, ref Int32 width, ref Int32 height, double ratio)
 	{
 		// Actually this is based on the idea of converting values to decibels, for example, 0.01 becomes -40 dB, dividing them by ratio, so if ratio is 2 then -40 dB/2 = -20 dB, and then turning it back to regular values, so -20 dB becomes 0.1
 		// If ratio==2 then this function is equivalent to a square root

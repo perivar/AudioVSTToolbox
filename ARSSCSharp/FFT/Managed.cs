@@ -203,6 +203,34 @@ namespace fftwlib
 		{get {return length;}}
 
 		/// <summary>
+		/// Return the values
+		/// </summary>
+		public double[] Values {
+			get {
+				double[] buffer = new double[Length * 2];
+				Marshal.Copy(Handle, buffer, 0, Length * 2);
+				return buffer;
+			}
+		}
+		
+		/// <summary>
+		/// Return the values
+		/// </summary>
+		public double[] ValuesDividedByN {
+			get {
+				double[] buffer = new double[Length * 2];
+				Marshal.Copy(Handle, buffer, 0, Length * 2);
+
+				double[] output = new double[Length * 2];
+				for (int i = 0; i < Length * 2; i++)
+				{
+					output[i] = buffer[i] / (Length * 2);
+				}
+				return output;
+			}
+		}
+		
+		/// <summary>
 		/// Return the real column from a complex array
 		/// </summary>
 		public double[] Real {

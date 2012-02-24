@@ -4,15 +4,15 @@ using CommonUtils;
 
 public static class GlobalMembersImage_io
 {
-	public static double[][] bmp_in(BinaryFile bmpfile, Int32 y, Int32 x)
+	public static double[][] bmp_in(BinaryFile bmpfile, ref Int32 y, ref Int32 x)
 	{
 		Int32 iy = new Int32(); // various iterators
 		Int32 ix = new Int32();
 		Int32 ic = new Int32();
 		Int32 offset = new Int32();
 		double[][] image;
-		UInt16 zerobytes = new UInt16();
-		UInt16 val = new UInt16();
+		byte zerobytes = new byte();
+		byte val = new byte();
 		
 		#if DEBUG
 		Console.Write("bmp_in...\n");
@@ -53,14 +53,16 @@ public static class GlobalMembersImage_io
 		//image = malloc (y * sizeof(double)); // image allocation
 		image = new double[y][];
 		
-		//for (iy = 0; iy< y; iy++)
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
-		// image[iy] =calloc (x, sizeof(double));
-		image[iy] = new double[x];
+		for (iy = 0; iy< y; iy++) {
+			//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
+			// image[iy] =calloc (x, sizeof(double));
+			image[iy] = new double[x];
+		}
 
-		zerobytes = (ushort) (4 - ((x *3) & 3));
-		if (zerobytes == 4)
+		zerobytes = (byte)(4 - ((x *3) & 3));
+		if (zerobytes == 4) {
 			zerobytes = 0;
+		}
 
 		for (iy = y-1; iy!=-1; iy--) // backwards reading
 		{
@@ -69,7 +71,7 @@ public static class GlobalMembersImage_io
 				for (ic = 2;ic!=-1;ic--)
 				{
 					//fread(val, 1, 1, bmpfile);
-					val = bmpfile.ReadUInt16();
+					val = bmpfile.ReadByte();
 					image[iy][ix] += (double) val * (1.0/(255.0 * 3.0)); // Conversion to grey by averaging the three channels
 				}
 			}
@@ -90,35 +92,35 @@ public static class GlobalMembersImage_io
 		Int32 ic = new Int32();
 		Int32 filesize = new Int32();
 		Int32 imagesize = new Int32();
-		UInt16 zerobytes = new UInt16();
-		UInt16 val = new UInt16();
-		UInt16 zero = 0;
+		byte zerobytes = new byte();
+		byte val = new byte();
+		byte zero = 0;
 		double vald;
 
 		#if DEBUG
 		Console.Write("bmp_out...\n");
 		#endif
 
-		zerobytes = (ushort) (4 - ((x *3) & 3)); // computation of zero bytes
-		if (zerobytes == 4)
+		zerobytes = (byte) (4 - ((x *3) & 3)); // computation of zero bytes
+		if (zerobytes == 4) {
 			zerobytes = 0;
+		}
 
 		//********Tags********
-
 		filesize = 56 + ((x *3)+zerobytes) * y;
 		imagesize = 2 + ((x *3)+zerobytes) * y;
 
 		GlobalMembersUtil.fwrite_le_short(19778, bmpfile);
-		GlobalMembersUtil.fwrite_le_word((uint)filesize, bmpfile);
+		GlobalMembersUtil.fwrite_le_word((UInt32)filesize, bmpfile);
 		GlobalMembersUtil.fwrite_le_word(0, bmpfile);
 		GlobalMembersUtil.fwrite_le_word(54, bmpfile);
 		GlobalMembersUtil.fwrite_le_word(40, bmpfile);
-		GlobalMembersUtil.fwrite_le_word((uint)x, bmpfile);
-		GlobalMembersUtil.fwrite_le_word((uint)y, bmpfile);
+		GlobalMembersUtil.fwrite_le_word((UInt32)x, bmpfile);
+		GlobalMembersUtil.fwrite_le_word((UInt32)y, bmpfile);
 		GlobalMembersUtil.fwrite_le_short(1, bmpfile);
 		GlobalMembersUtil.fwrite_le_word(24, bmpfile);
 		GlobalMembersUtil.fwrite_le_short(0, bmpfile);
-		GlobalMembersUtil.fwrite_le_word((uint)imagesize, bmpfile);
+		GlobalMembersUtil.fwrite_le_word((UInt32)imagesize, bmpfile);
 		GlobalMembersUtil.fwrite_le_word(2834, bmpfile);
 		GlobalMembersUtil.fwrite_le_word(2834, bmpfile);
 		GlobalMembersUtil.fwrite_le_word(0, bmpfile);
@@ -137,11 +139,7 @@ public static class GlobalMembersImage_io
 				if (vald < 0.0)
 					vald = 0.0;
 				
-				//if (double.IsNaN(vald)) {
-				//	vald = 0.0;
-				//}
-				
-				val = (ushort) vald;
+				val = (byte) vald;
 
 				for (ic = 2; ic!=-1; ic--)
 					bmpfile.Write(val);
