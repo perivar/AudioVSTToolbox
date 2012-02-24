@@ -389,9 +389,9 @@ i		 */
 		for (i=samplecount; i<Mb; i++) s[i] = 0;
 		//--------ZEROPADDING--------
 		
-		//Export.exportCSV(String.Format("test/samples_before_fft.csv"), s, 256);
+		Export.exportCSV(String.Format("test/samples_before_fft.csv"), s, 256);
 		GlobalMembersDsp.fft(ref s, ref s, Mb, fftMethod.DFT); // In-place FFT of the original zero-padded signal
-		//Export.exportCSV(String.Format("test/samples_after_fft.csv"), s, 256);
+		Export.exportCSV(String.Format("test/samples_after_fft.csv"), s, 256);
 
 		for (ib = 0; ib<bands; ib++)
 		{

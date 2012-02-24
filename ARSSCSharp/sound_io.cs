@@ -3,6 +3,28 @@ using CommonUtils;
 
 public static class GlobalMembersSound_io
 {
+	// compression code, 2 bytes
+	static int WAVE_FORMAT_UNKNOWN           =  0x0000; /* Microsoft Corporation */
+	static int WAVE_FORMAT_PCM               =  0x0001; /* Microsoft Corporation */
+	static int WAVE_FORMAT_ADPCM             =  0x0002; /* Microsoft Corporation */
+	static int WAVE_FORMAT_IEEE_FLOAT        =  0x0003; /* Microsoft Corporation */
+	
+	/*
+	 * Native Formats
+	 * Number of Bits	MATLAB Data Type			Data Range
+	 * 8				uint8 (unsigned integer) 	0 <= y <= 255
+	 * 16				int16 (signed integer) 		-32768 <= y <= +32767
+	 * 24				int32 (signed integer) 		-2^23 <= y <= 2^23-1
+	 * 32				single (floating point) 	-1.0 <= y < +1.0
+	 * 
+	 * typedef uint8_t  u8_t;     ///< unsigned 8-bit value (0 to 255)
+	 * typedef int8_t   s8_t;     ///< signed 8-bit value (-128 to +127)
+	 * typedef uint16_t u16_t;    ///< unsigned 16-bit value (0 to 65535)
+	 * typedef int16_t  s16_t;    ///< signed 16-bit value (-32768 to 32767)
+	 * typedef uint32_t u32_t;    ///< unsigned 32-bit value (0 to 4294967296)
+	 * typedef int32_t  s32_t;    ///< signed 32-bit value (-2147483648 to +2147483647)
+	 */
+	
 	public static void in_8(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
 	{
 		Int32 i = new Int32();
@@ -17,7 +39,6 @@ public static class GlobalMembersSound_io
 			for (ic = 0;ic<channels;ic++)
 			{
 				@byte = wavfile.ReadByte();
-				//fread(@byte, 1, 1, wavfile);
 				sound[ic][i] = (double) @byte/128.0 - 1.0;
 			}
 		}
@@ -47,7 +68,6 @@ public static class GlobalMembersSound_io
 				@byte = (byte) val;
 
 				wavfile.Write(@byte);
-				//fwrite(@byte, sizeof(UInt8), 1, wavfile);
 			}
 		}
 	}
@@ -90,7 +110,7 @@ public static class GlobalMembersSound_io
 				if (val<-32768.0)
 					val = -32768.0;
 
-				GlobalMembersUtil.fwrite_le_short((Int16) val, wavfile);
+				wavfile.Write((Int16) val);
 			}
 		}
 	}
@@ -99,7 +119,6 @@ public static class GlobalMembersSound_io
 	{
 		Int32 i = new Int32();
 		Int32 ic = new Int32();
-		float val;
 
 		#if DEBUG
 		Console.Write("in_32...\n");
@@ -108,8 +127,9 @@ public static class GlobalMembersSound_io
 		for (i = 0;i<samplecount;i++) {
 			for (ic = 0;ic<channels;ic++)
 			{
-				val = GlobalMembersUtil.fread_le_word(wavfile);
-				sound[ic][i] = (double) val;
+				double d = (double) wavfile.ReadInt32();
+				d = d / 2147483648.0;
+				sound[ic][i] = d;
 			}
 		}
 	}
@@ -118,7 +138,7 @@ public static class GlobalMembersSound_io
 	{
 		Int32 i = new Int32();
 		Int32 ic = new Int32();
-		float val;
+		double val;
 
 		#if DEBUG
 		Console.Write("out_32...\n");
@@ -127,8 +147,49 @@ public static class GlobalMembersSound_io
 		for (i = 0; i<samplecount; i++) {
 			for (ic = 0;ic<channels;ic++)
 			{
-				val = (float) sound[ic][i];
-				GlobalMembersUtil.fwrite_le_word((UInt32)val, wavfile);
+				val = GlobalMembersUtil.roundoff(sound[ic][i]*2147483648.0);
+				
+				if (val>2147483647.0)
+					val = 2147483647.0;
+				if (val<-2147483648.0)
+					val = -2147483648.0;
+
+				wavfile.Write((Int32) val);
+			}
+		}
+	}
+
+	public static void in_32f(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+	{
+		Int32 i = new Int32();
+		Int32 ic = new Int32();
+
+		#if DEBUG
+		Console.Write("in_32f...\n");
+		#endif
+
+		for (i = 0;i<samplecount;i++) {
+			for (ic = 0;ic<channels;ic++)
+			{
+				double d = (double) wavfile.ReadSingle();
+				sound[ic][i] = d;
+			}
+		}
+	}
+	
+	public static void out_32f(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+	{
+		Int32 i = new Int32();
+		Int32 ic = new Int32();
+
+		#if DEBUG
+		Console.Write("out_32f...\n");
+		#endif
+
+		for (i = 0; i<samplecount; i++) {
+			for (ic = 0;ic<channels;ic++)
+			{
+				wavfile.Write((float)sound[ic][i]);
 			}
 		}
 	}
@@ -140,6 +201,21 @@ public static class GlobalMembersSound_io
 		Int32 i = new Int32();
 		Int32 ic = new Int32();
 		Int32[] tag = new Int32[13];
+		
+		//			Size  Description                  Value
+		// tag[0]	4	  RIFF Header				   RIFF (1179011410)
+		// tag[1] 	4	  RIFF data size
+		// tag[2] 	4	  form-type (WAVE etc)
+		// tag[3] 	4     Chunk ID                     "fmt " (0x666D7420)
+		// tag[4]	4     Chunk Data Size              16 + extra format bytes
+		// tag[5]	2     Compression code             1 - 65,535
+		// tag[6]	2     Number of channels           1 - 65,535
+		// tag[7]	4     Sample rate                  1 - 0xFFFFFFFF
+		// tag[8]	4     Average bytes per second     1 - 0xFFFFFFFF
+		// tag[9]	2     Block align                  1 - 65,535 (4)
+		// tag[10]	2     Significant bits per sample  2 - 65,535 (32)
+		// tag[11]	4	  IEEE = 1952670054 (0x74636166), 	PCM = 1635017060 (0x61746164)
+		// tag[12] 	4	  IEEE = 4 , 						PCM = 5292000 (0x0050BFE0)
 
 		#if DEBUG
 		Console.Write("wav_in...\n");
@@ -164,12 +240,26 @@ public static class GlobalMembersSound_io
 			Environment.Exit(1);
 		}
 
-		if (tag[3]!=544501094 || tag[4]!=16 || tag[11]!=1635017060)
+		if (tag[3]!=544501094 || tag[4]!=16) //  || tag[11]!=1635017060
 		{
 			Console.Error.WriteLine("This WAVE file format is not currently supported\n");
 			GlobalMembersUtil.win_return();
 			Environment.Exit(1);
 		}
+
+		if (tag[10]==24)
+		{
+			Console.Error.WriteLine("24 bit PCM WAVE files is not currently supported\n");
+			GlobalMembersUtil.win_return();
+			Environment.Exit(1);
+		}
+		
+		if (tag[5] != WAVE_FORMAT_PCM) {
+			Console.Error.WriteLine("Non PCM WAVE files is not currently supported\n");
+			GlobalMembersUtil.win_return();
+			Environment.Exit(1);
+		}
+		
 		//--------File format checking--------
 
 		channels = tag[6];
@@ -184,12 +274,20 @@ public static class GlobalMembersSound_io
 		}
 
 		//********Data loading********
-		if (tag[10] ==8)
+		if (tag[10] == 8) {
 			in_8(wavfile, sound, samplecount, channels);
-		if (tag[10] ==16)
+		}
+		if (tag[10] == 16) {
 			in_16(wavfile, sound, samplecount, channels);
-		if (tag[10] ==32)
-			in_32(wavfile, sound, samplecount, channels);
+		}
+		if (tag[10] == 32) {
+			if (tag[5] == WAVE_FORMAT_PCM) {
+				in_32(wavfile, sound, samplecount, channels);
+			} else if (tag[5] == WAVE_FORMAT_IEEE_FLOAT) {
+				in_32f(wavfile, sound, samplecount, channels);
+			}
+		}
+		
 		//--------Data loading--------
 
 		wavfile.Close();
