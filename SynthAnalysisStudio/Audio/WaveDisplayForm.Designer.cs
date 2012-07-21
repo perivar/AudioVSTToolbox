@@ -64,9 +64,11 @@ namespace SynthAnalysisStudio
 			this.measureRBtn = new System.Windows.Forms.Button();
 			this.measureLFOBtn = new System.Windows.Forms.Button();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
+			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			((System.ComponentModel.ISupportInitialize)(this.MaxResolutionTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.AmplitudeTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.StartPositionTrackBar)).BeginInit();
+			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// MaxResolutionTrackBar
@@ -87,7 +89,7 @@ namespace SynthAnalysisStudio
 			// waveDisplayUserControl1
 			// 
 			this.waveDisplayUserControl1.Amplitude = 1;
-			this.waveDisplayUserControl1.Location = new System.Drawing.Point(51, 35);
+			this.waveDisplayUserControl1.Location = new System.Drawing.Point(51, 56);
 			this.waveDisplayUserControl1.Name = "waveDisplayUserControl1";
 			this.waveDisplayUserControl1.Resolution = 1;
 			this.waveDisplayUserControl1.SampleRate = 44100D;
@@ -283,7 +285,7 @@ namespace SynthAnalysisStudio
 			// 
 			// measureDBtn
 			// 
-			this.measureDBtn.Location = new System.Drawing.Point(456, 7);
+			this.measureDBtn.Location = new System.Drawing.Point(95, 15);
 			this.measureDBtn.Name = "measureDBtn";
 			this.measureDBtn.Size = new System.Drawing.Size(19, 24);
 			this.measureDBtn.TabIndex = 28;
@@ -293,7 +295,7 @@ namespace SynthAnalysisStudio
 			// 
 			// measureABtn
 			// 
-			this.measureABtn.Location = new System.Drawing.Point(434, 7);
+			this.measureABtn.Location = new System.Drawing.Point(70, 15);
 			this.measureABtn.Name = "measureABtn";
 			this.measureABtn.Size = new System.Drawing.Size(19, 24);
 			this.measureABtn.TabIndex = 29;
@@ -303,7 +305,7 @@ namespace SynthAnalysisStudio
 			// 
 			// measureRBtn
 			// 
-			this.measureRBtn.Location = new System.Drawing.Point(478, 7);
+			this.measureRBtn.Location = new System.Drawing.Point(120, 15);
 			this.measureRBtn.Name = "measureRBtn";
 			this.measureRBtn.Size = new System.Drawing.Size(19, 24);
 			this.measureRBtn.TabIndex = 30;
@@ -313,7 +315,7 @@ namespace SynthAnalysisStudio
 			// 
 			// measureLFOBtn
 			// 
-			this.measureLFOBtn.Location = new System.Drawing.Point(523, 8);
+			this.measureLFOBtn.Location = new System.Drawing.Point(145, 14);
 			this.measureLFOBtn.Name = "measureLFOBtn";
 			this.measureLFOBtn.Size = new System.Drawing.Size(35, 24);
 			this.measureLFOBtn.TabIndex = 31;
@@ -326,15 +328,25 @@ namespace SynthAnalysisStudio
 			this.timer1.Enabled = true;
 			this.timer1.Tick += new System.EventHandler(this.Timer1Tick);
 			// 
+			// groupBox1
+			// 
+			this.groupBox1.Controls.Add(this.measureABtn);
+			this.groupBox1.Controls.Add(this.measureLFOBtn);
+			this.groupBox1.Controls.Add(this.measureDBtn);
+			this.groupBox1.Controls.Add(this.measureRBtn);
+			this.groupBox1.Location = new System.Drawing.Point(403, 2);
+			this.groupBox1.Name = "groupBox1";
+			this.groupBox1.Size = new System.Drawing.Size(190, 45);
+			this.groupBox1.TabIndex = 33;
+			this.groupBox1.TabStop = false;
+			this.groupBox1.Text = "Sylenth Auto Measure";
+			// 
 			// WaveDisplayForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(755, 289);
-			this.Controls.Add(this.measureLFOBtn);
-			this.Controls.Add(this.measureRBtn);
-			this.Controls.Add(this.measureABtn);
-			this.Controls.Add(this.measureDBtn);
+			this.ClientSize = new System.Drawing.Size(755, 312);
+			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.playMidiC5100msBtn);
 			this.Controls.Add(this.durationMsTextBox);
 			this.Controls.Add(this.releaseTextBox);
@@ -362,9 +374,11 @@ namespace SynthAnalysisStudio
 			((System.ComponentModel.ISupportInitialize)(this.MaxResolutionTrackBar)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.AmplitudeTrackBar)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.StartPositionTrackBar)).EndInit();
+			this.groupBox1.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.GroupBox groupBox1;
 		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.Button measureLFOBtn;
 		private System.Windows.Forms.Button measureRBtn;

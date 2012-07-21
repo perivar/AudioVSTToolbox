@@ -361,15 +361,15 @@ namespace CommonUtils.VST
 			midiData[2] = midiVelocity; // Note strike velocity
 			midiData[3] = 0;    		// Reserved, unused
 			
-			VstMidiEvent vse1 = new VstMidiEvent(/*DeltaFrames*/ 	0,
+			VstMidiEvent vse = new VstMidiEvent(/*DeltaFrames*/ 	0,
 			                                     /*NoteLength*/ 	0,
 			                                     /*NoteOffset*/ 	0,
 			                                     midiData,
 			                                     /*Detune*/    		0,
-			                                     /*NoteOffVelocity*/ 0);
+			                                     /*NoteOffVelocity*/ 127); // previously 0
 			
 			VstEvent[] ve = new VstEvent[1];
-			ve[0] = vse1;
+			ve[0] = vse;
 			return ve;
 		}
 		
