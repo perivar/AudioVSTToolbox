@@ -71,6 +71,7 @@ namespace SynthAnalysisStudio
 		
 		void FreqSampleBtnClick(object sender, EventArgs e)
 		{
+			/*
 			string foundMaxFreq = String.Format("{0}", this.frequencyAnalyserUserControl1.FoundMaxFrequency);
 			string foundMaxDB = String.Format("{0}", this.frequencyAnalyserUserControl1.FoundMaxDecibel);
 			
@@ -123,6 +124,7 @@ namespace SynthAnalysisStudio
 						            ));
 				xmlDoc.Save(xmlFilePath);
 			}
+			 */
 		}
 		
 		void Timer1Tick(object sender, EventArgs e)

@@ -29,19 +29,28 @@ namespace SynthAnalysisStudio
 	/// </summary>
 	public partial class WaveDisplayForm : Form
 	{
-		const int SYLENTH_PARAM_ATTACK = 0;
-		const int SYLENTH_PARAM_DECAY = 1;
-		const int SYLENTH_PARAM_RELEASE = 2;
-		const int SYLENTH_PARAM_SUSTAIN = 3;
+		const int SYLENTH_PARAM_AMP_ENV1_ATTACK = 0;
+		const int SYLENTH_PARAM_AMP_ENV1_DECAY = 1;
+		const int SYLENTH_PARAM_AMP_ENV1_RELEASE = 2;
+		const int SYLENTH_PARAM_AMP_ENV1_SUSTAIN = 3;
 		const int SYLENTH_PARAM_LFO1_GAIN = 59;
 		const int SYLENTH_PARAM_LFO1_RATE = 61;
 		const int SYLENTH_PARAM_LFO1_WAVE = 62;
+		const int SYLENTH_PARAM_MAIN_VOLUME = 68;
+		const int SYLENTH_PARAM_MIX_A = 69;
+		const int SYLENTH_PARAM_MIX_B = 70;
+		const int SYLENTH_PARAM_MOD_ENV1_ATTACK = 71;
+		const int SYLENTH_PARAM_MOD_ENV1_DECAY = 72;
+		const int SYLENTH_PARAM_MOD_ENV1_RELEASE = 73;
+		const int SYLENTH_PARAM_MOD_ENV1_SUSTAIN = 74;
 		const int SYLENTH_PARAM_OSC1_VOLUME = 91;
 		const int SYLENTH_PARAM_OSC1_WAVE = 92;
-		const int SYLENTH_PARAM_XMODLFO1DEST1AMOUNT = 201;
-		const int SYLENTH_PARAM_XMODLFO1DEST2AMOUNT = 202;
-		const int SYLENTH_PARAM_YMODLFO1DEST1 = 229;
-		const int SYLENTH_PARAM_YMODLFO1DEST2 = 230;
+
+		const int SYLENTH_PARAM_XMOD_ENV1_DEST1AMOUNT = 197;
+		const int SYLENTH_PARAM_XMOD_LFO1_DEST1AMOUNT = 201;
+
+		const int SYLENTH_PARAM_YMOD_LFO1_DEST1 = 229;
+		const int SYLENTH_PARAM_YMOD_ENV1_DEST1 = 225;
 
 		public VstPluginContext PluginContext { get; set; }
 		public VstPlaybackNAudio Playback { get; set; }
@@ -95,14 +104,7 @@ namespace SynthAnalysisStudio
 		
 		void ClearBtnClick(object sender, EventArgs e)
 		{
-			VstHost host = VstHost.Instance;
-			host.ClearRecording();
-			
-			MaxResolutionTrackBar.Maximum = 100;
-			MaxResolutionTrackBar.TickFrequency = 10;
-
-			this.waveDisplayUserControl1.Resolution = 1;
-			this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
+			ClearAudio();
 		}
 		
 		void MaxResolutionTrackBarScroll(object sender, EventArgs e)
@@ -122,24 +124,7 @@ namespace SynthAnalysisStudio
 		
 		void CropBtnClick(object sender, EventArgs e)
 		{
-			VstHost host = VstHost.Instance;
-
-			// crop the audio at silence
-			float[] data = AudioUtils.CropAudioAtSilence(host.RecordedLeft.ToArray(), 0, false, 0);
-
-			host.RecordedLeft.Clear();
-			host.RecordedLeft.AddRange(data);
-			
-			MaxResolutionTrackBar.Maximum = (int) this.waveDisplayUserControl1.MaxResolution;
-			MaxResolutionTrackBar.TickFrequency = MaxResolutionTrackBar.Maximum / 10;
-			MaxResolutionTrackBar.Value = (int) this.waveDisplayUserControl1.MaxResolution;
-			
-			StartPositionTrackBar.Maximum = (int) this.waveDisplayUserControl1.NumberOfSamples;
-			StartPositionTrackBar.TickFrequency = StartPositionTrackBar.Maximum / 10;
-			StartPositionTrackBar.Value = 0;
-			
-			this.waveDisplayUserControl1.Resolution = (int) this.waveDisplayUserControl1.MaxResolution;
-			this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
+			CropAudio();
 		}
 		
 		void MidiNoteCheckboxCheckedChanged(object sender, EventArgs e)
@@ -197,23 +182,25 @@ namespace SynthAnalysisStudio
 			AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
 		}
 		
-		void AdsrSampleBtnClick(object sender, EventArgs e)
+		void AdsrSaveBtnClick(object sender, EventArgs e)
 		{
-
-			float envelopeAttack = ((HostCommandStub) PluginContext.HostCommandStub).envelopeAttack;
-			float envelopeDecay = ((HostCommandStub) PluginContext.HostCommandStub).envelopeDecay;
-			float envelopeSustain = ((HostCommandStub) PluginContext.HostCommandStub).envelopeSustain;
-			float envelopeRelease = ((HostCommandStub) PluginContext.HostCommandStub).envelopeRelease;
+			AdsrSave();
 			
-			string envelopeAttackString = ((HostCommandStub) PluginContext.HostCommandStub).envelopeAttackString;
-			string envelopeDecayString = ((HostCommandStub) PluginContext.HostCommandStub).envelopeDecayString;
-			string envelopeSustainString = ((HostCommandStub) PluginContext.HostCommandStub).envelopeSustainString;
-			string envelopeReleaseString = ((HostCommandStub) PluginContext.HostCommandStub).envelopeReleaseString;
+			/*
+			float ampEnvelopeAttack = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeAttack;
+			float ampEnvelopeDecay = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeDecay;
+			float ampEnvelopeSustain = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeSustain;
+			float ampEnvelopeRelease = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeRelease;
+			
+			string ampEnvelopeAttackString = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeAttackString;
+			string ampEnvelopeDecayString = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeDecayString;
+			string ampEnvelopeSustainString = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeSustainString;
+			string ampEnvelopeReleaseString = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeReleaseString;
 
-			attackTextBox.Text = envelopeAttackString;
-			decayTextBox.Text = envelopeDecayString;
-			sustainTextBox.Text = envelopeSustainString;
-			releaseTextBox.Text = envelopeReleaseString;
+			ampAttackTextBox.Text = ampEnvelopeAttackString;
+			ampDecayTextBox.Text = ampEnvelopeDecayString;
+			ampSustainTextBox.Text = ampEnvelopeSustainString;
+			ampReleaseTextBox.Text = ampEnvelopeReleaseString;
 			
 			double durationInMilliseconds = this.waveDisplayUserControl1.DurationInMilliseconds;
 			int numberOfSamples = this.waveDisplayUserControl1.NumberOfSamples;
@@ -229,14 +216,14 @@ namespace SynthAnalysisStudio
 				
 				xmlDoc.Element("ADSRSampler").Add(
 					new XElement("Row",
-					             new XElement("EnvelopeAttackString", envelopeAttackString),
-					             new XElement("EnvelopeAttack", envelopeAttack),
-					             new XElement("EnvelopeDecayString", envelopeDecayString),
-					             new XElement("EnvelopeDecay", envelopeDecay),
-					             new XElement("EnvelopeSustainString", envelopeSustainString),
-					             new XElement("EnvelopeSustain", envelopeSustain),
-					             new XElement("EnvelopeReleaseString", envelopeReleaseString),
-					             new XElement("EnvelopeRelease", envelopeRelease),
+					             new XElement("AmpEnvelopeAttackString", ampEnvelopeAttackString),
+					             new XElement("AmpEnvelopeAttack", ampEnvelopeAttack),
+					             new XElement("AmpEnvelopeDecayString", ampEnvelopeDecayString),
+					             new XElement("AmpEnvelopeDecay", ampEnvelopeDecay),
+					             new XElement("AmpEnvelopeSustainString", ampEnvelopeSustainString),
+					             new XElement("AmpEnvelopeSustain", ampEnvelopeSustain),
+					             new XElement("AmpEnvelopeReleaseString", ampEnvelopeReleaseString),
+					             new XElement("AmpEnvelopeRelease", ampEnvelopeRelease),
 					             new XElement("DurationSamples", numberOfSamples),
 					             new XElement("DurationMS", durationInMilliseconds)
 					            ));
@@ -248,20 +235,21 @@ namespace SynthAnalysisStudio
 					new XDocument(
 						new XElement("ADSRSampler",
 						             new XElement("Row",
-						                          new XElement("EnvelopeAttackString", envelopeAttackString),
-						                          new XElement("EnvelopeAttack", envelopeAttack),
-						                          new XElement("EnvelopeDecayString", envelopeDecayString),
-						                          new XElement("EnvelopeDecay", envelopeDecay),
-						                          new XElement("EnvelopeSustainString", envelopeSustainString),
-						                          new XElement("EnvelopeSustain", envelopeSustain),
-						                          new XElement("EnvelopeReleaseString", envelopeReleaseString),
-						                          new XElement("EnvelopeRelease", envelopeRelease),
+						                          new XElement("AmpEnvelopeAttackString", ampEnvelopeAttackString),
+						                          new XElement("AmpEnvelopeAttack", ampEnvelopeAttack),
+						                          new XElement("AmpEnvelopeDecayString", ampEnvelopeDecayString),
+						                          new XElement("AmpEnvelopeDecay", ampEnvelopeDecay),
+						                          new XElement("AmpEnvelopeSustainString", ampEnvelopeSustainString),
+						                          new XElement("AmpEnvelopeSustain", ampEnvelopeSustain),
+						                          new XElement("AmpEnvelopeReleaseString", ampEnvelopeReleaseString),
+						                          new XElement("AmpEnvelopeRelease", ampEnvelopeRelease),
 						                          new XElement("DurationSamples", numberOfSamples),
 						                          new XElement("DurationMS", durationInMilliseconds)
 						                         )
 						            ));
 				xmlDoc.Save(xmlFilePath);
 			}
+			 */
 		}
 		
 		void PlayMidiC5100msBtnClick(object sender, EventArgs e)
@@ -299,6 +287,94 @@ namespace SynthAnalysisStudio
 			Console.WriteLine("Midi Note Sent. Time used {0} ms", stopwatch.ElapsedMilliseconds);
 		}
 		
+		private void AdsrSave() {
+			
+			string ampEnvelopeAttack = ampAttackTextBox.Text;
+			string ampEnvelopeDecay = ampDecayTextBox.Text;
+			string ampEnvelopeSustain = ampSustainTextBox.Text;
+			string ampEnvelopeRelease = ampReleaseTextBox.Text;
+			string modEnvelopeAttack = modAttackTextBox.Text;
+			string modEnvelopeDecay = modDecayTextBox.Text;
+			string modEnvelopeSustain = modSustainTextBox.Text;
+			string modEnvelopeRelease = modReleaseTextBox.Text;
+			string durationInSamples = durationSamplesTextBox.Text;
+			string durationInMilliseconds = durationMsTextBox.Text;
+			
+			// store this in a xml ouput file.
+			string xmlFilePath = "ADSR-measurement.xml";
+			if (File.Exists(xmlFilePath)) {
+				// add to existing xml document
+				XDocument xmlDoc = XDocument.Load(xmlFilePath);
+				
+				xmlDoc.Element("ADSRMeasurement").Add(
+					new XElement("Row",
+					             new XElement("AmpEnvelopeAttack", ampEnvelopeAttack),
+					             new XElement("AmpEnvelopeDecay", ampEnvelopeDecay),
+					             new XElement("AmpEnvelopeSustain", ampEnvelopeSustain),
+					             new XElement("AmpEnvelopeRelease", ampEnvelopeRelease),
+					             new XElement("ModEnvelopeAttack", modEnvelopeAttack),
+					             new XElement("ModEnvelopeDecay", modEnvelopeDecay),
+					             new XElement("ModEnvelopeSustain", modEnvelopeSustain),
+					             new XElement("ModEnvelopeRelease", modEnvelopeRelease),
+					             new XElement("DurationSamples", durationInSamples),
+					             new XElement("DurationMS", durationInMilliseconds)
+					            ));
+
+				xmlDoc.Save(xmlFilePath);
+			} else {
+				// create xml document first
+				XDocument xmlDoc =
+					new XDocument(
+						new XElement("ADSRMeasurement",
+						             new XElement("Row",
+						                          new XElement("AmpEnvelopeAttack", ampEnvelopeAttack),
+						                          new XElement("AmpEnvelopeDecay", ampEnvelopeDecay),
+						                          new XElement("AmpEnvelopeSustain", ampEnvelopeSustain),
+						                          new XElement("AmpEnvelopeRelease", ampEnvelopeRelease),
+						                          new XElement("ModEnvelopeAttack", modEnvelopeAttack),
+						                          new XElement("ModEnvelopeDecay", modEnvelopeDecay),
+						                          new XElement("ModEnvelopeSustain", modEnvelopeSustain),
+						                          new XElement("ModEnvelopeRelease", modEnvelopeRelease),
+						                          new XElement("DurationSamples", durationInSamples),
+						                          new XElement("DurationMS", durationInMilliseconds)
+						                         )
+						            ));
+				xmlDoc.Save(xmlFilePath);
+			}
+		}
+		
+		private void ClearAudio() {
+			VstHost host = VstHost.Instance;
+			host.ClearRecording();
+			
+			MaxResolutionTrackBar.Maximum = 100;
+			MaxResolutionTrackBar.TickFrequency = 10;
+
+			this.waveDisplayUserControl1.Resolution = 1;
+			this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
+		}
+		
+		private void CropAudio() {
+			VstHost host = VstHost.Instance;
+
+			// crop the audio at silence
+			float[] data = AudioUtils.CropAudioAtSilence(host.RecordedLeft.ToArray(), 0, false, 0);
+
+			host.RecordedLeft.Clear();
+			host.RecordedLeft.AddRange(data);
+			
+			MaxResolutionTrackBar.Maximum = (int) this.waveDisplayUserControl1.MaxResolution;
+			MaxResolutionTrackBar.TickFrequency = MaxResolutionTrackBar.Maximum / 10;
+			MaxResolutionTrackBar.Value = (int) this.waveDisplayUserControl1.MaxResolution;
+			
+			StartPositionTrackBar.Maximum = (int) this.waveDisplayUserControl1.NumberOfSamples;
+			StartPositionTrackBar.TickFrequency = StartPositionTrackBar.Maximum / 10;
+			StartPositionTrackBar.Value = 0;
+			
+			this.waveDisplayUserControl1.Resolution = (int) this.waveDisplayUserControl1.MaxResolution;
+			this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
+		}
+		
 		private void SetupAudio(VstHost host) {
 			// if first keypress setup audio
 			if (Playback == null) {
@@ -313,303 +389,143 @@ namespace SynthAnalysisStudio
 			}
 		}
 		
-		void MeasureABtnClick(object sender, EventArgs e)
-		{
-			VstHost host = VstHost.Instance;
-			host.PluginContext = this.PluginContext;
-			host.doPluginOpen();
-			SetupAudio(host);
-			
-			// init
-			((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_ATTACK, 0); // attack
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_DECAY, 0); // decay
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_SUSTAIN, 0); // sustain
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_RELEASE, 0); // release
-			
-			// step through the Attack steps
-			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
-				// time how long this takes
-				Stopwatch stopwatch = Stopwatch.StartNew();
 
-				// init the buffers
-				host.ClearRecording();
-				host.ClearLastProcessedBuffers();
-
-				// start record
-				host.Record = true;
-				
-				// set the parameter
-				PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_ATTACK, paramValue);
-				((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(SYLENTH_PARAM_ATTACK, paramValue);
-				
-				// wait until it has started playing
-				while(!host.LastProcessedBufferLeftPlaying) {
-					// start playing audio
-					Playback.Play();
-
-					// play midi
-					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
-
-					if (stopwatch.ElapsedMilliseconds > 5000) {
-						stopwatch.Stop();
-						System.Console.Out.WriteLine("MeasureABtnClick: Playing Midi Failed!");
-						return;
-					}
-					System.Threading.Thread.Sleep(100);
-				}
-				
-				// wait until it has stopped playing
-				stopwatch.Restart();
-				while (host.LastProcessedBufferLeftPlaying) {
-					if (stopwatch.ElapsedMilliseconds > 40000) {
-						stopwatch.Stop();
-						System.Console.Out.WriteLine("MeasureABtnClick: Playing never stopped?!");
-						break;
-					}
-				}
-				// stop playing audio
-				Playback.Stop();
-
-				stopwatch.Stop();
-				System.Console.Out.WriteLine("MeasureABtnClick: Playing stopped: {0} ms.", stopwatch.ElapsedMilliseconds);
-				
-				// stop recording
-				host.Record = false;
-
-				// wait a specfied time
-				System.Threading.Thread.Sleep(100);
-
-				// crop
-				CropBtnClick(sender, e);
-				
-				// store this in a wav ouput file.
-				float param = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_ATTACK);
-				string wavFilePath = String.Format("audio-attack-{0:0.00}s-{1}.wav", param, StringUtils.GetCurrentTimestamp());
-				AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
-				
-				// store as a png
-				System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
-				string fileName = String.Format("audio-attack-{0:0.00}s-{1}.png", param, StringUtils.GetCurrentTimestamp());
-				png.Save(fileName);
-				
-				// store
-				AdsrSampleBtnClick(sender, e);
-				
-				// turn of midi
-				host.SendMidiNote(host.SendContinousMidiNote, 0);
-
-				// clear
-				ClearBtnClick(sender, e);
-
-				// wait a specfied time
-				System.Threading.Thread.Sleep(100);
-
-				stopwatch.Stop();
-			}
-		}
+		// -----------------------------------
+		// Automatic measurement methods
+		// Currently support auto-measurment of the following
+		// Amplitude Envelopes: A D and R
+		// Modulation Envelopes: A D and R
+		// LFO
+		// -----------------------------------
 		
-		void MeasureDBtnClick(object sender, EventArgs e)
-		{
-			VstHost host = VstHost.Instance;
-			host.PluginContext = this.PluginContext;
-			host.doPluginOpen();
-			SetupAudio(host);
-
-			// init
-			((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_ATTACK, 0); // attack
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_DECAY, 0); // decay
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_SUSTAIN, 0); // sustain
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_RELEASE, 0); // release
-			
-			// step through the Decay steps
-			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
-				// time how long this takes
-				Stopwatch stopwatch = Stopwatch.StartNew();
-
-				// init the buffers
-				host.ClearRecording();
-				host.ClearLastProcessedBuffers();
-				
-				// start record
-				host.Record = true;
-				
-				// set the parameter
-				PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_DECAY, paramValue);
-				((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(SYLENTH_PARAM_DECAY, paramValue);
-				
-				// wait until it has started playing
-				while(!host.LastProcessedBufferLeftPlaying) {
-					// start playing audio
-					Playback.Play();
-
-					// play midi
-					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
-					
-					if (stopwatch.ElapsedMilliseconds > 5000) {
-						stopwatch.Stop();
-						System.Console.Out.WriteLine("MeasureDBtnClick: Playing Midi Failed!");
-						return;
-					}
-					System.Threading.Thread.Sleep(100);
-				}
-				
-				// wait until it has stopped playing
-				stopwatch.Restart();
-				while (host.LastProcessedBufferLeftPlaying) {
-					if (stopwatch.ElapsedMilliseconds > 40000) {
-						stopwatch.Stop();
-						System.Console.Out.WriteLine("MeasureDBtnClick: Playing never stopped?!");
-						break;
-					}
-				}
-				// stop playing audio
-				Playback.Stop();
-
-				stopwatch.Stop();
-				System.Console.Out.WriteLine("MeasureDBtnClick: Playing stopped: {0} ms.", stopwatch.ElapsedMilliseconds);
-				
-				// stop recording
-				host.Record = false;
-
-				// wait a specfied time
-				System.Threading.Thread.Sleep(100);
-
-				// crop
-				CropBtnClick(sender, e);
-				
-				// store this in a wav ouput file.
-				float param = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_DECAY);
-				string wavFilePath = String.Format("audio-decay-{0:0.00}s-{1}.wav", param, StringUtils.GetCurrentTimestamp());
-				AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
-				
-				// store as a png
-				System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
-				string fileName = String.Format("audio-decay-{0:0.00}s-{1}.png", param, StringUtils.GetCurrentTimestamp());
-				png.Save(fileName);
-				
-				// store
-				AdsrSampleBtnClick(sender, e);
-				
-				// turn of midi
-				host.SendMidiNote(host.SendContinousMidiNote, 0);
-
-				// clear
-				ClearBtnClick(sender, e);
-
-				// wait a specfied time
-				System.Threading.Thread.Sleep(100);
-
-				stopwatch.Stop();
-			}
-		}
-
-		void MeasureRBtnClick(object sender, EventArgs e)
-		{
-			VstHost host = VstHost.Instance;
-			host.PluginContext = this.PluginContext;
-			host.doPluginOpen();
-			SetupAudio(host);
-			
-			// init
-			((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_ATTACK, 0); // attack
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_DECAY, 0); // decay
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_SUSTAIN, 10); // sustain
-			
-			// step through the Release steps
-			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
-				// time how long this takes
-				Stopwatch stopwatch = Stopwatch.StartNew();
-
-				// init the buffers
-				host.ClearRecording();
-				host.ClearLastProcessedBuffers();
-
-				// start record
-				host.Record = true;
-
-				// set the parameter
-				PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_RELEASE, paramValue);
-				((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(SYLENTH_PARAM_RELEASE, paramValue);
-				
-				// wait until it has started playing
-				while(!host.LastProcessedBufferLeftPlaying) {
-					// start playing audio
-					Playback.Play();
-
-					// play midi
-					host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
-					
-					if (stopwatch.ElapsedMilliseconds > 5000) {
-						stopwatch.Stop();
-						System.Console.Out.WriteLine("MeasureRBtnClick: Playing Midi Failed!");
-						return;
-					}
-					System.Threading.Thread.Sleep(100);
-				}
-				// stop midi
-				host.SendMidiNote(host.SendContinousMidiNote, 0);
-				
-				// wait until it has stopped playing
-				stopwatch.Restart();
-				while (host.LastProcessedBufferLeftPlaying) {
-					if (stopwatch.ElapsedMilliseconds > 40000) {
-						stopwatch.Stop();
-						System.Console.Out.WriteLine("MeasureRBtnClick: Playing never stopped?!");
-						break;
-					}
-				}
-				// stop playing audio
-				Playback.Stop();
-
-				stopwatch.Stop();
-				System.Console.Out.WriteLine("MeasureRBtnClick: Playing stopped: {0} ms.", stopwatch.ElapsedMilliseconds);
-				
-				// stop recording
-				host.Record = false;
-
-				// crop
-				CropBtnClick(sender, e);
-				
-				// store this in a wav ouput file.
-				float param = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_RELEASE);
-				string wavFilePath = String.Format("audio-release-{0:0.00}s-{1}.wav", param, StringUtils.GetCurrentTimestamp());
-				AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
-				
-				// store as a png
-				System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
-				string fileName = String.Format("audio-release-{0:0.00}s-{1}.png", param, StringUtils.GetCurrentTimestamp());
-				png.Save(fileName);
-				
-				// store
-				AdsrSampleBtnClick(sender, e);
-				
-				// clear
-				ClearBtnClick(sender, e);
-
-				// wait a specfied time
-				System.Threading.Thread.Sleep(100);
-
-				stopwatch.Stop();
-			}
-		}
+		// How to measure Amplitude Envelopes:
 		
-		void MeasureLFOBtnClick(object sender, EventArgs e)
-		{
+		// Sylenth (Amplitude Env Attack, Decay and Release)
+		// Init:
+		// AMP ENV A: A = 0, D = 0, S = 0, R = 0
+		// Then step through the A, D and R steps and measure
+		// Attack: for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f)
+		// Decay: for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f)
+		// Release: for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f)
+
+		
+		// How to measure Modulation Envelopes:
+		
+		// Sylenth (Mod Env Attack and Decay):
+		// Init:
+		// AMP ENV A: A = 0, D = 0, R = 0, S = max (10)
+		// Mix A and Mix B = 0
+		// Master (Main Volume) = half (5)
+		// Mod Env A destination: "Mix AB"
+		// Mod Env A destination amount (ModEnv1Dest1Am): max (10)
+		// Mod Env A: A = 0, D = 0; R = 0, S = 0
+		// Then step through the A and D steps and measure
+		
+		
+		// How to measure LFO:
+		
+		// Sylenth:
+		// Init:
+		// AMP ENV A: A = 0, D = 0, S = 0, R = 0
+		// LFO Gain = Max (1)
+		// LFO Rate = Min (0)
+		// LFO Wave = LFO_Pulse
+		// OSC VOL = Half (0.5)
+		// OSC Wave = OSC_Pulse
+		// SYLENTH_PARAM_XMODLFO1DEST1AMOUNT = Max (1)
+		// SYLENTH_PARAM_YMODLFO1DEST1 = YMODDEST.VolumeAB
+		// Then through the LFO steps and measure
+		// for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f)
+
+		void MeasureAmpEnvelopeInit() {
+			
 			VstHost host = VstHost.Instance;
 			host.PluginContext = this.PluginContext;
 			host.doPluginOpen();
 			SetupAudio(host);
 			
-			List<string> lfoAlreadyProcessed = new List<string>();
+			// init
+			((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
+			
+			// Sylenth (Amplitude Env Attack, Decay and Release)
+			// Init:
+			// AMP ENV A: A = 0, D = 0, S = 0, R = 0
+			// Then step through the A, D and R steps and measure
+			// Attack: for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f)
+			// Decay: for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f)
+			// Release: for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f)
+			
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_MAIN_VOLUME, 0.5f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_MIX_A, 0.5f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_MIX_B, 0.5f);
+			
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_AMP_ENV1_ATTACK, 0.0f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_AMP_ENV1_DECAY, 0.0f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_AMP_ENV1_SUSTAIN, 0.0f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_AMP_ENV1_RELEASE, 0.0f);
+
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_YMOD_ENV1_DEST1,
+			                                             PresetConverter.Sylenth1Preset.EnumUintToFloat(
+			                                             	(uint) PresetConverter.Sylenth1Preset.YMODDEST.None));
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_XMOD_ENV1_DEST1AMOUNT, 0.0f);
+			
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_YMOD_LFO1_DEST1,
+			                                             PresetConverter.Sylenth1Preset.EnumUintToFloat(
+			                                             	(uint) PresetConverter.Sylenth1Preset.YMODDEST.None));
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_XMOD_LFO1_DEST1AMOUNT, 0.0f);
+		}
+
+		void MeasureModEnvelopeInit() {
+			
+			VstHost host = VstHost.Instance;
+			host.PluginContext = this.PluginContext;
+			host.doPluginOpen();
+			SetupAudio(host);
 			
 			// init
-			//((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_ATTACK, 0); // attack
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_DECAY, 0); // decay
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_SUSTAIN, 1.0f); // sustain
+			((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
+			
+			// Sylenth (Mod Env Attack and Decay):
+			// Init:
+			// AMP ENV A: A = 0, D = 0, R = 0, S = max (10)
+			// Mix A and Mix B = 0
+			// Master (Main Volume) = half (5)
+			// Mod Env A destination: "Mix AB"
+			// Mod Env A destination amount (ModEnv1Dest1Am): max (10)
+			// Mod Env A: A = 0, D = 0; R = 0, S = 0
+			// Then step through the A and D steps and measure
+
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_MAIN_VOLUME, 0.5f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_MIX_A, 0.0f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_MIX_B, 0.0f);
+			
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_AMP_ENV1_ATTACK, 0.0f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_AMP_ENV1_DECAY, 0.0f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_AMP_ENV1_SUSTAIN, 1.0f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_AMP_ENV1_RELEASE, 0.0f);
+			
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_MOD_ENV1_ATTACK, 0.0f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_MOD_ENV1_DECAY, 0.0f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_MOD_ENV1_SUSTAIN, 0.0f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_MOD_ENV1_RELEASE, 0.0f);
+			
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_YMOD_ENV1_DEST1,
+			                                             PresetConverter.Sylenth1Preset.EnumUintToFloat(
+			                                             	(uint) PresetConverter.Sylenth1Preset.YMODDEST.Mix_AB));
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_XMOD_ENV1_DEST1AMOUNT, 1.0f);
+		}
+
+		void MeasureLFOInit() {
+			VstHost host = VstHost.Instance;
+			host.PluginContext = this.PluginContext;
+			host.doPluginOpen();
+			SetupAudio(host);
+			
+			// init
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_AMP_ENV1_ATTACK, 0.0f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_AMP_ENV1_DECAY, 0.0f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_AMP_ENV1_SUSTAIN, 1.0f);
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_AMP_ENV1_RELEASE, 0.0f);
 			
 			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_LFO1_GAIN, 1.0f);
 			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_LFO1_RATE, 0.0f);
@@ -622,11 +538,206 @@ namespace SynthAnalysisStudio
 			                                             PresetConverter.Sylenth1Preset.EnumUintToFloat(
 			                                             	(uint) PresetConverter.Sylenth1Preset.OSCWAVE.OSC_Pulse));
 			
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_XMODLFO1DEST1AMOUNT, 1);
-			
-			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_YMODLFO1DEST1,
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_YMOD_LFO1_DEST1,
 			                                             PresetConverter.Sylenth1Preset.EnumUintToFloat(
 			                                             	(uint) PresetConverter.Sylenth1Preset.YMODDEST.VolumeAB));
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_XMOD_LFO1_DEST1AMOUNT, 1.0f);
+			
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_YMOD_ENV1_DEST1,
+			                                             PresetConverter.Sylenth1Preset.EnumUintToFloat(
+			                                             	(uint) PresetConverter.Sylenth1Preset.YMODDEST.None));
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_XMOD_ENV1_DEST1AMOUNT, 0.0f);
+		}
+		
+		void MeasureADSRParameter(int paramName, float paramValue, string envName) {
+			
+			System.Console.Out.WriteLine("MeasureADSREntry: Measuring {0} at value {1:0.00}...", envName, paramValue);
+			
+			VstHost host = VstHost.Instance;
+			
+			// time how long this takes
+			Stopwatch stopwatch = Stopwatch.StartNew();
+
+			// init the buffers
+			host.ClearRecording();
+			host.ClearLastProcessedBuffers();
+
+			// start record
+			host.Record = true;
+			
+			// set the parameter
+			PluginContext.PluginCommandStub.SetParameter(paramName, paramValue);
+			((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(paramName, paramValue);
+			
+			// wait until it has started playing
+			while(!host.LastProcessedBufferLeftPlaying) {
+				// start playing audio
+				Playback.Play();
+
+				// play midi
+				host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
+
+				if (stopwatch.ElapsedMilliseconds > 5000) {
+					stopwatch.Stop();
+					System.Console.Out.WriteLine("MeasureADSREntry: Playing Midi Failed!");
+					return;
+				}
+				System.Threading.Thread.Sleep(100);
+			}
+			
+			// wait until it has stopped playing
+			stopwatch.Restart();
+			while (host.LastProcessedBufferLeftPlaying) {
+				if (stopwatch.ElapsedMilliseconds > 40000) {
+					stopwatch.Stop();
+					System.Console.Out.WriteLine("MeasureADSREntry: Playing never stopped?!");
+					break;
+				}
+			}
+			
+			// stop playing audio
+			Playback.Stop();
+
+			stopwatch.Stop();
+			System.Console.Out.WriteLine("MeasureADSREntry: Playing stopped: {0} ms.", stopwatch.ElapsedMilliseconds);
+			
+			// stop recording
+			host.Record = false;
+
+			// wait a specfied time
+			System.Threading.Thread.Sleep(100);
+
+			// crop
+			CropAudio();
+			
+			// get duration
+			double durationInMilliseconds = this.waveDisplayUserControl1.DurationInMilliseconds;
+			int durationInSamples = this.waveDisplayUserControl1.NumberOfSamples;
+			
+			// and store in GUI
+			durationSamplesTextBox.Text = "" + durationInSamples;
+			durationMsTextBox.Text = String.Format("{0:0.00}", durationInMilliseconds);
+			
+			// store this in a wav ouput file.
+			float param = PluginContext.PluginCommandStub.GetParameter(paramName);
+			string wavFilePath = String.Format("{0}{1:0.00}s-{2}.wav", envName, param, StringUtils.GetCurrentTimestamp());
+			AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
+			
+			// store as a png
+			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
+			string fileName = String.Format("{0}{1:0.00}s-{2}.png", envName, param, StringUtils.GetCurrentTimestamp());
+			png.Save(fileName);
+			
+			// turn of midi
+			host.SendMidiNote(host.SendContinousMidiNote, 0);
+
+			// clear
+			ClearAudio();
+
+			// wait a specfied time
+			System.Threading.Thread.Sleep(100);
+
+			stopwatch.Stop();
+		}
+		
+		
+		void MeasureAmpABtnClick(object sender, EventArgs e)
+		{
+			MeasureAmpEnvelopeInit();
+			
+			// step through the Attack steps
+			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
+				MeasureADSRParameter(SYLENTH_PARAM_AMP_ENV1_ATTACK, paramValue, "amp-env-attack");
+				
+				ampAttackTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_ATTACK);
+				ampDecayTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_DECAY);
+				ampSustainTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_SUSTAIN);
+				ampReleaseTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_RELEASE);
+				
+				// store in xml file
+				AdsrSave();
+			}
+		}
+		
+		void MeasureAmpDBtnClick(object sender, EventArgs e)
+		{
+			MeasureAmpEnvelopeInit();
+			
+			// step through the Decay steps
+			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
+				MeasureADSRParameter(SYLENTH_PARAM_AMP_ENV1_DECAY, paramValue, "amp-env-decay");
+
+				ampAttackTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_ATTACK);
+				ampDecayTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_DECAY);
+				ampSustainTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_SUSTAIN);
+				ampReleaseTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_RELEASE);
+
+				// store in xml file
+				AdsrSave();
+			}
+		}
+
+		void MeasureAmpRBtnClick(object sender, EventArgs e)
+		{
+			MeasureAmpEnvelopeInit();
+			
+			// step through the Release steps
+			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
+				MeasureADSRParameter(SYLENTH_PARAM_AMP_ENV1_RELEASE, paramValue, "amp-env-release");
+
+				ampAttackTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_ATTACK);
+				ampDecayTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_DECAY);
+				ampSustainTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_SUSTAIN);
+				ampReleaseTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_RELEASE);
+
+				// store in xml file
+				AdsrSave();
+			}
+		}
+		
+		void MeasureModABtnClick(object sender, EventArgs e)
+		{
+			MeasureModEnvelopeInit();
+
+			// step through the Attack steps
+			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
+				MeasureADSRParameter(SYLENTH_PARAM_MOD_ENV1_ATTACK, paramValue, "mod-env-attack");
+
+				modAttackTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_ATTACK);
+				modDecayTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_DECAY);
+				modSustainTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_SUSTAIN);
+				modReleaseTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_RELEASE);
+
+				// store in xml file
+				AdsrSave();
+			}
+		}
+		
+		void MeasureModDBtnClick(object sender, EventArgs e)
+		{
+			MeasureModEnvelopeInit();
+			
+			// step through the Decay steps
+			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
+				MeasureADSRParameter(SYLENTH_PARAM_MOD_ENV1_DECAY, paramValue, "mod-env-decay");
+
+				modAttackTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_ATTACK);
+				modDecayTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_DECAY);
+				modSustainTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_SUSTAIN);
+				modReleaseTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_RELEASE);
+
+				// store in xml file
+				AdsrSave();
+			}
+		}
+		
+		void MeasureLFOBtnClick(object sender, EventArgs e)
+		{
+			MeasureLFOInit();
+			VstHost host = VstHost.Instance;
+			
+			List<string> lfoAlreadyProcessed = new List<string>();
+
 			// step through the LFO steps
 			int count = 0;
 			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
@@ -643,7 +754,6 @@ namespace SynthAnalysisStudio
 
 				// set the parameter
 				PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_LFO1_RATE, paramValue);
-				//((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(SYLENTH_PARAM_LFO1_RATE, paramValue);
 				
 				// get param display value
 				string paramDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(SYLENTH_PARAM_LFO1_RATE);
@@ -674,7 +784,6 @@ namespace SynthAnalysisStudio
 				// play for approx 1000 ms
 				// paramValue: 1 = 1/256 Triple 	(count = 0)
 				// paramValue: 0 = 8/1 D			(count = 10)
-				//System.Threading.Thread.Sleep(3*count);
 				System.Threading.Thread.Sleep((int) (20*Math.Pow(count, 2)));
 				
 				// stop midi
@@ -697,7 +806,7 @@ namespace SynthAnalysisStudio
 				host.Record = false;
 
 				// crop
-				CropBtnClick(sender, e);
+				CropAudio();
 				
 				// store this in a wav ouput file.
 				string wavFilePath = String.Format("audio-LFO-{0}-{1}.wav", StringUtils.MakeValidFileName(paramDisplay), StringUtils.GetCurrentTimestamp());
@@ -712,7 +821,7 @@ namespace SynthAnalysisStudio
 				//AdsrSampleBtnClick(sender, e);
 				
 				// clear
-				ClearBtnClick(sender, e);
+				ClearAudio();
 
 				// wait a specfied time
 				System.Threading.Thread.Sleep(100);

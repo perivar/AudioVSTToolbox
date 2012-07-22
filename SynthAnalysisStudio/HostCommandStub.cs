@@ -41,6 +41,7 @@ namespace SynthAnalysisStudio
 		private byte[] trackPluginPresetFileBytes;
 		
 		// TODO: remove these sylenth frequency trackers
+		/*
 		public bool doSylenthFrequencyTracking = true;
 		public float filterACutoff;
 		public float filterBCutoff;
@@ -51,14 +52,15 @@ namespace SynthAnalysisStudio
 		
 		// TODO: remove these sylenth ADSR trackers
 		public bool doSylenthADSRTracking = true;
-		public float envelopeAttack;
-		public float envelopeDecay;
-		public float envelopeSustain;
-		public float envelopeRelease;
-		public string envelopeAttackString = "";
-		public string envelopeDecayString = "";
-		public string envelopeSustainString = "";
-		public string envelopeReleaseString = "";
+		public float ampEnvelopeAttack;
+		public float ampEnvelopeDecay;
+		public float ampEnvelopeSustain;
+		public float ampEnvelopeRelease;
+		public string ampEnvelopeAttackString = "";
+		public string ampEnvelopeDecayString = "";
+		public string ampEnvelopeSustainString = "";
+		public string ampEnvelopeReleaseString = "";
+		 */
 		
 		private DiffType investigatePluginPresetFileFormatDiffType = DiffType.Binary;
 
@@ -375,6 +377,7 @@ namespace SynthAnalysisStudio
 							BinaryFile.ByteArrayToFile("Preset Chunk Data - chunkData.dat", chunkData);
 						}
 						
+						/*
 						// if we are tracking some sylenth properties
 						if (doSylenthFrequencyTracking || doSylenthADSRTracking) {
 							PresetConverter.Sylenth1Preset sylenth = new PresetConverter.Sylenth1Preset();
@@ -394,18 +397,19 @@ namespace SynthAnalysisStudio
 									this.filterCtrlCutoffString = String.Format("{0:0.00}", PresetConverter.Sylenth1Preset.ValueToHz(filterCtrlCutoff, PresetConverter.Sylenth1Preset.FloatToHz.FilterCutoff)); 	// (value range 1 -> 21341,28)
 								}
 								if (doSylenthADSRTracking) {
-									this.envelopeAttack = sylContent.AmpEnvAAttack;
-									this.envelopeDecay = sylContent.AmpEnvADecay;
-									this.envelopeSustain =  sylContent.AmpEnvASustain;
-									this.envelopeRelease = sylContent.AmpEnvARelease;
+									this.ampEnvelopeAttack = sylContent.AmpEnvAAttack;
+									this.ampEnvelopeDecay = sylContent.AmpEnvADecay;
+									this.ampEnvelopeSustain =  sylContent.AmpEnvASustain;
+									this.ampEnvelopeRelease = sylContent.AmpEnvARelease;
 									
-									this.envelopeAttackString = String.Format("{0:0.00}", MathUtils.ConvertAndMainainRatio(this.envelopeAttack, 0, 1, 0, 10));
-									this.envelopeDecayString = String.Format("{0:0.00}", MathUtils.ConvertAndMainainRatio(this.envelopeDecay, 0, 1, 0, 10));
-									this.envelopeSustainString = String.Format("{0:0.00}", MathUtils.ConvertAndMainainRatio(this.envelopeSustain, 0, 1, 0, 10));
-									this.envelopeReleaseString = String.Format("{0:0.00}", MathUtils.ConvertAndMainainRatio(this.envelopeRelease, 0, 1, 0, 10));
+									this.ampEnvelopeAttackString = String.Format("{0:0.00}", MathUtils.ConvertAndMainainRatio(this.ampEnvelopeAttack, 0, 1, 0, 10));
+									this.ampEnvelopeDecayString = String.Format("{0:0.00}", MathUtils.ConvertAndMainainRatio(this.ampEnvelopeDecay, 0, 1, 0, 10));
+									this.ampEnvelopeSustainString = String.Format("{0:0.00}", MathUtils.ConvertAndMainainRatio(this.ampEnvelopeSustain, 0, 1, 0, 10));
+									this.ampEnvelopeReleaseString = String.Format("{0:0.00}", MathUtils.ConvertAndMainainRatio(this.ampEnvelopeRelease, 0, 1, 0, 10));
 								}
 							}
 						}
+						 */
 						
 						if (InvestigatePluginPresetFileFormatDiffType == DiffType.Binary) {
 							SimpleBinaryDiff.Diff diff = SimpleBinaryDiff.GetDiff(previousChunkData, chunkData);
