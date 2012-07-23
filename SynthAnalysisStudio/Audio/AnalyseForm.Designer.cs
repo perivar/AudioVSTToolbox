@@ -55,7 +55,8 @@ namespace SynthAnalysisStudio
 			this.filterCtrlTextBox = new System.Windows.Forms.TextBox();
 			this.label7 = new System.Windows.Forms.Label();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
-			this.prepFreqAnalysisBtn = new System.Windows.Forms.Button();
+			this.sylenthAutoMeasureFreqBtn = new System.Windows.Forms.Button();
+			this.InitManualFreqMeasurementBtn = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -99,7 +100,7 @@ namespace SynthAnalysisStudio
 			this.WindowsSizeComboBox.Name = "WindowsSizeComboBox";
 			this.WindowsSizeComboBox.Size = new System.Drawing.Size(66, 21);
 			this.WindowsSizeComboBox.TabIndex = 2;
-			this.WindowsSizeComboBox.SelectedIndexChanged += new System.EventHandler(this.ComboBox1SelectedIndexChanged);
+			this.WindowsSizeComboBox.SelectedIndexChanged += new System.EventHandler(this.FFTWindowsSizeSelectedIndexChanged);
 			// 
 			// label1
 			// 
@@ -164,7 +165,7 @@ namespace SynthAnalysisStudio
 			// 
 			// freqSampleBtn
 			// 
-			this.freqSampleBtn.Location = new System.Drawing.Point(694, 333);
+			this.freqSampleBtn.Location = new System.Drawing.Point(694, 344);
 			this.freqSampleBtn.Name = "freqSampleBtn";
 			this.freqSampleBtn.Size = new System.Drawing.Size(67, 38);
 			this.freqSampleBtn.TabIndex = 10;
@@ -222,22 +223,33 @@ namespace SynthAnalysisStudio
 			this.timer1.Enabled = true;
 			this.timer1.Tick += new System.EventHandler(this.Timer1Tick);
 			// 
-			// prepFreqAnalysisBtn
+			// sylenthAutoMeasureFreqBtn
 			// 
-			this.prepFreqAnalysisBtn.Location = new System.Drawing.Point(272, 3);
-			this.prepFreqAnalysisBtn.Name = "prepFreqAnalysisBtn";
-			this.prepFreqAnalysisBtn.Size = new System.Drawing.Size(120, 23);
-			this.prepFreqAnalysisBtn.TabIndex = 17;
-			this.prepFreqAnalysisBtn.Text = "Prep. Freq. Analysis";
-			this.prepFreqAnalysisBtn.UseVisualStyleBackColor = true;
-			this.prepFreqAnalysisBtn.Click += new System.EventHandler(this.PrepFreqAnalysisBtnClick);
+			this.sylenthAutoMeasureFreqBtn.Location = new System.Drawing.Point(270, 3);
+			this.sylenthAutoMeasureFreqBtn.Name = "sylenthAutoMeasureFreqBtn";
+			this.sylenthAutoMeasureFreqBtn.Size = new System.Drawing.Size(172, 23);
+			this.sylenthAutoMeasureFreqBtn.TabIndex = 17;
+			this.sylenthAutoMeasureFreqBtn.Text = "Sylenth Auto Freq. Measurement";
+			this.sylenthAutoMeasureFreqBtn.UseVisualStyleBackColor = true;
+			this.sylenthAutoMeasureFreqBtn.Click += new System.EventHandler(this.SylenthAutoMeasureFreqBtnClick);
+			// 
+			// InitManualFreqMeasurementBtn
+			// 
+			this.InitManualFreqMeasurementBtn.Location = new System.Drawing.Point(13, 4);
+			this.InitManualFreqMeasurementBtn.Name = "InitManualFreqMeasurementBtn";
+			this.InitManualFreqMeasurementBtn.Size = new System.Drawing.Size(173, 23);
+			this.InitManualFreqMeasurementBtn.TabIndex = 18;
+			this.InitManualFreqMeasurementBtn.Text = "Init Manual  Freq. Measurement";
+			this.InitManualFreqMeasurementBtn.UseVisualStyleBackColor = true;
+			this.InitManualFreqMeasurementBtn.Click += new System.EventHandler(this.InitManualFreqMeasurementBtnClick);
 			// 
 			// AnalyseForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(778, 394);
-			this.Controls.Add(this.prepFreqAnalysisBtn);
+			this.Controls.Add(this.InitManualFreqMeasurementBtn);
+			this.Controls.Add(this.sylenthAutoMeasureFreqBtn);
 			this.Controls.Add(this.filterCtrlTextBox);
 			this.Controls.Add(this.label7);
 			this.Controls.Add(this.filterBTextBox);
@@ -261,7 +273,8 @@ namespace SynthAnalysisStudio
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
-		private System.Windows.Forms.Button prepFreqAnalysisBtn;
+		private System.Windows.Forms.Button InitManualFreqMeasurementBtn;
+		private System.Windows.Forms.Button sylenthAutoMeasureFreqBtn;
 		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.Label label7;
 		private System.Windows.Forms.TextBox filterCtrlTextBox;

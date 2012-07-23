@@ -47,7 +47,7 @@ namespace CommonUtils.GUI
 		
 		public float FoundMaxDecibel
 		{
-			get { return foundMaxDecibel; }
+			get { return (foundMaxDecibel < -120 ? -120 : foundMaxDecibel); }
 			set { foundMaxDecibel = value; }
 		}
 		
@@ -81,6 +81,12 @@ namespace CommonUtils.GUI
 			set { fftOverlap = value; }
 		}
 		
+		public Bitmap Bitmap
+		{
+			get { return bmp; }
+			set { bmp = value; }
+		}
+
 		/// <summary>
 		/// <see cref="Control.OnPaint"/>
 		/// </summary>

@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
 
+using System.Diagnostics; // for stopwatch
+
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 using Jacobi.Vst.Core.Host;
@@ -12,6 +14,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
+using CommonUtils;
 using CommonUtils.VST;
 
 using NAudio.Wave;
@@ -57,7 +60,7 @@ namespace SynthAnalysisStudio
 			this.frequencyAnalyserUserControl1.SetAudioData(host.LastProcessedBufferLeft);
 		}
 		
-		void ComboBox1SelectedIndexChanged(object sender, EventArgs e)
+		void FFTWindowsSizeSelectedIndexChanged(object sender, EventArgs e)
 		{
 			ComboBox comboBox = (ComboBox) sender;
 			string stringSize = (string) comboBox.SelectedItem;
@@ -90,21 +93,19 @@ namespace SynthAnalysisStudio
 			this.foundMaxDB = String.Format("{0}", this.frequencyAnalyserUserControl1.FoundMaxDecibel);
 
 			// get filter Info from plugin
-			this.filterACutoffDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERA_CUTOFF);
+			this.filterACutoffDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERA_CUTOFF).Trim();
 			this.filterACutoff = PluginContext.PluginCommandStub.GetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERA_CUTOFF);
-			this.filterAType = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERA_TYPE);
-			this.filterADB = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERA_DB);
-			this.filterBCutoffDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERB_CUTOFF);
+			this.filterAType = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERA_TYPE).Trim();
+			this.filterADB = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERA_DB).Trim();
+			this.filterBCutoffDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERB_CUTOFF).Trim();
 			this.filterBCutoff = PluginContext.PluginCommandStub.GetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERB_CUTOFF);
-			this.filterBType = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERB_TYPE);
-			this.filterBDB = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERB_DB);
-			this.filterCtrlCutoffDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERCTL_CUTOFF);
+			this.filterBType = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERB_TYPE).Trim();
+			this.filterBDB = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERB_DB).Trim();
+			this.filterCtrlCutoffDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERCTL_CUTOFF).Trim();
 			this.filterCtrlCutoff = PluginContext.PluginCommandStub.GetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERCTL_CUTOFF);
 		}
 		
-		void FreqSampleBtnClick(object sender, EventArgs e)
-		{
-			RetrieveFilterInfo();
+		private void FrequencySave() {
 			
 			foundFreqTextBox.Text = this.foundMaxFreq;
 			foundDBTextBox.Text = this.foundMaxDB;
@@ -157,12 +158,15 @@ namespace SynthAnalysisStudio
 			}
 		}
 		
-		void Timer1Tick(object sender, EventArgs e)
+		void InitManualFreqMeasurementBtnClick(object sender, EventArgs e)
 		{
-			if (DoGUIRefresh) {
-				VstHost host = VstHost.Instance;
-				this.frequencyAnalyserUserControl1.SetAudioData(host.LastProcessedBufferLeft);
-			}
+			MeasureFrequencyInit();
+		}
+
+		void FreqSampleBtnClick(object sender, EventArgs e)
+		{
+			RetrieveFilterInfo();
+			FrequencySave();
 		}
 		
 		void MeasureFrequencyInit() {
@@ -195,9 +199,80 @@ namespace SynthAnalysisStudio
 			
 		}
 
-		void PrepFreqAnalysisBtnClick(object sender, EventArgs e)
+		void SylenthAutoMeasureFreqBtnClick(object sender, EventArgs e)
 		{
+			VstHost host = VstHost.Instance;
+			
 			MeasureFrequencyInit();
+			
+			// time how long this takes
+			Stopwatch stopwatch = Stopwatch.StartNew();
+
+			// wait until the plugin has started playing some noise
+			while(!host.LastProcessedBufferLeftPlaying) {
+				// start playing audio
+				Playback.Play();
+
+				// play midi
+				host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
+
+				if (stopwatch.ElapsedMilliseconds > 5000) {
+					stopwatch.Stop();
+					System.Console.Out.WriteLine("AutoMeasureFreq: Playing Midi Failed!");
+					return;
+				}
+				System.Threading.Thread.Sleep(100);
+			}
+			
+			// step through the filter steps
+			for (float paramFilterAValue = 1.0f; paramFilterAValue >= 0.0f; paramFilterAValue -= 0.020f) {
+				for (float paramFilterCtlValue = 1.0f; paramFilterCtlValue >= 0.0f; paramFilterCtlValue -= 0.020f) {
+					stopwatch.Restart();
+
+					System.Console.Out.WriteLine("AutoMeasureFreq: Measuring {0} at value {1:0.00} and {2} at value {3:0.00} ...", "filterACutoff", paramFilterAValue, "filterCtlCutoff", paramFilterCtlValue);
+
+					// set the parameters
+					PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERA_CUTOFF, paramFilterAValue);
+					((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(WaveDisplayForm.SYLENTH_PARAM_FILTERA_CUTOFF, paramFilterAValue);
+					PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERCTL_CUTOFF, paramFilterCtlValue);
+					((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(WaveDisplayForm.SYLENTH_PARAM_FILTERCTL_CUTOFF, paramFilterCtlValue);
+					
+					// wait
+					System.Threading.Thread.Sleep(200);
+					
+					this.frequencyAnalyserUserControl1.SetAudioData(host.LastProcessedBufferLeft);
+					
+					// wait
+					System.Threading.Thread.Sleep(200);
+					
+					// create a snapshot of the current freqency
+					RetrieveFilterInfo();
+					
+					stopwatch.Stop();
+					System.Console.Out.WriteLine("AutoMeasureFreq: Used {0} ms. Found max frequency {1:00.00} at {2:00.00} dB.", stopwatch.ElapsedMilliseconds, this.foundMaxFreq, this.foundMaxDB);
+					
+					// store as a png
+					//string fileName = String.Format("frequency-measurement-{0}-{1}.png", StringUtils.MakeValidFileName(String.Format("{0:00.00} {1:00.00} {2:00.00}", this.foundMaxFreq, paramFilterAValue, paramFilterCtlValue)), StringUtils.GetCurrentTimestamp());
+					//this.frequencyAnalyserUserControl1.Bitmap.Save(fileName);
+					
+					// store in xml file
+					FrequencySave();
+				}
+			}
+
+			// stop midi
+			host.SendMidiNote(host.SendContinousMidiNote, 0);
+			
+			// stop playing audio
+			Playback.Stop();
+		}
+		
+		void Timer1Tick(object sender, EventArgs e)
+		{
+			if (DoGUIRefresh) {
+				VstHost host = VstHost.Instance;
+				this.frequencyAnalyserUserControl1.SetAudioData(host.LastProcessedBufferLeft);
+			}
 		}
 	}
 }
