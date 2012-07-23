@@ -55,6 +55,7 @@ namespace SynthAnalysisStudio
 			this.filterCtrlTextBox = new System.Windows.Forms.TextBox();
 			this.label7 = new System.Windows.Forms.Label();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
+			this.prepFreqAnalysisBtn = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -64,7 +65,7 @@ namespace SynthAnalysisStudio
 			this.frequencyAnalyserUserControl1.FFTWindowsSize = 2048;
 			this.frequencyAnalyserUserControl1.FoundMaxDecibel = 0F;
 			this.frequencyAnalyserUserControl1.FoundMaxFrequency = 0F;
-			this.frequencyAnalyserUserControl1.Location = new System.Drawing.Point(0, 1);
+			this.frequencyAnalyserUserControl1.Location = new System.Drawing.Point(0, 39);
 			this.frequencyAnalyserUserControl1.MaximumFrequency = 20000F;
 			this.frequencyAnalyserUserControl1.MinimumFrequency = 0F;
 			this.frequencyAnalyserUserControl1.Name = "frequencyAnalyserUserControl1";
@@ -76,7 +77,7 @@ namespace SynthAnalysisStudio
 			// 
 			this.OnOffCheckbox.Checked = true;
 			this.OnOffCheckbox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.OnOffCheckbox.Location = new System.Drawing.Point(671, 3);
+			this.OnOffCheckbox.Location = new System.Drawing.Point(696, 3);
 			this.OnOffCheckbox.Name = "OnOffCheckbox";
 			this.OnOffCheckbox.Size = new System.Drawing.Size(66, 24);
 			this.OnOffCheckbox.TabIndex = 1;
@@ -94,7 +95,7 @@ namespace SynthAnalysisStudio
 									"2048",
 									"4096",
 									"8192"});
-			this.WindowsSizeComboBox.Location = new System.Drawing.Point(671, 48);
+			this.WindowsSizeComboBox.Location = new System.Drawing.Point(696, 48);
 			this.WindowsSizeComboBox.Name = "WindowsSizeComboBox";
 			this.WindowsSizeComboBox.Size = new System.Drawing.Size(66, 21);
 			this.WindowsSizeComboBox.TabIndex = 2;
@@ -102,7 +103,7 @@ namespace SynthAnalysisStudio
 			// 
 			// label1
 			// 
-			this.label1.Location = new System.Drawing.Point(671, 29);
+			this.label1.Location = new System.Drawing.Point(696, 29);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(70, 16);
 			this.label1.TabIndex = 3;
@@ -111,7 +112,7 @@ namespace SynthAnalysisStudio
 			// trackBar1
 			// 
 			this.trackBar1.LargeChange = 1000;
-			this.trackBar1.Location = new System.Drawing.Point(671, 92);
+			this.trackBar1.Location = new System.Drawing.Point(696, 92);
 			this.trackBar1.Maximum = 20000;
 			this.trackBar1.Minimum = 500;
 			this.trackBar1.Name = "trackBar1";
@@ -125,7 +126,7 @@ namespace SynthAnalysisStudio
 			// 
 			// label2
 			// 
-			this.label2.Location = new System.Drawing.Point(677, 74);
+			this.label2.Location = new System.Drawing.Point(702, 74);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(60, 16);
 			this.label2.TabIndex = 5;
@@ -133,7 +134,7 @@ namespace SynthAnalysisStudio
 			// 
 			// label3
 			// 
-			this.label3.Location = new System.Drawing.Point(670, 126);
+			this.label3.Location = new System.Drawing.Point(693, 143);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(60, 16);
 			this.label3.TabIndex = 6;
@@ -141,7 +142,7 @@ namespace SynthAnalysisStudio
 			// 
 			// label4
 			// 
-			this.label4.Location = new System.Drawing.Point(671, 167);
+			this.label4.Location = new System.Drawing.Point(694, 184);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(54, 15);
 			this.label4.TabIndex = 7;
@@ -149,21 +150,21 @@ namespace SynthAnalysisStudio
 			// 
 			// foundFreqTextBox
 			// 
-			this.foundFreqTextBox.Location = new System.Drawing.Point(670, 142);
+			this.foundFreqTextBox.Location = new System.Drawing.Point(693, 159);
 			this.foundFreqTextBox.Name = "foundFreqTextBox";
 			this.foundFreqTextBox.Size = new System.Drawing.Size(67, 20);
 			this.foundFreqTextBox.TabIndex = 8;
 			// 
 			// foundDBTextBox
 			// 
-			this.foundDBTextBox.Location = new System.Drawing.Point(671, 181);
+			this.foundDBTextBox.Location = new System.Drawing.Point(694, 198);
 			this.foundDBTextBox.Name = "foundDBTextBox";
 			this.foundDBTextBox.Size = new System.Drawing.Size(67, 20);
 			this.foundDBTextBox.TabIndex = 9;
 			// 
 			// freqSampleBtn
 			// 
-			this.freqSampleBtn.Location = new System.Drawing.Point(671, 316);
+			this.freqSampleBtn.Location = new System.Drawing.Point(694, 333);
 			this.freqSampleBtn.Name = "freqSampleBtn";
 			this.freqSampleBtn.Size = new System.Drawing.Size(67, 38);
 			this.freqSampleBtn.TabIndex = 10;
@@ -173,14 +174,14 @@ namespace SynthAnalysisStudio
 			// 
 			// filterATextBox
 			// 
-			this.filterATextBox.Location = new System.Drawing.Point(671, 218);
+			this.filterATextBox.Location = new System.Drawing.Point(694, 235);
 			this.filterATextBox.Name = "filterATextBox";
 			this.filterATextBox.Size = new System.Drawing.Size(67, 20);
 			this.filterATextBox.TabIndex = 12;
 			// 
 			// label5
 			// 
-			this.label5.Location = new System.Drawing.Point(671, 204);
+			this.label5.Location = new System.Drawing.Point(694, 221);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(54, 15);
 			this.label5.TabIndex = 11;
@@ -188,14 +189,14 @@ namespace SynthAnalysisStudio
 			// 
 			// filterBTextBox
 			// 
-			this.filterBTextBox.Location = new System.Drawing.Point(671, 256);
+			this.filterBTextBox.Location = new System.Drawing.Point(694, 273);
 			this.filterBTextBox.Name = "filterBTextBox";
 			this.filterBTextBox.Size = new System.Drawing.Size(67, 20);
 			this.filterBTextBox.TabIndex = 14;
 			// 
 			// label6
 			// 
-			this.label6.Location = new System.Drawing.Point(671, 242);
+			this.label6.Location = new System.Drawing.Point(694, 259);
 			this.label6.Name = "label6";
 			this.label6.Size = new System.Drawing.Size(54, 15);
 			this.label6.TabIndex = 13;
@@ -203,14 +204,14 @@ namespace SynthAnalysisStudio
 			// 
 			// filterCtrlTextBox
 			// 
-			this.filterCtrlTextBox.Location = new System.Drawing.Point(671, 294);
+			this.filterCtrlTextBox.Location = new System.Drawing.Point(694, 311);
 			this.filterCtrlTextBox.Name = "filterCtrlTextBox";
 			this.filterCtrlTextBox.Size = new System.Drawing.Size(67, 20);
 			this.filterCtrlTextBox.TabIndex = 16;
 			// 
 			// label7
 			// 
-			this.label7.Location = new System.Drawing.Point(671, 280);
+			this.label7.Location = new System.Drawing.Point(694, 297);
 			this.label7.Name = "label7";
 			this.label7.Size = new System.Drawing.Size(54, 15);
 			this.label7.TabIndex = 15;
@@ -221,11 +222,22 @@ namespace SynthAnalysisStudio
 			this.timer1.Enabled = true;
 			this.timer1.Tick += new System.EventHandler(this.Timer1Tick);
 			// 
+			// prepFreqAnalysisBtn
+			// 
+			this.prepFreqAnalysisBtn.Location = new System.Drawing.Point(272, 3);
+			this.prepFreqAnalysisBtn.Name = "prepFreqAnalysisBtn";
+			this.prepFreqAnalysisBtn.Size = new System.Drawing.Size(120, 23);
+			this.prepFreqAnalysisBtn.TabIndex = 17;
+			this.prepFreqAnalysisBtn.Text = "Prep. Freq. Analysis";
+			this.prepFreqAnalysisBtn.UseVisualStyleBackColor = true;
+			this.prepFreqAnalysisBtn.Click += new System.EventHandler(this.PrepFreqAnalysisBtnClick);
+			// 
 			// AnalyseForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(743, 360);
+			this.ClientSize = new System.Drawing.Size(778, 394);
+			this.Controls.Add(this.prepFreqAnalysisBtn);
 			this.Controls.Add(this.filterCtrlTextBox);
 			this.Controls.Add(this.label7);
 			this.Controls.Add(this.filterBTextBox);
@@ -249,6 +261,7 @@ namespace SynthAnalysisStudio
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.Button prepFreqAnalysisBtn;
 		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.Label label7;
 		private System.Windows.Forms.TextBox filterCtrlTextBox;

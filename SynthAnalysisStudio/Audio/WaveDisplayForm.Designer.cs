@@ -49,15 +49,6 @@ namespace SynthAnalysisStudio
 			this.CropBtn = new System.Windows.Forms.Button();
 			this.MidiNoteCheckbox = new System.Windows.Forms.CheckBox();
 			this.SaveWAVBtn = new System.Windows.Forms.Button();
-			this.adsrSaveBtn = new System.Windows.Forms.Button();
-			this.durationSamplesTextBox = new System.Windows.Forms.TextBox();
-			this.label3 = new System.Windows.Forms.Label();
-			this.ampAttackTextBox = new System.Windows.Forms.TextBox();
-			this.label1 = new System.Windows.Forms.Label();
-			this.ampDecayTextBox = new System.Windows.Forms.TextBox();
-			this.ampSustainTextBox = new System.Windows.Forms.TextBox();
-			this.ampReleaseTextBox = new System.Windows.Forms.TextBox();
-			this.durationMsTextBox = new System.Windows.Forms.TextBox();
 			this.playMidiC5100msBtn = new System.Windows.Forms.Button();
 			this.measureAmpDBtn = new System.Windows.Forms.Button();
 			this.measureAmpABtn = new System.Windows.Forms.Button();
@@ -69,27 +60,16 @@ namespace SynthAnalysisStudio
 			this.measureModABtn = new System.Windows.Forms.Button();
 			this.label5 = new System.Windows.Forms.Label();
 			this.label4 = new System.Windows.Forms.Label();
-			this.groupBox2 = new System.Windows.Forms.GroupBox();
-			this.modAttackTextBox = new System.Windows.Forms.TextBox();
-			this.modDecayTextBox = new System.Windows.Forms.TextBox();
-			this.modReleaseTextBox = new System.Windows.Forms.TextBox();
-			this.modSustainTextBox = new System.Windows.Forms.TextBox();
-			this.label6 = new System.Windows.Forms.Label();
-			this.label7 = new System.Windows.Forms.Label();
-			this.label8 = new System.Windows.Forms.Label();
-			this.label9 = new System.Windows.Forms.Label();
-			this.label10 = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.MaxResolutionTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.AmplitudeTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.StartPositionTrackBar)).BeginInit();
 			this.groupBox1.SuspendLayout();
-			this.groupBox2.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// MaxResolutionTrackBar
 			// 
 			this.MaxResolutionTrackBar.LargeChange = 10;
-			this.MaxResolutionTrackBar.Location = new System.Drawing.Point(688, 45);
+			this.MaxResolutionTrackBar.Location = new System.Drawing.Point(688, 63);
 			this.MaxResolutionTrackBar.Margin = new System.Windows.Forms.Padding(0);
 			this.MaxResolutionTrackBar.Maximum = 1000;
 			this.MaxResolutionTrackBar.Minimum = 1;
@@ -114,7 +94,7 @@ namespace SynthAnalysisStudio
 			// 
 			// label2
 			// 
-			this.label2.Location = new System.Drawing.Point(688, 29);
+			this.label2.Location = new System.Drawing.Point(688, 45);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(60, 16);
 			this.label2.TabIndex = 7;
@@ -179,7 +159,7 @@ namespace SynthAnalysisStudio
 			// StartPositionTrackBar
 			// 
 			this.StartPositionTrackBar.LargeChange = 4410;
-			this.StartPositionTrackBar.Location = new System.Drawing.Point(688, 72);
+			this.StartPositionTrackBar.Location = new System.Drawing.Point(688, 113);
 			this.StartPositionTrackBar.Margin = new System.Windows.Forms.Padding(0);
 			this.StartPositionTrackBar.Maximum = 441000;
 			this.StartPositionTrackBar.Name = "StartPositionTrackBar";
@@ -219,74 +199,6 @@ namespace SynthAnalysisStudio
 			this.SaveWAVBtn.Text = "Save Wav";
 			this.SaveWAVBtn.UseVisualStyleBackColor = true;
 			this.SaveWAVBtn.Click += new System.EventHandler(this.SaveWAVBtnClick);
-			// 
-			// adsrSaveBtn
-			// 
-			this.adsrSaveBtn.Location = new System.Drawing.Point(17, 198);
-			this.adsrSaveBtn.Name = "adsrSaveBtn";
-			this.adsrSaveBtn.Size = new System.Drawing.Size(67, 49);
-			this.adsrSaveBtn.TabIndex = 20;
-			this.adsrSaveBtn.Text = "Save ADSR Values";
-			this.adsrSaveBtn.UseVisualStyleBackColor = true;
-			this.adsrSaveBtn.Click += new System.EventHandler(this.AdsrSaveBtnClick);
-			// 
-			// durationSamplesTextBox
-			// 
-			this.durationSamplesTextBox.Location = new System.Drawing.Point(18, 29);
-			this.durationSamplesTextBox.Name = "durationSamplesTextBox";
-			this.durationSamplesTextBox.Size = new System.Drawing.Size(67, 20);
-			this.durationSamplesTextBox.TabIndex = 19;
-			// 
-			// label3
-			// 
-			this.label3.Location = new System.Drawing.Point(17, 16);
-			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(60, 16);
-			this.label3.TabIndex = 18;
-			this.label3.Text = "Duration (ms)";
-			// 
-			// ampAttackTextBox
-			// 
-			this.ampAttackTextBox.Location = new System.Drawing.Point(21, 99);
-			this.ampAttackTextBox.Name = "ampAttackTextBox";
-			this.ampAttackTextBox.Size = new System.Drawing.Size(34, 20);
-			this.ampAttackTextBox.TabIndex = 22;
-			// 
-			// label1
-			// 
-			this.label1.Location = new System.Drawing.Point(15, 82);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(31, 16);
-			this.label1.TabIndex = 21;
-			this.label1.Text = "Amp";
-			// 
-			// ampDecayTextBox
-			// 
-			this.ampDecayTextBox.Location = new System.Drawing.Point(21, 123);
-			this.ampDecayTextBox.Name = "ampDecayTextBox";
-			this.ampDecayTextBox.Size = new System.Drawing.Size(34, 20);
-			this.ampDecayTextBox.TabIndex = 23;
-			// 
-			// ampSustainTextBox
-			// 
-			this.ampSustainTextBox.Location = new System.Drawing.Point(21, 147);
-			this.ampSustainTextBox.Name = "ampSustainTextBox";
-			this.ampSustainTextBox.Size = new System.Drawing.Size(34, 20);
-			this.ampSustainTextBox.TabIndex = 24;
-			// 
-			// ampReleaseTextBox
-			// 
-			this.ampReleaseTextBox.Location = new System.Drawing.Point(22, 171);
-			this.ampReleaseTextBox.Name = "ampReleaseTextBox";
-			this.ampReleaseTextBox.Size = new System.Drawing.Size(34, 20);
-			this.ampReleaseTextBox.TabIndex = 25;
-			// 
-			// durationMsTextBox
-			// 
-			this.durationMsTextBox.Location = new System.Drawing.Point(18, 55);
-			this.durationMsTextBox.Name = "durationMsTextBox";
-			this.durationMsTextBox.Size = new System.Drawing.Size(67, 20);
-			this.durationMsTextBox.TabIndex = 26;
 			// 
 			// playMidiC5100msBtn
 			// 
@@ -396,107 +308,11 @@ namespace SynthAnalysisStudio
 			this.label4.TabIndex = 32;
 			this.label4.Text = "AmpEnv:";
 			// 
-			// groupBox2
-			// 
-			this.groupBox2.Controls.Add(this.label10);
-			this.groupBox2.Controls.Add(this.label9);
-			this.groupBox2.Controls.Add(this.label8);
-			this.groupBox2.Controls.Add(this.label7);
-			this.groupBox2.Controls.Add(this.label6);
-			this.groupBox2.Controls.Add(this.modAttackTextBox);
-			this.groupBox2.Controls.Add(this.modDecayTextBox);
-			this.groupBox2.Controls.Add(this.modReleaseTextBox);
-			this.groupBox2.Controls.Add(this.modSustainTextBox);
-			this.groupBox2.Controls.Add(this.label1);
-			this.groupBox2.Controls.Add(this.adsrSaveBtn);
-			this.groupBox2.Controls.Add(this.ampAttackTextBox);
-			this.groupBox2.Controls.Add(this.durationMsTextBox);
-			this.groupBox2.Controls.Add(this.ampDecayTextBox);
-			this.groupBox2.Controls.Add(this.durationSamplesTextBox);
-			this.groupBox2.Controls.Add(this.ampReleaseTextBox);
-			this.groupBox2.Controls.Add(this.label3);
-			this.groupBox2.Controls.Add(this.ampSustainTextBox);
-			this.groupBox2.Location = new System.Drawing.Point(674, 112);
-			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(96, 253);
-			this.groupBox2.TabIndex = 34;
-			this.groupBox2.TabStop = false;
-			this.groupBox2.Text = "Measurment";
-			// 
-			// modAttackTextBox
-			// 
-			this.modAttackTextBox.Location = new System.Drawing.Point(59, 99);
-			this.modAttackTextBox.Name = "modAttackTextBox";
-			this.modAttackTextBox.Size = new System.Drawing.Size(34, 20);
-			this.modAttackTextBox.TabIndex = 27;
-			// 
-			// modDecayTextBox
-			// 
-			this.modDecayTextBox.Location = new System.Drawing.Point(59, 123);
-			this.modDecayTextBox.Name = "modDecayTextBox";
-			this.modDecayTextBox.Size = new System.Drawing.Size(34, 20);
-			this.modDecayTextBox.TabIndex = 28;
-			// 
-			// modReleaseTextBox
-			// 
-			this.modReleaseTextBox.Location = new System.Drawing.Point(60, 171);
-			this.modReleaseTextBox.Name = "modReleaseTextBox";
-			this.modReleaseTextBox.Size = new System.Drawing.Size(34, 20);
-			this.modReleaseTextBox.TabIndex = 30;
-			// 
-			// modSustainTextBox
-			// 
-			this.modSustainTextBox.Location = new System.Drawing.Point(59, 147);
-			this.modSustainTextBox.Name = "modSustainTextBox";
-			this.modSustainTextBox.Size = new System.Drawing.Size(34, 20);
-			this.modSustainTextBox.TabIndex = 29;
-			// 
-			// label6
-			// 
-			this.label6.Location = new System.Drawing.Point(50, 83);
-			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(31, 16);
-			this.label6.TabIndex = 31;
-			this.label6.Text = "Mod";
-			// 
-			// label7
-			// 
-			this.label7.Location = new System.Drawing.Point(4, 102);
-			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(17, 13);
-			this.label7.TabIndex = 32;
-			this.label7.Text = "A";
-			// 
-			// label8
-			// 
-			this.label8.Location = new System.Drawing.Point(4, 127);
-			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(17, 13);
-			this.label8.TabIndex = 33;
-			this.label8.Text = "D";
-			// 
-			// label9
-			// 
-			this.label9.Location = new System.Drawing.Point(4, 150);
-			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(17, 13);
-			this.label9.TabIndex = 34;
-			this.label9.Text = "S";
-			// 
-			// label10
-			// 
-			this.label10.Location = new System.Drawing.Point(4, 173);
-			this.label10.Name = "label10";
-			this.label10.Size = new System.Drawing.Size(17, 13);
-			this.label10.TabIndex = 35;
-			this.label10.Text = "R";
-			// 
 			// WaveDisplayForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(772, 366);
-			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.playMidiC5100msBtn);
 			this.Controls.Add(this.SaveWAVBtn);
@@ -517,21 +333,9 @@ namespace SynthAnalysisStudio
 			((System.ComponentModel.ISupportInitialize)(this.AmplitudeTrackBar)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.StartPositionTrackBar)).EndInit();
 			this.groupBox1.ResumeLayout(false);
-			this.groupBox2.ResumeLayout(false);
-			this.groupBox2.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
-		private System.Windows.Forms.TextBox modSustainTextBox;
-		private System.Windows.Forms.TextBox modReleaseTextBox;
-		private System.Windows.Forms.TextBox modDecayTextBox;
-		private System.Windows.Forms.TextBox modAttackTextBox;
-		private System.Windows.Forms.Label label6;
-		private System.Windows.Forms.Label label7;
-		private System.Windows.Forms.Label label8;
-		private System.Windows.Forms.Label label9;
-		private System.Windows.Forms.Label label10;
-		private System.Windows.Forms.GroupBox groupBox2;
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.Button measureModABtn;
@@ -543,15 +347,6 @@ namespace SynthAnalysisStudio
 		private System.Windows.Forms.Button measureAmpABtn;
 		private System.Windows.Forms.Button measureAmpDBtn;
 		private System.Windows.Forms.Button playMidiC5100msBtn;
-		private System.Windows.Forms.TextBox durationMsTextBox;
-		private System.Windows.Forms.TextBox ampReleaseTextBox;
-		private System.Windows.Forms.TextBox ampSustainTextBox;
-		private System.Windows.Forms.TextBox ampDecayTextBox;
-		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.TextBox ampAttackTextBox;
-		private System.Windows.Forms.Label label3;
-		private System.Windows.Forms.TextBox durationSamplesTextBox;
-		private System.Windows.Forms.Button adsrSaveBtn;
 		private System.Windows.Forms.Button SaveWAVBtn;
 		private System.Windows.Forms.CheckBox MidiNoteCheckbox;
 		private System.Windows.Forms.Button CropBtn;

@@ -28,6 +28,20 @@ namespace SynthAnalysisStudio
 
 		private bool DoGUIRefresh = true;
 		
+		// store freq measurment variables
+		string foundMaxFreq = "";
+		string foundMaxDB = "";
+		string filterACutoffDisplay = "";
+		float filterACutoff = 0.0f;
+		string filterAType = "";
+		string filterADB = "";
+		string filterBCutoffDisplay = "";
+		float filterBCutoff = 0.0f;
+		string filterBType = "";
+		string filterBDB = "";
+		string filterCtrlCutoffDisplay = "";
+		float filterCtrlCutoff = 0.0f;
+		
 		public AnalyseForm()
 		{
 			//
@@ -47,7 +61,7 @@ namespace SynthAnalysisStudio
 		{
 			ComboBox comboBox = (ComboBox) sender;
 			string stringSize = (string) comboBox.SelectedItem;
-			int windowsSize = 2048;
+			int windowsSize = 4096;
 			int.TryParse(stringSize, out windowsSize);
 			this.frequencyAnalyserUserControl1.FFTWindowsSize = windowsSize;
 		}
@@ -69,39 +83,52 @@ namespace SynthAnalysisStudio
 			this.frequencyAnalyserUserControl1.MaximumFrequency = (float) trackBar1.Value;
 		}
 		
+		void RetrieveFilterInfo() {
+			
+			// get found info from user control
+			this.foundMaxFreq = String.Format("{0}", this.frequencyAnalyserUserControl1.FoundMaxFrequency);
+			this.foundMaxDB = String.Format("{0}", this.frequencyAnalyserUserControl1.FoundMaxDecibel);
+
+			// get filter Info from plugin
+			this.filterACutoffDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERA_CUTOFF);
+			this.filterACutoff = PluginContext.PluginCommandStub.GetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERA_CUTOFF);
+			this.filterAType = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERA_TYPE);
+			this.filterADB = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERA_DB);
+			this.filterBCutoffDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERB_CUTOFF);
+			this.filterBCutoff = PluginContext.PluginCommandStub.GetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERB_CUTOFF);
+			this.filterBType = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERB_TYPE);
+			this.filterBDB = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERB_DB);
+			this.filterCtrlCutoffDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(WaveDisplayForm.SYLENTH_PARAM_FILTERCTL_CUTOFF);
+			this.filterCtrlCutoff = PluginContext.PluginCommandStub.GetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERCTL_CUTOFF);
+		}
+		
 		void FreqSampleBtnClick(object sender, EventArgs e)
 		{
-			/*
-			string foundMaxFreq = String.Format("{0}", this.frequencyAnalyserUserControl1.FoundMaxFrequency);
-			string foundMaxDB = String.Format("{0}", this.frequencyAnalyserUserControl1.FoundMaxDecibel);
+			RetrieveFilterInfo();
 			
-			string filterACutoffString = ((HostCommandStub) PluginContext.HostCommandStub).filterACutoffString;
-			string filterBCutoffString = ((HostCommandStub) PluginContext.HostCommandStub).filterBCutoffString;
-			string filterCtrlCutoffString = ((HostCommandStub) PluginContext.HostCommandStub).filterCtrlCutoffString;
-
-			float filterACutoff = ((HostCommandStub) PluginContext.HostCommandStub).filterACutoff;
-			float filterBCutoff = ((HostCommandStub) PluginContext.HostCommandStub).filterBCutoff;
-			float filterCtrlCutoff = ((HostCommandStub) PluginContext.HostCommandStub).filterCtrlCutoff;
-			
-			foundFreqTextBox.Text = foundMaxFreq;
-			foundDBTextBox.Text = foundMaxDB;
-			filterATextBox.Text = filterACutoffString;
-			filterBTextBox.Text = filterBCutoffString;
-			filterCtrlTextBox.Text = filterCtrlCutoffString;
+			foundFreqTextBox.Text = this.foundMaxFreq;
+			foundDBTextBox.Text = this.foundMaxDB;
+			filterATextBox.Text = this.filterACutoffDisplay;
+			filterBTextBox.Text = this.filterBCutoffDisplay;
+			filterCtrlTextBox.Text = this.filterCtrlCutoffDisplay;
 			
 			// store this in a xml ouput file.
-			string xmlFilePath = "frequency-sampler.xml";
+			string xmlFilePath = "frequency-measurement.xml";
 			if (File.Exists(xmlFilePath)) {
 				// add to existing xml document
 				XDocument xmlDoc = XDocument.Load(xmlFilePath);
 				
-				xmlDoc.Element("FrequencySampler").Add(
+				xmlDoc.Element("FrequencyMeasurement").Add(
 					new XElement("Row",
-					             new XElement("FilterACutoffString", filterACutoffString),
+					             new XElement("FilterACutoffDisplay", filterACutoffDisplay),
 					             new XElement("FilterACutoff", filterACutoff),
-					             new XElement("FilterBCutoffString", filterBCutoffString),
+					             new XElement("FilterAType", filterAType),
+					             new XElement("FilterADB", filterADB),
+					             new XElement("FilterBCutoffDisplay", filterBCutoffDisplay),
 					             new XElement("FilterBCutoff", filterBCutoff),
-					             new XElement("FilterCtrlCutoffString", filterCtrlCutoffString),
+					             new XElement("FilterBType", filterBType),
+					             new XElement("FilterBDB", filterBDB),
+					             new XElement("FilterCtrlCutoffDisplay", filterCtrlCutoffDisplay),
 					             new XElement("FilterCtrlCutoff", filterCtrlCutoff),
 					             new XElement("FoundFrequency", foundMaxFreq)
 					            ));
@@ -111,20 +138,23 @@ namespace SynthAnalysisStudio
 				// create xml document first
 				XDocument xmlDoc =
 					new XDocument(
-						new XElement("FrequencySampler",
+						new XElement("FrequencyMeasurement",
 						             new XElement("Row",
-						                          new XElement("FilterACutoffString", filterACutoffString),
+						                          new XElement("FilterACutoffDisplay", filterACutoffDisplay),
 						                          new XElement("FilterACutoff", filterACutoff),
-						                          new XElement("FilterBCutoffString", filterBCutoffString),
+						                          new XElement("FilterAType", filterAType),
+						                          new XElement("FilterADB", filterADB),
+						                          new XElement("FilterBCutoffDisplay", filterBCutoffDisplay),
 						                          new XElement("FilterBCutoff", filterBCutoff),
-						                          new XElement("FilterCtrlCutoffString", filterCtrlCutoffString),
+						                          new XElement("FilterBType", filterBType),
+						                          new XElement("FilterBDB", filterBDB),
+						                          new XElement("FilterCtrlCutoffDisplay", filterCtrlCutoffDisplay),
 						                          new XElement("FilterCtrlCutoff", filterCtrlCutoff),
 						                          new XElement("FoundFrequency", foundMaxFreq)
 						                         )
 						            ));
 				xmlDoc.Save(xmlFilePath);
 			}
-			 */
 		}
 		
 		void Timer1Tick(object sender, EventArgs e)
@@ -133,6 +163,41 @@ namespace SynthAnalysisStudio
 				VstHost host = VstHost.Instance;
 				this.frequencyAnalyserUserControl1.SetAudioData(host.LastProcessedBufferLeft);
 			}
+		}
+		
+		void MeasureFrequencyInit() {
+			
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_MAIN_VOLUME, 0.5f);
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_MIX_A, 0.5f);
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_MIX_B, 0.5f);
+			
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_AMP_ENV1_ATTACK, 0.0f);
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_AMP_ENV1_DECAY, 0.0f);
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_AMP_ENV1_SUSTAIN, 1.0f);
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_AMP_ENV1_RELEASE, 0.0f);
+			
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_OSC1_VOLUME, 0.5f);
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_OSC1_WAVE,
+			                                             PresetConverter.Sylenth1Preset.EnumUintToFloat(
+			                                             	(uint) PresetConverter.Sylenth1Preset.OSCWAVE.OSC_Noise));
+			
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERA_CUTOFF, 0.5f);
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERA_RESO, 1.0f);
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERA_DB,
+			                                             PresetConverter.Sylenth1Preset.EnumUintToFloat(
+			                                             	(uint) PresetConverter.Sylenth1Preset.FILTERDB.DB24));
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERA_TYPE,
+			                                             PresetConverter.Sylenth1Preset.EnumUintToFloat(
+			                                             	(uint) PresetConverter.Sylenth1Preset.FILTERTYPE.Lowpass));
+			
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERCTL_CUTOFF, 0.5f);
+			PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERCTL_RESO, 1.0f);
+			
+		}
+
+		void PrepFreqAnalysisBtnClick(object sender, EventArgs e)
+		{
+			MeasureFrequencyInit();
 		}
 	}
 }

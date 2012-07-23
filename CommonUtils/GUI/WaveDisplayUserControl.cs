@@ -20,7 +20,6 @@ namespace CommonUtils.GUI
 		private int waveDisplayAmplitude = 1;
 		private int waveDisplayStartPosition = 0;
 		private double sampleRate = 44100;
-		private double milliseconds = 0;
 		
 		public double SampleRate
 		{

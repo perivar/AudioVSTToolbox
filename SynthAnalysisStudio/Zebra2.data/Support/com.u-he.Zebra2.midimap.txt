@@ -1,3 +1,4 @@
 // Global MidiCC Map
 
 
+7=main:CcOp //Main Loop Circuit:Output

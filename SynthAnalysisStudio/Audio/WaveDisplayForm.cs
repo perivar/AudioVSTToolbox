@@ -29,29 +29,62 @@ namespace SynthAnalysisStudio
 	/// </summary>
 	public partial class WaveDisplayForm : Form
 	{
-		const int SYLENTH_PARAM_AMP_ENV1_ATTACK = 0;
-		const int SYLENTH_PARAM_AMP_ENV1_DECAY = 1;
-		const int SYLENTH_PARAM_AMP_ENV1_RELEASE = 2;
-		const int SYLENTH_PARAM_AMP_ENV1_SUSTAIN = 3;
-		const int SYLENTH_PARAM_LFO1_GAIN = 59;
-		const int SYLENTH_PARAM_LFO1_RATE = 61;
-		const int SYLENTH_PARAM_LFO1_WAVE = 62;
-		const int SYLENTH_PARAM_MAIN_VOLUME = 68;
-		const int SYLENTH_PARAM_MIX_A = 69;
-		const int SYLENTH_PARAM_MIX_B = 70;
-		const int SYLENTH_PARAM_MOD_ENV1_ATTACK = 71;
-		const int SYLENTH_PARAM_MOD_ENV1_DECAY = 72;
-		const int SYLENTH_PARAM_MOD_ENV1_RELEASE = 73;
-		const int SYLENTH_PARAM_MOD_ENV1_SUSTAIN = 74;
-		const int SYLENTH_PARAM_OSC1_VOLUME = 91;
-		const int SYLENTH_PARAM_OSC1_WAVE = 92;
+		public const int SYLENTH_PARAM_AMP_ENV1_ATTACK = 0;
+		public const int SYLENTH_PARAM_AMP_ENV1_DECAY = 1;
+		public const int SYLENTH_PARAM_AMP_ENV1_RELEASE = 2;
+		public const int SYLENTH_PARAM_AMP_ENV1_SUSTAIN = 3;
+		
+		public const int SYLENTH_PARAM_FILTERA_CUTOFF = 42;
+		public const int SYLENTH_PARAM_FILTERA_RESO = 45;
+		public const int SYLENTH_PARAM_FILTERA_TYPE = 46;
+		public const int SYLENTH_PARAM_FILTERA_DB = 47;
+		public const int SYLENTH_PARAM_FILTERB_CUTOFF = 48;
+		public const int SYLENTH_PARAM_FILTERB_RESO = 51;
+		public const int SYLENTH_PARAM_FILTERB_TYPE = 52;
+		public const int SYLENTH_PARAM_FILTERB_DB = 53;
+		public const int SYLENTH_PARAM_FILTERCTL_CUTOFF = 54;
+		public const int SYLENTH_PARAM_FILTERCTL_RESO = 56;
+		
+		public const int SYLENTH_PARAM_LFO1_GAIN = 59;
+		public const int SYLENTH_PARAM_LFO1_RATE = 61;
+		public const int SYLENTH_PARAM_LFO1_WAVE = 62;
+		public const int SYLENTH_PARAM_MAIN_VOLUME = 68;
+		public const int SYLENTH_PARAM_MIX_A = 69;
+		public const int SYLENTH_PARAM_MIX_B = 70;
+		public const int SYLENTH_PARAM_MOD_ENV1_ATTACK = 71;
+		public const int SYLENTH_PARAM_MOD_ENV1_DECAY = 72;
+		public const int SYLENTH_PARAM_MOD_ENV1_RELEASE = 73;
+		public const int SYLENTH_PARAM_MOD_ENV1_SUSTAIN = 74;
+		public const int SYLENTH_PARAM_OSC1_VOLUME = 91;
+		public const int SYLENTH_PARAM_OSC1_WAVE = 92;
 
-		const int SYLENTH_PARAM_XMOD_ENV1_DEST1AMOUNT = 197;
-		const int SYLENTH_PARAM_XMOD_LFO1_DEST1AMOUNT = 201;
+		public const int SYLENTH_PARAM_XMOD_ENV1_DEST1AMOUNT = 197;
+		public const int SYLENTH_PARAM_XMOD_LFO1_DEST1AMOUNT = 201;
 
-		const int SYLENTH_PARAM_YMOD_LFO1_DEST1 = 229;
-		const int SYLENTH_PARAM_YMOD_ENV1_DEST1 = 225;
+		public const int SYLENTH_PARAM_YMOD_LFO1_DEST1 = 229;
+		public const int SYLENTH_PARAM_YMOD_ENV1_DEST1 = 225;
 
+		float ampAttack = 0;
+		float ampDecay = 0;
+		float ampSustain = 0;
+		float ampRelease = 0;
+		string ampAttackDisplay = "";
+		string ampDecayDisplay = "";
+		string ampSustainDisplay = "";
+		string ampReleaseDisplay = "";
+
+		float modAttack = 0;
+		float modDecay = 0;
+		float modSustain = 0;
+		float modRelease = 0;
+		string modAttackDisplay = "";
+		string modDecayDisplay = "";
+		string modSustainDisplay = "";
+		string modReleaseDisplay = "";
+		
+		int durationSamples = 0;
+		double durationMilliseconds = 0;
+		
 		public VstPluginContext PluginContext { get; set; }
 		public VstPlaybackNAudio Playback { get; set; }
 
@@ -155,28 +188,10 @@ namespace SynthAnalysisStudio
 			}
 		}
 		
-		void SaveXMLBtnClick(object sender, EventArgs e)
-		{
-			// store this in a xml ouput file.
-			string xmlFilePath = "audio-data.xml";
-
-			DataTable dt = new DataTable();
-			dt.Columns.Add("float", typeof(float));
-			
-			VstHost host = VstHost.Instance;
-			foreach (float f in host.RecordedLeft.ToArray())
-			{
-				dt.Rows.Add( new object[] { f } );
-			}
-			
-			dt.TableName = "Audio Data";
-			dt.WriteXml(xmlFilePath);
-		}
-		
 		void SaveWAVBtnClick(object sender, EventArgs e)
 		{
 			// store this in a wav ouput file.
-			string wavFilePath = String.Format("audio-data-{0}.wav", StringUtils.GetCurrentTimestamp());
+			string wavFilePath = String.Format("audio-data-left-{0}.wav", StringUtils.GetCurrentTimestamp());
 
 			VstHost host = VstHost.Instance;
 			AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
@@ -184,72 +199,7 @@ namespace SynthAnalysisStudio
 		
 		void AdsrSaveBtnClick(object sender, EventArgs e)
 		{
-			AdsrSave();
-			
-			/*
-			float ampEnvelopeAttack = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeAttack;
-			float ampEnvelopeDecay = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeDecay;
-			float ampEnvelopeSustain = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeSustain;
-			float ampEnvelopeRelease = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeRelease;
-			
-			string ampEnvelopeAttackString = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeAttackString;
-			string ampEnvelopeDecayString = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeDecayString;
-			string ampEnvelopeSustainString = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeSustainString;
-			string ampEnvelopeReleaseString = ((HostCommandStub) PluginContext.HostCommandStub).ampEnvelopeReleaseString;
-
-			ampAttackTextBox.Text = ampEnvelopeAttackString;
-			ampDecayTextBox.Text = ampEnvelopeDecayString;
-			ampSustainTextBox.Text = ampEnvelopeSustainString;
-			ampReleaseTextBox.Text = ampEnvelopeReleaseString;
-			
-			double durationInMilliseconds = this.waveDisplayUserControl1.DurationInMilliseconds;
-			int numberOfSamples = this.waveDisplayUserControl1.NumberOfSamples;
-			
-			durationSamplesTextBox.Text = "" + numberOfSamples;
-			durationMsTextBox.Text = String.Format("{0:0.00}", durationInMilliseconds);
-			
-			// store this in a xml ouput file.
-			string xmlFilePath = "ADSR-sampler.xml";
-			if (File.Exists(xmlFilePath)) {
-				// add to existing xml document
-				XDocument xmlDoc = XDocument.Load(xmlFilePath);
-				
-				xmlDoc.Element("ADSRSampler").Add(
-					new XElement("Row",
-					             new XElement("AmpEnvelopeAttackString", ampEnvelopeAttackString),
-					             new XElement("AmpEnvelopeAttack", ampEnvelopeAttack),
-					             new XElement("AmpEnvelopeDecayString", ampEnvelopeDecayString),
-					             new XElement("AmpEnvelopeDecay", ampEnvelopeDecay),
-					             new XElement("AmpEnvelopeSustainString", ampEnvelopeSustainString),
-					             new XElement("AmpEnvelopeSustain", ampEnvelopeSustain),
-					             new XElement("AmpEnvelopeReleaseString", ampEnvelopeReleaseString),
-					             new XElement("AmpEnvelopeRelease", ampEnvelopeRelease),
-					             new XElement("DurationSamples", numberOfSamples),
-					             new XElement("DurationMS", durationInMilliseconds)
-					            ));
-
-				xmlDoc.Save(xmlFilePath);
-			} else {
-				// create xml document first
-				XDocument xmlDoc =
-					new XDocument(
-						new XElement("ADSRSampler",
-						             new XElement("Row",
-						                          new XElement("AmpEnvelopeAttackString", ampEnvelopeAttackString),
-						                          new XElement("AmpEnvelopeAttack", ampEnvelopeAttack),
-						                          new XElement("AmpEnvelopeDecayString", ampEnvelopeDecayString),
-						                          new XElement("AmpEnvelopeDecay", ampEnvelopeDecay),
-						                          new XElement("AmpEnvelopeSustainString", ampEnvelopeSustainString),
-						                          new XElement("AmpEnvelopeSustain", ampEnvelopeSustain),
-						                          new XElement("AmpEnvelopeReleaseString", ampEnvelopeReleaseString),
-						                          new XElement("AmpEnvelopeRelease", ampEnvelopeRelease),
-						                          new XElement("DurationSamples", numberOfSamples),
-						                          new XElement("DurationMS", durationInMilliseconds)
-						                         )
-						            ));
-				xmlDoc.Save(xmlFilePath);
-			}
-			 */
+			ADSRSave();
 		}
 		
 		void PlayMidiC5100msBtnClick(object sender, EventArgs e)
@@ -287,18 +237,27 @@ namespace SynthAnalysisStudio
 			Console.WriteLine("Midi Note Sent. Time used {0} ms", stopwatch.ElapsedMilliseconds);
 		}
 		
-		private void AdsrSave() {
+		private void ADSRSave() {
 			
-			string ampEnvelopeAttack = ampAttackTextBox.Text;
-			string ampEnvelopeDecay = ampDecayTextBox.Text;
-			string ampEnvelopeSustain = ampSustainTextBox.Text;
-			string ampEnvelopeRelease = ampReleaseTextBox.Text;
-			string modEnvelopeAttack = modAttackTextBox.Text;
-			string modEnvelopeDecay = modDecayTextBox.Text;
-			string modEnvelopeSustain = modSustainTextBox.Text;
-			string modEnvelopeRelease = modReleaseTextBox.Text;
-			string durationInSamples = durationSamplesTextBox.Text;
-			string durationInMilliseconds = durationMsTextBox.Text;
+			string ampEnvelopeAttack = String.Format("{0:0.00}", ampAttack);
+			string ampEnvelopeDecay = String.Format("{0:0.00}", ampDecay);
+			string ampEnvelopeSustain = String.Format("{0:0.00}", ampSustain);
+			string ampEnvelopeRelease = String.Format("{0:0.00}", ampRelease);
+			string ampEnvelopeAttackDisplay = ampAttackDisplay.Trim();
+			string ampEnvelopeDecayDisplay = ampDecayDisplay.Trim();
+			string ampEnvelopeSustainDisplay = ampSustainDisplay.Trim();
+			string ampEnvelopeReleaseDisplay = ampReleaseDisplay.Trim();
+			string modEnvelopeAttack = String.Format("{0:0.00}", modAttack);
+			string modEnvelopeDecay = String.Format("{0:0.00}", modDecay);
+			string modEnvelopeSustain = String.Format("{0:0.00}", modSustain);
+			string modEnvelopeRelease = String.Format("{0:0.00}", modRelease);
+			string modEnvelopeAttackDisplay = modAttackDisplay.Trim();
+			string modEnvelopeDecayDisplay = modDecayDisplay.Trim();
+			string modEnvelopeSustainDisplay = modSustainDisplay.Trim();
+			string modEnvelopeReleaseDisplay = modReleaseDisplay.Trim();
+			
+			string durationInSamples = "" + durationSamples;
+			string durationInMilliseconds = String.Format("{0:0.00}", durationMilliseconds);
 			
 			// store this in a xml ouput file.
 			string xmlFilePath = "ADSR-measurement.xml";
@@ -308,13 +267,21 @@ namespace SynthAnalysisStudio
 				
 				xmlDoc.Element("ADSRMeasurement").Add(
 					new XElement("Row",
+					             new XElement("AmpEnvelopeAttackDisplay", ampEnvelopeAttackDisplay),
 					             new XElement("AmpEnvelopeAttack", ampEnvelopeAttack),
+					             new XElement("AmpEnvelopeDecayDisplay", ampEnvelopeDecayDisplay),
 					             new XElement("AmpEnvelopeDecay", ampEnvelopeDecay),
+					             new XElement("AmpEnvelopeSustainDisplay", ampEnvelopeSustainDisplay),
 					             new XElement("AmpEnvelopeSustain", ampEnvelopeSustain),
+					             new XElement("AmpEnvelopeReleaseDisplay", ampEnvelopeReleaseDisplay),
 					             new XElement("AmpEnvelopeRelease", ampEnvelopeRelease),
+					             new XElement("ModEnvelopeAttackDisplay", modEnvelopeAttackDisplay),
 					             new XElement("ModEnvelopeAttack", modEnvelopeAttack),
+					             new XElement("ModEnvelopeDecayDisplay", modEnvelopeDecayDisplay),
 					             new XElement("ModEnvelopeDecay", modEnvelopeDecay),
+					             new XElement("ModEnvelopeSustainDisplay", modEnvelopeSustainDisplay),
 					             new XElement("ModEnvelopeSustain", modEnvelopeSustain),
+					             new XElement("ModEnvelopeReleaseDisplay", modEnvelopeReleaseDisplay),
 					             new XElement("ModEnvelopeRelease", modEnvelopeRelease),
 					             new XElement("DurationSamples", durationInSamples),
 					             new XElement("DurationMS", durationInMilliseconds)
@@ -327,13 +294,21 @@ namespace SynthAnalysisStudio
 					new XDocument(
 						new XElement("ADSRMeasurement",
 						             new XElement("Row",
+						                          new XElement("AmpEnvelopeAttackDisplay", ampEnvelopeAttackDisplay),
 						                          new XElement("AmpEnvelopeAttack", ampEnvelopeAttack),
+						                          new XElement("AmpEnvelopeDecayDisplay", ampEnvelopeDecayDisplay),
 						                          new XElement("AmpEnvelopeDecay", ampEnvelopeDecay),
+						                          new XElement("AmpEnvelopeSustainDisplay", ampEnvelopeSustainDisplay),
 						                          new XElement("AmpEnvelopeSustain", ampEnvelopeSustain),
+						                          new XElement("AmpEnvelopeReleaseDisplay", ampEnvelopeReleaseDisplay),
 						                          new XElement("AmpEnvelopeRelease", ampEnvelopeRelease),
+						                          new XElement("ModEnvelopeAttackDisplay", modEnvelopeAttackDisplay),
 						                          new XElement("ModEnvelopeAttack", modEnvelopeAttack),
+						                          new XElement("ModEnvelopeDecayDisplay", modEnvelopeDecayDisplay),
 						                          new XElement("ModEnvelopeDecay", modEnvelopeDecay),
+						                          new XElement("ModEnvelopeSustainDisplay", modEnvelopeSustainDisplay),
 						                          new XElement("ModEnvelopeSustain", modEnvelopeSustain),
+						                          new XElement("ModEnvelopeReleaseDisplay", modEnvelopeReleaseDisplay),
 						                          new XElement("ModEnvelopeRelease", modEnvelopeRelease),
 						                          new XElement("DurationSamples", durationInSamples),
 						                          new XElement("DurationMS", durationInMilliseconds)
@@ -406,9 +381,12 @@ namespace SynthAnalysisStudio
 		// Then step through the A, D and R steps and measure
 		// Attack: for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f)
 		// Decay: for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f)
-		// Release: for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f)
-
 		
+		// For Release you have to make sure the Sustain is full.
+		// Then send a short midi message and measure the length of the tail
+		// Release: for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f)
+		
+
 		// How to measure Modulation Envelopes:
 		
 		// Sylenth (Mod Env Attack and Decay):
@@ -549,7 +527,7 @@ namespace SynthAnalysisStudio
 			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_XMOD_ENV1_DEST1AMOUNT, 0.0f);
 		}
 		
-		void MeasureADSRParameter(int paramName, float paramValue, string envName) {
+		void MeasureADSRParameter(int paramName, float paramValue, string envName, bool measureRelease = false) {
 			
 			System.Console.Out.WriteLine("MeasureADSREntry: Measuring {0} at value {1:0.00}...", envName, paramValue);
 			
@@ -585,6 +563,13 @@ namespace SynthAnalysisStudio
 				System.Threading.Thread.Sleep(100);
 			}
 			
+			if (measureRelease) {
+				// release is a special case where you only measure the tail after
+				// a short midi signal
+				// therefore we need to stop the midi message here
+				host.SendMidiNote(host.SendContinousMidiNote, 0);
+			}
+			
 			// wait until it has stopped playing
 			stopwatch.Restart();
 			while (host.LastProcessedBufferLeftPlaying) {
@@ -610,13 +595,8 @@ namespace SynthAnalysisStudio
 			// crop
 			CropAudio();
 			
-			// get duration
-			double durationInMilliseconds = this.waveDisplayUserControl1.DurationInMilliseconds;
-			int durationInSamples = this.waveDisplayUserControl1.NumberOfSamples;
-			
-			// and store in GUI
-			durationSamplesTextBox.Text = "" + durationInSamples;
-			durationMsTextBox.Text = String.Format("{0:0.00}", durationInMilliseconds);
+			// store the duration
+			RetrieveDuration();
 			
 			// store this in a wav ouput file.
 			float param = PluginContext.PluginCommandStub.GetParameter(paramName);
@@ -628,8 +608,11 @@ namespace SynthAnalysisStudio
 			string fileName = String.Format("{0}{1:0.00}s-{2}.png", envName, param, StringUtils.GetCurrentTimestamp());
 			png.Save(fileName);
 			
-			// turn of midi
-			host.SendMidiNote(host.SendContinousMidiNote, 0);
+			if (!measureRelease) {
+				// turn of midi unless we are measuring a release envelope
+				// then it should have been turned of immideately after a small signal is generated
+				host.SendMidiNote(host.SendContinousMidiNote, 0);
+			}
 
 			// clear
 			ClearAudio();
@@ -639,7 +622,60 @@ namespace SynthAnalysisStudio
 
 			stopwatch.Stop();
 		}
+
+		void ZeroOutPluginAmpADSR() {
+			// zero out amp ADSR
+			this.ampAttack = 0;
+			this.ampDecay = 0;
+			this.ampSustain = 0;
+			this.ampRelease = 0;
+			this.ampAttackDisplay = "";
+			this.ampDecayDisplay = "";
+			this.ampSustainDisplay = "";
+			this.ampReleaseDisplay = "";
+		}
 		
+		void RetrievePluginAmpADSR() {
+			// get amp ADSR from plugin
+			this.ampAttack = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_ATTACK);
+			this.ampDecay = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_DECAY);
+			this.ampSustain = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_SUSTAIN);
+			this.ampRelease = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_RELEASE);
+			this.ampAttackDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(SYLENTH_PARAM_AMP_ENV1_ATTACK);
+			this.ampDecayDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(SYLENTH_PARAM_AMP_ENV1_DECAY);
+			this.ampSustainDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(SYLENTH_PARAM_AMP_ENV1_SUSTAIN);
+			this.ampReleaseDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(SYLENTH_PARAM_AMP_ENV1_RELEASE);
+		}
+		
+		void ZeroOutPluginModADSR() {
+			// zero out mod ADSR
+			this.modAttack = 0;
+			this.modDecay = 0;
+			this.modSustain = 0;
+			this.modRelease = 0;
+			this.modAttackDisplay = "";
+			this.modDecayDisplay = "";
+			this.modSustainDisplay = "";
+			this.modReleaseDisplay = "";
+		}
+
+		void RetrievePluginModADSR() {
+			// get mod ADSR from plugin
+			this.modAttack = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_ATTACK);
+			this.modDecay = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_DECAY);
+			this.modSustain = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_SUSTAIN);
+			this.modRelease = PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_RELEASE);
+			this.modAttackDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(SYLENTH_PARAM_MOD_ENV1_ATTACK);
+			this.modDecayDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(SYLENTH_PARAM_MOD_ENV1_DECAY);
+			this.modSustainDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(SYLENTH_PARAM_MOD_ENV1_SUSTAIN);
+			this.modReleaseDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(SYLENTH_PARAM_MOD_ENV1_RELEASE);
+		}
+		
+		void RetrieveDuration() {
+			// get duration
+			this.durationMilliseconds = this.waveDisplayUserControl1.DurationInMilliseconds;
+			this.durationSamples = this.waveDisplayUserControl1.NumberOfSamples;
+		}
 		
 		void MeasureAmpABtnClick(object sender, EventArgs e)
 		{
@@ -649,13 +685,11 @@ namespace SynthAnalysisStudio
 			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
 				MeasureADSRParameter(SYLENTH_PARAM_AMP_ENV1_ATTACK, paramValue, "amp-env-attack");
 				
-				ampAttackTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_ATTACK);
-				ampDecayTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_DECAY);
-				ampSustainTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_SUSTAIN);
-				ampReleaseTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_RELEASE);
+				ZeroOutPluginModADSR();
+				RetrievePluginAmpADSR();
 				
 				// store in xml file
-				AdsrSave();
+				ADSRSave();
 			}
 		}
 		
@@ -667,13 +701,11 @@ namespace SynthAnalysisStudio
 			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
 				MeasureADSRParameter(SYLENTH_PARAM_AMP_ENV1_DECAY, paramValue, "amp-env-decay");
 
-				ampAttackTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_ATTACK);
-				ampDecayTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_DECAY);
-				ampSustainTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_SUSTAIN);
-				ampReleaseTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_RELEASE);
+				ZeroOutPluginModADSR();
+				RetrievePluginAmpADSR();
 
 				// store in xml file
-				AdsrSave();
+				ADSRSave();
 			}
 		}
 
@@ -681,17 +713,18 @@ namespace SynthAnalysisStudio
 		{
 			MeasureAmpEnvelopeInit();
 			
+			// make sure to set the sustain to full
+			PluginContext.PluginCommandStub.SetParameter(SYLENTH_PARAM_AMP_ENV1_SUSTAIN, 1.0f);
+			
 			// step through the Release steps
 			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
-				MeasureADSRParameter(SYLENTH_PARAM_AMP_ENV1_RELEASE, paramValue, "amp-env-release");
+				MeasureADSRParameter(SYLENTH_PARAM_AMP_ENV1_RELEASE, paramValue, "amp-env-release", true);
 
-				ampAttackTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_ATTACK);
-				ampDecayTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_DECAY);
-				ampSustainTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_SUSTAIN);
-				ampReleaseTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_AMP_ENV1_RELEASE);
+				ZeroOutPluginModADSR();
+				RetrievePluginAmpADSR();
 
 				// store in xml file
-				AdsrSave();
+				ADSRSave();
 			}
 		}
 		
@@ -703,13 +736,11 @@ namespace SynthAnalysisStudio
 			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
 				MeasureADSRParameter(SYLENTH_PARAM_MOD_ENV1_ATTACK, paramValue, "mod-env-attack");
 
-				modAttackTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_ATTACK);
-				modDecayTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_DECAY);
-				modSustainTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_SUSTAIN);
-				modReleaseTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_RELEASE);
+				ZeroOutPluginAmpADSR();
+				RetrievePluginModADSR();
 
 				// store in xml file
-				AdsrSave();
+				ADSRSave();
 			}
 		}
 		
@@ -721,13 +752,11 @@ namespace SynthAnalysisStudio
 			for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
 				MeasureADSRParameter(SYLENTH_PARAM_MOD_ENV1_DECAY, paramValue, "mod-env-decay");
 
-				modAttackTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_ATTACK);
-				modDecayTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_DECAY);
-				modSustainTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_SUSTAIN);
-				modReleaseTextBox.Text = "" + PluginContext.PluginCommandStub.GetParameter(SYLENTH_PARAM_MOD_ENV1_RELEASE);
+				ZeroOutPluginAmpADSR();
+				RetrievePluginModADSR();
 
 				// store in xml file
-				AdsrSave();
+				ADSRSave();
 			}
 		}
 		
@@ -816,9 +845,6 @@ namespace SynthAnalysisStudio
 				System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
 				string fileName = String.Format("audio-LFO-{0}-{1}.png", StringUtils.MakeValidFileName(paramDisplay), StringUtils.GetCurrentTimestamp());
 				png.Save(fileName);
-				
-				// store
-				//AdsrSampleBtnClick(sender, e);
 				
 				// clear
 				ClearAudio();
