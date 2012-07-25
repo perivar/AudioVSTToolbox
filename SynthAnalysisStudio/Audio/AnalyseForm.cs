@@ -199,8 +199,7 @@ namespace SynthAnalysisStudio
 			
 		}
 
-		void SylenthAutoMeasureFreqBtnClick(object sender, EventArgs e)
-		{
+		void SylenthAutoMeasureFilters() {
 			VstHost host = VstHost.Instance;
 			
 			MeasureFrequencyInit();
@@ -256,7 +255,11 @@ namespace SynthAnalysisStudio
 					//this.frequencyAnalyserUserControl1.Bitmap.Save(fileName);
 					
 					// store in xml file
-					FrequencySave();
+					float maxFreq = 0.0f;
+					float.TryParse(this.foundMaxFreq, out maxFreq);
+					if (maxFreq > 0) {
+						FrequencySave();
+					}
 				}
 			}
 
@@ -265,6 +268,11 @@ namespace SynthAnalysisStudio
 			
 			// stop playing audio
 			Playback.Stop();
+		}
+		
+		void SylenthAutoMeasureFreqBtnClick(object sender, EventArgs e)
+		{
+			SylenthAutoMeasureFilters();
 		}
 		
 		void Timer1Tick(object sender, EventArgs e)

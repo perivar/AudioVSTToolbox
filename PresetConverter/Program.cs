@@ -13,10 +13,10 @@ namespace PresetConverter
 		// define the log file
 		static FileInfo outputStatusLog = new FileInfo("preset_converter_log.txt");
 		
-		static string _version = "1.1";
+		static string _version = "1.2";
 		
 		public static void Main(string[] args)
-		{
+		{	
 			bool processDirectory = false;
 			bool doProcessInitPresets = false;
 			bool doOutputSylenthPresetTextDump = false;
