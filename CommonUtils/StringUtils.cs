@@ -81,7 +81,18 @@ namespace CommonUtils
 		
 		public static string RemoveInvalidCharacters(string strIn) {
 			// Replace invalid characters with empty strings.
+			// only letters, dots, the email 'at' and '-' are allowed
 			return Regex.Replace(strIn, @"[^\w\.@-]", "");
+		}
+
+		public static string RemoveInvalidCharactersAllowSpace(string strIn) {
+			// Replace invalid characters with empty strings.
+			// only letters, dots, the email 'at' and '-' are allowed
+			return Regex.Replace(strIn, @"[^\w\.\s@-]", "");
+		}
+		
+		public static string RemoveNonAsciiCharacters(string strIn) {
+			return Regex.Replace(strIn, @"[^\u0000-\u007F]", string.Empty);
 		}
 		
 		public static string MakeValidFileName( string name )

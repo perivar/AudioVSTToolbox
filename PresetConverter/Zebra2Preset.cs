@@ -5161,7 +5161,9 @@ namespace PresetConverter
 			value0_1s = MathUtils.RoundToNearestInteger((int)value0_1s, 2); // the Lfo value (Rate) has steps of two
 			// get the value
 			double value0_1s_ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, (int) value0_1s);
-			
+			if (value0_1s > 200) {
+				value0_1s_ms = 0;
+			}
 			
 			// then use SYNC_1s:
 			lfoSync = Zebra2Preset.LFOSync.SYNC_1s;
@@ -5169,7 +5171,9 @@ namespace PresetConverter
 			value1s = MathUtils.RoundToNearestInteger((int)value1s, 2); // the Lfo value (Rate) has steps of two
 			// get the value
 			double value1s_ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, (int) value1s);
-
+			if (value1s > 200) {
+				value1s_ms = 0;
+			}
 			
 			// then use SYNC_10s:
 			lfoSync = Zebra2Preset.LFOSync.SYNC_10s;
@@ -5177,7 +5181,9 @@ namespace PresetConverter
 			value10s = MathUtils.RoundToNearestInteger((int)value10s, 2); // the Lfo value (Rate) has steps of two
 			// get the value
 			double value10s_ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, (int) value10s);
-
+			if (value10s > 200) {
+				value10s_ms = 0;
+			}
 			
 			// determine which is closest
 			List<float> list = new List<float> { (float) value0_1s_ms, (float) value1s_ms, (float) value10s_ms };

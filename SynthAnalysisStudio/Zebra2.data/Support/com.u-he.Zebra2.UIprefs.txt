@@ -1,1 +1,1 @@
-V_PROPERTY name='Author' id='0' value=''
+V_PROPERTY name='Author' id='0' value='Per Ivar Nerseth'

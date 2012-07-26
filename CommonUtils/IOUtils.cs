@@ -36,7 +36,7 @@ namespace CommonUtils
 			try
 			{
 				string logLine = System.String.Format(
-					"{0:G}: {1}.", System.DateTime.Now, msg);
+					"{0:G}: {1}", System.DateTime.Now, msg);
 				sw.WriteLine(logLine);
 			}
 			finally

@@ -3,18 +3,14 @@
 Author:
 'Per Ivar Nerseth'
 
+Description:
+'Emulation of a Sylenth1 Setup'
+
 */
 
 #AM=Zebra2
 #Vers=20500
 #Endian=little
-
-/*
-
-	Modulator Reference Table
-
-*/
-
 #nm=32
 #ms=none
 #ms=ModWhl
@@ -54,1961 +50,1477 @@ Author:
 #mv=Env2
 #mv=Env3
 #mv=Env4
-
-/*
-
-	Main Loop Circuit
-
-*/
-
 #cm=main
-CcOp=100.00			// Output
-#LFOG=1				// Active #LFOG
-#LFOG2=1				// Active #LFOG2
-
-/*
-
-	Core
-
-*/
-
+CcOp=100.00
+#LFOG=1
+#LFOG2=1
 #cm=PCore
-X_1=0.00			// X1
-Y_1=0.00			// Y1
-X_2=0.00			// X2
-Y_2=0.00			// Y2
-X_3=0.00			// X3
-Y_3=0.00			// Y3
-X_4=0.00			// X4
-Y_4=0.00			// Y4
-MT11=none:assigned	// XY1 TargetX1
-ML11=48.00			// XY1 Right1
-MR11=-48.00			// XY1 Left1
-MT12=none:assigned	// XY1 TargetX2
-ML12=15.00			// XY1 Right2
-MR12=-15.00			// XY1 Left2
-MT13=none:assigned	// XY1 TargetX3
-ML13=50.00			// XY1 Right3
-MR13=-50.00			// XY1 Left3
-MT14=none:assigned	// XY1 TargetX4
-ML14=50.00			// XY1 Right4
-MR14=-50.00			// XY1 Left4
-MT15=none:assigned	// XY1 TargetX5
-ML15=50.00			// XY1 Right5
-MR15=-50.00			// XY1 Left5
-MT16=none:assigned	// XY1 TargetX6
-ML16=50.00			// XY1 Right6
-MR16=-50.00			// XY1 Left6
-MT17=none:assigned	// XY1 TargetX7
-ML17=50.00			// XY1 Right7
-MR17=-50.00			// XY1 Left7
-MT18=none:assigned	// XY1 TargetX8
-ML18=50.00			// XY1 Right8
-MR18=-50.00			// XY1 Left8
-MT21=none:assigned	// XY1 TargetY1
-ML21=50.00			// XY1 Up1
-MR21=-50.00			// XY1 Down1
-MT22=none:assigned	// XY1 TargetY2
-ML22=50.00			// XY1 Up2
-MR22=-50.00			// XY1 Down2
-MT23=none:assigned	// XY1 TargetY3
-ML23=50.00			// XY1 Up3
-MR23=-50.00			// XY1 Down3
-MT24=none:assigned	// XY1 TargetY4
-ML24=50.00			// XY1 Up4
-MR24=-50.00			// XY1 Down4
-MT25=none:assigned	// XY1 TargetY5
-ML25=50.00			// XY1 Up5
-MR25=-50.00			// XY1 Down5
-MT26=none:assigned	// XY1 TargetY6
-ML26=50.00			// XY1 Up6
-MR26=-50.00			// XY1 Down6
-MT27=none:assigned	// XY1 TargetY7
-ML27=50.00			// XY1 Up7
-MR27=-50.00			// XY1 Down7
-MT28=none:assigned	// XY1 TargetY8
-ML28=50.00			// XY1 Up8
-MR28=-50.00			// XY1 Down8
-MT31=none:assigned	// XY2 TargetX1
-ML31=50.00			// XY2 Right1
-MR31=-50.00			// XY2 Left1
-MT32=none:assigned	// XY2 TargetX2
-ML32=50.00			// XY2 Right2
-MR32=-50.00			// XY2 Left2
-MT33=none:assigned	// XY2 TargetX3
-ML33=48.00			// XY2 Right3
-MR33=-48.00			// XY2 Left3
-MT34=none:assigned	// XY2 TargetX4
-ML34=50.00			// XY2 Right4
-MR34=-50.00			// XY2 Left4
-MT35=none:assigned	// XY2 TargetX5
-ML35=50.00			// XY2 Right5
-MR35=-50.00			// XY2 Left5
-MT36=none:assigned	// XY2 TargetX6
-ML36=50.00			// XY2 Right6
-MR36=-50.00			// XY2 Left6
-MT37=none:assigned	// XY2 TargetX7
-ML37=50.00			// XY2 Right7
-MR37=-50.00			// XY2 Left7
-MT38=none:assigned	// XY2 TargetX8
-ML38=50.00			// XY2 Right8
-MR38=-50.00			// XY2 Left8
-MT41=none:assigned	// XY2 TargetY1
-ML41=15.00			// XY2 Up1
-MR41=-15.00			// XY2 Down1
-MT42=none:assigned	// XY2 TargetY2
-ML42=50.00			// XY2 Up2
-MR42=-50.00			// XY2 Down2
-MT43=none:assigned	// XY2 TargetY3
-ML43=50.00			// XY2 Up3
-MR43=-50.00			// XY2 Down3
-MT44=none:assigned	// XY2 TargetY4
-ML44=50.00			// XY2 Up4
-MR44=-50.00			// XY2 Down4
-MT45=none:assigned	// XY2 TargetY5
-ML45=50.00			// XY2 Up5
-MR45=-50.00			// XY2 Down5
-MT46=none:assigned	// XY2 TargetY6
-ML46=50.00			// XY2 Up6
-MR46=-50.00			// XY2 Down6
-MT47=none:assigned	// XY2 TargetY7
-ML47=50.00			// XY2 Up7
-MR47=-50.00			// XY2 Down7
-MT48=none:assigned	// XY2 TargetY8
-ML48=50.00			// XY2 Up8
-MR48=-50.00			// XY2 Down8
-MT51=none:assigned	// XY3 TargetX1
-ML51=50.00			// XY3 Right1
-MR51=-50.00			// XY3 Left1
-MT52=none:assigned	// XY3 TargetX2
-ML52=50.00			// XY3 Right2
-MR52=-50.00			// XY3 Left2
-MT53=none:assigned	// XY3 TargetX3
-ML53=50.00			// XY3 Right3
-MR53=-50.00			// XY3 Left3
-MT54=none:assigned	// XY3 TargetX4
-ML54=50.00			// XY3 Right4
-MR54=-50.00			// XY3 Left4
-MT55=none:assigned	// XY3 TargetX5
-ML55=50.00			// XY3 Right5
-MR55=-50.00			// XY3 Left5
-MT56=none:assigned	// XY3 TargetX6
-ML56=50.00			// XY3 Right6
-MR56=-50.00			// XY3 Left6
-MT57=none:assigned	// XY3 TargetX7
-ML57=50.00			// XY3 Right7
-MR57=-50.00			// XY3 Left7
-MT58=none:assigned	// XY3 TargetX8
-ML58=50.00			// XY3 Right8
-MR58=-50.00			// XY3 Left8
-MT61=none:assigned	// XY3 TargetY1
-ML61=50.00			// XY3 Up1
-MR61=-50.00			// XY3 Down1
-MT62=none:assigned	// XY3 TargetY2
-ML62=50.00			// XY3 Up2
-MR62=-50.00			// XY3 Down2
-MT63=none:assigned	// XY3 TargetY3
-ML63=50.00			// XY3 Up3
-MR63=-50.00			// XY3 Down3
-MT64=none:assigned	// XY3 TargetY4
-ML64=50.00			// XY3 Up4
-MR64=-50.00			// XY3 Down4
-MT65=none:assigned	// XY3 TargetY5
-ML65=50.00			// XY3 Up5
-MR65=-50.00			// XY3 Down5
-MT66=none:assigned	// XY3 TargetY6
-ML66=50.00			// XY3 Up6
-MR66=-50.00			// XY3 Down6
-MT67=none:assigned	// XY3 TargetY7
-ML67=50.00			// XY3 Up7
-MR67=-50.00			// XY3 Down7
-MT68=none:assigned	// XY3 TargetY8
-ML68=50.00			// XY3 Up8
-MR68=-50.00			// XY3 Down8
-MT71=none:assigned	// XY4 TargetX1
-ML71=50.00			// XY4 Right1
-MR71=-50.00			// XY4 Left1
-MT72=none:assigned	// XY4 TargetX2
-ML72=50.00			// XY4 Right2
-MR72=-50.00			// XY4 Left2
-MT73=none:assigned	// XY4 TargetX3
-ML73=50.00			// XY4 Right3
-MR73=-50.00			// XY4 Left3
-MT74=none:assigned	// XY4 TargetX4
-ML74=50.00			// XY4 Right4
-MR74=-50.00			// XY4 Left4
-MT75=none:assigned	// XY4 TargetX5
-ML75=50.00			// XY4 Right5
-MR75=-50.00			// XY4 Left5
-MT76=none:assigned	// XY4 TargetX6
-ML76=50.00			// XY4 Right6
-MR76=-50.00			// XY4 Left6
-MT77=none:assigned	// XY4 TargetX7
-ML77=50.00			// XY4 Right7
-MR77=-50.00			// XY4 Left7
-MT78=none:assigned	// XY4 TargetX8
-ML78=50.00			// XY4 Right8
-MR78=-50.00			// XY4 Left8
-MT81=none:assigned	// XY4 TargetY1
-ML81=50.00			// XY4 Up1
-MR81=-50.00			// XY4 Down1
-MT82=none:assigned	// XY4 TargetY2
-ML82=50.00			// XY4 Up2
-MR82=-50.00			// XY4 Down2
-MT83=none:assigned	// XY4 TargetY3
-ML83=50.00			// XY4 Up3
-MR83=-50.00			// XY4 Down3
-MT84=none:assigned	// XY4 TargetY4
-ML84=50.00			// XY4 Up4
-MR84=-50.00			// XY4 Down4
-MT85=none:assigned	// XY4 TargetY5
-ML85=50.00			// XY4 Up5
-MR85=-50.00			// XY4 Down5
-MT86=none:assigned	// XY4 TargetY6
-ML86=50.00			// XY4 Up6
-MR86=-50.00			// XY4 Down6
-MT87=none:assigned	// XY4 TargetY7
-ML87=50.00			// XY4 Up7
-MR87=-50.00			// XY4 Down7
-MT88=none:assigned	// XY4 TargetY8
-ML88=50.00			// XY4 Up8
-MR88=-50.00			// XY4 Down8
-MMT1=none:assigned	// Matrix1 Target
-MMS1=0				// Matrix1 Source=none
-MMD1=0.00			// Matrix1 Depth
-MMVS1=0				// Matrix1 ViaSrc=none
-MMVD1=0.00			// Matrix1 Via
-MMT2=none:assigned	// Matrix2 Target
-MMS2=0				// Matrix2 Source=none
-MMD2=-100.00			// Matrix2 Depth
-MMVS2=0				// Matrix2 ViaSrc=none
-MMVD2=0.00			// Matrix2 Via
-MMT3=none:assigned	// Matrix3 Target
-MMS3=0				// Matrix3 Source=none
-MMD3=0.00			// Matrix3 Depth
-MMVS3=0				// Matrix3 ViaSrc=none
-MMVD3=0.00			// Matrix3 Via
-MMT4=none:assigned	// Matrix4 Target
-MMS4=0				// Matrix4 Source=none
-MMD4=0.00			// Matrix4 Depth
-MMVS4=0				// Matrix4 ViaSrc=none
-MMVD4=0.00			// Matrix4 Via
-MMT5=none:assigned	// Matrix5 Target
-MMS5=0				// Matrix5 Source=none
-MMD5=0.00			// Matrix5 Depth
-MMVS5=0				// Matrix5 ViaSrc=none
-MMVD5=0.00			// Matrix5 Via
-MMT6=none:assigned	// Matrix6 Target
-MMS6=0				// Matrix6 Source=none
-MMD6=0.00			// Matrix6 Depth
-MMVS6=0				// Matrix6 ViaSrc=none
-MMVD6=0.00			// Matrix6 Via
-MMT7=none:assigned	// Matrix7 Target
-MMS7=0				// Matrix7 Source=none
-MMD7=0.00			// Matrix7 Depth
-MMVS7=0				// Matrix7 ViaSrc=none
-MMVD7=0.00			// Matrix7 Via
-MMT8=none:assigned	// Matrix8 Target
-MMS8=0				// Matrix8 Source=none
-MMD8=0.00			// Matrix8 Depth
-MMVS8=0				// Matrix8 ViaSrc=none
-MMVD8=0.00			// Matrix8 Via
-MMT9=none:assigned	// Matrix9 Target
-MMS9=0				// Matrix9 Source=none
-MMD9=0.00			// Matrix9 Depth
-MMVS9=0				// Matrix9 ViaSrc=none
-MMVD9=0.00			// Matrix9 Via
-MMT10=none:assigned	// Matrix10 Target
-MMS10=0				// Matrix10 Source=none
-MMD10=0.00			// Matrix10 Depth
-MMVS10=0				// Matrix10 ViaSrc=none
-MMVD10=0.00			// Matrix10 Via
-MMT11=none:assigned	// Matrix11 Target
-MMS11=0				// Matrix11 Source=none
-MMD11=0.00			// Matrix11 Depth
-MMVS11=0				// Matrix11 ViaSrc=none
-MMVD11=0.00			// Matrix11 Via
-MMT12=none:assigned	// Matrix12 Target
-MMS12=0				// Matrix12 Source=none
-MMD12=0.00			// Matrix12 Depth
-MMVS12=0				// Matrix12 ViaSrc=none
-MMVD12=0.00			// Matrix12 Via
-SBase=3				// SwingBase=1/8
-Swing=0.00			// Swing
-STrig=1				// SwingTrigger
-PSong=0				// PatchSong
-PFold=0				// binary data for PatchFolder
-PFile=1				// binary data for PatchFileName
-GFile=2				// binary data for GUI FileName
-GScale=0				// GUI Scale
-ChLay=0				// Channel Layout=auto/surround
-SurrO=1				// Surround Options=no lfe
-
-/*
-
-	LfoG1
-
-*/
-
+X_1=0.00
+Y_1=0.00
+X_2=0.00
+Y_2=0.00
+X_3=0.00
+Y_3=0.00
+X_4=0.00
+Y_4=0.00
+MT11=none:assigned
+ML11=48.00
+MR11=-48.00
+MT12=none:assigned
+ML12=15.00
+MR12=-15.00
+MT13=none:assigned
+ML13=50.00
+MR13=-50.00
+MT14=none:assigned
+ML14=50.00
+MR14=-50.00
+MT15=none:assigned
+ML15=50.00
+MR15=-50.00
+MT16=none:assigned
+ML16=50.00
+MR16=-50.00
+MT17=none:assigned
+ML17=50.00
+MR17=-50.00
+MT18=none:assigned
+ML18=50.00
+MR18=-50.00
+MT21=none:assigned
+ML21=50.00
+MR21=-50.00
+MT22=none:assigned
+ML22=50.00
+MR22=-50.00
+MT23=none:assigned
+ML23=50.00
+MR23=-50.00
+MT24=none:assigned
+ML24=50.00
+MR24=-50.00
+MT25=none:assigned
+ML25=50.00
+MR25=-50.00
+MT26=none:assigned
+ML26=50.00
+MR26=-50.00
+MT27=none:assigned
+ML27=50.00
+MR27=-50.00
+MT28=none:assigned
+ML28=50.00
+MR28=-50.00
+MT31=none:assigned
+ML31=50.00
+MR31=-50.00
+MT32=none:assigned
+ML32=50.00
+MR32=-50.00
+MT33=none:assigned
+ML33=48.00
+MR33=-48.00
+MT34=none:assigned
+ML34=50.00
+MR34=-50.00
+MT35=none:assigned
+ML35=50.00
+MR35=-50.00
+MT36=none:assigned
+ML36=50.00
+MR36=-50.00
+MT37=none:assigned
+ML37=50.00
+MR37=-50.00
+MT38=none:assigned
+ML38=50.00
+MR38=-50.00
+MT41=none:assigned
+ML41=15.00
+MR41=-15.00
+MT42=none:assigned
+ML42=50.00
+MR42=-50.00
+MT43=none:assigned
+ML43=50.00
+MR43=-50.00
+MT44=none:assigned
+ML44=50.00
+MR44=-50.00
+MT45=none:assigned
+ML45=50.00
+MR45=-50.00
+MT46=none:assigned
+ML46=50.00
+MR46=-50.00
+MT47=none:assigned
+ML47=50.00
+MR47=-50.00
+MT48=none:assigned
+ML48=50.00
+MR48=-50.00
+MT51=none:assigned
+ML51=50.00
+MR51=-50.00
+MT52=none:assigned
+ML52=50.00
+MR52=-50.00
+MT53=none:assigned
+ML53=50.00
+MR53=-50.00
+MT54=none:assigned
+ML54=50.00
+MR54=-50.00
+MT55=none:assigned
+ML55=50.00
+MR55=-50.00
+MT56=none:assigned
+ML56=50.00
+MR56=-50.00
+MT57=none:assigned
+ML57=50.00
+MR57=-50.00
+MT58=none:assigned
+ML58=50.00
+MR58=-50.00
+MT61=none:assigned
+ML61=50.00
+MR61=-50.00
+MT62=none:assigned
+ML62=50.00
+MR62=-50.00
+MT63=none:assigned
+ML63=50.00
+MR63=-50.00
+MT64=none:assigned
+ML64=50.00
+MR64=-50.00
+MT65=none:assigned
+ML65=50.00
+MR65=-50.00
+MT66=none:assigned
+ML66=50.00
+MR66=-50.00
+MT67=none:assigned
+ML67=50.00
+MR67=-50.00
+MT68=none:assigned
+ML68=50.00
+MR68=-50.00
+MT71=none:assigned
+ML71=50.00
+MR71=-50.00
+MT72=none:assigned
+ML72=50.00
+MR72=-50.00
+MT73=none:assigned
+ML73=50.00
+MR73=-50.00
+MT74=none:assigned
+ML74=50.00
+MR74=-50.00
+MT75=none:assigned
+ML75=50.00
+MR75=-50.00
+MT76=none:assigned
+ML76=50.00
+MR76=-50.00
+MT77=none:assigned
+ML77=50.00
+MR77=-50.00
+MT78=none:assigned
+ML78=50.00
+MR78=-50.00
+MT81=none:assigned
+ML81=50.00
+MR81=-50.00
+MT82=none:assigned
+ML82=50.00
+MR82=-50.00
+MT83=none:assigned
+ML83=50.00
+MR83=-50.00
+MT84=none:assigned
+ML84=50.00
+MR84=-50.00
+MT85=none:assigned
+ML85=50.00
+MR85=-50.00
+MT86=none:assigned
+ML86=50.00
+MR86=-50.00
+MT87=none:assigned
+ML87=50.00
+MR87=-50.00
+MT88=none:assigned
+ML88=50.00
+MR88=-50.00
+MMT1=none:assigned
+MMS1=0
+MMD1=0.00
+MMVS1=0
+MMVD1=0.00
+MMT2=none:assigned
+MMS2=0
+MMD2=-100.00
+MMVS2=0
+MMVD2=0.00
+MMT3=none:assigned
+MMS3=0
+MMD3=0.00
+MMVS3=0
+MMVD3=0.00
+MMT4=none:assigned
+MMS4=0
+MMD4=0.00
+MMVS4=0
+MMVD4=0.00
+MMT5=none:assigned
+MMS5=0
+MMD5=0.00
+MMVS5=0
+MMVD5=0.00
+MMT6=none:assigned
+MMS6=0
+MMD6=0.00
+MMVS6=0
+MMVD6=0.00
+MMT7=none:assigned
+MMS7=0
+MMD7=0.00
+MMVS7=0
+MMVD7=0.00
+MMT8=none:assigned
+MMS8=0
+MMD8=0.00
+MMVS8=0
+MMVD8=0.00
+MMT9=none:assigned
+MMS9=0
+MMD9=0.00
+MMVS9=0
+MMVD9=0.00
+MMT10=none:assigned
+MMS10=0
+MMD10=0.00
+MMVS10=0
+MMVD10=0.00
+MMT11=none:assigned
+MMS11=0
+MMD11=0.00
+MMVS11=0
+MMVD11=0.00
+MMT12=none:assigned
+MMS12=0
+MMD12=0.00
+MMVS12=0
+MMVD12=0.00
+SBase=3
+Swing=0.00
+STrig=1
+PSong=0
+PFold=0
+PFile=1
+GFile=2
+GScale=0
+ChLay=0
+SurrO=1
 #cm=LFOG
-Sync=4				// Sync=1/32
-Trig=0				// Restart=off
-Wave=0				// Waveform=sine
-Phse=0.00			// Phase
-Rate=100.00			// Rate
-Amp=100.00			// Amplitude
-Slew=1				// SlewRate=fast
-Nstp=16				// Num Steps
-Stps=3				// binary data for Steps
-UWv=0				// User Wave Mode=steps
-
-/*
-
-	LfoG2
-
-*/
-
+Sync=4
+Trig=0
+Wave=0
+Phse=0.00
+Rate=100.00
+Amp=100.00
+Slew=1
+Nstp=16
+Stps=3
+UWv=0
 #cm=LFOG2
-Sync=4				// Sync=1/32
-Trig=0				// Restart=off
-Wave=0				// Waveform=sine
-Phse=0.00			// Phase
-Rate=100.00			// Rate
-Amp=100.00			// Amplitude
-Slew=1				// SlewRate=fast
-Nstp=16				// Num Steps
-Stps=4				// binary data for Steps
-UWv=0				// User Wave Mode=steps
-
-/*
-
-	VoiceCircuit
-
-*/
-
+Sync=4
+Trig=0
+Wave=0
+Phse=0.00
+Rate=100.00
+Amp=100.00
+Slew=1
+Nstp=16
+Stps=4
+UWv=0
 #cm=VCC
-#LFO1=1				// Active #LFO1
-#LFO2=1				// Active #LFO2
-#LFO3=1				// Active #LFO3
-#LFO4=1				// Active #LFO4
-Voices=1				// Voices=medium
-Voicing=0				// Voicing
-Mode=0				// Mode=poly
-Porta=0.00			// Portamento
-PB=2				// PitchBendUp
-PBD=2				// PitchBendDown
-ArSc=3				// ArpSync=1/8
-ArOrd=0				// ArpOrder=by note
-ArLp=0				// ArpLoop=F -->
-ArOct=1				// ArpOctave
-ArLL=8				// ArpLoopLength
-ArTr=0				// ArpPortamento
-Drft=1				// Drift
-MTunS=0				// TuningMode
-MTunN=5				// binary data for Tuning
-MTunT=6				// binary data for TuningTable
-Trsp=0				// Transpose
-FTun=0.00			// FineTuneCents
-PortRg=100.00			// PortaRange
-PortaM=0				// PortamentoMode=time
-Porta2=0.00			// Portamento2
-Agte1=2				// Arp Gate1
-Atrp1=0				// Arp Transpose1=-12
-Avoc1=1				// Arp Voices1
-Amul1=1				// Arp Duration1
-Amod1=0				// Arp Step Control1=next
-AMDpt1=0.00			// Arp Step ModA1
-AMDpB1=0.00			// Arp Step ModB1
-Agte2=2				// Arp Gate2
-Atrp2=0				// Arp Transpose2=-12
-Avoc2=1				// Arp Voices2
-Amul2=1				// Arp Duration2
-Amod2=0				// Arp Step Control2=next
-AMDpt2=0.00			// Arp Step ModA2
-AMDpB2=0.00			// Arp Step ModB2
-Agte3=2				// Arp Gate3
-Atrp3=0				// Arp Transpose3=-12
-Avoc3=1				// Arp Voices3
-Amul3=1				// Arp Duration3
-Amod3=0				// Arp Step Control3=next
-AMDpt3=0.00			// Arp Step ModA3
-AMDpB3=0.00			// Arp Step ModB3
-Agte4=2				// Arp Gate4
-Atrp4=0				// Arp Transpose4=-12
-Avoc4=1				// Arp Voices4
-Amul4=1				// Arp Duration4
-Amod4=0				// Arp Step Control4=next
-AMDpt4=0.00			// Arp Step ModA4
-AMDpB4=0.00			// Arp Step ModB4
-Agte5=2				// Arp Gate5
-Atrp5=0				// Arp Transpose5=-12
-Avoc5=1				// Arp Voices5
-Amul5=1				// Arp Duration5
-Amod5=0				// Arp Step Control5=next
-AMDpt5=0.00			// Arp Step ModA5
-AMDpB5=0.00			// Arp Step ModB5
-Agte6=2				// Arp Gate6
-Atrp6=0				// Arp Transpose6=-12
-Avoc6=1				// Arp Voices6
-Amul6=1				// Arp Duration6
-Amod6=0				// Arp Step Control6=next
-AMDpt6=0.00			// Arp Step ModA6
-AMDpB6=0.00			// Arp Step ModB6
-Agte7=2				// Arp Gate7
-Atrp7=0				// Arp Transpose7=-12
-Avoc7=1				// Arp Voices7
-Amul7=1				// Arp Duration7
-Amod7=0				// Arp Step Control7=next
-AMDpt7=0.00			// Arp Step ModA7
-AMDpB7=0.00			// Arp Step ModB7
-Agte8=2				// Arp Gate8
-Atrp8=0				// Arp Transpose8=-12
-Avoc8=1				// Arp Voices8
-Amul8=1				// Arp Duration8
-Amod8=0				// Arp Step Control8=next
-AMDpt8=0.00			// Arp Step ModA8
-AMDpB8=0.00			// Arp Step ModB8
-Agte9=2				// Arp Gate9
-Atrp9=0				// Arp Transpose9=-12
-Avoc9=1				// Arp Voices9
-Amul9=1				// Arp Duration9
-Amod9=0				// Arp Step Control9=next
-AMDpt9=0.00			// Arp Step ModA9
-AMDpB9=0.00			// Arp Step ModB9
-Agte10=2				// Arp Gate10
-Atrp10=0				// Arp Transpose10=-12
-Avoc10=1				// Arp Voices10
-Amul10=1				// Arp Duration10
-Amod10=0				// Arp Step Control10=next
-AMDpt10=0.00			// Arp Step ModA10
-AMDpB10=0.00			// Arp Step ModB10
-Agte11=2				// Arp Gate11
-Atrp11=0				// Arp Transpose11=-12
-Avoc11=1				// Arp Voices11
-Amul11=1				// Arp Duration11
-Amod11=0				// Arp Step Control11=next
-AMDpt11=0.00			// Arp Step ModA11
-AMDpB11=0.00			// Arp Step ModB11
-Agte12=2				// Arp Gate12
-Atrp12=0				// Arp Transpose12=-12
-Avoc12=1				// Arp Voices12
-Amul12=1				// Arp Duration12
-Amod12=0				// Arp Step Control12=next
-AMDpt12=0.00			// Arp Step ModA12
-AMDpB12=0.00			// Arp Step ModB12
-Agte13=2				// Arp Gate13
-Atrp13=0				// Arp Transpose13=-12
-Avoc13=1				// Arp Voices13
-Amul13=1				// Arp Duration13
-Amod13=0				// Arp Step Control13=next
-AMDpt13=0.00			// Arp Step ModA13
-AMDpB13=0.00			// Arp Step ModB13
-Agte14=2				// Arp Gate14
-Atrp14=0				// Arp Transpose14=-12
-Avoc14=1				// Arp Voices14
-Amul14=1				// Arp Duration14
-Amod14=0				// Arp Step Control14=next
-AMDpt14=0.00			// Arp Step ModA14
-AMDpB14=0.00			// Arp Step ModB14
-Agte15=2				// Arp Gate15
-Atrp15=0				// Arp Transpose15=-12
-Avoc15=1				// Arp Voices15
-Amul15=1				// Arp Duration15
-Amod15=0				// Arp Step Control15=next
-AMDpt15=0.00			// Arp Step ModA15
-AMDpB15=0.00			// Arp Step ModB15
-Agte16=2				// Arp Gate16
-Atrp16=0				// Arp Transpose16=-12
-Avoc16=1				// Arp Voices16
-Amul16=1				// Arp Duration16
-Amod16=0				// Arp Step Control16=next
-AMDpt16=0.00			// Arp Step ModA16
-AMDpB16=0.00			// Arp Step ModB16
-
-/*
-
-	Env1
-
-*/
-
+#LFO1=1
+#LFO2=1
+#LFO3=1
+#LFO4=1
+Voices=1
+Voicing=0
+Mode=0
+Porta=0.00
+PB=2
+PBD=2
+ArSc=3
+ArOrd=0
+ArLp=0
+ArOct=1
+ArLL=8
+ArTr=0
+Drft=1
+MTunS=0
+MTunN=5
+MTunT=6
+Trsp=0
+FTun=0.00
+PortRg=100.00
+PortaM=0
+Porta2=0.00
+Agte1=2
+Atrp1=0
+Avoc1=1
+Amul1=1
+Amod1=0
+AMDpt1=0.00
+AMDpB1=0.00
+Agte2=2
+Atrp2=0
+Avoc2=1
+Amul2=1
+Amod2=0
+AMDpt2=0.00
+AMDpB2=0.00
+Agte3=2
+Atrp3=0
+Avoc3=1
+Amul3=1
+Amod3=0
+AMDpt3=0.00
+AMDpB3=0.00
+Agte4=2
+Atrp4=0
+Avoc4=1
+Amul4=1
+Amod4=0
+AMDpt4=0.00
+AMDpB4=0.00
+Agte5=2
+Atrp5=0
+Avoc5=1
+Amul5=1
+Amod5=0
+AMDpt5=0.00
+AMDpB5=0.00
+Agte6=2
+Atrp6=0
+Avoc6=1
+Amul6=1
+Amod6=0
+AMDpt6=0.00
+AMDpB6=0.00
+Agte7=2
+Atrp7=0
+Avoc7=1
+Amul7=1
+Amod7=0
+AMDpt7=0.00
+AMDpB7=0.00
+Agte8=2
+Atrp8=0
+Avoc8=1
+Amul8=1
+Amod8=0
+AMDpt8=0.00
+AMDpB8=0.00
+Agte9=2
+Atrp9=0
+Avoc9=1
+Amul9=1
+Amod9=0
+AMDpt9=0.00
+AMDpB9=0.00
+Agte10=2
+Atrp10=0
+Avoc10=1
+Amul10=1
+Amod10=0
+AMDpt10=0.00
+AMDpB10=0.00
+Agte11=2
+Atrp11=0
+Avoc11=1
+Amul11=1
+Amod11=0
+AMDpt11=0.00
+AMDpB11=0.00
+Agte12=2
+Atrp12=0
+Avoc12=1
+Amul12=1
+Amod12=0
+AMDpt12=0.00
+AMDpB12=0.00
+Agte13=2
+Atrp13=0
+Avoc13=1
+Amul13=1
+Amod13=0
+AMDpt13=0.00
+AMDpB13=0.00
+Agte14=2
+Atrp14=0
+Avoc14=1
+Amul14=1
+Amod14=0
+AMDpt14=0.00
+AMDpB14=0.00
+Agte15=2
+Atrp15=0
+Avoc15=1
+Amul15=1
+Amod15=0
+AMDpt15=0.00
+AMDpB15=0.00
+Agte16=2
+Atrp16=0
+Avoc16=1
+Amul16=1
+Amod16=0
+AMDpt16=0.00
+AMDpB16=0.00
 #cm=ENV1
-Mode=0				// Mode=quadric
-iMode=0				// InitMode=none
-sMode=0				// SustainMode=none
-init=0.00			// Init
-Atk=0.00			// Attack
-Dec=50.00			// Decay
-Sus=100.00			// Sustain
-SusT=0.00			// Fall/Rise
-Sus2=0.00			// Sustain2
-Rel=10.00			// Release
-Vel=0.00			// Velocity
-V2I=0.00			// Vel2I
-V2A=0.00			// Vel2A
-V2D=0.00			// Vel2D
-V2S=0.00			// Vel2S
-V2FR=0.00			// Vel2FR
-V2S2=0.00			// Vel2S2
-V2R=0.00			// Vel2R
-K2I=0.00			// Key2I
-K2A=0.00			// Key2A
-K2D=0.00			// Key2D
-K2S=0.00			// Key2S
-K2FR=0.00			// Key2FR
-K2S2=0.00			// Key2S2
-K2R=0.00			// Key2R
-Slope=0.00			// Slope
-TBase=0				// Timebase=8sX
-
-/*
-
-	Env2
-
-*/
-
+Mode=0
+iMode=0
+sMode=0
+init=0.00
+Atk=0.00
+Dec=50.00
+Sus=100.00
+SusT=0.00
+Sus2=0.00
+Rel=10.00
+Vel=0.00
+V2I=0.00
+V2A=0.00
+V2D=0.00
+V2S=0.00
+V2FR=0.00
+V2S2=0.00
+V2R=0.00
+K2I=0.00
+K2A=0.00
+K2D=0.00
+K2S=0.00
+K2FR=0.00
+K2S2=0.00
+K2R=0.00
+Slope=0.00
+TBase=0
 #cm=ENV2
-Mode=0				// Mode=quadric
-iMode=0				// InitMode=none
-sMode=0				// SustainMode=none
-init=0.00			// Init
-Atk=0.00			// Attack
-Dec=50.00			// Decay
-Sus=0.00			// Sustain
-SusT=0.00			// Fall/Rise
-Sus2=0.00			// Sustain2
-Rel=20.00			// Release
-Vel=0.00			// Velocity
-V2I=0.00			// Vel2I
-V2A=0.00			// Vel2A
-V2D=0.00			// Vel2D
-V2S=0.00			// Vel2S
-V2FR=0.00			// Vel2FR
-V2S2=0.00			// Vel2S2
-V2R=0.00			// Vel2R
-K2I=0.00			// Key2I
-K2A=0.00			// Key2A
-K2D=0.00			// Key2D
-K2S=0.00			// Key2S
-K2FR=0.00			// Key2FR
-K2S2=0.00			// Key2S2
-K2R=0.00			// Key2R
-Slope=-60.00			// Slope
-TBase=0				// Timebase=8sX
-
-/*
-
-	Env3
-
-*/
-
+Mode=0
+iMode=0
+sMode=0
+init=0.00
+Atk=0.00
+Dec=50.00
+Sus=0.00
+SusT=0.00
+Sus2=0.00
+Rel=20.00
+Vel=0.00
+V2I=0.00
+V2A=0.00
+V2D=0.00
+V2S=0.00
+V2FR=0.00
+V2S2=0.00
+V2R=0.00
+K2I=0.00
+K2A=0.00
+K2D=0.00
+K2S=0.00
+K2FR=0.00
+K2S2=0.00
+K2R=0.00
+Slope=-60.00
+TBase=0
 #cm=ENV3
-Mode=0				// Mode=quadric
-iMode=0				// InitMode=none
-sMode=0				// SustainMode=none
-init=0.00			// Init
-Atk=0.00			// Attack
-Dec=50.00			// Decay
-Sus=0.00			// Sustain
-SusT=0.00			// Fall/Rise
-Sus2=46.33			// Sustain2
-Rel=20.00			// Release
-Vel=0.00			// Velocity
-V2I=0.00			// Vel2I
-V2A=0.00			// Vel2A
-V2D=0.00			// Vel2D
-V2S=0.00			// Vel2S
-V2FR=0.00			// Vel2FR
-V2S2=0.00			// Vel2S2
-V2R=0.00			// Vel2R
-K2I=0.00			// Key2I
-K2A=0.00			// Key2A
-K2D=0.00			// Key2D
-K2S=0.00			// Key2S
-K2FR=0.00			// Key2FR
-K2S2=0.00			// Key2S2
-K2R=0.00			// Key2R
-Slope=-70.00			// Slope
-TBase=0				// Timebase=8sX
-
-/*
-
-	Env4
-
-*/
-
+Mode=0
+iMode=0
+sMode=0
+init=0.00
+Atk=0.00
+Dec=50.00
+Sus=0.00
+SusT=0.00
+Sus2=46.33
+Rel=20.00
+Vel=0.00
+V2I=0.00
+V2A=0.00
+V2D=0.00
+V2S=0.00
+V2FR=0.00
+V2S2=0.00
+V2R=0.00
+K2I=0.00
+K2A=0.00
+K2D=0.00
+K2S=0.00
+K2FR=0.00
+K2S2=0.00
+K2R=0.00
+Slope=-70.00
+TBase=0
 #cm=ENV4
-Mode=0				// Mode=quadric
-iMode=0				// InitMode=none
-sMode=0				// SustainMode=none
-init=0.00			// Init
-Atk=0.00			// Attack
-Dec=50.00			// Decay
-Sus=0.00			// Sustain
-SusT=0.00			// Fall/Rise
-Sus2=0.00			// Sustain2
-Rel=20.00			// Release
-Vel=0.00			// Velocity
-V2I=0.00			// Vel2I
-V2A=0.00			// Vel2A
-V2D=0.00			// Vel2D
-V2S=0.00			// Vel2S
-V2FR=0.00			// Vel2FR
-V2S2=0.00			// Vel2S2
-V2R=0.00			// Vel2R
-K2I=0.00			// Key2I
-K2A=0.00			// Key2A
-K2D=0.00			// Key2D
-K2S=0.00			// Key2S
-K2FR=0.00			// Key2FR
-K2S2=0.00			// Key2S2
-K2R=0.00			// Key2R
-Slope=-70.00			// Slope
-TBase=0				// Timebase=8sX
-
-/*
-
-	MSEG1
-
-*/
-
+Mode=0
+iMode=0
+sMode=0
+init=0.00
+Atk=0.00
+Dec=50.00
+Sus=0.00
+SusT=0.00
+Sus2=0.00
+Rel=20.00
+Vel=0.00
+V2I=0.00
+V2A=0.00
+V2D=0.00
+V2S=0.00
+V2FR=0.00
+V2S2=0.00
+V2R=0.00
+K2I=0.00
+K2A=0.00
+K2D=0.00
+K2S=0.00
+K2FR=0.00
+K2S2=0.00
+K2R=0.00
+Slope=-70.00
+TBase=0
 #cm=MSEG1
-TmUn=0				// TimeUnit=Sixteenth
-Env=7				// binary data for Envelope
-Vel=0.00			// Velocity
-Atk=0.00			// Attack
-Lpt=0.00			// Loop
-Rel=0.00			// Release
-Trig=0				// Trigger=poly
-
-/*
-
-	MSEG2
-
-*/
-
+TmUn=0
+Env=7
+Vel=0.00
+Atk=0.00
+Lpt=0.00
+Rel=0.00
+Trig=0
 #cm=MSEG2
-TmUn=0				// TimeUnit=Sixteenth
-Env=8				// binary data for Envelope
-Vel=0.00			// Velocity
-Atk=0.00			// Attack
-Lpt=0.00			// Loop
-Rel=0.00			// Release
-Trig=0				// Trigger=poly
-
-/*
-
-	MSEG3
-
-*/
-
+TmUn=0
+Env=8
+Vel=0.00
+Atk=0.00
+Lpt=0.00
+Rel=0.00
+Trig=0
 #cm=MSEG3
-TmUn=0				// TimeUnit=Sixteenth
-Env=9				// binary data for Envelope
-Vel=0.00			// Velocity
-Atk=0.00			// Attack
-Lpt=0.00			// Loop
-Rel=0.00			// Release
-Trig=0				// Trigger=poly
-
-/*
-
-	MSEG4
-
-*/
-
+TmUn=0
+Env=9
+Vel=0.00
+Atk=0.00
+Lpt=0.00
+Rel=0.00
+Trig=0
 #cm=MSEG4
-TmUn=0				// TimeUnit=Sixteenth
-Env=10				// binary data for Envelope
-Vel=0.00			// Velocity
-Atk=0.00			// Attack
-Lpt=0.00			// Loop
-Rel=0.00			// Release
-Trig=0				// Trigger=poly
-
-/*
-
-	Lfo1
-
-*/
-
+TmUn=0
+Env=10
+Vel=0.00
+Atk=0.00
+Lpt=0.00
+Rel=0.00
+Trig=0
 #cm=LFO1
-Sync=-3				// Sync=Ó√?‹ƒ?«≈?≠∆?ë«?q»?M…?& ?¸ ?ŒÀ?ùÃ?iÕ?2Œ?˜Œ?∫œ?y–?6—?—?¶“?Z”?‘?Xˇ?T¯-@ˇˇˇ0.1s
-Trig=0				// Restart=free
-Wave=0				// Waveform=sine
-Phse=0.00			// Phase
-Rate=80.00			// Rate
-Amp=100.00			// Amplitude
-Slew=1				// SlewRate=fast
-Nstp=16				// Num Steps
-Stps=11				// binary data for Steps
-UWv=0				// User Wave Mode=steps
-Dly=0.00			// Delay
-DMS1=0				// DepthMod Src1=none
-DMD1=0.00			// DepthMod Dpt1
-FMS1=0				// FreqMod Src1=none
-FMD1=0.00			// FreqMod Dpt
-
-/*
-
-	Lfo2
-
-*/
-
+Sync=-3
+Trig=0
+Wave=0
+Phse=0.00
+Rate=80.00
+Amp=100.00
+Slew=1
+Nstp=16
+Stps=11
+UWv=0
+Dly=0.00
+DMS1=0
+DMD1=0.00
+FMS1=0
+FMD1=0.00
 #cm=LFO2
-Sync=4				// Sync=1/32
-Trig=0				// Restart=free
-Wave=0				// Waveform=sine
-Phse=0.00			// Phase
-Rate=100.00			// Rate
-Amp=100.00			// Amplitude
-Slew=1				// SlewRate=fast
-Nstp=16				// Num Steps
-Stps=12				// binary data for Steps
-UWv=0				// User Wave Mode=steps
-Dly=0.00			// Delay
-DMS1=0				// DepthMod Src1=none
-DMD1=0.00			// DepthMod Dpt1
-FMS1=0				// FreqMod Src1=none
-FMD1=0.00			// FreqMod Dpt
-
-/*
-
-	Lfo3
-
-*/
-
+Sync=4
+Trig=0
+Wave=0
+Phse=0.00
+Rate=100.00
+Amp=100.00
+Slew=1
+Nstp=16
+Stps=12
+UWv=0
+Dly=0.00
+DMS1=0
+DMD1=0.00
+FMS1=0
+FMD1=0.00
 #cm=LFO3
-Sync=4				// Sync=1/32
-Trig=0				// Restart=free
-Wave=0				// Waveform=sine
-Phse=0.00			// Phase
-Rate=100.00			// Rate
-Amp=100.00			// Amplitude
-Slew=1				// SlewRate=fast
-Nstp=16				// Num Steps
-Stps=13				// binary data for Steps
-UWv=0				// User Wave Mode=steps
-Dly=0.00			// Delay
-DMS1=0				// DepthMod Src1=none
-DMD1=0.00			// DepthMod Dpt1
-FMS1=0				// FreqMod Src1=none
-FMD1=0.00			// FreqMod Dpt
-
-/*
-
-	Lfo4
-
-*/
-
+Sync=4
+Trig=0
+Wave=0
+Phse=0.00
+Rate=100.00
+Amp=100.00
+Slew=1
+Nstp=16
+Stps=13
+UWv=0
+Dly=0.00
+DMS1=0
+DMD1=0.00
+FMS1=0
+FMD1=0.00
 #cm=LFO4
-Sync=4				// Sync=1/32
-Trig=0				// Restart=free
-Wave=0				// Waveform=sine
-Phse=0.00			// Phase
-Rate=100.00			// Rate
-Amp=100.00			// Amplitude
-Slew=1				// SlewRate=fast
-Nstp=16				// Num Steps
-Stps=14				// binary data for Steps
-UWv=0				// User Wave Mode=steps
-Dly=0.00			// Delay
-DMS1=0				// DepthMod Src1=none
-DMD1=0.00			// DepthMod Dpt1
-FMS1=0				// FreqMod Src1=none
-FMD1=0.00			// FreqMod Dpt
-
-/*
-
-	MMap1
-
-*/
-
+Sync=4
+Trig=0
+Wave=0
+Phse=0.00
+Rate=100.00
+Amp=100.00
+Slew=1
+Nstp=16
+Stps=14
+UWv=0
+Dly=0.00
+DMS1=0
+DMD1=0.00
+FMS1=0
+FMD1=0.00
 #cm=MMap1
-Mode=3				// Mode=Alternate
-MSrc=0				// MSrc=none
-Stps=15				// binary data for Steps
-Num=17				// Number=
-
-/*
-
-	MMap2
-
-*/
-
+Mode=3
+MSrc=0
+Stps=15
+Num=17
 #cm=MMap2
-Mode=3				// Mode=Alternate
-MSrc=0				// MSrc=none
-Stps=16				// binary data for Steps
-Num=6				// Number=
-
-/*
-
-	MMix1
-
-*/
-
+Mode=3
+MSrc=0
+Stps=16
+Num=6
 #cm=MMix1
-Type=0				// Mode=sum modulations
-Mod1=0				// Mod1=none
-Mod2=0				// Mod2=none
-Mod3=0				// Mod3=none
-Cst=50.00			// Constant
-
-/*
-
-	MMix2
-
-*/
-
+Type=0
+Mod1=0
+Mod2=0
+Mod3=0
+Cst=50.00
 #cm=MMix2
-Type=0				// Mode=sum modulations
-Mod1=0				// Mod1=none
-Mod2=0				// Mod2=none
-Mod3=0				// Mod3=none
-Cst=50.00			// Constant
-
-/*
-
-	MMix3
-
-*/
-
+Type=0
+Mod1=0
+Mod2=0
+Mod3=0
+Cst=50.00
 #cm=MMix3
-Type=0				// Mode=sum modulations
-Mod1=0				// Mod1=none
-Mod2=0				// Mod2=none
-Mod3=0				// Mod3=none
-Cst=50.00			// Constant
-
-/*
-
-	MMix4
-
-*/
-
+Type=0
+Mod1=0
+Mod2=0
+Mod3=0
+Cst=50.00
 #cm=MMix4
-Type=0				// Mode=sum modulations
-Mod1=0				// Mod1=none
-Mod2=0				// Mod2=none
-Mod3=0				// Mod3=none
-Cst=50.00			// Constant
-
-/*
-
-	Grid
-
-*/
-
+Type=0
+Mod1=0
+Mod2=0
+Mod3=0
+Cst=50.00
 #cm=Grid
-Grid=17				// binary data for Grid Structure
-GByp=0				// Bypass
-
-/*
-
-	Oscillator1
-
-*/
-
+Grid=17
+GByp=0
 #cm=OSC1
-Wave=2				// WaveForm=GeoBlend
-Tune=0.00			// Tune
-KeyScl=100.00			// key scale
-TMSrc=0				// TuneModSrc=none
-TMDpt=0.00			// TuneModDepth
-Phse=50.00			// Phase
-PhsMSrc=0				// PhaseModSrc=none
-PhsMDpt=0.00			// PhaseModDepth
-WNum=2.00			// WaveWarp
-WPSrc=0				// WarpModSrc=none
-WPDpt=0.00			// WarpModDepth
-VtoD=0.00			// Vibrato
-Curve=18				// binary data for Curve
-Prec=5.00			// Resolution
-FX1Tp=0				// SpectraFX1 Type=none
-SFX1=0.00			// SpectraFX1 Val
-FX1Sc=0				// SFX1ModSrc=none
-FX1Dt=0.00			// SFX1ModDepth
-FX2Tp=0				// SpectraFX2 Type=none
-SFX2=0.00			// SpectraFX2 Val
-FX2Sc=0				// SFX2ModSrc=none
-FX2Dt=0.00			// SFX2ModDepth
-Poly=0				// PolyWave=single
-Dtun=0.00			// Detune
-KVsc=19				// binary data for KeyVelZones
-Vol=100.00			// Volume
-VolSc=0				// VolumeModSrc=none
-VolDt=0.00			// VolumeModDepth
-Pan=0.00			// Pan
-PanSc=0				// PanModSrc=none
-PanDt=0.00			// PanModDepth
-Sync=0.00			// SyncTune
-SncSc=0				// SyncModSrc=none
-SncDt=0.00			// SyncModDepth
-SncOn=0				// Sync Active
-PolW=50.00			// Poly Width
-PwmOn=0				// PWM Mode
-WaTb=20				// binary data for WaveTable
-RePhs=0				// Reset Phase
-Norm=15.00			// Normalize
-Rend=0				// Renderer=soft
-
-/*
-
-	Oscillator2
-
-*/
-
+Wave=2
+Tune=0.00
+KeyScl=100.00
+TMSrc=0
+TMDpt=0.00
+Phse=50.00
+PhsMSrc=0
+PhsMDpt=0.00
+WNum=2.00
+WPSrc=0
+WPDpt=0.00
+VtoD=0.00
+Curve=18
+Prec=5.00
+FX1Tp=0
+SFX1=0.00
+FX1Sc=0
+FX1Dt=0.00
+FX2Tp=0
+SFX2=0.00
+FX2Sc=0
+FX2Dt=0.00
+Poly=0
+Dtun=0.00
+KVsc=19
+Vol=100.00
+VolSc=0
+VolDt=0.00
+Pan=0.00
+PanSc=0
+PanDt=0.00
+Sync=0.00
+SncSc=0
+SncDt=0.00
+SncOn=0
+PolW=50.00
+PwmOn=0
+WaTb=20
+RePhs=0
+Norm=15.00
+Rend=0
 #cm=OSC2
-Wave=2				// WaveForm=GeoBlend
-Tune=0.00			// Tune
-KeyScl=100.00			// key scale
-TMSrc=0				// TuneModSrc=none
-TMDpt=0.00			// TuneModDepth
-Phse=50.00			// Phase
-PhsMSrc=0				// PhaseModSrc=none
-PhsMDpt=0.00			// PhaseModDepth
-WNum=2.00			// WaveWarp
-WPSrc=0				// WarpModSrc=none
-WPDpt=0.00			// WarpModDepth
-VtoD=0.00			// Vibrato
-Curve=21				// binary data for Curve
-Prec=5.00			// Resolution
-FX1Tp=0				// SpectraFX1 Type=none
-SFX1=0.00			// SpectraFX1 Val
-FX1Sc=0				// SFX1ModSrc=none
-FX1Dt=0.00			// SFX1ModDepth
-FX2Tp=0				// SpectraFX2 Type=none
-SFX2=0.00			// SpectraFX2 Val
-FX2Sc=0				// SFX2ModSrc=none
-FX2Dt=0.00			// SFX2ModDepth
-Poly=0				// PolyWave=single
-Dtun=0.00			// Detune
-KVsc=22				// binary data for KeyVelZones
-Vol=100.00			// Volume
-VolSc=0				// VolumeModSrc=none
-VolDt=0.00			// VolumeModDepth
-Pan=0.00			// Pan
-PanSc=0				// PanModSrc=none
-PanDt=0.00			// PanModDepth
-Sync=0.00			// SyncTune
-SncSc=0				// SyncModSrc=none
-SncDt=0.00			// SyncModDepth
-SncOn=0				// Sync Active
-PolW=50.00			// Poly Width
-PwmOn=0				// PWM Mode
-WaTb=23				// binary data for WaveTable
-RePhs=0				// Reset Phase
-Norm=15.00			// Normalize
-Rend=0				// Renderer=soft
-
-/*
-
-	Oscillator3
-
-*/
-
+Wave=2
+Tune=0.00
+KeyScl=100.00
+TMSrc=0
+TMDpt=0.00
+Phse=50.00
+PhsMSrc=0
+PhsMDpt=0.00
+WNum=2.00
+WPSrc=0
+WPDpt=0.00
+VtoD=0.00
+Curve=21
+Prec=5.00
+FX1Tp=0
+SFX1=0.00
+FX1Sc=0
+FX1Dt=0.00
+FX2Tp=0
+SFX2=0.00
+FX2Sc=0
+FX2Dt=0.00
+Poly=0
+Dtun=0.00
+KVsc=22
+Vol=100.00
+VolSc=0
+VolDt=0.00
+Pan=0.00
+PanSc=0
+PanDt=0.00
+Sync=0.00
+SncSc=0
+SncDt=0.00
+SncOn=0
+PolW=50.00
+PwmOn=0
+WaTb=23
+RePhs=0
+Norm=15.00
+Rend=0
 #cm=OSC3
-Wave=2				// WaveForm=GeoBlend
-Tune=0.00			// Tune
-KeyScl=100.00			// key scale
-TMSrc=0				// TuneModSrc=none
-TMDpt=0.00			// TuneModDepth
-Phse=50.00			// Phase
-PhsMSrc=0				// PhaseModSrc=none
-PhsMDpt=0.00			// PhaseModDepth
-WNum=2.00			// WaveWarp
-WPSrc=0				// WarpModSrc=none
-WPDpt=0.00			// WarpModDepth
-VtoD=0.00			// Vibrato
-Curve=24				// binary data for Curve
-Prec=5.00			// Resolution
-FX1Tp=0				// SpectraFX1 Type=none
-SFX1=0.00			// SpectraFX1 Val
-FX1Sc=0				// SFX1ModSrc=none
-FX1Dt=0.00			// SFX1ModDepth
-FX2Tp=0				// SpectraFX2 Type=none
-SFX2=0.00			// SpectraFX2 Val
-FX2Sc=0				// SFX2ModSrc=none
-FX2Dt=0.00			// SFX2ModDepth
-Poly=0				// PolyWave=single
-Dtun=0.00			// Detune
-KVsc=25				// binary data for KeyVelZones
-Vol=100.00			// Volume
-VolSc=0				// VolumeModSrc=none
-VolDt=0.00			// VolumeModDepth
-Pan=0.00			// Pan
-PanSc=0				// PanModSrc=none
-PanDt=0.00			// PanModDepth
-Sync=0.00			// SyncTune
-SncSc=0				// SyncModSrc=none
-SncDt=0.00			// SyncModDepth
-SncOn=0				// Sync Active
-PolW=50.00			// Poly Width
-PwmOn=0				// PWM Mode
-WaTb=26				// binary data for WaveTable
-RePhs=0				// Reset Phase
-Norm=15.00			// Normalize
-Rend=0				// Renderer=soft
-
-/*
-
-	Oscillator4
-
-*/
-
+Wave=2
+Tune=0.00
+KeyScl=100.00
+TMSrc=0
+TMDpt=0.00
+Phse=50.00
+PhsMSrc=0
+PhsMDpt=0.00
+WNum=2.00
+WPSrc=0
+WPDpt=0.00
+VtoD=0.00
+Curve=24
+Prec=5.00
+FX1Tp=0
+SFX1=0.00
+FX1Sc=0
+FX1Dt=0.00
+FX2Tp=0
+SFX2=0.00
+FX2Sc=0
+FX2Dt=0.00
+Poly=0
+Dtun=0.00
+KVsc=25
+Vol=100.00
+VolSc=0
+VolDt=0.00
+Pan=0.00
+PanSc=0
+PanDt=0.00
+Sync=0.00
+SncSc=0
+SncDt=0.00
+SncOn=0
+PolW=50.00
+PwmOn=0
+WaTb=26
+RePhs=0
+Norm=15.00
+Rend=0
 #cm=OSC4
-Wave=2				// WaveForm=GeoBlend
-Tune=0.00			// Tune
-KeyScl=100.00			// key scale
-TMSrc=0				// TuneModSrc=none
-TMDpt=0.00			// TuneModDepth
-Phse=50.00			// Phase
-PhsMSrc=0				// PhaseModSrc=none
-PhsMDpt=0.00			// PhaseModDepth
-WNum=2.00			// WaveWarp
-WPSrc=0				// WarpModSrc=none
-WPDpt=15.00			// WarpModDepth
-VtoD=0.00			// Vibrato
-Curve=27				// binary data for Curve
-Prec=5.00			// Resolution
-FX1Tp=0				// SpectraFX1 Type=none
-SFX1=0.00			// SpectraFX1 Val
-FX1Sc=0				// SFX1ModSrc=none
-FX1Dt=0.00			// SFX1ModDepth
-FX2Tp=0				// SpectraFX2 Type=none
-SFX2=0.00			// SpectraFX2 Val
-FX2Sc=0				// SFX2ModSrc=none
-FX2Dt=0.00			// SFX2ModDepth
-Poly=0				// PolyWave=single
-Dtun=0.00			// Detune
-KVsc=28				// binary data for KeyVelZones
-Vol=100.00			// Volume
-VolSc=0				// VolumeModSrc=none
-VolDt=0.00			// VolumeModDepth
-Pan=0.00			// Pan
-PanSc=0				// PanModSrc=none
-PanDt=0.00			// PanModDepth
-Sync=0.00			// SyncTune
-SncSc=0				// SyncModSrc=none
-SncDt=0.00			// SyncModDepth
-SncOn=0				// Sync Active
-PolW=50.00			// Poly Width
-PwmOn=0				// PWM Mode
-WaTb=29				// binary data for WaveTable
-RePhs=0				// Reset Phase
-Norm=20.00			// Normalize
-Rend=0				// Renderer=soft
-
-/*
-
-	Noise1
-
-*/
-
+Wave=2
+Tune=0.00
+KeyScl=100.00
+TMSrc=0
+TMDpt=0.00
+Phse=50.00
+PhsMSrc=0
+PhsMDpt=0.00
+WNum=2.00
+WPSrc=0
+WPDpt=15.00
+VtoD=0.00
+Curve=27
+Prec=5.00
+FX1Tp=0
+SFX1=0.00
+FX1Sc=0
+FX1Dt=0.00
+FX2Tp=0
+SFX2=0.00
+FX2Sc=0
+FX2Dt=0.00
+Poly=0
+Dtun=0.00
+KVsc=28
+Vol=100.00
+VolSc=0
+VolDt=0.00
+Pan=0.00
+PanSc=0
+PanDt=0.00
+Sync=0.00
+SncSc=0
+SncDt=0.00
+SncOn=0
+PolW=50.00
+PwmOn=0
+WaTb=29
+RePhs=0
+Norm=20.00
+Rend=0
 #cm=Noise1
-Type=0				// Type=White
-F1=100.00			// Filter1
-F1Src=0				// F1 ModSrc=none
-F1Dpt=0.00			// F1 ModDepth
-F2=0.00			// Filter2
-F2Src=0				// F2 ModSrc=none
-F2Dpt=0.00			// F2 ModDepth
-KVsc=30				// binary data for KeyVelZones
-Vol=0.00			// Volume
-VolSc=0				// VolumeModSrc=none
-VolDt=0.00			// VolumeModDepth
-Pan=0.00			// Pan
-PanSc=0				// PanModSrc=none
-PanDt=0.00			// PanModDepth
-Poly=1				// Poly
-PolW=50.00			// Width
-
-/*
-
-	Noise2
-
-*/
-
+Type=0
+F1=100.00
+F1Src=0
+F1Dpt=0.00
+F2=0.00
+F2Src=0
+F2Dpt=0.00
+KVsc=30
+Vol=0.00
+VolSc=0
+VolDt=0.00
+Pan=0.00
+PanSc=0
+PanDt=0.00
+Poly=1
+PolW=50.00
 #cm=Noise2
-Type=0				// Type=White
-F1=100.00			// Filter1
-F1Src=0				// F1 ModSrc=none
-F1Dpt=0.00			// F1 ModDepth
-F2=0.00			// Filter2
-F2Src=0				// F2 ModSrc=none
-F2Dpt=0.00			// F2 ModDepth
-KVsc=31				// binary data for KeyVelZones
-Vol=0.00			// Volume
-VolSc=0				// VolumeModSrc=none
-VolDt=0.00			// VolumeModDepth
-Pan=0.00			// Pan
-PanSc=0				// PanModSrc=none
-PanDt=0.00			// PanModDepth
-Poly=1				// Poly
-PolW=50.00			// Width
-
-/*
-
-	Filter1
-
-*/
-
+Type=0
+F1=100.00
+F1Src=0
+F1Dpt=0.00
+F2=0.00
+F2Src=0
+F2Dpt=0.00
+KVsc=31
+Vol=0.00
+VolSc=0
+VolDt=0.00
+Pan=0.00
+PanSc=0
+PanDt=0.00
+Poly=1
+PolW=50.00
 #cm=VCF1
-Typ=0				// Type=LP Xcite
-Cut=150.00			// Cutoff
-Res=0.00			// Resonance
-Drv=0.00			// Drive
-Gain=0.00			// Gain
-FM1=0.00			// ModDepth1
-FS1=0				// Modsource1=none
-FM2=0.00			// ModDepth2
-FS2=0				// Modsource2=none
-KeyScl=0.00			// KeyFollow
-
-/*
-
-	Filter2
-
-*/
-
+Typ=0
+Cut=150.00
+Res=0.00
+Drv=0.00
+Gain=0.00
+FM1=0.00
+FS1=0
+FM2=0.00
+FS2=0
+KeyScl=0.00
 #cm=VCF2
-Typ=0				// Type=LP Xcite
-Cut=150.00			// Cutoff
-Res=0.00			// Resonance
-Drv=0.00			// Drive
-Gain=0.00			// Gain
-FM1=0.00			// ModDepth1
-FS1=0				// Modsource1=none
-FM2=0.00			// ModDepth2
-FS2=0				// Modsource2=none
-KeyScl=0.00			// KeyFollow
-
-/*
-
-	Filter3
-
-*/
-
+Typ=0
+Cut=150.00
+Res=0.00
+Drv=0.00
+Gain=0.00
+FM1=0.00
+FS1=0
+FM2=0.00
+FS2=0
+KeyScl=0.00
 #cm=VCF3
-Typ=0				// Type=LP Xcite
-Cut=150.00			// Cutoff
-Res=0.00			// Resonance
-Drv=0.00			// Drive
-Gain=0.00			// Gain
-FM1=0.00			// ModDepth1
-FS1=0				// Modsource1=none
-FM2=0.00			// ModDepth2
-FS2=0				// Modsource2=none
-KeyScl=0.00			// KeyFollow
-
-/*
-
-	Filter4
-
-*/
-
+Typ=0
+Cut=150.00
+Res=0.00
+Drv=0.00
+Gain=0.00
+FM1=0.00
+FS1=0
+FM2=0.00
+FS2=0
+KeyScl=0.00
 #cm=VCF4
-Typ=0				// Type=LP Xcite
-Cut=150.00			// Cutoff
-Res=0.00			// Resonance
-Drv=0.00			// Drive
-Gain=0.00			// Gain
-FM1=0.00			// ModDepth1
-FS1=0				// Modsource1=none
-FM2=0.00			// ModDepth2
-FS2=0				// Modsource2=none
-KeyScl=0.00			// KeyFollow
-
-/*
-
-	FMO1
-
-*/
-
+Typ=0
+Cut=150.00
+Res=0.00
+Drv=0.00
+Gain=0.00
+FM1=0.00
+FS1=0
+FM2=0.00
+FS2=0
+KeyScl=0.00
 #cm=FMO1
-Wave=0				// Mode=FM by Input
-Tune=0.00			// Tune
-KeyScl=100.00			// key scale
-TMSrc=0				// TuneModSrc=none
-TMDpt=0.00			// TuneModDepth
-FM=0.00			// FM Depth
-FMSrc=0				// FM ModSrc=none
-FMDpt=0.00			// FM ModDepth
-VtoD=0.00			// Vibrato
-Dtun=0.00			// Detune
-KVsc=32				// binary data for KeyVelZones
-Vol=100.00			// Volume
-VolSc=0				// VolumeModSrc=none
-VolDt=0.00			// VolumeModDepth
-Pan=0.00			// Pan
-PanSc=0				// PanModSrc=none
-PanDt=0.00			// PanModDepth
-Poly=0				// Poly
-PolW=50.00			// Width
-Getr=0				// Generator=pure sine
-
-/*
-
-	FMO2
-
-*/
-
+Wave=0
+Tune=0.00
+KeyScl=100.00
+TMSrc=0
+TMDpt=0.00
+FM=0.00
+FMSrc=0
+FMDpt=0.00
+VtoD=0.00
+Dtun=0.00
+KVsc=32
+Vol=100.00
+VolSc=0
+VolDt=0.00
+Pan=0.00
+PanSc=0
+PanDt=0.00
+Poly=0
+PolW=50.00
+Getr=0
 #cm=FMO2
-Wave=0				// Mode=FM by Input
-Tune=0.00			// Tune
-KeyScl=100.00			// key scale
-TMSrc=0				// TuneModSrc=none
-TMDpt=0.00			// TuneModDepth
-FM=0.00			// FM Depth
-FMSrc=0				// FM ModSrc=none
-FMDpt=0.00			// FM ModDepth
-VtoD=0.00			// Vibrato
-Dtun=0.00			// Detune
-KVsc=33				// binary data for KeyVelZones
-Vol=100.00			// Volume
-VolSc=0				// VolumeModSrc=none
-VolDt=0.00			// VolumeModDepth
-Pan=0.00			// Pan
-PanSc=0				// PanModSrc=none
-PanDt=0.00			// PanModDepth
-Poly=0				// Poly
-PolW=50.00			// Width
-Getr=0				// Generator=pure sine
-
-/*
-
-	FMO3
-
-*/
-
+Wave=0
+Tune=0.00
+KeyScl=100.00
+TMSrc=0
+TMDpt=0.00
+FM=0.00
+FMSrc=0
+FMDpt=0.00
+VtoD=0.00
+Dtun=0.00
+KVsc=33
+Vol=100.00
+VolSc=0
+VolDt=0.00
+Pan=0.00
+PanSc=0
+PanDt=0.00
+Poly=0
+PolW=50.00
+Getr=0
 #cm=FMO3
-Wave=0				// Mode=FM by Input
-Tune=0.00			// Tune
-KeyScl=100.00			// key scale
-TMSrc=0				// TuneModSrc=none
-TMDpt=0.00			// TuneModDepth
-FM=0.00			// FM Depth
-FMSrc=0				// FM ModSrc=none
-FMDpt=0.00			// FM ModDepth
-VtoD=0.00			// Vibrato
-Dtun=0.00			// Detune
-KVsc=34				// binary data for KeyVelZones
-Vol=100.00			// Volume
-VolSc=0				// VolumeModSrc=none
-VolDt=0.00			// VolumeModDepth
-Pan=0.00			// Pan
-PanSc=0				// PanModSrc=none
-PanDt=0.00			// PanModDepth
-Poly=0				// Poly
-PolW=50.00			// Width
-Getr=0				// Generator=pure sine
-
-/*
-
-	FMO4
-
-*/
-
+Wave=0
+Tune=0.00
+KeyScl=100.00
+TMSrc=0
+TMDpt=0.00
+FM=0.00
+FMSrc=0
+FMDpt=0.00
+VtoD=0.00
+Dtun=0.00
+KVsc=34
+Vol=100.00
+VolSc=0
+VolDt=0.00
+Pan=0.00
+PanSc=0
+PanDt=0.00
+Poly=0
+PolW=50.00
+Getr=0
 #cm=FMO4
-Wave=0				// Mode=FM by Input
-Tune=0.00			// Tune
-KeyScl=100.00			// key scale
-TMSrc=0				// TuneModSrc=none
-TMDpt=0.00			// TuneModDepth
-FM=0.00			// FM Depth
-FMSrc=0				// FM ModSrc=none
-FMDpt=0.00			// FM ModDepth
-VtoD=0.00			// Vibrato
-Dtun=0.00			// Detune
-KVsc=35				// binary data for KeyVelZones
-Vol=100.00			// Volume
-VolSc=0				// VolumeModSrc=none
-VolDt=0.00			// VolumeModDepth
-Pan=0.00			// Pan
-PanSc=0				// PanModSrc=none
-PanDt=0.00			// PanModDepth
-Poly=0				// Poly
-PolW=50.00			// Width
-Getr=0				// Generator=pure sine
-
-/*
-
-	Comb1
-
-*/
-
+Wave=0
+Tune=0.00
+KeyScl=100.00
+TMSrc=0
+TMDpt=0.00
+FM=0.00
+FMSrc=0
+FMDpt=0.00
+VtoD=0.00
+Dtun=0.00
+KVsc=35
+Vol=100.00
+VolSc=0
+VolDt=0.00
+Pan=0.00
+PanSc=0
+PanDt=0.00
+Poly=0
+PolW=50.00
+Getr=0
 #cm=Comb1
-Mode=0				// Mode=Comb
-Tune=0.00			// Tune
-KeyScl=100.00			// key scale
-TMSrc=0				// TuneModSrc=none
-TMDpt=0.00			// TuneModDepth
-Detn=0.00			// Detune
-VtoD=0.00			// Vibrato
-FB=50.00			// Feedback
-FBSrc=0				// FBModSrc=none
-FBDpt=0.00			// FBModDepth
-Damp=10.00			// Damp
-DmpSrc=0				// DampModSrc=none
-DmpDpt=0.00			// DampModDepth
-Exc=100.00			// PreFill
-Inj=0.00			// Input
-InjSrc=0				// InModSrc=none
-InjDpt=0.00			// InputMod
-Tne=50.00			// Tone
-TneSrc=0				// ToneModSrc=none
-TneDpt=0.00			// ToneMod
-Sec=0.00			// Flavour
-SecSrc=0				// SecModSrc=none
-SecDpt=0.00			// FlavourMod
-Dist=0.00			// Distortion
-Dry=0.00			// Dry
-Vol=100.00			// Volume
-VolSc=0				// VolumeModSrc=none
-VolDt=0.00			// VolumeModDepth
-Pan=0.00			// Pan
-PanSc=0				// PanModSrc=none
-PanDt=0.00			// PanModDepth
-Poly=0				// Poly
-PolW=50.00			// Width
-Fill=0				// Fill=Noise
-
-/*
-
-	Comb2
-
-*/
-
+Mode=0
+Tune=0.00
+KeyScl=100.00
+TMSrc=0
+TMDpt=0.00
+Detn=0.00
+VtoD=0.00
+FB=50.00
+FBSrc=0
+FBDpt=0.00
+Damp=10.00
+DmpSrc=0
+DmpDpt=0.00
+Exc=100.00
+Inj=0.00
+InjSrc=0
+InjDpt=0.00
+Tne=50.00
+TneSrc=0
+TneDpt=0.00
+Sec=0.00
+SecSrc=0
+SecDpt=0.00
+Dist=0.00
+Dry=0.00
+Vol=100.00
+VolSc=0
+VolDt=0.00
+Pan=0.00
+PanSc=0
+PanDt=0.00
+Poly=0
+PolW=50.00
+Fill=0
 #cm=Comb2
-Mode=0				// Mode=Comb
-Tune=0.00			// Tune
-KeyScl=100.00			// key scale
-TMSrc=0				// TuneModSrc=none
-TMDpt=0.00			// TuneModDepth
-Detn=0.00			// Detune
-VtoD=0.00			// Vibrato
-FB=50.00			// Feedback
-FBSrc=0				// FBModSrc=none
-FBDpt=0.00			// FBModDepth
-Damp=10.00			// Damp
-DmpSrc=0				// DampModSrc=none
-DmpDpt=0.00			// DampModDepth
-Exc=100.00			// PreFill
-Inj=0.00			// Input
-InjSrc=0				// InModSrc=none
-InjDpt=0.00			// InputMod
-Tne=50.00			// Tone
-TneSrc=0				// ToneModSrc=none
-TneDpt=0.00			// ToneMod
-Sec=0.00			// Flavour
-SecSrc=0				// SecModSrc=none
-SecDpt=0.00			// FlavourMod
-Dist=0.00			// Distortion
-Dry=0.00			// Dry
-Vol=100.00			// Volume
-VolSc=0				// VolumeModSrc=none
-VolDt=0.00			// VolumeModDepth
-Pan=0.00			// Pan
-PanSc=0				// PanModSrc=none
-PanDt=0.00			// PanModDepth
-Poly=0				// Poly
-PolW=50.00			// Width
-Fill=0				// Fill=Noise
-
-/*
-
-	Shape1
-
-*/
-
+Mode=0
+Tune=0.00
+KeyScl=100.00
+TMSrc=0
+TMDpt=0.00
+Detn=0.00
+VtoD=0.00
+FB=50.00
+FBSrc=0
+FBDpt=0.00
+Damp=10.00
+DmpSrc=0
+DmpDpt=0.00
+Exc=100.00
+Inj=0.00
+InjSrc=0
+InjDpt=0.00
+Tne=50.00
+TneSrc=0
+TneDpt=0.00
+Sec=0.00
+SecSrc=0
+SecDpt=0.00
+Dist=0.00
+Dry=0.00
+Vol=100.00
+VolSc=0
+VolDt=0.00
+Pan=0.00
+PanSc=0
+PanDt=0.00
+Poly=0
+PolW=50.00
+Fill=0
 #cm=Shape1
-Type=0				// Type=Shape
-Depth=0.00			// Depth
-DMSrc=0				// D_ModSrc=none
-DMDpt=0.00			// D_ModDepth
-Edge=75.00			// Edge
-EMSrc=0				// Edge ModSrc=none
-EMDpt=0.00			// Edge ModDepth
-Input=0.00			// Input
-Output=0.00			// Output
-HiOut=0.00			// HiOut
-
-/*
-
-	Shape2
-
-*/
-
+Type=0
+Depth=0.00
+DMSrc=0
+DMDpt=0.00
+Edge=75.00
+EMSrc=0
+EMDpt=0.00
+Input=0.00
+Output=0.00
+HiOut=0.00
 #cm=Shape2
-Type=0				// Type=Shape
-Depth=0.00			// Depth
-DMSrc=0				// D_ModSrc=none
-DMDpt=0.00			// D_ModDepth
-Edge=75.00			// Edge
-EMSrc=0				// Edge ModSrc=none
-EMDpt=0.00			// Edge ModDepth
-Input=0.00			// Input
-Output=0.00			// Output
-HiOut=0.00			// HiOut
-
-/*
-
-	ChannelMix1
-
-*/
-
+Type=0
+Depth=0.00
+DMSrc=0
+DMDpt=0.00
+Edge=75.00
+EMSrc=0
+EMDpt=0.00
+Input=0.00
+Output=0.00
+HiOut=0.00
 #cm=Mix1
-Pan=0.00			// Pan
-Mix=50.00			// Mix
-PnMd=0				// Pan Mode=Bal L-R
-PnMD=0.00			// PanMod Depth
-PnMS=0				// PanMod Source=none
-
-/*
-
-	ChannelMix2
-
-*/
-
+Pan=0.00
+Mix=50.00
+PnMd=0
+PnMD=0.00
+PnMS=0
 #cm=Mix2
-Pan=0.00			// Pan
-Mix=50.00			// Mix
-PnMd=0				// Pan Mode=Bal L-R
-PnMD=0.00			// PanMod Depth
-PnMS=0				// PanMod Source=none
-
-/*
-
-	ChannelMix3
-
-*/
-
+Pan=0.00
+Mix=50.00
+PnMd=0
+PnMD=0.00
+PnMS=0
 #cm=Mix3
-Pan=0.00			// Pan
-Mix=50.00			// Mix
-PnMd=0				// Pan Mode=Bal L-R
-PnMD=0.00			// PanMod Depth
-PnMS=0				// PanMod Source=none
-
-/*
-
-	ChannelMix4
-
-*/
-
+Pan=0.00
+Mix=50.00
+PnMd=0
+PnMD=0.00
+PnMS=0
 #cm=Mix4
-Pan=0.00			// Pan
-Mix=50.00			// Mix
-PnMd=0				// Pan Mode=Bal L-R
-PnMD=0.00			// PanMod Depth
-PnMS=0				// PanMod Source=none
-
-/*
-
-	XMF1
-
-*/
-
+Pan=0.00
+Mix=50.00
+PnMd=0
+PnMD=0.00
+PnMS=0
 #cm=XMF1
-Typ=0				// Type=LP4
-Cut=150.00			// Cutoff
-Res=0.00			// Resonance
-FM1=0.00			// Freq mod 1
-FS1=0				// Modsource1=none
-FM2=0.00			// Freq mod 2
-FS2=0				// Modsource2=none
-KeyScl=0.00			// KeyFollow
-FOff=0.00			// FreqOffset
-FOMod=0.00			// FreqOffMod
-FOSrc=0				// FreqOffSrc=none
-XFM=0.00			// FilterFM
-XFMD=0.00			// XFMmod
-XFMS=0				// XFMrc=none
-Bias=0.00			// Bias
-OLoad=0.00			// Overload
-Click=0.00			// Click
-Drv=1				// Driver=analogue
-Rout=0				// Routing=single
-Typ2=-1				// Type2=
-
-/*
-
-	XMF2
-
-*/
-
+Typ=0
+Cut=150.00
+Res=0.00
+FM1=0.00
+FS1=0
+FM2=0.00
+FS2=0
+KeyScl=0.00
+FOff=0.00
+FOMod=0.00
+FOSrc=0
+XFM=0.00
+XFMD=0.00
+XFMS=0
+Bias=0.00
+OLoad=0.00
+Click=0.00
+Drv=1
+Rout=0
+Typ2=-1
 #cm=XMF2
-Typ=0				// Type=LP4
-Cut=150.00			// Cutoff
-Res=0.00			// Resonance
-FM1=0.00			// Freq mod 1
-FS1=0				// Modsource1=none
-FM2=0.00			// Freq mod 2
-FS2=0				// Modsource2=none
-KeyScl=0.00			// KeyFollow
-FOff=0.00			// FreqOffset
-FOMod=0.00			// FreqOffMod
-FOSrc=0				// FreqOffSrc=none
-XFM=0.00			// FilterFM
-XFMD=0.00			// XFMmod
-XFMS=0				// XFMrc=none
-Bias=0.00			// Bias
-OLoad=0.00			// Overload
-Click=0.00			// Click
-Drv=1				// Driver=analogue
-Rout=0				// Routing=single
-Typ2=-1				// Type2=
-
-/*
-
-	SideBand1
-
-*/
-
+Typ=0
+Cut=150.00
+Res=0.00
+FM1=0.00
+FS1=0
+FM2=0.00
+FS2=0
+KeyScl=0.00
+FOff=0.00
+FOMod=0.00
+FOSrc=0
+XFM=0.00
+XFMD=0.00
+XFMS=0
+Bias=0.00
+OLoad=0.00
+Click=0.00
+Drv=1
+Rout=0
+Typ2=-1
 #cm=SB1
-Range=0				// Range=10Hz
-Freq=0.00			// Frequency
-FMSrc=0				// FModSource=none
-FMDpt=0.00			// FModDepth
-Offs=10.00			// Offset
-OMSrc=0				// OModSource=none
-OMDpt=0.00			// OModDepth
-Mix=50.00			// Mix
-MMSrc=0				// MModSource=none
-MMDpt=0.00			// MModDepth
-
-/*
-
-	SideBand2
-
-*/
-
+Range=0
+Freq=0.00
+FMSrc=0
+FMDpt=0.00
+Offs=10.00
+OMSrc=0
+OMDpt=0.00
+Mix=50.00
+MMSrc=0
+MMDpt=0.00
 #cm=SB2
-Range=0				// Range=10Hz
-Freq=0.00			// Frequency
-FMSrc=0				// FModSource=none
-FMDpt=0.00			// FModDepth
-Offs=0.00			// Offset
-OMSrc=0				// OModSource=none
-OMDpt=0.00			// OModDepth
-Mix=50.00			// Mix
-MMSrc=0				// MModSource=none
-MMDpt=0.00			// MModDepth
-
-/*
-
-	VoiceMix
-
-*/
-
+Range=0
+Freq=0.00
+FMSrc=0
+FMDpt=0.00
+Offs=0.00
+OMSrc=0
+OMDpt=0.00
+Mix=50.00
+MMSrc=0
+MMDpt=0.00
 #cm=VCA1
-Pan1=0.00			// Pan1
-PanMS1=0				// Pan Mod Src1=none
-PanMD1=0.00			// Pan Mod Dpt1
-Vol1=50.00			// Volume1
-VCA1=1				// VCA1=Env1
-ModSrc1=0				// Modulation1=none
-ModDpt1=0.00			// Mod Depth1
-Pan2=0.00			// Pan2
-PanMS2=0				// Pan Mod Src2=none
-PanMD2=0.00			// Pan Mod Dpt2
-Vol2=50.00			// Volume2
-VCA2=2				// VCA2=Env2
-ModSrc2=0				// Modulation2=none
-ModDpt2=0.00			// Mod Depth2
-Pan3=0.00			// Pan3
-PanMS3=0				// Pan Mod Src3=none
-PanMD3=0.00			// Pan Mod Dpt3
-Vol3=50.00			// Volume3
-VCA3=3				// VCA3=Env3
-ModSrc3=0				// Modulation3=none
-ModDpt3=0.00			// Mod Depth3
-Pan4=0.00			// Pan4
-PanMS4=0				// Pan Mod Src4=none
-PanMD4=0.00			// Pan Mod Dpt4
-Vol4=50.00			// Volume4
-VCA4=4				// VCA4=Env4
-ModSrc4=0				// Modulation4=none
-ModDpt4=0.00			// Mod Depth4
-MT1=0				// Mute1
-MT2=0				// Mute2
-MT3=0				// Mute3
-MT4=0				// Mute4
-PB1=0				// Panning1=Pan
-PB2=0				// Panning2=Pan
-PB3=0				// Panning3=Pan
-PB4=0				// Panning4=Pan
-Bus1=0				// Bus1=main
-Bus2=0				// Bus2=main
-Bus3=0				// Bus3=main
-Bus4=0				// Bus4=main
-Send1=0.00			// Send1
-SnSrc1=0				// SendMod1=none
-SnDpt1=0.00			// SendDepth1
-Send2=0.00			// Send2
-SnSrc2=0				// SendMod2=none
-SnDpt2=0.00			// SendDepth2
-AttS=1				// AttackSmooth
-
-/*
-
-	FXGrid
-
-*/
-
+Pan1=0.00
+PanMS1=0
+PanMD1=0.00
+Vol1=50.00
+VCA1=1
+ModSrc1=0
+ModDpt1=0.00
+Pan2=0.00
+PanMS2=0
+PanMD2=0.00
+Vol2=50.00
+VCA2=2
+ModSrc2=0
+ModDpt2=0.00
+Pan3=0.00
+PanMS3=0
+PanMD3=0.00
+Vol3=50.00
+VCA3=3
+ModSrc3=0
+ModDpt3=0.00
+Pan4=0.00
+PanMS4=0
+PanMD4=0.00
+Vol4=50.00
+VCA4=4
+ModSrc4=0
+ModDpt4=0.00
+MT1=0
+MT2=0
+MT3=0
+MT4=0
+PB1=0
+PB2=0
+PB3=0
+PB4=0
+Bus1=0
+Bus2=0
+Bus3=0
+Bus4=0
+Send1=100.00
+SnSrc1=0
+SnDpt1=0.00
+Send2=0.00
+SnSrc2=0
+SnDpt2=0.00
+AttS=1
 #cm=GridFX
-Grid=36				// binary data for Grid Structure
-GByp=0				// Bypass
-
-/*
-
-	ModFX1
-
-*/
-
+Grid=36
+GByp=0
 #cm=ModFX1
-Mode=0				// Mode=Chorus
-Cent=50.00			// Center
-Sped=50.00			// Speed
-PhOff=50.00			// Stereo
-Dpth=50.00			// Depth
-FeeB=0.00			// Feedback
-Mix=50.00			// Mix
-LCut=0.00			// LowCut Freq
-HCut=100.00			// HiCut Freq
-Quad=0.00			// Quad
-Qphs=25.00			// QuadPhase
-Leq=0.00			// Low Boost dB
-Heq=0.00			// High Boost dB
-Q1=0.00			// Q1
-Q2=0.00			// Q2
-EQon=0				// EQ
-
-/*
-
-	ModFX2
-
-*/
-
+Mode=2
+Cent=20.00
+Sped=50.00
+PhOff=50.00
+Dpth=50.00
+FeeB=0.00
+Mix=0.00
+LCut=0.00
+HCut=100.00
+Quad=0.00
+Qphs=25.00
+Leq=0.00
+Heq=0.00
+Q1=0.00
+Q2=0.00
+EQon=0
 #cm=ModFX2
-Mode=0				// Mode=Chorus
-Cent=20.00			// Center
-Sped=50.00			// Speed
-PhOff=50.00			// Stereo
-Dpth=50.00			// Depth
-FeeB=0.00			// Feedback
-Mix=50.00			// Mix
-LCut=0.00			// LowCut Freq
-HCut=100.00			// HiCut Freq
-Quad=30.00			// Quad
-Qphs=25.00			// QuadPhase
-Leq=0.00			// Low Boost dB
-Heq=0.00			// High Boost dB
-Q1=0.00			// Q1
-Q2=0.00			// Q2
-EQon=1				// EQ
-
-/*
-
-	Delay1
-
-*/
-
+Mode=0
+Cent=20.00
+Sped=50.00
+PhOff=50.00
+Dpth=50.00
+FeeB=0.00
+Mix=0.00
+LCut=0.00
+HCut=100.00
+Quad=0.00
+Qphs=25.00
+Leq=0.00
+Heq=0.00
+Q1=0.00
+Q2=0.00
+EQon=1
 #cm=Delay1
-Mode=0				// Mode=stereo 2
-Mix=30.00			// Mix
-FB=10.00			// Feedback
-CB=25.00			// X-back
-LP=100.00			// Lowpass
-HP=0.00			// Hipass
-Drv=0.00			// Drive
-Sync1=4				// Sync1=1/8
-Sync2=4				// Sync2=1/8
-Sync3=4				// Sync3=1/8
-Sync4=4				// Sync4=1/8
-T0=100.00			// Ratio1
-T1=100.00			// Ratio2
-T2=100.00			// Ratio3
-T3=100.00			// Ratio4
-Pan1=-100.00			// Pan1
-Pan2=100.00			// Pan2
-Pan3=-100.00			// Pan3
-Pan4=100.00			// Pan4
-
-/*
-
-	Delay2
-
-*/
-
+Mode=0
+Mix=0.00
+FB=10.00
+CB=25.00
+LP=100.00
+HP=0.00
+Drv=0.00
+Sync1=4
+Sync2=4
+Sync3=4
+Sync4=4
+T0=100.00
+T1=100.00
+T2=100.00
+T3=100.00
+Pan1=-100.00
+Pan2=100.00
+Pan3=-100.00
+Pan4=100.00
 #cm=Delay2
-Mode=0				// Mode=stereo 2
-Mix=30.00			// Mix
-FB=10.00			// Feedback
-CB=25.00			// X-back
-LP=100.00			// Lowpass
-HP=0.00			// Hipass
-Drv=0.00			// Drive
-Sync1=4				// Sync1=1/8
-Sync2=4				// Sync2=1/8
-Sync3=4				// Sync3=1/8
-Sync4=4				// Sync4=1/8
-T0=100.00			// Ratio1
-T1=100.00			// Ratio2
-T2=100.00			// Ratio3
-T3=100.00			// Ratio4
-Pan1=-100.00			// Pan1
-Pan2=100.00			// Pan2
-Pan3=-100.00			// Pan3
-Pan4=100.00			// Pan4
-
-/*
-
-	Shape3
-
-*/
-
+Mode=0
+Mix=30.00
+FB=10.00
+CB=25.00
+LP=100.00
+HP=0.00
+Drv=0.00
+Sync1=4
+Sync2=4
+Sync3=4
+Sync4=4
+T0=100.00
+T1=100.00
+T2=100.00
+T3=100.00
+Pan1=-100.00
+Pan2=100.00
+Pan3=-100.00
+Pan4=100.00
 #cm=Shape3
-Type=3				// Type=Wedge
-Depth=0.00			// Depth
-DMSrc=0				// D_ModSrc=none
-DMDpt=0.00			// D_ModDepth
-Edge=75.00			// Edge
-EMSrc=0				// Edge ModSrc=none
-EMDpt=0.00			// Edge ModDepth
-Input=0.00			// Input
-Output=0.00			// Output
-HiOut=0.00			// HiOut
-
-/*
-
-	Shape4
-
-*/
-
+Type=0
+Depth=0.00
+DMSrc=0
+DMDpt=0.00
+Edge=75.00
+EMSrc=0
+EMDpt=0.00
+Input=0.00
+Output=0.00
+HiOut=0.00
 #cm=Shape4
-Type=0				// Type=Shape
-Depth=0.00			// Depth
-DMSrc=0				// D_ModSrc=none
-DMDpt=0.00			// D_ModDepth
-Edge=75.00			// Edge
-EMSrc=0				// Edge ModSrc=none
-EMDpt=0.00			// Edge ModDepth
-Input=0.00			// Input
-Output=0.00			// Output
-HiOut=0.00			// HiOut
-
-/*
-
-	ChannelMix5
-
-*/
-
+Type=0
+Depth=0.00
+DMSrc=0
+DMDpt=0.00
+Edge=75.00
+EMSrc=0
+EMDpt=0.00
+Input=0.00
+Output=0.00
+HiOut=0.00
 #cm=Mix5
-Pan=0.00			// Pan
-Mix=50.00			// Mix
-PnMd=0				// Pan Mode=Bal L-R
-PnMD=0.00			// PanMod Depth
-PnMS=0				// PanMod Source=none
-
-/*
-
-	ChannelMix6
-
-*/
-
+Pan=0.00
+Mix=50.00
+PnMd=0
+PnMD=0.00
+PnMS=0
 #cm=Mix6
-Pan=0.00			// Pan
-Mix=50.00			// Mix
-PnMd=0				// Pan Mode=Bal L-R
-PnMD=0.00			// PanMod Depth
-PnMS=0				// PanMod Source=none
-
-/*
-
-	Rev1
-
-*/
-
+Pan=0.00
+Mix=50.00
+PnMd=0
+PnMD=0.00
+PnMS=0
 #cm=Rev1
-Mode=0				// Mode=Reverb
-Dry=85.00			// Dry
-Wet=50.00			// Wet
-FB=50.00			// Feedback
-Damp=27.90			// Damp
-Size=50.00			// Range
-Spd=50.00			// Speed
-Dpt=50.00			// Modulation
-DFB=50.00			// Diff Feedback
-DSize=50.00			// Diff Range
-EMix=80.00			// Diff Mix
-DMod=50.00			// Diff Mod
-DSpd=100.00			// Diff Speed
-Pre=10.00			// PreDelay
-
-/*
-
-	Compressor1
-
-*/
-
+Mode=0
+Dry=85.00
+Wet=0.00
+FB=50.00
+Damp=27.90
+Size=50.00
+Spd=50.00
+Dpt=50.00
+DFB=50.00
+DSize=50.00
+EMix=80.00
+DMod=50.00
+DSpd=100.00
+Pre=10.00
 #cm=Comp1
-Type=1				// Type=smooth
-Rat=1.00			// Compression
-Thres=-96.00			// Threshold
-Att=0.00			// Attack
-Rel=0.00			// Release
-Input=0.00			// Input
-Output=0.00			// Output
-
-/*
-
-	Compressor2
-
-*/
-
+Type=1
+Rat=1.00
+Thres=-96.00
+Att=0.00
+Rel=0.00
+Input=0.00
+Output=0.00
 #cm=Comp2
-Type=1				// Type=smooth
-Rat=100.00			// Compression
-Thres=-20.00			// Threshold
-Att=30.00			// Attack
-Rel=50.00			// Release
-Input=0.00			// Input
-Output=-10.00			// Output
-
-/*
-
-	Equalizer1
-
-*/
-
+Type=1
+Rat=100.00
+Thres=-20.00
+Att=30.00
+Rel=50.00
+Input=0.00
+Output=-10.00
 #cm=EQ1
-fc1=20.00			// Freq LowShelf
-res1=25.00			// Q LowShelf
-gain1=0.00			// Gain LowShelf
-fc2=40.00			// Freq Mid1
-res2=25.00			// Q Mid1
-gain2=0.00			// Gain Mid1
-fc3=60.00			// Freq Mid2
-res3=25.00			// Q Mid2
-gain3=0.00			// Gain Mid2
-fc4=80.00			// Freq HiShelf
-res4=25.00			// Q HiShelf
-gain4=0.00			// Gain HiShelf
-
-/*
-
-	Equalizer2
-
-*/
-
+fc1=20.00
+res1=25.00
+gain1=0.00
+fc2=40.00
+res2=25.00
+gain2=0.00
+fc3=60.00
+res3=25.00
+gain3=0.00
+fc4=80.00
+res4=25.00
+gain4=0.00
 #cm=EQ2
-fc1=20.00			// Freq LowShelf
-res1=25.00			// Q LowShelf
-gain1=0.00			// Gain LowShelf
-fc2=40.00			// Freq Mid1
-res2=25.00			// Q Mid1
-gain2=0.00			// Gain Mid1
-fc3=60.00			// Freq Mid2
-res3=25.00			// Q Mid2
-gain3=0.00			// Gain Mid2
-fc4=80.00			// Freq HiShelf
-res4=25.00			// Q HiShelf
-gain4=0.00			// Gain HiShelf
-
-/*
-
-	Filter5
-
-*/
-
+fc1=20.00
+res1=25.00
+gain1=0.00
+fc2=40.00
+res2=25.00
+gain2=0.00
+fc3=60.00
+res3=25.00
+gain3=0.00
+fc4=80.00
+res4=25.00
+gain4=0.00
 #cm=VCF5
-Typ=0				// Type=LP Xcite
-Cut=150.00			// Cutoff
-Res=0.00			// Resonance
-Drv=0.00			// Drive
-Gain=0.00			// Gain
-FM1=0.00			// ModDepth1
-FS1=0				// Modsource1=none
-FM2=0.00			// ModDepth2
-FS2=0				// Modsource2=none
-KeyScl=0.00			// KeyFollow
-
-/*
-
-	Filter6
-
-*/
-
+Typ=0
+Cut=150.00
+Res=0.00
+Drv=0.00
+Gain=0.00
+FM1=0.00
+FS1=0
+FM2=0.00
+FS2=0
+KeyScl=0.00
 #cm=VCF6
-Typ=0				// Type=LP Xcite
-Cut=150.00			// Cutoff
-Res=0.00			// Resonance
-Drv=0.00			// Drive
-Gain=0.00			// Gain
-FM1=0.00			// ModDepth1
-FS1=0				// Modsource1=none
-FM2=0.00			// ModDepth2
-FS2=0				// Modsource2=none
-KeyScl=0.00			// KeyFollow
-
-/*
-
-	SideBand3
-
-*/
-
+Typ=0
+Cut=150.00
+Res=0.00
+Drv=0.00
+Gain=0.00
+FM1=0.00
+FS1=0
+FM2=0.00
+FS2=0
+KeyScl=0.00
 #cm=SB3
-Range=0				// Range=10Hz
-Freq=0.00			// Frequency
-FMSrc=0				// FModSource=none
-FMDpt=0.00			// FModDepth
-Offs=5.00			// Offset
-OMSrc=0				// OModSource=none
-OMDpt=0.00			// OModDepth
-Mix=50.00			// Mix
-MMSrc=0				// MModSource=none
-MMDpt=0.00			// MModDepth
-
-/*
-
-	Master
-
-*/
-
+Range=0
+Freq=0.00
+FMSrc=0
+FMDpt=0.00
+Offs=5.00
+OMSrc=0
+OMDpt=0.00
+Mix=50.00
+MMSrc=0
+MMDpt=0.00
 #cm=ZMas
-Ret1=0.00			// Return1
-Ret2=0.00			// Return2
-Mast=50.00			// Master
-XY1L=37				// binary data for XY1 Label
-XY2L=38				// binary data for XY2 Label
-XY3L=39				// binary data for XY3 Label
-XY4L=40				// binary data for XY4 Label
-XY1T=41				// binary data for XY1 Text
-XY2T=42				// binary data for XY2 Text
-XY3T=43				// binary data for XY3 Text
-XY4T=44				// binary data for XY4 Text
-OSC1=45				// binary data for Oscillator1
-OSC2=46				// binary data for Oscillator2
-OSC3=47				// binary data for Oscillator3
-OSC4=48				// binary data for Oscillator4
-MSEG1=49				// binary data for MSEG1
-MSEG2=50				// binary data for MSEG2
-MSEG3=51				// binary data for MSEG3
-MSEG4=52				// binary data for MSEG4
-Rev1=53				// binary data for Rev1
-Pn3=2				// FXPaneMem
-Pn4=0				// OSC1PaneMem
-Pn5=0				// OSC2PaneMem
-Pn6=0				// OSC3PaneMem
-Pn7=0				// OSC4PaneMem
-Pn8=0				// VCF1PaneMem
-Pn9=0				// VCF2PaneMem
-Pn10=0				// VCF3PaneMem
-Pn11=0				// VCF4PaneMem
-Rack0=54				// binary data for MainRackMem
-Rack1=55				// binary data for ModRackMem
-
+Ret1=100.00
+Ret2=0.00
+Mast=100.00
+XY1L=37
+XY2L=38
+XY3L=39
+XY4L=40
+XY1T=41
+XY2T=42
+XY3T=43
+XY4T=44
+OSC1=45
+OSC2=46
+OSC3=47
+OSC4=48
+MSEG1=49
+MSEG2=50
+MSEG3=51
+MSEG4=52
+Rev1=53
+Pn3=4
+Pn4=0
+Pn5=0
+Pn6=0
+Pn7=0
+Pn8=0
+Pn9=0
+Pn10=0
+Pn11=0
+Rack0=54
+Rack1=55
 
 
 // Section for ugly compressed binary Data
@@ -2016,375 +1528,377 @@ Rack1=55				// binary data for ModRackMem
 
 $$$$75112
 ?aaaaiadp:aaaaialp:jkjjjjlo:gdgceneb:pnpphpdp:pmpphpdp:aaaaaadp:
-aaaaaaea:pnpphplp:pmpphplp:aa:dp:lp:do:lo:ea:ma:ca:ia:ln:dn:oa:g
-a:ec:ka:eb:da:ba:ha:hp:pa:gf:na:fa:la:fd!tAabA9emgpgdgbgmcpXVhcH
-ejhggbhcA2khnmbpA27SpjaibpA3anpjKbpA4khnmbpA3mippnmbpA3popp6cjA1
-4pj1KbpA4khnmbpA3JnfDbpA35LfhndbpA3nkoodlbpA3linhfjbpA3QcengahA3
-nhhijcefalmeA1RlkLbpA3mippnmbpA3mpjjeebpA3RSdcahA3ckA22tFA10fkVg
-chcgbdccneeVgggbhfgmheHZhjgmVgohegidbHfeVgnSgmgbheVcogidcSA11Spj
-aibpA3anpjKbpA3tFA74tIA6qA127tIA6qA127tFA10geVgggbhfgmheHhdgdgbg
-mVA22qxA1F1A1IFA1OFA1GFA1LFtAacA5qA3qxA1F1A1IFA1OFA1GFA1LFA2PA1R
-PA1HPA1QPA1FPA1XPA1MPA1SPA1IPA1iiPA1jaPA1jiPA1OPA1kiPA1YPA1liPA1
-GPA1miPA1WPA1niPA1LPA1oiPA1UPA1piPA2NA1aeNA1aiNA1amNA1RNA1beNA1b
-iNA1bmNA1HNA1ceNA1ciNA1cmNA1QNA1deNA1diNA1dmNA1FNA1eeNA1eiNA1emN
-A1XNA1feNA1fiNA1fmNA1MNA1geNA1giNA1gmNA1SNA1heNA1hiNA1hmNA1INA1i
-cNA1ieNA1igNA1iiNA1ikNA1imNA1ioNA1jaNA1jcNA1jeNA1jgNA1jiNA1jkNA1
-jmNA1joNA1ONA1kcNA1keNA1kgNA1kiNA1kkNA1kmNA1koNA1YNA1lcNA1leNA1l
-gNA1liNA1lkNA1lmNA1ENA1GNA1mcNA1meNA1mgNA1miNA1mkNA1mmNA1moNA1WN
-A1ncNA1neNA1ngNA1niNA1nkNA1nmNA1noNA1LNA1ocNA1oeNA1ogNA1oiNA1okN
-A1omNA1ooNA1UNA1pcNA1peNA1pgNA1piNA1pkNA1pmNA1poNtQacA5qA3afA2ab
-A2adA2abaeA29xA13IFA13GFA14PA13HPA7sA1GFA11qA7sA1F1A7sA1OFA7sA1L
-FA7sA1MPA7sA1XPA7sA1FPA7sA1QPA7sA1HPA7sA1RPA7sA1iiPA7sA1jaPA7sA1
-jiPA7sA1OPA7sA1kiPA7sA1YPA7sA1liPA7sA1GPA7sA1miPA7sA1WPA7sA1niPA
-7sA1LPA7sA1oiPA7sA1UPA7sA1piPA7sA15tQacA5qA3afA2abA2adA2abaeA29x
-A13IFA13GFA14PA13HPA7sA1GFA11qA7sA1F1A7sA1OFA7sA1LFA7sA1MPA7sA1X
-PA7sA1FPA7sA1QPA7sA1HPA7sA1RPA7sA1iiPA7sA1jaPA7sA1jiPA7sA1OPA7sA
-1kiPA7sA1YPA7sA1liPA7sA1GPA7sA1miPA7sA1WPA7sA1niPA7sA1LPA7sA1oiP
-A7sA1UPA7sA1piPA7sA15tQacA5qA3afA2abA2adA2abaeA29xA13IFA13GFA14P
-A13HPA7sA1GFA11qA7sA1F1A7sA1OFA7sA1LFA7sA1MPA7sA1XPA7sA1FPA7sA1Q
-PA7sA1HPA7sA1RPA7sA1iiPA7sA1jaPA7sA1jiPA7sA1OPA7sA1kiPA7sA1YPA7s
-A1liPA7sA1GPA7sA1miPA7sA1WPA7sA1niPA7sA1LPA7sA1oiPA7sA1UPA7sA1pi
-PA7sA15tQacA5qA3afA2abA2adA2abaeA29xA13IFA13GFA14PA13HPA7sA1GFA1
-1qA7sA1F1A7sA1OFA7sA1LFA7sA1MPA7sA1XPA7sA1FPA7sA1QPA7sA1HPA7sA1R
-PA7sA1iiPA7sA1jaPA7sA1jiPA7sA1OPA7sA1kiPA7sA1YPA7sA1liPA7sA1GPA7
-sA1miPA7sA1WPA7sA1niPA7sA1LPA7sA1oiPA7sA1UPA7sA1piPA7sA15tIA6qA1
-27tIA6qA127tIA6qA127tIA6qA127tAacA5qLcgcoEGUeiKAcmKllFil1JMgnbjB
-HfbmpKciammoEIfcidJLpbhoDhibcjlDaiikknDAphoklmLocmnEOogjiKdiemmh
-DMojanBfieeakCYehMDmmaiglCHpgefEAggpmKhmmebcCgiKjdELknnbEcigmcpC
-SmkbjDgeoidhBOQRDLVndDemaobiChmlladBGpeaeCHpkddDWnicfEomgheeCYki
-pkDOjdbjBmimnniDMejogKFdkVEeimddeCROeoELcnmiJLZahEWacfbBcinfpcDL
-okocKGadmkEIcbenJfindjbDoiSpeDdiafaeBAakjbDLfnmlJheofHCMjgjnEAbi
-gcdlGffeeKHnnibKQjmkcEMgoinDbiedinEGalajKAjijkKHjpeoDQacekDYbofi
-EQomljDIneenEfmcmeiCnibgphDWakckCIbpfnKHmkpfJhmjbRCmibfdeBIHldKk
-mmpcnCSDcgDIpebbEciajafBGngccKjidgokERjiknEFpgcbBpihbnjEjikfIDIa
-lmjJkiacbkCbmlcPBImdoclmOdgbpDAdjemJQblbhEpijjpdDApeQJRXnjDgipnp
-pEjeobakBcilcdbCIfedjDSkgMEfeanNCUkoanBHahHEhmoddmBmeglblBRajkfD
-IhnngJcilmkmDlidfpoDGHJEgifhacBfilklfDFnpfoKeihfadCAamocJRahboDb
-iYmnDFfbhhDGbmilKnmhgHBjameHDQcnojEOhgkjEbijalgEdmjkdgBIonbiCtAa
-cA5q1oeKlcEpmkhooEGAedEcmngpgDliphhbCbipkdfKXnfNCriidlphErmeojcj
-CliimdbBcgcfgkBAopkfllUmbcmCjeopajBagipZCbemmmhErOidblCjaalkhJrH
-leabEQklbcEhcfkHCbopmacBmmnfhfBHbibgDmkkhRCoePocDFfecnBIgmmilmqW
-khkfJoideigDqhilbekDleffmhDSnhokEUhodgErfcnfgbCnmad1BWcipoEimlko
-hDhoNbcCOhopiEgmmgbgBmmmdpcEkmQnpDhmfoanCFlbbjBkehfmcEkmcimcEMje
-oiEdenlffCHRbdKaiekagEbeIgpCFehmnKngGgdBboljcfBGekbmBLkhkkKngkde
-iCW1ilJnikckgEFbenkEgmglpeDlkbgbkBWhcikDRcmgeCncjffcBioCbgBrdiog
-ddCQklleKdmajkcEOgomiDMaolmKdkopgbBdgBbeBeickJDrmofgakBcipkckDro
-iMijDlmLinEfohbamBpepchnCOkbdfDFhbJlmgeFmjDLbfelBlibhjlDnihmepEb
-igbckDjikmCEYkjfeBRblCJdefmklDLcjhhEhmdmbbCacicbdCbcoighCmikbncE
-OjmdgEQomjhKDehbfCRehciBhephamBWgcooKjggnaiBhigonjEAbdimEmecobiB
-AgjjhdlkippeeCkiieopDpingejEaionhjEr1nephkhElimnbiEqtamadA5qeeej
-fcehaeA2amA2eogpgjhdVdbA1anbbA1eogpgjhdVdcA1anbcA1egenepdeA3aobb
-A1edgpgngcdcA2akbbA1epZeddbAgbhjVanbbA1epZedddA3anbcA1ZNdbA4akbb
-A1egenepdbA3aobbA1epZeddcA3anbbA1epZeddeAHdbdianbcA1fgedegddAgbh
-jVacbcA1edgpgngcdbA2akbbA1fgedegdbA3abbbA1fgedegdcA3abbcA1egenep
-dcAHdcdbaobbA1egenepddA3aobbA1fgedegdeA3acbcA1ZgigbSVdcA1akbcA1e
-ngjhidbA3akheA1engjhidcAHdcdeakhiA1engjhiddA3akhbA1engjhideA3akh
-cA1fcgjgoghdbA2akheA1fcgjgoghdcA2akhiA1fienegdbAgbhjVakhbA1fiene
-gdcA3akhcA1ZgigbSVdbAVakbbA1ZNdcAhcHdcdhakbiA26HdcdiA23emgbhjVA2
-8gbhjVhcHddQA28HdddbA23emgbhjVA31HA246taeHA5xA3pjZppDq2A111ggdej
-kDpp1TBq1A111ekZneKpoppTBq1A111nochccKackmRBFphRBqA115wpnffABqA1
-15poZppDpipp1DqA115plkhpoDphZppDqA115UenodDolpjodDqA115oepdmhDLj
-pmiDqA115njjjkmDneefknDqA115moBjbDmioljbDqA115iemlglDhkcdgnDqA11
-2wklcjDdfadclDqA115amhgneKpgcfnhKqA115GneokdmMjepfdmqA108xJgcdlY
-accmdmjeQepdmqA107urpippTBq1A107urvq1A107urq2A107urlebglclleginm
-edlqA107urA3dcbefgdmqA107urgnhkndEHpeobDqA107uryvqA107uryvqA107u
-ryvqA107uryvqA107uryvqA107urzvqA107urzvqA107urzvqA107urzvqA107uz
-rvqA111emobpkErA119WmmjmEieolfbEA119emobpkJA1IEbbkoehEA115emobhk
-JA2EA1651nekdQBLhkjeDA119OSbfBjijjdjDA119nihkpeDmnmmamDA119nihkh
-eDLhkbeKA1655afA2tRA6xfiemdmceT3MeiQbiT3tAHA5xA3pmipekKijXmkKclg
-nbhDddZejDbmllhkDpimcjfDjbmkknDeiVmfDfgienmDKbjpdDomikaeBdbdgapB
-CihbjBbnhjcdBbcaecnBkdccdgBbkmpDBahaeehBehlmeoBadpdffBlgkdfmBQmk
-gcBjggcgiBgggjgnBhlnlhbBamlghfBkopghiBfijlhlBgbkchnBigakTBoencTB
-pnpkTBljicTBgdgkhoBkklchmBkcfmhkBmcgjhhBocnlhdBKlfgpBgmpigkBghki
-VBidmifpBglfmfjBckgifcBbgUekBobpiNBifihdkBfbkbdbBnfelciBogimboBk
-igkbeBglolajBjeclpoDbbobohDfbafnbDjhkgljDjgndkbDcmjlijDclbjgcDej
-goQDnnkjpmKGnijhKigkcmkdmofjnmklmjinhjhJjhkipmJlhgnQEilbigcEofjk
-ijEeindkbEfckgljEagafnbEmpLohEenclpoEemolajCiggkbeCmjimboClgelci
-CdgkbdbCgmihdkCmhpiNCabUekCbfgifcCfhfmfjCgpmifpCfikiVCfopigkCcpl
-fgpCngnlhdCljgjhhCjkfmhkCkelchmCfogkhoClhicTCpmpkTCofncTCijakTCg
-hkchnCfojlhlClgpghiCbhlghfCijnlhbChdgjgnCkfgcgiCNmkgcCmlkdfmCbgp
-dffCfnlmeoCHaeehCdfmpDClmccdgCcnaecnCdlhjcdCnpihbjCeodgapCamilae
-CibbjpdEjpienmEiiVmfEngmkknEedmdjfEJllhkECZejEmbgnbhEmlfbmkJkhjc
-ekJcneebelgrUphhlCLophhCWohhdCGnpgpCYnhglCOmpghCjamhgdCICfpCSlhf
-lCMkpfhCXkhZCFjpepCQjhelCHipehCRihedCATBCUhgdlCLgodhCWggddCGfocp
-CYfgclCOeochCjaegcdCIDbpCSdgblCMcobhCXcgbdCFboapCQbgalCHaoahCRag
-adCApmpnELolpfEGnlonEOmlofEIllnnEMklnfEFjlmnEHilmfEAhlJELgklfEGf
-kknEOekkfEIdkjnEMckjfEFbkinEHakifEApehjEGndgjEIldfjEFjdejEAhddjE
-GfccjEIdcbjEFbcajEppodpbJhokdnbJpngclbJhmccjbJpgmdgbJpeNcbJoeidm
-blmGadablmGadabdmoeidmbdmpeNcbKpgmdgbKhmccjbKpngclbKhokdnbKppodp
-bKFbcajDIdcbjDGfccjDAhddjDFjdejDIldfjDGndgjDApehjDHakifDFbkinDMc
-kjfDIdkjnDOekkfDGfkknDLgklfDAhlJDHilmfDFjlmnDMklnfDIllnnDOmlofDG
-nlonDLolpfDApmpnDRagadBHaoahBQbgalBFboapBXcgbdBMcobhBSdgblBIDbpB
-jaegcdBOeochBYfgclBGfocpBWggddBLgodhBUhgdlBATB1RihedBHipehBQjhel
-BFjpepBXkhZBMkpfhBSlhflBICfpBjamhgdBOmpghBYnhglBGnpgpBWohhdBLoph
-hBUphhlBq1UphhlBLophhBWohhdBGnpgpBYnhglBOmpghBjamhgdBICfpBSlhflB
-MkpfhBXkhZBFjpepBQjhelBHipehBRihedBATB1UhgdlBLgodhBWggddBGfocpBY
-fgclBOeochBjaegcdBIDbpBSdgblBMcobhBXcgbdBFboapBQbgalBHaoahBRagad
-BApmpnDLolpfDGnlonDOmlofDIllnnDMklnfDFjlmnDHilmfDAhlJDLgklfDGfkk
-nDOekkfDIdkjnDMckjfDFbkinDHakifDApehjDGndgjDIldfjDFjdejDAhddjDGf
-ccjDIdcbjDFbcajDppodpbKhokdnbKpngclbKhmccjbKpgmdgbKpeNcbKoeidmbd
-mGadabdmGadablmoeidmblmpeNcbJpgmdgbJhmccjbJpngclbJhokdnbJppodpbJ
-FbcajEIdcbjEGfccjEAhddjEFjdejEIldfjEGndgjEApehjEHakifEFbkinEMckj
-fEIdkjnEOekkfEGfkknELgklfEAhlJEHilmfEFjlmnEMklnfEIllnnEOmlofEGnl
-onELolpfEApmpnERagadCHaoahCQbgalCFboapCXcgbdCMcobhCSdgblCIDbpCja
-egcdCOeochCYfgclCGfocpCWggddCLgodhCUhgdlCATBCRihedCHipehCQjhelCF
-jpepCXkhZCMkpfhCSlhflCICfpCjamhgdCOmpghCYnhglCGnpgpCWohhdCLophhC
-UphhlCrA2KA1IKA1GKA2DA1HDA1FDA1MDA1IDA1jaDA1ODA1YDA1GDA1WDA1LDA1
-UDwA1aiBA1RBA1biBA1HBA1ciBA1QBA1diBA1FBA1eiBA1XBA1fiBA1MBA1giBA1
-SBA1hiBqA1hiBA1SBA1giBA1MBA1fiBA1XBA1eiBA1FBA1diBA1QBA1ciBA1HBA1
-biBA1RBA1aiBwA1UDA1LDA1WDA1GDA1YDA1ODA1jaDA1IDA1MDA1FDA1HDA2DA1G
-KA1IKA2KA6IA2JA1IJA1GJA2EA1HEA1FEA1MEA1IEA1jaEA1OEA1YEA1GEA1WEA1
-LEA1UEA2CA1aiCA1RCA1biCA1HCA1ciCA1QCA1diCA1FCA1eiCA1XCA1fiCA1MCA
-1giCA1SCA1hiCrA1hiCA1SCA1giCA1MCA1fiCA1XCA1eiCA1FCA1diCA1QCA1ciC
-A1HCA1biCA1RCA1aiCA2CA1UEA1LEA1WEA1GEA1YEA1OEA1jaEA1IEA1MEA1FEA1
-HEA2EA1GJA1IJA2Jq63r63q95r31q110r16qUphhlBLophhBWohhdBGnpgpBYnhg
-lBOmpghBjamhgdBICfpBSlhflBMkpfhBXkhZBFjpepBQjhelBHipehBRihedBATB
-1UhgdlBLgodhBWggddBGfocpBYfgclBOeochBjaegcdBIDbpBSdgblBMcobhBXcg
-bdBFboapBQbgalBHaoahBRagadBApmpnDLolpfDGnlonDOmlofDIllnnDMklnfDF
-jlmnDHilmfDAhlJDLgklfDGfkknDOekkfDIdkjnDMckjfDFbkinDHakifDApehjD
-GndgjDIldfjDFjdejDAhddjDGfccjDIdcbjDFbcajDppodpbKhokdnbKpngclbKh
-mccjbKpgmdgbKpeNcbKoeidmbdmGadabdmrUphhlCLophhCWohhdCGnpgpCYnhgl
-COmpghCjamhgdCICfpCSlhflCMkpfhCXkhZCFjpepCQjhelCHipehCRihedCATBC
-UhgdlCLgodhCWggddCGfocpCYfgclCOeochCjaegcdCIDbpCSdgblCMcobhCXcgb
-dCFboapCQbgalCHaoahCRagadCApmpnELolpfEGnlonEOmlofEIllnnEMklnfEFj
-lmnEHilmfEAhlJELgklfEGfkknEOekkfEIdkjnEMckjfEFbkinEHakifEApehjEG
-ndgjEIldfjEFjdejEAhddjEGfccjEIdcbjEFbcajEppodpbJhokdnbJpngclbJhm
-ccjbJpgmdgbJpeNcbJoeidmblmGadablmA4095taeHA5xA3pjZppDq2A111ggdej
-kDpp1TBq1A111ekZneKpoppTBq1A111ekZfeKackmRBFphRBqA115wpnffABqA11
-5poZppDpipp1DqA115plkhpoDphZppDqA115UenodDolpjodDqA115oepdmhDLjp
-miDqA115njjjkmDneefknDqA115moBjbDmioljbDqA115iemlglDhkcdgnDqA112
-wklcjDdfadclDqA115amhgneKpgcfnhKqA115GneokdmMjepfdmqA108xJgcdlYa
-ccmdmjeQepdmqA107urpippTBq1A107urvq1A107urq2A107urlebglclleginme
-dlqA107urA3dcbefgdmqA107urgnhkndEHpeobDqA107uryvqA107uryvqA107ur
-yvqA107uryvqA107uryvqA107urzvqA107urzvqA107urzvqA107urzvqA107uzr
-vqA111emobpkErA119WmmjmEieolfbEA119emobpkJA1IEbbkoehEA115emobhkJ
-A2EA1651nekdQBLhkjeDA119OSbfBjijjdjDA119nihkpeDmnmmamDA119nihkhe
-DLhkbeKA1655afA2tRA6xfiemdmceT3MeiQbiT3tAHA5xA3pmipekKijXmkKclgn
-bhDddZejDbmllhkDpimcjfDjbmkknDeiVmfDfgienmDKbjpdDomikaeBdbdgapBC
-ihbjBbnhjcdBbcaecnBkdccdgBbkmpDBahaeehBehlmeoBadpdffBlgkdfmBQmkg
-cBjggcgiBgggjgnBhlnlhbBamlghfBkopghiBfijlhlBgbkchnBigakTBoencTBp
-npkTBljicTBgdgkhoBkklchmBkcfmhkBmcgjhhBocnlhdBKlfgpBgmpigkBghkiV
-BidmifpBglfmfjBckgifcBbgUekBobpiNBifihdkBfbkbdbBnfelciBogimboBki
-gkbeBglolajBjeclpoDbbobohDfbafnbDjhkgljDjgndkbDcmjlijDclbjgcDejg
-oQDnnkjpmKGnijhKigkcmkdmofjnmklmjinhjhJjhkipmJlhgnQEilbigcEofjki
-jEeindkbEfckgljEagafnbEmpLohEenclpoEemolajCiggkbeCmjimboClgelciC
-dgkbdbCgmihdkCmhpiNCabUekCbfgifcCfhfmfjCgpmifpCfikiVCfopigkCcplf
-gpCngnlhdCljgjhhCjkfmhkCkelchmCfogkhoClhicTCpmpkTCofncTCijakTCgh
-kchnCfojlhlClgpghiCbhlghfCijnlhbChdgjgnCkfgcgiCNmkgcCmlkdfmCbgpd
-ffCfnlmeoCHaeehCdfmpDClmccdgCcnaecnCdlhjcdCnpihbjCeodgapCamilaeC
-ibbjpdEjpienmEiiVmfEngmkknEedmdjfEJllhkECZejEmbgnbhEmlfbmkJkhjce
-kJcneebelgrUphhlCLophhCWohhdCGnpgpCYnhglCOmpghCjamhgdCICfpCSlhfl
-CMkpfhCXkhZCFjpepCQjhelCHipehCRihedCATBCUhgdlCLgodhCWggddCGfocpC
-YfgclCOeochCjaegcdCIDbpCSdgblCMcobhCXcgbdCFboapCQbgalCHaoahCRaga
-dCApmpnELolpfEGnlonEOmlofEIllnnEMklnfEFjlmnEHilmfEAhlJELgklfEGfk
-knEOekkfEIdkjnEMckjfEFbkinEHakifEApehjEGndgjEIldfjEFjdejEAhddjEG
-fccjEIdcbjEFbcajEppodpbJhokdnbJpngclbJhmccjbJpgmdgbJpeNcbJoeidmb
-lmGadablmGadabdmoeidmbdmpeNcbKpgmdgbKhmccjbKpngclbKhokdnbKppodpb
-KFbcajDIdcbjDGfccjDAhddjDFjdejDIldfjDGndgjDApehjDHakifDFbkinDMck
-jfDIdkjnDOekkfDGfkknDLgklfDAhlJDHilmfDFjlmnDMklnfDIllnnDOmlofDGn
-lonDLolpfDApmpnDRagadBHaoahBQbgalBFboapBXcgbdBMcobhBSdgblBIDbpBj
-aegcdBOeochBYfgclBGfocpBWggddBLgodhBUhgdlBATB1RihedBHipehBQjhelB
-FjpepBXkhZBMkpfhBSlhflBICfpBjamhgdBOmpghBYnhglBGnpgpBWohhdBLophh
-BUphhlBq1UphhlBLophhBWohhdBGnpgpBYnhglBOmpghBjamhgdBICfpBSlhflBM
-kpfhBXkhZBFjpepBQjhelBHipehBRihedBATB1UhgdlBLgodhBWggddBGfocpBYf
-gclBOeochBjaegcdBIDbpBSdgblBMcobhBXcgbdBFboapBQbgalBHaoahBRagadB
-ApmpnDLolpfDGnlonDOmlofDIllnnDMklnfDFjlmnDHilmfDAhlJDLgklfDGfkkn
-DOekkfDIdkjnDMckjfDFbkinDHakifDApehjDGndgjDIldfjDFjdejDAhddjDGfc
-cjDIdcbjDFbcajDppodpbKhokdnbKpngclbKhmccjbKpgmdgbKpeNcbKoeidmbdm
-GadabdmGadablmoeidmblmpeNcbJpgmdgbJhmccjbJpngclbJhokdnbJppodpbJF
-bcajEIdcbjEGfccjEAhddjEFjdejEIldfjEGndgjEApehjEHakifEFbkinEMckjf
-EIdkjnEOekkfEGfkknELgklfEAhlJEHilmfEFjlmnEMklnfEIllnnEOmlofEGnlo
-nELolpfEApmpnERagadCHaoahCQbgalCFboapCXcgbdCMcobhCSdgblCIDbpCjae
-gcdCOeochCYfgclCGfocpCWggddCLgodhCUhgdlCATBCRihedCHipehCQjhelCFj
-pepCXkhZCMkpfhCSlhflCICfpCjamhgdCOmpghCYnhglCGnpgpCWohhdCLophhCU
-phhlCrA2KA1IKA1GKA2DA1HDA1FDA1MDA1IDA1jaDA1ODA1YDA1GDA1WDA1LDA1U
-DwA1aiBA1RBA1biBA1HBA1ciBA1QBA1diBA1FBA1eiBA1XBA1fiBA1MBA1giBA1S
-BA1hiBqA1hiBA1SBA1giBA1MBA1fiBA1XBA1eiBA1FBA1diBA1QBA1ciBA1HBA1b
-iBA1RBA1aiBwA1UDA1LDA1WDA1GDA1YDA1ODA1jaDA1IDA1MDA1FDA1HDA2DA1GK
-A1IKA2KA6IA2JA1IJA1GJA2EA1HEA1FEA1MEA1IEA1jaEA1OEA1YEA1GEA1WEA1L
-EA1UEA2CA1aiCA1RCA1biCA1HCA1ciCA1QCA1diCA1FCA1eiCA1XCA1fiCA1MCA1
-giCA1SCA1hiCrA1hiCA1SCA1giCA1MCA1fiCA1XCA1eiCA1FCA1diCA1QCA1ciCA
-1HCA1biCA1RCA1aiCA2CA1UEA1LEA1WEA1GEA1YEA1OEA1jaEA1IEA1MEA1FEA1H
-EA2EA1GJA1IJA2Jq63r63q95r31q110r16qUphhlBLophhBWohhdBGnpgpBYnhgl
-BOmpghBjamhgdBICfpBSlhflBMkpfhBXkhZBFjpepBQjhelBHipehBRihedBATB1
-UhgdlBLgodhBWggddBGfocpBYfgclBOeochBjaegcdBIDbpBSdgblBMcobhBXcgb
-dBFboapBQbgalBHaoahBRagadBApmpnDLolpfDGnlonDOmlofDIllnnDMklnfDFj
-lmnDHilmfDAhlJDLgklfDGfkknDOekkfDIdkjnDMckjfDFbkinDHakifDApehjDG
-ndgjDIldfjDFjdejDAhddjDGfccjDIdcbjDFbcajDppodpbKhokdnbKpngclbKhm
-ccjbKpgmdgbKpeNcbKoeidmbdmGadabdmrUphhlCLophhCWohhdCGnpgpCYnhglC
-OmpghCjamhgdCICfpCSlhflCMkpfhCXkhZCFjpepCQjhelCHipehCRihedCATBCU
-hgdlCLgodhCWggddCGfocpCYfgclCOeochCjaegcdCIDbpCSdgblCMcobhCXcgbd
-CFboapCQbgalCHaoahCRagadCApmpnELolpfEGnlonEOmlofEIllnnEMklnfEFjl
-mnEHilmfEAhlJELgklfEGfkknEOekkfEIdkjnEMckjfEFbkinEHakifEApehjEGn
-dgjEIldfjEFjdejEAhddjEGfccjEIdcbjEFbcajEppodpbJhokdnbJpngclbJhmc
-cjbJpgmdgbJpeNcbJoeidmblmGadablmA4095taeHA5xA3pjZppDq2A111ggdejk
-Dpp1TBq1A111ekZneKpoppTBq1A111ekZfeKackmRBFphRBqA115wpnffABqA115
-poZppDpipp1DqA115plkhpoDphZppDqA115UenodDolpjodDqA115oepdmhDLjpm
-iDqA115njjjkmDneefknDqA115moBjbDmioljbDqA115iemlglDhkcdgnDqA112w
-klcjDdfadclDqA115amhgneKpgcfnhKqA115GneokdmMjepfdmqA108xJgcdlYac
-cmdmjeQepdmqA107urpippTBq1A107urvq1A107urq2A107urlebglclleginmed
-lqA107urA3dcbefgdmqA107urgnhkndEHpeobDqA107uryvqA107uryvqA107ury
-vqA107uryvqA107uryvqA107urzvqA107urzvqA107urzvqA107urzvqA107uzrv
-qA111emobpkErA119WmmjmEieolfbEA119emobpkJA1IEbbkoehEA115emobhkJA
-2EA1651nekdQBLhkjeDA119OSbfBjijjdjDA119nihkpeDmnmmamDA119nihkheD
-LhkbeKA1655afA2tRA6xfiemdmceT3MeiQbiT3tAHA5xA3pmipekKijXmkKclgnb
-hDddZejDbmllhkDpimcjfDjbmkknDeiVmfDfgienmDKbjpdDomikaeBdbdgapBCi
-hbjBbnhjcdBbcaecnBkdccdgBbkmpDBahaeehBehlmeoBadpdffBlgkdfmBQmkgc
-BjggcgiBgggjgnBhlnlhbBamlghfBkopghiBfijlhlBgbkchnBigakTBoencTBpn
-pkTBljicTBgdgkhoBkklchmBkcfmhkBmcgjhhBocnlhdBKlfgpBgmpigkBghkiVB
-idmifpBglfmfjBckgifcBbgUekBobpiNBifihdkBfbkbdbBnfelciBogimboBkig
-kbeBglolajBjeclpoDbbobohDfbafnbDjhkgljDjgndkbDcmjlijDclbjgcDejgo
-QDnnkjpmKGnijhKigkcmkdmofjnmklmjinhjhJjhkipmJlhgnQEilbigcEofjkij
-EeindkbEfckgljEagafnbEmpLohEenclpoEemolajCiggkbeCmjimboClgelciCd
-gkbdbCgmihdkCmhpiNCabUekCbfgifcCfhfmfjCgpmifpCfikiVCfopigkCcplfg
-pCngnlhdCljgjhhCjkfmhkCkelchmCfogkhoClhicTCpmpkTCofncTCijakTCghk
-chnCfojlhlClgpghiCbhlghfCijnlhbChdgjgnCkfgcgiCNmkgcCmlkdfmCbgpdf
-fCfnlmeoCHaeehCdfmpDClmccdgCcnaecnCdlhjcdCnpihbjCeodgapCamilaeCi
-bbjpdEjpienmEiiVmfEngmkknEedmdjfEJllhkECZejEmbgnbhEmlfbmkJkhjcek
-JcneebelgrUphhlCLophhCWohhdCGnpgpCYnhglCOmpghCjamhgdCICfpCSlhflC
-MkpfhCXkhZCFjpepCQjhelCHipehCRihedCATBCUhgdlCLgodhCWggddCGfocpCY
-fgclCOeochCjaegcdCIDbpCSdgblCMcobhCXcgbdCFboapCQbgalCHaoahCRagad
-CApmpnELolpfEGnlonEOmlofEIllnnEMklnfEFjlmnEHilmfEAhlJELgklfEGfkk
-nEOekkfEIdkjnEMckjfEFbkinEHakifEApehjEGndgjEIldfjEFjdejEAhddjEGf
-ccjEIdcbjEFbcajEppodpbJhokdnbJpngclbJhmccjbJpgmdgbJpeNcbJoeidmbl
-mGadablmGadabdmoeidmbdmpeNcbKpgmdgbKhmccjbKpngclbKhokdnbKppodpbK
-FbcajDIdcbjDGfccjDAhddjDFjdejDIldfjDGndgjDApehjDHakifDFbkinDMckj
-fDIdkjnDOekkfDGfkknDLgklfDAhlJDHilmfDFjlmnDMklnfDIllnnDOmlofDGnl
-onDLolpfDApmpnDRagadBHaoahBQbgalBFboapBXcgbdBMcobhBSdgblBIDbpBja
-egcdBOeochBYfgclBGfocpBWggddBLgodhBUhgdlBATB1RihedBHipehBQjhelBF
-jpepBXkhZBMkpfhBSlhflBICfpBjamhgdBOmpghBYnhglBGnpgpBWohhdBLophhB
-UphhlBq1UphhlBLophhBWohhdBGnpgpBYnhglBOmpghBjamhgdBICfpBSlhflBMk
-pfhBXkhZBFjpepBQjhelBHipehBRihedBATB1UhgdlBLgodhBWggddBGfocpBYfg
-clBOeochBjaegcdBIDbpBSdgblBMcobhBXcgbdBFboapBQbgalBHaoahBRagadBA
-pmpnDLolpfDGnlonDOmlofDIllnnDMklnfDFjlmnDHilmfDAhlJDLgklfDGfkknD
-OekkfDIdkjnDMckjfDFbkinDHakifDApehjDGndgjDIldfjDFjdejDAhddjDGfcc
-jDIdcbjDFbcajDppodpbKhokdnbKpngclbKhmccjbKpgmdgbKpeNcbKoeidmbdmG
-adabdmGadablmoeidmblmpeNcbJpgmdgbJhmccjbJpngclbJhokdnbJppodpbJFb
-cajEIdcbjEGfccjEAhddjEFjdejEIldfjEGndgjEApehjEHakifEFbkinEMckjfE
-IdkjnEOekkfEGfkknELgklfEAhlJEHilmfEFjlmnEMklnfEIllnnEOmlofEGnlon
-ELolpfEApmpnERagadCHaoahCQbgalCFboapCXcgbdCMcobhCSdgblCIDbpCjaeg
-cdCOeochCYfgclCGfocpCWggddCLgodhCUhgdlCATBCRihedCHipehCQjhelCFjp
-epCXkhZCMkpfhCSlhflCICfpCjamhgdCOmpghCYnhglCGnpgpCWohhdCLophhCUp
-hhlCrA2KA1IKA1GKA2DA1HDA1FDA1MDA1IDA1jaDA1ODA1YDA1GDA1WDA1LDA1UD
-wA1aiBA1RBA1biBA1HBA1ciBA1QBA1diBA1FBA1eiBA1XBA1fiBA1MBA1giBA1SB
-A1hiBqA1hiBA1SBA1giBA1MBA1fiBA1XBA1eiBA1FBA1diBA1QBA1ciBA1HBA1bi
-BA1RBA1aiBwA1UDA1LDA1WDA1GDA1YDA1ODA1jaDA1IDA1MDA1FDA1HDA2DA1GKA
-1IKA2KA6IA2JA1IJA1GJA2EA1HEA1FEA1MEA1IEA1jaEA1OEA1YEA1GEA1WEA1LE
-A1UEA2CA1aiCA1RCA1biCA1HCA1ciCA1QCA1diCA1FCA1eiCA1XCA1fiCA1MCA1g
-iCA1SCA1hiCrA1hiCA1SCA1giCA1MCA1fiCA1XCA1eiCA1FCA1diCA1QCA1ciCA1
-HCA1biCA1RCA1aiCA2CA1UEA1LEA1WEA1GEA1YEA1OEA1jaEA1IEA1MEA1FEA1HE
-A2EA1GJA1IJA2Jq63r63q95r31q110r16qUphhlBLophhBWohhdBGnpgpBYnhglB
-OmpghBjamhgdBICfpBSlhflBMkpfhBXkhZBFjpepBQjhelBHipehBRihedBATB1U
-hgdlBLgodhBWggddBGfocpBYfgclBOeochBjaegcdBIDbpBSdgblBMcobhBXcgbd
-BFboapBQbgalBHaoahBRagadBApmpnDLolpfDGnlonDOmlofDIllnnDMklnfDFjl
-mnDHilmfDAhlJDLgklfDGfkknDOekkfDIdkjnDMckjfDFbkinDHakifDApehjDGn
-dgjDIldfjDFjdejDAhddjDGfccjDIdcbjDFbcajDppodpbKhokdnbKpngclbKhmc
-cjbKpgmdgbKpeNcbKoeidmbdmGadabdmrUphhlCLophhCWohhdCGnpgpCYnhglCO
-mpghCjamhgdCICfpCSlhflCMkpfhCXkhZCFjpepCQjhelCHipehCRihedCATBCUh
-gdlCLgodhCWggddCGfocpCYfgclCOeochCjaegcdCIDbpCSdgblCMcobhCXcgbdC
-FboapCQbgalCHaoahCRagadCApmpnELolpfEGnlonEOmlofEIllnnEMklnfEFjlm
-nEHilmfEAhlJELgklfEGfkknEOekkfEIdkjnEMckjfEFbkinEHakifEApehjEGnd
-gjEIldfjEFjdejEAhddjEGfccjEIdcbjEFbcajEppodpbJhokdnbJpngclbJhmcc
-jbJpgmdgbJpeNcbJoeidmblmGadablmA4095taeHA5xA7wqA119wqA119wqA119w
+aaaaaaea:pnpphplp:pmpphplp:aa:dp:lp:do:lo:ea:ma:ca:ia:ln:dn:ga:o
+a:ec:ka:eb:da:ba:ha:pa:hp:la:na:gf:fa:fd!tAabA9emgpgdgbgmAgcajlf
+jhkjaiWapgcajcoA6delkgiajWapgcajcdggVaiadA2mhhcVaiadA18migjmkaiA
+7bngciihfhdgciihfdeajBabaoaeA1ahA6QadjjafahA2cipibcATboikafdeajB
+abaoaeA1ahA6ahcgjdafA3dikcijafXkpigafahcgjdafVcgjdafajhkihaflepl
+bcAHhkihafcihkihafmigjmkaicipofeajA7ipblklahabA7plbcAblhlVaioigj
+mkaickA18eiofkpaicmkpcmaknhbjVaicmkpcmakA3cipofeajtFA10fkXgchcgb
+dccneeXgggbhfgmheHZhjgmXgohegidbHfeXgnSgmgbheXcogidcSA3mhhcVaiad
+A18tFA74tIA6qA127tIA6qA127tFA10geXgggbhfgmheHhdgdgbgmXA22qxA1F1A
+1IFA1OFA1GFA1MFtAacA5qA3qxA1F1A1IFA1OFA1GFA1MFA2PA1RPA1HPA1QPA1F
+PA1YPA1LPA1SPA1IPA1iiPA1jaPA1jiPA1OPA1kiPA1VPA1liPA1GPA1miPA1WPA
+1niPA1MPA1oiPA1TPA1piPA2NA1aeNA1aiNA1amNA1RNA1beNA1biNA1bmNA1HNA
+1ceNA1ciNA1cmNA1QNA1deNA1diNA1dmNA1FNA1eeNA1eiNA1emNA1YNA1feNA1f
+iNA1fmNA1LNA1geNA1giNA1gmNA1SNA1heNA1hiNA1hmNA1INA1icNA1ieNA1igN
+A1iiNA1ikNA1imNA1ioNA1jaNA1jcNA1jeNA1jgNA1jiNA1jkNA1jmNA1joNA1ON
+A1kcNA1keNA1kgNA1kiNA1kkNA1kmNA1koNA1VNA1lcNA1leNA1lgNA1liNA1lkN
+A1lmNA1ENA1GNA1mcNA1meNA1mgNA1miNA1mkNA1mmNA1moNA1WNA1ncNA1neNA1
+ngNA1niNA1nkNA1nmNA1noNA1MNA1ocNA1oeNA1ogNA1oiNA1okNA1omNA1ooNA1
+TNA1pcNA1peNA1pgNA1piNA1pkNA1pmNA1poNtQacA5qA3afA2abA2adA2abaeA2
+9xA13IFA13GFA14PA13HPA7sA1GFA11qA7sA1F1A7sA1OFA7sA1MFA7sA1LPA7sA
+1YPA7sA1FPA7sA1QPA7sA1HPA7sA1RPA7sA1iiPA7sA1jaPA7sA1jiPA7sA1OPA7
+sA1kiPA7sA1VPA7sA1liPA7sA1GPA7sA1miPA7sA1WPA7sA1niPA7sA1MPA7sA1o
+iPA7sA1TPA7sA1piPA7sA15tQacA5qA3afA2abA2adA2abaeA29xA13IFA13GFA1
+4PA13HPA7sA1GFA11qA7sA1F1A7sA1OFA7sA1MFA7sA1LPA7sA1YPA7sA1FPA7sA
+1QPA7sA1HPA7sA1RPA7sA1iiPA7sA1jaPA7sA1jiPA7sA1OPA7sA1kiPA7sA1VPA
+7sA1liPA7sA1GPA7sA1miPA7sA1WPA7sA1niPA7sA1MPA7sA1oiPA7sA1TPA7sA1
+piPA7sA15tQacA5qA3afA2abA2adA2abaeA29xA13IFA13GFA14PA13HPA7sA1GF
+A11qA7sA1F1A7sA1OFA7sA1MFA7sA1LPA7sA1YPA7sA1FPA7sA1QPA7sA1HPA7sA
+1RPA7sA1iiPA7sA1jaPA7sA1jiPA7sA1OPA7sA1kiPA7sA1VPA7sA1liPA7sA1GP
+A7sA1miPA7sA1WPA7sA1niPA7sA1MPA7sA1oiPA7sA1TPA7sA1piPA7sA15tQacA
+5qA3afA2abA2adA2abaeA29xA13IFA13GFA14PA13HPA7sA1GFA11qA7sA1F1A7s
+A1OFA7sA1MFA7sA1LPA7sA1YPA7sA1FPA7sA1QPA7sA1HPA7sA1RPA7sA1iiPA7s
+A1jaPA7sA1jiPA7sA1OPA7sA1kiPA7sA1VPA7sA1liPA7sA1GPA7sA1miPA7sA1W
+PA7sA1niPA7sA1MPA7sA1oiPA7sA1TPA7sA1piPA7sA15tIA6qA127tIA6qA127t
+IA6qA127tIA6qA127tAacA5qMcgcoEGTeiKAcmKllFil1JLgnbjBHfbmpKciammo
+EIfcidJMpbhoDhibcjlDaiikknDAphoklmMocmnEOogjiKdiemmhDLojanBfieea
+kCVehLDmmaiglCHpgefEAggpmKhmmebcCgiKjdEMknnbEcigmcpCSmkbjDgeoidh
+BOQRDMXndDemaobiChmlladBGpeaeCHpkddDWnicfEomgheeCVkipkDOjdbjBmim
+nniDLejogKFdkXEeimddeCROeoEMcnmiJMZahEWacfbBcinfpcDMokocKGadmkEI
+cbenJfindjbDoiSpeDdiafaeBAakjbDMfnmlJheofHCLjgjnEAbigcdlGffeeKHn
+nibKQjmkcELgoinDbiedinEGalajKAjijkKHjpeoDQacekDVbofiEQomljDIneen
+EfmcmeiCnibgphDWakckCIbpfnKHmkpfJhmjbRCmibfdeBIHldKkmmpcnCSDcgDI
+pebbEciajafBGngccKjidgokERjiknEFpgcbBpihbnjEjikfIDIalmjJkiacbkCb
+mlcPBImdoclmOdgbpDAdjemJQblbhEpijjpdDApeQJRYnjDgipnppEjeobakBcil
+cdbCIfedjDSkgLEfeanNCTkoanBHahHEhmoddmBmeglblBRajkfDIhnngJcilmkm
+DlidfpoDGHJEgifhacBfilklfDFnpfoKeihfadCAamocJRahboDbiVmnDFfbhhDG
+bmilKnmhgHBjameHDQcnojEOhgkjEbijalgEdmjkdgBIonbiCtAacA5q1oeKlcEp
+mkhooEGAedEcmngpgDliphhbCbipkdfKYnfNCriidlphErmeojcjCliimdbBcgcf
+gkBAopkfllTmbcmCjeopajBagipZCbemmmhErOidblCjaalkhJrHleabEQklbcEh
+cfkHCbopmacBmmnfhfBHbibgDmkkhRCoePocDFfecnBIgmmilmqWkhkfJoideigD
+qhilbekDleffmhDSnhokEThodgErfcnfgbCnmad1BWcipoEimlkohDhoNbcCOhop
+iEgmmgbgBmmmdpcEkmQnpDhmfoanCFlbbjBkehfmcEkmcimcELjeoiEdenlffCHR
+bdKaiekagEbeIgpCFehmnKngGgdBboljcfBGekbmBMkhkkKngkdeiCW1ilJnikck
+gEFbenkEgmglpeDlkbgbkBWhcikDRcmgeCncjffcBioCbgBrdiogddCQklleKdma
+jkcEOgomiDLaolmKdkopgbBdgBbeBeickJDrmofgakBcipkckDroiLijDlmMinEf
+ohbamBpepchnCOkbdfDFhbJlmgeFmjDMbfelBlibhjlDnihmepEbigbckDjikmCE
+VkjfeBRblCJdefmklDMcjhhEhmdmbbCacicbdCbcoighCmikbncEOjmdgEQomjhK
+DehbfCRehciBhephamBWgcooKjggnaiBhigonjEAbdimEmecobiBAgjjhdlkippe
+eCkiieopDpingejEaionhjEr1nephkhElimnbiEqtamadA5qeeejfcehaeA2amA2
+eogpgjhdXdbA1anbbA1eogpgjhdXdcA1anbcA1egenepdeA3aobbA1edgpgngcdc
+A2akbbA1epZeddbAgbhjXanbbA1epZedddA3anbcA1ZNdbA4akbbA1egenepdbA3
+aobbA1epZeddcA3anbbA1epZeddeAHdbdianbcA1fgedegddAgbhjXacbcA1edgp
+gngcdbA2akbbA1fgedegdbA3abbbA1fgedegdcA3abbcA1egenepdcAHdcdbaobb
+A1egenepddA3aobbA1fgedegdeA3acbcA1ZgigbSXdcA1akbcA1engjhidbA3akh
+eA1engjhidcAHdcdeakhiA1engjhiddA3akhbA1engjhideA3akhcA1fcgjgoghd
+bA2akheA1fcgjgoghdcA2akhiA1fienegdbAgbhjXakhbA1fienegdcA3akhcA1Z
+gigbSXdbAXakbbA1ZNdcAhcHdcdhakbiA26HdcdiA23emgbhjXA28gbhjXhcHddQ
+A28HdddbA23emgbhjXA31HA246taeHA5xA3pjZppDq2A111ggdejkDpp1UBq1A11
+1ekZneKpoppUBq1A111nochccKackmRBFphRBqA115wpnffABqA115poZppDpipp
+1DqA115plkhpoDphZppDqA115TenodDolpjodDqA115oepdmhDMjpmiDqA115njj
+jkmDneefknDqA115moBjbDmioljbDqA115iemlglDhkcdgnDqA112wklcjDdfadc
+lDqA115amhgneKpgcfnhKqA115GneokdmLjepfdmqA108xJgcdlVaccmdmjeQepd
+mqA107urpippUBq1A107urvq1A107urq2A107urlebglclleginmedlqA107urA3
+dcbefgdmqA107urgnhkndEHpeobDqA107uryvqA107uryvqA107uryvqA107uryv
+qA107uryvqA107urzvqA107urzvqA107urzvqA107urzvqA107uzrvqA111emobp
+kErA119WmmjmEieolfbEA119emobpkJA1IEbbkoehEA115emobhkJA2EA1651nek
+dQBMhkjeDA119OSbfBjijjdjDA119nihkpeDmnmmamDA119nihkheDMhkbeKA165
+5afA2tRA6xfiemdmceU3LeiQbiU3tAHA5xA3pmipekKijYmkKclgnbhDddZejDbm
+llhkDpimcjfDjbmkknDeiXmfDfgienmDKbjpdDomikaeBdbdgapBCihbjBbnhjcd
+BbcaecnBkdccdgBbkmpDBahaeehBehlmeoBadpdffBlgkdfmBQmkgcBjggcgiBgg
+gjgnBhlnlhbBamlghfBkopghiBfijlhlBgbkchnBigakUBoencUBpnpkUBljicUB
+gdgkhoBkklchmBkcfmhkBmcgjhhBocnlhdBKlfgpBgmpigkBghkiXBidmifpBglf
+mfjBckgifcBbgTekBobpiNBifihdkBfbkbdbBnfelciBogimboBkigkbeBglolaj
+BjeclpoDbbobohDfbafnbDjhkgljDjgndkbDcmjlijDclbjgcDejgoQDnnkjpmKG
+nijhKigkcmkdmofjnmklmjinhjhJjhkipmJlhgnQEilbigcEofjkijEeindkbEfc
+kgljEagafnbEmpMohEenclpoEemolajCiggkbeCmjimboClgelciCdgkbdbCgmih
+dkCmhpiNCabTekCbfgifcCfhfmfjCgpmifpCfikiXCfopigkCcplfgpCngnlhdCl
+jgjhhCjkfmhkCkelchmCfogkhoClhicUCpmpkUCofncUCijakUCghkchnCfojlhl
+ClgpghiCbhlghfCijnlhbChdgjgnCkfgcgiCNmkgcCmlkdfmCbgpdffCfnlmeoCH
+aeehCdfmpDClmccdgCcnaecnCdlhjcdCnpihbjCeodgapCamilaeCibbjpdEjpie
+nmEiiXmfEngmkknEedmdjfEJllhkECZejEmbgnbhEmlfbmkJkhjcekJcneebelgr
+TphhlCMophhCWohhdCGnpgpCVnhglCOmpghCjamhgdCICfpCSlhflCLkpfhCYkhZ
+CFjpepCQjhelCHipehCRihedCAUBCThgdlCMgodhCWggddCGfocpCVfgclCOeoch
+CjaegcdCIDbpCSdgblCLcobhCYcgbdCFboapCQbgalCHaoahCRagadCApmpnEMol
+pfEGnlonEOmlofEIllnnELklnfEFjlmnEHilmfEAhlJEMgklfEGfkknEOekkfEId
+kjnELckjfEFbkinEHakifEApehjEGndgjEIldfjEFjdejEAhddjEGfccjEIdcbjE
+FbcajEppodpbJhokdnbJpngclbJhmccjbJpgmdgbJpeNcbJoeidmblmGadablmGa
+dabdmoeidmbdmpeNcbKpgmdgbKhmccjbKpngclbKhokdnbKppodpbKFbcajDIdcb
+jDGfccjDAhddjDFjdejDIldfjDGndgjDApehjDHakifDFbkinDLckjfDIdkjnDOe
+kkfDGfkknDMgklfDAhlJDHilmfDFjlmnDLklnfDIllnnDOmlofDGnlonDMolpfDA
+pmpnDRagadBHaoahBQbgalBFboapBYcgbdBLcobhBSdgblBIDbpBjaegcdBOeoch
+BVfgclBGfocpBWggddBMgodhBThgdlBAUB1RihedBHipehBQjhelBFjpepBYkhZB
+LkpfhBSlhflBICfpBjamhgdBOmpghBVnhglBGnpgpBWohhdBMophhBTphhlBq1Tp
+hhlBMophhBWohhdBGnpgpBVnhglBOmpghBjamhgdBICfpBSlhflBLkpfhBYkhZBF
+jpepBQjhelBHipehBRihedBAUB1ThgdlBMgodhBWggddBGfocpBVfgclBOeochBj
+aegcdBIDbpBSdgblBLcobhBYcgbdBFboapBQbgalBHaoahBRagadBApmpnDMolpf
+DGnlonDOmlofDIllnnDLklnfDFjlmnDHilmfDAhlJDMgklfDGfkknDOekkfDIdkj
+nDLckjfDFbkinDHakifDApehjDGndgjDIldfjDFjdejDAhddjDGfccjDIdcbjDFb
+cajDppodpbKhokdnbKpngclbKhmccjbKpgmdgbKpeNcbKoeidmbdmGadabdmGada
+blmoeidmblmpeNcbJpgmdgbJhmccjbJpngclbJhokdnbJppodpbJFbcajEIdcbjE
+GfccjEAhddjEFjdejEIldfjEGndgjEApehjEHakifEFbkinELckjfEIdkjnEOekk
+fEGfkknEMgklfEAhlJEHilmfEFjlmnELklnfEIllnnEOmlofEGnlonEMolpfEApm
+pnERagadCHaoahCQbgalCFboapCYcgbdCLcobhCSdgblCIDbpCjaegcdCOeochCV
+fgclCGfocpCWggddCMgodhCThgdlCAUBCRihedCHipehCQjhelCFjpepCYkhZCLk
+pfhCSlhflCICfpCjamhgdCOmpghCVnhglCGnpgpCWohhdCMophhCTphhlCrA2KA1
+IKA1GKA2DA1HDA1FDA1LDA1IDA1jaDA1ODA1VDA1GDA1WDA1MDA1TDwA1aiBA1RB
+A1biBA1HBA1ciBA1QBA1diBA1FBA1eiBA1YBA1fiBA1LBA1giBA1SBA1hiBqA1hi
+BA1SBA1giBA1LBA1fiBA1YBA1eiBA1FBA1diBA1QBA1ciBA1HBA1biBA1RBA1aiB
+wA1TDA1MDA1WDA1GDA1VDA1ODA1jaDA1IDA1LDA1FDA1HDA2DA1GKA1IKA2KA6IA
+2JA1IJA1GJA2EA1HEA1FEA1LEA1IEA1jaEA1OEA1VEA1GEA1WEA1MEA1TEA2CA1a
+iCA1RCA1biCA1HCA1ciCA1QCA1diCA1FCA1eiCA1YCA1fiCA1LCA1giCA1SCA1hi
+CrA1hiCA1SCA1giCA1LCA1fiCA1YCA1eiCA1FCA1diCA1QCA1ciCA1HCA1biCA1R
+CA1aiCA2CA1TEA1MEA1WEA1GEA1VEA1OEA1jaEA1IEA1LEA1FEA1HEA2EA1GJA1I
+JA2Jq63r63q95r31q110r16qTphhlBMophhBWohhdBGnpgpBVnhglBOmpghBjamh
+gdBICfpBSlhflBLkpfhBYkhZBFjpepBQjhelBHipehBRihedBAUB1ThgdlBMgodh
+BWggddBGfocpBVfgclBOeochBjaegcdBIDbpBSdgblBLcobhBYcgbdBFboapBQbg
+alBHaoahBRagadBApmpnDMolpfDGnlonDOmlofDIllnnDLklnfDFjlmnDHilmfDA
+hlJDMgklfDGfkknDOekkfDIdkjnDLckjfDFbkinDHakifDApehjDGndgjDIldfjD
+FjdejDAhddjDGfccjDIdcbjDFbcajDppodpbKhokdnbKpngclbKhmccjbKpgmdgb
+KpeNcbKoeidmbdmGadabdmrTphhlCMophhCWohhdCGnpgpCVnhglCOmpghCjamhg
+dCICfpCSlhflCLkpfhCYkhZCFjpepCQjhelCHipehCRihedCAUBCThgdlCMgodhC
+WggddCGfocpCVfgclCOeochCjaegcdCIDbpCSdgblCLcobhCYcgbdCFboapCQbga
+lCHaoahCRagadCApmpnEMolpfEGnlonEOmlofEIllnnELklnfEFjlmnEHilmfEAh
+lJEMgklfEGfkknEOekkfEIdkjnELckjfEFbkinEHakifEApehjEGndgjEIldfjEF
+jdejEAhddjEGfccjEIdcbjEFbcajEppodpbJhokdnbJpngclbJhmccjbJpgmdgbJ
+peNcbJoeidmblmGadablmA4095taeHA5xA3pjZppDq2A111ggdejkDpp1UBq1A11
+1ekZneKpoppUBq1A111ekZfeKackmRBFphRBqA115wpnffABqA115poZppDpipp1
+DqA115plkhpoDphZppDqA115TenodDolpjodDqA115oepdmhDMjpmiDqA115njjj
+kmDneefknDqA115moBjbDmioljbDqA115iemlglDhkcdgnDqA112wklcjDdfadcl
+DqA115amhgneKpgcfnhKqA115GneokdmLjepfdmqA108xJgcdlVaccmdmjeQepdm
+qA107urpippUBq1A107urvq1A107urq2A107urlebglclleginmedlqA107urA3d
+cbefgdmqA107urgnhkndEHpeobDqA107uryvqA107uryvqA107uryvqA107uryvq
+A107uryvqA107urzvqA107urzvqA107urzvqA107urzvqA107uzrvqA111emobpk
+ErA119WmmjmEieolfbEA119emobpkJA1IEbbkoehEA115emobhkJA2EA1651nekd
+QBMhkjeDA119OSbfBjijjdjDA119nihkpeDmnmmamDA119nihkheDMhkbeKA1655
+afA2tRA6xfiemdmceU3LeiQbiU3tAHA5xA3pmipekKijYmkKclgnbhDddZejDbml
+lhkDpimcjfDjbmkknDeiXmfDfgienmDKbjpdDomikaeBdbdgapBCihbjBbnhjcdB
+bcaecnBkdccdgBbkmpDBahaeehBehlmeoBadpdffBlgkdfmBQmkgcBjggcgiBggg
+jgnBhlnlhbBamlghfBkopghiBfijlhlBgbkchnBigakUBoencUBpnpkUBljicUBg
+dgkhoBkklchmBkcfmhkBmcgjhhBocnlhdBKlfgpBgmpigkBghkiXBidmifpBglfm
+fjBckgifcBbgTekBobpiNBifihdkBfbkbdbBnfelciBogimboBkigkbeBglolajB
+jeclpoDbbobohDfbafnbDjhkgljDjgndkbDcmjlijDclbjgcDejgoQDnnkjpmKGn
+ijhKigkcmkdmofjnmklmjinhjhJjhkipmJlhgnQEilbigcEofjkijEeindkbEfck
+gljEagafnbEmpMohEenclpoEemolajCiggkbeCmjimboClgelciCdgkbdbCgmihd
+kCmhpiNCabTekCbfgifcCfhfmfjCgpmifpCfikiXCfopigkCcplfgpCngnlhdClj
+gjhhCjkfmhkCkelchmCfogkhoClhicUCpmpkUCofncUCijakUCghkchnCfojlhlC
+lgpghiCbhlghfCijnlhbChdgjgnCkfgcgiCNmkgcCmlkdfmCbgpdffCfnlmeoCHa
+eehCdfmpDClmccdgCcnaecnCdlhjcdCnpihbjCeodgapCamilaeCibbjpdEjpien
+mEiiXmfEngmkknEedmdjfEJllhkECZejEmbgnbhEmlfbmkJkhjcekJcneebelgrT
+phhlCMophhCWohhdCGnpgpCVnhglCOmpghCjamhgdCICfpCSlhflCLkpfhCYkhZC
+FjpepCQjhelCHipehCRihedCAUBCThgdlCMgodhCWggddCGfocpCVfgclCOeochC
+jaegcdCIDbpCSdgblCLcobhCYcgbdCFboapCQbgalCHaoahCRagadCApmpnEMolp
+fEGnlonEOmlofEIllnnELklnfEFjlmnEHilmfEAhlJEMgklfEGfkknEOekkfEIdk
+jnELckjfEFbkinEHakifEApehjEGndgjEIldfjEFjdejEAhddjEGfccjEIdcbjEF
+bcajEppodpbJhokdnbJpngclbJhmccjbJpgmdgbJpeNcbJoeidmblmGadablmGad
+abdmoeidmbdmpeNcbKpgmdgbKhmccjbKpngclbKhokdnbKppodpbKFbcajDIdcbj
+DGfccjDAhddjDFjdejDIldfjDGndgjDApehjDHakifDFbkinDLckjfDIdkjnDOek
+kfDGfkknDMgklfDAhlJDHilmfDFjlmnDLklnfDIllnnDOmlofDGnlonDMolpfDAp
+mpnDRagadBHaoahBQbgalBFboapBYcgbdBLcobhBSdgblBIDbpBjaegcdBOeochB
+VfgclBGfocpBWggddBMgodhBThgdlBAUB1RihedBHipehBQjhelBFjpepBYkhZBL
+kpfhBSlhflBICfpBjamhgdBOmpghBVnhglBGnpgpBWohhdBMophhBTphhlBq1Tph
+hlBMophhBWohhdBGnpgpBVnhglBOmpghBjamhgdBICfpBSlhflBLkpfhBYkhZBFj
+pepBQjhelBHipehBRihedBAUB1ThgdlBMgodhBWggddBGfocpBVfgclBOeochBja
+egcdBIDbpBSdgblBLcobhBYcgbdBFboapBQbgalBHaoahBRagadBApmpnDMolpfD
+GnlonDOmlofDIllnnDLklnfDFjlmnDHilmfDAhlJDMgklfDGfkknDOekkfDIdkjn
+DLckjfDFbkinDHakifDApehjDGndgjDIldfjDFjdejDAhddjDGfccjDIdcbjDFbc
+ajDppodpbKhokdnbKpngclbKhmccjbKpgmdgbKpeNcbKoeidmbdmGadabdmGadab
+lmoeidmblmpeNcbJpgmdgbJhmccjbJpngclbJhokdnbJppodpbJFbcajEIdcbjEG
+fccjEAhddjEFjdejEIldfjEGndgjEApehjEHakifEFbkinELckjfEIdkjnEOekkf
+EGfkknEMgklfEAhlJEHilmfEFjlmnELklnfEIllnnEOmlofEGnlonEMolpfEApmp
+nERagadCHaoahCQbgalCFboapCYcgbdCLcobhCSdgblCIDbpCjaegcdCOeochCVf
+gclCGfocpCWggddCMgodhCThgdlCAUBCRihedCHipehCQjhelCFjpepCYkhZCLkp
+fhCSlhflCICfpCjamhgdCOmpghCVnhglCGnpgpCWohhdCMophhCTphhlCrA2KA1I
+KA1GKA2DA1HDA1FDA1LDA1IDA1jaDA1ODA1VDA1GDA1WDA1MDA1TDwA1aiBA1RBA
+1biBA1HBA1ciBA1QBA1diBA1FBA1eiBA1YBA1fiBA1LBA1giBA1SBA1hiBqA1hiB
+A1SBA1giBA1LBA1fiBA1YBA1eiBA1FBA1diBA1QBA1ciBA1HBA1biBA1RBA1aiBw
+A1TDA1MDA1WDA1GDA1VDA1ODA1jaDA1IDA1LDA1FDA1HDA2DA1GKA1IKA2KA6IA2
+JA1IJA1GJA2EA1HEA1FEA1LEA1IEA1jaEA1OEA1VEA1GEA1WEA1MEA1TEA2CA1ai
+CA1RCA1biCA1HCA1ciCA1QCA1diCA1FCA1eiCA1YCA1fiCA1LCA1giCA1SCA1hiC
+rA1hiCA1SCA1giCA1LCA1fiCA1YCA1eiCA1FCA1diCA1QCA1ciCA1HCA1biCA1RC
+A1aiCA2CA1TEA1MEA1WEA1GEA1VEA1OEA1jaEA1IEA1LEA1FEA1HEA2EA1GJA1IJ
+A2Jq63r63q95r31q110r16qTphhlBMophhBWohhdBGnpgpBVnhglBOmpghBjamhg
+dBICfpBSlhflBLkpfhBYkhZBFjpepBQjhelBHipehBRihedBAUB1ThgdlBMgodhB
+WggddBGfocpBVfgclBOeochBjaegcdBIDbpBSdgblBLcobhBYcgbdBFboapBQbga
+lBHaoahBRagadBApmpnDMolpfDGnlonDOmlofDIllnnDLklnfDFjlmnDHilmfDAh
+lJDMgklfDGfkknDOekkfDIdkjnDLckjfDFbkinDHakifDApehjDGndgjDIldfjDF
+jdejDAhddjDGfccjDIdcbjDFbcajDppodpbKhokdnbKpngclbKhmccjbKpgmdgbK
+peNcbKoeidmbdmGadabdmrTphhlCMophhCWohhdCGnpgpCVnhglCOmpghCjamhgd
+CICfpCSlhflCLkpfhCYkhZCFjpepCQjhelCHipehCRihedCAUBCThgdlCMgodhCW
+ggddCGfocpCVfgclCOeochCjaegcdCIDbpCSdgblCLcobhCYcgbdCFboapCQbgal
+CHaoahCRagadCApmpnEMolpfEGnlonEOmlofEIllnnELklnfEFjlmnEHilmfEAhl
+JEMgklfEGfkknEOekkfEIdkjnELckjfEFbkinEHakifEApehjEGndgjEIldfjEFj
+dejEAhddjEGfccjEIdcbjEFbcajEppodpbJhokdnbJpngclbJhmccjbJpgmdgbJp
+eNcbJoeidmblmGadablmA4095taeHA5xA3pjZppDq2A111ggdejkDpp1UBq1A111
+ekZneKpoppUBq1A111ekZfeKackmRBFphRBqA115wpnffABqA115poZppDpipp1D
+qA115plkhpoDphZppDqA115TenodDolpjodDqA115oepdmhDMjpmiDqA115njjjk
+mDneefknDqA115moBjbDmioljbDqA115iemlglDhkcdgnDqA112wklcjDdfadclD
+qA115amhgneKpgcfnhKqA115GneokdmLjepfdmqA108xJgcdlVaccmdmjeQepdmq
+A107urpippUBq1A107urvq1A107urq2A107urlebglclleginmedlqA107urA3dc
+befgdmqA107urgnhkndEHpeobDqA107uryvqA107uryvqA107uryvqA107uryvqA
+107uryvqA107urzvqA107urzvqA107urzvqA107urzvqA107uzrvqA111emobpkE
+rA119WmmjmEieolfbEA119emobpkJA1IEbbkoehEA115emobhkJA2EA1651nekdQ
+BMhkjeDA119OSbfBjijjdjDA119nihkpeDmnmmamDA119nihkheDMhkbeKA1655a
+fA2tRA6xfiemdmceU3LeiQbiU3tAHA5xA3pmipekKijYmkKclgnbhDddZejDbmll
+hkDpimcjfDjbmkknDeiXmfDfgienmDKbjpdDomikaeBdbdgapBCihbjBbnhjcdBb
+caecnBkdccdgBbkmpDBahaeehBehlmeoBadpdffBlgkdfmBQmkgcBjggcgiBgggj
+gnBhlnlhbBamlghfBkopghiBfijlhlBgbkchnBigakUBoencUBpnpkUBljicUBgd
+gkhoBkklchmBkcfmhkBmcgjhhBocnlhdBKlfgpBgmpigkBghkiXBidmifpBglfmf
+jBckgifcBbgTekBobpiNBifihdkBfbkbdbBnfelciBogimboBkigkbeBglolajBj
+eclpoDbbobohDfbafnbDjhkgljDjgndkbDcmjlijDclbjgcDejgoQDnnkjpmKGni
+jhKigkcmkdmofjnmklmjinhjhJjhkipmJlhgnQEilbigcEofjkijEeindkbEfckg
+ljEagafnbEmpMohEenclpoEemolajCiggkbeCmjimboClgelciCdgkbdbCgmihdk
+CmhpiNCabTekCbfgifcCfhfmfjCgpmifpCfikiXCfopigkCcplfgpCngnlhdCljg
+jhhCjkfmhkCkelchmCfogkhoClhicUCpmpkUCofncUCijakUCghkchnCfojlhlCl
+gpghiCbhlghfCijnlhbChdgjgnCkfgcgiCNmkgcCmlkdfmCbgpdffCfnlmeoCHae
+ehCdfmpDClmccdgCcnaecnCdlhjcdCnpihbjCeodgapCamilaeCibbjpdEjpienm
+EiiXmfEngmkknEedmdjfEJllhkECZejEmbgnbhEmlfbmkJkhjcekJcneebelgrTp
+hhlCMophhCWohhdCGnpgpCVnhglCOmpghCjamhgdCICfpCSlhflCLkpfhCYkhZCF
+jpepCQjhelCHipehCRihedCAUBCThgdlCMgodhCWggddCGfocpCVfgclCOeochCj
+aegcdCIDbpCSdgblCLcobhCYcgbdCFboapCQbgalCHaoahCRagadCApmpnEMolpf
+EGnlonEOmlofEIllnnELklnfEFjlmnEHilmfEAhlJEMgklfEGfkknEOekkfEIdkj
+nELckjfEFbkinEHakifEApehjEGndgjEIldfjEFjdejEAhddjEGfccjEIdcbjEFb
+cajEppodpbJhokdnbJpngclbJhmccjbJpgmdgbJpeNcbJoeidmblmGadablmGada
+bdmoeidmbdmpeNcbKpgmdgbKhmccjbKpngclbKhokdnbKppodpbKFbcajDIdcbjD
+GfccjDAhddjDFjdejDIldfjDGndgjDApehjDHakifDFbkinDLckjfDIdkjnDOekk
+fDGfkknDMgklfDAhlJDHilmfDFjlmnDLklnfDIllnnDOmlofDGnlonDMolpfDApm
+pnDRagadBHaoahBQbgalBFboapBYcgbdBLcobhBSdgblBIDbpBjaegcdBOeochBV
+fgclBGfocpBWggddBMgodhBThgdlBAUB1RihedBHipehBQjhelBFjpepBYkhZBLk
+pfhBSlhflBICfpBjamhgdBOmpghBVnhglBGnpgpBWohhdBMophhBTphhlBq1Tphh
+lBMophhBWohhdBGnpgpBVnhglBOmpghBjamhgdBICfpBSlhflBLkpfhBYkhZBFjp
+epBQjhelBHipehBRihedBAUB1ThgdlBMgodhBWggddBGfocpBVfgclBOeochBjae
+gcdBIDbpBSdgblBLcobhBYcgbdBFboapBQbgalBHaoahBRagadBApmpnDMolpfDG
+nlonDOmlofDIllnnDLklnfDFjlmnDHilmfDAhlJDMgklfDGfkknDOekkfDIdkjnD
+LckjfDFbkinDHakifDApehjDGndgjDIldfjDFjdejDAhddjDGfccjDIdcbjDFbca
+jDppodpbKhokdnbKpngclbKhmccjbKpgmdgbKpeNcbKoeidmbdmGadabdmGadabl
+moeidmblmpeNcbJpgmdgbJhmccjbJpngclbJhokdnbJppodpbJFbcajEIdcbjEGf
+ccjEAhddjEFjdejEIldfjEGndgjEApehjEHakifEFbkinELckjfEIdkjnEOekkfE
+GfkknEMgklfEAhlJEHilmfEFjlmnELklnfEIllnnEOmlofEGnlonEMolpfEApmpn
+ERagadCHaoahCQbgalCFboapCYcgbdCLcobhCSdgblCIDbpCjaegcdCOeochCVfg
+clCGfocpCWggddCMgodhCThgdlCAUBCRihedCHipehCQjhelCFjpepCYkhZCLkpf
+hCSlhflCICfpCjamhgdCOmpghCVnhglCGnpgpCWohhdCMophhCTphhlCrA2KA1IK
+A1GKA2DA1HDA1FDA1LDA1IDA1jaDA1ODA1VDA1GDA1WDA1MDA1TDwA1aiBA1RBA1
+biBA1HBA1ciBA1QBA1diBA1FBA1eiBA1YBA1fiBA1LBA1giBA1SBA1hiBqA1hiBA
+1SBA1giBA1LBA1fiBA1YBA1eiBA1FBA1diBA1QBA1ciBA1HBA1biBA1RBA1aiBwA
+1TDA1MDA1WDA1GDA1VDA1ODA1jaDA1IDA1LDA1FDA1HDA2DA1GKA1IKA2KA6IA2J
+A1IJA1GJA2EA1HEA1FEA1LEA1IEA1jaEA1OEA1VEA1GEA1WEA1MEA1TEA2CA1aiC
+A1RCA1biCA1HCA1ciCA1QCA1diCA1FCA1eiCA1YCA1fiCA1LCA1giCA1SCA1hiCr
+A1hiCA1SCA1giCA1LCA1fiCA1YCA1eiCA1FCA1diCA1QCA1ciCA1HCA1biCA1RCA
+1aiCA2CA1TEA1MEA1WEA1GEA1VEA1OEA1jaEA1IEA1LEA1FEA1HEA2EA1GJA1IJA
+2Jq63r63q95r31q110r16qTphhlBMophhBWohhdBGnpgpBVnhglBOmpghBjamhgd
+BICfpBSlhflBLkpfhBYkhZBFjpepBQjhelBHipehBRihedBAUB1ThgdlBMgodhBW
+ggddBGfocpBVfgclBOeochBjaegcdBIDbpBSdgblBLcobhBYcgbdBFboapBQbgal
+BHaoahBRagadBApmpnDMolpfDGnlonDOmlofDIllnnDLklnfDFjlmnDHilmfDAhl
+JDMgklfDGfkknDOekkfDIdkjnDLckjfDFbkinDHakifDApehjDGndgjDIldfjDFj
+dejDAhddjDGfccjDIdcbjDFbcajDppodpbKhokdnbKpngclbKhmccjbKpgmdgbKp
+eNcbKoeidmbdmGadabdmrTphhlCMophhCWohhdCGnpgpCVnhglCOmpghCjamhgdC
+ICfpCSlhflCLkpfhCYkhZCFjpepCQjhelCHipehCRihedCAUBCThgdlCMgodhCWg
+gddCGfocpCVfgclCOeochCjaegcdCIDbpCSdgblCLcobhCYcgbdCFboapCQbgalC
+HaoahCRagadCApmpnEMolpfEGnlonEOmlofEIllnnELklnfEFjlmnEHilmfEAhlJ
+EMgklfEGfkknEOekkfEIdkjnELckjfEFbkinEHakifEApehjEGndgjEIldfjEFjd
+ejEAhddjEGfccjEIdcbjEFbcajEppodpbJhokdnbJpngclbJhmccjbJpgmdgbJpe
+NcbJoeidmblmGadablmA4095taeHA5xA7wqA119wqA119wqA119wqA119wqA119w
 qA119wqA119wqA119wqA119wqA119wqA119wqA119wqA119wqA119wqA119wqA11
-9wqA119wqA115rA3qA115rA3qA115rA3qA115rA3qA115rA3qA115rA3qA115rA3
-qA115rA3qA115rA3qA115rA3qA115rA3qA115rA3qA115rA3qA115rA3qA115rA3
-qA115rA3qA4207aeA2tRA6xfiemdmceT3MeiQbiT3tAHA5xA3pmipekKijXmkKcl
-gnbhDddZejDbmllhkDpimcjfDjbmkknDeiVmfDfgienmDKbjpdDomikaeBdbdgap
-BCihbjBbnhjcdBbcaecnBkdccdgBbkmpDBahaeehBehlmeoBadpdffBlgkdfmBQm
-kgcBjggcgiBgggjgnBhlnlhbBamlghfBkopghiBfijlhlBgbkchnBigakTBoencT
-BpnpkTBljicTBgdgkhoBkklchmBkcfmhkBmcgjhhBocnlhdBKlfgpBgmpigkBghk
-iVBidmifpBglfmfjBckgifcBbgUekBobpiNBifihdkBfbkbdbBnfelciBogimboB
-kigkbeBglolajBjeclpoDbbobohDfbafnbDjhkgljDjgndkbDcmjlijDclbjgcDe
-jgoQDnnkjpmKGnijhKigkcmkdmofjnmklmjinhjhJjhkipmJlhgnQEilbigcEofj
-kijEeindkbEfckgljEagafnbEmpLohEenclpoEemolajCiggkbeCmjimboClgelc
-iCdgkbdbCgmihdkCmhpiNCabUekCbfgifcCfhfmfjCgpmifpCfikiVCfopigkCcp
-lfgpCngnlhdCljgjhhCjkfmhkCkelchmCfogkhoClhicTCpmpkTCofncTCijakTC
-ghkchnCfojlhlClgpghiCbhlghfCijnlhbChdgjgnCkfgcgiCNmkgcCmlkdfmCbg
-pdffCfnlmeoCHaeehCdfmpDClmccdgCcnaecnCdlhjcdCnpihbjCeodgapCamila
-eCibbjpdEjpienmEiiVmfEngmkknEedmdjfEJllhkECZejEmbgnbhEmlfbmkJkhj
-cekJcneebelgrUphhlCLophhCWohhdCGnpgpCYnhglCOmpghCjamhgdCICfpCSlh
-flCMkpfhCXkhZCFjpepCQjhelCHipehCRihedCATBCUhgdlCLgodhCWggddCGfoc
-pCYfgclCOeochCjaegcdCIDbpCSdgblCMcobhCXcgbdCFboapCQbgalCHaoahCRa
-gadCApmpnELolpfEGnlonEOmlofEIllnnEMklnfEFjlmnEHilmfEAhlJELgklfEG
-fkknEOekkfEIdkjnEMckjfEFbkinEHakifEApehjEGndgjEIldfjEFjdejEAhddj
-EGfccjEIdcbjEFbcajEppodpbJhokdnbJpngclbJhmccjbJpgmdgbJpeNcbJoeid
-mblmGadablmGadabdmoeidmbdmpeNcbKpgmdgbKhmccjbKpngclbKhokdnbKppod
-pbKFbcajDIdcbjDGfccjDAhddjDFjdejDIldfjDGndgjDApehjDHakifDFbkinDM
-ckjfDIdkjnDOekkfDGfkknDLgklfDAhlJDHilmfDFjlmnDMklnfDIllnnDOmlofD
-GnlonDLolpfDApmpnDRagadBHaoahBQbgalBFboapBXcgbdBMcobhBSdgblBIDbp
-BjaegcdBOeochBYfgclBGfocpBWggddBLgodhBUhgdlBATB1RihedBHipehBQjhe
-lBFjpepBXkhZBMkpfhBSlhflBICfpBjamhgdBOmpghBYnhglBGnpgpBWohhdBLop
-hhBUphhlBq1UphhlBLophhBWohhdBGnpgpBYnhglBOmpghBjamhgdBICfpBSlhfl
-BMkpfhBXkhZBFjpepBQjhelBHipehBRihedBATB1UhgdlBLgodhBWggddBGfocpB
-YfgclBOeochBjaegcdBIDbpBSdgblBMcobhBXcgbdBFboapBQbgalBHaoahBRaga
-dBApmpnDLolpfDGnlonDOmlofDIllnnDMklnfDFjlmnDHilmfDAhlJDLgklfDGfk
-knDOekkfDIdkjnDMckjfDFbkinDHakifDApehjDGndgjDIldfjDFjdejDAhddjDG
-fccjDIdcbjDFbcajDppodpbKhokdnbKpngclbKhmccjbKpgmdgbKpeNcbKoeidmb
-dmGadabdmGadablmoeidmblmpeNcbJpgmdgbJhmccjbJpngclbJhokdnbJppodpb
-JFbcajEIdcbjEGfccjEAhddjEFjdejEIldfjEGndgjEApehjEHakifEFbkinEMck
-jfEIdkjnEOekkfEGfkknELgklfEAhlJEHilmfEFjlmnEMklnfEIllnnEOmlofEGn
-lonELolpfEApmpnERagadCHaoahCQbgalCFboapCXcgbdCMcobhCSdgblCIDbpCj
-aegcdCOeochCYfgclCGfocpCWggddCLgodhCUhgdlCATBCRihedCHipehCQjhelC
-FjpepCXkhZCMkpfhCSlhflCICfpCjamhgdCOmpghCYnhglCGnpgpCWohhdCLophh
-CUphhlCrA2KA1IKA1GKA2DA1HDA1FDA1MDA1IDA1jaDA1ODA1YDA1GDA1WDA1LDA
-1UDwA1aiBA1RBA1biBA1HBA1ciBA1QBA1diBA1FBA1eiBA1XBA1fiBA1MBA1giBA
-1SBA1hiBqA1hiBA1SBA1giBA1MBA1fiBA1XBA1eiBA1FBA1diBA1QBA1ciBA1HBA
-1biBA1RBA1aiBwA1UDA1LDA1WDA1GDA1YDA1ODA1jaDA1IDA1MDA1FDA1HDA2DA1
-GKA1IKA2KA6IA2JA1IJA1GJA2EA1HEA1FEA1MEA1IEA1jaEA1OEA1YEA1GEA1WEA
-1LEA1UEA2CA1aiCA1RCA1biCA1HCA1ciCA1QCA1diCA1FCA1eiCA1XCA1fiCA1MC
-A1giCA1SCA1hiCrA1hiCA1SCA1giCA1MCA1fiCA1XCA1eiCA1FCA1diCA1QCA1ci
-CA1HCA1biCA1RCA1aiCA2CA1UEA1LEA1WEA1GEA1YEA1OEA1jaEA1IEA1MEA1FEA
-1HEA2EA1GJA1IJA2Jq63r63q95r31q110r16qUphhlBLophhBWohhdBGnpgpBYnh
-glBOmpghBjamhgdBICfpBSlhflBMkpfhBXkhZBFjpepBQjhelBHipehBRihedBAT
-B1UhgdlBLgodhBWggddBGfocpBYfgclBOeochBjaegcdBIDbpBSdgblBMcobhBXc
-gbdBFboapBQbgalBHaoahBRagadBApmpnDLolpfDGnlonDOmlofDIllnnDMklnfD
-FjlmnDHilmfDAhlJDLgklfDGfkknDOekkfDIdkjnDMckjfDFbkinDHakifDApehj
-DGndgjDIldfjDFjdejDAhddjDGfccjDIdcbjDFbcajDppodpbKhokdnbKpngclbK
-hmccjbKpgmdgbKpeNcbKoeidmbdmGadabdmrUphhlCLophhCWohhdCGnpgpCYnhg
-lCOmpghCjamhgdCICfpCSlhflCMkpfhCXkhZCFjpepCQjhelCHipehCRihedCATB
-CUhgdlCLgodhCWggddCGfocpCYfgclCOeochCjaegcdCIDbpCSdgblCMcobhCXcg
-bdCFboapCQbgalCHaoahCRagadCApmpnELolpfEGnlonEOmlofEIllnnEMklnfEF
-jlmnEHilmfEAhlJELgklfEGfkknEOekkfEIdkjnEMckjfEFbkinEHakifEApehjE
-GndgjEIldfjEFjdejEAhddjEGfccjEIdcbjEFbcajEppodpbJhokdnbJpngclbJh
-mccjbJpgmdgbJpeNcbJoeidmblmGadablmjmnoheDA27okengpBA19ndjlnoDA3b
-glcRBA15cbalfjBA19ndjlnoDA19diJgjBA19jmnopeDA19okengpBA19miNbgBA
-19diJgjBA283JojenCA7lcjaifEjmnoheEA3jmnoheClcjaafEA11alfjeiCA15k
-hdhKCA23JojenCA19bglcRCA15alfjeiCA15gphkndEA19JojenCA19lcjaifEA1
-1gecbalCA19alfjeiCA15jmnoheCA27nppekgEA19alfjmiEA31edbgdcEA151cn
-gecbBA3gphkZBA7jmnoheBgphkndDA3hkndjlDA19fjmiNBA7qA23alfjeiBA7ge
-cbalBA23alfjeiBA35gphkZBA31khdhKBA27pfkgdhBA267miNbgCA23jmnopeEA
-3diJgjCA23hkndblCA19ndjlfoCA15gecbalCA3rA7lcjaafCA7rA7gecbalCA35
-5jmnoheDgphkZBA7bglcRBA3diJgjBA3eogphkBA15fjmiNBA27qA43alfjeiBA7
-bglcRBA3diJojDA11qA7miNbgBA3gphkndDA15khdhKBA19okengpBA275edbglc
-EA3okengpCA11ndjlfoCA15igcmgeCA7pfkgdhCA3jmnoheCA11rA23jmnoheCA2
-7jmnopeEA23hkndjlEA51hkndblCA15fjmiNCA255wA15ndjlfoBA7qA23qA11nd
-jlfoBA39ndjlfoBA11diJgjBA27jmnoheBA11wA15eogphkBA7ndjlfoBA7gecba
-lBA7jbifcmBA271jmnoheCA7eogphkCA7jmnoheCA7rA7eogphkCndjlnoJA3rA1
-1rA11rA7rA7eogphkCA15rA3rA15rA11rA35pfkgdhCA47rA27bglcRCA199tRA6
-xfcfbefAT4hoFBT3tRA6xfcfbefAT4hoFBT3tRA6xfcfbefAT4hoFBT3tRA6xfcf
-befAT4hoFBT3tRA6xfcfbefAT4hoFBT3tRA6xfcfbefAT4hoFBT3tamadA5qeeej
-fcehadA2agA2ZgigbSVddA1ajbbA1edgpgnSdcA2akbbA1engpgeegfidcA1akbb
-A2gbhjVhcHdcA4engpgeegfidbAdcajbbA1ZNddA4akbbA1eeVgmgbhjdcA1akbb
-A13effbdbAemgbhjVajbbA1ZgigbSVdeA1akbbA1engjhidfAgbhjVakhbA2gbhj
-VhcHdfA4eeVgmgbhjdbA1ajbbA1fgedegdfA3acbbA1fgedegdgA3acbbA13fcVh
-gdbA3ajbbA1engjhidgA3akhbA1effbdcA4akbbA2gbhjVhcHdiA4edgpgnSdbA2
-ajbbA1fcgjgoghddA2akhbA2HdjA24emgbhjVA28gbhjVhcHdb1A28HdbdcA23em
-gbhjVA28gbhjVhcHdbdeA28HdbdfA23emgbhjVA28gbhjVhcHdbdhA28HdbdiA23
-emgbhjVA28gbhjVhcHdcQA28HdcdbA23emgbhjVA28gbhjVhcHdcddA28HdcdeA1
-9tHA10fifjdbA20emgggpehdcA2tHA10fifjdcA20ehgbheVA3tHA10fifjddA20
-elVhjeggpgmA1tHA10fifjdeA20fgVgmgpgdgjhehjtAabA9fifjdbHgogpheHgb
-hd1gjghgoVgeA7PfegphfgdgiA25PhcSengpgeA25PhcSengedcA25efgohgdbA2
-7efgohgdcA27efgohgddA27efgohgdeA27enZefehdbA2tAabA9fifjdcHgogphe
-Hgbhd1gjghgoVgeA7enZefehdcA26enZefehddA26enZefehdeA26emgggpdbA13
-1tAabA9fifjddHgogpheHgbhd1gjghgoVgeA197aeAgogpgoVA27engpgefhgigm
-A1tAabA9fifjdeHgogpheHgbhd1gjghgoVgeA7XgjhegdgifhA25NhcVgbhegiA2
-5fiShcVhd1A25emgggpehdbA26emgggpehdcA26ehgbheVA27elVhjeggpgmA25f
-gVgmgpgdgjhehjtHA10ZhjgmVgohegidbcnZgdhcgjSheVgecnephdgdAegepdec
-jA1pp2AtHA10ZhjgmVgohegidbcnZgdhcgjSheVgecnephdgdAegepdecjA1pp2A
-tHA10ZhjgmVgohegidbcnZgdhcgjSheVgecnephdgdAegepdecjA1pp2AtHA10Zh
-jgmVgohegidbcnZgdhcgjSheVgecnephdgdAegepdecjA1pp2AtHA10co2A4ehcd
-cjA3pinedhChfinGNRehcdcjA3pitHA10geVgggbhfgmheA16efgohgddA3tHA10
-geVgggbhfgmheA16efgohgdeA3tHA10geVgggbhfgmheA16enZefehdbA2tHA10g
-eVgggbhfgmheA16enZefehdcA2tAabA8NA255tAabA8NA252x=2138259
+5rA3qA115rA3qA115rA3qA115rA3qA115rA3qA115rA3qA115rA3qA115rA3qA11
+5rA3qA115rA3qA115rA3qA115rA3qA115rA3qA115rA3qA115rA3qA115rA3qA42
+07aeA2tRA6xfiemdmceU3LeiQbiU3tAHA5xA3pmipekKijYmkKclgnbhDddZejDb
+mllhkDpimcjfDjbmkknDeiXmfDfgienmDKbjpdDomikaeBdbdgapBCihbjBbnhjc
+dBbcaecnBkdccdgBbkmpDBahaeehBehlmeoBadpdffBlgkdfmBQmkgcBjggcgiBg
+ggjgnBhlnlhbBamlghfBkopghiBfijlhlBgbkchnBigakUBoencUBpnpkUBljicU
+BgdgkhoBkklchmBkcfmhkBmcgjhhBocnlhdBKlfgpBgmpigkBghkiXBidmifpBgl
+fmfjBckgifcBbgTekBobpiNBifihdkBfbkbdbBnfelciBogimboBkigkbeBglola
+jBjeclpoDbbobohDfbafnbDjhkgljDjgndkbDcmjlijDclbjgcDejgoQDnnkjpmK
+GnijhKigkcmkdmofjnmklmjinhjhJjhkipmJlhgnQEilbigcEofjkijEeindkbEf
+ckgljEagafnbEmpMohEenclpoEemolajCiggkbeCmjimboClgelciCdgkbdbCgmi
+hdkCmhpiNCabTekCbfgifcCfhfmfjCgpmifpCfikiXCfopigkCcplfgpCngnlhdC
+ljgjhhCjkfmhkCkelchmCfogkhoClhicUCpmpkUCofncUCijakUCghkchnCfojlh
+lClgpghiCbhlghfCijnlhbChdgjgnCkfgcgiCNmkgcCmlkdfmCbgpdffCfnlmeoC
+HaeehCdfmpDClmccdgCcnaecnCdlhjcdCnpihbjCeodgapCamilaeCibbjpdEjpi
+enmEiiXmfEngmkknEedmdjfEJllhkECZejEmbgnbhEmlfbmkJkhjcekJcneebelg
+rTphhlCMophhCWohhdCGnpgpCVnhglCOmpghCjamhgdCICfpCSlhflCLkpfhCYkh
+ZCFjpepCQjhelCHipehCRihedCAUBCThgdlCMgodhCWggddCGfocpCVfgclCOeoc
+hCjaegcdCIDbpCSdgblCLcobhCYcgbdCFboapCQbgalCHaoahCRagadCApmpnEMo
+lpfEGnlonEOmlofEIllnnELklnfEFjlmnEHilmfEAhlJEMgklfEGfkknEOekkfEI
+dkjnELckjfEFbkinEHakifEApehjEGndgjEIldfjEFjdejEAhddjEGfccjEIdcbj
+EFbcajEppodpbJhokdnbJpngclbJhmccjbJpgmdgbJpeNcbJoeidmblmGadablmG
+adabdmoeidmbdmpeNcbKpgmdgbKhmccjbKpngclbKhokdnbKppodpbKFbcajDIdc
+bjDGfccjDAhddjDFjdejDIldfjDGndgjDApehjDHakifDFbkinDLckjfDIdkjnDO
+ekkfDGfkknDMgklfDAhlJDHilmfDFjlmnDLklnfDIllnnDOmlofDGnlonDMolpfD
+ApmpnDRagadBHaoahBQbgalBFboapBYcgbdBLcobhBSdgblBIDbpBjaegcdBOeoc
+hBVfgclBGfocpBWggddBMgodhBThgdlBAUB1RihedBHipehBQjhelBFjpepBYkhZ
+BLkpfhBSlhflBICfpBjamhgdBOmpghBVnhglBGnpgpBWohhdBMophhBTphhlBq1T
+phhlBMophhBWohhdBGnpgpBVnhglBOmpghBjamhgdBICfpBSlhflBLkpfhBYkhZB
+FjpepBQjhelBHipehBRihedBAUB1ThgdlBMgodhBWggddBGfocpBVfgclBOeochB
+jaegcdBIDbpBSdgblBLcobhBYcgbdBFboapBQbgalBHaoahBRagadBApmpnDMolp
+fDGnlonDOmlofDIllnnDLklnfDFjlmnDHilmfDAhlJDMgklfDGfkknDOekkfDIdk
+jnDLckjfDFbkinDHakifDApehjDGndgjDIldfjDFjdejDAhddjDGfccjDIdcbjDF
+bcajDppodpbKhokdnbKpngclbKhmccjbKpgmdgbKpeNcbKoeidmbdmGadabdmGad
+ablmoeidmblmpeNcbJpgmdgbJhmccjbJpngclbJhokdnbJppodpbJFbcajEIdcbj
+EGfccjEAhddjEFjdejEIldfjEGndgjEApehjEHakifEFbkinELckjfEIdkjnEOek
+kfEGfkknEMgklfEAhlJEHilmfEFjlmnELklnfEIllnnEOmlofEGnlonEMolpfEAp
+mpnERagadCHaoahCQbgalCFboapCYcgbdCLcobhCSdgblCIDbpCjaegcdCOeochC
+VfgclCGfocpCWggddCMgodhCThgdlCAUBCRihedCHipehCQjhelCFjpepCYkhZCL
+kpfhCSlhflCICfpCjamhgdCOmpghCVnhglCGnpgpCWohhdCMophhCTphhlCrA2KA
+1IKA1GKA2DA1HDA1FDA1LDA1IDA1jaDA1ODA1VDA1GDA1WDA1MDA1TDwA1aiBA1R
+BA1biBA1HBA1ciBA1QBA1diBA1FBA1eiBA1YBA1fiBA1LBA1giBA1SBA1hiBqA1h
+iBA1SBA1giBA1LBA1fiBA1YBA1eiBA1FBA1diBA1QBA1ciBA1HBA1biBA1RBA1ai
+BwA1TDA1MDA1WDA1GDA1VDA1ODA1jaDA1IDA1LDA1FDA1HDA2DA1GKA1IKA2KA6I
+A2JA1IJA1GJA2EA1HEA1FEA1LEA1IEA1jaEA1OEA1VEA1GEA1WEA1MEA1TEA2CA1
+aiCA1RCA1biCA1HCA1ciCA1QCA1diCA1FCA1eiCA1YCA1fiCA1LCA1giCA1SCA1h
+iCrA1hiCA1SCA1giCA1LCA1fiCA1YCA1eiCA1FCA1diCA1QCA1ciCA1HCA1biCA1
+RCA1aiCA2CA1TEA1MEA1WEA1GEA1VEA1OEA1jaEA1IEA1LEA1FEA1HEA2EA1GJA1
+IJA2Jq63r63q95r31q110r16qTphhlBMophhBWohhdBGnpgpBVnhglBOmpghBjam
+hgdBICfpBSlhflBLkpfhBYkhZBFjpepBQjhelBHipehBRihedBAUB1ThgdlBMgod
+hBWggddBGfocpBVfgclBOeochBjaegcdBIDbpBSdgblBLcobhBYcgbdBFboapBQb
+galBHaoahBRagadBApmpnDMolpfDGnlonDOmlofDIllnnDLklnfDFjlmnDHilmfD
+AhlJDMgklfDGfkknDOekkfDIdkjnDLckjfDFbkinDHakifDApehjDGndgjDIldfj
+DFjdejDAhddjDGfccjDIdcbjDFbcajDppodpbKhokdnbKpngclbKhmccjbKpgmdg
+bKpeNcbKoeidmbdmGadabdmrTphhlCMophhCWohhdCGnpgpCVnhglCOmpghCjamh
+gdCICfpCSlhflCLkpfhCYkhZCFjpepCQjhelCHipehCRihedCAUBCThgdlCMgodh
+CWggddCGfocpCVfgclCOeochCjaegcdCIDbpCSdgblCLcobhCYcgbdCFboapCQbg
+alCHaoahCRagadCApmpnEMolpfEGnlonEOmlofEIllnnELklnfEFjlmnEHilmfEA
+hlJEMgklfEGfkknEOekkfEIdkjnELckjfEFbkinEHakifEApehjEGndgjEIldfjE
+FjdejEAhddjEGfccjEIdcbjEFbcajEppodpbJhokdnbJpngclbJhmccjbJpgmdgb
+JpeNcbJoeidmblmGadablmjmnoheDA27okengpBA19ndjlnoDA3bglcRBA15cbal
+fjBA19ndjlnoDA19diJgjBA19jmnopeDA19okengpBA19miNbgBA19diJgjBA283
+JojenCA7lcjaifEjmnoheEA3jmnoheClcjaafEA11alfjeiCA15khdhKCA23Joje
+nCA19bglcRCA15alfjeiCA15gphkndEA19JojenCA19lcjaifEA11gecbalCA19a
+lfjeiCA15jmnoheCA27nppekgEA19alfjmiEA31edbgdcEA151cngecbBA3gphkZ
+BA7jmnoheBgphkndDA3hkndjlDA19fjmiNBA7qA23alfjeiBA7gecbalBA23alfj
+eiBA35gphkZBA31khdhKBA27pfkgdhBA267miNbgCA23jmnopeEA3diJgjCA23hk
+ndblCA19ndjlfoCA15gecbalCA3rA7lcjaafCA7rA7gecbalCA355jmnoheDgphk
+ZBA7bglcRBA3diJgjBA3eogphkBA15fjmiNBA27qA43alfjeiBA7bglcRBA3diJo
+jDA11qA7miNbgBA3gphkndDA15khdhKBA19okengpBA275edbglcEA3okengpCA1
+1ndjlfoCA15igcmgeCA7pfkgdhCA3jmnoheCA11rA23jmnoheCA27jmnopeEA23h
+kndjlEA51hkndblCA15fjmiNCA255wA15ndjlfoBA7qA23qA11ndjlfoBA39ndjl
+foBA11diJgjBA27jmnoheBA11wA15eogphkBA7ndjlfoBA7gecbalBA7jbifcmBA
+271jmnoheCA7eogphkCA7jmnoheCA7rA7eogphkCndjlnoJA3rA11rA11rA7rA7e
+ogphkCA15rA3rA15rA11rA35pfkgdhCA47rA27bglcRCA199tRA6xfcfbefAU4ho
+FBU3tRA6xfcfbefAU4hoFBU3tRA6xfcfbefAU4hoFBU3tRA6xfcfbefAU4hoFBU3
+tRA6xfcfbefAU4hoFBU3tRA6xfcfbefAU4hoFBU3tamadA5qeeejfcehadA2agA2
+edgpgnSdcA2akbbA1ZgigbSXddA1ajbcA1ZgigbSXdeA1akbbA2gbhjXhcHdcA4Z
+NddA4akbbA1engpgeegfidbAdcajbcA1eeXgmgbhjdcA1akbbA13fgedegdfA3ac
+bbA1engpgeegfidcA1ajbcA1engjhidfAgbhjXakhbA2gbhjXhcHdfA4engjhidg
+A3akhbA1effbdbAemgbhjXajbcA1fgedegdgA3acbbA13fcgjgoghddA2akhbA1e
+eXgmgbhjdbA1ajbcA1effbdcA4akbbA2gbhjXhcHdiA4edgpgnSdbA2ajbbA1fcX
+hgdbA3ajbcA2HdjA24emgbhjXA28gbhjXhcHdb1A28HdbdcA23emgbhjXA28gbhj
+XhcHdbdeA28HdbdfA23emgbhjXA28gbhjXhcHdbdhA28HdbdiA23emgbhjXA28gb
+hjXhcHdcQA28HdcdbA23emgbhjXA28gbhjXhcHdcddA28HdcdeA19tHA10fifjdb
+A20emgggpehdcA2tHA10fifjdcA20ehgbheXA3tHA10fifjddA20elXhjeggpgmA
+1tHA10fifjdeA20fgXgmgpgdgjhehjtAabA9fifjdbHgogpheHgbhd1gjghgoXge
+A7PfegphfgdgiA25PhcSengpgeA25PhcSengedcA25efgohgdbA27efgohgdcA27
+efgohgddA27efgohgdeA27enZefehdbA2tAabA9fifjdcHgogpheHgbhd1gjghgo
+XgeA7enZefehdcA26enZefehddA26enZefehdeA26emgggpdbA131tAabA9fifjd
+dHgogpheHgbhd1gjghgoXgeA197aeAgogpgoXA27engpgefhgigmA1tAabA9fifj
+deHgogpheHgbhd1gjghgoXgeA7YgjhegdgifhA25NhcXgbhegiA25fiShcXhd1A2
+5emgggpehdbA26emgggpehdcA26ehgbheXA27elXhjeggpgmA25fgXgmgpgdgjhe
+hjtHA10ZhjgmXgohegidbcnZgdhcgjSheXgecnephdgdAegepdecjA1pp2AtHA10
+ZhjgmXgohegidbcnZgdhcgjSheXgecnephdgdAegepdecjA1pp2AtHA10ZhjgmXg
+ohegidbcnZgdhcgjSheXgecnephdgdAegepdecjA1pp2AtHA10ZhjgmXgohegidb
+cnZgdhcgjSheXgecnephdgdAegepdecjA1pp2AtHA10co2A4ehcdcjA3pinedhCh
+finGNRehcdcjA3pitHA10geXgggbhfgmheA16efgohgddA3tHA10geXgggbhfgmh
+eA16efgohgdeA3tHA10geXgggbhfgmheA16enZefehdbA2tHA10geXgggbhfgmhe
+A16enZefehdcA2tAabA8NA255tAabA8NA252x=2150656
   
