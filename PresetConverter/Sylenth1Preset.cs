@@ -2578,6 +2578,9 @@ namespace PresetConverter
 				case DELAYTIMING.DELAY_1_4D:
 					delaySync = Zebra2Preset.DelaySync.Delay_1_4_trip;
 					break;
+				case DELAYTIMING.DELAY_1_2:
+					delaySync = Zebra2Preset.DelaySync.Delay_1_2;
+					break;
 			}
 			return (int) delaySync;
 		}
@@ -2764,7 +2767,12 @@ namespace PresetConverter
 				
 				// use List to store modulation pairs
 				List<ZebraModulationPair> modPairs = new List<ZebraModulationPair>();
-				
+
+				// Filters have real range is -150 to 150)
+				// TODO: Filter min and max are probably not good?
+				// I think these should be exponential rather than linear?!
+				float cutOffMin = -140; // -120
+				float cutOffMax = 140;  // 120
 				switch (sylenthModDestination) {
 					case YMODDEST.None:
 						// should never get here
@@ -2990,8 +2998,7 @@ namespace PresetConverter
 						zebraModSourceFieldName = "VCF1_FS1";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF1_FM1";
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -110, 110);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, cutOffMin, cutOffMax);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -3001,8 +3008,7 @@ namespace PresetConverter
 						zebraModSourceFieldName = "VCF2_FS1";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF2_FM1";
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -110, 110);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, cutOffMin, cutOffMax);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -3012,15 +3018,13 @@ namespace PresetConverter
 						zebraModSourceFieldName = "VCF1_FS1";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF1_FM1";
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -110, 110);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, cutOffMin, cutOffMax);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 
 						zebraModSourceFieldName = "VCF2_FS1";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "VCF2_FM1";
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -110, 110);
+						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, cutOffMin, cutOffMax);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -3710,21 +3714,31 @@ namespace PresetConverter
 			ObjectUtils.SetField(z2, LFOTrigFieldName, (int) Zebra2Preset.LFOGlobalTriggering.Trig_off);
 			//ObjectUtils.SetField(z2, LFOPhseFieldName, ConvertSylenthValueToZebra(Content.LFO1Offset, -10, 10, 0, 100));
 			ObjectUtils.SetField(z2, LFOPhseFieldName, 0.0f);
-			// add a little
-			ObjectUtils.SetField(z2, LFOAmpFieldName, ConvertSylenthValueToZebra(sylenthLFOGain, 0, 10, 0, 100)+2);
+			// add a little (2 too much?)
+			ObjectUtils.SetField(z2, LFOAmpFieldName, ConvertSylenthValueToZebra(sylenthLFOGain, 0, 10, 0, 100));
 			ObjectUtils.SetField(z2, LFOSlewFieldName, (int) Zebra2Preset.LFOSlew.fast);	// LFO Slew (Slew=1)
 		}
 		
 		public List<Zebra2Preset> ToZebra2Preset(string defaultZebra2PresetFile, bool doProcessInitPresets) {
 			List<Zebra2Preset> zebra2PresetList = new List<Zebra2Preset>();
 
+			// TODO: problems that should be fixed
+			// Using Adam Van Baker Sylenth1 Soundset Part 2:
+			// BP freq problem : 64 FX Uprise 3, 135 Arp clean state
+			// Reverb problem: 170 Key Stone Valley
+			// Alot wrong: 
+			// 175 Arab flute
+			// 236 Dr Crush Kick
+			// 268 and 239 chiptunes
+			// +++
+			
 			int convertCounter = 0;
 			foreach (Syl1PresetContent Content in ContentArray) {
 				_zebraNextFreeModMatrixSlot = 1; // reset the index that keeps track of the used matrix slots for a preset
 				zebraUsedModSources.Clear(); // reset the list that keeps track of the used mod sources for a preset
 				convertCounter++;
 				
-				//if (convertCounter == 30) break;
+				//if (convertCounter == 50) break;
 				
 				// Skip if the Preset Name is Init
 				if (!doProcessInitPresets && (Content.PresetName == "Init" || Content.PresetName == "Default")) { //  || !Content.PresetName.StartsWith("SEQ Afrodiseq"
@@ -4361,14 +4375,14 @@ namespace PresetConverter
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Decay, "ENV3_TBase", "ENV3_Dec");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Release, "ENV3_TBase", "ENV3_Rel");
 					//zebra2Preset.ENV3_Sus = ConvertSylenthValueToZebra(Content.ModEnv1Sustain, 0, 10, 0, 100);
-					zebra2Preset.ENV3_Sus = ConvertSylenthValueToZebra(Content.ModEnv1Sustain, 0, 10, 0, 100);
+					zebra2Preset.ENV3_Sus = ConvertSylenthValueToZebra(Content.ModEnv1Sustain, 0, 10, 0, 130);
 
 					// Envelope 4 - Used as Mod Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Attack, "ENV4_TBase", "ENV4_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Decay, "ENV4_TBase", "ENV4_Dec");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Release, "ENV4_TBase", "ENV4_Rel");
 					//zebra2Preset.ENV4_Sus = ConvertSylenthValueToZebra(Content.ModEnv2Sustain, 0, 10, 0, 100);
-					zebra2Preset.ENV4_Sus = ConvertSylenthValueToZebra(Content.ModEnv2Sustain, 0, 10, 0, 100);
+					zebra2Preset.ENV4_Sus = ConvertSylenthValueToZebra(Content.ModEnv2Sustain, 0, 10, 0, 130);
 					
 					// Store what we have processed already
 					Dictionary<string,List<string>> processedModulationSourceAndDest = new Dictionary<string, List<string>>();
