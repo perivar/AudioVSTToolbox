@@ -16,7 +16,7 @@ namespace ProcessVSTPlugin
 {
 	static class Program
 	{
-		static string _version = "1.2";
+		static string _version = "1.3";
 		
 		static void StartGUI() {
 			Application.EnableVisualStyles();
@@ -38,7 +38,7 @@ namespace ProcessVSTPlugin
 			host.Init(blockSize, sampleRate, channels);
 			System.Diagnostics.Debug.WriteLine(host.getPluginInfo());
 			host.LoadFXP(fxpFilePath);
-
+			
 			if (doPlay) {
 				VstPlaybackNAudio playback = new VstPlaybackNAudio(host);
 				playback.Play();
@@ -46,17 +46,17 @@ namespace ProcessVSTPlugin
 				Console.WriteLine("Started Audio Playback");
 				
 				// make sure to play while the stream is playing
-				while (playback.PlaybackDevice.PlaybackState == PlaybackState.Playing)
+				if (playback.PlaybackDevice.PlaybackState == PlaybackState.Playing)
 				{
-					Thread.Sleep(100);
+					Thread.Sleep(5000);
 				}
 				
 				Console.WriteLine("Ending Audio Playback");
 				playback.Stop();
 				Console.WriteLine("Stopped Audio Playback");
 				playback.Dispose();
-			}
-			
+			}			
+
 			if (waveOutputFilePath != "") {
 				VstFileWriter fileWriter = new VstFileWriter(host);
 				fileWriter.CreateWaveFile(waveOutputFilePath);

@@ -263,6 +263,7 @@
         	this.ShowInTaskbar = false;
         	this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
         	this.Text = "Plugin Details";
+        	this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PluginFormFormClosing);
         	this.Load += new System.EventHandler(this.PluginForm_Load);
         	groupBox1.ResumeLayout(false);
         	groupBox2.ResumeLayout(false);

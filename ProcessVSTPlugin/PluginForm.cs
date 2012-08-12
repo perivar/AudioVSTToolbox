@@ -153,9 +153,9 @@ namespace ProcessVSTPlugin
 				MessageBox.Show(this, "This plugin does not process any audio.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;
 			}
-                
+			
 			VstHost host = VstHost.Instance;
-			host.PluginContext = this.PluginContext;			
+			host.PluginContext = this.PluginContext;
 			if (waveInputFilePath != "") {
 				host.InputWave = waveInputFilePath;
 				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
@@ -164,8 +164,8 @@ namespace ProcessVSTPlugin
 				int blockSize = (int) (sampleRate * 0.15f); //6615;
 				int channels = 2;
 				host.Init(blockSize, sampleRate, channels);
-	
-				if (playback == null) { 
+				
+				if (playback == null) {
 					playback = new VstPlaybackNAudio(host);
 					playback.Play();
 				} else {
@@ -177,10 +177,10 @@ namespace ProcessVSTPlugin
 					}
 				}
 			} else {
-				MessageBox.Show(this, "Please choose an audio file to process.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);				
+				MessageBox.Show(this, "Please choose an audio file to process.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 			}
 		}
-				
+		
 		private void GenerateNoiseBtn_Click(object sender, EventArgs e)
 		{
 			// plugin does not support processing audio
@@ -254,51 +254,61 @@ namespace ProcessVSTPlugin
 			//PluginContext.PluginCommandStub.MainsChanged(true);
 			dlg.ShowDialog(this);
 			//PluginContext.PluginCommandStub.MainsChanged(false);
-			FillParameterList();				
+			FillParameterList();
 		}
-        
-        void LoadFXPBtnClick(object sender, EventArgs e)
-        {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|Effect Bank Files (.fxb)|*.fxb|All Files|*.*||";
-            if (dialog.ShowDialog(this) == DialogResult.OK)
-            {
-                string fxpFilePath = dialog.FileName;
-                VstHost host = VstHost.Instance;
-                host.PluginContext = this.PluginContext;
+		
+		void LoadFXPBtnClick(object sender, EventArgs e)
+		{
+			OpenFileDialog dialog = new OpenFileDialog();
+			dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|Effect Bank Files (.fxb)|*.fxb|All Files|*.*||";
+			if (dialog.ShowDialog(this) == DialogResult.OK)
+			{
+				string fxpFilePath = dialog.FileName;
+				VstHost host = VstHost.Instance;
+				host.PluginContext = this.PluginContext;
 
-                host.LoadFXP(fxpFilePath);
-                FillProgram();
-                FillParameterList();
-            }
-        }
-        
-        void SaveFXPBtnClick(object sender, EventArgs e)
-        {
-            SaveFileDialog dialog = new SaveFileDialog();
-            dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|Effect Bank Files (.fxb)|*.fxb|All Files|*.*||";
-            if (dialog.ShowDialog(this) == DialogResult.OK)
-            {
-                string comboBoxStringValue = ProgramNameTxt.Text;
-                this.PluginContext.PluginCommandStub.SetProgramName(comboBoxStringValue);
-                string fxpFilePath = dialog.FileName;
-                VstHost host = VstHost.Instance;
-                host.PluginContext = this.PluginContext;
-                host.SaveFXP(fxpFilePath);
-                FillProgram();
-                FillParameterList();
-            }
-        }
-        
-        void BtnChooseWavefileClick(object sender, EventArgs e)
-        {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "Wave files (.wav)|*.wav|All Files|*.*||";
-            if (waveInputFilePath != "") dialog.FileName = waveInputFilePath;
-            if (dialog.ShowDialog(this) == DialogResult.OK)
-            {
-                this.waveInputFilePath = dialog.FileName;
-            }        	
-        }
+				host.LoadFXP(fxpFilePath);
+				FillProgram();
+				FillParameterList();
+			}
+		}
+		
+		void SaveFXPBtnClick(object sender, EventArgs e)
+		{
+			SaveFileDialog dialog = new SaveFileDialog();
+			dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|Effect Bank Files (.fxb)|*.fxb|All Files|*.*||";
+			if (dialog.ShowDialog(this) == DialogResult.OK)
+			{
+				string comboBoxStringValue = ProgramNameTxt.Text;
+				this.PluginContext.PluginCommandStub.SetProgramName(comboBoxStringValue);
+				string fxpFilePath = dialog.FileName;
+				VstHost host = VstHost.Instance;
+				host.PluginContext = this.PluginContext;
+				host.SaveFXP(fxpFilePath);
+				FillProgram();
+				FillParameterList();
+			}
+		}
+		
+		void BtnChooseWavefileClick(object sender, EventArgs e)
+		{
+			OpenFileDialog dialog = new OpenFileDialog();
+			dialog.Filter = "Wave files (.wav)|*.wav|All Files|*.*||";
+			if (waveInputFilePath != "") dialog.FileName = waveInputFilePath;
+			if (dialog.ShowDialog(this) == DialogResult.OK)
+			{
+				this.waveInputFilePath = dialog.FileName;
+			}
+		}
+		
+		void PluginFormFormClosing(object sender, FormClosingEventArgs e)
+		{
+			if (playback != null) {
+				playback.Dispose();
+			}
+			
+			VstHost host = VstHost.Instance;
+			host.DisposeInputWave();
+		}
 	}
 }

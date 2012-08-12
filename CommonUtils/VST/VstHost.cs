@@ -126,6 +126,15 @@ namespace CommonUtils.VST
 			set {this.doRecord = value; }
 		}
 
+		public void DisposeInputWave() {
+			
+			if (wavStream != null) {
+				this.wavStream.Dispose();
+				this.wavStream = null;
+			}
+			this.wavFileReader = null;
+		}
+		
 		public void ClearRecording() {
 			this.recordedLeft.Clear();
 			this.recordedRight.Clear();
@@ -155,7 +164,7 @@ namespace CommonUtils.VST
 
 				// actually open the plugin itself
 				ctx.PluginCommandStub.Open();
-				doPluginOpen();
+				//doPluginOpen();
 
 				PluginContext = ctx;
 			}
@@ -363,11 +372,11 @@ namespace CommonUtils.VST
 			midiData[3] = 0;    		// Reserved, unused
 			
 			VstMidiEvent vse = new VstMidiEvent(/*DeltaFrames*/ 	0,
-			                                     /*NoteLength*/ 	0,
-			                                     /*NoteOffset*/ 	0,
-			                                     midiData,
-			                                     /*Detune*/    		0,
-			                                     /*NoteOffVelocity*/ 127); // previously 0
+			                                    /*NoteLength*/ 	0,
+			                                    /*NoteOffset*/ 	0,
+			                                    midiData,
+			                                    /*Detune*/    		0,
+			                                    /*NoteOffVelocity*/ 127); // previously 0
 			
 			VstEvent[] ve = new VstEvent[1];
 			ve[0] = vse;
@@ -463,7 +472,7 @@ namespace CommonUtils.VST
 			PluginContext.PluginCommandStub.MainsChanged(true);
 			dlg.ShowDialog();
 			PluginContext.PluginCommandStub.MainsChanged(false);
-			*/
+			 */
 		}
 
 		private int EffSetChunk(byte[] data, bool isPreset) {
