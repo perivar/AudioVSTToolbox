@@ -10,13 +10,13 @@ namespace MidiVstTest
 	{
 		public string Directory;
 
-		#region IVstHostCommandStub Membri di
+		#region IVstHostCommandStub Members
 
 		public IVstPluginContext PluginContext { get; set; }
 
 		#endregion
 
-		#region IVstHostCommands20 Membri di
+		#region IVstHostCommands20 Members
 
 		public bool BeginEdit(int index)
 		{
@@ -55,7 +55,7 @@ namespace MidiVstTest
 
 		public int GetInputLatency()
 		{
-			throw new NotImplementedException();
+			return 0;
 		}
 
 		public VstHostLanguage GetLanguage()
@@ -65,12 +65,12 @@ namespace MidiVstTest
 
 		public int GetOutputLatency()
 		{
-			throw new NotImplementedException();
+			return 0;
 		}
 
 		public VstProcessLevels GetProcessLevel()
 		{
-			throw new NotImplementedException();
+			return Jacobi.Vst.Core.VstProcessLevels.Unknown;
 		}
 
 		public string GetProductString()
@@ -141,7 +141,7 @@ namespace MidiVstTest
 
 		#endregion
 
-		#region IVstHostCommands10 Membri di
+		#region IVstHostCommands10 Members
 
 		public int GetCurrentPluginID()
 		{

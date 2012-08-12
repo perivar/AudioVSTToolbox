@@ -29,7 +29,7 @@ namespace MidiVstTest
 		VstAudioBuffer[] inputBuffers;
 		VstAudioBuffer[] outputBuffers;
 		
-		float[] input; // TODO: added
+		float[] input;
 		float[] output;
 
 		private void RaiseProcessCalled(float maxL, float maxR)
@@ -46,20 +46,20 @@ namespace MidiVstTest
 		{
 			BlockSize = blockSize;
 
-			int inputCount = pluginContext.PluginInfo.AudioInputCount; 
+			int inputCount = pluginContext.PluginInfo.AudioInputCount;
 			int outputCount = pluginContext.PluginInfo.AudioOutputCount;
 
-			VstAudioBufferManager inputMgr = new VstAudioBufferManager(inputCount, blockSize); // new
+			VstAudioBufferManager inputMgr = new VstAudioBufferManager(inputCount, blockSize);
 			VstAudioBufferManager outputMgr = new VstAudioBufferManager(outputCount, blockSize);
 
 			pluginContext.PluginCommandStub.SetBlockSize(blockSize);
-			pluginContext.PluginCommandStub.SetSampleRate(44100f); 
-			pluginContext.PluginCommandStub.SetProcessPrecision(VstProcessPrecision.Process32); // new
+			pluginContext.PluginCommandStub.SetSampleRate(44100f);
+			pluginContext.PluginCommandStub.SetProcessPrecision(VstProcessPrecision.Process32);
 
-			inputBuffers = inputMgr.ToArray(); 
+			inputBuffers = inputMgr.ToArray();
 			outputBuffers = outputMgr.ToArray();
 
-			input = new float[2 * blockSize]; 
+			input = new float[2 * blockSize];
 			output = new float[2 * blockSize];
 		}
 

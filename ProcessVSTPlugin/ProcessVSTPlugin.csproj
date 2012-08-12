@@ -64,9 +64,6 @@
     <Reference Include="Jacobi.Vst.Interop">
       <HintPath>_SharedAssemblies\Jacobi.Vst.Interop.dll</HintPath>
     </Reference>
-    <Reference Include="LibFlac">
-      <HintPath>..\CommonUtils\Audio\NAudio\LibFlac.dll</HintPath>
-    </Reference>
     <Reference Include="NAudio">
       <HintPath>..\CommonUtils\Audio\NAudio\NAudio.dll</HintPath>
     </Reference>

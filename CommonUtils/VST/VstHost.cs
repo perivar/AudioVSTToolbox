@@ -272,7 +272,8 @@ namespace CommonUtils.VST
 					}
 					
 					// populate the inputbuffers with the incoming wave stream
-					// TODO: do not use unsafe - like this http://vstnet.codeplex.com/discussions/246206 ?
+					// TODO: do not use unsafe - but like this http://vstnet.codeplex.com/discussions/246206 ?
+					// this whole section is modelled after http://vstnet.codeplex.com/discussions/228692
 					unsafe
 					{
 						fixed (byte* byteBuf = &naudioBuf[0])

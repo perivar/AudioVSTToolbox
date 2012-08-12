@@ -170,9 +170,9 @@ namespace MidiVstTest
 			this.MainMenuStrip = this.menuStrip1;
 			this.Name = "MainForm";
 			this.Text = "MidiVstTest";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
 			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainFormKeyDown);
 			this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.MainFormKeyUp);
-			this.Disposed += new System.EventHandler(this.MainForm_Disposed);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
 			this.ResumeLayout(false);

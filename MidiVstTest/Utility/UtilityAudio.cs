@@ -41,7 +41,11 @@ namespace MidiVstTest
 				//NAUDIO
 				Mixer32 = new RecordableMixerStream32();
 				Mixer32.AutoStop = false;
-				playbackDevice = new AsioOut(0);//new WaveOut();
+				
+				// try asio
+				playbackDevice = new AsioOut(0);
+				
+				// if failed, try normal wave out
 				if (playbackDevice == null) playbackDevice = new WaveOut();
 				if (playbackDevice == null) return false;
 				playbackDevice.Init(Mixer32);
@@ -191,7 +195,6 @@ namespace MidiVstTest
 			if (mp3Channel != null) mp3Channel.Dispose();
 			mp3Channel = new WaveChannel32(blockAlignedStream);
 			mp3Position = 0;
-			//mp3Channel.Position = mp3Channel.Length;
 			mixerForm = new MixerForm(mp3Channel);
 		}
 

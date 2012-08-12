@@ -21,20 +21,6 @@ namespace MidiVstTest
 		
 		public static Dictionary<string, string> LastDirectoryUsed = new Dictionary<string, string>();
 		
-		private void MainForm_Disposed(object sender, EventArgs e)
-		{
-			if (midiIn != null)
-			{
-				midiIn.Dispose();
-				midiIn = null;
-			}
-			if (midiOut != null)
-			{
-				midiOut.Dispose();
-				midiOut = null;
-			}
-		}
-		
 		public MainForm()
 		{
 			//
@@ -152,7 +138,6 @@ namespace MidiVstTest
 				comboBoxMidiInDevices.Enabled = true;
 			else
 			{
-				//UtilityMIDI.Close(MIDIType.MIDI_IN);
 				comboBoxMidiInDevices.Enabled = false;
 			}
 			
@@ -164,35 +149,16 @@ namespace MidiVstTest
 				comboBoxMidiOutDevices.Enabled = true;
 			else
 			{
-				//UtilityMIDI.Close(MIDIType.MIDI_OUT);
 				comboBoxMidiOutDevices.Enabled = false;
 			}
 		}
 		
 		void TscMIDIINSelectedIndexChanged(object sender, EventArgs e)
 		{
-			/*
-			if (UtilityMIDI.PortName(MIDIType.MIDI_IN) != (string)tscMIDIIN.SelectedItem)
-			{
-				UtilityMIDI.Close(MIDIType.MIDI_IN);
-
-				if (!UtilityMIDI.OpenMIDI(MIDIType.MIDI_IN, (string)tscMIDIIN.SelectedItem))
-					tscMIDIIN.Text = "Select MIDI_IN...";
-			}
-			 */
 		}
 		
 		void TscMIDIOUTSelectedIndexChanged(object sender, EventArgs e)
 		{
-			/*
-			if (UtilityMIDI.PortName(MIDIType.MIDI_OUT) != (string)tscMIDIOUT.SelectedItem)
-			{
-				UtilityMIDI.Close(MIDIType.MIDI_OUT);
-
-				if (!UtilityMIDI.OpenMIDI(MIDIType.MIDI_OUT, (string)tscMIDIOUT.SelectedItem))
-					tscMIDIOUT.Text = "Select MIDI_OUT...";
-			}
-			 */
 		}
 		
 		void midiIn_ErrorReceived(object sender, MidiInMessageEventArgs e)
@@ -440,6 +406,26 @@ namespace MidiVstTest
 				MessageBox.Show(ex.Message);
 			}
 			return midiNote;
+		}
+		
+		void MainFormFormClosing(object sender, FormClosingEventArgs e)
+		{
+			if (midiIn != null)
+			{
+				midiIn.Dispose();
+				midiIn = null;
+			}
+			if (midiOut != null)
+			{
+				midiOut.Dispose();
+				midiOut = null;
+			}
+			if (vstForm != null)
+			{
+				vstForm.Dispose();
+				vstForm = null;
+			}
+			UtilityAudio.Dispose();
 		}
 	}
 }

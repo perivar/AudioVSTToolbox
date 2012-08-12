@@ -27,7 +27,7 @@ namespace MidiVstTest
 			this.Text = vst.pluginContext.PluginCommandStub.GetProgramName();
 			Rectangle rect = new Rectangle();
 			vst.pluginContext.PluginCommandStub.EditorGetRect(out rect);
-			this.SetClientSizeCore(rect.Width, rect.Height + 100);
+			this.SetClientSizeCore(rect.Width, rect.Height + 125);
 			vst.StreamCall += new EventHandler<VSTStreamEventArgs>(vst_StreamCall);
 			
 			UtilityAudio.StartAudio();
@@ -43,8 +43,7 @@ namespace MidiVstTest
 		{
 			UtilityAudio.DisposeVST();
 			vst = null;
-			this.Close();
-			//base.Dispose();
+			base.Dispose();
 
 			Singleton = null;
 		}
@@ -66,6 +65,78 @@ namespace MidiVstTest
 			Visible = false;
 		}
 		
+		private void tsbPlay_Click(object sender, EventArgs e)
+		{
+			UtilityAudio.PlayMP3();
+			tsbStop.Image = (System.Drawing.Image) new System.ComponentModel.ComponentResourceManager(typeof(VSTForm)).GetObject("tsbPause.Image");
+
+		}
+
+		private void tsbLoad_Click(object sender, EventArgs e)
+		{
+			OpenFileDialog fileDialog = new OpenFileDialog();
+			fileDialog.Title = "Select MP3 file:";
+			fileDialog.Filter = "MP3 Files (*.mp3)|*.mp3";
+			fileDialog.ShowDialog();
+
+			if (String.IsNullOrEmpty(fileDialog.FileName)) return;
+
+			UtilityAudio.LoadMP3(fileDialog.FileName);
+
+			tslTotalTime.Text = " / " + UtilityAudio.GetMp3TotalTime().ToString();
+		}
+
+		private void tsbStop_Click(object sender, EventArgs e)
+		{
+			try
+			{
+				if (UtilityAudio.IsMP3Played())
+				{
+					UtilityAudio.PauseMP3();
+					tsbStop.Image = (System.Drawing.Image) new System.ComponentModel.ComponentResourceManager(typeof(VSTForm)).GetObject("tsbStop.Image");
+				}
+				else
+				{
+					UtilityAudio.StopMp3();
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.Message);
+			}
+		}
+
+		private void tsbSave_Click(object sender, EventArgs e)
+		{
+			SaveFileDialog saveFile = new SaveFileDialog();
+			saveFile.Title = "Select output file:";
+			saveFile.Filter = "WAV Files (*.wav)|*.wav";
+			saveFile.ShowDialog();
+
+			UtilityAudio.SaveStream(saveFile.FileName);
+
+		}
+
+		private void tsbRec_CheckedChanged(object sender, EventArgs e)
+		{
+			if (tsbRec.Checked)
+			{
+				tsbRec.BackColor = Color.Red;
+				UtilityAudio.StartStreamingToDisk();
+				
+			}
+			else
+			{
+				tsbRec.BackColor = Color.Transparent;
+				UtilityAudio.StopStreamingToDisk();
+			}
+		}
+
+		private void tsbMixer_Click(object sender, EventArgs e)
+		{
+			UtilityAudio.ShowMixer();
+		}
+		
 		void Timer1Tick(object sender, EventArgs e)
 		{
 			// Call these three functions 'getEditorSize', 'processIdle' and 'processReplacing' continually while the GUI is open.
@@ -77,6 +148,9 @@ namespace MidiVstTest
 			if (vst != null && doGUIRefresh) {
 				vst.pluginContext.PluginCommandStub.EditorIdle();
 			}
+
+			// update play time
+			tslNowTime.Text = UtilityAudio.GetMp3CurrentTime().ToString();
 		}
 	}
 }
