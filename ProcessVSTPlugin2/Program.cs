@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Threading;
-
-using NAudio.Wave;
-
 using CommonUtils;
 
 namespace ProcessVSTPlugin2
@@ -19,7 +15,6 @@ namespace ProcessVSTPlugin2
 			string waveOutputFilePath = "";
 			string fxpFilePath = "";
 			bool doPlay = false;
-			bool useGui = false;
 
 			// Command line parsing
 			Arguments CommandLine = new Arguments(args);
@@ -38,46 +33,13 @@ namespace ProcessVSTPlugin2
 			if(CommandLine["play"] != null) {
 				doPlay = true;
 			}
-			if(CommandLine["gui"] != null) {
-				useGui = true;
-			}
 			
-			if ((!useGui && pluginPath == "" && waveInputFilePath == "") || (!useGui && waveOutputFilePath == "" && !doPlay)) {
+			if ((pluginPath == "" && waveInputFilePath == "" && waveOutputFilePath == "")) {
 				PrintUsage();
 				return;
 			}
 			
-			UtilityAudio.OpenAudio(AudioLibrary.NAudio);
-			VST vst = UtilityAudio.LoadVST(pluginPath);
-			vst.LoadFXP(fxpFilePath);
-			
-			vst.StreamCall += new EventHandler<VSTStreamEventArgs>(vst_StreamCall);
-			UtilityAudio.StartAudio();
-			
-			UtilityAudio.vstStream.InputWave = waveInputFilePath;
-			UtilityAudio.SaveStream(waveOutputFilePath);
-			UtilityAudio.StartStreamingToDisk();
-			
-			// make sure to play while the stream is playing
-			while (UtilityAudio.playbackDevice.PlaybackState == PlaybackState.Playing)
-			{
-				Thread.Sleep(100);
-			}
-
-			UtilityAudio.StopStreamingToDisk();
-		}
-		
-		static void vst_StreamCall(object sender, VSTStreamEventArgs e)
-		{
-			// stop the audio if nothing is playing any longer
-			// TODO: but make sure we have at least waited 5 sec
-			float almostZero = 0.000001f;
-			if (e.MaxL <  almostZero && e.MaxR < almostZero) {
-				Console.Out.Write("-");
-				UtilityAudio.StopAudio();
-			} else {
-				Console.Write(".");
-			}
+			ProcessVSTPlugin.Process(waveInputFilePath, waveOutputFilePath, pluginPath, fxpFilePath, doPlay);
 		}
 		
 		public static void PrintUsage() {

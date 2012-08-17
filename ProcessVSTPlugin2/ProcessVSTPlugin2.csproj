@@ -30,7 +30,7 @@
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <StartAction>Project</StartAction>
-    <StartArguments>-plugin="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\TAL-Reverb-2.dll" -wavein="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\Wav2Zebra2Osc\amen.wav" -fxp="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\TAL-Reverb-Hall.fxp" -waveout="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin2\Processed.wav"</StartArguments>
+    <StartArguments>-plugin="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\TAL-Reverb-2.dll" -wavein="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\Wav2Zebra2Osc\amen.wav" -fxp="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\TAL-Reverb-Hall.fxp" -waveout="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin2\Processed.wav" -play</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -84,6 +84,7 @@
     <Compile Include="NAudio\WaveChannel16To32.cs" />
     <Compile Include="NAudio\WaveChannel24To32.cs" />
     <Compile Include="NAudio\WaveChannel32To32.cs" />
+    <Compile Include="ProcessVSTPlugin.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\UtilityAudio.cs" />

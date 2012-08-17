@@ -58,10 +58,6 @@ namespace ProcessVSTPlugin2
 			}
 			this.wavFileReader = null;
 		}
-
-		public void SaveWavFile(string fileName) {
-			WaveFileWriter.CreateWaveFile(fileName, this.wavStream);
-		}
 		
 		private void RaiseProcessCalled(float maxL, float maxR)
 		{
@@ -181,7 +177,7 @@ namespace ProcessVSTPlugin2
 		{
 			this.waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channels);
 		}
-
+		
 		public override int Read(byte[] buffer, int offset, int count)
 		{
 			WaveBuffer waveBuffer = new WaveBuffer(buffer);
