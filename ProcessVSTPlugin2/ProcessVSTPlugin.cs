@@ -22,6 +22,7 @@ namespace ProcessVSTPlugin2
 	public class ProcessVSTPlugin
 	{
 		static bool foundSilence = false;
+		static int foundSilenceCounter = 0;
 		
 		public static bool ProcessOffline(String waveInputFilePath, String waveOutputFilePath, String pluginPath, String fxpFilePath=null) {
 
@@ -133,13 +134,19 @@ namespace ProcessVSTPlugin2
 			// stop the audio if nothing is playing any longer
 			// TODO: but make sure we have at least waited 5 sec
 			// in case of silence in the beginning
-			float almostZero = 0.000001f;
+			float almostZero = 0.0000001f;
 			if (e.MaxL <  almostZero && e.MaxR < almostZero) {
 				Console.Out.Write("-");
 				
-				UtilityAudio.StopAudio(); // when playing sound
-				foundSilence = true; // when doing offline processing
+				// don't stop until we have x consequtive silence calls after each other
+				if (foundSilenceCounter >= 5) {
+					UtilityAudio.StopAudio(); // when playing sound
+					foundSilence = true; // when doing offline processing
+				} else {
+					foundSilenceCounter++;
+				}
 			} else {
+				foundSilenceCounter = 0;
 				Console.Write(".");
 			}
 		}
