@@ -190,7 +190,7 @@ namespace CommonUtils.Audio
 				vstStream = new VSTStream();
 				vstStream.ProcessCalled += new EventHandler<VSTStreamEventArgs>(GeneralVST.Stream_ProcessCalled);
 				vstStream.pluginContext = GeneralVST.pluginContext;
-				vstStream.SetWaveFormat(44100, 2);
+				vstStream.SetWaveFormat(48000, 2); //44100
 				
 				Mixer32.AddInputStream(vstStream);
 
@@ -198,7 +198,7 @@ namespace CommonUtils.Audio
 			}
 			catch (Exception ex)
 			{
-				Console.Out.WriteLine(ex.Message);
+				Console.Out.WriteLine("Could not load VST! ({0})", ex.Message);
 			}
 			return null;
 		}

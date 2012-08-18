@@ -48,7 +48,9 @@ namespace CommonUtils.VSTPlugin
 				// 4 bytes per sample (32 bit)
 				this.wavFileReader = new WaveFileReader(value);
 				this.wavStream = new WaveChannel32(this.wavFileReader);
-				this.wavStream.Volume = 1f;
+				
+				// Leave headroom for plugin processing (0.20 seems OK, any higher causes digital clipping)
+				this.wavStream.Volume = 0.20f; //TODO: set volume based on input parameter?
 			}
 		}
 		

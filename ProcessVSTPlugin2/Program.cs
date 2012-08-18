@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 using CommonUtils;
 
@@ -6,7 +7,7 @@ namespace ProcessVSTPlugin2
 {
 	class Program
 	{
-		static string _version = "2.0.1";
+		static string _version = "2.0.2";
 		
 		[STAThread]
 		public static void Main(string[] args)
@@ -35,12 +36,30 @@ namespace ProcessVSTPlugin2
 				doPlay = true;
 			}
 			
-			if ((pluginPath == "" && waveInputFilePath == "" && waveOutputFilePath == "")) {
+			if ((pluginPath == "" || waveInputFilePath == "" || waveOutputFilePath == "")) {
 				PrintUsage();
 				return;
 			}
 			
-			ProcessVSTPlugin.Process(waveInputFilePath, waveOutputFilePath, pluginPath, fxpFilePath, doPlay);
+			if (!File.Exists(pluginPath)) {
+				Console.WriteLine("VST Plugin cannot be found! ({0})", pluginPath);
+				Console.WriteLine("Processing Failed!");
+				PrintUsage();
+				return;
+			}
+			if (!File.Exists(waveInputFilePath)) {
+				Console.WriteLine("Wave Input File cannot be found! ({0})", waveInputFilePath);
+				Console.WriteLine("Processing Failed!");
+				PrintUsage();
+				return;
+			}
+			if (!ProcessVSTPlugin.Process(waveInputFilePath, waveOutputFilePath, pluginPath, fxpFilePath, doPlay)) {
+				Console.WriteLine("Processing Failed!");
+
+				Console.WriteLine("");
+				Console.Write("Press any key to continue . . . ");
+				Console.ReadKey(true);
+			}
 		}
 		
 		public static void PrintUsage() {
@@ -57,6 +76,7 @@ namespace ProcessVSTPlugin2
 			Console.WriteLine("Optional Arguments:");
 			Console.WriteLine("\t-fxp=<path to the vst preset file to use (.fxp or .fxb)>");
 			
+			Console.WriteLine("");
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
 		}

@@ -34,10 +34,21 @@ namespace ProcessVSTPlugin2
 			{
 				vst.pluginContext = VstPluginContext.Create(pluginPath, hcs);
 				
+				if (vst.pluginContext == null) {
+					Console.Out.WriteLine("Could not open up the plugin specified by {0}!", pluginPath);
+					return false;
+				}
+				
 				// plugin does not support processing audio
 				if ((vst.pluginContext.PluginInfo.Flags & VstPluginFlags.CanReplacing) == 0)
 				{
 					Console.Out.WriteLine("This plugin does not process any audio.");
+					return false;
+				}
+				
+				// check if the plugin supports offline proccesing
+				if(vst.pluginContext.PluginCommandStub.CanDo(VstCanDoHelper.ToString(VstPluginCanDo.Offline)) != VstCanDoResult.Yes) {
+					Console.Out.WriteLine("This plugin does not support offline processing.");
 					return false;
 				}
 				
@@ -49,10 +60,15 @@ namespace ProcessVSTPlugin2
 				vst.pluginContext.PluginCommandStub.Open();
 				
 			} catch (Exception ex) {
-				Console.Out.WriteLine(ex.Message);
+				Console.Out.WriteLine("Could not load VST! ({0})", ex.Message);
+				return false;
 			}
 
-			vst.LoadFXP(fxpFilePath);
+			if (File.Exists(fxpFilePath)) {
+				vst.LoadFXP(fxpFilePath);
+			} else {
+				Console.Out.WriteLine("Could not find preset file (fxp|fxb) ({0})", fxpFilePath);
+			}
 			
 			using (VSTStream vstStream = new VSTStream()) {
 				vstStream.ProcessCalled += new EventHandler<VSTStreamEventArgs>(vst.Stream_ProcessCalled);
@@ -87,19 +103,33 @@ namespace ProcessVSTPlugin2
 			return true;
 		}
 		
-		public static bool ProcessOnline(String waveInputFilePath, String waveOutputFilePath, String pluginPath, String fxpFilePath=null)
+		public static bool ProcessRealTime(String waveInputFilePath, String waveOutputFilePath, String pluginPath, String fxpFilePath=null)
 		{
 			UtilityAudio.OpenAudio(AudioLibrary.NAudio);
 			VST vst = UtilityAudio.LoadVST(pluginPath);
 
+			if (vst == null || vst.pluginContext == null) {
+				return false;
+			}
+			
 			// plugin does not support processing audio
 			if ((vst.pluginContext.PluginInfo.Flags & VstPluginFlags.CanReplacing) == 0)
 			{
 				Console.Out.WriteLine("This plugin does not process any audio.");
 				return false;
 			}
+			
+			// check if the plugin supports real time proccesing
+			if(vst.pluginContext.PluginCommandStub.CanDo(VstCanDoHelper.ToString(VstPluginCanDo.NoRealTime)) == VstCanDoResult.Yes) {
+				Console.Out.WriteLine("This plugin does not support realtime processing.");
+				return false;
+			}			
 
-			vst.LoadFXP(fxpFilePath);
+			if (File.Exists(fxpFilePath)) {
+				vst.LoadFXP(fxpFilePath);
+			} else {
+				Console.Out.WriteLine("Could not find preset file (fxp|fxb) ({0})", fxpFilePath);
+			}
 			
 			vst.StreamCall += new EventHandler<VSTStreamEventArgs>(vst_StreamCall);
 			UtilityAudio.StartAudio();
@@ -123,7 +153,7 @@ namespace ProcessVSTPlugin2
 		public static bool Process(String waveInputFilePath, String waveOutputFilePath, String pluginPath, String fxpFilePath=null, bool doPlay=false)
 		{
 			if (doPlay) {
-				return ProcessOnline(waveInputFilePath, waveOutputFilePath, pluginPath, fxpFilePath);
+				return ProcessRealTime(waveInputFilePath, waveOutputFilePath, pluginPath, fxpFilePath);
 			} else {
 				return ProcessOffline(waveInputFilePath, waveOutputFilePath, pluginPath, fxpFilePath);
 			}
