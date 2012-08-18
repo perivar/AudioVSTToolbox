@@ -1,10 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using Jacobi.Vst.Interop.Host;
 using Jacobi.Vst.Core;
 
-namespace MidiVstTest
+using MidiVstTest;
+
+// Copied from the microDRUM project
+// https://github.com/microDRUM
+// I think it is created by massimo.bernava@gmail.com
+// Modified by perivar@nerseth.com
+namespace CommonUtils.VSTPlugin
 {
     public class VST
     {

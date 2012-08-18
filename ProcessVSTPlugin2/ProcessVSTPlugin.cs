@@ -8,11 +8,16 @@ using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 using Jacobi.Vst.Core.Host;
 
+using CommonUtils.VSTPlugin;
+using CommonUtils.Audio;
+
 namespace ProcessVSTPlugin2
 {
 	/// <summary>
 	/// The class where you can call a method to process an audio file with a
-	/// vst plugin
+	/// vst plugin, with sound or without sound playing
+	/// Per Ivar Nerseth, 2011 - 2012
+	/// perivar@nerseth.com
 	/// </summary>
 	public class ProcessVSTPlugin
 	{

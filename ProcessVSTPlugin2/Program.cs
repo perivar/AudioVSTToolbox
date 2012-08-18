@@ -1,11 +1,12 @@
 ﻿using System;
+
 using CommonUtils;
 
 namespace ProcessVSTPlugin2
 {
 	class Program
 	{
-		static string _version = "2.0";
+		static string _version = "2.0.1";
 		
 		[STAThread]
 		public static void Main(string[] args)

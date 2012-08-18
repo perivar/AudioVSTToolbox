@@ -4,7 +4,7 @@ using System.Text;
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Core;
 
-namespace ProcessVSTPlugin2
+namespace CommonUtils.VSTPlugin
 {
 	class HostCommandStub:IVstHostCommandStub
 	{

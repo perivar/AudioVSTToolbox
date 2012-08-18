@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 
+// Copied from the microDRUM project
+// https://github.com/microDRUM
+// I think it is created by massimo.bernava@gmail.com
 namespace NAudio.Wave
 {
 	/// <summary>

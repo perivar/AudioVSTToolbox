@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using NAudio.Wave;
 
+// Copied from the microDRUM project
+// https://github.com/microDRUM
+// I think it is created by massimo.bernava@gmail.com
 namespace microDrum
 {
     /// <summary>

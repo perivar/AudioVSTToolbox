@@ -1,11 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using NAudio.Wave;
-using NAudio.Midi;
-using Jacobi.Vst.Interop.Host;
 using System.Windows.Forms;
 
+using NAudio.Wave;
+using NAudio.Midi;
+
+using Jacobi.Vst.Interop.Host;
+
+using CommonUtils.VSTPlugin;
+
+// Copied from the microDRUM project
+// https://github.com/microDRUM
+// I think it is created by massimo.bernava@gmail.com
+// Modified by perivar@nerseth.com
 namespace MidiVstTest
 {
 	public enum AudioLibrary

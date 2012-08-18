@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.IO;
 
 using NAudio.Midi;
+
 using Jacobi.Vst.Core;
 
 namespace MidiVstTest

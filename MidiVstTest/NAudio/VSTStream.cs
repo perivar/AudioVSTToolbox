@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using NAudio.Wave;
+
 using Jacobi.Vst.Interop.Host;
 using Jacobi.Vst.Core;
 
-namespace MidiVstTest
+// Copied from the microDRUM project
+// https://github.com/microDRUM
+// I think it is created by massimo.bernava@gmail.com
+// Modified by perivar@nerseth.com to support processing audio files
+namespace CommonUtils.VSTPlugin
 {
 	public class VSTStreamEventArgs : EventArgs
 	{
@@ -19,7 +25,7 @@ namespace MidiVstTest
 		}
 	}
 
-	class VSTStream : WaveStream
+	public class VSTStream : WaveStream
 	{
 		public VstPluginContext pluginContext = null;
 		public event EventHandler<VSTStreamEventArgs> ProcessCalled;
@@ -32,6 +38,33 @@ namespace MidiVstTest
 		float[] input;
 		float[] output;
 
+		private WaveChannel32 wavStream;
+		private WaveFileReader wavFileReader;
+
+		public string InputWave
+		{
+			set
+			{
+				// 4 bytes per sample (32 bit)
+				this.wavFileReader = new WaveFileReader(value);
+				this.wavStream = new WaveChannel32(this.wavFileReader);
+				this.wavStream.Volume = 1f;
+			}
+		}
+		
+		public new void Dispose() {
+			DisposeInputWave();
+			base.Dispose();
+		}
+		
+		private void DisposeInputWave() {
+			if (wavStream != null) {
+				this.wavStream.Dispose();
+				this.wavStream = null;
+			}
+			this.wavFileReader = null;
+		}
+		
 		private void RaiseProcessCalled(float maxL, float maxR)
 		{
 			EventHandler<VSTStreamEventArgs> handler = ProcessCalled;
@@ -53,20 +86,53 @@ namespace MidiVstTest
 			VstAudioBufferManager outputMgr = new VstAudioBufferManager(outputCount, blockSize);
 
 			pluginContext.PluginCommandStub.SetBlockSize(blockSize);
-			pluginContext.PluginCommandStub.SetSampleRate(44100f);
+			pluginContext.PluginCommandStub.SetSampleRate(WaveFormat.SampleRate);
 			pluginContext.PluginCommandStub.SetProcessPrecision(VstProcessPrecision.Process32);
 
 			inputBuffers = inputMgr.ToArray();
 			outputBuffers = outputMgr.ToArray();
 
-			input = new float[2 * blockSize];
-			output = new float[2 * blockSize];
+			input = new float[WaveFormat.Channels * blockSize];
+			output = new float[WaveFormat.Channels * blockSize];
 		}
 
 		private float[] ProcessReplace(int blockSize)
 		{
 			if (blockSize != BlockSize) UpdateBlockSize(blockSize);
-
+			
+			// check if we are processing a wavestream (VST) or if this is audio outputting only (VSTi)
+			if (wavStream != null) {
+				int sampleCount = blockSize*2;
+				int sampleCountx4 = sampleCount * 4;
+				int loopSize = sampleCount / WaveFormat.Channels;
+				
+				// Convert byte array into float array and store in Vst Buffers
+				// naudio reads an buffer of interlaced float's
+				// must take every 4th byte and convert to float
+				// Vst.Net audio buffer format (-1 to 1 floats).
+				byte[] naudioBuf = new byte[blockSize * WaveFormat.Channels * 4];
+				int bytesRead = wavStream.Read(naudioBuf, 0, sampleCountx4);
+				
+				// populate the inputbuffers with the incoming wave stream
+				// TODO: do not use unsafe - but like this http://vstnet.codeplex.com/discussions/246206 ?
+				// this whole section is modelled after http://vstnet.codeplex.com/discussions/228692
+				unsafe
+				{
+					fixed (byte* byteBuf = &naudioBuf[0])
+					{
+						float* floatBuf = (float*)byteBuf;
+						int j = 0;
+						for (int i = 0; i < loopSize; i++)
+						{
+							inputBuffers[0][i] = *(floatBuf + j);
+							j++;
+							inputBuffers[1][i] = *(floatBuf + j);
+							j++;
+						}
+					}
+				}
+			}
+			
 			try
 			{
 				//pluginContext.PluginCommandStub.MainsChanged(true);
@@ -77,7 +143,7 @@ namespace MidiVstTest
 			}
 			catch (Exception ex)
 			{
-				System.Windows.Forms.MessageBox.Show(ex.Message);
+				Console.Out.WriteLine(ex.Message);
 			}
 
 			int indexOutput = 0;
@@ -93,7 +159,6 @@ namespace MidiVstTest
 				maxL = Math.Max(maxL, output[indexOutput]);
 				maxR = Math.Max(maxR, output[indexOutput + 1]);
 				indexOutput += 2;
-
 			}
 			RaiseProcessCalled(maxL, maxR);
 			return output;
@@ -118,7 +183,7 @@ namespace MidiVstTest
 		{
 			this.waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channels);
 		}
-
+		
 		public override int Read(byte[] buffer, int offset, int count)
 		{
 			WaveBuffer waveBuffer = new WaveBuffer(buffer);

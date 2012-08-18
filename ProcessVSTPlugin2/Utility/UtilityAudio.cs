@@ -7,7 +7,13 @@ using NAudio.Midi;
 
 using Jacobi.Vst.Interop.Host;
 
-namespace ProcessVSTPlugin2
+using CommonUtils.VSTPlugin;
+
+// Copied from the microDRUM project
+// https://github.com/microDRUM
+// I think it is created by massimo.bernava@gmail.com
+// Modified by perivar@nerseth.com to support processing audio files
+namespace CommonUtils.Audio
 {
 	public enum AudioLibrary
 	{
@@ -177,6 +183,7 @@ namespace ProcessVSTPlugin2
 				GeneralVST.pluginContext.PluginCommandStub.Open();
 				
 				//pluginContext.PluginCommandStub.SetProgram(0);
+				//public static VST LoadVST(string VSTPath, IntPtr hWnd)
 				//GeneralVST.pluginContext.PluginCommandStub.EditorOpen(hWnd);
 				GeneralVST.pluginContext.PluginCommandStub.MainsChanged(true);
 

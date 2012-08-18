@@ -5,15 +5,12 @@ using System.Text;
 namespace CommonUtils
 {
 	/// <summary>
-	/// Description of BinaryFile
-	/// </summary>
-	
+	/// Class for reading and writing binary files.
+	/// Per Ivar Nerseth, 2011 - 2012
+	/// perivar@nerseth.com
+	/// </summary>	
 	public class BinaryFile {
-		/*
-		 * Class for reading and writing binary files.
-		 * 
-		 * Per Ivar Nerseth, 2011 - 2012
-		 */
+
 		public enum ByteOrder : int
 		{
 			LittleEndian,

@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using NAudio.Wave;
+
 using Jacobi.Vst.Interop.Host;
 using Jacobi.Vst.Core;
 
-namespace ProcessVSTPlugin2
+// Copied from the microDRUM project
+// https://github.com/microDRUM
+// I think it is created by massimo.bernava@gmail.com
+// Modified by perivar@nerseth.com to support processing audio files
+namespace CommonUtils.VSTPlugin
 {
 	public class VSTStreamEventArgs : EventArgs
 	{

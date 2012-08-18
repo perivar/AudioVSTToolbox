@@ -6,6 +6,12 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
+using CommonUtils.VSTPlugin;
+
+// Copied from the microDRUM project
+// https://github.com/microDRUM
+// I think it is created by massimo.bernava@gmail.com
+// Modified by perivar@nerseth.com
 namespace MidiVstTest
 {
 	public partial class VSTForm : Form

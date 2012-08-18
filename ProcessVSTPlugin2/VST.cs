@@ -5,10 +5,15 @@ using System.Text;
 using Jacobi.Vst.Interop.Host;
 using Jacobi.Vst.Core;
 
-using CommonUtils;
-
-namespace ProcessVSTPlugin2
+// Copied from the microDRUM project
+// https://github.com/microDRUM
+// I think it is created by massimo.bernava@gmail.com
+// Heavily modified by perivar@nerseth.com 
+namespace CommonUtils.VSTPlugin
 {
+	/// <summary>
+	/// Contains a VST Plugin and utility functions like MIDI calling etc.
+	/// </summary>	
 	public class VST
 	{
 		public VstPluginContext pluginContext = null;

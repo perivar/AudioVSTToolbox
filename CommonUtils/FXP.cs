@@ -6,9 +6,9 @@ namespace CommonUtils
 {
 	/// <summary>
 	/// Class for reading and writing Steinberg Preset files and Bank files (fxp and fxb files).
-	/// Per Ivar Nerseth, 2012
+	/// Per Ivar Nerseth, 2011 - 2012
+	/// perivar@nerseth.com
 	/// </summary>
-	
 	public class FXP {
 		/*
 		// Preset (Program) (.fxp) without chunk (magic = 'FxCk')
