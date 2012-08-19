@@ -49,6 +49,7 @@ namespace ProcessVSTPlugin2
 				// check if the plugin supports offline proccesing
 				if(vst.pluginContext.PluginCommandStub.CanDo(VstCanDoHelper.ToString(VstPluginCanDo.Offline)) != VstCanDoResult.Yes) {
 					Console.Out.WriteLine("This plugin does not support offline processing.");
+					Console.Out.WriteLine("Try use realtime (-play) instead!");
 					return false;
 				}
 				
@@ -70,16 +71,18 @@ namespace ProcessVSTPlugin2
 				Console.Out.WriteLine("Could not find preset file (fxp|fxb) ({0})", fxpFilePath);
 			}
 			
+			WaveFileReader wavFileReader = new WaveFileReader(waveInputFilePath);
 			using (VSTStream vstStream = new VSTStream()) {
 				vstStream.ProcessCalled += new EventHandler<VSTStreamEventArgs>(vst.Stream_ProcessCalled);
 				vstStream.pluginContext = vst.pluginContext;
-				vstStream.SetWaveFormat(44100, 2);
+				vstStream.SetWaveFormat(wavFileReader.WaveFormat.SampleRate, wavFileReader.WaveFormat.Channels);
 				
 				vst.StreamCall += new EventHandler<VSTStreamEventArgs>(vst_StreamCall);
 				
 				vstStream.InputWave = waveInputFilePath;
 				
-				byte[] buffer = new byte[512*4];
+				// each float is 4 bytes
+				byte[] buffer = new byte[512*4]; 
 				using (MemoryStream ms = new MemoryStream())
 				{
 					while (!foundSilence)
@@ -105,8 +108,9 @@ namespace ProcessVSTPlugin2
 		
 		public static bool ProcessRealTime(String waveInputFilePath, String waveOutputFilePath, String pluginPath, String fxpFilePath=null)
 		{
-			UtilityAudio.OpenAudio(AudioLibrary.NAudio);
-			VST vst = UtilityAudio.LoadVST(pluginPath);
+			WaveFileReader wavFileReader = new WaveFileReader(waveInputFilePath);
+			UtilityAudio.OpenAudio(AudioLibrary.NAudio, wavFileReader.WaveFormat.SampleRate, wavFileReader.WaveFormat.Channels);
+			VST vst = UtilityAudio.LoadVST(pluginPath, wavFileReader.WaveFormat.SampleRate, wavFileReader.WaveFormat.Channels);
 
 			if (vst == null || vst.pluginContext == null) {
 				return false;
@@ -123,7 +127,7 @@ namespace ProcessVSTPlugin2
 			if(vst.pluginContext.PluginCommandStub.CanDo(VstCanDoHelper.ToString(VstPluginCanDo.NoRealTime)) == VstCanDoResult.Yes) {
 				Console.Out.WriteLine("This plugin does not support realtime processing.");
 				return false;
-			}			
+			}
 
 			if (File.Exists(fxpFilePath)) {
 				vst.LoadFXP(fxpFilePath);
@@ -132,16 +136,16 @@ namespace ProcessVSTPlugin2
 			}
 			
 			vst.StreamCall += new EventHandler<VSTStreamEventArgs>(vst_StreamCall);
-			UtilityAudio.StartAudio();
 			
 			UtilityAudio.vstStream.InputWave = waveInputFilePath;
 			UtilityAudio.SaveStream(waveOutputFilePath);
 			UtilityAudio.StartStreamingToDisk();
+			UtilityAudio.StartAudio();
 			
 			// just wait while the stream is playing
 			while (UtilityAudio.playbackDevice.PlaybackState == PlaybackState.Playing)
 			{
-				Thread.Sleep(50);
+				Thread.Sleep(10);
 			}
 
 			UtilityAudio.StopStreamingToDisk();

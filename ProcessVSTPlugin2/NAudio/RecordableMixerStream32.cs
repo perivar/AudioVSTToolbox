@@ -28,10 +28,10 @@ namespace NAudio.Wave
 		/// <summary>
 		/// Creates a new 32 bit WaveMixerStream
 		/// </summary>
-		public RecordableMixerStream32()
+		public RecordableMixerStream32(int sampleRate, int channels)
 		{
 			this.autoStop = true;
-			this.waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
+			this.waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channels);
 			this.bytesPerSample = 4;
 			this.inputStreams = new List<WaveStream>();
 		}
@@ -106,8 +106,8 @@ namespace NAudio.Wave
 		/// <param name="autoStop">Automatically stop when all inputs have been read</param>
 		/// <exception cref="ArgumentException">Thrown if the input streams are not 32 bit floating point,
 		/// or if they have different formats to each other</exception>
-		public RecordableMixerStream32(IEnumerable<WaveStream> inputStreams, bool autoStop)
-			: this()
+		public RecordableMixerStream32(IEnumerable<WaveStream> inputStreams, bool autoStop, int sampleRate, int channels)
+			: this(sampleRate, channels)
 		{
 			this.autoStop = autoStop;
 			

@@ -36,7 +36,7 @@ namespace CommonUtils.Audio
 		
 		//=============================================
 
-		public static bool OpenAudio(AudioLibrary AL)
+		public static bool OpenAudio(AudioLibrary AL, int sampleRate, int channels)
 		{
 			if (UsedLibrary != AudioLibrary.Null ||(playbackDevice != null && playbackDevice.PlaybackState == PlaybackState.Playing)) return false;
 
@@ -45,7 +45,7 @@ namespace CommonUtils.Audio
 			if (UsedLibrary == AudioLibrary.NAudio)
 			{
 				//NAUDIO
-				Mixer32 = new RecordableMixerStream32();
+				Mixer32 = new RecordableMixerStream32(sampleRate, channels);
 				Mixer32.AutoStop = false;
 				
 				// try asio
@@ -162,7 +162,7 @@ namespace CommonUtils.Audio
 			if (GeneralVST != null) GeneralVST.MIDI_CC(Number, Value);
 		}
 
-		public static VST LoadVST(string VSTPath)
+		public static VST LoadVST(string VSTPath, int sampleRate, int channels)
 		{
 			DisposeVST();
 
@@ -182,15 +182,16 @@ namespace CommonUtils.Audio
 				// actually open the plugin itself				
 				GeneralVST.pluginContext.PluginCommandStub.Open();
 				
-				//pluginContext.PluginCommandStub.SetProgram(0);
-				//public static VST LoadVST(string VSTPath, IntPtr hWnd)
-				//GeneralVST.pluginContext.PluginCommandStub.EditorOpen(hWnd);
+				// Method arguments used to contain the following to allow 
+				// opening the vst plugin editor - not supported in this commanline processor
+				// public static VST LoadVST(string VSTPath, IntPtr hWnd)
+				// GeneralVST.pluginContext.PluginCommandStub.EditorOpen(hWnd);
 				GeneralVST.pluginContext.PluginCommandStub.MainsChanged(true);
 
 				vstStream = new VSTStream();
 				vstStream.ProcessCalled += new EventHandler<VSTStreamEventArgs>(GeneralVST.Stream_ProcessCalled);
 				vstStream.pluginContext = GeneralVST.pluginContext;
-				vstStream.SetWaveFormat(48000, 2); //44100
+				vstStream.SetWaveFormat(sampleRate, channels); 
 				
 				Mixer32.AddInputStream(vstStream);
 
