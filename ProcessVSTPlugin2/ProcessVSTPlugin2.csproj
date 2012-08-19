@@ -30,7 +30,7 @@
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <StartAction>Project</StartAction>
-    <StartArguments>-plugin="../../TAL-Reverb-2.dll" -fxp="../../TAL-Reverb-Hall.fxp" -wavein="../../Sweep-48000-32f-SL-10,0s-fade.wav" -waveout="../../Sweep-Processed.wav" -play</StartArguments>
+    <StartArguments>-plugin="../../TAL-Reverb-2.dll" -fxp="../../TAL-Reverb-Hall.fxp" -wavein="../../Sweep-48000-32f-SL-10,0s-fade.wav" -waveout="../../Sweep-Processed.wav" -play -volume="0.2"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>

@@ -24,7 +24,7 @@ namespace ProcessVSTPlugin2
 		static bool foundSilence = false;
 		static int foundSilenceCounter = 0;
 		
-		public static bool ProcessOffline(String waveInputFilePath, String waveOutputFilePath, String pluginPath, String fxpFilePath=null) {
+		public static bool ProcessOffline(String waveInputFilePath, String waveOutputFilePath, String pluginPath, String fxpFilePath=null, float volume=1.0f) {
 
 			HostCommandStub hcs = new HostCommandStub();
 			hcs.Directory = System.IO.Path.GetDirectoryName(pluginPath);
@@ -47,7 +47,7 @@ namespace ProcessVSTPlugin2
 				}
 				
 				// check if the plugin supports offline proccesing
-				if(vst.pluginContext.PluginCommandStub.CanDo(VstCanDoHelper.ToString(VstPluginCanDo.Offline)) != VstCanDoResult.Yes) {
+				if(vst.pluginContext.PluginCommandStub.CanDo(VstCanDoHelper.ToString(VstPluginCanDo.Offline)) == VstCanDoResult.No) {
 					Console.Out.WriteLine("This plugin does not support offline processing.");
 					Console.Out.WriteLine("Try use realtime (-play) instead!");
 					return false;
@@ -79,10 +79,10 @@ namespace ProcessVSTPlugin2
 				
 				vst.StreamCall += new EventHandler<VSTStreamEventArgs>(vst_StreamCall);
 				
-				vstStream.InputWave = waveInputFilePath;
+				vstStream.SetInputWave(waveInputFilePath, volume);
 				
 				// each float is 4 bytes
-				byte[] buffer = new byte[512*4]; 
+				byte[] buffer = new byte[512*4];
 				using (MemoryStream ms = new MemoryStream())
 				{
 					while (!foundSilence)
@@ -106,7 +106,7 @@ namespace ProcessVSTPlugin2
 			return true;
 		}
 		
-		public static bool ProcessRealTime(String waveInputFilePath, String waveOutputFilePath, String pluginPath, String fxpFilePath=null)
+		public static bool ProcessRealTime(String waveInputFilePath, String waveOutputFilePath, String pluginPath, String fxpFilePath=null, float volume=1.0f)
 		{
 			WaveFileReader wavFileReader = new WaveFileReader(waveInputFilePath);
 			UtilityAudio.OpenAudio(AudioLibrary.NAudio, wavFileReader.WaveFormat.SampleRate, wavFileReader.WaveFormat.Channels);
@@ -137,15 +137,15 @@ namespace ProcessVSTPlugin2
 			
 			vst.StreamCall += new EventHandler<VSTStreamEventArgs>(vst_StreamCall);
 			
-			UtilityAudio.vstStream.InputWave = waveInputFilePath;
+			UtilityAudio.VstStream.SetInputWave(waveInputFilePath, volume);
+			UtilityAudio.StartAudio();
 			UtilityAudio.SaveStream(waveOutputFilePath);
 			UtilityAudio.StartStreamingToDisk();
-			UtilityAudio.StartAudio();
 			
 			// just wait while the stream is playing
-			while (UtilityAudio.playbackDevice.PlaybackState == PlaybackState.Playing)
+			while (UtilityAudio.PlaybackDevice.PlaybackState == PlaybackState.Playing)
 			{
-				Thread.Sleep(10);
+				Thread.Sleep(50);
 			}
 
 			UtilityAudio.StopStreamingToDisk();
@@ -154,12 +154,12 @@ namespace ProcessVSTPlugin2
 			return true;
 		}
 		
-		public static bool Process(String waveInputFilePath, String waveOutputFilePath, String pluginPath, String fxpFilePath=null, bool doPlay=false)
+		public static bool Process(String waveInputFilePath, String waveOutputFilePath, String pluginPath, String fxpFilePath=null, float volume=1.0f, bool doPlay=false)
 		{
 			if (doPlay) {
-				return ProcessRealTime(waveInputFilePath, waveOutputFilePath, pluginPath, fxpFilePath);
+				return ProcessRealTime(waveInputFilePath, waveOutputFilePath, pluginPath, fxpFilePath, volume);
 			} else {
-				return ProcessOffline(waveInputFilePath, waveOutputFilePath, pluginPath, fxpFilePath);
+				return ProcessOffline(waveInputFilePath, waveOutputFilePath, pluginPath, fxpFilePath, volume);
 			}
 		}
 		

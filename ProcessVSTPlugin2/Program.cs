@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 
 using CommonUtils;
@@ -7,7 +8,7 @@ namespace ProcessVSTPlugin2
 {
 	class Program
 	{
-		static string _version = "2.0.3";
+		static string _version = "2.0.4";
 		
 		[STAThread]
 		public static void Main(string[] args)
@@ -16,6 +17,7 @@ namespace ProcessVSTPlugin2
 			string waveInputFilePath = "";
 			string waveOutputFilePath = "";
 			string fxpFilePath = "";
+			float volume = 1.0f;
 			bool doPlay = false;
 
 			// Command line parsing
@@ -31,6 +33,11 @@ namespace ProcessVSTPlugin2
 			}
 			if(CommandLine["fxp"] != null) {
 				fxpFilePath = CommandLine["fxp"];
+			}
+			if(CommandLine["volume"] != null) {
+				float f = 1.0f;
+				float.TryParse(CommandLine["volume"], NumberStyles.Number,CultureInfo.InvariantCulture, out f);
+				volume = f;
 			}
 			if(CommandLine["play"] != null) {
 				doPlay = true;
@@ -53,7 +60,7 @@ namespace ProcessVSTPlugin2
 				PrintUsage();
 				return;
 			}
-			if (!ProcessVSTPlugin.Process(waveInputFilePath, waveOutputFilePath, pluginPath, fxpFilePath, doPlay)) {
+			if (!ProcessVSTPlugin.Process(waveInputFilePath, waveOutputFilePath, pluginPath, fxpFilePath, volume, doPlay)) {
 				Console.WriteLine("Processing Failed!");
 
 				Console.WriteLine("");
@@ -75,6 +82,8 @@ namespace ProcessVSTPlugin2
 			Console.WriteLine();
 			Console.WriteLine("Optional Arguments:");
 			Console.WriteLine("\t-fxp=<path to the vst preset file to use (.fxp or .fxb)>");
+			Console.WriteLine("\t-volume=<volume to use on the input file, max=1.0, min=0.0>");
+			Console.WriteLine("\t-play\t<determines if processing is realtime (-play) or offline>");
 			
 			Console.WriteLine("");
 			Console.Write("Press any key to continue . . . ");

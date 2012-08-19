@@ -27,12 +27,24 @@ namespace CommonUtils.Audio
 
 		//NAUDIO
 		private static List<WaveStream> Samples = new List<WaveStream>();
-		public static IWavePlayer playbackDevice = null;
+		private static IWavePlayer playbackDevice = null;
 		private static RecordableMixerStream32 Mixer32 = null;
 		
-		public static VSTStream vstStream = null;
+		private static VSTStream vstStream = null;
 		private static WaveChannel32 mp3Channel = null;
 		private static long mp3Position = 0;
+		
+		public static IWavePlayer PlaybackDevice {
+			get {
+				return playbackDevice;
+			}
+		}
+
+		public static VSTStream VstStream {
+			get {
+				return vstStream;
+			}
+		}
 		
 		//=============================================
 
