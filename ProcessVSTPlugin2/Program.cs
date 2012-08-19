@@ -82,8 +82,8 @@ namespace ProcessVSTPlugin2
 			Console.WriteLine();
 			Console.WriteLine("Optional Arguments:");
 			Console.WriteLine("\t-fxp=<path to the vst preset file to use (.fxp or .fxb)>");
-			Console.WriteLine("\t-volume=<volume to use on the input file, max=1.0, min=0.0>");
-			Console.WriteLine("\t-play\t<determines if processing is realtime (-play) or offline>");
+			Console.WriteLine("\t-volume=x.x <volume to use on the input file. (min=0.0, max=1.0)>");
+			Console.WriteLine("\t-play\t<use realtime processing instead of the default=offline>");
 			
 			Console.WriteLine("");
 			Console.Write("Press any key to continue . . . ");
