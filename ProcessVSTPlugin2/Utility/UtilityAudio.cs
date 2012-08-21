@@ -82,6 +82,11 @@ namespace CommonUtils.Audio
 		{
 			if (playbackDevice != null) playbackDevice.Stop();
 		}
+
+		public static void PauseAudio()
+		{
+			if (playbackDevice != null) playbackDevice.Pause();
+		}
 		
 		public static int LoadSample(string SamplePath)
 		{
