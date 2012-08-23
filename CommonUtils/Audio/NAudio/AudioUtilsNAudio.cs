@@ -275,6 +275,56 @@ namespace CommonUtils.Audio.NAudio
 		}
 		
 		/// <summary>
+		/// Split a Stereo Wave file into two mono float arrays
+		/// </summary>
+		/// <param name="filePath">file to use</param>
+		/// <param name="audioDataLeft">returned float array for the left channel</param>
+		/// <param name="audioDataRight">returned float array for the right channel</param>
+		private static void SplitStereoWaveFileToMono(string filePath, out float[] audioDataLeft, out float[] audioDataRight) {
+			using (WaveFileReader pcm = new WaveFileReader(filePath))
+			{
+				int channels = pcm.WaveFormat.Channels;
+				int bytesPerSample = pcm.WaveFormat.BitsPerSample/8;
+				
+				long samplesDesired = pcm.Length;
+				byte[] buffer = new byte[samplesDesired];
+				audioDataLeft = new float[samplesDesired/bytesPerSample/channels];
+				audioDataRight = new float[samplesDesired/bytesPerSample/channels];
+				int bytesRead = pcm.Read(buffer, 0, buffer.Length);
+				int index = 0;
+				
+				for(int sample = 0; sample < bytesRead/bytesPerSample/channels; sample++)
+				{
+					if (bytesPerSample == 4) {
+						// 32 bit pcm data as float
+						audioDataLeft[sample] = BitConverter.ToSingle(buffer, index);
+						index += bytesPerSample;
+						audioDataRight[sample] = BitConverter.ToSingle(buffer, index);
+						index += bytesPerSample;
+					} else if (bytesPerSample == 2) {
+						// 16 bit pcm data
+						audioDataLeft[sample] = (float)BitConverter.ToInt16(buffer, index) / 32768f;
+						index += bytesPerSample;
+						audioDataRight[sample] = (float)BitConverter.ToInt16(buffer, index) / 32768f;
+						index += bytesPerSample;
+					}
+				}
+				
+				//string testOutLeft = @"F:\SAMPLES\IMPULSE RESPONSES\PER IVAR IR SAMPLES\ALTIVERB-QUAD-IMPULSE-RESPONSES\Scoring Stages (Orchestral Studios)_Todd-AO - California US_st to st wide mics at 18m90_L_left.wav";
+				//string testOutRight = @"F:\SAMPLES\IMPULSE RESPONSES\PER IVAR IR SAMPLES\ALTIVERB-QUAD-IMPULSE-RESPONSES\Scoring Stages (Orchestral Studios)_Todd-AO - California US_st to st wide mics at 18m90_L_right.wav";
+				//WriteIEEE32WaveFileMono(testOutLeft, 48000, left);
+				//WriteIEEE32WaveFileMono(testOutRight, 48000, right);
+			}
+		}
+		
+		private static void WriteIEEE32WaveFileMono(string outputFilePath, int sampleRate, float[] audioData) {
+			using (WaveFileWriter wavWriter = new WaveFileWriter(outputFilePath, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1)))
+			{
+				wavWriter.WriteSamples(audioData, 0, audioData.Length);
+			}
+		}
+			
+		/// <summary>
 		/// Creates an input WaveChannel
 		/// (Audio file reader for MP3/WAV/OGG/FLAC/WMA/AIFF/Other formats in the future)
 		/// </summary>
