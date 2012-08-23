@@ -22,8 +22,10 @@ namespace ProcessVSTPlugin2
 	public class ProcessVSTPlugin
 	{
 		private bool stoppedPlaying = false;
+		private bool audioBufferEmpty = false;
 		
 		private VST vst = null;
+		private VSTStream vstStream = null;
 		
 		private string _pluginPath = null;
 		private int _sampleRate = 0;
@@ -31,44 +33,72 @@ namespace ProcessVSTPlugin2
 		
 		public bool ProcessOffline(String waveInputFilePath, String waveOutputFilePath, String pluginPath, String fxpFilePath=null, float volume=1.0f) {
 
-			HostCommandStub hcs = new HostCommandStub();
-			hcs.Directory = System.IO.Path.GetDirectoryName(pluginPath);
-			vst = new VST();
-			
-			try
-			{
-				vst.pluginContext = VstPluginContext.Create(pluginPath, hcs);
-				
-				if (vst.pluginContext == null) {
-					Console.Out.WriteLine("Could not open up the plugin specified by {0}!", pluginPath);
-					return false;
-				}
-				
-				// plugin does not support processing audio
-				if ((vst.pluginContext.PluginInfo.Flags & VstPluginFlags.CanReplacing) == 0)
-				{
-					Console.Out.WriteLine("This plugin does not process any audio.");
-					return false;
-				}
-				
-				// check if the plugin supports offline proccesing
-				if(vst.pluginContext.PluginCommandStub.CanDo(VstCanDoHelper.ToString(VstPluginCanDo.Offline)) == VstCanDoResult.No) {
-					Console.Out.WriteLine("This plugin does not support offline processing.");
-					Console.Out.WriteLine("Try use realtime (-play) instead!");
-					return false;
-				}
-				
-				// add custom data to the context
-				vst.pluginContext.Set("PluginPath", pluginPath);
-				vst.pluginContext.Set("HostCmdStub", hcs);
+			WaveFileReader wavFileReader = new WaveFileReader(waveInputFilePath);
 
-				// actually open the plugin itself
-				vst.pluginContext.PluginCommandStub.Open();
-				vst.pluginContext.PluginCommandStub.MainsChanged(true);
+			// reuse if batch processing
+			bool doUpdateVstPlugin = false;
+			if (_pluginPath != null) {
+				if (_pluginPath.Equals(pluginPath)) {
+					// plugin has not changed
+				} else {
+					// plugin has changed!
+					doUpdateVstPlugin = true;
+				}
+			} else {
+				_pluginPath = pluginPath;
+				doUpdateVstPlugin = true;
+			}
+
+			if (doUpdateVstPlugin) {
+				HostCommandStub hcs = new HostCommandStub();
+				hcs.Directory = System.IO.Path.GetDirectoryName(pluginPath);
+				vst = new VST();
 				
-			} catch (Exception ex) {
-				Console.Out.WriteLine("Could not load VST! ({0})", ex.Message);
-				return false;
+				try
+				{
+					vst.pluginContext = VstPluginContext.Create(pluginPath, hcs);
+					
+					if (vst.pluginContext == null) {
+						Console.Out.WriteLine("Could not open up the plugin specified by {0}!", pluginPath);
+						return false;
+					}
+					
+					// plugin does not support processing audio
+					if ((vst.pluginContext.PluginInfo.Flags & VstPluginFlags.CanReplacing) == 0)
+					{
+						Console.Out.WriteLine("This plugin does not process any audio.");
+						return false;
+					}
+					
+					// check if the plugin supports offline proccesing
+					if(vst.pluginContext.PluginCommandStub.CanDo(VstCanDoHelper.ToString(VstPluginCanDo.Offline)) == VstCanDoResult.No) {
+						Console.Out.WriteLine("This plugin does not support offline processing.");
+						Console.Out.WriteLine("Try use realtime (-play) instead!");
+						return false;
+					}
+					
+					// add custom data to the context
+					vst.pluginContext.Set("PluginPath", pluginPath);
+					vst.pluginContext.Set("HostCmdStub", hcs);
+
+					// actually open the plugin itself
+					vst.pluginContext.PluginCommandStub.Open();
+					
+					Console.Out.WriteLine("Enabling the audio output on the VST!");
+					vst.pluginContext.PluginCommandStub.MainsChanged(true);
+					
+					// setup the VSTStream
+					vstStream = new VSTStream();
+					vstStream.ProcessCalled += new EventHandler<VSTStreamEventArgs>(vst_ProcessCalled);
+					vstStream.PlayingStarted += new EventHandler(vst_PlayingStarted);
+					vstStream.PlayingStopped += new EventHandler(vst_PlayingStopped);
+					vstStream.pluginContext = vst.pluginContext;
+					
+					vstStream.SetWaveFormat(wavFileReader.WaveFormat.SampleRate, wavFileReader.WaveFormat.Channels);
+				} catch (Exception ex) {
+					Console.Out.WriteLine("Could not load VST! ({0})", ex.Message);
+					return false;
+				}
 			}
 
 			if (File.Exists(fxpFilePath)) {
@@ -77,40 +107,37 @@ namespace ProcessVSTPlugin2
 				Console.Out.WriteLine("Could not find preset file (fxp|fxb) ({0})", fxpFilePath);
 			}
 			
-			WaveFileReader wavFileReader = new WaveFileReader(waveInputFilePath);
-			using (VSTStream vstStream = new VSTStream()) {
-				vstStream.ProcessCalled += new EventHandler<VSTStreamEventArgs>(vst_StreamCall);
-				vstStream.PlayingStarted += new EventHandler(StartedPlaying);
-				vstStream.PlayingStopped += new EventHandler(StoppedPlaying);
-				
-				vstStream.pluginContext = vst.pluginContext;
-				vstStream.SetWaveFormat(wavFileReader.WaveFormat.SampleRate, wavFileReader.WaveFormat.Channels);
-				
+			// each float is 4 bytes
+			byte[] buffer = new byte[512*4];
+			using (MemoryStream ms = new MemoryStream())
+			{
 				vstStream.SetInputWave(waveInputFilePath, volume);
+				vstStream.DoProcess = true;
 				
-				// each float is 4 bytes
-				byte[] buffer = new byte[512*4];
-				using (MemoryStream ms = new MemoryStream())
+				// wait a little while
+				Thread.Sleep(1000);
+				
+				// keep on reading until it stops playing.
+				while (!stoppedPlaying)
 				{
-					while (!stoppedPlaying)
-					{
-						int read = vstStream.Read(buffer, 0, buffer.Length);
-						if (read <= 0) {
-							break;
-						}
-						ms.Write(buffer, 0, read);
+					int read = vstStream.Read(buffer, 0, buffer.Length);
+					if (read <= 0) {
+						break;
 					}
-
-					// save
-					using (WaveStream ws = new RawSourceWaveStream(ms, vstStream.WaveFormat))
-					{
-						ws.Position = 0;
-						WaveFileWriter.CreateWaveFile(waveOutputFilePath, ws);
-					}
+					ms.Write(buffer, 0, read);
+				}
+				
+				// save
+				using (WaveStream ws = new RawSourceWaveStream(ms, vstStream.WaveFormat))
+				{
+					ws.Position = 0;
+					WaveFileWriter.CreateWaveFile(waveOutputFilePath, ws);
 				}
 			}
-
-			vst.pluginContext.PluginCommandStub.MainsChanged(false);
+			
+			// reset the input wave file
+			vstStream.DoProcess = false;
+			vstStream.DisposeInputWave();
 
 			// reset if calling this method multiple times
 			stoppedPlaying = false;
@@ -169,10 +196,9 @@ namespace ProcessVSTPlugin2
 			if (doUpdateVstPlugin || doUpdateNoChannels || doUpdateSampleRate) {
 				Console.Out.WriteLine("Loading Vstplugin using samplerate {0} and {1} channels.", _sampleRate, _channels);
 				vst = UtilityAudio.LoadVST(_pluginPath, _sampleRate, _channels);
-				//vst.StreamCall += new EventHandler<VSTStreamEventArgs>(vst_StreamCall);
-				UtilityAudio.VstStream.ProcessCalled += new EventHandler<VSTStreamEventArgs>(vst_StreamCall);
-				UtilityAudio.VstStream.PlayingStarted += new EventHandler(StartedPlaying);
-				UtilityAudio.VstStream.PlayingStopped += new EventHandler(StoppedPlaying);
+				UtilityAudio.VstStream.ProcessCalled += new EventHandler<VSTStreamEventArgs>(vst_ProcessCalled);
+				UtilityAudio.VstStream.PlayingStarted += new EventHandler(vst_PlayingStarted);
+				UtilityAudio.VstStream.PlayingStopped += new EventHandler(vst_PlayingStopped);
 				
 				// plugin does not support processing audio
 				if ((vst.pluginContext.PluginInfo.Flags & VstPluginFlags.CanReplacing) == 0)
@@ -229,25 +255,32 @@ namespace ProcessVSTPlugin2
 			}
 		}
 
-		private void StartedPlaying(object sender, EventArgs e) {
+		private void vst_PlayingStarted(object sender, EventArgs e) {
 			if (UtilityAudio.PlaybackDevice != null) {
 				UtilityAudio.StartStreamingToDisk();
 				Console.Out.WriteLine("Started streaming to disk ...");
 			}
+			Console.Out.WriteLine("Vst Plugin Started playing ...");
 			stoppedPlaying = false;
 		}
 
-		private void StoppedPlaying(object sender, EventArgs e) {
+		private void vst_PlayingStopped(object sender, EventArgs e) {
 			if (UtilityAudio.PlaybackDevice != null) {
 				UtilityAudio.VstStream.DoProcess = false;
 				UtilityAudio.StopStreamingToDisk();
 				Console.Out.WriteLine("Stopped streaming to disk ...");
 			}
+			Console.Out.WriteLine("Vst Plugin Stopped playing ...");
 			stoppedPlaying = true;
 		}
 		
-		private void vst_StreamCall(object sender, VSTStreamEventArgs e)
+		private void vst_ProcessCalled(object sender, VSTStreamEventArgs e)
 		{
+			if (e.MaxL == 0 && e.MaxR == 0) {
+				audioBufferEmpty = true;
+			} else {
+				audioBufferEmpty = false;
+			}
 		}
 		
 		public void Dispose() {

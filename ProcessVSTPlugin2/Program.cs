@@ -14,8 +14,9 @@ namespace ProcessVSTPlugin2
 		[STAThread]
 		public static void Main(string[] args)
 		{
-			//SampleAltiverbPresets();
-			//return;
+			SampleAltiverbPresets(0, false, false, false, "");
+			//SampleAltiverbPresets(4, false, false, true, "ONLINE");
+			return;
 
 			string pluginPath = "";
 			string waveInputFilePath = "";
@@ -100,14 +101,15 @@ namespace ProcessVSTPlugin2
 			Console.ReadKey(true);
 		}
 		
-		
-		
-		public static void SampleAltiverbPresets() {
-			int limitCount = 10; 		// if zero = disabled
-			bool doCrop = false; 		// should we crop audio
-			bool doQuad = true; 		// should we sample a quad impulse response (i.e. two stereos)
-			// OR a normal stereo file
-			
+		/// <summary>
+		/// Sample Altiverb Presets into Wav files
+		/// </summary>
+		/// <param name="limitCount">if zero = disabled</param>
+		/// <param name="doCrop">should we crop the audio</param>
+		/// <param name="doQuad">should we sample a quad impulse response (i.e. two stereos) OR a normal stereo file</param>
+		/// <param name="doPlay">should we play (online processing = true) or use offline = false</param>
+		/// <param name="append">text to append to output filename</param>
+		public static void SampleAltiverbPresets(int limitCount, bool doCrop, bool doQuad, bool doPlay, string append) {			
 			string audioOutputDirectoryPath = "";
 			string presetDirectoryPath = "";
 			if (doQuad) {
@@ -135,7 +137,7 @@ namespace ProcessVSTPlugin2
 			try {
 				processFXPDirectory(presetDirectoryPath, pluginPath, audioOutputDirectoryPath,
 				                    sweepFileNameLeft, sweepFileNameRight, sweepFileNameLeftRight,
-				                    limitCount, doCrop, doQuad);
+				                    limitCount, doCrop, doQuad, doPlay, append);
 			} catch (Exception e) {
 				Console.Out.WriteLine("Unknown Error while processing FXP directory: ", e.ToString());
 			}
@@ -143,7 +145,8 @@ namespace ProcessVSTPlugin2
 		
 		public static bool processFXPDirectory(string presetDirectoryPath, string pluginPath, string audioOutputDirectoryPath,
 		                                       string sweepFileNameLeft, string sweepFileNameRight, string sweepFileNameLeftRight,
-		                                       int limitCount, bool doCrop, bool doQuad) {
+		                                       int limitCount, bool doCrop, bool doQuad, bool doPlay,
+		                                       string append) {
 			
 			if (!Directory.Exists(presetDirectoryPath)) {
 				Console.Out.WriteLine("Cannot find preset directory '{0}'. Script canceled.", presetDirectoryPath);
@@ -174,15 +177,15 @@ namespace ProcessVSTPlugin2
 					Directory.CreateDirectory(audioOutputDirectoryPath);
 					
 					if (doQuad) {
-						string renderFileNameLeft = String.Format("{0}{1}.{2}", shortPresetName, "_L_NET", "wav");
+						string renderFileNameLeft = String.Format("{0}{1}{2}.{3}", shortPresetName, "_L", append, "wav");
 						string renderFileNameFullPathLeft = Path.Combine(audioOutputDirectoryPath, renderFileNameLeft);
-						string renderFileNameRight = String.Format("{0}{1}.{2}", shortPresetName, "_R_NET", "wav");
+						string renderFileNameRight = String.Format("{0}{1}{2}.{3}", shortPresetName, "_R", append, "wav");
 						string renderFileNameFullPathRight = Path.Combine(audioOutputDirectoryPath, renderFileNameRight);
 
 						// process first left sweep file
 						// skip if file exists
 						if (!File.Exists(renderFileNameFullPathLeft)) {
-							if (!processFile(processVSTPlugin, pluginPath, fi.FullName, sweepFileNameLeft, renderFileNameFullPathLeft, doCrop)) {
+							if (!processFile(processVSTPlugin, pluginPath, fi.FullName, sweepFileNameLeft, renderFileNameFullPathLeft, doCrop, doPlay)) {
 								Console.Out.WriteLine("Processing left file failed!");
 								continue;
 							}
@@ -193,7 +196,7 @@ namespace ProcessVSTPlugin2
 						// process right sweep file
 						// skip if file exists
 						if (!File.Exists(renderFileNameFullPathRight)) {
-							if (!processFile(processVSTPlugin, pluginPath, fi.FullName, sweepFileNameRight, renderFileNameFullPathRight, doCrop)) {
+							if (!processFile(processVSTPlugin, pluginPath, fi.FullName, sweepFileNameRight, renderFileNameFullPathRight, doCrop, doPlay)) {
 								Console.Out.WriteLine("Processing right file failed!");
 								continue;
 							}
@@ -203,13 +206,13 @@ namespace ProcessVSTPlugin2
 						}
 					} else {
 						// stereo not QUAD
-						string renderFileNameLeftRight = String.Format("{0}.{1}{2}", shortPresetName, "NET", "wav");
+						string renderFileNameLeftRight = String.Format("{0}{1}.{2}", shortPresetName, append, "wav");
 						string renderFileNameFullPathLeftRight = Path.Combine(audioOutputDirectoryPath, renderFileNameLeftRight);
 						
 						// process stereo sweep file
 						// skip if file exists
 						if (!File.Exists(renderFileNameFullPathLeftRight)) {
-							if (!processFile(processVSTPlugin, pluginPath, fi.FullName, sweepFileNameLeftRight, renderFileNameFullPathLeftRight, doCrop)) {
+							if (!processFile(processVSTPlugin, pluginPath, fi.FullName, sweepFileNameLeftRight, renderFileNameFullPathLeftRight, doCrop, doPlay)) {
 								Console.Out.WriteLine("Processing right file failed!");
 								continue;
 							}
@@ -221,9 +224,12 @@ namespace ProcessVSTPlugin2
 					
 				} // limit count ?
 
-				// wait a little while longer every tenth preset?
-				if (presetCounter>0 &&  presetCounter%10 == 0) {
-					Thread.Sleep(1000);
+				// wait a little while longer every X preset?
+				if (presetCounter>0 &&  presetCounter%5 == 0) {
+					Thread.Sleep(5000);
+					processVSTPlugin.Dispose();
+					processVSTPlugin = null;
+					processVSTPlugin = new ProcessVSTPlugin();
 				}
 			} // foreach preset file
 			
@@ -238,7 +244,8 @@ namespace ProcessVSTPlugin2
 		                               string presetPath,
 		                               string sweepFilePath,
 		                               string renderFileNameFullPath,
-		                               bool doCrop) {
+		                               bool doCrop,
+		                               bool doPlay) {
 			
 			/*
 			 * ProcessVSTPlugin2.exe
@@ -249,7 +256,7 @@ namespace ProcessVSTPlugin2
 			 * -play
 			 */
 			float volume = 1.0f;
-			return processVSTPlugin.Process(sweepFilePath, renderFileNameFullPath, pluginPath, presetPath, volume, false);
+			return processVSTPlugin.Process(sweepFilePath, renderFileNameFullPath, pluginPath, presetPath, volume, doPlay);
 		}
 	}
 }

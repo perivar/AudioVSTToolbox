@@ -97,25 +97,21 @@ namespace CommonUtils.Audio
 					//NAUDIO
 					WaveFileReader reader = new WaveFileReader(SamplePath);
 					WaveStream Stream = null;
-					//Console.WriteLine("CreatedReader");
-					if (reader.WaveFormat.BitsPerSample == 16) Stream = new WaveChannel16To32(reader);//Volume e Pan da aggiungere
+					if (reader.WaveFormat.BitsPerSample == 16) Stream = new WaveChannel16To32(reader);
 					else if (reader.WaveFormat.BitsPerSample == 24) Stream = new WaveChannel24To32(reader);
 					else if (reader.WaveFormat.BitsPerSample == 32 && reader.WaveFormat.Encoding == WaveFormatEncoding.Pcm) Stream = new WaveChannel32To32(reader);
 					else if (reader.WaveFormat.BitsPerSample == 32 && reader.WaveFormat.Encoding == WaveFormatEncoding.IeeeFloat) { 
 						Console.Out.WriteLine("Attention!"); 
 						Stream = new WaveChannel32(new Wave32To16Stream(reader)); 
 					}
-					//Console.WriteLine("CreatedChannel");
 					if (Stream != null)
 					{
 						if (Stream is WaveChannel16To32) ((WaveChannel16To32)Stream).Volume = 0.0f;
 						else if (Stream is WaveChannel24To32) ((WaveChannel24To32)Stream).Volume = 0.0f;
 						else if (Stream is WaveChannel32To32) ((WaveChannel32To32)Stream).Volume = 0.0f;
 						else if (Stream is WaveChannel32) ((WaveChannel32)Stream).Volume = 0.0f;
-						//Console.WriteLine("Volume");
 						Samples.Add(Stream);
 						Mixer32.AddInputStream(Stream);
-						//Console.WriteLine("Mixer");
 						return Samples.Count - 1;
 					}
 					//=============================================
@@ -206,7 +202,6 @@ namespace CommonUtils.Audio
 				GeneralVST.pluginContext.PluginCommandStub.MainsChanged(true);
 
 				vstStream = new VSTStream();
-				vstStream.ProcessCalled += new EventHandler<VSTStreamEventArgs>(GeneralVST.Stream_ProcessCalled);
 				vstStream.pluginContext = GeneralVST.pluginContext;
 				vstStream.SetWaveFormat(sampleRate, channels); 
 				

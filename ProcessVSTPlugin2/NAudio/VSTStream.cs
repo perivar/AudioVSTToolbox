@@ -58,17 +58,18 @@ namespace CommonUtils.VSTPlugin
 			this.wavStream.Volume = volume;
 		}
 		
-		public new void Dispose() {
-			DisposeInputWave();
-			base.Dispose();
-		}
-		
-		private void DisposeInputWave() {
+		public void DisposeInputWave() {
 			if (wavStream != null) {
 				this.wavStream.Dispose();
 				this.wavStream = null;
 			}
+			this.wavFileReader.Dispose();
 			this.wavFileReader = null;
+		}
+
+		public new void Dispose() {
+			DisposeInputWave();
+			base.Dispose();
 		}
 		
 		private void RaiseProcessCalled(float maxL, float maxR)

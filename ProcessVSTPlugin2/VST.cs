@@ -17,7 +17,6 @@ namespace CommonUtils.VSTPlugin
 	public class VST
 	{
 		public VstPluginContext pluginContext = null;
-		public event EventHandler<VSTStreamEventArgs> StreamCall=null;
 		
 		internal void Dispose()
 		{
@@ -255,11 +254,6 @@ namespace CommonUtils.VSTPlugin
 			Array.Reverse(pluginUniqueIDArray);
 			int pluginUniqueID = BitConverter.ToInt32(pluginUniqueIDArray, 0);
 			return pluginUniqueID;
-		}
-		
-		internal void Stream_ProcessCalled(object sender, VSTStreamEventArgs e)
-		{
-			if (StreamCall != null) StreamCall(sender, e);
 		}
 	}
 }
