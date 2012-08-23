@@ -109,7 +109,49 @@ namespace ProcessVSTPlugin2
 		/// <param name="doQuad">should we sample a quad impulse response (i.e. two stereos) OR a normal stereo file</param>
 		/// <param name="doPlay">should we play (online processing = true) or use offline = false</param>
 		/// <param name="append">text to append to output filename</param>
-		public static void SampleAltiverbPresets(int limitCount, bool doCrop, bool doQuad, bool doPlay, string append) {			
+		public static void SampleAltiverbPresets(int limitCount, bool doCrop, bool doQuad, bool doPlay, string append) {
+			
+			/*
+	PRE REQUSITES FOR RUNNING THIS SCRIPT:
+	1. 	The Altiverb preset files that will be used for sampling (*.fxp)
+	2. 	Voxengo Deconvolver
+	3. 	Four Sweep Files: L, R and Mono (used for Quad sampling) and LR (used for Stereo sampling)
+	Reversed Technique seems to work best (Use Voxengo Deconvolver to generate these):
+	- Sweep-48000-32f-M-10,0s-fade.wav
+	- Sweep-48000-32f-SL-10,0s-fade.wav
+	- Sweep-48000-32f-SLR-10,0s-fade.wav
+	- Sweep-48000-32f-SR-10,0s-fade.wav
+	
+	All steps required for sampling the quad altiverb effects.
+	1. 	Create altiverb presets for the Altiverb quad effects that you want to sample (.fxp files)
+		either manually or using the "CS Script": cscs CreateAltiverbPresets.cs
+		Output: A directory full of .fxp files
+		Tip! Use a seperate directory for stereo and quad presets.
+	
+	2. 	Run this function
+		Output:
+		For Quad 	- A directory full of *_L.wav and *_R.wav files
+		For Stereo 	- A directory full of *.wav files
+	
+	3. 	Run Voxengo Deconvolver - with the Mono file as main sweep file and the directory where all the
+		sampled Altiverb presets were stored.
+		(Remember to use the Reversed Technique)
+		Output:
+		For Quad 	- A directory full of *_L_dc.wav and *_R_dc.wav files
+		For Stereo 	- A directory full of *_dc.wav files
+	
+	4. 	Only for Quad files:
+		Combine all the stereo _dc.wav files into Quad files,
+		by running the Sound Forge Script "Search Dir and Combine Stereo to Quad.cs" within Sound Forge.
+		Output: A directory full of *Quad.wav files
+	
+	5. 	Create a identical directory structure for the wav files as the original Altiverb Library
+		by running the "CS Script": BuildAltiverbWavDirectoryStructure.cs
+		Output: An Altiverb Library for wav files.
+		I.e. a new directory set full of *Quad.wav (or Stereo) files in their correct locations
+		as well as nice corresponding images copied from the original Altiverb Library
+			 */
+			
 			string audioOutputDirectoryPath = "";
 			string presetDirectoryPath = "";
 			if (doQuad) {
@@ -247,14 +289,6 @@ namespace ProcessVSTPlugin2
 		                               bool doCrop,
 		                               bool doPlay) {
 			
-			/*
-			 * ProcessVSTPlugin2.exe
-			 * -plugin="C:\Program Files (x86)\Steinberg\Vstplugins\Reverb\Altiverb\Altiverb 6.dll"
-			 * -wavein="F:\SAMPLES\IMPULSE RESPONSES\PER IVAR IR SAMPLES\Sweep-48000-32f-SL-10,0s-fade.wav"
-			 * -fxp="C:\Program Files (x86)\Steinberg\Vstplugins\Reverb\Altiverb\Todd-AO-st to st narrow mics at 08m.fxp"
-			 * -waveout="F:\SAMPLES\IMPULSE RESPONSES\PER IVAR IR SAMPLES\VST_NET_Todd-AO-st to st narrow mics at 08m-SL.wav"
-			 * -play
-			 */
 			float volume = 1.0f;
 			return processVSTPlugin.Process(sweepFilePath, renderFileNameFullPath, pluginPath, presetPath, volume, doPlay);
 		}
