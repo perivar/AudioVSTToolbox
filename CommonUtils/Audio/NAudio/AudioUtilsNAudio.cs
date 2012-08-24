@@ -280,7 +280,7 @@ namespace CommonUtils.Audio.NAudio
 		/// <param name="filePath">file to use</param>
 		/// <param name="audioDataLeft">returned float array for the left channel</param>
 		/// <param name="audioDataRight">returned float array for the right channel</param>
-		private static void SplitStereoWaveFileToMono(string filePath, out float[] audioDataLeft, out float[] audioDataRight) {
+		public static void SplitStereoWaveFileToMono(string filePath, out float[] audioDataLeft, out float[] audioDataRight) {
 			using (WaveFileReader pcm = new WaveFileReader(filePath))
 			{
 				int channels = pcm.WaveFormat.Channels;
@@ -309,21 +309,22 @@ namespace CommonUtils.Audio.NAudio
 						index += bytesPerSample;
 					}
 				}
-				
-				//string testOutLeft = @"F:\SAMPLES\IMPULSE RESPONSES\PER IVAR IR SAMPLES\ALTIVERB-QUAD-IMPULSE-RESPONSES\Scoring Stages (Orchestral Studios)_Todd-AO - California US_st to st wide mics at 18m90_L_left.wav";
-				//string testOutRight = @"F:\SAMPLES\IMPULSE RESPONSES\PER IVAR IR SAMPLES\ALTIVERB-QUAD-IMPULSE-RESPONSES\Scoring Stages (Orchestral Studios)_Todd-AO - California US_st to st wide mics at 18m90_L_right.wav";
-				//WriteIEEE32WaveFileMono(testOutLeft, 48000, left);
-				//WriteIEEE32WaveFileMono(testOutRight, 48000, right);
 			}
 		}
 		
-		private static void WriteIEEE32WaveFileMono(string outputFilePath, int sampleRate, float[] audioData) {
+		/// <summary>
+		/// Write a audio float array to a 32 bit float audio file
+		/// </summary>
+		/// <param name="outputFilePath">file path to output file</param>
+		/// <param name="sampleRate">sample rate</param>
+		/// <param name="audioData">the audio float array</param>
+		public static void WriteIEEE32WaveFileMono(string outputFilePath, int sampleRate, float[] audioData) {
 			using (WaveFileWriter wavWriter = new WaveFileWriter(outputFilePath, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1)))
 			{
 				wavWriter.WriteSamples(audioData, 0, audioData.Length);
 			}
 		}
-			
+		
 		/// <summary>
 		/// Creates an input WaveChannel
 		/// (Audio file reader for MP3/WAV/OGG/FLAC/WMA/AIFF/Other formats in the future)
