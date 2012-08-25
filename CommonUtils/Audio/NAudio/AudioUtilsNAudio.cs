@@ -25,11 +25,21 @@ namespace CommonUtils.Audio.NAudio
 		const string AIFFExtension = ".aiff";
 		
 		public static TimeSpan GetWaveFileTotalTime(string filePath) {
-			var stream=new MemoryStream(File.ReadAllBytes(filePath));
-			var wave = new WaveFileReader(stream);
-			return wave.TotalTime;
+			TimeSpan totalTime = TimeSpan.MinValue;
+			using (WaveFileReader reader = new WaveFileReader(filePath)) {
+				totalTime = reader.TotalTime;
+			}
+			return totalTime;
 		}
 
+		public static WaveFormat GetWaveFormat(string filePath) {
+			WaveFormat frmt = null;
+			using (WaveFileReader reader = new WaveFileReader(filePath)) {
+				frmt = reader.WaveFormat;
+			}
+			return frmt;
+		}
+		
 		// Read A complete stream into a byte array
 		public static byte[] ReadFully(Stream input)
 		{
@@ -324,6 +334,67 @@ namespace CommonUtils.Audio.NAudio
 				wavWriter.WriteSamples(audioData, 0, audioData.Length);
 			}
 		}
+		
+		/// <summary>
+		/// Combine two stereo files to one quad file
+		/// </summary>
+		/// <param name="filePathLeft">file path to the left stereo file</param>
+		/// <param name="filePathRight">file path to the right stereo file</param>
+		/// <param name="combinedFileNamePath">file path to the combined quad file</param>
+		/// <returns></returns>
+		public static bool CombineStereoToQuad(string filePathLeft, string filePathRight, string combinedFileNamePath) {
+			
+			WaveFormat waveFormatLeft = GetWaveFormat(filePathLeft);
+			WaveFormat waveFormatRight = GetWaveFormat(filePathRight);
+			if (!waveFormatLeft.Equals(waveFormatRight)) {
+				Console.Out.WriteLine("The two files to combine must have the same format");
+				return false;
+			}
+			if (waveFormatLeft.Channels != 2 || waveFormatRight.Channels != 2) {
+				Console.Out.WriteLine("The two files to combine must be stereo");
+				return false;
+			}
+
+			int sampleRate = waveFormatLeft.SampleRate;
+			
+			float[] channel1;
+			float[] channel2;
+			float[] channel3;
+			float[] channel4;
+			AudioUtilsNAudio.SplitStereoWaveFileToMono(filePathLeft, out channel1, out channel2);
+			AudioUtilsNAudio.SplitStereoWaveFileToMono(filePathRight, out channel3, out channel4);
+			
+			// find out what channel is longest
+			int maxLength = Math.Max(channel1.Length, channel3.Length);
+
+			using (WaveFileWriter wavWriter = new WaveFileWriter(combinedFileNamePath, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 4)))
+			{
+				// write one and one float (interlaced), pad if neccesary
+				for (int i = 0; i < maxLength; i++) {
+					if (i < channel1.Length) {
+						wavWriter.WriteSample(channel1[i]);
+					} else {
+						wavWriter.WriteSample(0.0f);
+					}
+					if (i < channel2.Length) {
+						wavWriter.WriteSample(channel2[i]);
+					} else {
+						wavWriter.WriteSample(0.0f);
+					}
+					if (i < channel3.Length) {
+						wavWriter.WriteSample(channel3[i]);
+					} else {
+						wavWriter.WriteSample(0.0f);
+					}
+					if (i < channel4.Length) {
+						wavWriter.WriteSample(channel4[i]);
+					} else {
+						wavWriter.WriteSample(0.0f);
+					}
+				}
+			}
+			return true;
+		}		
 		
 		/// <summary>
 		/// Creates an input WaveChannel
