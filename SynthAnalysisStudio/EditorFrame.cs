@@ -25,7 +25,7 @@ namespace SynthAnalysisStudio
 		public EditorFrame()
 		{
 			InitializeComponent();
-			KeyPreview = true;			
+			KeyPreview = true;
 		}
 		
 		/// <summary>
@@ -48,7 +48,6 @@ namespace SynthAnalysisStudio
 			{
 				this.pluginPanel.Size = this.SizeFromClientSize(new Size(wndRect.Width, wndRect.Height));
 				PluginContext.PluginCommandStub.EditorOpen(this.pluginPanel.Handle);
-				// PluginContext.PluginCommandStub.EditorIdle();
 			}
 			
 			// Some plugins have the following bug:
@@ -86,26 +85,10 @@ namespace SynthAnalysisStudio
 				programs[i] = name;
 			}
 			presetComboBox.Items.AddRange(programs);
-			//presetComboBox.DataSource = programs;
-			presetComboBox.SelectedIndex = selectedIndex;
 			
-			/*
-			 * comboBox1.DataSource = myArray;
-			 * 
-			 * For the first variant you can only use strings as items, while with data binding you can bind a collection of more complex objects. You can then specify what properties are displayed:
-			 * comboBox1.DisplayMember = "Name";
-			 * 
-			 * and what are treated as value:
-			 * comboBox1.ValueMember = "ID";
-			 * 
-			 * You can access the original object that is selected later with
-			 * comboBox1.SelectedItem
-			 * 
-			 * or the value with
-			 * comboBox1.SelectedValue
-			 * 
-			 * The value is the property you specified with ValueMember
-			 */
+			if (selectedIndex > 0) {
+				presetComboBox.SelectedIndex = selectedIndex;
+			}
 		}
 
 		void SaveBtnClick(object sender, EventArgs e)
@@ -477,7 +460,7 @@ namespace SynthAnalysisStudio
 			// which I do every 100 ms.  This works great ;)
 			if (doGUIRefresh) {
 				PluginContext.PluginCommandStub.EditorIdle();
-			}			
+			}
 		}
 	}
 }

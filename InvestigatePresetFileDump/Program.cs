@@ -21,7 +21,7 @@ namespace InvestigatePresetFileDump
 		public static void Main(string[] args)
 		{
 
-			string outputfilename = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\InvestigatePresetFileDump\Sweetscape Template Output V2.txt";
+			string outputfilename = @"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\InvestigatePresetFileDump\Sweetscape Template Output V2.txt";
 
 			// create a writer and open the file
 			TextWriter tw = new StreamWriter(outputfilename);
@@ -29,7 +29,7 @@ namespace InvestigatePresetFileDump
 			
 			StringWriter stringWriter = new StringWriter();
 			string enumSections = ImportXMLFileReturnEnumSections(
-				@"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Release\output.xml",
+				@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\output.xml",
 				stringWriter
 			);
 			

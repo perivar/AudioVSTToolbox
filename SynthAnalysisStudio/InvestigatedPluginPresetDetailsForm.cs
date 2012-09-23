@@ -169,7 +169,8 @@ namespace SynthAnalysisStudio
 					
 					int i = BinaryFile.ByteArrayToInt32(trackedBytes, bOrder);
 					float f = BinaryFile.ByteArrayToSingle(trackedBytes, bOrder);
-					ValueTextBox.Text = String.Format("int: {0} float: {1:00.0000}", i, f);
+					double d = BinaryFile.ByteArrayToDouble(trackedBytes, bOrder);
+					ValueTextBox.Text = String.Format("int: {0} float: {1:0.####E+000} double: {2:0.0000}", i, f, d);
 					
 					// store these values in a tracking list together with the ParameterDisplay Value
 					string paramName = dataGridView1["ParameterName", nRowIndex].Value.ToString();

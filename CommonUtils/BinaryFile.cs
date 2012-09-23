@@ -535,6 +535,21 @@ namespace CommonUtils
 			}
 		}
 
+		public static double ByteArrayToDouble(byte [] b, ByteOrder byteOrder) {
+			if (b == null || b.Length < 8) return -1;
+			
+			if (byteOrder == ByteOrder.LittleEndian)
+			{
+				return BitConverter.ToDouble(b, 0);
+			}
+			else // Big-Endian
+			{
+				byte [] bClone = (byte[])b.Clone();
+				Array.Reverse(bClone);
+				return BitConverter.ToDouble(bClone, 0);
+			}
+		}
+		
 		public static Int16 ByteArrayToInt16(byte [] b, ByteOrder byteOrder) {
 			if (b == null || b.Length < 2) return -1;
 

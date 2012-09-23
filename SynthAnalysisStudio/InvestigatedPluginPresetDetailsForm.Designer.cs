@@ -60,10 +60,10 @@ namespace SynthAnalysisStudio
 			this.dataGridView1.Location = new System.Drawing.Point(0, 33);
 			this.dataGridView1.Name = "dataGridView1";
 			this.dataGridView1.ReadOnly = true;
-			this.dataGridView1.Size = new System.Drawing.Size(774, 282);
+			this.dataGridView1.Size = new System.Drawing.Size(802, 282);
 			this.dataGridView1.TabIndex = 0;
+			this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellDoubleClick);
 			this.dataGridView1.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.DataGridView1RowsAdded);
-			this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellDoubleClick);			
 			// 
 			// UpdateBtn
 			// 
@@ -114,16 +114,16 @@ namespace SynthAnalysisStudio
 			// label2
 			// 
 			this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.label2.Location = new System.Drawing.Point(242, 326);
+			this.label2.Location = new System.Drawing.Point(195, 326);
 			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(70, 18);
+			this.label2.Size = new System.Drawing.Size(50, 18);
 			this.label2.TabIndex = 8;
-			this.label2.Text = "Num. Bytes:";
+			this.label2.Text = "NoBytes:";
 			// 
 			// label4
 			// 
 			this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.label4.Location = new System.Drawing.Point(353, 325);
+			this.label4.Location = new System.Drawing.Point(270, 326);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(41, 18);
 			this.label4.TabIndex = 10;
@@ -132,7 +132,7 @@ namespace SynthAnalysisStudio
 			// TrackPositionTextBox
 			// 
 			this.TrackPositionTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.TrackPositionTextBox.Location = new System.Drawing.Point(185, 324);
+			this.TrackPositionTextBox.Location = new System.Drawing.Point(139, 323);
 			this.TrackPositionTextBox.MaxLength = 8;
 			this.TrackPositionTextBox.Name = "TrackPositionTextBox";
 			this.TrackPositionTextBox.Size = new System.Drawing.Size(54, 20);
@@ -142,7 +142,7 @@ namespace SynthAnalysisStudio
 			// NumberOfBytesTextBox
 			// 
 			this.NumberOfBytesTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.NumberOfBytesTextBox.Location = new System.Drawing.Point(319, 323);
+			this.NumberOfBytesTextBox.Location = new System.Drawing.Point(243, 323);
 			this.NumberOfBytesTextBox.MaxLength = 2;
 			this.NumberOfBytesTextBox.Name = "NumberOfBytesTextBox";
 			this.NumberOfBytesTextBox.Size = new System.Drawing.Size(28, 20);
@@ -152,7 +152,7 @@ namespace SynthAnalysisStudio
 			// checkBox1
 			// 
 			this.checkBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.checkBox1.Location = new System.Drawing.Point(12, 324);
+			this.checkBox1.Location = new System.Drawing.Point(3, 324);
 			this.checkBox1.Name = "checkBox1";
 			this.checkBox1.Size = new System.Drawing.Size(94, 18);
 			this.checkBox1.TabIndex = 13;
@@ -163,34 +163,34 @@ namespace SynthAnalysisStudio
 			// label3
 			// 
 			this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.label3.Location = new System.Drawing.Point(104, 326);
+			this.label3.Location = new System.Drawing.Point(94, 326);
 			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(78, 18);
+			this.label3.Size = new System.Drawing.Size(49, 18);
 			this.label3.TabIndex = 9;
-			this.label3.Text = "Track Position:";
+			this.label3.Text = "Position:";
 			// 
 			// TrackPresetTextBox
 			// 
 			this.TrackPresetTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.TrackPresetTextBox.Location = new System.Drawing.Point(399, 321);
+			this.TrackPresetTextBox.Location = new System.Drawing.Point(308, 324);
 			this.TrackPresetTextBox.Name = "TrackPresetTextBox";
 			this.TrackPresetTextBox.ReadOnly = true;
-			this.TrackPresetTextBox.Size = new System.Drawing.Size(106, 20);
+			this.TrackPresetTextBox.Size = new System.Drawing.Size(138, 20);
 			this.TrackPresetTextBox.TabIndex = 14;
 			// 
 			// ValueTextBox
 			// 
-			this.ValueTextBox.Location = new System.Drawing.Point(511, 321);
+			this.ValueTextBox.Location = new System.Drawing.Point(447, 324);
 			this.ValueTextBox.Name = "ValueTextBox";
 			this.ValueTextBox.ReadOnly = true;
-			this.ValueTextBox.Size = new System.Drawing.Size(169, 20);
+			this.ValueTextBox.Size = new System.Drawing.Size(273, 20);
 			this.ValueTextBox.TabIndex = 15;
 			// 
 			// LittleEndianCheckBox
 			// 
 			this.LittleEndianCheckBox.Checked = true;
 			this.LittleEndianCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.LittleEndianCheckBox.Location = new System.Drawing.Point(686, 321);
+			this.LittleEndianCheckBox.Location = new System.Drawing.Point(722, 323);
 			this.LittleEndianCheckBox.Name = "LittleEndianCheckBox";
 			this.LittleEndianCheckBox.Size = new System.Drawing.Size(84, 24);
 			this.LittleEndianCheckBox.TabIndex = 16;
@@ -201,7 +201,7 @@ namespace SynthAnalysisStudio
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(774, 348);
+			this.ClientSize = new System.Drawing.Size(802, 348);
 			this.Controls.Add(this.LittleEndianCheckBox);
 			this.Controls.Add(this.ValueTextBox);
 			this.Controls.Add(this.TrackPresetTextBox);
