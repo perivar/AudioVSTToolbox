@@ -8,7 +8,7 @@ namespace CommonUtils
 	/// Class for reading and writing binary files.
 	/// Per Ivar Nerseth, 2011 - 2012
 	/// perivar@nerseth.com
-	/// </summary>	
+	/// </summary>
 	public class BinaryFile {
 
 		public enum ByteOrder : int
@@ -30,23 +30,34 @@ namespace CommonUtils
 		
 		public BinaryFile(string filePath, ByteOrder byteOrder, bool createFile) {
 			if (createFile) {
-				fs = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite);
+				this.fs = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite);
 			} else {
-				fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
+				this.fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
 			}
-			binaryWriter = new BinaryWriter(fs, Encoding.Default);
-			binaryReader = new BinaryReader(fs, Encoding.Default);
+			
+			this.binaryWriter = new BinaryWriter(fs, Encoding.Default);
+			this.binaryReader = new BinaryReader(fs, Encoding.Default);
 			this.byteOrder = byteOrder;
 		}
 
 		public BinaryFile(byte[] byteArray) : this(byteArray, ByteOrder.LittleEndian) {	}
 		
 		public BinaryFile(byte[] byteArray, ByteOrder byteOrder) {
-			memStream = new MemoryStream(byteArray);
-			binaryReader = new BinaryReader(memStream);
+			this.memStream = new MemoryStream(byteArray);
+			this.binaryReader = new BinaryReader(memStream);
 
 			// Set position to the beginning of the stream.
-			memStream.Position = 0;
+			this.memStream.Position = 0;
+
+			this.byteOrder = byteOrder;
+		}
+		
+		public BinaryFile(MemoryStream stream, ByteOrder byteOrder) {
+			this.memStream = stream;
+			this.binaryWriter = new BinaryWriter(memStream, Encoding.Default);
+			
+			// Set position to the beginning of the stream.
+			this.memStream.Position = 0;
 
 			this.byteOrder = byteOrder;
 		}
