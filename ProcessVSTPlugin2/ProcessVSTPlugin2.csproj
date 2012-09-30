@@ -90,7 +90,6 @@
     <Compile Include="ProcessVSTPlugin.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utility\ImpulseSampler.cs" />
     <Compile Include="Utility\UtilityAudio.cs" />
     <Compile Include="VST.cs" />
   </ItemGroup>
