@@ -4770,7 +4770,7 @@ namespace PresetConverter
 		
 		public bool ReadFXP(FXP fxp, string filePath="")
 		{
-			BinaryFile bFile = new BinaryFile(fxp.chunkDataByteArray, BinaryFile.ByteOrder.LittleEndian);
+			BinaryFile bFile = new BinaryFile(fxp.ChunkDataByteArray, BinaryFile.ByteOrder.LittleEndian);
 			
 			string presetType = bFile.ReadString(4);
 			int presetVersion1 = bFile.ReadInt32();
@@ -4784,11 +4784,11 @@ namespace PresetConverter
 			if (presetType == "1lys") { // '1lys' = 'syl1' backwards
 				
 				// check if this is a bank or a single preset file
-				if (fxp.fxMagic == "FBCh") {
+				if (fxp.FxMagic == "FBCh") {
 					// this is a bank of presets
 					
 					// use numberOfPrograms to read in an array of Sylenth Presets
-					int numPrograms = fxp.numPrograms;
+					int numPrograms = fxp.ProgramCount;
 					List<Sylenth1Preset.Syl1PresetContent> contentList = new List<Sylenth1Preset.Syl1PresetContent>();
 					int i = 0;
 					try {
@@ -4811,7 +4811,7 @@ namespace PresetConverter
 					this.ContentArray = contentList.ToArray();
 					DoLog(String.Format("Finished reading {0} presets from bank {1} ...", numPrograms, filePath));
 					return true;
-				} else if (fxp.fxMagic == "FPCh") {
+				} else if (fxp.FxMagic == "FPCh") {
 					// single preset file
 					this.ContentArray = new Syl1PresetContent[1];
 					this.ContentArray[0] = new Sylenth1Preset.Syl1PresetContent(bFile, presetVersion1==2202);

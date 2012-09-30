@@ -8,7 +8,7 @@ namespace ProcessVSTPlugin2
 {
 	class Program
 	{
-		static string _version = "2.0.5";
+		static string _version = "2.0.6";
 		
 		[STAThread]
 		public static void Main(string[] args)

@@ -56,43 +56,43 @@ namespace ProcessVSTPlugin2
 				
 				try
 				{
-					vst.pluginContext = VstPluginContext.Create(pluginPath, hcs);
+					vst.PluginContext = VstPluginContext.Create(pluginPath, hcs);
 					
-					if (vst.pluginContext == null) {
+					if (vst.PluginContext == null) {
 						Console.Out.WriteLine("Could not open up the plugin specified by {0}!", pluginPath);
 						return false;
 					}
 					
 					// plugin does not support processing audio
-					if ((vst.pluginContext.PluginInfo.Flags & VstPluginFlags.CanReplacing) == 0)
+					if ((vst.PluginContext.PluginInfo.Flags & VstPluginFlags.CanReplacing) == 0)
 					{
 						Console.Out.WriteLine("This plugin does not process any audio.");
 						return false;
 					}
 					
 					// check if the plugin supports offline proccesing
-					if(vst.pluginContext.PluginCommandStub.CanDo(VstCanDoHelper.ToString(VstPluginCanDo.Offline)) == VstCanDoResult.No) {
+					if(vst.PluginContext.PluginCommandStub.CanDo(VstCanDoHelper.ToString(VstPluginCanDo.Offline)) == VstCanDoResult.No) {
 						Console.Out.WriteLine("This plugin does not support offline processing.");
 						Console.Out.WriteLine("Try use realtime (-play) instead!");
 						return false;
 					}
 					
 					// add custom data to the context
-					vst.pluginContext.Set("PluginPath", pluginPath);
-					vst.pluginContext.Set("HostCmdStub", hcs);
+					vst.PluginContext.Set("PluginPath", pluginPath);
+					vst.PluginContext.Set("HostCmdStub", hcs);
 
 					// actually open the plugin itself
-					vst.pluginContext.PluginCommandStub.Open();
+					vst.PluginContext.PluginCommandStub.Open();
 					
 					Console.Out.WriteLine("Enabling the audio output on the VST!");
-					vst.pluginContext.PluginCommandStub.MainsChanged(true);
+					vst.PluginContext.PluginCommandStub.MainsChanged(true);
 					
 					// setup the VSTStream
 					vstStream = new VSTStream();
 					vstStream.ProcessCalled += new EventHandler<VSTStreamEventArgs>(vst_ProcessCalled);
 					vstStream.PlayingStarted += new EventHandler(vst_PlayingStarted);
 					vstStream.PlayingStopped += new EventHandler(vst_PlayingStopped);
-					vstStream.pluginContext = vst.pluginContext;
+					vstStream.pluginContext = vst.PluginContext;
 					
 					vstStream.SetWaveFormat(wavFileReader.WaveFormat.SampleRate, wavFileReader.WaveFormat.Channels);
 				} catch (Exception ex) {
@@ -201,14 +201,14 @@ namespace ProcessVSTPlugin2
 				UtilityAudio.VstStream.PlayingStopped += new EventHandler(vst_PlayingStopped);
 				
 				// plugin does not support processing audio
-				if ((vst.pluginContext.PluginInfo.Flags & VstPluginFlags.CanReplacing) == 0)
+				if ((vst.PluginContext.PluginInfo.Flags & VstPluginFlags.CanReplacing) == 0)
 				{
 					Console.Out.WriteLine("This plugin does not process any audio.");
 					return false;
 				}
 				
 				// check if the plugin supports real time proccesing
-				if(vst.pluginContext.PluginCommandStub.CanDo(VstCanDoHelper.ToString(VstPluginCanDo.NoRealTime)) == VstCanDoResult.Yes) {
+				if(vst.PluginContext.PluginCommandStub.CanDo(VstCanDoHelper.ToString(VstPluginCanDo.NoRealTime)) == VstCanDoResult.Yes) {
 					Console.Out.WriteLine("This plugin does not support realtime processing.");
 					return false;
 				}

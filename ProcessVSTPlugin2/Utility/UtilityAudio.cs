@@ -186,23 +186,23 @@ namespace CommonUtils.Audio
 
 			try
 			{
-				GeneralVST.pluginContext = VstPluginContext.Create(VSTPath, hcs);
+				GeneralVST.PluginContext = VstPluginContext.Create(VSTPath, hcs);
 				
 				// add custom data to the context
-				GeneralVST.pluginContext.Set("PluginPath", VSTPath);
-				GeneralVST.pluginContext.Set("HostCmdStub", hcs);
+				GeneralVST.PluginContext.Set("PluginPath", VSTPath);
+				GeneralVST.PluginContext.Set("HostCmdStub", hcs);
 
 				// actually open the plugin itself				
-				GeneralVST.pluginContext.PluginCommandStub.Open();
+				GeneralVST.PluginContext.PluginCommandStub.Open();
 				
 				// Method arguments used to contain the following to allow 
 				// opening the vst plugin editor - not supported in this commanline processor
 				// public static VST LoadVST(string VSTPath, IntPtr hWnd)
 				// GeneralVST.pluginContext.PluginCommandStub.EditorOpen(hWnd);
-				GeneralVST.pluginContext.PluginCommandStub.MainsChanged(true);
+				GeneralVST.PluginContext.PluginCommandStub.MainsChanged(true);
 
 				vstStream = new VSTStream();
-				vstStream.pluginContext = GeneralVST.pluginContext;
+				vstStream.pluginContext = GeneralVST.PluginContext;
 				vstStream.SetWaveFormat(sampleRate, channels); 
 				
 				Mixer32.AddInputStream(vstStream);

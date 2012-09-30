@@ -475,13 +475,6 @@ namespace CommonUtils.VST
 			 */
 		}
 
-		private int EffSetChunk(byte[] data, bool isPreset) {
-			bool beginSetProgramResult = PluginContext.PluginCommandStub.BeginSetProgram();
-			int iResult = PluginContext.PluginCommandStub.SetChunk(data, isPreset);
-			bool endSetProgramResult = PluginContext.PluginCommandStub.EndSetProgram();
-			return iResult;
-		}
-
 		public void LoadFXP(string filePath) {
 			if (filePath == null || filePath == "") {
 				return;
@@ -503,33 +496,30 @@ namespace CommonUtils.VST
 			// actually different than the state your plugin program(s) (are) in.
 
 			bool UseChunk = false;
-			if ((PluginContext.PluginInfo.Flags & VstPluginFlags.ProgramChunks) == 0)
-			{
+			if ((PluginContext.PluginInfo.Flags & VstPluginFlags.ProgramChunks) == 0) {
 				// Chunks not supported.
 				UseChunk = false;
-			}
-			else
-			{
+			} else {
 				// Chunks supported.
 				UseChunk = true;
 			}
+			
 			FXP fxp = new FXP();
 			fxp.ReadFile(filePath);
-			if (fxp.chunkMagic != "CcnK")
-			{
+			if (fxp.ChunkMagic != "CcnK") {
 				// not a fxp or fxb file
 				Console.Out.WriteLine("Error - Cannot Load. Loaded preset is not a fxp or fxb file");
 				return;
 			}
 
-			int pluginUniqueID = PluginIDStringToIDNumber(fxp.fxID);
+			int pluginUniqueID = PluginIDStringToIDNumber(fxp.FxID);
 			int currentPluginID = PluginContext.PluginInfo.PluginID;
 			if (pluginUniqueID != currentPluginID) {
 				Console.Out.WriteLine("Error - Cannot Load. Loaded preset has another ID!");
 			} else {
 				// Preset (Program) (.fxp) with chunk (magic = 'FPCh')
 				// Bank (.fxb) with chunk (magic = 'FBCh')
-				if (fxp.fxMagic == "FPCh" || fxp.fxMagic == "FBCh") {
+				if (fxp.FxMagic == "FPCh" || fxp.FxMagic == "FBCh") {
 					UseChunk = true;
 				} else {
 					UseChunk = false;
@@ -540,34 +530,66 @@ namespace CommonUtils.VST
 					// plug-in state for saving.
 					// To restore the state at a later stage, the same data is passed
 					// back to setChunk.
+					byte[] chunkData = fxp.ChunkDataByteArray;
+					bool beginSetProgramResult = PluginContext.PluginCommandStub.BeginSetProgram();
+					int iResult = PluginContext.PluginCommandStub.SetChunk(chunkData, true);
+					bool endSetProgramResult = PluginContext.PluginCommandStub.EndSetProgram();
+				} else {
 					// Alternatively, when not using chunk, the Host will simply
 					// save all parameter values.
-					
-					//PluginContext.PluginCommandStub.SetProgramName(fxp.name);
-					byte[] chunkData = fxp.chunkDataByteArray;
-					int setChunkResult = EffSetChunk(chunkData, true);
-				} else {
-					// NB! non chunk presets are not supported yet!
-					Console.Out.WriteLine("Presets with non-chunk data is not yet supported! Loading preset failed!");
-					throw new System.NotSupportedException("Presets with non-chunk data is not yet supported! Loading preset failed!");
+					float[] parameters = fxp.Parameters;
+					bool beginSetProgramResult = PluginContext.PluginCommandStub.BeginSetProgram();
+					for (int i = 0; i < parameters.Length; i++) {
+						PluginContext.PluginCommandStub.SetParameter(i, parameters[i]);
+					}
+					bool endSetProgramResult = PluginContext.PluginCommandStub.EndSetProgram();
 				}
 			}
 		}
 
 		public void SaveFXP(string filePath) {
+
+			bool UseChunk = false;
+			if ((PluginContext.PluginInfo.Flags & VstPluginFlags.ProgramChunks) == 0) {
+				// Chunks not supported.
+				UseChunk = false;
+			} else {
+				// Chunks supported.
+				UseChunk = true;
+			}
+
 			FXP fxp = new FXP();
-			fxp.chunkMagic = "CcnK";
-			fxp.byteSize = 0; // will be set correctly by FXP class
-			fxp.fxMagic = "FPCh"; // FPCh = FXP (preset), FBCh = FXB (bank)
-			fxp.version = 1; // Format Version (should be 1)
-			fxp.fxID = PluginIDNumberToIDString(PluginContext.PluginInfo.PluginID);
-			fxp.fxVersion = PluginContext.PluginInfo.PluginVersion;
-			fxp.numPrograms = PluginContext.PluginInfo.ProgramCount;
-			fxp.name = PluginContext.PluginCommandStub.GetProgramName();
+			fxp.ChunkMagic = "CcnK";
+			fxp.ByteSize = 0; // will be set correctly by FXP class
 			
-			byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);
-			fxp.chunkSize = chunkData.Length;
-			fxp.chunkDataByteArray = chunkData;
+			if (UseChunk) {
+				// Preset (Program) (.fxp) with chunk (magic = 'FPCh')
+				fxp.FxMagic = "FPCh"; // FPCh = FXP (preset), FBCh = FXB (bank)
+				fxp.Version = 1; // Format Version (should be 1)
+				fxp.FxID = PluginIDNumberToIDString(PluginContext.PluginInfo.PluginID);
+				fxp.FxVersion = PluginContext.PluginInfo.PluginVersion;
+				fxp.ProgramCount = PluginContext.PluginInfo.ProgramCount;
+				fxp.Name = PluginContext.PluginCommandStub.GetProgramName();
+				
+				byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);
+				fxp.ChunkSize = chunkData.Length;
+				fxp.ChunkDataByteArray = chunkData;
+			} else {
+				// Preset (Program) (.fxp) without chunk (magic = 'FxCk')
+				fxp.FxMagic = "FxCk"; // FxCk = FXP (preset), FxBk = FXB (bank)
+				fxp.Version = 1; // Format Version (should be 1)
+				fxp.FxID = PluginIDNumberToIDString(PluginContext.PluginInfo.PluginID);
+				fxp.FxVersion = PluginContext.PluginInfo.PluginVersion;
+				fxp.ParameterCount = PluginContext.PluginInfo.ParameterCount;
+				fxp.Name = PluginContext.PluginCommandStub.GetProgramName();
+
+				// variable no. of parameters
+				float[] parameters = new float[fxp.ParameterCount];
+				for (int i = 0; i < fxp.ParameterCount; i++) {
+					parameters[i] = PluginContext.PluginCommandStub.GetParameter(i);
+				}
+				fxp.Parameters = parameters;
+			}
 			fxp.WriteFile(filePath);
 		}
 		
