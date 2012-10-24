@@ -102,10 +102,30 @@ namespace CommonUtils
 			return newValueArray;
 		}
 		
+		public static double ConvertAndMainainRatio(double oldValue, double oldMin, double oldMax, double newMin, double newMax) {
+			double oldRange = (oldMax - oldMin);
+			double newRange = (newMax - newMin);
+			double newValue = (((oldValue - oldMin) * newRange) / oldRange) + newMin;
+			return newValue;
+		}
+
 		public static float ConvertAndMainainRatio(float oldValue, float oldMin, float oldMax, float newMin, float newMax) {
 			float oldRange = (oldMax - oldMin);
 			float newRange = (newMax - newMin);
 			float newValue = (((oldValue - oldMin) * newRange) / oldRange) + newMin;
+			return newValue;
+		}
+
+		public static double ConvertAndMainainRatioLog(double oldValue, double oldMin, double oldMax, double newMin, double newMax) {
+			// Addition of Epsilon prevents log from returning minus infinity if value is zero
+			double oldRange = (oldMax - oldMin);
+			double newRange = (newMax - newMin);
+			double log_oldMin = flog10(Math.Abs(oldMin) + double.Epsilon);
+			double log_oldMax = flog10(oldMax + double.Epsilon);
+			double log_oldRange = (log_oldMax - log_oldMin);
+			//double data_per_log_unit = newRange / log_oldRange;
+			double log_oldValue = flog10(oldValue + double.Epsilon);
+			double newValue = (((log_oldValue - log_oldMin) * newRange) / log_oldRange) + newMin;
 			return newValue;
 		}
 
@@ -137,6 +157,25 @@ namespace CommonUtils
 			return Math.Floor(number * Math.Pow(10, decimalPlaces)) / Math.Pow(10, decimalPlaces);
 		}
 		
+		public static void ComputeMinAndMax(double[,] data, out double min, out double max) {
+			// prepare the data:
+			double maxVal = double.MinValue;
+			double minVal = double.MaxValue;
+			
+			for(int x = 0; x < data.GetLength(0); x++)
+			{
+				for(int y = 0; y < data.GetLength(1); y++)
+				{
+					if (data[x,y] > maxVal)
+						maxVal = data[x,y];
+					if (data[x,y] < minVal)
+						minVal = data[x,y];
+				}
+			}
+			min = minVal;
+			max = maxVal;
+		}
+
 		public static void ComputeMinAndMax(double[] data, out double min, out double max) {
 			// prepare the data:
 			double maxVal = double.MinValue;
