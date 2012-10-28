@@ -100,16 +100,26 @@
     <Compile Include="..\CommonUtils\FFT\FFTWindows.cs">
       <Link>FFT\FFTWindows.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\FFT\fftwlib\Interop.cs">
+      <Link>FFT\Interop.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\fftwlib\Managed.cs">
+      <Link>FFT\Managed.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\fftw\FFTMethods.cs">
+      <Link>FFT\FFTMethods.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\fftw\FFTW.cs">
+      <Link>FFT\FFTW.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\fftw\ListExtensions.cs">
+      <Link>FFT\ListExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\MidiUtils.cs">
       <Link>MidiUtils.cs</Link>
     </Compile>
     <Compile Include="arss.cs" />
     <Compile Include="dsp.cs" />
-    <Compile Include="FFT\FFT.cs" />
-    <Compile Include="FFT\FFTW.cs" />
-    <Compile Include="FFT\Interop.cs" />
-    <Compile Include="FFT\ListExtensions.cs" />
-    <Compile Include="FFT\Managed.cs" />
     <Compile Include="image_io.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomNumbers.cs" />

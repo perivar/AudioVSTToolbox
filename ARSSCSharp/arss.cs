@@ -305,17 +305,13 @@ public static class GlobalMembersArss
 	}
 
 	public static void Main(string[] args)
-	{
-		/*
-		CommonUtils.FFT.FFTTesting.FFTWTestUsingDoubleFFTWLIBR2R_INPLACE("fftwr2r_inplace.csv", null);
-		CommonUtils.FFT.FFTTesting.FFTWTestUsingDoubleFFTWLIBR2R("fftwr2r.csv", null);
-		CommonUtils.FFT.FFTTesting.FFTWTestUsingDouble("fftw.csv", null);
-		CommonUtils.FFT.FFTTesting.FFTWTestUsingDoubleFFTWLIB("fftwlib.csv", null);
-		CommonUtils.FFT.FFTTesting.LomontFFTTestUsingDouble("lomont.csv", null);
-		CommonUtils.FFT.FFTTesting.ExocortexFFTTestUsingComplex("exocortex.csv", null);
-		CommonUtils.FFT.FFTTesting.OctaveFFTWOuput("octave.csv");
+	{	
+		/*		
+		CommonUtils.FFT.FFTTesting.TimeAll(1000);
+		CommonUtils.FFT.FFTTesting.TestAll(null);
+		Console.ReadKey();
 		return;
-		 */
+		*/
 		
 		int argc = args.Length;
 		
