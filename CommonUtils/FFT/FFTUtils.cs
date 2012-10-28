@@ -4,7 +4,13 @@ using Lomont;
 namespace CommonUtils.FFT
 {
 	/// <summary>
-	/// Description of FFTUtils.
+	/// FFTUtils is a class utilising the Lomont FFT class for FFT transforms 
+	/// as well as having utility classes for converting from real arrays to complex arrays 
+	/// as used by the exocortex FFT and Lomont FFT
+	/// http://www.exocortex.org/dsp/
+	/// http://www.lomont.org
+	/// 
+	/// perivar@nerseth.com
 	/// </summary>
 	public static class FFTUtils
 	{

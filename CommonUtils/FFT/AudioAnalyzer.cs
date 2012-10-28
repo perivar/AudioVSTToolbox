@@ -36,7 +36,6 @@ namespace CommonUtils.FFT
 			for (int i = 0; i < numberOfSegments; i++)
 			{
 				// apply Hanning Window
-				// e.g. take 371 ms each 11.6 ms (2048 samples each 64 samples)
 				for (int j = 0; j < fftWindowsSize; j++)
 				{
 					// Weight by Hann Window
@@ -57,7 +56,10 @@ namespace CommonUtils.FFT
 					double img = complexSignal[2*j + 1];
 
 					// get the magnitude spectrum
+                    //re /= (float) fftWindowsSize/2; 	//normalize img/re part
+                    //img /= (float) fftWindowsSize/2;					
 					//band[j] = (float) Math.Sqrt(re*re + img*img);
+					
 					band[j] = (float) Math.Sqrt(re*re + img*img) * 4;
 				}
 				frames[i] = band;
@@ -84,7 +86,6 @@ namespace CommonUtils.FFT
 			for (int i = 0; i < numberOfSegments; i++)
 			{
 				// apply Hanning Window
-				// e.g. take 371 ms each 11.6 ms (2048 samples each 64 samples)
 				for (int j = 0; j < fftWindowsSize; j++)
 				{
 					// Weight by Hann Window
@@ -101,12 +102,16 @@ namespace CommonUtils.FFT
 				float[] band = new float[fftWindowsSize/2];
 				for (int j = 0; j < fftWindowsSize/2; j++)
 				{
-					double re = complexSignal[2*j];
+					double re = complexSignal[2*j];		//normalize img/re part
 					double img = complexSignal[2*j + 1];
 					
 					// do the Abs calculation and multiply by 1/N (2/N cause of the using half the window size)
 					// i.e. the magnitude spectrum
+                    //re /= (float) fftWindowsSize/2;
+                    //img /= (float) fftWindowsSize/2;					
+					//band[j] = (float) Math.Sqrt(re*re + img*img);
 					//band[j] = (float) Math.Sqrt(re*re + img*img) * 2/fftWindowsSize;
+					
 					band[j] = (float) Math.Sqrt(re*re + img*img) * 4/fftWindowsSize;
 				}
 				frames[i] = band;
