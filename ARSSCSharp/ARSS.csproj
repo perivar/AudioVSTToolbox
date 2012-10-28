@@ -106,14 +106,8 @@
     <Compile Include="..\CommonUtils\FFT\fftwlib\Managed.cs">
       <Link>FFT\Managed.cs</Link>
     </Compile>
-    <Compile Include="..\CommonUtils\FFT\fftw\FFTMethods.cs">
-      <Link>FFT\FFTMethods.cs</Link>
-    </Compile>
     <Compile Include="..\CommonUtils\FFT\fftw\FFTW.cs">
       <Link>FFT\FFTW.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\fftw\ListExtensions.cs">
-      <Link>FFT\ListExtensions.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\MidiUtils.cs">
       <Link>MidiUtils.cs</Link>

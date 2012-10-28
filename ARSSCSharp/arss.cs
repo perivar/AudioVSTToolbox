@@ -306,12 +306,10 @@ public static class GlobalMembersArss
 
 	public static void Main(string[] args)
 	{	
-		/*		
-		CommonUtils.FFT.FFTTesting.TimeAll(1000);
-		CommonUtils.FFT.FFTTesting.TestAll(null);
-		Console.ReadKey();
-		return;
-		*/
+		//CommonUtils.FFT.FFTTesting.TimeAll(1000);
+		//CommonUtils.FFT.FFTTesting.TestAll(null);
+		//Console.ReadKey();
+		//return;
 		
 		int argc = args.Length;
 		

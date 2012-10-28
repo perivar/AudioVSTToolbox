@@ -10,7 +10,18 @@ using fftwlib;
 namespace CommonUtils.FFT
 {
 	/// <summary>
-	/// FFTTesting Class.
+	/// FFTTesting Class
+	/// 
+	/// Output of testing TimeAll(1000)
+	/// ==================================
+	/// FFTWTestUsingDouble: 					Time used: 1490,5693 ms
+	/// FFTWTestUsingDoubleFFTWLIB: 			Time used: 457,7713 ms
+	/// FFTWTestUsingDoubleFFTWLIBR2R_INPLACE: 	Time used: 2233,7726 ms
+	/// FFTWTestUsingDoubleFFTWLIBR2R: 			Time used: 2542,5376 ms
+	/// LomontFFTTestUsingDouble: 				Time used: 121,729 ms
+	/// ExocortexFFTTestUsingComplex: 			Time used: 2400,0494 ms
+	/// ExocortexFFTTestUsingComplexF: 			Time used: 1524,2402 ms
+	/// ExocortexFFTTestUsingFloats: 			Time used: 1255,6019 ms
 	/// </summary>
 	public static class FFTTesting
 	{

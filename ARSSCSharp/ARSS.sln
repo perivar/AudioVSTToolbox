@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-# SharpDevelop 4.1.0.8000
+# SharpDevelop 4.2.2.8818
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ARSS", "ARSS.csproj", "{90A91B0D-3104-4262-93DF-AE312512E395}"
 EndProject
 Global
