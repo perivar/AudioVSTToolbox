@@ -194,5 +194,48 @@ namespace CommonUtils
 			} catch {} // just dismiss errors but return false
 			return false;
 		}
+		
+		public static string BinaryStringToHexString(string binary)
+		{
+			StringBuilder result = new StringBuilder(binary.Length / 8 + 1);
+
+			// TODO: check all 1's or 0's... Will throw otherwise
+
+			int mod4Len = binary.Length % 8;
+			if (mod4Len != 0)
+			{
+				// pad to length multiple of 8
+				binary = binary.PadLeft(((binary.Length / 8) + 1) * 8, '0');
+			}
+
+			for (int i = 0; i < binary.Length; i += 8)
+			{
+				string eightBits = binary.Substring(i, 8);
+				result.AppendFormat("{0:x2}", Convert.ToByte(eightBits, 2));
+			}
+
+			return result.ToString();
+		}
+		
+		public static string IntegerToBinaryString(int value) {
+			string binValue = Convert.ToString(value, 2);
+			binValue = binValue.PadLeft(32, '0');
+			return binValue;
+		}
+
+		public static int BinaryStringToInteger(string binary) {
+			return Convert.ToInt32(binary, 2);
+		}
+
+		public static string LongToBinaryString(long value) {
+			string binValue = Convert.ToString(value, 2);
+			binValue = binValue.PadLeft(64, '0');
+			return binValue;
+		}
+
+		public static ulong BinaryStringToLong(string binary) {
+			return Convert.ToUInt64(binary, 2);
+		}
+
 	}
 }

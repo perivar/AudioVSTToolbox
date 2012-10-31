@@ -37,7 +37,7 @@ namespace Wave2Zebra2Preset
 		
 		public static void Main(string[] args)
 		{
-			String fileName = @"C:\Users\perivar.nerseth\Music\Per Ivar Only Girl\01. Only Girl (In The World).mp3";
+			String fileName = @"C:\Users\Public\Music\Sample Music\Maid with the Flaxen Hair.mp3";
 			//String fileName = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
 			//String fileName = @"G:\Cubase and Nuendo Projects\Music To Copy Learn\Britney Spears - Hold It Against Me\02 Hold It Against Me (Instrumental) 1.mp3";
 
@@ -73,7 +73,7 @@ namespace Wave2Zebra2Preset
 			repositoryGateway.drawSpectrogram1("Spectrogram1", fileName, exoSpectrogram);
 			repositoryGateway.drawSpectrogram2("Spectrogram2", fileName, exoSpectrogram, sampleRate, numberOfSamples, fftWindowsSize);
 			repositoryGateway.drawSpectrogram3("Spectrogram3", fileName, exoSpectrogram);
-			//repositoryGateway.drawSpectrogram4("Spectrogram4", fileName, exoSpectrogram);
+			repositoryGateway.drawSpectrogram4("Spectrogram4", fileName, exoSpectrogram);
 			//Export.exportCSV (@"c:\exoSpectrogram-full.csv", exoSpectrogram);
 			
 			//ColorUtils.drawColorGradient(@"C:\", "ColorGradient.png", true);
