@@ -27,17 +27,237 @@ using Wave2Zebra2Preset.HermitGauges;
 using CommonUtils;
 using CommonUtils.FFT;
 
+using System.Drawing;
+using System.Drawing.Imaging;
+
 namespace Wave2Zebra2Preset
 {
+	public class MyColor {
+		private Color rgbcolor;
+		private HSLColor hslcolor;
+		
+		public MyColor(Color rgbcolor) {
+			this.rgbcolor = rgbcolor;
+			this.hslcolor = HSLColor.FromRGB(rgbcolor);
+		}
+
+		public MyColor(HSLColor hslcolor) {
+			this.hslcolor = hslcolor;
+			this.rgbcolor = hslcolor.ToRGB();
+		}
+		
+		public HSLColor HSLColor {
+			get { return hslcolor; }
+		}
+
+		public Color Color {
+			get { return rgbcolor; }
+		}
+		
+		public override string ToString()
+		{
+			return ColorUtils.ColorToLong(rgbcolor) + ";" +
+				rgbcolor.A + ";" +
+				rgbcolor.R + ";" +
+				rgbcolor.G + ";" +
+				rgbcolor.B + ";" +
+				hslcolor.Hue + ";" +
+				hslcolor.Saturation + ";" +
+				hslcolor.Luminosity;
+		}
+	}
+	
+	public enum ColorPaletteType {
+		REWColorPalette = 1,
+		SOXColorPalette = 2
+	}
+	
+	// Color palette URLs:
+	// http://stackoverflow.com/questions/3097753/tinting-towards-or-away-from-a-hue-by-a-certain-percentage
+	// http://stackoverflow.com/questions/2593832/how-to-interpolate-hue-values-in-hsv-colour-space
+	// http://www.stuartdenman.com/improved-color-blending/
+	// http://devmag.org.za/2012/07/29/how-to-choose-colours-procedurally-algorithms/
+	// http://stackoverflow.com/questions/340209/generate-colors-between-red-and-green-for-a-power-meter
+	// http://tabs2.gerg.tamu.edu/gmt/GMT_Docs/node214.html
+	// http://geography.uoregon.edu/datagraphics/color_scales.htm (Color Schemes Appropriate for Scientific Data Graphics)
+	// https://github.com/jolby/colors/blob/master/src/com/evocomputing/colors/palettes/core.clj
+	// https://github.com/jolby/colors/blob/master/src/com/evocomputing/colors/palettes/color_brewer.clj
+	
+	// Wavelet, Set and Hash etc
+	// http://blogs.msdn.com/b/spt/archive/2008/06/10/set-similarity-and-min-hash.aspx (JaccardSimilarity ++)
+	// http://laplacian.wordpress.com/2009/01/10/how-shazam-works/
+	// http://www.whydomath.org/node/wavlets/index.html
+	// http://www.whydomath.org/node/wavlets/hwt.html
+	// http://www.codeproject.com/Articles/206507/Duplicates-detector-via-audio-fingerprinting
+	
 	class Program
 	{
 		///   Music file filters
 		/// </summary>
 		private static readonly string[] _musicFileFilters = new[] {"*.mp3", "*.ogg", "*.flac", "*.wav"};
 		
+		public static void SaveColorbar(String filenameToSave) {
+			int width = 33;
+			int height = 305;
+			System.Console.Out.WriteLine("Writing " + filenameToSave);
+
+			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(png);
+			Pen pen = new Pen(Color.Black, 1.0f);
+			
+			// start with red (0, 1, 1)
+			float h = 0;
+			float s = 1.0f;
+			float v = 1.0f;
+			for(int y = 0; y <= height; y++)
+			{
+				// when yellow
+				if (y > 0 && y <= 58) {
+					h = y;
+				} else  if (y > 59 && y <= 118) {
+					// decrease v from 0.99 to 0.70
+					v = v - (0.3f / 60);
+					h = y;
+				} else if (y > 118 && y < 240) {
+					v = 0.69f;
+					h = y;
+				} else  if (y >= 240) {
+					// decrease v from 0.68 to 0.48
+					v = v - (0.2f / 60);
+					
+					// incease h slowly from 240 - 270
+					// for y = 240 - 305
+					h = h + (30.0f / 65);
+				}
+				
+				Color c = ColorUtils.AhsbToArgb(255, h, s, v);
+				
+				pen.Color = c;
+				g.DrawLine(pen, 1, y, width, y);
+			}
+			
+			png.Save(filenameToSave);
+		}
+		
+		public static void ReadColorPaletteBar(String filenameToRead, String csvExport) {
+			Bitmap colorimage = new Bitmap(filenameToRead);
+			
+			List<MyColor> pixels = new List<MyColor>();
+			for (int y = 0; y < colorimage.Height; y++)
+			{
+				Color pixel = colorimage.GetPixel(0, y);
+				MyColor pixelcolor = new MyColor(pixel);
+				pixels.Add(pixelcolor);
+			}
+			Export.exportCSV(csvExport, pixels.ToArray(), pixels.Count);
+		}
+
+		/// <summary>
+		/// Get a Color based on a input value between 0 and 100
+		/// </summary>
+		/// <param name="value">the input value between 0 and 100</param>
+		/// <returns>MyColor</returns>
+		public static MyColor GetREWColorPaletteValue(float value) {
+			
+			float h = 0;
+			float s = 1;
+			float l = 0;
+			
+			// determine h, s and l values
+			// based on a input value between 0 and 100
+			if (value < 20) {
+				h = 0.05f * value;
+				l = 0.5f;
+			} else if (value >= 20 && value < 40) {
+				h = 0.05f * value;
+				l = -0.0075f * value + 0.6499f;
+			} else if (value >= 40 && value < 80) {
+				h = 0.05f * value;
+				l = 0.3490196f;
+			} else if (value >= 80) {
+				h = 0.0244f * value + 2.0189f;
+				l = -0.0053f * value + 0.7699f;
+			}
+			HSLColor hslcolor = new HSLColor(h, s, l);
+			MyColor mycolor = new MyColor(hslcolor);
+			return mycolor;
+		}
+		
+		/// <summary>
+		/// Get a Color based on a input value between 0 and 100
+		/// </summary>
+		/// <param name="value">the input value between 0 and 100</param>
+		/// <returns>MyColor</returns>
+		public static MyColor GetSOXColorPaletteValue(float value) {
+			
+			float h = 0;
+			float s = 1;
+			float l = 0;
+			
+			// determine h, s and l values
+			// based on a input value between 0 and 100
+			if (value < 20) {
+				h = 0.05f * value;
+				l = 0.5f;
+			} else if (value >= 20 && value < 40) {
+				h = 0.05f * value;
+				l = -0.0075f * value + 0.6499f;
+			} else if (value >= 40 && value < 80) {
+				h = 0.05f * value;
+				l = 0.3490196f;
+			} else if (value >= 80) {
+				h = 0.0244f * value + 2.0189f;
+				l = -0.0053f * value + 0.7699f;
+			}
+			HSLColor hslcolor = new HSLColor(h, s, l);
+			MyColor mycolor = new MyColor(hslcolor);
+			return mycolor;
+		}
+		
+		public static void SaveColorPaletteBar(string imageToSave, string csvToSave, ColorPaletteType type) {
+
+			int width = 40;
+			int height = 400;
+			
+			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(png);
+			Pen pen = new Pen(Color.Black, 1.0f);
+			
+			MyColor mycolor;
+			List<MyColor> pixels = new List<MyColor>();
+			for (float i = 0; i < 100; i = i + 0.25f) {
+				switch (type) {
+					case ColorPaletteType.REWColorPalette:
+						mycolor = GetREWColorPaletteValue(i);
+						break;
+					case ColorPaletteType.SOXColorPalette:
+						mycolor = GetSOXColorPaletteValue(i);
+						break;
+					default:
+						mycolor = GetREWColorPaletteValue(i);
+						break;
+				}
+				pixels.Add(mycolor);
+				pen.Color = mycolor.Color;
+				g.DrawLine(pen, 0, i*4, width, i*4);
+			}
+			png.Save(imageToSave);
+			Export.exportCSV(csvToSave, pixels.ToArray(), pixels.Count);
+		}
+		
 		public static void Main(string[] args)
 		{
-			String fileName = @"C:\Users\Public\Music\Sample Music\Maid with the Flaxen Hair.mp3";
+			string filenameToSave = "c:\\colorbar2.png";
+			string csvToSave = "c:\\colorbar2.csv";
+			SaveColorPaletteBar(filenameToSave, csvToSave, ColorPaletteType.SOXColorPalette);
+			//string filenameToRead = @"C:\Users\perivar.nerseth\SkyDrive\Temp\soundforge_colorbar.png";
+			//string filenameToRead = @"C:\Users\perivar.nerseth\SkyDrive\Temp\rew_colorbar.png";
+			//string filenameToRead = @"C:\Users\perivar.nerseth\SkyDrive\Temp\sox_colorbar.png";
+			//ReadColorPaletteBar(filenameToRead, "c:\\test.csv");
+			
+			return;
+			
+			String fileName = @"C:\Users\perivar.nerseth\Music\Sleep Away.mp3";
 			//String fileName = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
 			//String fileName = @"G:\Cubase and Nuendo Projects\Music To Copy Learn\Britney Spears - Hold It Against Me\02 Hold It Against Me (Instrumental) 1.mp3";
 
@@ -49,16 +269,16 @@ namespace Wave2Zebra2Preset
 			// VB6 FFT
 			double sampleRate = 44100;// 44100  default 5512
 			int fftWindowsSize = 4096; //4096  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
-			float fftOverlapPercentage = 95.0f; // number between 0 and 100
-			int secondsToSample = 5; //15;
+			float fftOverlapPercentage = 50.0f; // number between 0 and 100
+			int secondsToSample = 15; //15;
 			float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 20*1000 );
 			VB6Spectrogram vb6Spect = new VB6Spectrogram();
-			vb6Spect.ComputeColorPalette();
-			float[][] vb6Spectrogram = vb6Spect.Compute(wavDataVB6, sampleRate, fftWindowsSize, fftOverlapPercentage);
+			//vb6Spect.ComputeColorPalette();
+			//float[][] vb6Spectrogram = vb6Spect.Compute(wavDataVB6, sampleRate, fftWindowsSize, fftOverlapPercentage);
 			//Export.exportCSV (@"c:\VB6Spectrogram-full.csv", vb6Spectrogram);
-						
+			
 			// Exocortex.DSP FFT
-			int numberOfSamples = wavDataVB6.Length; 
+			int numberOfSamples = wavDataVB6.Length;
 			fftOverlapPercentage = fftOverlapPercentage / 100;
 			long ColSampleWidth = (long)(fftWindowsSize * (1 - fftOverlapPercentage));
 			double fftOverlapSamples = fftWindowsSize * fftOverlapPercentage;
@@ -67,18 +287,19 @@ namespace Wave2Zebra2Preset
 			int fftOverlap = (int)((numberOfSamples - fftWindowsSize) / NumCols);
 			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap;
 			
-			System.Console.Out.WriteLine(String.Format("EXO: fftWindowsSize: {0}, Overlap samples: {1:n2}.", fftWindowsSize, fftOverlap ));
+			//System.Console.Out.WriteLine(String.Format("EXO: fftWindowsSize: {0}, Overlap samples: {1:n2}.", fftWindowsSize, fftOverlap ));
 
 			float[][] exoSpectrogram = AudioAnalyzer.CreateSpectrogramExocortex(wavDataVB6, sampleRate, fftWindowsSize, fftOverlap);
-			repositoryGateway.drawSpectrogram1("Spectrogram1", fileName, exoSpectrogram);
+			//float[][] exoSpectrogram = AudioAnalyzer.CreateSpectrogramLomont(wavDataVB6, sampleRate, fftWindowsSize, fftOverlap);
+			//repositoryGateway.drawSpectrogram1("Spectrogram1", fileName, exoSpectrogram);
 			repositoryGateway.drawSpectrogram2("Spectrogram2", fileName, exoSpectrogram, sampleRate, numberOfSamples, fftWindowsSize);
-			repositoryGateway.drawSpectrogram3("Spectrogram3", fileName, exoSpectrogram);
-			repositoryGateway.drawSpectrogram4("Spectrogram4", fileName, exoSpectrogram);
+			//repositoryGateway.drawSpectrogram3("Spectrogram3", fileName, exoSpectrogram);
+			//repositoryGateway.drawSpectrogram4("Spectrogram4", fileName, exoSpectrogram);
 			//Export.exportCSV (@"c:\exoSpectrogram-full.csv", exoSpectrogram);
 			
 			//ColorUtils.drawColorGradient(@"C:\", "ColorGradient.png", true);
 			//ColorUtils.drawColorGradient(@"C:\", "ColorGradient.png", false);
-						
+			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
 		}
@@ -189,7 +410,7 @@ namespace Wave2Zebra2Preset
 			
 			return B;
 		}
-				
+		
 		public static void GetAudioInformation(string filename)
 		{
 			float lFrequency = 0;
@@ -216,7 +437,7 @@ namespace Wave2Zebra2Preset
 			int nSamplesPerSec = info.freq;
 			System.Diagnostics.Debug.WriteLine("SamplesPerSec: " + nSamplesPerSec);
 		}
-				
+		
 		public static int GetSampleForTime(int msecs, int nSamplesPerSec)
 		{
 			double t = 1.0 / nSamplesPerSec;

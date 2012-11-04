@@ -539,10 +539,9 @@ namespace Wave2Zebra2Preset
 			float minValdB = MathUtils.ConvertAmplitudeToDB((float)minVal, minDb, maxDb);
 			
 			Axis.drawAxis(Axis.X_AXIS, 10, 10, 0, (float)MathUtils.ConvertToTime(sampleRate, numberOfSamples), 50, width-50, 50, false, height, g);
-			Axis.drawAxis(Axis.Y_AXIS, 500, 10, 20, (float)(sampleRate/2), 50, height-50, 50, true, height, g);
+			Axis.drawAxis(Axis.Y_AXIS, 100, 10, 20, (float)(sampleRate/2), 50, height-50, 50, true, height, g);
 			
 			int xCoord = 1;
-			int yCoord = 1;
 			int oldX = 1;
 			for(int x = 0; x < numberOfSamplesX; x++)
 			{
@@ -561,13 +560,6 @@ namespace Wave2Zebra2Preset
 						pen.Color = c;
 						xCoord = x1+50;
 						g.DrawLine(pen, xCoord, height - oldY - 50, xCoord, height - y1 - 50);
-						/*
-						for (int yLoop = oldY; yLoop <= y1; yLoop++) {
-							xCoord = x1+50;
-							yCoord = height - yLoop - 50;
-							png.SetPixel(xCoord, yCoord, c);
-						}
-						 */
 						oldX = x1;
 						oldY = y1;
 					}

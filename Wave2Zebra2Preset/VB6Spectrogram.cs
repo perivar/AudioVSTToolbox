@@ -48,7 +48,7 @@ namespace Wave2Zebra2Preset
 				}
 			}
 			
-			//SaveBitmap("VB6", "Colorpalette", Legendpixelmatrix, 8, LevelPaletteDictionary);
+			SaveBitmap("VB6", "Colorpalette", Legendpixelmatrix, 8, LevelPaletteDictionary);
 		}
 
 		// loads a wav-file and displays the recorded signal in chart #1
