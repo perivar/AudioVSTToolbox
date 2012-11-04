@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Collections.Generic;
 
 namespace CommonUtils
 {
@@ -38,7 +39,6 @@ namespace CommonUtils
 			return Color.FromArgb((int)transparency, (int)red, (int)green, (int)blue);
 		}
 		
-		// Color conversion
 		public static Color IntToColor(int number) {
 			byte[] values = BitConverter.GetBytes(number);
 			
@@ -53,16 +53,29 @@ namespace CommonUtils
 			return c;
 		}
 		
-		// HSV stands for hue, saturation, and value, and is also often called HSB (B for brightness)
-		// alpha channel, hue, saturation, and brightness
+		/// <summary>
+		/// HSV stands for hue, saturation, and value,
+		/// and is also often called HSB (B for brightness)
+		/// </summary>
+		/// <param name="a">Alpha (0 - 255)</param>
+		/// <param name="h">Hue (0 - 360)</param>
+		/// <param name="s">Saturation (0 - 1)</param>
+		/// <param name="b">Brightness (0 - 1)</param>
+		/// <returns>Color</returns>
 		public static Color AhsbToArgb(byte a, double h, double s, double b)
 		{
 			var color = HsbToRgb(h, s, b);
 			return Color.FromArgb(a, color.R, color.G, color.B);
 		}
 		
-		// HSV stands for hue, saturation, and value,
-		// and is also often called HSB (B for brightness)
+		/// <summary>
+		/// HSV stands for hue, saturation, and value,
+		/// and is also often called HSB (B for brightness)
+		/// </summary>
+		/// <param name="h">Hue (0 - 360)</param>
+		/// <param name="s">Saturation (0 - 1)</param>
+		/// <param name="b">Brightness (0 - 1)</param>
+		/// <returns>Color</returns>
 		public static Color HsbToRgb(double h, double s, double b)
 		{
 			if (s == 0)
@@ -103,14 +116,26 @@ namespace CommonUtils
 				(int)Math.Round(rawB * 255));
 		}
 
-		// HSL stands for hue, saturation, and lightness, and is often also called HLS
-		// alpha channel, hue, saturation, and brightness
+		/// <summary>
+		/// HSL stands for hue, saturation, and lightness, and is often also called HLS
+		/// </summary>
+		/// <param name="h">Hue (0 - 360)</param>
+		/// <param name="s">Saturation (0 - 1)</param>
+		/// <param name="l">Lightness (0 - 1)</param>
+		/// <returns>Color (RGB)</returns>
 		public static Color HslToRgb(float h, float s, float l)
 		{
 			return AhslToArgb(255, h, s, l);
 		}
 		
-		// HSL stands for hue, saturation, and lightness, and is often also called HLS
+		/// <summary>
+		/// HSL stands for hue, saturation, and lightness, and is often also called HLS
+		/// </summary>
+		/// <param name="a">Alpha (0 - 255)</param>
+		/// <param name="h">Hue (0 - 360)</param>
+		/// <param name="s">Saturation (0 - 1)</param>
+		/// <param name="l">Lightness (0 - 1)</param>
+		/// <returns>Color (RGB)</returns>
 		public static Color AhslToArgb(int a, float h, float s, float l) {
 
 			if (0 > a || 255 < a) {
@@ -178,39 +203,279 @@ namespace CommonUtils
 			}
 		}
 		
-		public static Color interpolate(Color start, Color end, float p)
+		/// <summary>
+		/// Given H,S,L in range of 0-1
+		/// Returns a Color (RGB struct) in range of 0-255
+		/// http://www.geekymonkey.com/Programming/CSharp/RGB2HSL_HSL2RGB.htm
+		/// </summary>
+		/// <param name="h">Hue (0 - 1)</param>
+		/// <param name="sl">Saturation (0 - 1)</param>
+		/// <param name="l">Luminosity (0 - 1)</param>
+		/// <returns>Color (RGB)</returns>
+		[Obsolete("HSL2RGB is deprecated, please use HslToRgb instead.", true)]
+		public static Color HSL2RGB(double h, double s, double l)
 		{
-			HSLColor startHSL = HSLColor.FromRGB(start);
-			HSLColor endHSL = HSLColor.FromRGB(end);
+			double v;
+			double r,g,b;
 			
-			float brightness = (startHSL.Luminosity + endHSL.Luminosity) / 2;
-			float saturation = (startHSL.Saturation + endHSL.Saturation) / 2;
-			
-			float hueMax = 0;
-			float hueMin = 0;
-			if (startHSL.Hue > endHSL.Hue)
+			r = l;   // default to gray
+			g = l;
+			b = l;
+			v = (l <= 0.5) ? (l * (1.0 + s)) : (l + s - l * s);
+			if (v > 0)
 			{
-				hueMax = startHSL.Hue;
-				hueMin = endHSL.Hue;
+				double m;
+				double sv;
+				int sextant;
+				double fract, vsf, mid1, mid2;
+				
+				m = l + l - v;
+				sv = (v - m ) / v;
+				h *= 6.0;
+				sextant = (int)h;
+				fract = h - sextant;
+				vsf = v * sv * fract;
+				mid1 = m + vsf;
+				mid2 = v - vsf;
+				switch (sextant)
+				{
+					case 0:
+						r = v;
+						g = mid1;
+						b = m;
+						break;
+					case 1:
+						r = mid2;
+						g = v;
+						b = m;
+						break;
+					case 2:
+						r = m;
+						g = v;
+						b = mid1;
+						break;
+					case 3:
+						r = m;
+						g = mid2;
+						b = v;
+						break;
+					case 4:
+						r = mid1;
+						g = m;
+						b = v;
+						break;
+					case 5:
+						r = v;
+						g = m;
+						b = mid2;
+						break;
+				}
+			}
+			
+			Color rgb = Color.FromArgb(Convert.ToByte(r * 255.0f),
+			                           Convert.ToByte(g * 255.0f),
+			                           Convert.ToByte(b * 255.0f));
+			return rgb;
+		}
+		
+		/// <summary>
+		/// Given a Color (RGB Struct) in range of 0-255
+		/// Return H,S,L in range of 0-1
+		/// http://www.geekymonkey.com/Programming/CSharp/RGB2HSL_HSL2RGB.htm
+		/// </summary>
+		/// <param name="rgb">Color object (RGB)</param>
+		/// <param name="h">Hue (0 - 1)</param>
+		/// <param name="sl">Saturation (0 - 1)</param>
+		/// <param name="l">Luminosity (0 - 1)</param>
+		public static void RGB2HSL(Color rgb, out double h, out double s, out double l)
+		{
+			double r = rgb.R/255.0;
+			double g = rgb.G/255.0;
+			double b = rgb.B/255.0;
+			double v;
+			double m;
+			double vm;
+			double r2, g2, b2;
+			
+			h = 0; // default to black
+			s = 0;
+			l = 0;
+			v = Math.Max(r,g);
+			v = Math.Max(v,b);
+			m = Math.Min(r,g);
+			m = Math.Min(m,b);
+			l = (m + v) / 2.0;
+			if (l <= 0.0)
+			{
+				return;
+			}
+			vm = v - m;
+			s = vm;
+			if (s > 0.0)
+			{
+				s /= (l <= 0.5) ? (v + m ) : (2.0 - v - m) ;
 			}
 			else
 			{
-				hueMin = startHSL.Hue;
-				hueMax = endHSL.Hue;
+				return;
 			}
-
-			float hue = ((hueMax - hueMin) * p) + hueMin;
-
-			return new HSLColor(hue, saturation, brightness).ToRGB();
+			r2 = (v - r) / vm;
+			g2 = (v - g) / vm;
+			b2 = (v - b) / vm;
+			if (r == v)
+			{
+				h = (g == m ? 5.0 + b2 : 1.0 - g2);
+			}
+			else if (g == v)
+			{
+				h = (b == m ? 1.0 + r2 : 3.0 - b2);
+			}
+			else
+			{
+				h = (r == m ? 3.0 + g2 : 5.0 - r2);
+			}
+			h /= 6.0;
+		}
+		
+		/// <summary>
+		/// Create a list of gradient colors based on the input list
+		/// </summary>
+		/// <param name="steps">number of gradients to create</param>
+		/// <param name="colors">the list of colors to transition between</param>
+		/// <returns>a List of gradients</returns>
+		public static List<HSLColor2> HSBGradient(int steps, List<HSLColor2> colors) {
+			int parts = colors.Count - 1;
+			
+			List<HSLColor2> gradients = new List<HSLColor2>();
+			
+			double partSteps = Math.Floor((double)steps / parts);
+			double remainder = steps - (partSteps * parts);
+			for (int col = 0; col < parts; col++) {
+				// get colors
+				HSLColor2 c1 = colors[col];
+				HSLColor2 c2 = colors[col + 1];
+				
+				// determine clockwise and counter-clockwise distance between hues
+				double distCCW = (c1.Hue >= c2.Hue) ? c1.Hue - c2.Hue : 1 + c1.Hue - c2.Hue;
+				double distCW = (c1.Hue >= c2.Hue) ? 1 + c2.Hue - c1.Hue : c2.Hue - c1.Hue;
+				
+				// ensure we get the right number of steps by adding remainder to final part
+				if (col == parts - 1) partSteps += remainder;
+				
+				// make gradient for this part
+				for (int step = 0; step < partSteps; step ++) {
+					double p = step / partSteps;
+					
+					// interpolate h, s, b
+					double h = (distCW <= distCCW) ? c1.Hue + (distCW * p) : c1.Hue - (distCCW * p);
+					
+					if (h < 0) h = 1 + h;
+					if (h > 1) h = h - 1;
+					double s = (1 - p) * c1.Saturation + p * c2.Saturation;
+					double b = (1 - p) * c1.Luminosity + p * c2.Luminosity;
+					
+					// add to gradient array
+					gradients.Add(new HSLColor2(h, s, b));
+				}
+			}
+			return gradients;
 		}
 	}
 
+	/// <summary>
+	/// Wrapper Class to hold HSL Values
+	/// </summary>
+	public class HSLColor2 {
+		
+		/// <summary>
+		/// Hue (0 - 1)
+		/// </summary>
+		public double Hue;
+		
+		/// <summary>
+		/// Saturation (0 - 1)
+		/// </summary>
+		public double Saturation;
+		
+		/// <summary>
+		/// Luminosity (0 - 1)
+		/// </summary>
+		public double Luminosity;
+		
+		public HSLColor2(double h, double s, double l) {
+			this.Hue = h;
+			this.Saturation = s;
+			this.Luminosity = l;
+		}
+
+		/// <summary>
+		/// Return a Color (RGB) object
+		/// </summary>
+		public Color Color {
+			get {
+				//return ColorUtils.HSL2RGB(this.Hue, this.Saturation, this.Luminosity);
+				return ColorUtils.HslToRgb((float)this.Hue*360, (float)this.Saturation, (float)this.Luminosity);
+			}
+		}
+
+		public static HSLColor2 FromRGB(Color color)
+		{
+			double h;
+			double s;
+			double l;
+			ColorUtils.RGB2HSL(color, out h, out s, out l);
+			return new HSLColor2(h, s, l);
+		}
+		
+		public override string ToString()
+		{
+			return
+				Hue + ";" +
+				Saturation + ";" +
+				Luminosity + ";";
+		}
+	}
+	
+	/// <summary>
+	/// Convert from HSL Color space to RGB Color space and back
+	/// http://stackoverflow.com/questions/4793729/rgb-to-hsl-and-back-calculation-problems
+	/// </summary>
 	public class HSLColor
 	{
+		/// <summary>
+		/// Hue (0 - 6), Hue can actually be negative sometimes
+		/// </summary>
 		public float Hue;
+		
+		/// <summary>
+		/// Saturation (0 - 1)
+		/// </summary>
 		public float Saturation;
+		
+		/// <summary>
+		/// Luminosity (0 - 1)
+		/// </summary>
 		public float Luminosity;
+		
+		/// <summary>
+		/// Hue (0 - 360)
+		/// </summary>
+		public float Hue360 { get {
+				// The H value returned should be from 0 to 6 so to convert it to degrees
+				// you just multiply by 60.
+				// H can actually be negative sometimes so if it is just add 360;
+				float H = Hue * 60f;
+				if (H < 0) H += 360;
+				return H;
+			}
+		}
 
+		/// <summary>
+		/// Create a HSLColor object
+		/// </summary>
+		/// <param name="H">Hue (0 - 6), Hue can actually be negative sometimes</param>
+		/// <param name="S">Saturation (0 - 1)</param>
+		/// <param name="L">Luminosity (0 - 1)</param>
 		public HSLColor(float H, float S, float L)
 		{
 			Hue = H;
@@ -307,7 +572,6 @@ namespace CommonUtils
 		
 		private static double ColorCalc(double c, double t1, double t2)
 		{
-
 			if (c < 0) c += 1d;
 			if (c > 1) c -= 1d;
 			if (6.0d * c < 1.0d) return t1 + (t2 - t1) * 6.0d * c;

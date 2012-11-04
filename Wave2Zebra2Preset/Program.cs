@@ -56,14 +56,15 @@ namespace Wave2Zebra2Preset
 		
 		public override string ToString()
 		{
-			return ColorUtils.ColorToLong(rgbcolor) + ";" +
+			return
 				rgbcolor.A + ";" +
 				rgbcolor.R + ";" +
 				rgbcolor.G + ";" +
 				rgbcolor.B + ";" +
 				hslcolor.Hue + ";" +
+				hslcolor.Hue360 + ";" +
 				hslcolor.Saturation + ";" +
-				hslcolor.Luminosity;
+				hslcolor.Luminosity + ";";
 		}
 	}
 	
@@ -95,7 +96,7 @@ namespace Wave2Zebra2Preset
 		///   Music file filters
 		/// </summary>
 		private static readonly string[] _musicFileFilters = new[] {"*.mp3", "*.ogg", "*.flac", "*.wav"};
-		
+				
 		public static void SaveColorbar(String filenameToSave) {
 			int width = 33;
 			int height = 305;
@@ -245,15 +246,42 @@ namespace Wave2Zebra2Preset
 			Export.exportCSV(csvToSave, pixels.ToArray(), pixels.Count);
 		}
 		
+		public static void SaveColorGradients(string imageToSave, List<HSLColor2> gradients, int width) {
+			int height = gradients.Count;
+			
+			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(png);
+			Pen pen = new Pen(Color.Black, 1.0f);
+			
+			for (int i = 0; i < height; i++) {
+				pen.Color = gradients[i].Color;
+				g.DrawLine(pen, 0, i, width, i);
+			}
+			png.Save(imageToSave);
+		}
+		
 		public static void Main(string[] args)
 		{
 			string filenameToSave = "c:\\colorbar2.png";
 			string csvToSave = "c:\\colorbar2.csv";
-			SaveColorPaletteBar(filenameToSave, csvToSave, ColorPaletteType.SOXColorPalette);
+			//SaveColorPaletteBar(filenameToSave, csvToSave, ColorPaletteType.SOXColorPalette);
 			//string filenameToRead = @"C:\Users\perivar.nerseth\SkyDrive\Temp\soundforge_colorbar.png";
 			//string filenameToRead = @"C:\Users\perivar.nerseth\SkyDrive\Temp\rew_colorbar.png";
 			//string filenameToRead = @"C:\Users\perivar.nerseth\SkyDrive\Temp\sox_colorbar.png";
-			//ReadColorPaletteBar(filenameToRead, "c:\\test.csv");
+			//string filenameToRead = @"C:\Users\perivar.nerseth\SkyDrive\Temp\thermal_colorbar.png";
+			//ReadColorPaletteBar(filenameToRead, "c:\\sox_colorbar.csv");
+			
+			// create REW gradient
+			List<HSLColor2> colors = new List<HSLColor2>();
+			colors.Add(HSLColor2.FromRGB(Color.Red));
+			colors.Add(HSLColor2.FromRGB(Color.Yellow));
+			//colors.Add(new HSLColor2(0.1666667f, 1.0f, 0.5f)); // yellow can also be added like this
+			colors.Add(HSLColor2.FromRGB(Color.FromArgb(2,178,0))); // green
+			colors.Add(HSLColor2.FromRGB(Color.FromArgb(0,176,178))); // light blue
+			colors.Add(HSLColor2.FromRGB(Color.FromArgb(0,0,177))); // blue
+			colors.Add(HSLColor2.FromRGB(Color.FromArgb(61,0,124))); // purple
+			List<HSLColor2> gradients = ColorUtils.HSBGradient(305, colors);
+			SaveColorGradients("c:\\rew-gradients.png", gradients, 33);
 			
 			return;
 			
