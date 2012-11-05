@@ -32,18 +32,53 @@ using System.Drawing.Imaging;
 
 namespace Wave2Zebra2Preset
 {
-	public class MyColor {
+	public class MyColorHSB {
+		private Color rgbcolor;
+		private HSBColor hsbcolor;
+		
+		public MyColorHSB(Color rgbcolor) {
+			this.rgbcolor = rgbcolor;
+			this.hsbcolor = HSBColor.FromRGB(rgbcolor);
+		}
+
+		public MyColorHSB(HSBColor hsbcolor) {
+			this.hsbcolor = hsbcolor;
+			this.rgbcolor = hsbcolor.Color;
+		}
+		
+		public HSBColor HSBColor {
+			get { return hsbcolor; }
+		}
+
+		public Color Color {
+			get { return rgbcolor; }
+		}
+		
+		public override string ToString()
+		{
+			return
+				rgbcolor.A + ";" +
+				rgbcolor.R + ";" +
+				rgbcolor.G + ";" +
+				rgbcolor.B + ";" +
+				hsbcolor.Hue + ";" +
+				hsbcolor.Saturation + ";" +
+				hsbcolor.Value;
+		}
+	}
+	
+	public class MyColorHSL {
 		private Color rgbcolor;
 		private HSLColor hslcolor;
 		
-		public MyColor(Color rgbcolor) {
+		public MyColorHSL(Color rgbcolor) {
 			this.rgbcolor = rgbcolor;
 			this.hslcolor = HSLColor.FromRGB(rgbcolor);
 		}
 
-		public MyColor(HSLColor hslcolor) {
-			this.hslcolor = hslcolor;
-			this.rgbcolor = hslcolor.ToRGB();
+		public MyColorHSL(HSLColor hsbcolor) {
+			this.hslcolor = hsbcolor;
+			this.rgbcolor = hsbcolor.Color;
 		}
 		
 		public HSLColor HSLColor {
@@ -62,15 +97,9 @@ namespace Wave2Zebra2Preset
 				rgbcolor.G + ";" +
 				rgbcolor.B + ";" +
 				hslcolor.Hue + ";" +
-				hslcolor.Hue360 + ";" +
 				hslcolor.Saturation + ";" +
-				hslcolor.Luminosity + ";";
+				hslcolor.Value;
 		}
-	}
-	
-	public enum ColorPaletteType {
-		REWColorPalette = 1,
-		SOXColorPalette = 2
 	}
 	
 	// Color palette URLs:
@@ -96,7 +125,7 @@ namespace Wave2Zebra2Preset
 		///   Music file filters
 		/// </summary>
 		private static readonly string[] _musicFileFilters = new[] {"*.mp3", "*.ogg", "*.flac", "*.wav"};
-				
+		
 		public static void SaveColorbar(String filenameToSave) {
 			int width = 33;
 			int height = 305;
@@ -143,12 +172,11 @@ namespace Wave2Zebra2Preset
 		public static void ReadColorPaletteBar(String filenameToRead, String csvExport) {
 			Bitmap colorimage = new Bitmap(filenameToRead);
 			
-			List<MyColor> pixels = new List<MyColor>();
+			List<MyColorHSB> pixels = new List<MyColorHSB>();
 			for (int y = 0; y < colorimage.Height; y++)
 			{
 				Color pixel = colorimage.GetPixel(0, y);
-				MyColor pixelcolor = new MyColor(pixel);
-				pixels.Add(pixelcolor);
+				pixels.Add(new MyColorHSB(pixel));
 			}
 			Export.exportCSV(csvExport, pixels.ToArray(), pixels.Count);
 		}
@@ -158,7 +186,7 @@ namespace Wave2Zebra2Preset
 		/// </summary>
 		/// <param name="value">the input value between 0 and 100</param>
 		/// <returns>MyColor</returns>
-		public static MyColor GetREWColorPaletteValue(float value) {
+		public static MyColorHSB GetREWColorPaletteValue(float value) {
 			
 			float h = 0;
 			float s = 1;
@@ -179,43 +207,16 @@ namespace Wave2Zebra2Preset
 				h = 0.0244f * value + 2.0189f;
 				l = -0.0053f * value + 0.7699f;
 			}
-			HSLColor hslcolor = new HSLColor(h, s, l);
-			MyColor mycolor = new MyColor(hslcolor);
+			// h is between 0 - 6, but can sometimes be minus
+			float hue = h * 60f;
+			if (hue < 0) hue += 360;
+			
+			HSBColor hslcolor = new HSBColor(hue/360, s, l);
+			MyColorHSB mycolor = new MyColorHSB(hslcolor);
 			return mycolor;
 		}
 		
-		/// <summary>
-		/// Get a Color based on a input value between 0 and 100
-		/// </summary>
-		/// <param name="value">the input value between 0 and 100</param>
-		/// <returns>MyColor</returns>
-		public static MyColor GetSOXColorPaletteValue(float value) {
-			
-			float h = 0;
-			float s = 1;
-			float l = 0;
-			
-			// determine h, s and l values
-			// based on a input value between 0 and 100
-			if (value < 20) {
-				h = 0.05f * value;
-				l = 0.5f;
-			} else if (value >= 20 && value < 40) {
-				h = 0.05f * value;
-				l = -0.0075f * value + 0.6499f;
-			} else if (value >= 40 && value < 80) {
-				h = 0.05f * value;
-				l = 0.3490196f;
-			} else if (value >= 80) {
-				h = 0.0244f * value + 2.0189f;
-				l = -0.0053f * value + 0.7699f;
-			}
-			HSLColor hslcolor = new HSLColor(h, s, l);
-			MyColor mycolor = new MyColor(hslcolor);
-			return mycolor;
-		}
-		
-		public static void SaveColorPaletteBar(string imageToSave, string csvToSave, ColorPaletteType type) {
+		public static void SaveColorPaletteBar(string imageToSave, string csvToSave) {
 
 			int width = 40;
 			int height = 400;
@@ -224,20 +225,10 @@ namespace Wave2Zebra2Preset
 			Graphics g = Graphics.FromImage(png);
 			Pen pen = new Pen(Color.Black, 1.0f);
 			
-			MyColor mycolor;
-			List<MyColor> pixels = new List<MyColor>();
+			MyColorHSB mycolor;
+			List<MyColorHSB> pixels = new List<MyColorHSB>();
 			for (float i = 0; i < 100; i = i + 0.25f) {
-				switch (type) {
-					case ColorPaletteType.REWColorPalette:
-						mycolor = GetREWColorPaletteValue(i);
-						break;
-					case ColorPaletteType.SOXColorPalette:
-						mycolor = GetSOXColorPaletteValue(i);
-						break;
-					default:
-						mycolor = GetREWColorPaletteValue(i);
-						break;
-				}
+				mycolor = GetREWColorPaletteValue(i);
 				pixels.Add(mycolor);
 				pen.Color = mycolor.Color;
 				g.DrawLine(pen, 0, i*4, width, i*4);
@@ -246,43 +237,43 @@ namespace Wave2Zebra2Preset
 			Export.exportCSV(csvToSave, pixels.ToArray(), pixels.Count);
 		}
 		
-		public static void SaveColorGradients(string imageToSave, List<HSLColor2> gradients, int width) {
-			int height = gradients.Count;
-			
-			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
-			Graphics g = Graphics.FromImage(png);
-			Pen pen = new Pen(Color.Black, 1.0f);
-			
-			for (int i = 0; i < height; i++) {
-				pen.Color = gradients[i].Color;
-				g.DrawLine(pen, 0, i, width, i);
-			}
-			png.Save(imageToSave);
-		}
-		
 		public static void Main(string[] args)
 		{
-			string filenameToSave = "c:\\colorbar2.png";
-			string csvToSave = "c:\\colorbar2.csv";
-			//SaveColorPaletteBar(filenameToSave, csvToSave, ColorPaletteType.SOXColorPalette);
-			//string filenameToRead = @"C:\Users\perivar.nerseth\SkyDrive\Temp\soundforge_colorbar.png";
-			//string filenameToRead = @"C:\Users\perivar.nerseth\SkyDrive\Temp\rew_colorbar.png";
-			//string filenameToRead = @"C:\Users\perivar.nerseth\SkyDrive\Temp\sox_colorbar.png";
-			//string filenameToRead = @"C:\Users\perivar.nerseth\SkyDrive\Temp\thermal_colorbar.png";
-			//ReadColorPaletteBar(filenameToRead, "c:\\sox_colorbar.csv");
+			//SaveColorPaletteBar("c:\\rew-colorbar-generated.png", "c:\\rew-colorbar-generated.csv", ColorPaletteType.REWColorPalette);
 			
-			// create REW gradient
-			List<HSLColor2> colors = new List<HSLColor2>();
-			colors.Add(HSLColor2.FromRGB(Color.Red));
-			colors.Add(HSLColor2.FromRGB(Color.Yellow));
-			//colors.Add(new HSLColor2(0.1666667f, 1.0f, 0.5f)); // yellow can also be added like this
-			colors.Add(HSLColor2.FromRGB(Color.FromArgb(2,178,0))); // green
-			colors.Add(HSLColor2.FromRGB(Color.FromArgb(0,176,178))); // light blue
-			colors.Add(HSLColor2.FromRGB(Color.FromArgb(0,0,177))); // blue
-			colors.Add(HSLColor2.FromRGB(Color.FromArgb(61,0,124))); // purple
-			List<HSLColor2> gradients = ColorUtils.HSBGradient(305, colors);
-			SaveColorGradients("c:\\rew-gradients.png", gradients, 33);
+			List<IColor> rew_hsb_gradients = ColorUtils.GetHSBColorGradients(305, ColorUtils.ColorPaletteType.REW);
+			ColorUtils.SaveColorGradients("c:\\rew-hsb-gradients.png", rew_hsb_gradients, 33);
+			List<IColor> rew_hsl_gradients = ColorUtils.GetHSLColorGradients(305, ColorUtils.ColorPaletteType.REW);
+			ColorUtils.SaveColorGradients("c:\\rew-hsl-gradients.png", rew_hsl_gradients, 33);
+
+			List<IColor> sox_hsb_gradients = ColorUtils.GetHSBColorGradients(400, ColorUtils.ColorPaletteType.SOX);
+			ColorUtils.SaveColorGradients("c:\\sox-hsb-gradients.png", sox_hsb_gradients, 14);
+			List<IColor> sox_hsl_gradients = ColorUtils.GetHSLColorGradients(400, ColorUtils.ColorPaletteType.SOX);
+			ColorUtils.SaveColorGradients("c:\\sox-hsl-gradients.png", sox_hsl_gradients, 14);
 			
+			List<IColor> grey_hsb_gradients = ColorUtils.GetHSBColorGradients(400, ColorUtils.ColorPaletteType.BLACK_AND_WHITE);
+			ColorUtils.SaveColorGradients("c:\\grey-hsb-gradients.png", grey_hsb_gradients, 35);
+
+			List<IColor> photosounder_hsb_gradients = ColorUtils.GetHSBColorGradients(399, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
+			ColorUtils.SaveColorGradients("c:\\photosounder_hsb_gradients.png", photosounder_hsb_gradients, 40);
+			
+			List<Color> photosounder_rgb_gradients = ColorUtils.RgbLinearInterpolate(
+				Color.FromArgb(255, 255, 255),
+				Color.FromArgb(249, 247, 78),
+				//Color.FromArgb(10, 21, 107),
+				Color.FromArgb(0, 0, 100),
+				399);
+			ColorUtils.SaveColorGradients("c:\\photosounder_rgb_gradients.png", photosounder_rgb_gradients, 40);
+			
+			/*
+			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\SkyDrive\Temp\sox_colorbar.png", "c:\\sox_colorbar.csv");
+			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\SkyDrive\Temp\soundforge_colorbar.png", "c:\\soundforge_colorbar.csv");
+			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\SkyDrive\Temp\rew_colorbar.png", "c:\\rew_colorbar.csv");
+			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\SkyDrive\Temp\sox_colorbar.png", "c:\\sox_colorbar.csv");
+			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\SkyDrive\Temp\thermal_colorbar.png", "c:\\thermal_colorbar.csv");
+			ReadColorPaletteBar(@"C:\rew-gradients.png", "c:\\rew-gradients.csv");
+			 */
+
 			return;
 			
 			String fileName = @"C:\Users\perivar.nerseth\Music\Sleep Away.mp3";

@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Collections.Generic;
 
 namespace CommonUtils
@@ -11,6 +12,13 @@ namespace CommonUtils
 	/// </summary>
 	public static class ColorUtils
 	{
+		public enum ColorPaletteType {
+			REW = 1,
+			SOX = 2,
+			PHOTOSOUNDER = 3,
+			BLACK_AND_WHITE = 4
+		}
+		
 		public static long ColorToLong(Color color)
 		{
 			return (long)((color.A << 24) | (color.R << 16) |
@@ -71,37 +79,44 @@ namespace CommonUtils
 		/// <summary>
 		/// HSV stands for hue, saturation, and value,
 		/// and is also often called HSB (B for brightness)
+		/// http://stackoverflow.com/questions/4123998/algorithm-to-switch-between-rgb-and-hsb-color-values
 		/// </summary>
 		/// <param name="h">Hue (0 - 360)</param>
 		/// <param name="s">Saturation (0 - 1)</param>
 		/// <param name="b">Brightness (0 - 1)</param>
 		/// <returns>Color</returns>
-		public static Color HsbToRgb(double h, double s, double b)
+		public static Color HsbToRgb(double hue, double saturation, double brightness)
 		{
-			if (s == 0)
-				return RawRgbToRgb(b, b, b);
+			if (saturation == 0)
+				return RawRgbToRgb(brightness, brightness, brightness);
 			else
 			{
-				var sector = h / 60;
-				var sectorNumber = (int)Math.Truncate(sector);
-				var sectorFraction = sector - sectorNumber;
-				var b1 = b * (1 - s);
-				var b2 = b * (1 - s * sectorFraction);
-				var b3 = b * (1 - s * (1 - sectorFraction));
+				// the color wheel consists of 6 sectors. Figure out which sector you're in.
+				double sectorPos = hue / 60.0;
+				int sectorNumber = (int)(Math.Floor(sectorPos));
+				//var sectorNumber = (int)Math.Truncate(sector);
+
+				// get the fractional part of the sector
+				double fractionalSector = sectorPos - sectorNumber;
+				
+				// calculate values for the three axes of the color.
+				double p = brightness * (1.0 - saturation);
+				double q = brightness * (1.0 - (saturation * fractionalSector));
+				double t = brightness * (1.0 - (saturation * (1 - fractionalSector)));
 				switch (sectorNumber)
 				{
 					case 0:
-						return RawRgbToRgb(b, b3, b1);
+						return RawRgbToRgb(brightness, t, p);
 					case 1:
-						return RawRgbToRgb(b2, b, b1);
+						return RawRgbToRgb(q, brightness, p);
 					case 2:
-						return RawRgbToRgb(b1, b, b3);
+						return RawRgbToRgb(p, brightness, t);
 					case 3:
-						return RawRgbToRgb(b1, b2, b);
+						return RawRgbToRgb(p, q, brightness);
 					case 4:
-						return RawRgbToRgb(b3, b1, b);
+						return RawRgbToRgb(t, p, brightness);
 					case 5:
-						return RawRgbToRgb(b, b1, b2);
+						return RawRgbToRgb(brightness, p, q);
 					default:
 						throw new ArgumentException("Hue must be between 0 and 360");
 				}
@@ -116,6 +131,26 @@ namespace CommonUtils
 				(int)Math.Round(rawB * 255));
 		}
 
+		/// <summary>
+		/// Convert a Color to HSB (Also called HSV)
+		/// </summary>
+		/// <param name="color">Color (RGB)</param>
+		/// <param name="hue">Hue (0 - 360)</param>
+		/// <param name="saturation">Saturation (0 - 1)</param>
+		/// <param name="brightness">Brightness (0 - 1)</param>
+		public static void RgbToHsb(Color color, out double hue, out double saturation, out double brightness)
+		{
+			int max = Math.Max(color.R, Math.Max(color.G, color.B));
+			int min = Math.Min(color.R, Math.Min(color.G, color.B));
+
+			hue = color.GetHue();
+
+			// Calculate the saturation (between 0 and 1)
+			saturation = (max == 0) ? 0 : 1d - (1d * min / max);
+			
+			brightness = max / 255d;
+		}
+		
 		/// <summary>
 		/// HSL stands for hue, saturation, and lightness, and is often also called HLS
 		/// </summary>
@@ -154,7 +189,7 @@ namespace CommonUtils
 				throw new ArgumentOutOfRangeException("l", l,
 				                                      "InvalidBrightness");
 			}
-
+			
 			if (0 == s) {
 				return Color.FromArgb(a, Convert.ToInt32(l * 255),
 				                      Convert.ToInt32(l * 255), Convert.ToInt32(l * 255));
@@ -204,81 +239,6 @@ namespace CommonUtils
 		}
 		
 		/// <summary>
-		/// Given H,S,L in range of 0-1
-		/// Returns a Color (RGB struct) in range of 0-255
-		/// http://www.geekymonkey.com/Programming/CSharp/RGB2HSL_HSL2RGB.htm
-		/// </summary>
-		/// <param name="h">Hue (0 - 1)</param>
-		/// <param name="sl">Saturation (0 - 1)</param>
-		/// <param name="l">Luminosity (0 - 1)</param>
-		/// <returns>Color (RGB)</returns>
-		[Obsolete("HSL2RGB is deprecated, please use HslToRgb instead.", true)]
-		public static Color HSL2RGB(double h, double s, double l)
-		{
-			double v;
-			double r,g,b;
-			
-			r = l;   // default to gray
-			g = l;
-			b = l;
-			v = (l <= 0.5) ? (l * (1.0 + s)) : (l + s - l * s);
-			if (v > 0)
-			{
-				double m;
-				double sv;
-				int sextant;
-				double fract, vsf, mid1, mid2;
-				
-				m = l + l - v;
-				sv = (v - m ) / v;
-				h *= 6.0;
-				sextant = (int)h;
-				fract = h - sextant;
-				vsf = v * sv * fract;
-				mid1 = m + vsf;
-				mid2 = v - vsf;
-				switch (sextant)
-				{
-					case 0:
-						r = v;
-						g = mid1;
-						b = m;
-						break;
-					case 1:
-						r = mid2;
-						g = v;
-						b = m;
-						break;
-					case 2:
-						r = m;
-						g = v;
-						b = mid1;
-						break;
-					case 3:
-						r = m;
-						g = mid2;
-						b = v;
-						break;
-					case 4:
-						r = mid1;
-						g = m;
-						b = v;
-						break;
-					case 5:
-						r = v;
-						g = m;
-						b = mid2;
-						break;
-				}
-			}
-			
-			Color rgb = Color.FromArgb(Convert.ToByte(r * 255.0f),
-			                           Convert.ToByte(g * 255.0f),
-			                           Convert.ToByte(b * 255.0f));
-			return rgb;
-		}
-		
-		/// <summary>
 		/// Given a Color (RGB Struct) in range of 0-255
 		/// Return H,S,L in range of 0-1
 		/// http://www.geekymonkey.com/Programming/CSharp/RGB2HSL_HSL2RGB.htm
@@ -287,7 +247,7 @@ namespace CommonUtils
 		/// <param name="h">Hue (0 - 1)</param>
 		/// <param name="sl">Saturation (0 - 1)</param>
 		/// <param name="l">Luminosity (0 - 1)</param>
-		public static void RGB2HSL(Color rgb, out double h, out double s, out double l)
+		public static void Rgb2Hsl(Color rgb, out double h, out double s, out double l)
 		{
 			double r = rgb.R/255.0;
 			double g = rgb.G/255.0;
@@ -313,7 +273,7 @@ namespace CommonUtils
 			s = vm;
 			if (s > 0.0)
 			{
-				s /= (l <= 0.5) ? (v + m ) : (2.0 - v - m) ;
+				s /= (l <= 0.5) ? (v +	 m ) : (2.0 - v - m) ;
 			}
 			else
 			{
@@ -338,22 +298,79 @@ namespace CommonUtils
 		}
 		
 		/// <summary>
+		/// Linear interpolation using the RGB color space
+		/// </summary>
+		/// <param name="start">color start</param>
+		/// <param name="end">color end</param>
+		/// <param name="colorCount">number of gradients (colors) to create</param>
+		/// <returns>a List of Colors</returns>
+		public static List<Color> RgbLinearInterpolate(Color start, Color end, int colorCount)
+		{
+			List<Color> ret = new List<Color>();
+
+			// linear interpolation lerp (r,a,b) = (1-r)*a + r*b = (1-r)*(ax,ay,az) + r*(bx,by,bz)
+			for (int n = 0; n < colorCount; n++)
+			{
+				double r = (double)n / (double)(colorCount - 1);
+				double nr = 1.0 - r;
+				double A = (nr * start.A) + (r * end.A);
+				double R = (nr * start.R) + (r * end.R);
+				double G = (nr * start.G) + (r * end.G);
+				double B = (nr * start.B) + (r * end.B);
+
+				ret.Add(Color.FromArgb((byte)A, (byte)R, (byte)G, (byte)B));
+			}
+
+			return ret;
+		}
+		
+		/// <summary>
+		/// Linear interpolation using the RGB color space
+		/// </summary>
+		/// <param name="start">color start</param>
+		/// <param name="middle">color middle</param>
+		/// <param name="end">color end</param>
+		/// <param name="colorCount">number of gradients (colors) to create</param>
+		/// <returns>a List of Colors</returns>
+		public static List<Color> RgbLinearInterpolate(Color start, Color middle, Color end, int colorCount)
+		{
+			if (colorCount % 2 == 0)
+				throw new ArgumentException("colorCount should be and odd number. Currently it is: " + colorCount);
+
+			List<Color> ret = new List<Color>();
+
+			if (colorCount == 0)
+				return ret;
+
+			int size = (colorCount + 1) / 2;
+
+			List<Color> res = ColorUtils.RgbLinearInterpolate(start, middle, size);
+			if (res.Count > 0)
+				res.RemoveAt(res.Count - 1);
+
+			ret.AddRange(res);
+			ret.AddRange(ColorUtils.RgbLinearInterpolate(middle, end, size));
+
+			return ret;
+		}
+		
+		/// <summary>
 		/// Create a list of gradient colors based on the input list
 		/// </summary>
-		/// <param name="steps">number of gradients to create</param>
+		/// <param name="steps">number of gradients (colors) to create</param>
 		/// <param name="colors">the list of colors to transition between</param>
 		/// <returns>a List of gradients</returns>
-		public static List<HSLColor2> HSBGradient(int steps, List<HSLColor2> colors) {
+		public static List<IColor> HsbLinearInterpolate(int steps, List<IColor> colors) {
 			int parts = colors.Count - 1;
 			
-			List<HSLColor2> gradients = new List<HSLColor2>();
+			List<IColor> gradients = new List<IColor>();
 			
 			double partSteps = Math.Floor((double)steps / parts);
 			double remainder = steps - (partSteps * parts);
 			for (int col = 0; col < parts; col++) {
 				// get colors
-				HSLColor2 c1 = colors[col];
-				HSLColor2 c2 = colors[col + 1];
+				IColor c1 = colors[col];
+				IColor c2 = colors[col + 1];
 				
 				// determine clockwise and counter-clockwise distance between hues
 				double distCCW = (c1.Hue >= c2.Hue) ? c1.Hue - c2.Hue : 1 + c1.Hue - c2.Hue;
@@ -372,40 +389,227 @@ namespace CommonUtils
 					if (h < 0) h = 1 + h;
 					if (h > 1) h = h - 1;
 					double s = (1 - p) * c1.Saturation + p * c2.Saturation;
-					double b = (1 - p) * c1.Luminosity + p * c2.Luminosity;
+					double b = (1 - p) * c1.Value + p * c2.Value;
 					
 					// add to gradient array
-					gradients.Add(new HSLColor2(h, s, b));
+					gradients.Add(new HSBColor(h, s, b));
 				}
 			}
 			return gradients;
 		}
+		
+		/// <summary>
+		/// Create a list of gradient colors based on the input list
+		/// </summary>
+		/// <param name="steps">number of gradients (colors) to create</param>
+		/// <param name="colors">the list of colors to transition between</param>
+		/// <returns>a List of gradients</returns>
+		public static List<IColor> HslLinearInterpolate(int steps, List<IColor> colors) {
+			int parts = colors.Count - 1;
+			
+			List<IColor> gradients = new List<IColor>();
+			
+			double partSteps = Math.Floor((double)steps / parts);
+			double remainder = steps - (partSteps * parts);
+			for (int col = 0; col < parts; col++) {
+				// get colors
+				IColor c1 = colors[col];
+				IColor c2 = colors[col + 1];
+				
+				// determine clockwise and counter-clockwise distance between hues
+				double distCCW = (c1.Hue >= c2.Hue) ? c1.Hue - c2.Hue : 1 + c1.Hue - c2.Hue;
+				double distCW = (c1.Hue >= c2.Hue) ? 1 + c2.Hue - c1.Hue : c2.Hue - c1.Hue;
+				
+				// ensure we get the right number of steps by adding remainder to final part
+				if (col == parts - 1) partSteps += remainder;
+				
+				// make gradient for this part
+				for (int step = 0; step < partSteps; step ++) {
+					double p = step / partSteps;
+					
+					// interpolate h, s, b
+					double h = (distCW <= distCCW) ? c1.Hue + (distCW * p) : c1.Hue - (distCCW * p);
+					
+					if (h < 0) h = 1 + h;
+					if (h > 1) h = h - 1;
+					double s = (1 - p) * c1.Saturation + p * c2.Saturation;
+					double b = (1 - p) * c1.Value + p * c2.Value;
+					
+					// add to gradient array
+					gradients.Add(new HSLColor(h, s, b));
+				}
+			}
+			return gradients;
+		}
+		
+		/// <summary>
+		/// Return a list of gradients based on the REW color palette
+		/// </summary>
+		/// <param name="steps">number of gradients (colors) to create</param>
+		/// <returns>a list of gradients</returns>
+		public static List<IColor> GetHSBColorGradients(int steps, ColorPaletteType type) {
+			
+			List<IColor> colors = new List<IColor>();
+
+			switch (type) {
+				case ColorPaletteType.REW:
+					// create REW gradient
+					colors.Add(HSBColor.FromRGB(Color.Red));
+					colors.Add(HSBColor.FromRGB(Color.Yellow));
+					//colors.Add(new HSBColor(0.1666667f, 1.0f, 0.5f)); // yellow can also be added like this
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(2, 178, 0))); // green
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(0, 176, 178))); // light blue
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(0, 0, 177))); // blue
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(61, 0, 124))); // purple
+					break;
+				case ColorPaletteType.SOX:
+					// create SOX gradient
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(255, 255, 250))); // white'ish
+					//colors.Add(new HSBColor((double)47/360, 1.0, 1.0)); // orange
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(255, 202, 0))); // orange
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(240, 0, 0))); // red
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(0, 0, 79))); // blue
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(0, 0, 3))); // black
+					break;
+				case ColorPaletteType.PHOTOSOUNDER:
+					// create Photosounder gradient
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(255, 255, 255))); // white
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(249, 247, 78))); // 
+					//colors.Add(HSBColor.FromRGB(Color.FromArgb(114, 162, 162))); // 
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(10, 21, 107))); // 
+					break;
+				case ColorPaletteType.BLACK_AND_WHITE:
+				default:
+					// create black and white gradient
+					colors.Add(HSBColor.FromRGB(Color.White));
+					colors.Add(HSBColor.FromRGB(Color.Black));
+					break;
+			}
+			List<IColor> gradients = ColorUtils.HsbLinearInterpolate(steps, colors);
+			return gradients;
+		}
+
+		/// <summary>
+		/// Return a list of gradients based on the REW color palette
+		/// </summary>
+		/// <param name="steps">number of gradients (colors) to create</param>
+		/// <returns>a list of gradients</returns>
+		public static List<IColor> GetHSLColorGradients(int steps, ColorPaletteType type) {
+			
+			List<IColor> colors = new List<IColor>();
+
+			switch (type) {
+				case ColorPaletteType.REW:
+					// create REW gradient
+					colors.Add(HSLColor.FromRGB(Color.Red));
+					colors.Add(HSLColor.FromRGB(Color.Yellow));
+					//colors.Add(new HSLColor(0.1666667f, 1.0f, 0.5f)); // yellow can also be added like this
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(2, 178, 0))); // green
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(0, 176, 178))); // light blue
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(0, 0, 177))); // blue
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(61, 0, 124))); // purple
+					break;
+				case ColorPaletteType.SOX:
+					// create SOX gradient
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(255, 255, 250))); // white'ish
+					//colors.Add(new HSLColor((double)47/360, 1.0, 1.0)); // orange
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(255, 202, 0))); // orange
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(240, 0, 0))); // red
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(0, 0, 79))); // blue
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(0, 0, 3))); // black
+					break;
+				case ColorPaletteType.BLACK_AND_WHITE:
+				default:
+					// create black and white gradient
+					colors.Add(HSLColor.FromRGB(Color.White));
+					colors.Add(HSLColor.FromRGB(Color.Black));
+					break;
+			}
+			List<IColor> gradients = ColorUtils.HslLinearInterpolate(steps, colors);
+			return gradients;
+		}
+		
+		/// <summary>
+		/// Save a list of gradients as a image file, using the number of gradients as the height
+		/// </summary>
+		/// <param name="imageToSave">image file name</param>
+		/// <param name="gradients">list of gradients</param>
+		/// <param name="width">image width</param>
+		public static void SaveColorGradients(string imageToSave, List<IColor> gradients, int width) {
+			int height = gradients.Count;
+			
+			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(png);
+			Pen pen = new Pen(Color.Black, 1.0f);
+			
+			for (int i = 0; i < height; i++) {
+				pen.Color = gradients[i].Color;
+				g.DrawLine(pen, 0, i, width, i);
+			}
+			png.Save(imageToSave);
+		}
+
+		/// <summary>
+		/// Save a list of gradients as a image file, using the number of gradients as the height
+		/// </summary>
+		/// <param name="imageToSave">image file name</param>
+		/// <param name="gradients">list of gradients</param>
+		/// <param name="width">image width</param>
+		public static void SaveColorGradients(string imageToSave, List<Color> gradients, int width) {
+			int height = gradients.Count;
+			
+			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(png);
+			Pen pen = new Pen(Color.Black, 1.0f);
+			
+			for (int i = 0; i < height; i++) {
+				pen.Color = gradients[i];
+				g.DrawLine(pen, 0, i, width, i);
+			}
+			png.Save(imageToSave);
+		}
+
+	}
+	
+	public interface IColor {
+
+		double Hue { get; set; }
+		double Saturation { get; set; }
+		double Value { get; set; }
+		
+		Color Color { get; }
 	}
 
 	/// <summary>
-	/// Wrapper Class to hold HSL Values
+	/// Convert from HSL Color space to RGB Color space and back
 	/// </summary>
-	public class HSLColor2 {
+	public class HSLColor : IColor {
 		
 		/// <summary>
 		/// Hue (0 - 1)
 		/// </summary>
-		public double Hue;
+		public double Hue { get; set; }
 		
 		/// <summary>
 		/// Saturation (0 - 1)
 		/// </summary>
-		public double Saturation;
+		public double Saturation { get; set; }
 		
 		/// <summary>
 		/// Luminosity (0 - 1)
 		/// </summary>
-		public double Luminosity;
+		public double Value { get; set; }
 		
-		public HSLColor2(double h, double s, double l) {
+		/// <summary>
+		/// Create a HSLColor object
+		/// </summary>
+		/// <param name="H">Hue (0 - 1)</param>
+		/// <param name="S">Saturation (0 - 1)</param>
+		/// <param name="L">Luminosity (0 - 1)</param>
+		public HSLColor(double h, double s, double l) {
 			this.Hue = h;
 			this.Saturation = s;
-			this.Luminosity = l;
+			this.Value = l;
 		}
 
 		/// <summary>
@@ -413,18 +617,13 @@ namespace CommonUtils
 		/// </summary>
 		public Color Color {
 			get {
-				//return ColorUtils.HSL2RGB(this.Hue, this.Saturation, this.Luminosity);
-				return ColorUtils.HslToRgb((float)this.Hue*360, (float)this.Saturation, (float)this.Luminosity);
+				return ColorUtils.HslToRgb((float)this.Hue*360, (float)this.Saturation, (float)this.Value);
 			}
 		}
 
-		public static HSLColor2 FromRGB(Color color)
+		public static HSLColor FromRGB(Color color)
 		{
-			double h;
-			double s;
-			double l;
-			ColorUtils.RGB2HSL(color, out h, out s, out l);
-			return new HSLColor2(h, s, l);
+			return new HSLColor(color.GetHue()/360, color.GetSaturation(), color.GetBrightness());
 		}
 		
 		public override string ToString()
@@ -432,152 +631,66 @@ namespace CommonUtils
 			return
 				Hue + ";" +
 				Saturation + ";" +
-				Luminosity + ";";
+				Value + ";";
 		}
 	}
 	
 	/// <summary>
-	/// Convert from HSL Color space to RGB Color space and back
-	/// http://stackoverflow.com/questions/4793729/rgb-to-hsl-and-back-calculation-problems
+	/// Convert from HSV Color space to RGB Color space and back
 	/// </summary>
-	public class HSLColor
-	{
+	public class HSBColor : IColor {
+		
 		/// <summary>
-		/// Hue (0 - 6), Hue can actually be negative sometimes
+		/// Hue (0 - 1)
 		/// </summary>
-		public float Hue;
+		public double Hue { get; set; }
 		
 		/// <summary>
 		/// Saturation (0 - 1)
 		/// </summary>
-		public float Saturation;
+		public double Saturation { get; set; }
 		
 		/// <summary>
-		/// Luminosity (0 - 1)
+		/// Brightness (0 - 1)
 		/// </summary>
-		public float Luminosity;
+		public double Value { get; set; }
 		
 		/// <summary>
-		/// Hue (0 - 360)
+		/// Create a HSBColor object
 		/// </summary>
-		public float Hue360 { get {
-				// The H value returned should be from 0 to 6 so to convert it to degrees
-				// you just multiply by 60.
-				// H can actually be negative sometimes so if it is just add 360;
-				float H = Hue * 60f;
-				if (H < 0) H += 360;
-				return H;
-			}
-		}
-
-		/// <summary>
-		/// Create a HSLColor object
-		/// </summary>
-		/// <param name="H">Hue (0 - 6), Hue can actually be negative sometimes</param>
+		/// <param name="H">Hue (0 - 1)</param>
 		/// <param name="S">Saturation (0 - 1)</param>
-		/// <param name="L">Luminosity (0 - 1)</param>
-		public HSLColor(float H, float S, float L)
-		{
-			Hue = H;
-			Saturation = S;
-			Luminosity = L;
+		/// <param name="B">Brightness (0 - 1)</param>
+		public HSBColor(double h, double s, double b) {
+			this.Hue = h;
+			this.Saturation = s;
+			this.Value = b;
 		}
 
-		public static HSLColor FromRGB(Color Clr)
+		/// <summary>
+		/// Return a Color (RGB) object
+		/// </summary>
+		public Color Color {
+			get {
+				return ColorUtils.HsbToRgb((float)this.Hue*360, (float)this.Saturation, (float)this.Value);
+			}
+		}
+
+		public static HSBColor FromRGB(Color color)
 		{
-			return FromRGB(Clr.R, Clr.G, Clr.B);
+			double h;
+			double s;
+			double l;
+			ColorUtils.RgbToHsb(color, out h, out s, out l);
+			return new HSBColor(h/360, s, l);
 		}
 		
-		public static HSLColor FromRGB(Byte R, Byte G, Byte B)
+		public override string ToString()
 		{
-			float _R = (R / 255f);
-			float _G = (G / 255f);
-			float _B = (B / 255f);
-
-			float _Min = Math.Min(Math.Min(_R, _G), _B);
-			float _Max = Math.Max(Math.Max(_R, _G), _B);
-			float _Delta = _Max - _Min;
-
-			float H = 0;
-			float S = 0;
-			float L = (float)((_Max + _Min) / 2.0f);
-
-			if (_Delta != 0)
-			{
-				if (L < 0.5f)
-				{
-					S = (float)(_Delta / (_Max + _Min));
-				}
-				else
-				{
-					S = (float)(_Delta / (2.0f - _Max - _Min));
-				}
-
-
-				if (_R == _Max)
-				{
-					H = (_G - _B) / _Delta;
-				}
-				else if (_G == _Max)
-				{
-					H = 2f + (_B - _R) / _Delta;
-				}
-				else if (_B == _Max)
-				{
-					H = 4f + (_R - _G) / _Delta;
-				}
-			}
-
-			return new HSLColor(H, S, L);
-		}
-		
-		public Color ToRGB()
-		{
-			byte r, g, b;
-			if (Saturation == 0)
-			{
-				r = (byte)Math.Round(Luminosity * 255d);
-				g = (byte)Math.Round(Luminosity * 255d);
-				b = (byte)Math.Round(Luminosity * 255d);
-			}
-			else
-			{
-				double t1, t2;
-				double th = Hue / 6.0d;
-
-				if (Luminosity < 0.5d)
-				{
-					t2 = Luminosity * (1d + Saturation);
-				}
-				else
-				{
-					t2 = (Luminosity + Saturation) - (Luminosity * Saturation);
-				}
-				t1 = 2d * Luminosity - t2;
-
-				double tr, tg, tb;
-				tr = th + (1.0d / 3.0d);
-				tg = th;
-				tb = th - (1.0d / 3.0d);
-
-				tr = ColorCalc(tr, t1, t2);
-				tg = ColorCalc(tg, t1, t2);
-				tb = ColorCalc(tb, t1, t2);
-				r = (byte)Math.Round(tr * 255d);
-				g = (byte)Math.Round(tg * 255d);
-				b = (byte)Math.Round(tb * 255d);
-			}
-			return Color.FromArgb(r, g, b);
-		}
-		
-		private static double ColorCalc(double c, double t1, double t2)
-		{
-			if (c < 0) c += 1d;
-			if (c > 1) c -= 1d;
-			if (6.0d * c < 1.0d) return t1 + (t2 - t1) * 6.0d * c;
-			if (2.0d * c < 1.0d) return t2;
-			if (3.0d * c < 2.0d) return t1 + (t2 - t1) * (2.0d / 3.0d - c) * 6.0d;
-			return t1;
+			return
+				Hue + ";" +
+				Saturation + ";" +
+				Value + ";";
 		}
 	}
 }

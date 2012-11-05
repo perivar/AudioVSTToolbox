@@ -467,6 +467,11 @@ namespace CommonUtils.FFT
 			}
 		}
 		
+		// More waveform links:
+		// https://github.com/aalin/canvas_waveform
+		// http://www.hisschemoller.com/2010/mp3-wave-display/
+		// http://www.marinbezhanov.com/web-development/14/actionscript-3-sound-extract-demystified-or-how-to-draw-a-waveform-in-flash/
+		
 		// http://stackoverflow.com/questions/1215326/open-source-c-sharp-code-to-present-wave-form
 		// TODO: startPosition is NOT YET SUPPORTED
 		public static Bitmap DrawWaveform(float[] audioData, Size imageSize, int resolution, int amplitude, int startPosition, double sampleRate) {
