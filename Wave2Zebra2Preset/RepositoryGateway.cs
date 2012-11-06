@@ -648,11 +648,13 @@ namespace Wave2Zebra2Preset
 					float dB = MathUtils.ConvertAmplitudeToDB(amplitude, minDb, maxDb);
 					
 					int color = (int) MathUtils.ConvertAndMainainRatio(dB, minValdB, maxValdB, 0, 256);
-					Color c = VB6Spectrogram.PaletteValueColor(color, 256);
+					//Color c = VB6Spectrogram.PaletteValueColor(color, 256);
+					Color c = VB6Spectrogram.GreyPaletteValueColor(color, 256);
 					png.SetPixel(x, maxYIndex - y, c);
 				}
 			}
 			
+			png = ColorUtils.Colorize(png, 255);
 			png.Save(filenameToSave);
 			g.Dispose();
 		}

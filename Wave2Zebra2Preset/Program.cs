@@ -113,6 +113,9 @@ namespace Wave2Zebra2Preset
 	// https://github.com/jolby/colors/blob/master/src/com/evocomputing/colors/palettes/core.clj
 	// https://github.com/jolby/colors/blob/master/src/com/evocomputing/colors/palettes/color_brewer.clj
 	
+	// heatmap in c#
+	// http://dylanvester.com/post/Creating-Heat-Maps-with-NET-20-(C-Sharp).aspx
+	
 	// Wavelet, Set and Hash etc
 	// http://blogs.msdn.com/b/spt/archive/2008/06/10/set-similarity-and-min-hash.aspx (JaccardSimilarity ++)
 	// http://laplacian.wordpress.com/2009/01/10/how-shazam-works/
@@ -241,29 +244,27 @@ namespace Wave2Zebra2Preset
 		{
 			//SaveColorPaletteBar("c:\\rew-colorbar-generated.png", "c:\\rew-colorbar-generated.csv", ColorPaletteType.REWColorPalette);
 			
-			List<IColor> rew_hsb_gradients = ColorUtils.GetHSBColorGradients(305, ColorUtils.ColorPaletteType.REW);
-			ColorUtils.SaveColorGradients("c:\\rew-hsb-gradients.png", rew_hsb_gradients, 33);
-			List<IColor> rew_hsl_gradients = ColorUtils.GetHSLColorGradients(305, ColorUtils.ColorPaletteType.REW);
-			ColorUtils.SaveColorGradients("c:\\rew-hsl-gradients.png", rew_hsl_gradients, 33);
+			/*
+			List<Color> rew_hsb_gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.REW);
+			ColorUtils.SaveColorGradients("c:\\rew-hsb-gradients.png", rew_hsb_gradients, 40);
+			List<Color> rew_hsl_gradients = ColorUtils.GetHSLColorGradients(256, ColorUtils.ColorPaletteType.REW);
+			ColorUtils.SaveColorGradients("c:\\rew-hsl-gradients.png", rew_hsl_gradients, 40);
 
-			List<IColor> sox_hsb_gradients = ColorUtils.GetHSBColorGradients(400, ColorUtils.ColorPaletteType.SOX);
-			ColorUtils.SaveColorGradients("c:\\sox-hsb-gradients.png", sox_hsb_gradients, 14);
-			List<IColor> sox_hsl_gradients = ColorUtils.GetHSLColorGradients(400, ColorUtils.ColorPaletteType.SOX);
-			ColorUtils.SaveColorGradients("c:\\sox-hsl-gradients.png", sox_hsl_gradients, 14);
+			List<Color> sox_hsb_gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.SOX);
+			ColorUtils.SaveColorGradients("c:\\sox-hsb-gradients.png", sox_hsb_gradients, 40);
+			List<Color> sox_hsl_gradients = ColorUtils.GetHSLColorGradients(256, ColorUtils.ColorPaletteType.SOX);
+			ColorUtils.SaveColorGradients("c:\\sox-hsl-gradients.png", sox_hsl_gradients, 40);
 			
-			List<IColor> grey_hsb_gradients = ColorUtils.GetHSBColorGradients(400, ColorUtils.ColorPaletteType.BLACK_AND_WHITE);
-			ColorUtils.SaveColorGradients("c:\\grey-hsb-gradients.png", grey_hsb_gradients, 35);
-
-			List<IColor> photosounder_hsb_gradients = ColorUtils.GetHSBColorGradients(399, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
+			List<Color> photosounder_hsb_gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
 			ColorUtils.SaveColorGradients("c:\\photosounder_hsb_gradients.png", photosounder_hsb_gradients, 40);
-			
-			List<Color> photosounder_rgb_gradients = ColorUtils.RgbLinearInterpolate(
-				Color.FromArgb(255, 255, 255),
-				Color.FromArgb(249, 247, 78),
-				//Color.FromArgb(10, 21, 107),
-				Color.FromArgb(0, 0, 100),
-				399);
+			List<Color> photosounder_hsl_gradients = ColorUtils.GetHSLColorGradients(256, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
+			ColorUtils.SaveColorGradients("c:\\photosounder_hsl_gradients.png", photosounder_hsl_gradients, 40);
+			List<Color> photosounder_rgb_gradients = ColorUtils.GetRGBColorGradients(255, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
 			ColorUtils.SaveColorGradients("c:\\photosounder_rgb_gradients.png", photosounder_rgb_gradients, 40);
+			
+			List<Color> grey_hsb_gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.BLACK_AND_WHITE);
+			ColorUtils.SaveColorGradients("c:\\grey-hsb-gradients.png", grey_hsb_gradients, 40);
+			*/
 			
 			/*
 			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\SkyDrive\Temp\sox_colorbar.png", "c:\\sox_colorbar.csv");
@@ -273,8 +274,6 @@ namespace Wave2Zebra2Preset
 			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\SkyDrive\Temp\thermal_colorbar.png", "c:\\thermal_colorbar.csv");
 			ReadColorPaletteBar(@"C:\rew-gradients.png", "c:\\rew-gradients.csv");
 			 */
-
-			return;
 			
 			String fileName = @"C:\Users\perivar.nerseth\Music\Sleep Away.mp3";
 			//String fileName = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
@@ -288,11 +287,11 @@ namespace Wave2Zebra2Preset
 			// VB6 FFT
 			double sampleRate = 44100;// 44100  default 5512
 			int fftWindowsSize = 4096; //4096  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
-			float fftOverlapPercentage = 50.0f; // number between 0 and 100
-			int secondsToSample = 15; //15;
+			float fftOverlapPercentage = 80.0f; // number between 0 and 100
+			int secondsToSample = 30; //15;
 			float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 20*1000 );
 			VB6Spectrogram vb6Spect = new VB6Spectrogram();
-			//vb6Spect.ComputeColorPalette();
+			vb6Spect.ComputeColorPalette();
 			//float[][] vb6Spectrogram = vb6Spect.Compute(wavDataVB6, sampleRate, fftWindowsSize, fftOverlapPercentage);
 			//Export.exportCSV (@"c:\VB6Spectrogram-full.csv", vb6Spectrogram);
 			
@@ -311,125 +310,15 @@ namespace Wave2Zebra2Preset
 			float[][] exoSpectrogram = AudioAnalyzer.CreateSpectrogramExocortex(wavDataVB6, sampleRate, fftWindowsSize, fftOverlap);
 			//float[][] exoSpectrogram = AudioAnalyzer.CreateSpectrogramLomont(wavDataVB6, sampleRate, fftWindowsSize, fftOverlap);
 			//repositoryGateway.drawSpectrogram1("Spectrogram1", fileName, exoSpectrogram);
-			repositoryGateway.drawSpectrogram2("Spectrogram2", fileName, exoSpectrogram, sampleRate, numberOfSamples, fftWindowsSize);
-			//repositoryGateway.drawSpectrogram3("Spectrogram3", fileName, exoSpectrogram);
+			//repositoryGateway.drawSpectrogram2("Spectrogram2", fileName, exoSpectrogram, sampleRate, numberOfSamples, fftWindowsSize);
+			repositoryGateway.drawSpectrogram3("Spectrogram3", fileName, exoSpectrogram);
 			//repositoryGateway.drawSpectrogram4("Spectrogram4", fileName, exoSpectrogram);
 			//Export.exportCSV (@"c:\exoSpectrogram-full.csv", exoSpectrogram);
-			
-			//ColorUtils.drawColorGradient(@"C:\", "ColorGradient.png", true);
-			//ColorUtils.drawColorGradient(@"C:\", "ColorGradient.png", false);
 			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
 		}
-		
-		// http://www.triplecorrelation.com/courses/fundsp/showspectrogram.html
-		// R Kakarala, PhD
-		// U C Berkeley Extesion
-		// last rev: 5 Oct 2003
-		// see also: http://aug.ment.org/synthbilder/paper/
-		public static float[][] CreateSpectrogram2(float[] y, double fs, int fftWindowsSize, int fftOverlap)
-		{
-			// fs = 8192;                    // Sampling frequency
-			// T = 1/fs;                     // Sample time
-			
-			// compute the spectrogram
-			// assume a 256 point sliding Hamming window, with an overlap of 128 samples
-			// is applied to the data.
-			int Ly = y.Length;
-			// if the length < 256, add zeros to increase length to match window
-			if (Ly < fftWindowsSize) {
-				Array.Resize<float>(ref y, fftWindowsSize);
-			}
-
-			int L = fftWindowsSize;//256;
-			int Nfft = fftWindowsSize;//256;
-			int Noverlap = fftWindowsSize; //256;  // this, the max overlap, is adjusted below
-			int num_segs = 1025;
-			int shift = 0;
-			while (num_segs > 1024) {
-				Noverlap = Noverlap - 10;
-				shift = Math.Abs( L - Noverlap);
-				// num_segs = 1 + fix( (Ly-L)/shift );
-				num_segs = (int) (1 + Fix( (Ly-L) / shift ));
-			}
-			
-			// window = 0.54 - 0.46  *      cos (2     * pi * (0:L-1) / (L-1) );  // Hamming window
-			// for (i = 0; i < fftWindowsSize; i++)
-			//  window = (0.54 - 0.46 * Math.Cos(2 * Math.PI *      i / (fftWindowsSize - 1)));
-			double[] window = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HAMMING, Nfft);
-			LomontFFT fft = new LomontFFT();
-
-			// the following idea is from The DSP FIRST Toolbox, by McClellan, Shafer
-			// and Yoder. Basically, it divides the input into segments, each of length
-			// L and takes the windowed fft of each one
-			
-			// B = zeros( Nfft/2+1, num_segs );
-			// float[][] frames = new float[numberOfSegments][];
-			// double[][] B = new double[Nfft/2+1][num_segs];     //- Pre-allocate the matrix
-			float[][] B = new float[num_segs][];
-			
-			int nstart = 0;
-			double[] ysegw = new double[2*Nfft]; 		// even - Re, odd - Img
-			for (int iseg = 0; iseg < num_segs; iseg++) {
-				nstart = 1 + iseg * shift;
-
-				// apply Hanning Window
-				// ysegw = window .* y( nstart:nstart + L-1);
 				
-				// Matlab Vector Functions:
-				// v 	= [1   	 2 	  3]'
-				// b 	= [2 	 4 	  6]'
-				// v+b 	= [3 	 6 	  9]
-				// v-b 	= [-1   -2   -3]
-				// v*b' = [2     4    6
-				//         4     8   12
-				//         6    12   18]
-				// v'*b = 28
-				// v.*b = [2 	 8   18]
-				// v./b = [0.5 0.5  0.5]
-				
-				for (int j = 0; j < Nfft; j++)
-					//for (int j = nstart; j < nstart + L-1; j++)
-				{
-					//ysegw[2*j] = (double) (window[j] * y[i*fftOverlap + j]);
-					ysegw[2*j] = (double) (window[j] * y[nstart + j]);
-					ysegw[2*j + 1] = 0;  // need to clear out as fft modifies buffer
-				}
-
-				// FFT transform for gathering the spectrum
-				// YF = fft( ysegw, Nfft );
-				fft.FFT(ysegw, true);
-				float[] YF = new float[Nfft/2 + 1];
-				for (int j = 0; j < Nfft/2 + 1; j++)
-				{
-					double re = ysegw[2*j];
-					double img = ysegw[2*j + 1];
-					YF[j] = (float) Math.Sqrt(re*re + img*img);
-				}
-				//frames[i] = band;
-				//B(:,iseg) = YF(1:Nfft/2+1);
-				B[iseg] = YF;
-			}
-			
-			// use imagesc -- image scaled to show the histogram in dB
-			//F = (0:(Nfft/2))/Nfft * fs;
-			//T = ( L/2 + shift*(0:num_segs-1) ) / fs;
-			//subplot(2,1,1);
-			// dB = 20 * log10 (abs(B) + eps);
-			//imagesc(T,F,20*log10(abs(B)+eps)); axis xy; colormap(jet);
-			//ylabel('frequency (Hz)'); xlabel('time (sec)'); title('Spectrogram (dB)');
-			
-			// plot time signal, trying to align time axes for both plots
-			//maxsampleused = nstart+L-2;
-			//subplot(2,1,2);
-			//plot((0:maxsampleused)/fs,y(1:maxsampleused+1));
-			//axis([min(T),max(T),min(y),max(y)]);
-			//xlabel('time (sec)'); ylabel('signal');
-			
-			return B;
-		}
-		
 		public static void GetAudioInformation(string filename)
 		{
 			float lFrequency = 0;

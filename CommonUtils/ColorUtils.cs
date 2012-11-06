@@ -241,60 +241,16 @@ namespace CommonUtils
 		/// <summary>
 		/// Given a Color (RGB Struct) in range of 0-255
 		/// Return H,S,L in range of 0-1
-		/// http://www.geekymonkey.com/Programming/CSharp/RGB2HSL_HSL2RGB.htm
 		/// </summary>
 		/// <param name="rgb">Color object (RGB)</param>
-		/// <param name="h">Hue (0 - 1)</param>
+		/// <param name="hue">Hue (0 - 360)</param>
 		/// <param name="sl">Saturation (0 - 1)</param>
 		/// <param name="l">Luminosity (0 - 1)</param>
-		public static void Rgb2Hsl(Color rgb, out double h, out double s, out double l)
+		public static void RgbToHsl(Color rgb, out double h, out double s, out double l)
 		{
-			double r = rgb.R/255.0;
-			double g = rgb.G/255.0;
-			double b = rgb.B/255.0;
-			double v;
-			double m;
-			double vm;
-			double r2, g2, b2;
-			
-			h = 0; // default to black
-			s = 0;
-			l = 0;
-			v = Math.Max(r,g);
-			v = Math.Max(v,b);
-			m = Math.Min(r,g);
-			m = Math.Min(m,b);
-			l = (m + v) / 2.0;
-			if (l <= 0.0)
-			{
-				return;
-			}
-			vm = v - m;
-			s = vm;
-			if (s > 0.0)
-			{
-				s /= (l <= 0.5) ? (v +	 m ) : (2.0 - v - m) ;
-			}
-			else
-			{
-				return;
-			}
-			r2 = (v - r) / vm;
-			g2 = (v - g) / vm;
-			b2 = (v - b) / vm;
-			if (r == v)
-			{
-				h = (g == m ? 5.0 + b2 : 1.0 - g2);
-			}
-			else if (g == v)
-			{
-				h = (b == m ? 1.0 + r2 : 3.0 - b2);
-			}
-			else
-			{
-				h = (r == m ? 3.0 + g2 : 5.0 - r2);
-			}
-			h /= 6.0;
+			h = rgb.GetHue();
+			s = rgb.GetSaturation();
+			l = rgb.GetBrightness();
 		}
 		
 		/// <summary>
@@ -360,10 +316,10 @@ namespace CommonUtils
 		/// <param name="steps">number of gradients (colors) to create</param>
 		/// <param name="colors">the list of colors to transition between</param>
 		/// <returns>a List of gradients</returns>
-		public static List<IColor> HsbLinearInterpolate(int steps, List<IColor> colors) {
+		public static List<Color> HsbLinearInterpolate(int steps, List<IColor> colors) {
 			int parts = colors.Count - 1;
 			
-			List<IColor> gradients = new List<IColor>();
+			List<Color> gradients = new List<Color>();
 			
 			double partSteps = Math.Floor((double)steps / parts);
 			double remainder = steps - (partSteps * parts);
@@ -392,7 +348,7 @@ namespace CommonUtils
 					double b = (1 - p) * c1.Value + p * c2.Value;
 					
 					// add to gradient array
-					gradients.Add(new HSBColor(h, s, b));
+					gradients.Add(new HSBColor(h, s, b).Color);
 				}
 			}
 			return gradients;
@@ -404,10 +360,10 @@ namespace CommonUtils
 		/// <param name="steps">number of gradients (colors) to create</param>
 		/// <param name="colors">the list of colors to transition between</param>
 		/// <returns>a List of gradients</returns>
-		public static List<IColor> HslLinearInterpolate(int steps, List<IColor> colors) {
+		public static List<Color> HslLinearInterpolate(int steps, List<IColor> colors) {
 			int parts = colors.Count - 1;
 			
-			List<IColor> gradients = new List<IColor>();
+			List<Color> gradients = new List<Color>();
 			
 			double partSteps = Math.Floor((double)steps / parts);
 			double remainder = steps - (partSteps * parts);
@@ -436,7 +392,7 @@ namespace CommonUtils
 					double b = (1 - p) * c1.Value + p * c2.Value;
 					
 					// add to gradient array
-					gradients.Add(new HSLColor(h, s, b));
+					gradients.Add(new HSLColor(h, s, b).Color);
 				}
 			}
 			return gradients;
@@ -447,7 +403,7 @@ namespace CommonUtils
 		/// </summary>
 		/// <param name="steps">number of gradients (colors) to create</param>
 		/// <returns>a list of gradients</returns>
-		public static List<IColor> GetHSBColorGradients(int steps, ColorPaletteType type) {
+		public static List<Color> GetHSBColorGradients(int steps, ColorPaletteType type) {
 			
 			List<IColor> colors = new List<IColor>();
 
@@ -464,19 +420,19 @@ namespace CommonUtils
 					break;
 				case ColorPaletteType.SOX:
 					// create SOX gradient
-					colors.Add(HSBColor.FromRGB(Color.FromArgb(255, 255, 250))); // white'ish
-					//colors.Add(new HSBColor((double)47/360, 1.0, 1.0)); // orange
-					colors.Add(HSBColor.FromRGB(Color.FromArgb(255, 202, 0))); // orange
-					colors.Add(HSBColor.FromRGB(Color.FromArgb(240, 0, 0))); // red
-					colors.Add(HSBColor.FromRGB(Color.FromArgb(0, 0, 79))); // blue
-					colors.Add(HSBColor.FromRGB(Color.FromArgb(0, 0, 3))); // black
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(255,255,254))); // white
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(255,235,60)));
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(252,86,0)));
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(210,0,64)));
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(131,0,125)));
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(25,0,98)));
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(0,0,0))); // black
 					break;
 				case ColorPaletteType.PHOTOSOUNDER:
 					// create Photosounder gradient
-					colors.Add(HSBColor.FromRGB(Color.FromArgb(255, 255, 255))); // white
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(255, 255, 254))); // white
 					colors.Add(HSBColor.FromRGB(Color.FromArgb(249, 247, 78))); // 
-					//colors.Add(HSBColor.FromRGB(Color.FromArgb(114, 162, 162))); // 
-					colors.Add(HSBColor.FromRGB(Color.FromArgb(10, 21, 107))); // 
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(0, 0, 100))); // blue
 					break;
 				case ColorPaletteType.BLACK_AND_WHITE:
 				default:
@@ -485,7 +441,7 @@ namespace CommonUtils
 					colors.Add(HSBColor.FromRGB(Color.Black));
 					break;
 			}
-			List<IColor> gradients = ColorUtils.HsbLinearInterpolate(steps, colors);
+			List<Color> gradients = ColorUtils.HsbLinearInterpolate(steps, colors);
 			return gradients;
 		}
 
@@ -494,7 +450,7 @@ namespace CommonUtils
 		/// </summary>
 		/// <param name="steps">number of gradients (colors) to create</param>
 		/// <returns>a list of gradients</returns>
-		public static List<IColor> GetHSLColorGradients(int steps, ColorPaletteType type) {
+		public static List<Color> GetHSLColorGradients(int steps, ColorPaletteType type) {
 			
 			List<IColor> colors = new List<IColor>();
 
@@ -511,12 +467,19 @@ namespace CommonUtils
 					break;
 				case ColorPaletteType.SOX:
 					// create SOX gradient
-					colors.Add(HSLColor.FromRGB(Color.FromArgb(255, 255, 250))); // white'ish
-					//colors.Add(new HSLColor((double)47/360, 1.0, 1.0)); // orange
-					colors.Add(HSLColor.FromRGB(Color.FromArgb(255, 202, 0))); // orange
-					colors.Add(HSLColor.FromRGB(Color.FromArgb(240, 0, 0))); // red
-					colors.Add(HSLColor.FromRGB(Color.FromArgb(0, 0, 79))); // blue
-					colors.Add(HSLColor.FromRGB(Color.FromArgb(0, 0, 3))); // black
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(255,255,254))); // white
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(255,235,60)));
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(252,86,0)));
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(210,0,64)));
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(131,0,125)));
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(25,0,98)));
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(0,0,0))); // black
+					break;
+				case ColorPaletteType.PHOTOSOUNDER:
+					// create Photosounder gradient
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(255, 255, 254))); // white
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(249, 247, 78))); // 
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(0, 0, 100))); // blue
 					break;
 				case ColorPaletteType.BLACK_AND_WHITE:
 				default:
@@ -525,30 +488,40 @@ namespace CommonUtils
 					colors.Add(HSLColor.FromRGB(Color.Black));
 					break;
 			}
-			List<IColor> gradients = ColorUtils.HslLinearInterpolate(steps, colors);
+			List<Color> gradients = ColorUtils.HslLinearInterpolate(steps, colors);
+			return gradients;
+		}
+
+		/// <summary>
+		/// Return a list of gradients based on the REW color palette
+		/// </summary>
+		/// <param name="steps">number of gradients (colors) to create</param>
+		/// <returns>a list of gradients</returns>
+		public static List<Color> GetRGBColorGradients(int steps, ColorPaletteType type) {
+			
+			List<Color> gradients;
+			switch (type) {
+				case ColorPaletteType.PHOTOSOUNDER:
+					gradients = ColorUtils.RgbLinearInterpolate(
+						Color.FromArgb(255, 255, 255),
+						Color.FromArgb(249, 247, 78),
+						Color.FromArgb(0, 0, 100),
+						steps);
+					break;
+				case ColorPaletteType.REW:
+				case ColorPaletteType.SOX:
+				case ColorPaletteType.BLACK_AND_WHITE:
+				default:
+					// create black and white gradient
+					gradients = ColorUtils.RgbLinearInterpolate(
+						Color.White,
+						Color.Black,
+						steps);
+					break;
+			}
 			return gradients;
 		}
 		
-		/// <summary>
-		/// Save a list of gradients as a image file, using the number of gradients as the height
-		/// </summary>
-		/// <param name="imageToSave">image file name</param>
-		/// <param name="gradients">list of gradients</param>
-		/// <param name="width">image width</param>
-		public static void SaveColorGradients(string imageToSave, List<IColor> gradients, int width) {
-			int height = gradients.Count;
-			
-			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
-			Graphics g = Graphics.FromImage(png);
-			Pen pen = new Pen(Color.Black, 1.0f);
-			
-			for (int i = 0; i < height; i++) {
-				pen.Color = gradients[i].Color;
-				g.DrawLine(pen, 0, i, width, i);
-			}
-			png.Save(imageToSave);
-		}
-
 		/// <summary>
 		/// Save a list of gradients as a image file, using the number of gradients as the height
 		/// </summary>
@@ -568,7 +541,77 @@ namespace CommonUtils
 			}
 			png.Save(imageToSave);
 		}
+		
+		public static Bitmap GetColorGradientsPalette(List<Color> gradients, int height = 0) {
+			int width = gradients.Count;
+			
+			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			Graphics g = Graphics.FromImage(png);
+			Pen pen = new Pen(Color.Black, 1.0f);
+			
+			for (int i = 0; i < width; i++) {
+				pen.Color = gradients[i];
+				g.DrawLine(pen, i, 0, i, height);
+			}
+			png.Save(@"c:\colorgradient-palette.png");
+			return png;
+		}
 
+		/// <summary>
+		/// Colorizing the Intensity Mask
+		/// Create a color map that tells the GDI rendering method how it should draw the colors.
+		/// What we're actually doing here is creating a table that specifies a new color for each shade of gray
+		/// (all 256) of them. The easiest way to do this is to create a palette image that's
+		/// 256 pixels wide by 1 pixel high.
+		/// That means that we can directly map each pixel in the palette image to a shade of gray.
+		/// </summary>
+		/// <param name="mask">Gray shaded image to be colorized</param>
+		/// <param name="alpha">0-255</param>
+		/// <returns>a colorized bitmap</returns>
+		public static Bitmap Colorize(Bitmap mask, byte alpha)
+		{
+			// Create new bitmap to act as a work surface for the colorization process
+			Bitmap output = new Bitmap(mask.Width, mask.Height, PixelFormat.Format32bppArgb);
+
+			// Create a graphics object from our memory bitmap so we can draw on it and clear it's drawing surface
+			Graphics surface = Graphics.FromImage(output);
+			surface.Clear(Color.Transparent);
+
+			// Build an array of color mappings to remap our greyscale mask to full color
+			// Accept an alpha byte to specify the transparancy of the output image
+			ColorMap[] colors = CreatePaletteIndex(alpha);
+
+			// Create new image attributes class to handle the color remappings
+			// Inject our color map array to instruct the image attributes class how to do the colorization
+			ImageAttributes remapper = new ImageAttributes();
+			remapper.SetRemapTable(colors);
+
+			// Draw our mask onto our memory bitmap work surface using the new color mapping scheme
+			surface.DrawImage(mask, new Rectangle(0, 0, mask.Width, mask.Height), 0, 0, mask.Width, mask.Height, GraphicsUnit.Pixel, remapper);
+
+			// Send back newly colorized memory bitmap
+			return output;
+		}
+
+		private static ColorMap[] CreatePaletteIndex(byte Alpha)
+		{
+			ColorMap[] outputMap = new ColorMap[256];
+
+			// Change this path to wherever you saved the palette image.
+			//Bitmap palette = (Bitmap)Bitmap.FromFile(@"C:\Users\Dylan\Documents\Visual Studio 2005\Projects\HeatMapTest\palette.bmp");
+			//List<Color> sox_hsb_gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.REW);
+			List<Color> sox_hsb_gradients = ColorUtils.GetRGBColorGradients(257, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
+			Bitmap palette = GetColorGradientsPalette(sox_hsb_gradients, 1);
+
+			// Loop through each pixel and create a new color mapping
+			for (int x = 0; x <= 255; x++)
+			{
+				outputMap[x] = new ColorMap();
+				outputMap[x].OldColor = Color.FromArgb(x, x, x);
+				outputMap[x].NewColor = Color.FromArgb(Alpha, palette.GetPixel(255-x, 0));
+			}
+			return outputMap;
+		}
 	}
 	
 	public interface IColor {
@@ -623,7 +666,11 @@ namespace CommonUtils
 
 		public static HSLColor FromRGB(Color color)
 		{
-			return new HSLColor(color.GetHue()/360, color.GetSaturation(), color.GetBrightness());
+			double h;
+			double s;
+			double l;
+			ColorUtils.RgbToHsl(color, out h, out s, out l);
+			return new HSLColor(h/360, s, l);
 		}
 		
 		public override string ToString()
