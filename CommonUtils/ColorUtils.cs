@@ -599,8 +599,8 @@ namespace CommonUtils
 
 			// Change this path to wherever you saved the palette image.
 			//Bitmap palette = (Bitmap)Bitmap.FromFile(@"C:\Users\Dylan\Documents\Visual Studio 2005\Projects\HeatMapTest\palette.bmp");
-			//List<Color> sox_hsb_gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.REW);
-			List<Color> sox_hsb_gradients = ColorUtils.GetRGBColorGradients(257, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
+			List<Color> sox_hsb_gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.SOX);
+			//List<Color> sox_hsb_gradients = ColorUtils.GetRGBColorGradients(257, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
 			Bitmap palette = GetColorGradientsPalette(sox_hsb_gradients, 1);
 
 			// Loop through each pixel and create a new color mapping

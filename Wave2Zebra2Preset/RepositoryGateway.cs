@@ -573,7 +573,7 @@ namespace Wave2Zebra2Preset
 
 		public void drawSpectrogram3(String prefix, String filename, float[][] data) {
 
-			float minDb = -100.0f;
+			float minDb = -65.0f;
 			float maxDb = 0.0f;
 
 			double numberOfSamplesX = data.Length;
