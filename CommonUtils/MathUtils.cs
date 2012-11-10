@@ -500,5 +500,31 @@ namespace CommonUtils
 			return x - (x >> 1);
 		}
 		
+		/// <summary>
+		/// Format numbers rounded to thousands with K (and M)
+		/// 1 => 1
+		/// 23 => 23
+		/// 136 => 136
+		/// 6968 => 6,968
+		/// 23067 => 23.1K
+		/// 133031 => 133K
+		/// </summary>
+		/// <param name="num"></param>
+		/// <returns></returns>
+		public static string FormatNumber(int num) {
+			if (num >= 100000000)
+				return (num / 1000000D).ToString("#,0M");
+
+			if (num >= 10000000)
+				return (num / 1000000D).ToString("0.#") + "M";
+
+			if (num >= 100000)
+				return (num / 1000D).ToString("#,0K");
+
+			if (num >= 10000)
+				return (num / 1000D).ToString("0.#") + "K";
+
+			return num.ToString("#,0");
+		}
 	}
 }

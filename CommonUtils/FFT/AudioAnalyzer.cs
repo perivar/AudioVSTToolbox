@@ -468,20 +468,21 @@ namespace CommonUtils.FFT
 			}
 		}
 		
-
 		/// <summary>
-		///   Get a spectrogram of the signal specified at the input
+		/// Get a spectrogram of the signal specified at the input
 		/// </summary>
-		/// <param name = "data">Signal</param>
-		/// <param name = "width">Width of the image</param>
-		/// <param name = "height">Height of the image</param>
+		/// <param name="spectrum">Signal</param>
+		/// <param name="width">Width of the image</param>
+		/// <param name="height">Height of the image</param>
+		/// <param name="milliseconds">Time in ms</param>
+		/// <param name="sampleRate">Sample rate in hz</param>
 		/// <returns>Spectral image of the signal</returns>
 		/// <remarks>
 		///   X axis - time
 		///   Y axis - frequency
 		///   Color - magnitude level of corresponding band value of the signal
 		/// </remarks>
-		public static Bitmap GetSpectrogramImage(float[][] spectrum, int width, int height, double milliseconds, double sampleRate)
+		public static Bitmap GetSpectrogramImage(float[][] spectrum, int width, int height, double milliseconds, double sampleRate, ColorUtils.ColorPaletteType colorPalette)
 		{
 			if (width < 0)
 				throw new ArgumentException("width should be bigger than 0");
@@ -489,16 +490,14 @@ namespace CommonUtils.FFT
 				throw new ArgumentException("height should be bigger than 0");
 
 			bool drawLabels = true;
-			float minDb = -100.0f;
-			float maxDb = 0.0f; 
-			double numberOfSamplesX = spectrum.Length; 		// time
-			double numberOfSamplesY = spectrum[0].Length; 	// hz		
+			float minDb = -80.0f;
+			float maxDb = 0.0f;
 			
 			// Basic constants
 			int TOTAL_HEIGHT = height;    // Height of graph
 			int TOTAL_WIDTH = width;      // Width of graph
 
-			int TOP = 30;                    // Top of graph
+			int TOP = 40;                    // Top of graph
 			int LEFT = 60;                   // Left edge of graph
 			int HEIGHT = height-2*TOP;		// Height of graph
 			int WIDTH = width-2*LEFT;     	// Width of graph
@@ -511,44 +510,46 @@ namespace CommonUtils.FFT
 
 			// if the max frequency gets lower than ... lower the frequency step
 			if (MAX_FREQ < 20000) {
-				FREQ_STEP = (float) MathUtils.GetNicerNumber(MAX_FREQ / 10);
+				FREQ_STEP = (float) MathUtils.GetNicerNumber(MAX_FREQ / 20);
 			}
 			
 			// Derived constants
-			int BOTTOM = TOTAL_HEIGHT-TOP;                   		// Bottom of graph
+			int BOTTOM = TOTAL_HEIGHT-TOP;                   			// Bottom of graph
 			float FREQTOPIXEL = (float) HEIGHT/(MAX_FREQ-MIN_FREQ);    	// Pixels/Hz
-						
+			
 			float MIN_TIME = 0.0f;
 			float MAX_TIME = (float) milliseconds;
 			if (MAX_TIME == 0) MAX_TIME = 1000;
 
 			// Interval between ticks (time) on horizontal axis.
-			float TIME_STEP = (float) MathUtils.GetNicerNumber(MAX_TIME / 10);
+			float TIME_STEP = (float) MathUtils.GetNicerNumber(MAX_TIME / 20);
 			float TIMETOPIXEL = (float) WIDTH/(MAX_TIME-MIN_TIME); 	// Pixels/second
 			
 			// Colors
 			/*
+			// orange style 
 			Color lineColor = ColorTranslator.FromHtml("#C7834C");
 			Color middleLineColor = ColorTranslator.FromHtml("#EFAB74");
-			Color textColor = ColorTranslator.FromHtml("#A9652E");
-			Color sampleColor = ColorTranslator.FromHtml("#4C2F1A");
+			Color labelColor = ColorTranslator.FromHtml("#A9652E");
+			Color tickColor = ColorTranslator.FromHtml("#A9652E");
 			Color fillOuterColor = ColorTranslator.FromHtml("#FFFFFF");
 			Color fillColor = ColorTranslator.FromHtml("#F9C998");
 			 */
-			Color lineColor = ColorTranslator.FromHtml("#FFFFFF");
-			Color middleLineColor = ColorTranslator.FromHtml("#FFFFFF");
-			Color textColor = ColorTranslator.FromHtml("#FFFFFF");
-			Color sampleColor = ColorTranslator.FromHtml("#FFFFFF");
+			// black, gray, white style
+			Color lineColor = ColorTranslator.FromHtml("#BFBFBF");
+			Color middleLineColor = ColorTranslator.FromHtml("#BFBFBF");
+			Color labelColor = ColorTranslator.FromHtml("#FFFFFF");
+			Color tickColor = ColorTranslator.FromHtml("#BFBFBF");
 			Color fillOuterColor = ColorTranslator.FromHtml("#000000");
 			Color fillColor = ColorTranslator.FromHtml("#000000");
 			
-			Bitmap image = new Bitmap(width, height);
-			Graphics g = Graphics.FromImage(image);
+			Bitmap fullImage = new Bitmap(TOTAL_WIDTH, TOTAL_HEIGHT);
+			Graphics g = Graphics.FromImage(fullImage);
 			
 			Pen linePen = new Pen(lineColor, 0.5f);
 			Pen middleLinePen = new Pen(middleLineColor, 0.5f);
-			Pen textPen = new Pen(textColor, 1);
-			Pen samplePen = new Pen(sampleColor, 1);
+			Pen labelPen = new Pen(labelColor, 1);
+			Pen tickPen = new Pen(tickColor, 1);
 
 			// Draw a rectangular box marking the boundaries of the graph
 			Rectangle rectOuter = new Rectangle(0, 0, TOTAL_WIDTH, TOTAL_HEIGHT);
@@ -563,10 +564,10 @@ namespace CommonUtils.FFT
 			
 			// Label for horizontal axis
 			Font drawLabelFont = new Font("Arial", 8);
-			SolidBrush drawLabelBrush = new SolidBrush(textPen.Color);
+			SolidBrush drawLabelBrush = new SolidBrush(labelPen.Color);
 			if (drawLabels) {
 				SizeF drawLabelTextSize = g.MeasureString(LABEL_X, drawLabelFont);
-				g.DrawString(LABEL_X, drawLabelFont, drawLabelBrush, (TOTAL_WIDTH/2) - (drawLabelTextSize.Width/2), TOTAL_HEIGHT - drawLabelFont.GetHeight(g) -3);
+				g.DrawString(LABEL_X, drawLabelFont, drawLabelBrush, (TOTAL_WIDTH/2) - (drawLabelTextSize.Width/2), TOTAL_HEIGHT - drawLabelFont.GetHeight(g) - 5);
 			}
 			
 			float y = 0;
@@ -580,12 +581,12 @@ namespace CommonUtils.FFT
 				// draw horozontal main line
 				y = BOTTOM - FREQTOPIXEL*(freqTick-MIN_FREQ);
 				if (y < BOTTOM && y > TOP+1) {
-					g.DrawLine(linePen, LEFT-2, y, LEFT+WIDTH, y);
+					g.DrawLine(linePen, LEFT-2, y, LEFT+WIDTH+2, y);
 				}
 
 				// draw horozontal middle line (between the main lines)
 				yMiddle = y-(FREQTOPIXEL*FREQ_STEP)/2;
-				if (yMiddle > 0) {
+				if (yMiddle > TOP && yMiddle < HEIGHT+TOP) {
 					g.DrawLine(middleLinePen, LEFT, yMiddle, LEFT+WIDTH, yMiddle);
 				}
 
@@ -593,8 +594,13 @@ namespace CommonUtils.FFT
 				{
 					// Numbers on the tick marks
 					Font drawFont = new Font("Arial", 8);
-					SolidBrush drawBrush = new SolidBrush(textPen.Color);
-					g.DrawString("" + freqTick, drawFont, drawBrush, LEFT-35, y - drawFont.GetHeight(g)/2);
+					SolidBrush drawBrush = new SolidBrush(tickPen.Color);
+					
+					// left
+					g.DrawString(MathUtils.FormatNumber((int) freqTick), drawFont, drawBrush, LEFT - 33, y - drawFont.GetHeight(g)/2);
+
+					// right
+					g.DrawString(MathUtils.FormatNumber((int) freqTick), drawFont, drawBrush, WIDTH + LEFT + 4, y - drawFont.GetHeight(g)/2);
 				}
 			}
 			
@@ -604,8 +610,7 @@ namespace CommonUtils.FFT
 				format.Alignment = StringAlignment.Center;
 				g.TranslateTransform(g.VisibleClipBounds.Width, 0);
 				g.RotateTransform(270);
-				//g.DrawString(LABEL_Y, drawLabelFont, drawLabelBrush, 1, TOP + HEIGHT/2 - drawLabelFont.GetHeight(g)/2, format);
-				g.DrawString(LABEL_Y, drawLabelFont, drawLabelBrush, -(TOTAL_HEIGHT/2), -TOTAL_WIDTH+5, format);
+				g.DrawString(LABEL_Y, drawLabelFont, drawLabelBrush, -(TOTAL_HEIGHT/2), -TOTAL_WIDTH + 5, format);
 				g.ResetTransform();
 			}
 			
@@ -628,7 +633,7 @@ namespace CommonUtils.FFT
 				{
 					// Numbers on the tick marks
 					Font drawFont = new Font("Arial", 8);
-					SolidBrush drawBrush = new SolidBrush(textPen.Color);
+					SolidBrush drawBrush = new SolidBrush(tickPen.Color);
 					SizeF drawTimeTickTextSize = g.MeasureString("" + timeTick, drawFont);
 
 					// top
@@ -640,33 +645,41 @@ namespace CommonUtils.FFT
 			}
 			
 			// draw spectrogram
-			int bands = spectrum[0].Length;
+			Bitmap spectrogram = new Bitmap(WIDTH, HEIGHT);
+			
+			// calculate min and max
 			double max = spectrum.Max((b) => b.Max((v) => Math.Abs(v)));
 			double min = spectrum.Min((b) => b.Min((v) => Math.Abs(v)));
 
-			double deltaX = (double) (WIDTH - 1)/spectrum.Length; /*By how much the image will move to the left*/
-			double deltaY = (double) (HEIGHT- 1)/(bands + 1); /*By how much the image will move upward*/
+			int numberOfSamplesX = spectrum.Length; 	// time
+			int numberOfSamplesY = spectrum[0].Length; 	// hz
+			
+			double deltaX = (double) (WIDTH - 1)/(numberOfSamplesX); 	// By how much the image will move to the left
+			double deltaY = (double) (HEIGHT- 1)/(numberOfSamplesY); 	// By how much the image will move upward
 			
 			int prevX = 0;
-			for (int i = 0, n = spectrum.Length; i < n; i++)
+			for (int i = 0; i < numberOfSamplesX; i++)
 			{
-				double xCoord = i*deltaX + LEFT;
+				double xCoord = i*deltaX;
 				if ((int) xCoord == prevX) continue;
-				for (int j = 0, m = spectrum[0].Length; j < m; j++)
+				for (int j = 0; j < numberOfSamplesY; j++)
 				{
 					float amplitude = spectrum[i][j];
 					float dB = MathUtils.ConvertAmplitudeToDB(amplitude, minDb, maxDb);
-					int colorval = (int) MathUtils.ConvertAndMainainRatio(dB, minDb, maxDb, 0, 215); // 255 is full brightness
+					int colorval = (int) MathUtils.ConvertAndMainainRatio(dB, minDb, maxDb, 0, 220); // 255 is full brightness, and good for REW colors (for SOX 220 is good)
 					Color colorbw = Color.FromArgb(colorval, colorval, colorval);
 					
-					//Color color = ValueToBlackWhiteColor(spectrum[i][j], max/20);
-					image.SetPixel((int) xCoord+1, HEIGHT - (int) (deltaY*j) + TOP - 1, colorbw);
+					//Color color = ValueToBlackWhiteColor(amplitude, max);
+					spectrogram.SetPixel((int) xCoord + 1, HEIGHT - (int) (deltaY*j) - 1, colorbw);
 				}
 				prevX = (int) xCoord;
 			}
-
-			image = ColorUtils.Colorize(image, 255);
-			return image;
+			spectrogram = ColorUtils.Colorize(spectrogram, 255, colorPalette);
+			
+			// add the spectrogram to the full image
+			g.DrawImage(spectrogram, LEFT, TOP);
+			
+			return fullImage;
 		}
 
 		/// <summary>

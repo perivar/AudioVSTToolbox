@@ -654,7 +654,7 @@ namespace Wave2Zebra2Preset
 				}
 			}
 			
-			png = ColorUtils.Colorize(png, 255);
+			png = ColorUtils.Colorize(png, 255, ColorUtils.ColorPaletteType.SOX);
 			png.Save(filenameToSave);
 			g.Dispose();
 		}

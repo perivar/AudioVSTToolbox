@@ -553,7 +553,7 @@ namespace CommonUtils
 				pen.Color = gradients[i];
 				g.DrawLine(pen, i, 0, i, height);
 			}
-			png.Save(@"c:\colorgradient-palette.png");
+			//png.Save(@"c:\colorgradient-palette.png");
 			return png;
 		}
 
@@ -568,7 +568,7 @@ namespace CommonUtils
 		/// <param name="mask">Gray shaded image to be colorized</param>
 		/// <param name="alpha">0-255</param>
 		/// <returns>a colorized bitmap</returns>
-		public static Bitmap Colorize(Bitmap mask, byte alpha)
+		public static Bitmap Colorize(Bitmap mask, byte alpha, ColorPaletteType type)
 		{
 			// Create new bitmap to act as a work surface for the colorization process
 			Bitmap output = new Bitmap(mask.Width, mask.Height, PixelFormat.Format32bppArgb);
@@ -579,7 +579,7 @@ namespace CommonUtils
 
 			// Build an array of color mappings to remap our greyscale mask to full color
 			// Accept an alpha byte to specify the transparancy of the output image
-			ColorMap[] colors = CreatePaletteIndex(alpha);
+			ColorMap[] colors = CreatePaletteIndex(alpha, type);
 
 			// Create new image attributes class to handle the color remappings
 			// Inject our color map array to instruct the image attributes class how to do the colorization
@@ -593,16 +593,31 @@ namespace CommonUtils
 			return output;
 		}
 
-		private static ColorMap[] CreatePaletteIndex(byte Alpha)
+		private static ColorMap[] CreatePaletteIndex(byte Alpha, ColorPaletteType type)
 		{
 			ColorMap[] outputMap = new ColorMap[256];
 
 			// Change this path to wherever you saved the palette image.
 			//Bitmap palette = (Bitmap)Bitmap.FromFile(@"C:\Users\Dylan\Documents\Visual Studio 2005\Projects\HeatMapTest\palette.bmp");
-			List<Color> sox_hsb_gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.SOX);
-			//List<Color> sox_hsb_gradients = ColorUtils.GetRGBColorGradients(257, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
-			Bitmap palette = GetColorGradientsPalette(sox_hsb_gradients, 1);
-
+			
+			List<Color> gradients;
+			switch (type) {
+				case ColorPaletteType.PHOTOSOUNDER:
+					gradients = ColorUtils.GetRGBColorGradients(257, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
+					break;
+				case ColorPaletteType.REW:
+					gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.REW);
+					break;
+				case ColorPaletteType.SOX:
+					gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.SOX);
+					break;
+				default:
+					gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.SOX);
+					break;
+			}
+			
+			Bitmap palette = GetColorGradientsPalette(gradients, 1);
+			
 			// Loop through each pixel and create a new color mapping
 			for (int x = 0; x <= 255; x++)
 			{

@@ -315,9 +315,8 @@ namespace Wave2Zebra2Preset
 			//repositoryGateway.drawSpectrogram3("Spectrogram3", fileName, exoSpectrogram);
 			//repositoryGateway.drawSpectrogram4("Spectrogram4", fileName, exoSpectrogram);
 			//Export.exportCSV (@"c:\exoSpectrogram-full.csv", exoSpectrogram);
-			Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(exoSpectrogram, 900, 600, 10000, sampleRate);
+			Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(exoSpectrogram, 900, 600, secondsToSample*1000, sampleRate, ColorUtils.ColorPaletteType.SOX);
 			spectro.Save(@"c:\spectrogram-test.png");
-			
 			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
