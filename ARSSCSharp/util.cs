@@ -3,37 +3,40 @@ using CommonUtils;
 
 public static class GlobalMembersUtil
 {
-	public static Int32 quiet = new Int32();
+	public static bool quiet = false;
 
 	public static void win_return()
 	{
-		if (quiet == 0)
+		if (!quiet)
 		{
 			Console.Write("Press Return to quit\n");
 			Console.Read();
 		}
 	}
 	
-	public static double fmod(double x, double y)
+	/// <summary>
+	/// Compute remainder of division
+	/// Returns the floating-point remainder of numerator/denominator.
+	/// The remainder of a division operation is the result of subtracting the integral quotient multiplied by the denominator from the numerator:
+	/// remainder = numerator - quotient * denominator
+	/// </summary>
+	/// <param name="numerator">double</param>
+	/// <param name="denominator">double</param>
+	/// <returns>remainder of division</returns>
+	public static double fmod(double numerator, double denominator)
 	{
-		//double var = MathUtils.RoundToNearest(x, 0.0001);
-		//double remainder = x % y;
-		//double remainder = Math.IEEERemainder(var, y);
-		//double remainder = x - var;
-		//return remainder;
-
-		double remainder = Math.IEEERemainder(x, y);
+		double remainder = Math.IEEERemainder(numerator, denominator);
 		if (!Double.IsNaN(remainder) && remainder != 0.0)
 		{
-			if (x >= 0.0)
+			if (numerator >= 0.0)
 			{
 				if (remainder < 0.0)
-					remainder += Math.Abs(y);
+					remainder += Math.Abs(denominator);
 			}
 			else // x < 0.0
 			{
 				if (remainder > 0.0)
-					remainder -= Math.Abs(y);
+					remainder -= Math.Abs(denominator);
 			}
 		}
 		return remainder;
@@ -102,7 +105,7 @@ public static class GlobalMembersUtil
 				#endif
 				return 0;
 			} else {
-				return Math.Log(x)/Math.Log(GlobalMembersDsp.LOGBASE);
+				return Math.Log(x) / Math.Log(GlobalMembersDsp.LOGBASE);
 			}
 		}
 	}
@@ -162,38 +165,10 @@ public static class GlobalMembersUtil
 	public static string getstring()
 	{
 		return Console.ReadLine();
-		
-		/*
-		int len_str;
-		int i;
-		string a = new string(new char[FILENAME_MAX]);
-		string b;
-
-		fgets(a, sizeof(sbyte), stdin);
-		len_str = a.Length;
-
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'malloc' has no equivalent in C#:
-		b = malloc(len_str * sizeof(sbyte));
-
-		for (i = 0; i<len_str; i++)
-			b[i]=a[i];
-
-		b = b.Substring(0, len_str-1);
-
-		return b;
-		 */
 	}
 	
-	public static Int32 gettime() // in milliseconds
+	public static long gettime() // in milliseconds
 	{
-		return DateTime.Now.Millisecond;
-		
-		/*
-		timeval t = new timeval();
-
-		gettimeofday(t, null);
-
-		return (Int32) t.tv_sec *1000 + t.tv_usec/1000;
-		 */
+		return DateTime.Now.Ticks;
 	}
 }

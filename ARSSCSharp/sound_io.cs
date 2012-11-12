@@ -4,9 +4,9 @@ using CommonUtils;
 public static class GlobalMembersSound_io
 {
 	// compression code, 2 bytes
-	static int WAVE_FORMAT_UNKNOWN           =  0x0000; /* Microsoft Corporation */
+	//static int WAVE_FORMAT_UNKNOWN           =  0x0000; /* Microsoft Corporation */
 	static int WAVE_FORMAT_PCM               =  0x0001; /* Microsoft Corporation */
-	static int WAVE_FORMAT_ADPCM             =  0x0002; /* Microsoft Corporation */
+	//static int WAVE_FORMAT_ADPCM             =  0x0002; /* Microsoft Corporation */
 	static int WAVE_FORMAT_IEEE_FLOAT        =  0x0003; /* Microsoft Corporation */
 	
 	/*
@@ -193,11 +193,20 @@ public static class GlobalMembersSound_io
 			}
 		}
 	}
-	
+
+	public static double[][] wav_in(String wavfile, ref Int32 channels, ref Int32 samplecount, ref Int32 samplerate)
+	{
+		RiffRead riffRead = new RiffRead(wavfile);
+		riffRead.Process();
+		channels = riffRead.Channels;
+		samplecount = riffRead.SampleCount;
+		samplerate = riffRead.SampleRate;
+		return riffRead.SoundData;
+	}
+
 	public static double[][] wav_in(BinaryFile wavfile, ref Int32 channels, ref Int32 samplecount, ref Int32 samplerate)
 	{
 		double[][] sound;
-
 		Int32 i = new Int32();
 		Int32 ic = new Int32();
 		Int32[] tag = new Int32[13];
@@ -205,8 +214,8 @@ public static class GlobalMembersSound_io
 		//			Size  Description                  Value
 		// tag[0]	4	  RIFF Header				   RIFF (1179011410)
 		// tag[1] 	4	  RIFF data size
-		// tag[2] 	4	  form-type (WAVE etc)
-		// tag[3] 	4     Chunk ID                     "fmt " (0x666D7420)
+		// tag[2] 	4	  form-type (WAVE etc)			(1163280727)
+		// tag[3] 	4     Chunk ID                     "fmt " (0x666D7420) = 544501094
 		// tag[4]	4     Chunk Data Size              16 + extra format bytes
 		// tag[5]	2     Compression code             1 - 65,535
 		// tag[6]	2     Number of channels           1 - 65,535
@@ -214,7 +223,8 @@ public static class GlobalMembersSound_io
 		// tag[8]	4     Average bytes per second     1 - 0xFFFFFFFF
 		// tag[9]	2     Block align                  1 - 65,535 (4)
 		// tag[10]	2     Significant bits per sample  2 - 65,535 (32)
-		// tag[11]	4	  IEEE = 1952670054 (0x74636166), 	PCM = 1635017060 (0x61746164)
+		// tag[11]	4	  IEEE = 1952670054 (0x74636166) = fact chunk
+		// 				  PCM = 1635017060 (0x61746164)  (datachunk = 1635017060)
 		// tag[12] 	4	  IEEE = 4 , 						PCM = 5292000 (0x0050BFE0)
 
 		#if DEBUG
@@ -240,7 +250,7 @@ public static class GlobalMembersSound_io
 			Environment.Exit(1);
 		}
 
-		if (tag[3]!=544501094 || tag[4]!=16) //  || tag[11]!=1635017060
+		if (tag[3]!=544501094 || tag[4]!=16 || tag[11]!=1635017060) //
 		{
 			Console.Error.WriteLine("This WAVE file format is not currently supported\n");
 			GlobalMembersUtil.win_return();

@@ -23,6 +23,8 @@
     <Optimize>False</Optimize>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <StartAction>Project</StartAction>
+    <StartArguments>"C:\Users\perivar.nerseth\Music\Sleep Away16.wav" "C:\Users\perivar.nerseth\Music\Sleep Away.png"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -91,6 +93,12 @@
     <Compile Include="..\..\AudioVSTToolbox\CommonUtils\StringUtils.cs">
       <Link>StringUtils.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\Audio\RiffRead.cs">
+      <Link>NAudio\RiffRead.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\ColorUtils.cs">
+      <Link>ColorUtils.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\ExtendedGraphics.cs">
       <Link>ExtendedGraphics.cs</Link>
     </Compile>
@@ -123,6 +131,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="FFT" />
+    <Folder Include="NAudio" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

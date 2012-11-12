@@ -491,7 +491,7 @@ namespace CommonUtils.FFT
 
 			bool drawLabels = true;
 			float minDb = -80.0f;
-			float maxDb = 0.0f;
+			float maxDb = 10.0f;
 			
 			// Basic constants
 			int TOTAL_HEIGHT = height;    // Height of graph
@@ -527,7 +527,7 @@ namespace CommonUtils.FFT
 			
 			// Colors
 			/*
-			// orange style 
+			// orange style
 			Color lineColor = ColorTranslator.FromHtml("#C7834C");
 			Color middleLineColor = ColorTranslator.FromHtml("#EFAB74");
 			Color labelColor = ColorTranslator.FromHtml("#A9652E");
@@ -665,9 +665,12 @@ namespace CommonUtils.FFT
 				for (int j = 0; j < numberOfSamplesY; j++)
 				{
 					float amplitude = spectrum[i][j];
-					float dB = MathUtils.ConvertAmplitudeToDB(amplitude, minDb, maxDb);
-					int colorval = (int) MathUtils.ConvertAndMainainRatio(dB, minDb, maxDb, 0, 220); // 255 is full brightness, and good for REW colors (for SOX 220 is good)
-					Color colorbw = Color.FromArgb(colorval, colorval, colorval);
+					Color colorbw = Color.Black;
+					if (amplitude > 0) {
+						float dB = MathUtils.ConvertAmplitudeToDB(amplitude, minDb, maxDb);
+						int colorval = (int) MathUtils.ConvertAndMainainRatio(dB, minDb, maxDb, 0, 255); // 255 is full brightness, and good for REW colors (for SOX 220 is good)
+						colorbw = Color.FromArgb(colorval, colorval, colorval);
+					}
 					
 					//Color color = ValueToBlackWhiteColor(amplitude, max);
 					spectrogram.SetPixel((int) xCoord + 1, HEIGHT - (int) (deltaY*j) - 1, colorbw);
@@ -741,7 +744,7 @@ namespace CommonUtils.FFT
 			// Derived constants
 			int CENTER = TOTAL_HEIGHT / 2;
 			int RIGHT = WIDTH;
-			int BOTTOM = TOTAL_HEIGHT-TOP;                   						// Bottom of graph
+			int BOTTOM = TOTAL_HEIGHT-TOP;                   		// Bottom of graph
 
 			int numberOfSamples = 0;
 			float[] data = null;

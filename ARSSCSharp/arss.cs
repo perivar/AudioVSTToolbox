@@ -23,8 +23,8 @@ public static class GlobalMembersArss
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 
-	public static string version = "0.2.3";
-	public static string date = "May 29th, 2008";
+	public static string version = "0.2.3 - ported to C# by perivar@nerseth.com";
+	public static string date = "May 29th, 2008 - ported to C# - Nov. 12, 2012";
 	
 	public const int FILENAME_MAX = 260;
 	public const string MSG_NUMBER_EXPECTED = "A number is expected after {0}\nExiting with error.\n";
@@ -70,7 +70,7 @@ public static class GlobalMembersArss
 
 		if (samplerate == 0) // if we're in synthesis mode and that no samplerate has been defined yet
 		{
-			if (GlobalMembersUtil.quiet == 1)
+			if (GlobalMembersUtil.quiet)
 			{
 				Console.Error.WriteLine("Please provide a sample rate for your output sound.\nUse --sample-rate (-r).\nExiting with error.\n");
 				Environment.Exit(1);
@@ -157,7 +157,7 @@ public static class GlobalMembersArss
 
 		if (unset<3 && set_min == 0)
 		{
-			if (GlobalMembersUtil.quiet == 1)
+			if (GlobalMembersUtil.quiet)
 			{
 				Console.Error.WriteLine("Please define a minimum frequency.\nUse --min-freq (-min).\nExiting with error.\n");
 				Environment.Exit(1);
@@ -173,7 +173,7 @@ public static class GlobalMembersArss
 
 		if (unset<3 && set_bpo == 0)
 		{
-			if (GlobalMembersUtil.quiet == 1)
+			if (GlobalMembersUtil.quiet)
 			{
 				Console.Error.WriteLine("Please define a bands per octave setting.\nUse --bpo (-b).\nExiting with error.\n");
 				Environment.Exit(1);
@@ -206,7 +206,7 @@ public static class GlobalMembersArss
 
 			if (mode == 0) // if we're in Analysis mode
 			{
-				if (GlobalMembersUtil.quiet == 1)
+				if (GlobalMembersUtil.quiet)
 				{
 					Console.Error.WriteLine("Please define a maximum frequency.\nUse --max-freq (-max).\nExiting with error.\n");
 					Environment.Exit(1);
@@ -263,7 +263,7 @@ public static class GlobalMembersArss
 
 		if ((mode == 0 && set_x == 0 && set_pps == 0) || (mode == 1 && set_pps == 0)) // If in Analysis mode none are set or pixpersec isn't set in Synthesis mode
 		{
-			if (GlobalMembersUtil.quiet == 1)
+			if (GlobalMembersUtil.quiet)
 			{
 				Console.Error.WriteLine("Please define a pixels per second setting.\nUse --pps (-p).\nExiting with error.\n");
 				Environment.Exit(1);
@@ -296,16 +296,41 @@ public static class GlobalMembersArss
 
 	public static void print_help()
 	{
-		Console.Write("Usage: arss [options] input_file output_file [options]. Example:\n" + "\n" + "arss -q in.bmp out.wav --noise --min-freq 55 -max 16000 --pps 100 -r 44100 -f 16\n" + "\n" + "--help, -h, /?                Display this help\n" + "--adv-help                    Display more advanced options\n" + "--version, -v                 Display the version of this program\n" + "--quiet, -q                   No-prompt mode. Useful for scripting\n" + "--analysis, -a                Analysis mode. Not req. if input file is a .wav\n" + "--sine, -s                    Sine synthesis mode\n" + "--noise, -n                   Noise synthesis mode\n" + "--min-freq, -min [real]       Minimum frequency in Hertz\n" + "--max-freq, -max [real]       Maximum frequency in Hertz\n" + "--bpo, -b [real]              Frequency resolution in Bands Per Octave\n" + "--pps, -p [real]              Time resolution in Pixels Per Second\n" + "--height, -y [integer]        Specifies the desired height of the spectrogram\n" + "--width, -x [integer]         Specifies the desired width of the spectrogram\n" + "--sample-rate, -r [integer]   Sample rate of the output sound\n" + "--brightness, -g [real]       Almost like gamma : f(x) = x^1/brightness\n" + "--format-param, -f [integer]  Output format option. This is bit-depth for WAV files (8/16/32, default: 32). No option for BMP files.\n");
+		Console.Write("Usage: arss [options] input_file output_file [options]. Example:\n"
+		              + "\n"
+		              + "arss -q in.bmp out.wav --noise --min-freq 55 -max 16000 --pps 100 -r 44100 -f 16\n"
+		              + "\n"
+		              + "--help, -h, /?                Display this help\n"
+		              + "--adv-help                    Display more advanced options\n"
+		              + "--version, -v                 Display the version of this program\n"
+		              + "--quiet, -q                   No-prompt mode. Useful for scripting\n"
+		              + "--analysis, -a                Analysis mode. Not req. if input file is a .wav\n"
+		              + "--sine, -s                    Sine synthesis mode\n"
+		              + "--noise, -n                   Noise synthesis mode\n"
+		              + "--min-freq, -min [real]       Minimum frequency in Hertz\n"
+		              + "--max-freq, -max [real]       Maximum frequency in Hertz\n"
+		              + "--bpo, -b [real]              Frequency resolution in Bands Per Octave\n"
+		              + "--pps, -p [real]              Time resolution in Pixels Per Second\n"
+		              + "--height, -y [integer]        Specifies the desired height of the spectrogram\n"
+		              + "--width, -x [integer]         Specifies the desired width of the spectrogram\n"
+		              + "--sample-rate, -r [integer]   Sample rate of the output sound\n"
+		              + "--brightness, -g [real]       Almost like gamma : f(x) = x^1/brightness\n"
+		              + "--format-param, -f [integer]  Output format option. This is bit-depth for WAV files (8/16/32, default: 32). No option for BMP files.\n");
 	}
 
 	public static void print_adv_help()
 	{
-		Console.Write("More advanced options :\n" + "\n" + "--log-base [real]          Frequency scale's logarithmic base (default: 2)\n" + "--linear, -l               Linear frequency scale. Same as --log-base 1\n" + "--loop-size [real]         Noise look-up table size in seconds (default: 10)\n" + "--bmsq-lut-size [integer]  Blackman Square kernel LUT size (default: 16000)\n" + "--pi [real]                pi (default: 3.1415926535897932)\n");
+		Console.Write("More advanced options :\n"
+		              + "\n"
+		              + "--log-base [real]          Frequency scale's logarithmic base (default: 2)\n"
+		              + "--linear, -l               Linear frequency scale. Same as --log-base 1\n"
+		              + "--loop-size [real]         Noise look-up table size in seconds (default: 10)\n"
+		              + "--bmsq-lut-size [integer]  Blackman Square kernel LUT size (default: 16000)\n"
+		              + "--pi [real]                pi (default: 3.1415926535897932)\n");
 	}
 
 	public static void Main(string[] args)
-	{	
+	{
 		//CommonUtils.FFT.FFTTesting.TimeAll(1000);
 		//CommonUtils.FFT.FFTTesting.TestAll(null);
 		//Console.ReadKey();
@@ -330,7 +355,7 @@ public static class GlobalMembersArss
 		Int32 Xsize = 0;
 		Int32 Ysize = 0;
 		Int32 format_param = 0;
-		Int32 clockb = new Int32();
+		long clockb = new Int32();
 		byte mode = 0;
 		string in_name = null;
 		string out_name = null;
@@ -342,9 +367,9 @@ public static class GlobalMembersArss
 		GlobalMembersDsp.BMSQ_LUT_SIZE 	= BMSQ_LUT_SIZE_D;
 		
 		#if QUIET
-		GlobalMembersUtil.quiet = 1;
+		GlobalMembersUtil.quiet = true;
 		#else
-		GlobalMembersUtil.quiet = 0;
+		GlobalMembersUtil.quiet = false;
 		#endif
 
 		Console.Write("The Analysis & Resynthesis Sound Spectrograph {0}\n", version);
@@ -352,7 +377,7 @@ public static class GlobalMembersArss
 		RandomNumbers.Seed((int)DateTime.Now.Millisecond);
 
 		bool doHelp = false;
-		for (i = 1; i<argc; i++)
+		for (i = 0; i<argc; i++)
 		{
 			if (string.Compare(args[i], "/?")==0) // DOS friendly help
 			{
@@ -384,7 +409,7 @@ public static class GlobalMembersArss
 					mode = 3;
 
 				if (string.Compare(args[i], "--quiet")==0 || string.Compare(args[i], "-q")==0)
-					GlobalMembersUtil.quiet = 1;
+					GlobalMembersUtil.quiet = true;
 
 				if (string.Compare(args[i], "--linear")==0 || string.Compare(args[i], "-l")==0)
 					GlobalMembersDsp.LOGBASE = 1.0;
@@ -518,7 +543,7 @@ public static class GlobalMembersArss
 					Environment.Exit(0);
 				}
 
-				if (string.Compare(args[i], "--help")==0 || string.Compare(args[i], "-h")==0)
+				if (doHelp || string.Compare(args[i], "--help")==0 || string.Compare(args[i], "-h")==0)
 				{
 					GlobalMembersArss.print_help();
 					Environment.Exit(0);
@@ -534,9 +559,7 @@ public static class GlobalMembersArss
 
 		if (in_name!=null) // if in_name has already been filled in
 		{
-			//fin = fopen(in_name, "rb"); // try to open it
 			fin = new BinaryFile(in_name); // try to open it
-
 			if (fin == null)
 			{
 				Console.Error.WriteLine("The input file {0} could not be found\nExiting with error.\n", in_name);
@@ -546,7 +569,7 @@ public static class GlobalMembersArss
 		}
 		else
 		{
-			if (GlobalMembersUtil.quiet == 1)
+			if (GlobalMembersUtil.quiet)
 			{
 				Console.Error.WriteLine("Please specify an input file.\nExiting with error.\n");
 				Environment.Exit(1);
@@ -568,7 +591,6 @@ public static class GlobalMembersArss
 				else {
 					if (File.Exists(in_name)) {
 						fin = new BinaryFile(in_name);
-						//fin = fopen(in_name, "rb");
 					}
 				}
 			}
@@ -578,8 +600,6 @@ public static class GlobalMembersArss
 		if (out_name != null) // if out_name has already been filled in
 		{
 			fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
-			//fout = fopen(out_name, "wb");
-
 			if (fout == null)
 			{
 				Console.Error.WriteLine("The output file {0} could not be opened.\nPlease make sure it isn't opened by any other program and press Return.\nExiting with error.\n", out_name);
@@ -589,7 +609,7 @@ public static class GlobalMembersArss
 		}
 		else
 		{
-			if (GlobalMembersUtil.quiet == 1)
+			if (GlobalMembersUtil.quiet)
 			{
 				Console.Error.WriteLine("Please specify an output file.\nExiting with error.\n");
 				Environment.Exit(1);
@@ -606,7 +626,6 @@ public static class GlobalMembersArss
 				out_name = GlobalMembersUtil.getstring();
 
 				if (out_name != null && out_name != "") fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
-				//fout = fopen(out_name, "wb");
 			}
 
 			// we will never get here cause BinaryFile does not return a null
@@ -614,9 +633,8 @@ public static class GlobalMembersArss
 			{
 				Console.Error.WriteLine("The output file {0} could not be opened.\nPlease make sure it isn't opened by any other program and press Return.\n", out_name);
 				Console.Read();
-
+				
 				fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
-				//fout = fopen(out_name, "wb");
 			}
 		}
 
@@ -628,7 +646,7 @@ public static class GlobalMembersArss
 		if (mode == 0) {
 			do
 			{
-				if (GlobalMembersUtil.quiet == 1)
+				if (GlobalMembersUtil.quiet)
 				{
 					Console.Error.WriteLine("Please specify an operation mode.\nUse either --analysis (-a), --sine (-s) or --noise (-n).\nExiting with error.\n");
 					Environment.Exit(1);
@@ -642,7 +660,9 @@ public static class GlobalMembersArss
 
 		if (mode == 1)
 		{
-			sound = GlobalMembersSound_io.wav_in(fin, ref channels, ref samplecount, ref samplerate); // Sound input
+			//sound = GlobalMembersSound_io.wav_in(fin, ref channels, ref samplecount, ref samplerate); // Sound input
+			fin.Close();
+			sound = GlobalMembersSound_io.wav_in(in_name, ref channels, ref samplecount, ref samplerate); // Sound input
 
 			#if DEBUG
 			Console.Write("samplecount : {0:D}\nchannels : {1:D}\n", samplecount, channels);
@@ -658,15 +678,13 @@ public static class GlobalMembersArss
 		
 		if (mode == 2 || mode == 3)
 		{
-			//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
-			//sound = calloc (1, sizeof(double));
 			sound = new double[1][];
 			
 			image = GlobalMembersImage_io.bmp_in(fin, ref Ysize, ref Xsize); // Image input
 
 			// if the output format parameter is undefined
 			if (format_param == 0) {
-				if (GlobalMembersUtil.quiet == 0) // if prompting is allowed
+				if (!GlobalMembersUtil.quiet) // if prompting is allowed
 					format_param = GlobalMembersSound_io.wav_out_param();
 				else
 					format_param = 32; // default is 32
@@ -687,7 +705,8 @@ public static class GlobalMembersArss
 		}
 
 		clockb = GlobalMembersUtil.gettime();
-		Console.Write("Processing time : {0:f3} s\n", (double)(clockb-GlobalMembersDsp.clocka)/1000.0);
+		TimeSpan duration = TimeSpan.FromTicks((clockb-GlobalMembersDsp.clocka));
+		Console.Write("Processing time : {0:D2} m  {1:D2} s  {1:D2} ms\n", duration.Minutes, duration.Seconds, duration.Milliseconds);
 
 		GlobalMembersUtil.win_return();
 

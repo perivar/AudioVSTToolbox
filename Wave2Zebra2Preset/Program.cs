@@ -123,6 +123,23 @@ namespace Wave2Zebra2Preset
 	// http://www.whydomath.org/node/wavlets/hwt.html
 	// http://www.codeproject.com/Articles/206507/Duplicates-detector-via-audio-fingerprinting
 	
+	// Shazaam links
+	// http://www.redcode.nl/blog/2010/06/creating-shazam-in-java/
+	// http://holyblasphemy.org/docs/AutomatedMusicRecognition.pdf
+	// http://williambrent.conflations.com/pages/research.html (TimbreID)
+	
+	// MFCC links
+	// http://mirlastfm.googlecode.com/svn-history/r3/trunk/CoMIRVA/src/comirva/audio/util/MFCC.java
+	
+	// http://cmusphinx.sourceforge.net/sphinx4/javadoc/edu/cmu/sphinx/frontend/frequencywarp/MelFrequencyFilterBank.html
+	// https://www.assembla.com/code/sonido/subversion/nodes/sphinx4/src/sphinx4/edu/cmu/sphinx/frontend/frequencywarp/MelFrequencyFilterBank.java?rev=11
+	
+	// http://code.google.com/p/funf-open-sensing-framework/source/browse/src/edu/mit/media/funf/MFCC.java?r=85c1e60286d76edb8573bf74efde6ec49dfbc5aa
+	// http://www.ee.columbia.edu/~ronw/code/MEAPsoft/src/com/meapsoft/featextractors/AvgMelSpec.java
+	// https://github.com/viat/YapHash/blob/master/sources/YapHash/src/YapHash.cpp
+	// http://code.google.com/p/jstk/source/browse/trunk/jstk/src/de/fau/cs/jstk/framed/FilterBank.java?r=185
+	// http://stackoverflow.com/questions/7395560/mfcc-implementation-ok-up-until-i-run-the-dct
+	
 	class Program
 	{
 		///   Music file filters
@@ -288,9 +305,11 @@ namespace Wave2Zebra2Preset
 			double sampleRate = 5512;// 44100  default 5512
 			int fftWindowsSize = 2048; //4096  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
 			float fftOverlapPercentage = 99.0f; // number between 0 and 100
-			int secondsToSample = 10; //15;
+			int secondsToSample = 25; //15;
 			//float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 20*1000 );
 			float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 0);
+			MathUtils.NormalizeInPlace(wavDataVB6);
+			
 			VB6Spectrogram vb6Spect = new VB6Spectrogram();
 			//vb6Spect.ComputeColorPalette();
 			//float[][] vb6Spectrogram = vb6Spect.Compute(wavDataVB6, sampleRate, fftWindowsSize, fftOverlapPercentage);
@@ -315,8 +334,15 @@ namespace Wave2Zebra2Preset
 			//repositoryGateway.drawSpectrogram3("Spectrogram3", fileName, exoSpectrogram);
 			//repositoryGateway.drawSpectrogram4("Spectrogram4", fileName, exoSpectrogram);
 			//Export.exportCSV (@"c:\exoSpectrogram-full.csv", exoSpectrogram);
-			Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(exoSpectrogram, 900, 600, secondsToSample*1000, sampleRate, ColorUtils.ColorPaletteType.SOX);
-			spectro.Save(@"c:\spectrogram-test.png");
+			Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(exoSpectrogram, 1200, 600, secondsToSample*1000, sampleRate, ColorUtils.ColorPaletteType.REW);
+			spectro.Save(@"c:\spectrogram-rew.png");
+			
+			float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, secondsToSample*1000, 0);
+			Bitmap logspectro = AudioAnalyzer.GetSpectrogramImage(logSpectrogram, 1200, 600, secondsToSample*1000, sampleRate, ColorUtils.ColorPaletteType.SOX);
+			logspectro.Save(@"c:\spectrogram-log.png");
+			
+			//Bitmap waveform = AudioAnalyzer.DrawWaveform(wavDataVB6, new Size (1200, 600), 0, 1, 0, sampleRate);
+			//waveform.Save(@"c:\waveform.png");
 			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);

@@ -91,15 +91,15 @@ namespace Wave2Zebra2Preset.Fingerprinting
 		public FingerprintManager()
 		{
 			WaveletDecomposition = new HaarWavelet();
-			LogBins = 32;
+			LogBins = 32;//32;
 			FingerprintLength = 128;
 			Overlap = 64;
 			SamplesPerFingerprint = FingerprintLength*Overlap;
 			WdftSize = 2048;//2048;
-			MinFrequency = 318;//318;
-			MaxFrequency = 2000;//2000;
+			MinFrequency = 27.5f;//318;
+			MaxFrequency = 22050;//2000;
 			TopWavelets = 200;
-			SampleRate = 5512;//5512;
+			SampleRate = 44100;//5512;
 			LogBase = Math.E;
 			_logFrequenciesIndex = GetLogFrequenciesIndex(SampleRate, MinFrequency, MaxFrequency, LogBins, WdftSize, LogBase);
 		}
@@ -153,7 +153,7 @@ namespace Wave2Zebra2Preset.Fingerprinting
 		/// <remarks>
 		///   Default = 318
 		/// </remarks>
-		public int MinFrequency { get; set; }
+		public float MinFrequency { get; set; }
 
 		/// <summary>
 		///   Frequency range which is taken into account
@@ -161,7 +161,7 @@ namespace Wave2Zebra2Preset.Fingerprinting
 		/// <remarks>
 		///   Default = 2000
 		/// </remarks>
-		public int MaxFrequency { get; set; }
+		public float MaxFrequency { get; set; }
 
 		/// <summary>
 		///   Number of Top wavelets to consider
@@ -290,7 +290,7 @@ namespace Wave2Zebra2Preset.Fingerprinting
 		{
 			//read 5512 Hz, Mono, PCM, with a specific proxy
 			float[] samples = proxy.ReadMonoFromFile(filename, SampleRate, milliseconds, startmilliseconds);
-			NormalizeInPlace(samples);
+			//NormalizeInPlace(samples);
 			int overlap = Overlap;
 			int fftWindowsSize = WdftSize;
 			
@@ -311,7 +311,7 @@ namespace Wave2Zebra2Preset.Fingerprinting
 				}
 				//FFT transform for gathering the spectrum
 				Fourier.FFT(complexSignal, fftWindowsSize, FourierDirection.Forward);
-				frames[i] = ExtractLogBins(complexSignal);
+				frames[i] = ExtractLogBins2(complexSignal);
 			}
 			return frames;
 		}
@@ -424,6 +424,33 @@ namespace Wave2Zebra2Preset.Fingerprinting
 			return sumFreq;
 		}
 
+		/// <summary>
+		///   Logarithmic spacing of a frequency in a linear domain
+		/// </summary>
+		/// <param name = "spectrum">Spectrum to space</param>
+		/// <returns>Logarithmically spaced signal</returns>
+		public float[] ExtractLogBins2(float[] spectrum)
+		{
+			int logBins = LogBins; /*Local copy for performance reasons*/
+
+			float[] sumFreq = new float[logBins]; /*32*/
+			for (int i = 0; i < logBins; i++)
+			{
+				int lowBound = _logFrequenciesIndex[i];
+				int hiBound = _logFrequenciesIndex[i + 1];
+
+				for (int k = lowBound; k < hiBound; k++)
+				{
+					double re = spectrum[2*k];
+					double img = spectrum[2*k + 1];
+					double abs = (Math.Sqrt(re*re + img*img));
+					sumFreq[i] += (float) abs;
+				}
+				sumFreq[i] = sumFreq[i]/(hiBound - lowBound);
+			}
+			return sumFreq;
+		}
+		
 		#endregion
 
 		#region Wavelet Decomposition
@@ -509,7 +536,7 @@ namespace Wave2Zebra2Preset.Fingerprinting
 		/// <param name = "logBins">Number of logarithmically spaced bins</param>
 		/// <param name = "fftWindowsSize">FFT Size</param>
 		/// <param name = "logarithmicBase">Logarithm base</param>
-		private void GenerateLogFrequencies(int sampleRate, int minFreq, int maxFreq, int logBins, int fftWindowsSize, double logarithmicBase)
+		private void GenerateLogFrequencies(int sampleRate, float minFreq, float maxFreq, int logBins, int fftWindowsSize, double logarithmicBase)
 		{
 			if (_logFrequenciesIndex == null)
 			{
@@ -523,7 +550,8 @@ namespace Wave2Zebra2Preset.Fingerprinting
 				{
 					float freq = (float) Math.Pow(logarithmicBase, logMin + accDelta);
 					accDelta += delta; // accDelta = delta * i
-					indexes[i] = FreqToIndex(freq, sampleRate, fftWindowsSize); /*Find the start index in array from which to start the summation*/
+					int index = FreqToIndex(freq, sampleRate, fftWindowsSize); /*Find the start index in array from which to start the summation*/
+					indexes[i] = index;
 				}
 				_logFrequenciesIndex = indexes;
 			}
@@ -539,7 +567,7 @@ namespace Wave2Zebra2Preset.Fingerprinting
 		/// <param name = "fftWindowsSize">FFT Size</param>
 		/// <param name = "logBase">Log base of the logarithm to be spaced</param>
 		/// <returns>Gets an array of indexes</returns>
-		public int[] GetLogFrequenciesIndex(int sampleRate, int minFreq, int maxFreq, int logBins, int fftWindowsSize, double logBase)
+		public int[] GetLogFrequenciesIndex(int sampleRate, float minFreq, float maxFreq, int logBins, int fftWindowsSize, double logBase)
 		{
 			if (_logFrequenciesIndex == null)
 				GenerateLogFrequencies(sampleRate, minFreq, maxFreq, logBins, fftWindowsSize, logBase);

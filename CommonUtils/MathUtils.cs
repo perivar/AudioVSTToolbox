@@ -526,5 +526,66 @@ namespace CommonUtils
 
 			return num.ToString("#,0");
 		}
+		
+		/// <summary>
+		/// Calculate the root mean square (RMS) of an array
+		/// </summary>
+		/// <param name="x">array of ints</param>
+		/// <returns>RMS</returns>
+		public static double RootMeanSquare(int[] x)
+		{
+			double sum = 0;
+			for (int i = 0; i < x.Length; i++)
+			{
+				sum += (x[i]*x[i]);
+			}
+			return Math.Sqrt(sum / x.Length);
+		}
+
+		/// <summary>
+		/// Calculate the root mean square (RMS) of an array
+		/// </summary>
+		/// <param name="x">array of floats</param>
+		/// <returns>RMS</returns>
+		public static double RootMeanSquare(float[] x)
+		{
+			double sum = 0;
+			for (int i = 0; i < x.Length; i++)
+			{
+				sum += (x[i]*x[i]);
+			}
+			return Math.Sqrt(sum / x.Length);
+		}
+		
+		// normalize power (volume) of a wave file.
+		// minimum and maximum rms to normalize from.
+		private const float MINRMS = 0.1f;
+		private const float MAXRMS = 3;
+
+		/// <summary>
+		///   Normalizing the input power (volume)
+		/// </summary>
+		/// <param name = "samples">Samples of a song to be normalized</param>
+		public static void NormalizeInPlace(float[] samples)
+		{
+			int nsamples = samples.Length;
+			float rms = (float) RootMeanSquare(samples);
+
+			// we don't want to normalize by the real RMS, because excessive clipping will occur
+			rms = rms * 10;
+			
+			if (rms < MINRMS)
+				rms = MINRMS;
+			if (rms > MAXRMS)
+				rms = MAXRMS;
+
+			for (int i = 0; i < nsamples; i++)
+			{
+				samples[i] /= rms;
+				samples[i] = Math.Min(samples[i], 1);
+				samples[i] = Math.Max(samples[i], -1);
+			}
+		}
+		
 	}
 }

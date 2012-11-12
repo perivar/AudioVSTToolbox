@@ -64,20 +64,31 @@ namespace CommonUtils
 		
 		private string selectedFile;
 		private long fileLength;
-		private int numberOfChannels;
-		private int numberOfSamplesPerSec;
-		private int numberOfAvgBytesPerSec;
-		private int numberOfBlockAlign;
-		private int numberOfBitsPerSample;
+		private int nChannels;
+		private int nSamplesPerSec;
+		private int nAvgBytesPerSec;
+		private int nBlockAlign;
+		private int wBitsPerSample;
+		private int riffDataSize=0;  // size of RIFF data chunk.
+		private long dataSize = 0;
+		private int sampleCount;
+		private int wFormatTag;
+		private double[][] soundData;
+		
 		private Dictionary<string, string> infoChunks = new Dictionary<string, string>();
 
 		public string SelectedFile { get { return selectedFile;  } set { selectedFile = value; } }
 		public long FileLength { get { return fileLength;  } set { fileLength = value; } }
-		public int NumberOfChannels { get { return numberOfChannels;  } set { numberOfChannels = value; } }
-		public int NumberOfSamplesPerSec { get { return numberOfSamplesPerSec;  } set { numberOfSamplesPerSec = value; } }
-		public int NumberOfAvgBytesPerSec { get { return numberOfAvgBytesPerSec;  } set { numberOfAvgBytesPerSec = value; } }
-		public int NumberOfBlockAlign { get { return numberOfBlockAlign;  } set { numberOfBlockAlign = value; } }
-		public int NumberOfBitsPerSample { get { return numberOfBitsPerSample;  } set { numberOfBitsPerSample = value; } }
+		public int Channels { get { return nChannels;  } set { nChannels = value; } }
+		public int SampleRate { get { return nSamplesPerSec;  } set { nSamplesPerSec = value; } }
+		public int AvgBytesPerSec { get { return nAvgBytesPerSec;  } set { nAvgBytesPerSec = value; } }
+		public int BlockAlign { get { return nBlockAlign;  } set { nBlockAlign = value; } }
+		public int BitsPerSample { get { return wBitsPerSample;  } set { wBitsPerSample = value; } }
+		public int RiffDataSize { get { return riffDataSize;  } set { riffDataSize = value; } }
+		public long DataSize { get { return dataSize;  } set { dataSize = value; } }
+		public int SampleCount { get { return sampleCount;  } set { sampleCount = value; } }
+		public int Format { get { return wFormatTag;  } set { wFormatTag = value; } }
+		public double[][] SoundData { get { return soundData;  } set { soundData = value; } }
 		public Dictionary<string, string> InfoChunks { get { return infoChunks;  } set { infoChunks = value; } }
 
 		public RiffRead (string value) {
@@ -86,7 +97,6 @@ namespace CommonUtils
 
 		public bool Process() {
 
-			long datasize = 0;
 			int bytespersec = 0;
 			int byteread = 0;
 			bool isPCM = false;
@@ -101,13 +111,14 @@ namespace CommonUtils
 				FileInfo fileInfo = new FileInfo(selectedFile);
 				fileLength = fileInfo.Length;
 
-				int riffdata=0;  // size of RIFF data chunk.
 				int chunkSize=0, infochunksize=0, bytecount=0, listbytecount=0;
 				string sfield="", infofield="", infodescription="", infodata="";
 				
 				/*  --------  Get RIFF chunk header --------- */
 				sfield = bf.ReadString(4);
+				#if DEBUG
 				Console.WriteLine("RIFF Header: {0}", sfield);
+				#endif
 				if (sfield != "RIFF") {
 					Console.WriteLine(" ****  Not a valid RIFF file  ****");
 					return false;
@@ -115,16 +126,20 @@ namespace CommonUtils
 
 				// read RIFF data size
 				chunkSize  = bf.ReadInt32();
+				#if DEBUG
 				Console.WriteLine("RIFF data size: {0}", chunkSize);
+				#endif
 				
 				// read form-type (WAVE etc)
 				sfield = bf.ReadString(4);
+				#if DEBUG
 				Console.WriteLine("Form-type: {0}", sfield);
+				#endif
 
-				riffdata = chunkSize;
+				riffDataSize = chunkSize;
 
 				bytecount = 4;  // initialize bytecount to include RIFF form-type bytes.
-				while (bytecount < riffdata )  {    // check for chunks inside RIFF data area.
+				while (bytecount < riffDataSize )  {    // check for chunks inside RIFF data area.
 					sfield="";
 					int firstbyte = bf.ReadByte() ;
 					if (firstbyte == 0) {  // if previous data had odd bytecount, was padded by null so skip
@@ -140,11 +155,13 @@ namespace CommonUtils
 					chunkSize = 0;
 					chunkSize = bf.ReadInt32();
 					bytecount += ( 8 + chunkSize );
+					#if DEBUG
 					Console.WriteLine("{0} ----- data size: {1} bytes", sfield, chunkSize);
+					#endif
 					
 					if (sfield == "data") {
 						//get data size to compute duration later.
-						datasize = chunkSize;
+						dataSize = chunkSize;
 					}
 
 					if (sfield == "fmt ") {
@@ -170,51 +187,66 @@ namespace CommonUtils
 						}
 
 						// Read compression code, 2 bytes
-						int wFormatTag = bf.ReadInt16();
+						wFormatTag = bf.ReadInt16();
 						if (wFormatTag == WAVE_FORMAT_PCM || wFormatTag == WAVE_FORMAT_EXTENSIBLE || wFormatTag == WAVE_FORMAT_IEEE_FLOAT) {
 							isPCM = true;
 						}
 						if (wFormatTag == WAVE_FORMAT_PCM) {
+							#if DEBUG
 							Console.WriteLine("\twFormatTag:  WAVE_FORMAT_PCM") ;
+							#endif
 						} else if (wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
+							#if DEBUG
 							Console.WriteLine("\twFormatTag:  WAVE_FORMAT_EXTENSIBLE") ;
+							#endif
 						} else if (wFormatTag == WAVE_FORMAT_IEEE_FLOAT) {
+							#if DEBUG
 							Console.WriteLine("\twFormatTag:  WAVE_FORMAT_IEEE_FLOAT") ;
+							#endif
 						} else if (wFormatTag == WAVE_FORMAT_MPEGLAYER3) {
+							#if DEBUG
 							Console.WriteLine("\twFormatTag:  WAVE_FORMAT_MPEGLAYER3") ;
+							#endif
 						} else {
+							#if DEBUG
 							Console.WriteLine("\twFormatTag:  non-PCM format {0}", wFormatTag) ;
+							#endif
 						}
 
 						// Read number of channels, 2 bytes
-						int nChannels = bf.ReadInt16();
+						nChannels = bf.ReadInt16();
+						#if DEBUG
 						Console.WriteLine("\tnChannels: {0}", nChannels);
-						NumberOfChannels = nChannels;
+						#endif
 						
 						// Read sample rate, 4 bytes
-						int nSamplesPerSec = bf.ReadInt32();
+						nSamplesPerSec = bf.ReadInt32();
+						#if DEBUG
 						Console.WriteLine("\tnSamplesPerSec: {0}", nSamplesPerSec);
-						NumberOfSamplesPerSec = nSamplesPerSec;
+						#endif
 						
 						// Read average bytes per second, 4 bytes
-						int nAvgBytesPerSec = bf.ReadInt32();
+						nAvgBytesPerSec = bf.ReadInt32();
 						bytespersec = nAvgBytesPerSec;
+						#if DEBUG
 						Console.WriteLine("\tnAvgBytesPerSec: {0}", nAvgBytesPerSec);
-						NumberOfAvgBytesPerSec = nAvgBytesPerSec;
+						#endif
 						
 						// Read block align, 2 bytes
-						int nBlockAlign = bf.ReadInt16();
+						nBlockAlign = bf.ReadInt16();
+						#if DEBUG
 						Console.WriteLine("\tnBlockAlign: {0}", nBlockAlign);
-						NumberOfBlockAlign = nBlockAlign;
+						#endif
 						
 						// Read significant bits per sample, 2 bytes
 						if (isPCM) {     // if PCM or EXTENSIBLE format
-							int wBitsPerSample = bf.ReadInt16();
+							wBitsPerSample = bf.ReadInt16();
+							#if DEBUG
 							Console.WriteLine("\twBitsPerSample: {0}", wBitsPerSample);
-							NumberOfBitsPerSample = wBitsPerSample;
+							#endif
 						} else {
 							bf.ReadBytes(2);
-							NumberOfBitsPerSample = 0;
+							wBitsPerSample = 0;
 						}
 
 						//skip over any extra bytes in format specific field.
@@ -231,7 +263,9 @@ namespace CommonUtils
 
 						try {
 							listbytecount = 4;
+							#if DEBUG
 							Console.WriteLine("------- INFO chunks: {0} bytes -------", chunkSize);
+							#endif
 							// iterate over all entries in LIST chunk
 							while (listbytecount < chunkSize) {
 								infofield = "";
@@ -281,10 +315,14 @@ namespace CommonUtils
 									infodescription = (string) listinfo[infofield];
 								} catch (KeyNotFoundException) {}
 								if (infodescription != null) {
+									#if DEBUG
 									Console.WriteLine("{0} ({1}) = {2}", infofield, infodescription, infodata);
+									#endif
 									InfoChunks.Add(infodescription, infodata);
 								} else {
+									#if DEBUG
 									Console.WriteLine("unknown: {0} = {1}", infofield, infodata);
+									#endif
 									InfoChunks.Add(String.Format("unknown{0}", unknownCount), infodata);
 									unknownCount++;
 								}
@@ -295,28 +333,60 @@ namespace CommonUtils
 							//Console.WriteLine("Error: {0}", e.ToString());
 						}
 						
+						#if DEBUG
 						Console.WriteLine("------- end INFO chunks -------");
+						#endif
 						
-					} else {    // if NOT the fmt or LIST chunks just skip over the data.
-						bf.ReadBytes(chunkSize);
+					} else {
+						if (sfield.Equals("data")) {
+							sampleCount = (int) dataSize / (wBitsPerSample / 8) / nChannels;
+							
+							soundData = new double[nChannels][];
+							for (int ic = 0; ic < nChannels; ic++) {
+								soundData[ic] = new double[sampleCount];
+							}
+
+							//********Data loading********
+							if (BitsPerSample == 8) {
+								in_8(bf, soundData, sampleCount, nChannels);
+							}
+							if (BitsPerSample == 16) {
+								in_16(bf, soundData, sampleCount, nChannels);
+							}
+							if (BitsPerSample == 32) {
+								if (wFormatTag == WAVE_FORMAT_PCM) {
+									in_32(bf, soundData, sampleCount, nChannels);
+								} else if (wFormatTag == WAVE_FORMAT_IEEE_FLOAT) {
+									in_32f(bf, soundData, sampleCount, nChannels);
+								}
+							}
+						} else {
+							// if NOT the fmt or LIST chunks skip data
+							bf.ReadBytes(chunkSize);
+						}
 					}
-					
 				}  // end while.
 
 				//-----------  End of chunk iteration -------------
-				if(isPCM && datasize > 0) {   // compute duration of PCM wave file
-					long waveduration = 1000L * datasize / bytespersec; // in msec units
+				if(isPCM && dataSize > 0) {   // compute duration of PCM wave file
+					long waveduration = 1000L * dataSize / bytespersec; // in msec units
 					long mins = waveduration / 60000;    // integer minutes
 					double secs = 0.001 * (waveduration % 60000);    //double secs.
+					#if DEBUG
 					Console.WriteLine("wav duration:  {0} mins  {1} sec", mins, secs);
+					#endif
 				}
 
+				#if DEBUG
 				Console.WriteLine("Final RIFF data bytecount: {0}", bytecount);
+				#endif
 				if ( ( 8 + bytecount) != (int) fileLength)  {
 					Console.WriteLine("!!!!!!! Problem with file structure  !!!!!!!!!");
 					return false;
 				} else {
+					#if DEBUG
 					Console.WriteLine("File chunk structure consistent with valid RIFF") ;
+					#endif
 				}
 
 				return true;
@@ -326,6 +396,80 @@ namespace CommonUtils
 			} finally {
 				// close all streams.
 				bf.Close();
+			}
+		}
+		
+		public static void in_8(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+		{
+			Int32 i = new Int32();
+			Int32 ic = new Int32();
+			byte @byte = new byte();
+
+			#if DEBUG
+			Console.Write("in_8...\n");
+			#endif
+
+			for (i = 0; i<samplecount; i++) {
+				for (ic = 0;ic<channels;ic++)
+				{
+					@byte = wavfile.ReadByte();
+					sound[ic][i] = (double) @byte/128.0 - 1.0;
+				}
+			}
+		}
+
+		public static void in_16(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+		{
+			Int32 i = new Int32();
+			Int32 ic = new Int32();
+
+			#if DEBUG
+			Console.Write("in_16...\n");
+			#endif
+
+			for (i = 0; i<samplecount; i++) {
+				for (ic = 0; ic<channels; ic++) {
+					double d = (double) wavfile.ReadInt16();
+					d = d / 32768.0;
+					sound[ic][i] = d;
+				}
+			}
+		}
+		
+		public static void in_32(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+		{
+			Int32 i = new Int32();
+			Int32 ic = new Int32();
+
+			#if DEBUG
+			Console.Write("in_32...\n");
+			#endif
+
+			for (i = 0;i<samplecount;i++) {
+				for (ic = 0;ic<channels;ic++)
+				{
+					double d = (double) wavfile.ReadInt32();
+					d = d / 2147483648.0;
+					sound[ic][i] = d;
+				}
+			}
+		}
+		
+		public static void in_32f(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+		{
+			Int32 i = new Int32();
+			Int32 ic = new Int32();
+
+			#if DEBUG
+			Console.Write("in_32f...\n");
+			#endif
+
+			for (i = 0;i<samplecount;i++) {
+				for (ic = 0;ic<channels;ic++)
+				{
+					double d = (double) wavfile.ReadSingle();
+					sound[ic][i] = d;
+				}
 			}
 		}
 	}

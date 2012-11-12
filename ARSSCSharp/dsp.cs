@@ -12,7 +12,7 @@ public static class GlobalMembersDsp
 	public static double LOOP_SIZE_SEC; // size of the noise loops in seconds
 	public static Int32 BMSQ_LUT_SIZE; // defines the number of elements in the Blackman Square look-up table. It's best to make it small enough to be entirely cached
 
-	public static Int32 clocka = new Int32();
+	public static long clocka;
 	
 	public enum fftMethod : int {
 		DFT = 0,
@@ -22,10 +22,6 @@ public static class GlobalMembersDsp
 
 	public static void fft(ref double[] @in, ref double[] @out, Int32 N, fftMethod method)
 	{
-		//fftw_plan p = fftw_plan_r2r_1d(N, in, out, method, FFTW_ESTIMATE);
-		//fftw_execute(p);
-		//fftw_destroy_plan(p);
-		
 		fftw_complexarray complexInput = new fftw_complexarray(@in);
 		fftw_complexarray complexOutput = new fftw_complexarray(@out);
 		
@@ -152,8 +148,6 @@ public static class GlobalMembersDsp
 		Int32 i = new Int32(); 		// general purpose iterators
 		Int32 j = new Int32();
 
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
-		//@out = calloc (Mo, sizeof(double));
 		double[] @out = new double[Mo];
 
 		double pos_in; 				// position in the original signal
@@ -217,8 +211,6 @@ public static class GlobalMembersDsp
 
 		size++; // allows to read value 3.0
 
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
-		//double[] lut = calloc (size, sizeof(double));
 		double[] lut = new double[size];
 		
 		for (i = 0; i<size; i++)
@@ -347,19 +339,18 @@ i		 */
 		 */
 		freq = GlobalMembersDsp.freqarray(basefreq, bands, bpo);
 
-		if (LOGBASE == 1.0)
+		if (LOGBASE == 1.0) {
 			maxfreq = bpo; // in linear mode we use bpo to store the maxfreq since we couldn't deduce maxfreq otherwise
-		else
+		} else {
 			maxfreq = basefreq * Math.Pow(LOGBASE, ((double)(bands-1)/ bpo));
-
+		}
+		
 		Xsize = (int) (samplecount * pixpersec);
 
 		if (GlobalMembersUtil.fmod((double) samplecount * pixpersec, 1.0) != 0.0) // round-up
 			Xsize++;
 		Console.Write("Image size : {0:D}x{1:D}\n", Xsize, bands);
 		
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'malloc' has no equivalent in C#:
-		//@out = malloc (bands * sizeof(double));
 		@out = new double[bands][];
 		
 		clocka = GlobalMembersUtil.gettime();
@@ -378,20 +369,16 @@ i		 */
 
 		Md = (int) GlobalMembersUtil.roundoff(Mb * pixpersec);
 
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'realloc' has no equivalent in C#:
-		//s = realloc (s, Mb * sizeof(double));
 		// realloc to the zeropadded size
 		Array.Resize<double>(ref s, Mb);
 		
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'memset' has no equivalent in C#:
-		//memset(s[samplecount], 0, (Mb-samplecount) * sizeof(double));
 		// zero-out the padded area. Equivalent of : for (i=samplecount; i<Mb; i++) s[i] = 0;
 		for (i=samplecount; i<Mb; i++) s[i] = 0;
 		//--------ZEROPADDING--------
 		
-		Export.exportCSV(String.Format("test/samples_before_fft.csv"), s, 256);
+		//Export.exportCSV(String.Format("samples_before_fft.csv"), s, 256);
 		GlobalMembersDsp.fft(ref s, ref s, Mb, fftMethod.DFT); // In-place FFT of the original zero-padded signal
-		Export.exportCSV(String.Format("test/samples_after_fft.csv"), s, 256);
+		//Export.exportCSV(String.Format("samples_after_fft.csv"), s, 256);
 
 		for (ib = 0; ib<bands; ib++)
 		{
@@ -420,8 +407,6 @@ i		 */
 
 			Console.Write("{0,4:D}/{1:D} (FFT size: {2,6:D})   {3:f2} Hz - {4:f2} Hz\r", ib+1, bands, Mc, (double) Fa *samplerate/Mb, (double) Fd *samplerate/Mb);
 
-			//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
-			//@out[bands-ib-1]   calloc(Mc, sizeof(double)); // allocate new band
 			@out[bands-ib-1] = new double[Mc+1];
 
 			for (i = 0; i<Fd-Fa; i++)
@@ -437,8 +422,6 @@ i		 */
 			//Export.exportCSV(String.Format("test/band_{0}_filtered.csv", bands-ib-1), @out[bands-ib-1]);
 
 			//********90° rotation********
-			//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
-			//h = calloc(Mc, sizeof(double)); // allocate the 90° rotated version of the band
 			h = new double[Mc+1];
 			
 			// Rotation : Re' = Im; Im' = -Re
@@ -469,15 +452,12 @@ i		 */
 				@out[bands-ib-1][i] = mag;
 			}
 
-			//C++ TO C# CONVERTER TODO TASK: The memory management function 'free' has no equivalent in C#:
-			//free(h);
 			Array.Clear(h, 0, h.Length);
 			//--------Envelope detection--------
 
 			//********Downsampling********
 			if (Mc < Md) // if the band doesn't have to be resampled
 			{
-				//@out[bands-ib-1] = realloc(@out[bands-ib-1], Md * sizeof(double)); // simply ignore the end of it
 				Array.Resize<double>(ref @out[bands-ib-1], Md); // simply ignore the end of it
 			}
 			
@@ -486,14 +466,10 @@ i		 */
 				t = @out[bands-ib-1];
 				@out[bands-ib-1] = GlobalMembersDsp.blackman_downsampling(@out[bands-ib-1], Mc, Md); // Blackman downsampling
 
-				//C++ TO C# CONVERTER TODO TASK: The memory management function 'free' has no equivalent in C#:
-				//free(t);
 				Array.Clear(t, 0, t.Length);
 			}
 			//--------Downsampling--------
 
-			//C++ TO C# CONVERTER TODO TASK: The memory management function 'realloc' has no equivalent in C#:
-			//@out[bands-ib-1] = realloc(@out[bands-ib-1], Xsize * sizeof(double));
 			Array.Resize<double>(ref @out[bands-ib-1], Xsize); // Tail chopping
 			
 			//Export.exportCSV(String.Format("test/band_{0}_after.csv", bands-ib-1), @out[bands-ib-1]);
@@ -519,8 +495,6 @@ i		 */
 		tbw = bw * (double)(length-1);
 		bwl = GlobalMembersUtil.roundup(tbw);
 		
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
-		//h = calloc (length, sizeof(double));
 		h = new double[length];
 
 		for (i = 1; i<length; i++)
@@ -582,12 +556,9 @@ i		 */
 		Console.Write("Sound duration : {0:f3} s\n", (double) samplecount/samplerate);
 		samplecount = (int) GlobalMembersUtil.roundoff(0.5 *sbsize/pixpersec); // Do not change this value as it would stretch envelopes
 
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
-		//s = calloc(samplecount, sizeof(double)); // allocation of the sound signal
 		s = new double[samplecount];
 		
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'malloc' has no equivalent in C#:
-		//sband = malloc (sbsize * sizeof(double)); // allocation of the shifted band
+		// allocation of the shifted band
 		sband = new double[sbsize];
 
 		Bc = (int) GlobalMembersUtil.roundoff(0.25 * (double) sbsize);
@@ -599,8 +570,7 @@ i		 */
 
 		for (ib = 0; ib<bands; ib++)
 		{
-			//C++ TO C# CONVERTER TODO TASK: The memory management function 'memset' has no equivalent in C#:
-			//memset(sband, 0, sbsize * sizeof(double)); // reset sband
+			// reset sband
 			for (i=0; i<sbsize; i++) sband[i] = 0; // reset sband
 			
 			//********Frequency shifting********
@@ -691,12 +661,10 @@ i		 */
 		samplecount = (int) GlobalMembersUtil.roundoff(Xsize/pixpersec); // calculation of the length of the final signal
 		Console.Write("Sound duration : {0:f3} s\n", (double) samplecount/samplerate);
 
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
-		//s = calloc (samplecount, sizeof(double)); // allocation of the final signal
+		// allocation of the final signal
 		s = new double[samplecount];
 		
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
-		//envelope = calloc (samplecount, sizeof(double)); // allocation of the interpolated envelope
+		// allocation of the interpolated envelope
 		envelope = new double[samplecount];
 
 		//********Loop size calculation********
@@ -716,8 +684,6 @@ i		 */
 
 		//********Pink noise generation********
 
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'calloc' has no equivalent in C#:
-		//pink_noise = calloc (loop_size, sizeof(double));
 		pink_noise = new double[loop_size];
 
 		for (i = 1; i<(loop_size+1)>>1; i++)
@@ -730,8 +696,7 @@ i		 */
 		}
 		//--------Pink noise generation--------
 
-		//C++ TO C# CONVERTER TODO TASK: The memory management function 'malloc' has no equivalent in C#:
-		//noise = malloc(loop_size * sizeof(double)); // allocate noise
+		// allocate noise
 		noise = new double[loop_size];
 		
 		lut = GlobalMembersDsp.bmsq_lut(ref BMSQ_LUT_SIZE); // Blackman Square look-up table initalisation
@@ -740,8 +705,7 @@ i		 */
 		{
 			Console.Write("{0,4:D}/{1:D}\r", ib+1, bands);
 
-			//C++ TO C# CONVERTER TODO TASK: The memory management function 'memset' has no equivalent in C#:
-			//memset(noise, 0, loop_size * sizeof(double)); // reset filtered noise
+			// reset filtered noise
 			for (i=0; i<loop_size; i++) noise[i] = 0; // reset sband
 
 			//********Filtering********
@@ -771,8 +735,7 @@ i		 */
 
 			GlobalMembersDsp.fft(ref noise, ref noise, loop_size, fftMethod.IDFT); // IFFT of the filtered noise
 
-			//C++ TO C# CONVERTER TODO TASK: The memory management function 'memset' has no equivalent in C#:
-			//memset(envelope, 0, samplecount * sizeof(double)); // blank the envelope
+			// blank the envelope
 			for (i=0; i<samplecount; i++) envelope[i] = 0; // reset sband
 			GlobalMembersDsp.blackman_square_interpolation(ref d[bands-ib-1], ref envelope, ref Xsize, ref samplecount, ref lut, BMSQ_LUT_SIZE); // interpolation of the envelope
 

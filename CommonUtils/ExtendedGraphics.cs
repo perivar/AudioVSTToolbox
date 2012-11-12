@@ -164,7 +164,7 @@ namespace System.Drawing.Extended
 					path.AddEllipse( baseRect );
 				}
 			}
-			catch(Exception ex)
+			catch(Exception)
 			{
 				path.AddEllipse( baseRect );
 			}
