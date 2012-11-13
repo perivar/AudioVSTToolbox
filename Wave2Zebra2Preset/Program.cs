@@ -310,7 +310,7 @@ namespace Wave2Zebra2Preset
 			float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 0);
 			MathUtils.NormalizeInPlace(wavDataVB6);
 			
-			VB6Spectrogram vb6Spect = new VB6Spectrogram();
+			//VB6Spectrogram vb6Spect = new VB6Spectrogram();
 			//vb6Spect.ComputeColorPalette();
 			//float[][] vb6Spectrogram = vb6Spect.Compute(wavDataVB6, sampleRate, fftWindowsSize, fftOverlapPercentage);
 			//Export.exportCSV (@"c:\VB6Spectrogram-full.csv", vb6Spectrogram);
@@ -327,6 +327,24 @@ namespace Wave2Zebra2Preset
 			
 			//System.Console.Out.WriteLine(String.Format("EXO: fftWindowsSize: {0}, Overlap samples: {1:n2}.", fftWindowsSize, fftOverlap ));
 
+			//VIPSLib.Audio.WAVFile wavefile = new VIPSLib.Audio.WAVFile();
+			//wavefile.ReadFromFileToDouble(fileName.Substring(0, fileName.LastIndexOf(".")) + ".wav");
+			RiffRead riff = new RiffRead(fileName.Substring(0, fileName.LastIndexOf(".")) + ".wav");
+			riff.Process();
+			VIPSLib.Audio.MFCC mfcclib = new VIPSLib.Audio.MFCC((float)sampleRate);
+			double[][] data = riff.SoundData;
+			double min;
+			double max;
+			MathUtils.ComputeMinAndMax(data, out min, out max);
+			double[][] mfcc = mfcclib.Process(MathUtils.FloatToDouble(wavDataVB6));
+			
+			float fmin;
+			float fmax;
+			MathUtils.ComputeMinAndMax(wavDataVB6, out fmin, out fmax);
+			
+			//double[][] mfcc = mfcclib.Process(riff.SoundData[0]);
+			//float[][] mfccFloats = MathUtils.DoubleToFloat(mfcc);
+			
 			float[][] exoSpectrogram = AudioAnalyzer.CreateSpectrogramLomont(wavDataVB6, sampleRate, fftWindowsSize, fftOverlap);
 			//float[][] exoSpectrogram = AudioAnalyzer.CreateSpectrogramLomont(wavDataVB6, sampleRate, fftWindowsSize, fftOverlap);
 			//repositoryGateway.drawSpectrogram1("Spectrogram1", fileName, exoSpectrogram);
@@ -337,9 +355,9 @@ namespace Wave2Zebra2Preset
 			Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(exoSpectrogram, 1200, 600, secondsToSample*1000, sampleRate, ColorUtils.ColorPaletteType.REW);
 			spectro.Save(@"c:\spectrogram-rew.png");
 			
-			float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, secondsToSample*1000, 0);
-			Bitmap logspectro = AudioAnalyzer.GetSpectrogramImage(logSpectrogram, 1200, 600, secondsToSample*1000, sampleRate, ColorUtils.ColorPaletteType.SOX);
-			logspectro.Save(@"c:\spectrogram-log.png");
+			//float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, secondsToSample*1000, 0);
+			//Bitmap logspectro = AudioAnalyzer.GetSpectrogramImage(logSpectrogram, 1200, 600, secondsToSample*1000, sampleRate, ColorUtils.ColorPaletteType.REW);
+			//logspectro.Save(@"c:\spectrogram-log.png");
 			
 			//Bitmap waveform = AudioAnalyzer.DrawWaveform(wavDataVB6, new Size (1200, 600), 0, 1, 0, sampleRate);
 			//waveform.Save(@"c:\waveform.png");

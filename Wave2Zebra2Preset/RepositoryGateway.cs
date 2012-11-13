@@ -551,13 +551,23 @@ namespace Wave2Zebra2Preset
 					int x1 = Axis.plotValue(x+1, 1, numberOfSamplesX+1, 50, width-50, false, height);
 					int y1 = Axis.plotValue(y+1, 1, numberOfSamplesY+1, 50, height-50, true, height);
 
+					/*
 					float amplitude = data[x][y];
 					float dB = MathUtils.ConvertAmplitudeToDB(amplitude, minDb, maxDb);
 					int color = (int) MathUtils.ConvertAndMainainRatio(dB, minValdB, maxValdB, 0, 256);
 					Color c = VB6Spectrogram.PaletteValueColor(color, 256);
+					*/
+					float amplitude = data[x][y];
+					Color colorbw = Color.Black;
+					if (amplitude > 0) {
+						float dB = MathUtils.ConvertAmplitudeToDB(amplitude, minDb, maxDb);
+						int colorval = (int) MathUtils.ConvertAndMainainRatio(dB, minDb, maxDb, 0, 255); // 255 is full brightness, and good for REW colors (for SOX 220 is good)
+						colorbw = Color.FromArgb(colorval, colorval, colorval);
+					}
+					
 					
 					if (x1 > 0 && x1 < width && y1 > 0 && y1 < height) {
-						pen.Color = c;
+						pen.Color = colorbw;
 						xCoord = x1+50;
 						g.DrawLine(pen, xCoord, height - oldY - 50, xCoord, height - y1 - 50);
 						oldX = x1;
@@ -567,6 +577,7 @@ namespace Wave2Zebra2Preset
 				}
 			}
 			
+			png = ColorUtils.Colorize(png, 255, ColorUtils.ColorPaletteType.REW);
 			png.Save(filenameToSave);
 			g.Dispose();
 		}

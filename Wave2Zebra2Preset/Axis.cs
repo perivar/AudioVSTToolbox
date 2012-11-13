@@ -40,7 +40,8 @@ namespace Wave2Zebra2Preset
 		// handy static methods
 		public static double log10(double val)
 		{
-			return Math.Log(val) * LOG10SCALE;
+			//return Math.Log(val) * LOG10SCALE;
+			return Math.Log10(val);
 		}
 		public static double exp10(double val)
 		{

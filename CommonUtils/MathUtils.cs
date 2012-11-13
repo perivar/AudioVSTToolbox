@@ -53,6 +53,7 @@ namespace CommonUtils
 			return returnArray;
 		}
 		
+		#region ConvertRangeAndMaintainRation
 		public static float[] ConvertRangeAndMainainRatio(float[] oldValueArray, float oldMin, float oldMax, float newMin, float newMax) {
 			float[] newValueArray = new float[oldValueArray.Length];
 			float oldRange = (oldMax - oldMin);
@@ -101,7 +102,9 @@ namespace CommonUtils
 			
 			return newValueArray;
 		}
+		#endregion
 		
+		#region ConvertAndMaintainRatio
 		public static double ConvertAndMainainRatio(double oldValue, double oldMin, double oldMax, double newMin, double newMax) {
 			double oldRange = (oldMax - oldMin);
 			double newRange = (newMax - newMin);
@@ -141,7 +144,8 @@ namespace CommonUtils
 			float newValue = (((log_oldValue - log_oldMin) * newRange) / log_oldRange) + newMin;
 			return newValue;
 		}
-
+		#endregion
+		
 		public static double RoundToNearest(double number, double nearest) {
 			double rounded = Math.Round(number * (1 / nearest), MidpointRounding.AwayFromZero) / (1 / nearest);
 			return rounded;
@@ -157,6 +161,7 @@ namespace CommonUtils
 			return Math.Floor(number * Math.Pow(10, decimalPlaces)) / Math.Pow(10, decimalPlaces);
 		}
 		
+		#region ComputeMinAndMax
 		public static void ComputeMinAndMax(double[,] data, out double min, out double max) {
 			// prepare the data:
 			double maxVal = double.MinValue;
@@ -245,6 +250,7 @@ namespace CommonUtils
 			min = minVal;
 			max = maxVal;
 		}
+		#endregion
 		
 		public static float[] GetSineWave(float frequency, float amplitude, float sampleRate, int offset, int sampleCount, int sample = 0) {
 			float[] buffer = new float[sampleCount+offset];
@@ -299,15 +305,29 @@ namespace CommonUtils
 			return time;
 		}
 		
+		#region FloatAndDoubleConversions
 		public static double[] FloatToDouble(float[] floatArray) {
 			double[] doubleArray = Array.ConvertAll(floatArray, x => (double)x);
 			return doubleArray;
 		}
 
+		public static double[][] FloatToDouble(float[][] jaggedFloatArray) {
+			// http://stackoverflow.com/questions/3867961/c-altering-values-for-every-item-in-an-array
+			double[][] jaggedDoubleArray = jaggedFloatArray.Select(i => i.Select(j => (double)j).ToArray()).ToArray();
+			return jaggedDoubleArray;
+		}
+		
 		public static float[] DoubleToFloat(double[] doubleArray) {
 			float[] floatArray = Array.ConvertAll(doubleArray, x => (float)x);
 			return floatArray;
 		}
+		
+		public static float[][] DoubleToFloat(double[][] jaggedDoubleArray) {
+			// http://stackoverflow.com/questions/3867961/c-altering-values-for-every-item-in-an-array
+			float[][] jaggedFloatArray = jaggedDoubleArray.Select(i => i.Select(j => (float)j).ToArray()).ToArray();
+			return jaggedFloatArray;
+		}
+		#endregion
 		
 		/* Return a nicer number
 		 * 0,1 --> 0,1
@@ -367,6 +387,7 @@ namespace CommonUtils
 
 		}
 		
+		#region FindClosest
 		/// <summary>
 		/// Find the closest number in a list of numbers
 		/// Use like this:
@@ -442,6 +463,7 @@ namespace CommonUtils
 
 			return closests;
 		}
+		#endregion
 		
 		/// <summary>
 		/// Find all numbers that are within x of target
@@ -585,6 +607,22 @@ namespace CommonUtils
 				samples[i] = Math.Min(samples[i], 1);
 				samples[i] = Math.Max(samples[i], -1);
 			}
+		}
+		
+		/** sqrt(a^2 + b^2) without under/overflow. **/
+		public static double Hypot(double a, double b)
+		{
+			double r;
+			if (Math.Abs(a) > Math.Abs(b)) {
+				r = b/a;
+				r = Math.Abs(a)*Math.Sqrt(1+r*r);
+			} else if (b != 0) {
+				r = a/b;
+				r = Math.Abs(b)*Math.Sqrt(1+r*r);
+			} else {
+				r = 0.0;
+			}
+			return r;
 		}
 		
 	}

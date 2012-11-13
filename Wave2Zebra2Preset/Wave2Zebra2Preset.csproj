@@ -67,6 +67,12 @@
     <Compile Include="..\CommonUtils\Audio\Bass\IAudio.cs">
       <Link>IAudio.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\Audio\RiffRead.cs">
+      <Link>RiffRead.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\BinaryFile.cs">
+      <Link>BinaryFile.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\ColorUtils.cs">
       <Link>ColorUtils.cs</Link>
     </Compile>
@@ -152,6 +158,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VB6Fourier.cs" />
     <Compile Include="VB6Spectrogram.cs" />
+    <Compile Include="VIPSLib\Audio\FFT.cs" />
+    <Compile Include="VIPSLib\Audio\FileFormats\AudioFileBase.cs" />
+    <Compile Include="VIPSLib\Audio\FileFormats\WAVFile.cs" />
+    <Compile Include="VIPSLib\Audio\MFCC.cs" />
+    <Compile Include="VIPSLib\Matrix.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DataAccess" />
@@ -159,6 +170,9 @@
     <Folder Include="Fingerprinting\MathUtils" />
     <Folder Include="HermitGauges" />
     <Folder Include="Model" />
+    <Folder Include="VIPSLib" />
+    <Folder Include="VIPSLib\Audio" />
+    <Folder Include="VIPSLib\Audio\FileFormats" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>

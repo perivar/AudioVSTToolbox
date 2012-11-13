@@ -91,13 +91,13 @@ namespace Wave2Zebra2Preset.Fingerprinting
 		public FingerprintManager()
 		{
 			WaveletDecomposition = new HaarWavelet();
-			LogBins = 32;//32;
+			LogBins = 256;//32;
 			FingerprintLength = 128;
 			Overlap = 64;
 			SamplesPerFingerprint = FingerprintLength*Overlap;
 			WdftSize = 2048;//2048;
 			MinFrequency = 27.5f;//318;
-			MaxFrequency = 22050;//2000;
+			MaxFrequency = 5512;//2000; (22050)
 			TopWavelets = 200;
 			SampleRate = 44100;//5512;
 			LogBase = Math.E;
@@ -311,7 +311,7 @@ namespace Wave2Zebra2Preset.Fingerprinting
 				}
 				//FFT transform for gathering the spectrum
 				Fourier.FFT(complexSignal, fftWindowsSize, FourierDirection.Forward);
-				frames[i] = ExtractLogBins2(complexSignal);
+				frames[i] = ExtractLogBins(complexSignal);
 			}
 			return frames;
 		}
@@ -418,33 +418,6 @@ namespace Wave2Zebra2Preset.Fingerprinting
 					double re = spectrum[2*k];
 					double img = spectrum[2*k + 1];
 					sumFreq[i] += (float) (Math.Sqrt(re*re + img*img));
-				}
-				sumFreq[i] = sumFreq[i]/(hiBound - lowBound);
-			}
-			return sumFreq;
-		}
-
-		/// <summary>
-		///   Logarithmic spacing of a frequency in a linear domain
-		/// </summary>
-		/// <param name = "spectrum">Spectrum to space</param>
-		/// <returns>Logarithmically spaced signal</returns>
-		public float[] ExtractLogBins2(float[] spectrum)
-		{
-			int logBins = LogBins; /*Local copy for performance reasons*/
-
-			float[] sumFreq = new float[logBins]; /*32*/
-			for (int i = 0; i < logBins; i++)
-			{
-				int lowBound = _logFrequenciesIndex[i];
-				int hiBound = _logFrequenciesIndex[i + 1];
-
-				for (int k = lowBound; k < hiBound; k++)
-				{
-					double re = spectrum[2*k];
-					double img = spectrum[2*k + 1];
-					double abs = (Math.Sqrt(re*re + img*img));
-					sumFreq[i] += (float) abs;
 				}
 				sumFreq[i] = sumFreq[i]/(hiBound - lowBound);
 			}
