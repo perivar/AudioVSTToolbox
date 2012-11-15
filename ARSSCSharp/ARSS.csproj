@@ -24,7 +24,7 @@
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <StartAction>Project</StartAction>
-    <StartArguments>"C:\Users\perivar.nerseth\Music\Sleep Away16.wav" "C:\Users\perivar.nerseth\Music\Sleep Away.png"</StartArguments>
+    <StartArguments>"C:\Users\perivar.nerseth\Music\Sleep Away32f-mono.png" "C:\Users\perivar.nerseth\Music\Sleep Away32f-mono-v2.wav"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>

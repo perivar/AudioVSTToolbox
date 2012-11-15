@@ -35,7 +35,19 @@ public static class GlobalMembersArss
 	public const int BMSQ_LUT_SIZE_D = 16000;
 	public const double TRANSITION_BW_SYNT = 16.0;
 	
-	public static void settingsinput(ref Int32 bands, ref Int32 samplecount, ref Int32 samplerate, ref double basefreq, ref double maxfreq, ref double pixpersec, ref double bandsperoctave, ref Int32 Xsize, Int32 mode)
+	/// <summary>
+	/// Get Settings from User Input or Config file
+	/// </summary>
+	/// <param name="bands">Specifies the desired height of the spectrogram (bands)</param>
+	/// <param name="samplecount">Number of samples</param>
+	/// <param name="samplerate">Sample rate</param>
+	/// <param name="basefreq">Base frequency in Hertz</param>
+	/// <param name="maxfreq">Maximum frequency in Hertz</param>
+	/// <param name="pixpersec">Time resolution in Pixels Per Second</param>
+	/// <param name="bandsperoctave">Frequency resolution in Bands Per Octave</param>
+	/// <param name="Xsize">Specifies the desired width of the spectrogram</param>
+	/// <param name="mode">0 = Analysis mode, 1 = Synthesis mode</param>
+	public static void SettingsInput(ref Int32 bands, ref Int32 samplecount, ref Int32 samplerate, ref double basefreq, ref double maxfreq, ref double pixpersec, ref double bandsperoctave, ref Int32 Xsize, Int32 mode)
 	{
 		/* mode :
 		 * 0 = Analysis mode
@@ -46,7 +58,6 @@ public static class GlobalMembersArss
 		double f;
 		double trash;
 		double ma; // maximum allowed frequency
-		//sbyte @byte;
 		Int32 unset = 0; // count of unset interdependant settings
 		Int32 set_min = 0;
 		Int32 set_max = 0;
@@ -54,14 +65,12 @@ public static class GlobalMembersArss
 		Int32 set_y = 0;
 		Int32 set_pps = 0;
 		Int32 set_x = 0;
-		//uint filesize; // boolean indicating if the configuration file's last expected byte is there (to verify the file's integrity)
-		//string conf_path = new string(new char[FILENAME_MAX]); // Path to the configuration file (only used on non-Windows platforms)
 
 		#if DEBUG
 		Console.Write("settingsinput...\n");
 		#endif
 
-		//freqcfg = fopen("arss.conf", "rb"); // open saved settings file
+		// Path to the configuration file
 		string configFileName = "arss.conf";
 		TextReader freqcfg = null;
 		if (File.Exists(configFileName)) {
@@ -78,7 +87,7 @@ public static class GlobalMembersArss
 			//********Output settings querying********
 
 			Console.Write("Sample rate [44100] : "); // Query for a samplerate
-			samplerate = (int) GlobalMembersUtil.getfloat();
+			samplerate = (int) GlobalMembersUtil.GetFloat();
 			if (samplerate == 0 || samplerate<-2147483647) // The -2147483647 check is used for the sake of compatibility with C90
 				samplerate = 44100; // Default value
 			//--------Output settings querying--------
@@ -163,7 +172,7 @@ public static class GlobalMembersArss
 				Environment.Exit(1);
 			}
 			Console.Write("Min. frequency (Hz) [{0:f3}]: ", basefreq);
-			gf = GlobalMembersUtil.getfloat();
+			gf = GlobalMembersUtil.GetFloat();
 			if (gf != 0)
 				basefreq = gf;
 			unset++;
@@ -179,7 +188,7 @@ public static class GlobalMembersArss
 				Environment.Exit(1);
 			}
 			Console.Write("Bands per octave [{0:f3}]: ", bandsperoctave);
-			gf = GlobalMembersUtil.getfloat();
+			gf = GlobalMembersUtil.GetFloat();
 			if (gf != 0)
 				bandsperoctave = gf;
 			unset++;
@@ -199,10 +208,10 @@ public static class GlobalMembersArss
 			ma = basefreq * Math.Pow(GlobalMembersDsp.LOGBASE, ((i-2) / bandsperoctave)) * samplerate; // max allowed frequency
 
 			if (maxfreq > ma)
-				if (GlobalMembersUtil.fmod(ma, 1.0) == 0.0)
+				if (GlobalMembersUtil.FMod(ma, 1.0) == 0.0)
 					maxfreq = ma; // replaces the "Upper frequency limit above Nyquist frequency" warning
 				else
-					maxfreq = ma - GlobalMembersUtil.fmod(ma, 1.0);
+					maxfreq = ma - GlobalMembersUtil.FMod(ma, 1.0);
 
 			if (mode == 0) // if we're in Analysis mode
 			{
@@ -212,15 +221,15 @@ public static class GlobalMembersArss
 					Environment.Exit(1);
 				}
 				Console.Write("Max. frequency (Hz) (up to {0:f3}) [{1:f3}]: ", ma, maxfreq);
-				gf = GlobalMembersUtil.getfloat();
+				gf = GlobalMembersUtil.GetFloat();
 				if (gf != 0)
 					maxfreq = gf;
 
 				if (maxfreq > ma)
-					if (GlobalMembersUtil.fmod(ma, 1.0) == 0.0)
+					if (GlobalMembersUtil.FMod(ma, 1.0) == 0.0)
 						maxfreq = ma; // replaces the "Upper frequency limit above Nyquist frequency" warning
 					else
-						maxfreq = ma - GlobalMembersUtil.fmod(ma, 1.0);
+						maxfreq = ma - GlobalMembersUtil.FMod(ma, 1.0);
 			}
 
 			unset++;
@@ -242,7 +251,7 @@ public static class GlobalMembersArss
 
 		if (set_y == 0)
 		{
-			bands = 1 + (int) GlobalMembersUtil.roundoff(bandsperoctave * (GlobalMembersUtil.log_b(maxfreq) - GlobalMembersUtil.log_b(basefreq * samplerate)));
+			bands = 1 + (int) GlobalMembersUtil.RoundOff(bandsperoctave * (GlobalMembersUtil.Log(maxfreq) - GlobalMembersUtil.Log(basefreq * samplerate)));
 			Console.Write("Bands : {0:D}\n", bands);
 		}
 
@@ -251,7 +260,7 @@ public static class GlobalMembersArss
 			if (GlobalMembersDsp.LOGBASE == 1.0)
 				bandsperoctave = maxfreq / samplerate;
 			else
-				bandsperoctave = (bands-1) / (GlobalMembersUtil.log_b(maxfreq) - GlobalMembersUtil.log_b(basefreq * samplerate));
+				bandsperoctave = (bands-1) / (GlobalMembersUtil.Log(maxfreq) - GlobalMembersUtil.Log(basefreq * samplerate));
 			Console.Write("Bands per octave : {0:f3}\n", bandsperoctave);
 		}
 
@@ -269,14 +278,13 @@ public static class GlobalMembersArss
 				Environment.Exit(1);
 			}
 			Console.Write("Pixels per second [{0:f3}]: ", pixpersec);
-			gf = GlobalMembersUtil.getfloat();
+			gf = GlobalMembersUtil.GetFloat();
 			if (gf != 0)
 				pixpersec = gf;
 		}
 
 		basefreq *= samplerate; // turn back to Hz just for the sake of writing to the file
 
-		//freqcfg = fopen(, "wb"); // saving settings to a file
 		TextWriter freqcfgOut = new StreamWriter(configFileName); // saving settings to a file
 
 		if (freqcfgOut == null)
@@ -294,7 +302,7 @@ public static class GlobalMembersArss
 		pixpersec /= samplerate; // pixpersec is now in fraction of the sampling rate instead of Hz
 	}
 
-	public static void print_help()
+	public static void PrintHelp()
 	{
 		Console.Write("Usage: arss [options] input_file output_file [options]. Example:\n"
 		              + "\n"
@@ -318,7 +326,7 @@ public static class GlobalMembersArss
 		              + "--format-param, -f [integer]  Output format option. This is bit-depth for WAV files (8/16/32, default: 32). No option for BMP files.\n");
 	}
 
-	public static void print_adv_help()
+	public static void PrintAdvancedHelp()
 	{
 		Console.Write("More advanced options :\n"
 		              + "\n"
@@ -331,10 +339,30 @@ public static class GlobalMembersArss
 
 	public static void Main(string[] args)
 	{
+		/*
+		int _channels = 0;
+		int _samplecount = 0;
+		int _samplerate = 0;
+		string _filenameIn = @"C:\Users\perivar.nerseth\Music\Sleep Away16.wav";
+		string _filenameOut = @"C:\Users\perivar.nerseth\Music\Sleep Away16-test.wav";
+		double[][] _sound = GlobalMembersSoundIO.ReadWaveFile(_filenameIn, ref _channels, ref _samplecount, ref _samplerate); // Sound input
+		double [] _s = _sound[0];
+		
+		double[] out1 = new double[_samplecount];
+		double[] out2 = new double[_samplecount];
+		GlobalMembersDsp.FFT(ref _s, ref out1, _samplecount, GlobalMembersDsp.FFTMethod.DFT);
+		GlobalMembersDsp.FFT(ref out1, ref out2, _samplecount, GlobalMembersDsp.FFTMethod.IDFT);
+		
+		_sound[0] = out2;
+		
+		BinaryFile binOut = new BinaryFile(_filenameOut, BinaryFile.ByteOrder.LittleEndian, true);
+		GlobalMembersSoundIO.WriteWaveFile(binOut, _sound, 1, _samplecount, _samplerate, 16);
+		
 		//CommonUtils.FFT.FFTTesting.TimeAll(1000);
 		//CommonUtils.FFT.FFTTesting.TestAll(null);
-		//Console.ReadKey();
-		//return;
+		Console.ReadKey();
+		return;
+		 */
 		
 		int argc = args.Length;
 		
@@ -361,7 +389,7 @@ public static class GlobalMembersArss
 		string out_name = null;
 
 		// initialisation of global using defaults defined in dsp.h
-		GlobalMembersDsp.pi 			= PI_D;
+		GlobalMembersDsp.PI 			= PI_D;
 		GlobalMembersDsp.LOGBASE 		= LOGBASE_D;
 		GlobalMembersDsp.LOOP_SIZE_SEC 	= LOOP_SIZE_SEC_D;
 		GlobalMembersDsp.BMSQ_LUT_SIZE 	= BMSQ_LUT_SIZE_D;
@@ -510,7 +538,7 @@ public static class GlobalMembersArss
 
 				if (string.Compare(args[i], "--pi")==0) // lol
 					if (StringUtils.IsNumeric(args[++i]))
-						GlobalMembersDsp.pi = Convert.ToDouble(args[i]);
+						GlobalMembersDsp.PI = Convert.ToDouble(args[i]);
 					else
 				{
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
@@ -545,13 +573,13 @@ public static class GlobalMembersArss
 
 				if (doHelp || string.Compare(args[i], "--help")==0 || string.Compare(args[i], "-h")==0)
 				{
-					GlobalMembersArss.print_help();
+					GlobalMembersArss.PrintHelp();
 					Environment.Exit(0);
 				}
 
 				if (string.Compare(args[i], "--adv-help")==0)
 				{
-					GlobalMembersArss.print_adv_help();
+					GlobalMembersArss.PrintAdvancedHelp();
 					Environment.Exit(0);
 				}
 			}
@@ -581,12 +609,12 @@ public static class GlobalMembersArss
 			{
 				fin = null;
 				Console.Write("Input file : ");
-				in_name = GlobalMembersUtil.getstring();
+				in_name = GlobalMembersUtil.GetString();
 
 				if (string.Compare(in_name, "help") == 0) // if 'help' has been typed
 				{
 					fin = null;
-					GlobalMembersArss.print_help(); // print the help
+					GlobalMembersArss.PrintHelp(); // print the help
 				}
 				else {
 					if (File.Exists(in_name)) {
@@ -615,7 +643,7 @@ public static class GlobalMembersArss
 				Environment.Exit(1);
 			}
 			Console.Write("Output file : ");
-			out_name = GlobalMembersUtil.getstring();
+			out_name = GlobalMembersUtil.GetString();
 
 			fout = null;
 			if (out_name != null && out_name != "") fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
@@ -623,7 +651,7 @@ public static class GlobalMembersArss
 			while (fout == null)
 			{
 				Console.Write("Output file : ");
-				out_name = GlobalMembersUtil.getstring();
+				out_name = GlobalMembersUtil.GetString();
 
 				if (out_name != null && out_name != "") fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
 			}
@@ -652,7 +680,7 @@ public static class GlobalMembersArss
 					Environment.Exit(1);
 				}
 				Console.Write("Choose the mode (Press 1, 2 or 3) :\n\t1. Analysis\n\t2. Sine synthesis\n\t3. Noise synthesis\n> ");
-				mode = (byte) GlobalMembersUtil.getfloat();
+				mode = (byte) GlobalMembersUtil.GetFloat();
 			}
 			while (mode!=1 && mode!=2 && mode!=3);
 		}
@@ -662,53 +690,55 @@ public static class GlobalMembersArss
 		{
 			//sound = GlobalMembersSound_io.wav_in(fin, ref channels, ref samplecount, ref samplerate); // Sound input
 			fin.Close();
-			sound = GlobalMembersSound_io.wav_in(in_name, ref channels, ref samplecount, ref samplerate); // Sound input
+			sound = GlobalMembersSoundIO.ReadWaveFile(in_name, ref channels, ref samplecount, ref samplerate); // Sound input
 
 			#if DEBUG
 			Console.Write("samplecount : {0:D}\nchannels : {1:D}\n", samplecount, channels);
 			#endif
 
-			GlobalMembersArss.settingsinput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 0); // User settings input
-			image = GlobalMembersDsp.anal(ref sound[0], ref samplecount, ref samplerate, ref Xsize, ref Ysize, ref bpo, ref pixpersec, ref basefreq); // Analysis
-			if (brightness != 1.0)
-				GlobalMembersDsp.brightness_control(ref image, ref Ysize, ref Xsize, 1.0/brightness);
+			GlobalMembersArss.SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 0); // User settings input
+			image = GlobalMembersDsp.Analyze(ref sound[0], ref samplecount, ref samplerate, ref Xsize, ref Ysize, ref bpo, ref pixpersec, ref basefreq); // Analysis
+			if (brightness != 1.0) {
+				GlobalMembersDsp.BrightnessControl(ref image, ref Ysize, ref Xsize, 1.0/brightness);
+			}
 			
-			GlobalMembersImage_io.bmp_out(fout, image, Ysize, Xsize); // Image output
+			GlobalMembersImageIO.BMPWrite(fout, image, Ysize, Xsize); // Image output
 		}
 		
 		if (mode == 2 || mode == 3)
 		{
 			sound = new double[1][];
 			
-			image = GlobalMembersImage_io.bmp_in(fin, ref Ysize, ref Xsize); // Image input
+			image = GlobalMembersImageIO.BMPRead(fin, ref Ysize, ref Xsize); // Image input
 
 			// if the output format parameter is undefined
 			if (format_param == 0) {
-				if (!GlobalMembersUtil.quiet) // if prompting is allowed
-					format_param = GlobalMembersSound_io.wav_out_param();
-				else
+				if (!GlobalMembersUtil.quiet) { // if prompting is allowed
+					format_param = GlobalMembersSoundIO.GetWaveOutParameters();
+				} else {
 					format_param = 32; // default is 32
+				}
 			}
 
-			GlobalMembersArss.settingsinput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 1); // User settings input
+			GlobalMembersArss.SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 1); // User settings input
 
 			if (brightness!=1.0)
-				GlobalMembersDsp.brightness_control(ref image, ref Ysize, ref Xsize, brightness);
+				GlobalMembersDsp.BrightnessControl(ref image, ref Ysize, ref Xsize, brightness);
 
 			if (mode == 2) {
-				sound[0] = GlobalMembersDsp.synt_sine(ref image, ref Xsize, ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref pixpersec, ref bpo); // Sine synthesis
+				sound[0] = GlobalMembersDsp.SynthesizeSine(ref image, ref Xsize, ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref pixpersec, ref bpo); // Sine synthesis
 			} else {
-				sound[0] = GlobalMembersDsp.synt_noise(ref image, ref Xsize, ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref pixpersec, ref bpo); // Noise synthesis
+				sound[0] = GlobalMembersDsp.SynthesizeNoise(ref image, ref Xsize, ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref pixpersec, ref bpo); // Noise synthesis
 			}
 
-			GlobalMembersSound_io.wav_out(fout, sound, 1, samplecount, samplerate, format_param);
+			GlobalMembersSoundIO.WriteWaveFile(fout, sound, 1, samplecount, samplerate, format_param);
 		}
 
-		clockb = GlobalMembersUtil.gettime();
-		TimeSpan duration = TimeSpan.FromTicks((clockb-GlobalMembersDsp.clocka));
+		clockb = GlobalMembersUtil.GetTime();
+		TimeSpan duration = TimeSpan.FromTicks((clockb-GlobalMembersDsp.clockA));
 		Console.Write("Processing time : {0:D2} m  {1:D2} s  {1:D2} ms\n", duration.Minutes, duration.Seconds, duration.Milliseconds);
 
-		GlobalMembersUtil.win_return();
+		GlobalMembersUtil.WinReturn();
 
 	}
 }

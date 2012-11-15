@@ -348,16 +348,16 @@ namespace CommonUtils
 
 							//********Data loading********
 							if (BitsPerSample == 8) {
-								in_8(bf, soundData, sampleCount, nChannels);
+								Read8Bit(bf, soundData, sampleCount, nChannels);
 							}
 							if (BitsPerSample == 16) {
-								in_16(bf, soundData, sampleCount, nChannels);
+								Read16Bit(bf, soundData, sampleCount, nChannels);
 							}
 							if (BitsPerSample == 32) {
 								if (wFormatTag == WAVE_FORMAT_PCM) {
-									in_32(bf, soundData, sampleCount, nChannels);
+									Read32Bit(bf, soundData, sampleCount, nChannels);
 								} else if (wFormatTag == WAVE_FORMAT_IEEE_FLOAT) {
-									in_32f(bf, soundData, sampleCount, nChannels);
+									Read32BitFloat(bf, soundData, sampleCount, nChannels);
 								}
 							}
 						} else {
@@ -398,15 +398,15 @@ namespace CommonUtils
 				bf.Close();
 			}
 		}
-		
-		public static void in_8(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+
+		public static void Read8Bit(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
 		{
 			Int32 i = new Int32();
 			Int32 ic = new Int32();
 			byte @byte = new byte();
 
 			#if DEBUG
-			Console.Write("in_8...\n");
+			Console.Write("Read8Bit...\n");
 			#endif
 
 			for (i = 0; i<samplecount; i++) {
@@ -418,13 +418,13 @@ namespace CommonUtils
 			}
 		}
 
-		public static void in_16(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+		public static void Read16Bit(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
 		{
 			Int32 i = new Int32();
 			Int32 ic = new Int32();
 
 			#if DEBUG
-			Console.Write("in_16...\n");
+			Console.Write("Read16Bit...\n");
 			#endif
 
 			for (i = 0; i<samplecount; i++) {
@@ -435,14 +435,14 @@ namespace CommonUtils
 				}
 			}
 		}
-		
-		public static void in_32(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+
+		public static void Read32Bit(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
 		{
 			Int32 i = new Int32();
 			Int32 ic = new Int32();
 
 			#if DEBUG
-			Console.Write("in_32...\n");
+			Console.Write("Read32Bit...\n");
 			#endif
 
 			for (i = 0;i<samplecount;i++) {
@@ -454,14 +454,14 @@ namespace CommonUtils
 				}
 			}
 		}
-		
-		public static void in_32f(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+
+		public static void Read32BitFloat(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
 		{
 			Int32 i = new Int32();
 			Int32 ic = new Int32();
 
 			#if DEBUG
-			Console.Write("in_32f...\n");
+			Console.Write("Read32BitFloat...\n");
 			#endif
 
 			for (i = 0;i<samplecount;i++) {
@@ -472,5 +472,6 @@ namespace CommonUtils
 				}
 			}
 		}
+		
 	}
 }

@@ -5,7 +5,7 @@ public static class GlobalMembersUtil
 {
 	public static bool quiet = false;
 
-	public static void win_return()
+	public static void WinReturn()
 	{
 		if (!quiet)
 		{
@@ -23,7 +23,7 @@ public static class GlobalMembersUtil
 	/// <param name="numerator">double</param>
 	/// <param name="denominator">double</param>
 	/// <returns>remainder of division</returns>
-	public static double fmod(double numerator, double denominator)
+	public static double FMod(double numerator, double denominator)
 	{
 		double remainder = Math.IEEERemainder(numerator, denominator);
 		if (!Double.IsNaN(remainder) && remainder != 0.0)
@@ -42,7 +42,7 @@ public static class GlobalMembersUtil
 		return remainder;
 	}
 	
-	public static double roundoff(double x)
+	public static double RoundOff(double x)
 	{
 		if (x > 0)
 			return x + 0.5;
@@ -50,16 +50,16 @@ public static class GlobalMembersUtil
 			return x - 0.5;
 	}
 	
-	public static Int32 roundup(double x)
+	public static Int32 RoundUp(double x)
 	{
-		if (GlobalMembersUtil.fmod(x, 1.0) == 0) {
+		if (GlobalMembersUtil.FMod(x, 1.0) == 0) {
 			return (Int32) x;
 		} else {
 			return (Int32) x + 1;
 		}
 	}
 	
-	public static float getfloat()
+	public static float GetFloat()
 	{
 		float x;
 		string a = new string(new char[32]);
@@ -72,7 +72,7 @@ public static class GlobalMembersUtil
 		}
 	}
 	
-	public static Int32 smallprimes(Int32 x)
+	public static Int32 SmallPrimes(Int32 x)
 	{
 		Int32 i = new Int32();
 		Int32[] p = {2, 3};
@@ -85,16 +85,16 @@ public static class GlobalMembersUtil
 		return x;
 	}
 	
-	public static Int32 nextsprime(Int32 x)
+	public static Int32 NextPrime(Int32 x)
 	{
-		while (GlobalMembersUtil.smallprimes(x)!=1) {
+		while (GlobalMembersUtil.SmallPrimes(x)!=1) {
 			x++;
 		}
 
 		return x;
 	}
 	
-	public static double log_b(double x)
+	public static double Log(double x)
 	{
 		if (GlobalMembersDsp.LOGBASE == 1.0) {
 			return x;
@@ -110,64 +110,52 @@ public static class GlobalMembersUtil
 		}
 	}
 	
-	public static UInt32 rand_u32()
+	public static UInt32 Random()
 	{
-		//C++ TO C# CONVERTER TODO TASK: C# does not allow setting or comparing #define constants:
-		//#if RAND_MAX == 2147483647
 		return (uint) RandomNumbers.NextNumber();
-		
-		/*
-		//C++ TO C# CONVERTER TODO TASK: C# does not allow setting or comparing #define constants:
-		#elif RAND_MAX == 32767
-		return ((RandomNumbers.NextNumber()%256)<<24) | ((RandomNumbers.NextNumber()%256)<<16) | ((RandomNumbers.NextNumber()%256)<<8) | (RandomNumbers.NextNumber()%256);
-		#else
-		Console.Error.WriteLine("Unhandled RAND_MAX value : %d\nPlease signal this error to the developer.", RAND_MAX);
-		return RandomNumbers.NextNumber();
-		#endif
-		 */
 	}
 	
-	public static double dblrand()
+	public static double DoubleRandom()
 	{
-		return ((double) GlobalMembersUtil.rand_u32() * (1.0 / 2147483648.0)) - 1.0;
+		return ((double) GlobalMembersUtil.Random() * (1.0 / 2147483648.0)) - 1.0;
 	}
 	
 	// read from file a 16-bit integer in little endian
-	public static UInt16 fread_le_short(BinaryFile file)
+	public static UInt16 ReadUInt16(BinaryFile file)
 	{
 		return file.ReadUInt16();
 	}
 	
 	// write to file a 16-bit integer in little endian
-	public static void fwrite_le_short(UInt16 s, BinaryFile file)
+	public static void WriteUInt16(UInt16 s, BinaryFile file)
 	{
 		file.Write(s);
 	}
 
 	// write to file a 16-bit integer in little endian
-	public static void fwrite_le_short(Int16 s, BinaryFile file)
+	public static void WriteInt16(Int16 s, BinaryFile file)
 	{
 		file.Write(s);
 	}
 	
 	// read from file a 32-bit integer in little endian
-	public static UInt32 fread_le_word(BinaryFile file)
+	public static UInt32 ReadUInt32(BinaryFile file)
 	{
 		return file.ReadUInt32();
 	}
 	
 	// write to file a 32-bit integer in little endian
-	public static void fwrite_le_word(UInt32 w, BinaryFile file)
+	public static void WriteUInt32(UInt32 w, BinaryFile file)
 	{
 		file.Write(w);
 	}
 	
-	public static string getstring()
+	public static string GetString()
 	{
 		return Console.ReadLine();
 	}
 	
-	public static long gettime() // in milliseconds
+	public static long GetTime() // in milliseconds
 	{
 		return DateTime.Now.Ticks;
 	}

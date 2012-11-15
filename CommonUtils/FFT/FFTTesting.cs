@@ -126,17 +126,34 @@ namespace CommonUtils.FFT
 					fftw_plan fft = fftw_plan.r2r_1d(N, complexInput, complexOutput, kind, fftw_flags.Estimate);
 					fft.Execute();
 					@out = complexOutput.Values;
+					
+					// free up memory
+					fft = null;
 					break;
 				case fftMethod.IDFT:
 					kind = fftw_kind.HC2R;
 					fftw_plan ifft = fftw_plan.r2r_1d(N, complexInput, complexOutput, kind, fftw_flags.Estimate);
 					ifft.Execute();
 					@out = complexOutput.ValuesDividedByN;
+					
+					// free up memory
+					ifft = null;
 					break;
 				case fftMethod.DHT:
 					kind = fftw_kind.DHT;
+					fftw_plan dht = fftw_plan.r2r_1d(N, complexInput, complexOutput, kind, fftw_flags.Estimate);
+					dht.Execute();
+					@out = complexOutput.Values;
+					
+					// free up memory
+					dht = null;
 					break;
 			}
+
+			// free up memory
+			complexInput = null;
+			complexOutput = null;
+			GC.Collect();
 		}
 
 		public static void FFTWTestUsingDoubleFFTWLIBR2R_INPLACE(string CSVFilePath=null, double[] audio_data=null, int testLoopCount=1) {
