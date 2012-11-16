@@ -4,12 +4,12 @@ using CommonUtils;
 
 public static class GlobalMembersImageIO
 {
-	public static double[][] BMPRead(BinaryFile bmpfile, ref Int32 y, ref Int32 x)
+	public static double[][] BMPRead(BinaryFile bmpfile, ref int y, ref int x)
 	{
-		Int32 iy = new Int32(); // various iterators
-		Int32 ix = new Int32();
-		Int32 ic = new Int32();
-		Int32 offset = new Int32();
+		int iy = 0; // various iterators
+		int ix = 0;
+		int ic = 0;
+		int offset = 0;
 		double[][] image;
 		byte zerobytes = new byte();
 		byte val = new byte();
@@ -57,12 +57,9 @@ public static class GlobalMembersImageIO
 			zerobytes = 0;
 		}
 
-		for (iy = y-1; iy!=-1; iy--) // backwards reading
-		{
-			for (ix = 0; ix< x; ix++)
-			{
-				for (ic = 2;ic!=-1;ic--)
-				{
+		for (iy = y-1; iy!=-1; iy--) { // backwards reading
+			for (ix = 0; ix< x; ix++) {
+				for (ic = 2;ic!=-1;ic--) {
 					val = bmpfile.ReadByte();
 					image[iy][ix] += (double) val * (1.0/(255.0 * 3.0)); // Conversion to grey by averaging the three channels
 				}
@@ -75,14 +72,14 @@ public static class GlobalMembersImageIO
 		return image;
 	}
 	
-	public static void BMPWrite(BinaryFile bmpfile, double[][] image, Int32 y, Int32 x)
+	public static void BMPWrite(BinaryFile bmpfile, double[][] image, int y, int x)
 	{
-		Int32 i = new Int32(); // various iterators
-		Int32 iy = new Int32();
-		Int32 ix = new Int32();
-		Int32 ic = new Int32();
-		Int32 filesize = new Int32();
-		Int32 imagesize = new Int32();
+		int i = 0; // various iterators
+		int iy = 0;
+		int ix = 0;
+		int ic = 0;
+		int filesize = 0;
+		int imagesize = 0;
 		byte zerobytes = new byte();
 		byte val = new byte();
 		byte zero = 0;
@@ -118,10 +115,10 @@ public static class GlobalMembersImageIO
 		GlobalMembersUtil.WriteUInt32(0, bmpfile);
 		//--------Tags--------
 
-		for (iy = y-1; iy!=-1; iy--) // backwards writing
-		{
-			for (ix = 0; ix<x; ix++)
-			{
+		for (iy = y-1; iy!=-1; iy--) { // backwards writing
+			for (ix = 0; ix<x; ix++) {
+				
+				// define color
 				vald = image[iy][ix] * 255.0;
 
 				if (vald > 255.0) {

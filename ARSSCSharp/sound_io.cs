@@ -25,10 +25,10 @@ public static class GlobalMembersSoundIO
 	 * typedef int32_t  s32_t;    ///< signed 32-bit value (-2147483648 to +2147483647)
 	 */
 	
-	public static void Read8Bit(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+	public static void Read8Bit(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		Int32 i = new Int32();
-		Int32 ic = new Int32();
+		int i = 0;
+		int ic = 0;
 		byte @byte = new byte();
 
 		#if DEBUG
@@ -44,10 +44,10 @@ public static class GlobalMembersSoundIO
 		}
 	}
 	
-	public static void Write8Bit(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+	public static void Write8Bit(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		Int32 i = new Int32();
-		Int32 ic = new Int32();
+		int i = 0;
+		int ic = 0;
 		double val;
 		byte @byte = new byte();
 
@@ -72,10 +72,10 @@ public static class GlobalMembersSoundIO
 		}
 	}
 	
-	public static void Read16Bit(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+	public static void Read16Bit(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		Int32 i = new Int32();
-		Int32 ic = new Int32();
+		int i = 0;
+		int ic = 0;
 
 		#if DEBUG
 		Console.Write("Read16Bit...\n");
@@ -90,10 +90,10 @@ public static class GlobalMembersSoundIO
 		}
 	}
 	
-	public static void Write16Bit(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+	public static void Write16Bit(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		Int32 i = new Int32();
-		Int32 ic = new Int32();
+		int i = 0;
+		int ic = 0;
 		double val;
 
 		#if DEBUG
@@ -115,10 +115,10 @@ public static class GlobalMembersSoundIO
 		}
 	}
 	
-	public static void Read32Bit(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+	public static void Read32Bit(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		Int32 i = new Int32();
-		Int32 ic = new Int32();
+		int i = 0;
+		int ic = 0;
 
 		#if DEBUG
 		Console.Write("Read32Bit...\n");
@@ -134,10 +134,10 @@ public static class GlobalMembersSoundIO
 		}
 	}
 	
-	public static void Write32Bit(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+	public static void Write32Bit(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		Int32 i = new Int32();
-		Int32 ic = new Int32();
+		int i = 0;
+		int ic = 0;
 		double val;
 
 		#if DEBUG
@@ -154,15 +154,15 @@ public static class GlobalMembersSoundIO
 				if (val<-2147483648.0)
 					val = -2147483648.0;
 
-				wavfile.Write((Int32) val);
+				wavfile.Write((int) val);
 			}
 		}
 	}
 
-	public static void Read32BitFloat(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+	public static void Read32BitFloat(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		Int32 i = new Int32();
-		Int32 ic = new Int32();
+		int i = 0;
+		int ic = 0;
 
 		#if DEBUG
 		Console.Write("Read32BitFloat...\n");
@@ -177,10 +177,10 @@ public static class GlobalMembersSoundIO
 		}
 	}
 	
-	public static void Write32BitFloat(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+	public static void Write32BitFloat(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		Int32 i = new Int32();
-		Int32 ic = new Int32();
+		int i = 0;
+		int ic = 0;
 
 		#if DEBUG
 		Console.Write("Write32BitFloat...\n");
@@ -194,7 +194,7 @@ public static class GlobalMembersSoundIO
 		}
 	}
 
-	public static double[][] ReadWaveFile(String wavfile, ref Int32 channels, ref Int32 samplecount, ref Int32 samplerate)
+	public static double[][] ReadWaveFile(String wavfile, ref int channels, ref int samplecount, ref int samplerate)
 	{
 		RiffRead riffRead = new RiffRead(wavfile);
 		riffRead.Process();
@@ -204,12 +204,12 @@ public static class GlobalMembersSoundIO
 		return riffRead.SoundData;
 	}
 
-	public static double[][] ReadWaveFile(BinaryFile wavfile, ref Int32 channels, ref Int32 samplecount, ref Int32 samplerate)
+	public static double[][] ReadWaveFile(BinaryFile wavfile, ref int channels, ref int samplecount, ref int samplerate)
 	{
 		double[][] sound;
-		Int32 i = new Int32();
-		Int32 ic = new Int32();
-		Int32[] tag = new Int32[13];
+		int i = 0;
+		int ic = 0;
+		int[] tag = new int[13];
 		
 		//			Size  Description                  Value
 		// tag[0]	4	  RIFF Header				   RIFF (1179011410)
@@ -304,10 +304,10 @@ public static class GlobalMembersSoundIO
 		return sound;
 	}
 	
-	public static void WriteWaveFile(BinaryFile wavfile, double[][] sound, Int32 channels, Int32 samplecount, Int32 samplerate, Int32 format_param)
+	public static void WriteWaveFile(BinaryFile wavfile, double[][] sound, int channels, int samplecount, int samplerate, int format_param)
 	{
-		Int32 i = new Int32();
-		Int32[] tag = {1179011410, 0, 1163280727, 544501094, 16, 1, 1, 0, 0, 0, 0, 1635017060, 0, 0};
+		int i = 0;
+		int[] tag = {1179011410, 0, 1163280727, 544501094, 16, 1, 1, 0, 0, 0, 0, 1635017060, 0, 0};
 
 		#if DEBUG
 		Console.Write("WriteWaveFile...\n");
@@ -348,14 +348,14 @@ public static class GlobalMembersSoundIO
 		wavfile.Close();
 	}
 	
-	public static Int32 GetWaveOutParameters()
+	public static int GetWaveOutParameters()
 	{
-		Int32 bps = new Int32();
+		int bps = 0;
 
 		do
 		{
 			Console.Write("Bits per sample (8/16/32) [16] : ");
-			bps = (Int32) GlobalMembersUtil.GetFloat();
+			bps = (int) GlobalMembersUtil.GetFloat();
 			if (bps == 0) {
 				bps = 16;
 			}

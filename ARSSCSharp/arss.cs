@@ -47,24 +47,24 @@ public static class GlobalMembersArss
 	/// <param name="bandsperoctave">Frequency resolution in Bands Per Octave</param>
 	/// <param name="Xsize">Specifies the desired width of the spectrogram</param>
 	/// <param name="mode">0 = Analysis mode, 1 = Synthesis mode</param>
-	public static void SettingsInput(ref Int32 bands, ref Int32 samplecount, ref Int32 samplerate, ref double basefreq, ref double maxfreq, ref double pixpersec, ref double bandsperoctave, ref Int32 Xsize, Int32 mode)
+	public static void SettingsInput(ref int bands, ref int samplecount, ref int samplerate, ref double basefreq, ref double maxfreq, ref double pixpersec, ref double bandsperoctave, ref int Xsize, int mode)
 	{
 		/* mode :
 		 * 0 = Analysis mode
 		 * 1 = Synthesis mode
 		 */
-		Int32 i = new Int32();
+		int i = 0;
 		double gf;
 		double f;
 		double trash;
 		double ma; // maximum allowed frequency
-		Int32 unset = 0; // count of unset interdependant settings
-		Int32 set_min = 0;
-		Int32 set_max = 0;
-		Int32 set_bpo = 0;
-		Int32 set_y = 0;
-		Int32 set_pps = 0;
-		Int32 set_x = 0;
+		int unset = 0; // count of unset interdependant settings
+		int set_min = 0;
+		int set_max = 0;
+		int set_bpo = 0;
+		int set_y = 0;
+		int set_pps = 0;
+		int set_x = 0;
 
 		#if DEBUG
 		Console.Write("settingsinput...\n");
@@ -369,7 +369,7 @@ public static class GlobalMembersArss
 		BinaryFile fin;
 		BinaryFile fout;
 		
-		Int32 i = new Int32();
+		int i = 0;
 		double[][] sound;
 		double[][] image;
 		double basefreq = 0;
@@ -377,13 +377,13 @@ public static class GlobalMembersArss
 		double pixpersec = 0;
 		double bpo = 0;
 		double brightness = 1;
-		Int32 channels = new Int32();
-		Int32 samplecount = 0;
-		Int32 samplerate = 0;
-		Int32 Xsize = 0;
-		Int32 Ysize = 0;
-		Int32 format_param = 0;
-		long clockb = new Int32();
+		int channels = 0;
+		int samplecount = 0;
+		int samplerate = 0;
+		int Xsize = 0;
+		int Ysize = 0;
+		int format_param = 0;
+		long clockb = 0;
 		byte mode = 0;
 		string in_name = null;
 		string out_name = null;

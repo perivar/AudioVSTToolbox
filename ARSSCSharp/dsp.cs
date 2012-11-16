@@ -10,7 +10,7 @@ public static class GlobalMembersDsp
 	public static double PI;
 	public static double LOGBASE; // Base for log() operations. Anything other than 2 isn't really supported
 	public static double LOOP_SIZE_SEC; // size of the noise loops in seconds
-	public static Int32 BMSQ_LUT_SIZE; // defines the number of elements in the Blackman Square look-up table. It's best to make it small enough to be entirely cached
+	public static int BMSQ_LUT_SIZE; // defines the number of elements in the Blackman Square look-up table. It's best to make it small enough to be entirely cached
 
 	public static long clockA;
 	
@@ -27,7 +27,7 @@ public static class GlobalMembersDsp
 	/// <param name="out">Output Signal</param>
 	/// <param name="N">N</param>
 	/// <param name="method">FFT Method (DFT, IDFT, DHT)</param>
-	public static void FFT(ref double[] @in, ref double[] @out, Int32 N, FFTMethod method)
+	public static void FFT(ref double[] @in, ref double[] @out, int N, FFTMethod method)
 	{
 		fftw_complexarray complexInput = new fftw_complexarray(@in);
 		fftw_complexarray complexOutput = new fftw_complexarray(@out);
@@ -72,12 +72,12 @@ public static class GlobalMembersDsp
 	/// <param name="xs">X size</param>
 	/// <param name="ys">Y size</param>
 	/// <param name="ratio"></param>
-	public static void Normalize(ref double[][] s, ref Int32 xs, ref Int32 ys, double ratio)
+	public static void Normalize(ref double[][] s, ref int xs, ref int ys, double ratio)
 	{
-		Int32 ix = new Int32();
-		Int32 iy = new Int32();
-		Int32 maxx = new Int32();
-		Int32 maxy = new Int32();
+		int ix = 0;
+		int iy = 0;
+		int maxx = 0;
+		int maxy = 0;
 		double max;
 
 		max = 0;
@@ -119,10 +119,10 @@ public static class GlobalMembersDsp
 	/// <param name="s">Samples</param>
 	/// <param name="xs">X size</param>
 	/// <param name="ratio"></param>
-	public static void Normalize(ref double[] s, ref Int32 xs, double ratio)
+	public static void Normalize(ref double[] s, ref int xs, double ratio)
 	{
-		Int32 ix = new Int32();
-		Int32 maxx = new Int32();
+		int ix = 0;
+		int maxx = 0;
 		double max;
 
 		max = 0;
@@ -160,9 +160,9 @@ public static class GlobalMembersDsp
 	/// <param name="bands">Number of frequency bands</param>
 	/// <param name="bandsperoctave">Frequency resolution in Bands Per Octave</param>
 	/// <returns>Frequency Array</returns>
-	public static double[] FrequencyArray(double basefreq, Int32 bands, double bandsperoctave)
+	public static double[] FrequencyArray(double basefreq, int bands, double bandsperoctave)
 	{
-		Int32 i = new Int32();
+		int i = 0;
 		double[] freq = new double[bands];
 		double maxfreq;
 
@@ -191,10 +191,10 @@ public static class GlobalMembersDsp
 	/// <param name="Mi">Mi is the original signal's length</param>
 	/// <param name="Mo">Mo is the output signal's length</param>
 	/// <returns>Downsampled Signal</returns>
-	public static double[] BlackmanDownsampling(double[] @in, Int32 Mi, Int32 Mo)
+	public static double[] BlackmanDownsampling(double[] @in, int Mi, int Mo)
 	{
-		Int32 i = new Int32(); 		// general purpose iterators
-		Int32 j = new Int32();
+		int i = 0; 		// general purpose iterators
+		int j = 0;
 
 		double[] @out = new double[Mo];
 
@@ -240,9 +240,9 @@ public static class GlobalMembersDsp
 	/// </summary>
 	/// <param name="size">Size</param>
 	/// <returns>Blackman Square look-up table</returns>
-	public static double[] BlackmanSquareLookupTable(ref Int32 size)
+	public static double[] BlackmanSquareLookupTable(ref int size)
 	{
-		Int32 i = new Int32(); // general purpose iterator
+		int i = 0; // general purpose iterator
 		double coef; // Blackman square final coefficient
 		double bar = PI * (3.0 / (double) size) * (1.0/1.5);
 		double foo;
@@ -301,23 +301,23 @@ public static class GlobalMembersDsp
 	/// <param name="Mo">Mo is the output signal's length</param>
 	/// <param name="lut">Blackman Square Lookup Table</param>
 	/// <param name="lut_size">Defines the number of elements in the Blackman Square look-up table. It's best to make it small enough to be entirely cached</param>
-	public static void BlackmanSquareInterpolation(ref double[] @in, ref double[] @out, ref Int32 Mi, ref Int32 Mo, ref double[] lut, Int32 lut_size)
+	public static void BlackmanSquareInterpolation(ref double[] @in, ref double[] @out, ref int Mi, ref int Mo, ref double[] lut, int lut_size)
 	{
-		Int32 i = new Int32(); // general purpose iterators
-		Int32 j = new Int32();
+		int i = 0; // general purpose iterators
+		int j = 0;
 		double pos_in; // position in the original signal
 		double x; // position of the iterator in the blackman_square(x) formula
 		double ratio; // scaling ratio (> 1.0)
 		double ratio_i; // ratio^-1
 		double coef; // Blackman square final coefficient
 		double pos_lut; // Index on the look-up table
-		Int32 pos_luti = new Int32(); // Integer index on the look-up table
+		int pos_luti = 0; // Integer index on the look-up table
 		double mod_pos; // modulo of the position on the look-up table
 		double y0; // values of the two closest values on the LUT
 		double y1;
 		double foo = (double) lut_size / 3.0;
-		Int32 j_start = new Int32(); // boundary values for the j loop
-		Int32 j_stop = new Int32();
+		int j_start = 0; // boundary values for the j loop
+		int j_stop = 0;
 
 		/*
 		 * Mi is the original signal's length
@@ -344,7 +344,7 @@ public static class GlobalMembersDsp
 			for (j = j_start; j<=j_stop; j++) {
 				x = j - pos_in + 1.5; // calculate position within the Blackman square function in the [0.0 ; 3.0] range
 				pos_lut = x * foo;
-				pos_luti = (Int32) pos_lut;
+				pos_luti = (int) pos_lut;
 
 				mod_pos = GlobalMembersUtil.FMod(pos_lut, 1.0); // modulo of the index
 
@@ -371,15 +371,15 @@ public static class GlobalMembersDsp
 	/// <param name="pixpersec">Time resolution in Pixels Per Second</param>
 	/// <param name="basefreq">Minimum frequency in Hertz</param>
 	/// <returns></returns>
-	public static double[][] Analyze(ref double[] s, ref Int32 samplecount, ref Int32 samplerate, ref Int32 Xsize, ref Int32 bands, ref double bpo, ref double pixpersec, ref double basefreq)
+	public static double[][] Analyze(ref double[] s, ref int samplecount, ref int samplerate, ref int Xsize, ref int bands, ref double bpo, ref double pixpersec, ref double basefreq)
 	{
-		Int32 i = new Int32();
-		Int32 ib = new Int32();
-		Int32 Mb = new Int32();
-		Int32 Mc = new Int32();
-		Int32 Md = new Int32();
-		Int32 Fa = new Int32();
-		Int32 Fd = new Int32();
+		int i = 0;
+		int ib = 0;
+		int Mb = 0;
+		int Mc = 0;
+		int Md = 0;
+		int Fa = 0;
+		int Fd = 0;
 		double[][] @out;
 		double[] h;
 		double[] freq;
@@ -429,15 +429,15 @@ public static class GlobalMembersDsp
 
 		//********ZEROPADDING********	Note : Don't do it in Circular mode
 		if (LOGBASE == 1.0) {
-			Mb = samplecount - 1 + (Int32) GlobalMembersUtil.RoundOff(5.0/ freq[1]-freq[0]); // linear mode
+			Mb = samplecount - 1 + (int) GlobalMembersUtil.RoundOff(5.0/ freq[1]-freq[0]); // linear mode
 		} else {
-			Mb = samplecount - 1 + (Int32) GlobalMembersUtil.RoundOff(2.0 *5.0/((freq[0] * Math.Pow(LOGBASE, -1.0/(bpo))) * (1.0 - Math.Pow(LOGBASE, -1.0 / bpo))));
+			Mb = samplecount - 1 + (int) GlobalMembersUtil.RoundOff(2.0 *5.0/((freq[0] * Math.Pow(LOGBASE, -1.0/(bpo))) * (1.0 - Math.Pow(LOGBASE, -1.0 / bpo))));
 		}
 
 		if (Mb % 2 == 1) // if Mb is odd
 			Mb++; // make it even (for the sake of simplicity)
 
-		Mb = (int) GlobalMembersUtil.RoundOff((double) GlobalMembersUtil.NextPrime((Int32) GlobalMembersUtil.RoundOff(Mb * pixpersec)) / pixpersec);
+		Mb = (int) GlobalMembersUtil.RoundOff((double) GlobalMembersUtil.NextPrime((int) GlobalMembersUtil.RoundOff(Mb * pixpersec)) / pixpersec);
 
 		Md = (int) GlobalMembersUtil.RoundOff(Mb * pixpersec);
 
@@ -561,10 +561,10 @@ public static class GlobalMembersDsp
 	/// <param name="length">Length</param>
 	/// <param name="bw">Bandwidth</param>
 	/// <returns></returns>
-	public static double[] wsinc_max(Int32 length, double bw)
+	public static double[] wsinc_max(int length, double bw)
 	{
-		Int32 i = new Int32();
-		Int32 bwl = new Int32(); // integer transition bandwidth
+		int i = 0;
+		int bwl = 0; // integer transition bandwidth
 		double tbw; // double transition bandwidth
 		double[] h; // kernel
 		double x; // position in the antiderivate of the Blackman function of the sample we're at
@@ -593,48 +593,32 @@ public static class GlobalMembersDsp
 	/// <summary>
 	/// Sine synthesis mode
 	/// </summary>
-	/// <param name="d">Image</param>
+	/// <param name="d">Image (d is the original image - spectrogram)</param>
 	/// <param name="Xsize">Specifies the desired width of the spectrogram</param>
-	/// <param name="bands">Specifies the desired height of the spectrogram (bands)</param>
-	/// <param name="samplecount">Number of samples</param>
+	/// <param name="bands">Specifies the desired height of the spectrogram (total count of bands)</param>
+	/// <param name="samplecount">Number of samples (samplecount is the output sound's length)</param>
 	/// <param name="samplerate">Sample rate</param>
 	/// <param name="basefreq">Minimum frequency in Hertz</param>
 	/// <param name="pixpersec">Time resolution in Pixels Per Second</param>
 	/// <param name="bpo">Frequency resolution in Bands Per Octave</param>
 	/// <returns></returns>
-	public static double[] SynthesizeSine(ref double[][] d, ref Int32 Xsize, ref Int32 bands, ref Int32 samplecount, ref Int32 samplerate, ref double basefreq, ref double pixpersec, ref double bpo)
+	public static double[] SynthesizeSine(ref double[][] d, ref int Xsize, ref int bands, ref int samplecount, ref int samplerate, ref double basefreq, ref double pixpersec, ref double bpo)
 	{
-		double[] s;
-		double[] freq;
+		double[] s; 					// s is the output sound
+		double[] freq;					// freq is the band's central frequency
 		double[] filter;
-		double[] sband;
-		double[] sine = new double[4];
-		double rphase;
-		Int32 i = new Int32();
-		Int32 ib = new Int32();
-		Int32 Fc = new Int32();
-		Int32 Bc = new Int32();
-		Int32 Mh = new Int32();
-		Int32 Mn = new Int32();
-		Int32 sbsize = new Int32();
+		double[] sband;					// sband is the band's envelope upsampled and shifted up in frequency
+		int sbsize = 0;					// sbsize is the length of sband
 
-		/*
-		 d is the original image (spectrogram)
-		 s is the output sound
-		 sband is the band's envelope upsampled and shifted up in frequency
-		 sbsize is the length of sband
-		 sine is the random sine look-up table
-		 samplecount is the output sound's length
-		 ib is the band iterator
-		 i is a general purpose iterator
-		 bands is the total count of bands
-		 Fc is the index of the band's centre in the frequency domain on the new signal
-		 Bc is the index of the band's centre in the frequency domain on sband (its imaginary match being sbsize-Bc)
-		 Mh is the length of the real or imaginary part of the envelope's FFT, DC element included and Nyquist element excluded
-		 Mn is the length of the real or imaginary part of the sound's FFT, DC element included and Nyquist element excluded
-		 freq is the band's central frequency
-		 rphase is the band's sine's random phase
-		 */
+		double[] sine = new double[4];	// sine is the random sine look-up table
+		double rphase;					// rphase is the band's sine's random phase
+		
+		int i = 0;						// i is a general purpose iterator
+		int ib = 0;						// ib is the band iterator
+		int Fc = 0;						// Fc is the index of the band's centre in the frequency domain on the new signal
+		int Bc = 0;						// Bc is the index of the band's centre in the frequency domain on sband (its imaginary match being sbsize-Bc)
+		int Mh = 0;						// Mh is the length of the real or imaginary part of the envelope's FFT, DC element included and Nyquist element excluded
+		int Mn = 0;						// Mn is the length of the real or imaginary part of the sound's FFT, DC element included and Nyquist element excluded
 
 		freq = GlobalMembersDsp.FrequencyArray(basefreq, bands, bpo);
 
@@ -651,15 +635,17 @@ public static class GlobalMembersDsp
 		// allocation of the shifted band
 		sband = new double[sbsize];
 
+		// Bc is the index of the band's centre in the frequency domain on sband (its imaginary match being sbsize-Bc)
 		Bc = (int) GlobalMembersUtil.RoundOff(0.25 * (double) sbsize);
 
+		// Mh is the length of the real or imaginary part of the envelope's FFT, DC element included and Nyquist element excluded
 		Mh = (sbsize + 1) >> 1;
+		// Mn is the length of the real or imaginary part of the sound's FFT, DC element included and Nyquist element excluded
 		Mn = (samplecount + 1) >> 1;
 
 		filter = GlobalMembersDsp.wsinc_max(Mh, 1.0 / GlobalMembersArss.TRANSITION_BW_SYNT); // generation of the frequency-domain filter
 
-		for (ib = 0; ib<bands; ib++)
-		{
+		for (ib = 0; ib<bands; ib++) {
 			// reset sband
 			for (i=0; i<sbsize; i++) sband[i] = 0; // reset sband
 			
@@ -671,15 +657,11 @@ public static class GlobalMembersDsp
 				sine[i] = Math.Cos(i *2.0 *PI *0.25 + rphase);
 			}
 
-			for (i = 0; i<Xsize; i++) // envelope sampling rate * 2 and frequency shifting by 0.25
-			{
-				if ((i & 1) == 0)
-				{
+			for (i = 0; i<Xsize; i++) { // envelope sampling rate * 2 and frequency shifting by 0.25
+				if ((i & 1) == 0) {
 					sband[i<<1] = d[bands-ib-1][i] * sine[0];
 					sband[(i<<1) + 1] = d[bands-ib-1][i] * sine[1];
-				}
-				else
-				{
+				} else {
 					sband[i<<1] = d[bands-ib-1][i] * sine[2];
 					sband[(i<<1) + 1] = d[bands-ib-1][i] * sine[3];
 				}
@@ -687,15 +669,15 @@ public static class GlobalMembersDsp
 			//--------Frequency shifting--------
 
 			GlobalMembersDsp.FFT(ref sband, ref sband, sbsize, FFTMethod.DFT); // FFT of the envelope
+			
+			// Fc is the index of the band's centre in the frequency domain on the new signal
 			Fc = (int) GlobalMembersUtil.RoundOff(freq[ib] * samplecount); // band's centre index (envelope's DC element)
 
 			Console.Write("{0,4:D}/{1:D}   {2:f2} Hz\r", ib+1, bands, (double) Fc *samplerate / samplecount);
 
 			//********Write FFT********
-			for (i = 1; i<Mh; i++)
-			{
-				if (Fc-Bc+i > 0 && Fc-Bc+i < Mn) // if we're between frequencies 0 and 0.5 of the new signal and that we're not at Fc
-				{
+			for (i = 1; i<Mh; i++) {
+				if (Fc-Bc+i > 0 && Fc-Bc+i < Mn) { // if we're between frequencies 0 and 0.5 of the new signal and that we're not at Fc
 					s[i+Fc-Bc] += sband[i] * filter[i]; 						// Real part
 					s[samplecount-(i+Fc-Bc)] += sband[sbsize-i] * filter[i]; 	// Imaginary part
 				}
@@ -725,17 +707,16 @@ public static class GlobalMembersDsp
 	/// <param name="pixpersec">Time resolution in Pixels Per Second</param>
 	/// <param name="bpo">Frequency resolution in Bands Per Octave</param>
 	/// <returns></returns>
-	public static double[] SynthesizeNoise(ref double[][] d, ref Int32 Xsize, ref Int32 bands, ref Int32 samplecount, ref Int32 samplerate, ref double basefreq, ref double pixpersec, ref double bpo)
+	public static double[] SynthesizeNoise(ref double[][] d, ref int Xsize, ref int bands, ref int samplecount, ref int samplerate, ref double basefreq, ref double pixpersec, ref double bpo)
 	{
-		Int32 i = new Int32(); 					// general purpose iterator
-		Int32 ib = new Int32(); 				// bands iterator
-		Int32 il = new Int32(); 				// loop iterator
 		double[] s; 							// final signal
 		double coef;
+		
 		double[] noise; 						// filtered looped noise
 		double loop_size_sec = LOOP_SIZE_SEC; 	// size of the filter bank loop, in seconds. Later to be taken from user input
-		Int32 loop_size = new Int32(); 			// size of the filter bank loop, in samples. Deduced from loop_size_sec
-		Int32 loop_size_min = new Int32(); 		// minimum required size for the filter bank loop, in samples. Calculated from the longest windowed sinc's length
+		int loop_size = 0; 						// size of the filter bank loop, in samples. Deduced from loop_size_sec		
+		int loop_size_min = 0; 					// minimum required size for the filter bank loop, in samples. Calculated from the longest windowed sinc's length
+		
 		double[] pink_noise; 					// original pink noise (in the frequency domain)
 		double mag; 							// parameters for the creation of pink_noise's samples
 		double phase;
@@ -743,9 +724,13 @@ public static class GlobalMembersDsp
 		double[] lut; 		// Blackman Sqaure look-up table
 		double[] freq; 		// frequency look-up table
 		double maxfreq; 	// central frequency of the last band
+
+		int i = 0; 			// general purpose iterator
+		int ib = 0; 		// bands iterator
+		int il = 0; 		// loop iterator
 		
-		Int32 Fa = new Int32(); // Fa is the index of the band's start in the frequency domain
-		Int32 Fd = new Int32(); // Fd is the index of the band's end in the frequency domain
+		int Fa = 0; // Fa is the index of the band's start in the frequency domain
+		int Fd = 0; // Fd is the index of the band's end in the frequency domain
 		
 		double La; // La is the log2 of the frequency of Fa
 		double Ld; // Ld is the log2 of the frequency of Fd
@@ -773,9 +758,9 @@ public static class GlobalMembersDsp
 		loop_size = (int) loop_size_sec * samplerate;
 
 		if (LOGBASE == 1.0)
-			loop_size_min = (Int32) GlobalMembersUtil.RoundOff(4.0 *5.0/ freq[1]-freq[0]); // linear mode
+			loop_size_min = (int) GlobalMembersUtil.RoundOff(4.0 *5.0/ freq[1]-freq[0]); // linear mode
 		else
-			loop_size_min = (Int32) GlobalMembersUtil.RoundOff(2.0 *5.0/((freq[0] * Math.Pow(2.0, -1.0/(bpo))) * (1.0 - Math.Pow(2.0, -1.0 / bpo)))); // this is the estimate of how many samples the longest FIR will take up in the time domain
+			loop_size_min = (int) GlobalMembersUtil.RoundOff(2.0 *5.0/((freq[0] * Math.Pow(2.0, -1.0/(bpo))) * (1.0 - Math.Pow(2.0, -1.0 / bpo)))); // this is the estimate of how many samples the longest FIR will take up in the time domain
 
 		if (loop_size_min > loop_size)
 			loop_size = loop_size_min;
@@ -866,15 +851,15 @@ public static class GlobalMembersDsp
 	/// <param name="width">Width</param>
 	/// <param name="height">Height</param>
 	/// <param name="ratio">Ratio</param>
-	public static void BrightnessControl(ref double[][] image, ref Int32 width, ref Int32 height, double ratio)
+	public static void BrightnessControl(ref double[][] image, ref int width, ref int height, double ratio)
 	{
 		// Actually this is based on the idea of converting values to decibels, for example, 0.01 becomes -40 dB, dividing them by ratio, so if ratio is 2 then -40 dB/2 = -20 dB, and then turning it back to regular values, so -20 dB becomes 0.1
 		// If ratio==2 then this function is equivalent to a square root
 		// 1/ratio is used for the forward transformation
 		// ratio is used for the reverse transformation
 
-		Int32 ix = new Int32();
-		Int32 iy = new Int32();
+		int ix = 0;
+		int iy = 0;
 
 		for (iy = 0; iy<width; iy++) {
 			for (ix = 0; ix<height; ix++) {
