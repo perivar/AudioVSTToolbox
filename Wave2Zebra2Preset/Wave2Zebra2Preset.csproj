@@ -117,6 +117,7 @@
     </Compile>
     <Compile Include="AColor.cs" />
     <Compile Include="Axis.cs" />
+    <Compile Include="ChirpZTransform.cs" />
     <Compile Include="CWT.cs" />
     <Compile Include="CWTForm.cs" />
     <Compile Include="DataAccess\Hashes.cs" />
@@ -153,6 +154,7 @@
     <Compile Include="Model\Item.cs" />
     <Compile Include="Model\ResultItem.cs" />
     <Compile Include="Model\Track.cs" />
+    <Compile Include="PitchShift.cs" />
     <Compile Include="RepositoryGateway.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

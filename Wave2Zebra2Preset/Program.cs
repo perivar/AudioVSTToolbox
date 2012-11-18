@@ -259,6 +259,7 @@ namespace Wave2Zebra2Preset
 		
 		public static void Main(string[] args)
 		{
+			// http://www.music.mcgill.ca/~gary/307/week5/additive.html
 			//SaveColorPaletteBar("c:\\rew-colorbar-generated.png", "c:\\rew-colorbar-generated.csv", ColorPaletteType.REWColorPalette);
 			
 			/*

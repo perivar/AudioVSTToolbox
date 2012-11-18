@@ -329,6 +329,7 @@ namespace CommonUtils
 		}
 		#endregion
 		
+		#region NumberFormatting
 		/* Return a nicer number
 		 * 0,1 --> 0,1
 		 * 0,2 --> 0,25
@@ -357,16 +358,33 @@ namespace CommonUtils
 			return nice;
 		}
 		
-		public static float[] Abs(float[] floatArray) {
-			if (floatArray == null) return null;
-			
-			float[] absArray = new float[floatArray.Length];
-			for (int i = 0; i < floatArray.Length; i++) {
-				float absValue = Math.Abs(floatArray[i]);
-				absArray[i] = absValue;
-			}
-			return absArray;
+		/// <summary>
+		/// Format numbers rounded to thousands with K (and M)
+		/// 1 => 1
+		/// 23 => 23
+		/// 136 => 136
+		/// 6968 => 6,968
+		/// 23067 => 23.1K
+		/// 133031 => 133K
+		/// </summary>
+		/// <param name="num"></param>
+		/// <returns></returns>
+		public static string FormatNumber(int num) {
+			if (num >= 100000000)
+				return (num / 1000000D).ToString("#,0M");
+
+			if (num >= 10000000)
+				return (num / 1000000D).ToString("0.#") + "M";
+
+			if (num >= 100000)
+				return (num / 1000D).ToString("#,0K");
+
+			if (num >= 10000)
+				return (num / 1000D).ToString("0.#") + "K";
+
+			return num.ToString("#,0");
 		}
+		#endregion
 		
 		/// <summary>
 		/// Return Median of a int array.
@@ -488,17 +506,18 @@ namespace CommonUtils
 			return withins;
 		}
 		
+		#region PowerOfTwo
 		/// <summary>
 		/// Check if a given number is power of two
 		/// </summary>
 		/// <param name="x">the number of check</param>
 		/// <returns>true or false</returns>
-		public static bool IsPowerOfTwo(ulong x)
+		public static bool IsPowerOfTwo(int x)
 		{
 			return (x != 0) && ((x & (x - 1)) == 0);
 		}
 		
-		public static uint NextPowerOfTwo(uint x)
+		public static int NextPowerOfTwo(int x)
 		{
 			x--; // comment out to always take the next biggest power of two, even if x is already a power of two
 			x |= (x >> 1);
@@ -509,7 +528,7 @@ namespace CommonUtils
 			return (x+1);
 		}
 
-		public static uint PreviousPowerOfTwo(uint x) {
+		public static int PreviousPowerOfTwo(int x) {
 			if (x == 0) {
 				return 0;
 			}
@@ -521,34 +540,9 @@ namespace CommonUtils
 			x |= (x >> 16);
 			return x - (x >> 1);
 		}
+		#endregion
 		
-		/// <summary>
-		/// Format numbers rounded to thousands with K (and M)
-		/// 1 => 1
-		/// 23 => 23
-		/// 136 => 136
-		/// 6968 => 6,968
-		/// 23067 => 23.1K
-		/// 133031 => 133K
-		/// </summary>
-		/// <param name="num"></param>
-		/// <returns></returns>
-		public static string FormatNumber(int num) {
-			if (num >= 100000000)
-				return (num / 1000000D).ToString("#,0M");
-
-			if (num >= 10000000)
-				return (num / 1000000D).ToString("0.#") + "M";
-
-			if (num >= 100000)
-				return (num / 1000D).ToString("#,0K");
-
-			if (num >= 10000)
-				return (num / 1000D).ToString("0.#") + "K";
-
-			return num.ToString("#,0");
-		}
-		
+		#region Normalize
 		/// <summary>
 		/// Calculate the root mean square (RMS) of an array
 		/// </summary>
@@ -563,7 +557,7 @@ namespace CommonUtils
 			}
 			return Math.Sqrt(sum / x.Length);
 		}
-
+		
 		/// <summary>
 		/// Calculate the root mean square (RMS) of an array
 		/// </summary>
@@ -601,8 +595,7 @@ namespace CommonUtils
 			if (rms > MAXRMS)
 				rms = MAXRMS;
 
-			for (int i = 0; i < nsamples; i++)
-			{
+			for (int i = 0; i < nsamples; i++) {
 				samples[i] /= rms;
 				samples[i] = Math.Min(samples[i], 1);
 				samples[i] = Math.Max(samples[i], -1);
@@ -625,5 +618,99 @@ namespace CommonUtils
 			return r;
 		}
 		
+		/// <summary>
+		/// Normalize the input signal to -1 to 1
+		/// </summary>
+		/// <param name="data">Normalized Signal</param>
+		public static void Normalize(ref double[][] data)
+		{
+			// Find maximum number when all numbers are made positive.
+			double max = data.Max((b) => b.Max((v) => Math.Abs(v)));
+			
+			if (max == 0.0f)
+				return;
+
+			// divide by max and return
+			data = data.Select(i => i.Select(j => j/max).ToArray()).ToArray();
+			
+			// to normalize only positive numbers add Abs
+			//data = data.Select(i => i.Select(j => Math.Abs(j)/max).ToArray()).ToArray();
+		}
+
+		/// <summary>
+		/// Normalize the input signal to -1 to 1
+		/// </summary>
+		/// <param name="data">Normalized Signal</param>
+		public static void Normalize(ref double[] data)
+		{
+			// Find maximum number when all numbers are made positive.
+			double max = data.Max((b) => Math.Abs(b));
+			
+			if (max == 0.0f)
+				return;
+
+			// divide by max and return
+			data = data.Select(i => i/max).ToArray();
+		}
+		#endregion
+		
+		#region MinMaxAbs
+		public static float[] Abs(float[] floatArray) {
+
+			if (floatArray == null) return null;
+			
+			// use LINQ
+			float[] absArray = floatArray.Select(i => Math.Abs(i)).ToArray();
+			
+			// use old method
+			/*
+			float[] absArray = new float[floatArray.Length];
+			for (int i = 0; i < floatArray.Length; i++) {
+				float absValue = Math.Abs(floatArray[i]);
+				absArray[i] = absValue;
+			}
+			 */
+			return absArray;
+		}
+
+		public static double[] Abs(double[] doubleArray) {
+
+			if (doubleArray == null) return null;
+			
+			// use LINQ
+			double[] absArray = doubleArray.Select(i => Math.Abs(i)).ToArray();
+			
+			// use old method
+			/*
+			float[] absArray = new float[doubleArray.Length];
+			for (int i = 0; i < doubleArray.Length; i++) {
+				float absValue = Math.Abs(doubleArray[i]);
+				absArray[i] = absValue;
+			}
+			 */
+			return absArray;
+		}
+		
+		public static double Max(double[][] data) {
+			// Find maximum number when all numbers are made positive.
+			double max = data.Max((b) => b.Max((v) => Math.Abs(v)));
+			return max;
+		}
+
+		public static double Min(double[][] data) {
+			// Find maximum number when all numbers are made positive.
+			double min = data.Min((b) => b.Min((v) => Math.Abs(v)));
+			return min;
+		}
+		#endregion
+
+		/// <summary>
+		/// Flatten Jagged Array (i.e. convert from double[][] to double[])
+		/// </summary>
+		/// <param name="data">jagged array</param>
+		/// <returns>flattened array</returns>
+		public static double[] Flatten(double[][] data) {
+			return data.SelectMany((b) => (b)).ToArray();
+		}
 	}
 }

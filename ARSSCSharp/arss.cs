@@ -2,6 +2,11 @@
 
 using System;
 using System.IO;
+
+// TODO: FOR TESTING
+using System.Linq;
+using System.Drawing;
+
 using CommonUtils;
 
 public static class GlobalMembersArss
@@ -344,10 +349,15 @@ public static class GlobalMembersArss
 		int _samplecount = 0;
 		int _samplerate = 0;
 		string _filenameIn = @"C:\Users\perivar.nerseth\Music\Sleep Away16.wav";
-		string _filenameOut = @"C:\Users\perivar.nerseth\Music\Sleep Away16-test.wav";
+		string _filenameOut = @"C:\Users\perivar.nerseth\Music\Sleep Away16-test2.png";
 		double[][] _sound = GlobalMembersSoundIO.ReadWaveFile(_filenameIn, ref _channels, ref _samplecount, ref _samplerate); // Sound input
 		double [] _s = _sound[0];
 		
+		Spectrogram spectrogram = new Spectrogram();
+		Bitmap bmp  = spectrogram.to_image(ref _s, _samplerate);
+		bmp.Save(_filenameOut);
+		Console.ReadKey();
+		return;
 		double[] out1 = new double[_samplecount];
 		double[] out2 = new double[_samplecount];
 		GlobalMembersDsp.FFT(ref _s, ref out1, _samplecount, GlobalMembersDsp.FFTMethod.DFT);
@@ -668,12 +678,12 @@ public static class GlobalMembersArss
 
 		// make the string lowercase
 		in_name = in_name.ToLower();
-		if (mode == 0 && in_name.EndsWith(".wav"))
+		if (mode == 0 && in_name.EndsWith(".wav")) {
 			mode = 1; // Automatic switch to the Analysis mode
+		}
 
 		if (mode == 0) {
-			do
-			{
+			do {
 				if (GlobalMembersUtil.quiet)
 				{
 					Console.Error.WriteLine("Please specify an operation mode.\nUse either --analysis (-a), --sine (-s) or --noise (-n).\nExiting with error.\n");
@@ -686,8 +696,7 @@ public static class GlobalMembersArss
 		}
 
 
-		if (mode == 1)
-		{
+		if (mode == 1) {
 			//sound = GlobalMembersSound_io.wav_in(fin, ref channels, ref samplecount, ref samplerate); // Sound input
 			fin.Close();
 			sound = GlobalMembersSoundIO.ReadWaveFile(in_name, ref channels, ref samplecount, ref samplerate); // Sound input
@@ -705,8 +714,7 @@ public static class GlobalMembersArss
 			GlobalMembersImageIO.BMPWrite(fout, image, Ysize, Xsize); // Image output
 		}
 		
-		if (mode == 2 || mode == 3)
-		{
+		if (mode == 2 || mode == 3) {
 			sound = new double[1][];
 			
 			image = GlobalMembersImageIO.BMPRead(fin, ref Ysize, ref Xsize); // Image input

@@ -5,6 +5,17 @@ using CommonUtils.FFT;
 using System.Runtime.InteropServices;
 using fftwlib;
 
+
+// Papers:
+// Spectral Analysis, Editing, and Resynthesis: Methods and Applications
+// http://www.klingbeil.com/data/Klingbeil_Dissertation_web.pdf
+
+// Spectral Envelopes in Sound Analysis and Synthesis
+// http://articles.ircam.fr/textes/Schwarz98a/index.pdf
+
+// Pitch Shifting Using The Fourier Transform
+// http://www.dspdimension.com/admin/pitch-shifting-using-the-ft/	
+
 public static class GlobalMembersDsp
 {
 	public static double PI;
@@ -362,53 +373,35 @@ public static class GlobalMembersDsp
 	/// <summary>
 	/// Analyze the input
 	/// </summary>
-	/// <param name="s"></param>
-	/// <param name="samplecount">Sample count</param>
+	/// <param name="s">Sound (original signal)</param>
+	/// <param name="samplecount">Sample count (samplecount is the original signal's orginal length)</param>
 	/// <param name="samplerate">Sample rate</param>
 	/// <param name="Xsize">Specifies the desired width of the spectrogram</param>
-	/// <param name="bands">Specifies the desired height of the spectrogram</param>
+	/// <param name="bands">Specifies the desired height of the spectrogram (bands is the total count of bands)</param>
 	/// <param name="bpo">Frequency resolution in Bands Per Octave</param>
 	/// <param name="pixpersec">Time resolution in Pixels Per Second</param>
 	/// <param name="basefreq">Minimum frequency in Hertz</param>
-	/// <returns></returns>
+	/// <returns>Image</returns>
 	public static double[][] Analyze(ref double[] s, ref int samplecount, ref int samplerate, ref int Xsize, ref int bands, ref double bpo, ref double pixpersec, ref double basefreq)
 	{
-		int i = 0;
-		int ib = 0;
-		int Mb = 0;
-		int Mc = 0;
-		int Md = 0;
-		int Fa = 0;
-		int Fd = 0;
-		double[][] @out;
-		double[] h;
-		double[] freq;
-		double[] t;
-		double coef;
-		double La;
-		double Ld;
-		double Li;
-		double maxfreq;
+		int i = 0;			// i is a general purpose iterator
+		int ib = 0; 		// ib is the band iterator
+		int Mb = 0;			// Mb is the length of the original signal once zero-padded (always even)
+		int Mc = 0;			// Mc is the length of the filtered signal
+		int Md = 0;			// Md is the length of the envelopes once downsampled (constant)
+		int Fa = 0;			// Fa is the index of the band's start in the frequency domain
+		int Fd = 0;			// Fd is the index of the band's end in the frequency domain
 
-		/*
-		 s is the original signal
-		 samplecount is the original signal's orginal length
-		 ib is the band iterator
-		 i is a general purpose iterator
-		 Mb is the length of the original signal once zero-padded (always even)
-		 Mc is the length of the filtered signal
-		 Md is the length of the envelopes once downsampled (constant)
-		 Fa is the index of the band's start in the frequency domain
-		 Fd is the index of the band's end in the frequency domain
-		 La is the log2 of the frequency of Fa
-		 Ld is the log2 of the frequency of Fd
-		 Li is the iterative frequency between La and Ld defined logarithmically
-		 coef is a temporary modulation coefficient
-		 t is temporary pointer to a new version of the signal being worked on
-		 bands is the total count of bands
-		 freq is the band's central frequency
-		 maxfreq is the central frequency of the last band
-		 */
+		double[][] @out;	// @out is the output image
+		double[] h;
+		double[] freq;		// freq is the band's central frequency
+		double[] t;			// t is temporary pointer to a new version of the signal being worked on
+		double coef;		// coef is a temporary modulation coefficient
+		double La;			// La is the log2 of the frequency of Fa
+		double Ld;			// Ld is the log2 of the frequency of Fd
+		double Li;			// Li is the iterative frequency between La and Ld defined logarithmically
+		double maxfreq;		// maxfreq is the central frequency of the last band
+
 		freq = GlobalMembersDsp.FrequencyArray(basefreq, bands, bpo);
 
 		if (LOGBASE == 1.0) {
@@ -419,8 +412,10 @@ public static class GlobalMembersDsp
 		
 		Xsize = (int) (samplecount * pixpersec);
 
-		if (GlobalMembersUtil.FMod((double) samplecount * pixpersec, 1.0) != 0.0) // round-up
+		if (GlobalMembersUtil.FMod((double) samplecount * pixpersec, 1.0) != 0.0) {
+			// round-up
 			Xsize++;
+		}
 		Console.Write("Image size : {0:D}x{1:D}\n", Xsize, bands);
 		
 		@out = new double[bands][];
@@ -428,32 +423,39 @@ public static class GlobalMembersDsp
 		clockA = GlobalMembersUtil.GetTime();
 
 		//********ZEROPADDING********	Note : Don't do it in Circular mode
+		// Mb is the length of the original signal once zero-padded (always even)
 		if (LOGBASE == 1.0) {
 			Mb = samplecount - 1 + (int) GlobalMembersUtil.RoundOff(5.0/ freq[1]-freq[0]); // linear mode
 		} else {
 			Mb = samplecount - 1 + (int) GlobalMembersUtil.RoundOff(2.0 *5.0/((freq[0] * Math.Pow(LOGBASE, -1.0/(bpo))) * (1.0 - Math.Pow(LOGBASE, -1.0 / bpo))));
 		}
 
-		if (Mb % 2 == 1) // if Mb is odd
+		if (Mb % 2 == 1)  { // if Mb is odd
 			Mb++; // make it even (for the sake of simplicity)
+		}
+
+		Mc = 0;
+		Md = 0;
 
 		Mb = (int) GlobalMembersUtil.RoundOff((double) GlobalMembersUtil.NextPrime((int) GlobalMembersUtil.RoundOff(Mb * pixpersec)) / pixpersec);
 
+		// Md is the length of the envelopes once downsampled (constant)
 		Md = (int) GlobalMembersUtil.RoundOff(Mb * pixpersec);
 
 		// realloc to the zeropadded size
 		Array.Resize<double>(ref s, Mb);
 		
 		// zero-out the padded area. Equivalent of : for (i=samplecount; i<Mb; i++) s[i] = 0;
-		for (i=samplecount; i<Mb; i++) s[i] = 0;
+		for (i=samplecount; i<Mb; i++) {
+			s[i] = 0;
+		}
 		//--------ZEROPADDING--------
 		
 		//Export.exportCSV(String.Format("samples_before_fft.csv"), s, 256);
 		GlobalMembersDsp.FFT(ref s, ref s, Mb, FFTMethod.DFT); // In-place FFT of the original zero-padded signal
 		//Export.exportCSV(String.Format("samples_after_fft.csv"), s, 256);
 
-		for (ib = 0; ib<bands; ib++)
-		{
+		for (ib = 0; ib<bands; ib++) {
 			//********Filtering********
 			Fa = (int) GlobalMembersUtil.RoundOff(GlobalMembersDsp.LogPositionToFrequency((double)(ib-1)/(double)(bands-1), basefreq, maxfreq) * Mb);
 			Fd = (int) GlobalMembersUtil.RoundOff(GlobalMembersDsp.LogPositionToFrequency((double)(ib+1)/(double)(bands-1), basefreq, maxfreq) * Mb);
@@ -466,23 +468,25 @@ public static class GlobalMembersDsp
 			if (Fa < 1)
 				Fa = 1;
 
+			// Mc is the length of the filtered signal
 			Mc = (Fd-Fa)*2 + 1;
 			// '*2' because the filtering is on both real and imaginary parts,
 			// '+1' for the DC.
 			// No Nyquist component since the signal length is necessarily odd
 
-			if (Md > Mc) // if the band is going to be too narrow
+			if (Md > Mc) { // if the band is going to be too narrow
 				Mc = Md;
+			}
 
-			if (Md < Mc) // round the larger bands up to the next integer made of 2^n * 3^m
+			if (Md < Mc) { // round the larger bands up to the next integer made of 2^n * 3^m
 				Mc = GlobalMembersUtil.NextPrime(Mc);
+			}
 
 			Console.Write("{0,4:D}/{1:D} (FFT size: {2,6:D})   {3:f2} Hz - {4:f2} Hz\r", ib+1, bands, Mc, (double) Fa *samplerate/Mb, (double) Fd *samplerate/Mb);
 
 			@out[bands-ib-1] = new double[Mc+1];
 
-			for (i = 0; i<Fd-Fa; i++)
-			{
+			for (i = 0; i<Fd-Fa; i++) {
 				Li = GlobalMembersDsp.FrequencyToLogPosition((double)(i+Fa) / (double) Mb, basefreq, maxfreq); // calculation of the logarithmic position
 				Li = (Li-La)/(Ld-La);
 				coef = 0.5 - 0.5 * Math.Cos(2.0 *PI * Li); // Hann function
@@ -528,13 +532,11 @@ public static class GlobalMembersDsp
 			//--------Envelope detection--------
 
 			//********Downsampling********
-			if (Mc < Md) // if the band doesn't have to be resampled
-			{
+			if (Mc < Md) { // if the band doesn't have to be resampled
 				Array.Resize<double>(ref @out[bands-ib-1], Md); // simply ignore the end of it
 			}
 			
-			if (Mc > Md) // If the band *has* to be downsampled
-			{
+			if (Mc > Md) { // If the band *has* to be downsampled
 				t = @out[bands-ib-1];
 				@out[bands-ib-1] = GlobalMembersDsp.BlackmanDownsampling(@out[bands-ib-1], Mc, Md); // Blackman downsampling
 
@@ -556,13 +558,15 @@ public static class GlobalMembersDsp
 	}
 
 	/// <summary>
-	/// 
+	/// Windowd Sinc method
 	/// </summary>
 	/// <param name="length">Length</param>
 	/// <param name="bw">Bandwidth</param>
 	/// <returns></returns>
-	public static double[] wsinc_max(int length, double bw)
+	public static double[] WindowedSinc_max(int length, double bw)
 	{
+		// http://www.dspguide.com/ch16/1.htm
+		
 		int i = 0;
 		int bwl = 0; // integer transition bandwidth
 		double tbw; // double transition bandwidth
@@ -581,8 +585,9 @@ public static class GlobalMembersDsp
 
 		for (i = 0; i<bwl; i++) {
 			x = (double) i / tbw; // position calculation between 0.0 and 1.0
-			coef = 0.42 *x - (0.5/(2.0 *PI))*Math.Sin(2.0 *PI *x) + (0.08/(4.0 *PI))*Math.Sin(4.0 *PI *x); // antiderivative of the Blackman function
-			coef *= 1.0/0.42;
+			// antiderivative of the Blackman window function
+			coef = 0.42 * x - (0.5/(2.0 *PI))*Math.Sin(2.0 *PI *x) + (0.08/(4.0 *PI))*Math.Sin(4.0 *PI *x);
+			coef *= 1.0 / 0.42;
 			h[i+1] = coef;
 			h[length-1-i] = coef;
 		}
@@ -643,7 +648,7 @@ public static class GlobalMembersDsp
 		// Mn is the length of the real or imaginary part of the sound's FFT, DC element included and Nyquist element excluded
 		Mn = (samplecount + 1) >> 1;
 
-		filter = GlobalMembersDsp.wsinc_max(Mh, 1.0 / GlobalMembersArss.TRANSITION_BW_SYNT); // generation of the frequency-domain filter
+		filter = GlobalMembersDsp.WindowedSinc_max(Mh, 1.0 / GlobalMembersArss.TRANSITION_BW_SYNT); // generation of the frequency-domain filter
 
 		for (ib = 0; ib<bands; ib++) {
 			// reset sband
@@ -714,7 +719,7 @@ public static class GlobalMembersDsp
 		
 		double[] noise; 						// filtered looped noise
 		double loop_size_sec = LOOP_SIZE_SEC; 	// size of the filter bank loop, in seconds. Later to be taken from user input
-		int loop_size = 0; 						// size of the filter bank loop, in samples. Deduced from loop_size_sec		
+		int loop_size = 0; 						// size of the filter bank loop, in samples. Deduced from loop_size_sec
 		int loop_size_min = 0; 					// minimum required size for the filter bank loop, in samples. Calculated from the longest windowed sinc's length
 		
 		double[] pink_noise; 					// original pink noise (in the frequency domain)

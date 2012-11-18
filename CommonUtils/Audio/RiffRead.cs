@@ -11,28 +11,31 @@ namespace CommonUtils
 	
 	public class RiffRead {
 
-		static int WAVE_FORMAT_UNKNOWN           =  0x0000; /* Microsoft Corporation */
-		static int WAVE_FORMAT_PCM               =  0x0001; /* Microsoft Corporation */
-		static int WAVE_FORMAT_ADPCM             =  0x0002; /* Microsoft Corporation */
-		static int WAVE_FORMAT_IEEE_FLOAT        =  0x0003; /* Microsoft Corporation */
-		static int WAVE_FORMAT_ALAW              =  0x0006; /* Microsoft Corporation */
-		static int WAVE_FORMAT_MULAW             =  0x0007; /* Microsoft Corporation */
-		static int WAVE_FORMAT_DTS_MS            =  0x0008; /* Microsoft Corporation */
-		static int WAVE_FORMAT_WMAS              =  0x000a; /* WMA 9 Speech */
-		static int WAVE_FORMAT_IMA_ADPCM         =  0x0011; /* Intel Corporation */
-		static int WAVE_FORMAT_TRUESPEECH        =  0x0022; /* TrueSpeech */
-		static int WAVE_FORMAT_GSM610            =  0x0031; /* Microsoft Corporation */
-		static int WAVE_FORMAT_MSNAUDIO          =  0x0032; /* Microsoft Corporation */
-		static int WAVE_FORMAT_G726              =  0x0045; /* ITU-T standard  */
-		static int WAVE_FORMAT_MPEG              =  0x0050; /* Microsoft Corporation */
-		static int WAVE_FORMAT_MPEGLAYER3        =  0x0055; /* ISO/MPEG Layer3 Format Tag */
-		static int WAVE_FORMAT_DOLBY_AC3_SPDIF   =  0x0092; /* Sonic Foundry */
+		//static int WAVE_FORMAT_UNKNOWN           =  0x0000; // Microsoft Corporation
+		static int WAVE_FORMAT_PCM               =  0x0001; // Microsoft Corporation
+		//static int WAVE_FORMAT_ADPCM             =  0x0002; // Microsoft Corporation
+		static int WAVE_FORMAT_IEEE_FLOAT        =  0x0003; // Microsoft Corporation
+		/*
+		static int WAVE_FORMAT_ALAW              =  0x0006; // Microsoft Corporation
+		static int WAVE_FORMAT_MULAW             =  0x0007; // Microsoft Corporation
+		static int WAVE_FORMAT_DTS_MS            =  0x0008; // Microsoft Corporation
+		static int WAVE_FORMAT_WMAS              =  0x000a; // WMA 9 Speech
+		static int WAVE_FORMAT_IMA_ADPCM         =  0x0011; // Intel Corporation
+		static int WAVE_FORMAT_TRUESPEECH        =  0x0022; // TrueSpeech
+		static int WAVE_FORMAT_GSM610            =  0x0031; // Microsoft Corporation
+		static int WAVE_FORMAT_MSNAUDIO          =  0x0032; // Microsoft Corporation
+		static int WAVE_FORMAT_G726              =  0x0045; // ITU-T standard
+		static int WAVE_FORMAT_MPEG              =  0x0050; // Microsoft Corporation
+		 */
+		static int WAVE_FORMAT_MPEGLAYER3        =  0x0055; // ISO/MPEG Layer3 Format Tag
+		/*
+		static int WAVE_FORMAT_DOLBY_AC3_SPDIF   =  0x0092; // Sonic Foundry
 		static int WAVE_FORMAT_A52               =  0x2000;
 		static int WAVE_FORMAT_DTS               =  0x2001;
-		static int WAVE_FORMAT_WMA1              =  0x0160; /* WMA version 1 */
-		static int WAVE_FORMAT_WMA2              =  0x0161; /* WMA (v2) 7, 8, 9 Series */
-		static int WAVE_FORMAT_WMAP              =  0x0162; /* WMA 9 Professional */
-		static int WAVE_FORMAT_WMAL              =  0x0163; /* WMA 9 Lossless */
+		static int WAVE_FORMAT_WMA1              =  0x0160; // WMA version 1
+		static int WAVE_FORMAT_WMA2              =  0x0161; // WMA (v2) 7, 8, 9 Series
+		static int WAVE_FORMAT_WMAP              =  0x0162; // WMA 9 Professional
+		static int WAVE_FORMAT_WMAL              =  0x0163; // WMA 9 Lossless
 		static int WAVE_FORMAT_DIVIO_AAC         =  0x4143;
 		static int WAVE_FORMAT_AAC               =  0x00FF;
 		static int WAVE_FORMAT_FFMPEG_AAC        =  0x706D;
@@ -46,9 +49,10 @@ namespace CommonUtils
 		static int WAVE_FORMAT_VORB_1PLUS        =  0x676f;
 		static int WAVE_FORMAT_VORB_2PLUS        =  0x6770;
 		static int WAVE_FORMAT_VORB_3PLUS        =  0x6771;
-		static int WAVE_FORMAT_SPEEX             =  0xa109; /* Speex audio */
+		static int WAVE_FORMAT_SPEEX             =  0xa109; // Speex audio
+		 */
 
-		static int WAVE_FORMAT_EXTENSIBLE        =  0xFFFE; /* Microsoft */
+		static int WAVE_FORMAT_EXTENSIBLE        =  0xFFFE; // Microsoft
 
 		static string[] infotype = { "IARL", "IART", "ICMS", "ICMT", "ICOP",
 			"ICRD", "ICRP", "IDIM", "IDPI", "IENG", "IGNR", "IKEY",
