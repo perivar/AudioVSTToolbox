@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{EAAD449A-D39D-4D0F-86D3-05754DFFA413}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>audio_analysis_CSharp</RootNamespace>
+    <AssemblyName>audio-analysis-CSharp</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <StartupObject>com.badlogic.audio.samples.part5.FourierTransformPlot</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="NAudio">
+      <HintPath>lib\NAudio.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudio.WindowsMediaFormat">
+      <HintPath>lib\NAudio.WindowsMediaFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MainForm.cs" />
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\com\badlogic\audio\analysis\DFT.cs" />
+    <Compile Include="src\com\badlogic\audio\analysis\FFT.cs" />
+    <Compile Include="src\com\badlogic\audio\analysis\FourierTransform.cs" />
+    <Compile Include="src\com\badlogic\audio\analysis\Signals.cs" />
+    <Compile Include="src\com\badlogic\audio\analysis\SpectrumProvider.cs" />
+    <Compile Include="src\com\badlogic\audio\analysis\ThresholdFunction.cs" />
+    <Compile Include="src\com\badlogic\audio\io\AudioDevice.cs" />
+    <Compile Include="src\com\badlogic\audio\samples\part2\NoteGenerator.cs" />
+    <Compile Include="src\com\badlogic\audio\samples\part2\WaveOutput.cs" />
+    <Compile Include="src\com\badlogic\audio\samples\part3\PlotExample.cs" />
+    <Compile Include="src\com\badlogic\audio\samples\part4\MP3Output.cs" />
+    <Compile Include="src\com\badlogic\audio\samples\part4\RealTimePlot.cs" />
+    <Compile Include="src\com\badlogic\audio\samples\part5\FourierTransformPlot.cs" />
+    <Compile Include="src\com\badlogic\audio\samples\part6\HammingSpectralFlux.cs" />
+    <Compile Include="src\com\badlogic\audio\samples\part6\HoppingSpectralFlux.cs" />
+    <Compile Include="src\com\badlogic\audio\samples\part6\RectifiedSpectralFlux.cs" />
+    <Compile Include="src\com\badlogic\audio\samples\part6\SpectralFlux.cs" />
+    <Compile Include="src\com\badlogic\audio\samples\part7\MultiBandThreshold.cs" />
+    <Compile Include="src\com\badlogic\audio\visualization\PlaybackVisualizer.cs" />
+    <Compile Include="src\com\badlogic\audio\visualization\Plot.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src" />
+    <Folder Include="src" />
+    <Folder Include="src\com" />
+    <Folder Include="src\com" />
+    <Folder Include="src\com\badlogic" />
+    <Folder Include="src\com\badlogic" />
+    <Folder Include="src\com\badlogic\audio" />
+    <Folder Include="src\com\badlogic\audio" />
+    <Folder Include="src\com\badlogic\audio\analysis" />
+    <Folder Include="src\com\badlogic\audio\analysis" />
+    <Folder Include="src\com\badlogic\audio\io" />
+    <Folder Include="src\com\badlogic\audio\io" />
+    <Folder Include="src\com\badlogic\audio\samples" />
+    <Folder Include="src\com\badlogic\audio\samples\part2" />
+    <Folder Include="src\com\badlogic\audio\samples\part3" />
+    <Folder Include="src\com\badlogic\audio\samples\part4" />
+    <Folder Include="src\com\badlogic\audio\samples\part5" />
+    <Folder Include="src\com\badlogic\audio\samples\part6" />
+    <Folder Include="src\com\badlogic\audio\samples\part7" />
+    <Folder Include="src\com\badlogic\audio\visualization" />
+    <Folder Include="src\com\badlogic\audio\visualization" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+</Project>

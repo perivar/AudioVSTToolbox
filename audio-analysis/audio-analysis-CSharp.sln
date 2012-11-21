@@ -1,0 +1,18 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+# SharpDevelop 4.2.2.8818
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "audio-analysis-CSharp", "audio-analysis-CSharp.csproj", "{EAAD449A-D39D-4D0F-86D3-05754DFFA413}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EAAD449A-D39D-4D0F-86D3-05754DFFA413}.Debug|x86.Build.0 = Debug|x86
+		{EAAD449A-D39D-4D0F-86D3-05754DFFA413}.Debug|x86.ActiveCfg = Debug|x86
+		{EAAD449A-D39D-4D0F-86D3-05754DFFA413}.Release|x86.Build.0 = Release|x86
+		{EAAD449A-D39D-4D0F-86D3-05754DFFA413}.Release|x86.ActiveCfg = Release|x86
+	EndGlobalSection
+EndGlobal

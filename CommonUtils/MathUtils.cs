@@ -621,7 +621,7 @@ namespace CommonUtils
 		/// <summary>
 		/// Normalize the input signal to -1 to 1
 		/// </summary>
-		/// <param name="data">Normalized Signal</param>
+		/// <param name="data">Signal to be Normalized</param>
 		public static void Normalize(ref double[][] data)
 		{
 			// Find maximum number when all numbers are made positive.
@@ -640,7 +640,7 @@ namespace CommonUtils
 		/// <summary>
 		/// Normalize the input signal to -1 to 1
 		/// </summary>
-		/// <param name="data">Normalized Signal</param>
+		/// <param name="data">Signal to be Normalized</param>
 		public static void Normalize(ref double[] data)
 		{
 			// Find maximum number when all numbers are made positive.
@@ -652,6 +652,24 @@ namespace CommonUtils
 			// divide by max and return
 			data = data.Select(i => i/max).ToArray();
 		}
+		
+		/// <summary>
+		/// Normalize the input signal to -1 to 1
+		/// </summary>
+		/// <param name="data">Signal to be Normalized</param>
+		public static void Normalize(ref byte[] bytes) {
+			
+			// Find maximum number when all numbers are made positive.
+			byte max = bytes.Max();
+			
+			for (int i = 0; i < bytes.Length; i++)
+			{
+				bytes[i] /= max;     	 // scale bytes to 0..1
+				bytes[i] *= 2;            // scale bytes to 0..2
+				bytes[i]--;               // scale bytes to -1..1
+			}
+		}
+		
 		#endregion
 		
 		#region MinMaxAbs
