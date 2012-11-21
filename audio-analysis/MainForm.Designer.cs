@@ -36,12 +36,17 @@ namespace audio_analysis_CSharp
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.SuspendLayout();
 			// 
 			// MainForm
 			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Text = "audio-analysis-CSharp";
+			this.ClientSize = new System.Drawing.Size(554, 372);
 			this.Name = "MainForm";
+			this.Text = "audio-analysis-CSharp";
+			this.Paint += new System.Windows.Forms.PaintEventHandler(this.MainFormPaint);
+			this.ResumeLayout(false);
 		}
 	}
 }
