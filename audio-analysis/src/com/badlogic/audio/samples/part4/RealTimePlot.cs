@@ -1,10 +1,12 @@
 using System;
+using System.Windows.Forms;
 using System.Drawing;
 using System.Diagnostics;
 using System.Threading;
 
 using NAudio;
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 
 using System.Collections.Generic;
 using AudioDevice = com.badlogic.audio.io.AudioDevice;
@@ -32,29 +34,71 @@ namespace com.badlogic.audio.samples.part4
 		private const int SAMPLE_WINDOW_SIZE = 1024;
 		private const string FILE = "samples/sample.mp3";
 
-		public static void Main(string[] argv)
+		private static void PlotShown(object sender, EventArgs e) {
+			Thread t = new Thread (new ParameterizedThreadStart(Filler));
+			t.Start (sender);
+		}
+		
+		private static void OnPreVolumeMeter(object sender, StreamVolumeEventArgs e)
 		{
-			float[] samples = ReadInAllSamples(FILE);
-
-			Plot plot = new Plot("Wave Plot", 1024, 512);
-			plot.plot(samples, SAMPLE_WINDOW_SIZE, Color.Red);
-
-			ISampleProvider reader = new AudioFileReader(FILE);
+			// we know it is stereo
+			//waveformPainter1.AddMax(e.MaxSampleValues[0]);
+			//waveformPainter2.AddMax(e.MaxSampleValues[1]);
+			float[] max = e.MaxSampleValues;
+		}
+		
+		private static void Tick(object obj) {
+			//TimeSpan currentTime = (waveOut.PlaybackState == PlaybackState.Stopped) ? TimeSpan.Zero : fileWaveStream.CurrentTime;
+			//trackBarPosition.Value = (int)currentTime.TotalSeconds;
+		}
+		
+		private static void Filler(object plot) {
+			ISampleProvider sampleProvider = new AudioFileReader(FILE);
+			
+			// add event
+			SampleToWaveProvider waveProvider = new SampleToWaveProvider(sampleProvider);
+			SampleChannel sampleChannel = new SampleChannel(waveProvider, true);
+			sampleChannel.PreVolumeMeter += OnPreVolumeMeter;
+			
+			// add timer
+			//System.Threading.Timer timer = new System.Threading.Timer(new TimerCallback(Tick));
+			//timer.Change(0, 500);
+			
+			// play
+			//IWavePlayer waveOut = new WaveOut();
+			//waveOut.Init(new SampleToWaveProvider(sampleChannel));
+			//waveOut.Play();
+			
+			//return;
 			
 			AudioDevice device = new AudioDevice();
-			samples = new float[SAMPLE_WINDOW_SIZE];
+			float[] samples = new float[SAMPLE_WINDOW_SIZE];
 
 			Stopwatch stopwatch = new Stopwatch();
 			stopwatch.Start();
-			while(reader.Read(samples, 0, samples.Length) > 0)
+			while(sampleChannel.Read(samples, 0, samples.Length) > 0)
 			{
 				device.WriteSamples(samples);
-
-				float elapsedTime = stopwatch.Elapsed.Milliseconds;
+				
+				double elapsedTime = stopwatch.Elapsed.TotalSeconds;
 				int position = (int)(elapsedTime * (44100/SAMPLE_WINDOW_SIZE));
-				plot.SetMarker(position, Color.White);
-				System.Threading.Thread.Sleep(15); // this is needed or else swing has no chance repainting the plot!
+				((Plot)plot).SetMarker(position, Color.White);
+				Thread.Sleep(10);
 			}
+			stopwatch.Stop();
+			device.Dispose();
+		}
+		
+		public static void Main(string[] argv)
+		{
+			float[] samples = ReadInAllSamples(FILE);
+			
+			Plot plot = new Plot("Wave Plot", 1024, 512);
+			plot.plot(samples, SAMPLE_WINDOW_SIZE, Color.Red);
+			//plot.FormLoaded += new Plot.FormLoadEventHandler(PlotLoaded);
+			//plot.FormShown += new Plot.FormShownEventHandler(PlotShown);
+			plot.Shown += new EventHandler(PlotShown);
+			Application.Run(plot);
 		}
 
 		public static float[] ReadInAllSamples(string file)
@@ -62,7 +106,7 @@ namespace com.badlogic.audio.samples.part4
 			ISampleProvider reader = new AudioFileReader(file);
 			
 			List<float> allSamples = new List<float>();
-			float[] samples = new float[1024];
+			float[] samples = new float[16384];
 
 			while(reader.Read(samples, 0, samples.Length) > 0)
 			{
@@ -77,5 +121,4 @@ namespace com.badlogic.audio.samples.part4
 			return samples;
 		}
 	}
-
 }

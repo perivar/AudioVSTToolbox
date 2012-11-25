@@ -2,6 +2,7 @@ using System;
 
 using NAudio;
 using NAudio.Wave;
+using AudioDevice = com.badlogic.audio.io.AudioDevice;
 
 namespace com.badlogic.audio.io
 {
@@ -9,9 +10,8 @@ namespace com.badlogic.audio.io
 	 * Class that allows directly passing PCM float mono
 	 * data to the sound card for playback. The sampling
 	 * rate of the PCM data must be 44100Hz.
-	 * 
 	 * @author mzechner
-	 *
+	 * @author perivar@nerseth.com
 	 */
 	public class AudioDevice
 	{
@@ -21,7 +21,7 @@ namespace com.badlogic.audio.io
 		// the sound line we write our samples to
 		private WaveOut waveOut;
 
-		// buffer for BUFFER_SIZE 16-bit samples
+		// buffer for BUFFER_SIZE 32-bit samples
 		private byte[] buffer = new byte[BUFFER_SIZE*4];
 
 		// PlayBuffer
@@ -29,16 +29,24 @@ namespace com.badlogic.audio.io
 		
 		/**
 		 * Constructor, initializes the audio system for
-		 * 44100Hz 16-bit signed mono output.
+		 * 44100Hz 32-bit float stereo output.
 		 */
 		public AudioDevice()
 		{
 			// BufferedWaveProvider
-			//PlayBuffer = new BufferedWaveProvider(new WaveFormat(44100, 16, 2));
 			PlayBuffer = new BufferedWaveProvider(WaveFormat.CreateIeeeFloatWaveFormat(44100, 2));
-			PlayBuffer.BufferDuration = TimeSpan.FromMinutes(5);
+			PlayBuffer.BufferDuration = TimeSpan.FromMinutes(10);
 
 			// waveOut
+			/*
+			 * This is the default and recommended approach if you are creating a WaveOut object
+			 * from the GUI thread of a Windows Forms or WPF application.
+			 * Whenever WaveOut wants more data it posts a message that is handled by the
+			 * Windows message pump of an invisible new window.
+			 * You get this callback model by default when you call the empty WaveOut constructor.
+			 * However, it will not work on a background thread, since there is no message pump.
+			 * */
+			//waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
 			waveOut = new WaveOut();
 			//waveOut.Volume = 0.5f;
 			waveOut.Init(PlayBuffer);
@@ -82,7 +90,7 @@ namespace com.badlogic.audio.io
 				buffer[j+3] = array[3];
 			}
 		}
-
+		
 		public static void Main(string[] argv)
 		{
 			//ISampleProvider reader = new AudioFileReader(@"C:\Users\perivar.nerseth\Music\Sleep Away16.wav");
@@ -113,12 +121,10 @@ namespace com.badlogic.audio.io
 				System.Threading.Thread.Sleep(100);
 			}
 			 */
-			
 		}
 		
 		private static void _waveOutDevice_PlaybackStopped (object sender, EventArgs e) {
 			System.Console.Out.WriteLine("Stopped!");
 		}
 	}
-
 }

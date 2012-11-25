@@ -1,3 +1,5 @@
+using System;
+using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -32,6 +34,7 @@ namespace com.badlogic.audio.samples.part3
 
 			Plot plot = new Plot("Wave Plot", 512, 512);
 			plot.plot(samples, 44100 / 1000, Color.Red);
+			Application.Run(plot);
 		}
 	}
 }

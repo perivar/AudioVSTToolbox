@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 
 using FFT = com.badlogic.audio.analysis.FFT;
 using Plot = com.badlogic.audio.visualization.Plot;
@@ -30,6 +31,7 @@ namespace com.badlogic.audio.samples.part5
 
 			Plot plot = new Plot("Note A Spectrum", 512, 512);
 			plot.plot(fft.GetSpectrum(), 1, Color.Red);
+			Application.Run(plot);
 		}
 	}
 }
