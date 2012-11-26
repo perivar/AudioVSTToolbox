@@ -1,7 +1,10 @@
 using System;
+using System.Threading;
 
 using NAudio;
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
+
 using AudioDevice = com.badlogic.audio.io.AudioDevice;
 
 namespace com.badlogic.audio.io
@@ -15,17 +18,47 @@ namespace com.badlogic.audio.io
 	 */
 	public class AudioDevice
 	{
+		public class TimeOfTick : EventArgs
+		{
+			private TimeSpan timeSpan;
+			public TimeSpan TimeSpan
+			{
+				set
+				{
+					timeSpan = value;
+				}
+				get
+				{
+					return this.timeSpan;
+				}
+			}
+		}
+		
 		/// the buffer size in samples
 		private const int BUFFER_SIZE = 1024;
 
 		// the sound line we write our samples to
-		private WaveOut waveOut;
+		private IWavePlayer waveOut;
 
 		// buffer for BUFFER_SIZE 32-bit samples
 		private byte[] buffer = new byte[BUFFER_SIZE*4];
 
 		// PlayBuffer
 		private BufferedWaveProvider PlayBuffer;
+		
+		// fileWaveStream
+		private WaveStream fileWaveStream;
+		private SampleChannel sampleChannel;
+		
+		public WaveStream WaveStream { get { return fileWaveStream; } }
+		public SampleChannel SampleChannel { get { return sampleChannel; } }
+		public IWavePlayer WavePlayer { get { return waveOut; } }
+		
+		public TimeSpan Elapsed {
+			get {
+				return (waveOut.PlaybackState == PlaybackState.Stopped) ? TimeSpan.Zero : fileWaveStream.CurrentTime;
+			}
+		}
 		
 		/**
 		 * Constructor, initializes the audio system for
@@ -51,6 +84,54 @@ namespace com.badlogic.audio.io
 			//waveOut.Volume = 0.5f;
 			waveOut.Init(PlayBuffer);
 			waveOut.Play();
+		}
+		
+		public AudioDevice(string fileName) : this() {
+			ISampleProvider sampleProvider = new AudioFileReader(fileName);
+			this.fileWaveStream = (WaveStream) sampleProvider;
+			
+			// add event
+			SampleToWaveProvider waveProvider = new SampleToWaveProvider(sampleProvider);
+			this.sampleChannel = new SampleChannel(waveProvider, true);
+			sampleChannel.PreVolumeMeter += OnPreVolumeMeter;
+			
+			// add timer
+			System.Threading.Timer timer = new System.Threading.Timer(new TimerCallback(Tick));
+			timer.Change(0, 500);
+			
+			// play
+			//IWavePlayer waveOut = new WaveOut();
+			//waveOut.Init(waveProvider);
+			//waveOut.Play();
+		}
+		
+		private void OnPreVolumeMeter(object sender, StreamVolumeEventArgs e)
+		{
+			// we know it is stereo
+			//waveformPainter1.AddMax(e.MaxSampleValues[0]);
+			//waveformPainter2.AddMax(e.MaxSampleValues[1]);
+			float[] max = e.MaxSampleValues;
+		}
+		
+		// A delegate type for hooking up notifications.
+		public delegate void AudioTickHandler(object sender, TimeOfTick e);
+
+		// An event that clients can use to be notified when ticks
+		public event AudioTickHandler AudioTick;
+		
+		// Invoke the Audio Tick event; called when audio ticked
+		protected virtual void OnAudioTick(TimeOfTick e)
+		{
+			if (AudioTick != null)
+				AudioTick(this, e);
+		}
+		
+		private void Tick(object obj) {
+			TimeSpan currentTime = (waveOut.PlaybackState == PlaybackState.Stopped) ? TimeSpan.Zero : fileWaveStream.CurrentTime;
+			//trackBarPosition.Value = (int)currentTime.TotalSeconds;
+			TimeOfTick timeTick = new TimeOfTick();
+			timeTick.TimeSpan = currentTime;
+			OnAudioTick(timeTick);
 		}
 		
 		/**
@@ -125,6 +206,17 @@ namespace com.badlogic.audio.io
 		
 		private static void _waveOutDevice_PlaybackStopped (object sender, EventArgs e) {
 			System.Console.Out.WriteLine("Stopped!");
+		}
+		
+		public static WaveStream CreateIeeeFloatWaveStream(string fileName)
+		{
+			WaveStream readerStream = new WaveFileReader(fileName);
+			if (readerStream.WaveFormat.Encoding != WaveFormatEncoding.Pcm && readerStream.WaveFormat.Encoding != WaveFormatEncoding.IeeeFloat)
+			{
+				readerStream = WaveFormatConversionStream.CreatePcmStream(readerStream);
+				readerStream = new BlockAlignReductionStream(readerStream);
+			}
+			return readerStream;
 		}
 	}
 }

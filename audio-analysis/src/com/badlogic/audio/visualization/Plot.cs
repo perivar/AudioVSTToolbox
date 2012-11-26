@@ -14,14 +14,14 @@ namespace com.badlogic.audio.visualization
 {
 	/**
 	 * A simple class that allows to plot float[] arrays
-	 * to a swing window. The first function to plot that
+	 * to a window. The first function to plot that
 	 * is given to this class will set the minimum and
 	 * maximum height values.
 	 * 
 	 * @author mzechner
 	 * @author perivar@nerseth.com
 	 */
-	public class Plot: Form
+	public class Plot : Form
 	{
 		/** the frame **/
 		private Form form;
@@ -36,7 +36,7 @@ namespace com.badlogic.audio.visualization
 		private bool cleared = true;
 
 		/** current marker position and color **/
-		private int markerPosition = 0;
+		private int markerPosition = -1;
 		private Color markerColor = Color.White;
 		
 		public Plot()
@@ -69,8 +69,6 @@ namespace com.badlogic.audio.visualization
 			this.DoubleBuffered = true;
 			this.Name = "Plot";
 			this.Text = "Plot";
-			this.Load += new System.EventHandler(this.PlotLoad);
-			this.Shown += new System.EventHandler(this.PlotShown);
 			this.Paint += new System.Windows.Forms.PaintEventHandler(this.Plot_Paint);
 			this.ResumeLayout(false);
 		}
@@ -99,44 +97,9 @@ namespace com.badlogic.audio.visualization
 			myTimer.Start();
 		}
 		
-		void PlotLoad(object sender, EventArgs e)
-		{
-			OnFormLoaded(EventArgs.Empty);
-		}
-		
-		void PlotShown(object sender, EventArgs e)
-		{
-			OnFormShown(EventArgs.Empty);
-		}
-		
-		// A delegate type for hooking up notifications.
-		public delegate void FormLoadEventHandler(object sender, EventArgs e);
-
-		public delegate void FormShownEventHandler(object sender, EventArgs e);
-		
-		// An event that clients can use to be notified when the form loads
-		public event FormLoadEventHandler FormLoaded;
-
-		// An event that clients can use to be notified when the form loads
-		public event FormShownEventHandler FormShown;
-
-		// Invoke the FormLoaded event; called when form loads
-		protected virtual void OnFormLoaded(EventArgs e)
-		{
-			if (FormLoaded != null)
-				FormLoaded(this, e);
-		}
-
-		// Invoke the FormShown event; called when form is shown
-		protected virtual void OnFormShown(EventArgs e)
-		{
-			if (FormShown != null)
-				FormShown(this, e);
-		}
-		
 		public void Plot_Paint(object sender, PaintEventArgs e)
 		{
-			redraw();
+			Redraw();
 		}
 		
 		protected override void OnPaintBackground(PaintEventArgs pevent)
@@ -147,10 +110,10 @@ namespace com.badlogic.audio.visualization
 		// for System.Windows.Forms.Timer
 		private void TimerEventProcessor(Object myObject, EventArgs myEventArgs) {
 			//markerPosition += 10; // testing marker animation
-			redraw();
+			Redraw();
 		}
 		
-		private void redraw() {
+		private void Redraw() {
 			lock (image) {
 				Graphics g = form.CreateGraphics();
 				g.TranslateTransform(this.AutoScrollPosition.X, this.AutoScrollPosition.Y);
@@ -159,12 +122,14 @@ namespace com.badlogic.audio.visualization
 				g.DrawImageUnscaled(image, 0, 0);
 				
 				// Plot the marker
-				g.DrawLine(new Pen(markerColor), markerPosition, 0, markerPosition, image.Height);
+				if (markerPosition >= 0) {
+					g.DrawLine(new Pen(markerColor), markerPosition, 0, markerPosition, image.Height);
+				}
 				g.Dispose();
 			}
 		}
 		
-		public void clear( )
+		public void Clear( )
 		{
 			lock (image) {
 				Graphics g = Graphics.FromImage(image);
@@ -321,7 +286,8 @@ namespace com.badlogic.audio.visualization
 					lastValue = @value;
 				}
 				g.Dispose();
-			}		}
+			}
+		}
 
 		public void SetMarker(int x, Color color)
 		{

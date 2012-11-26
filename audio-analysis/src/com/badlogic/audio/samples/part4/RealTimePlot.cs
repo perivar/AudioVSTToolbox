@@ -39,53 +39,30 @@ namespace com.badlogic.audio.samples.part4
 			t.Start (sender);
 		}
 		
-		private static void OnPreVolumeMeter(object sender, StreamVolumeEventArgs e)
-		{
-			// we know it is stereo
-			//waveformPainter1.AddMax(e.MaxSampleValues[0]);
-			//waveformPainter2.AddMax(e.MaxSampleValues[1]);
-			float[] max = e.MaxSampleValues;
-		}
-		
-		private static void Tick(object obj) {
-			//TimeSpan currentTime = (waveOut.PlaybackState == PlaybackState.Stopped) ? TimeSpan.Zero : fileWaveStream.CurrentTime;
-			//trackBarPosition.Value = (int)currentTime.TotalSeconds;
+		private static void AudioTick(object sender, AudioDevice.TimeOfTick e) {
+			TimeSpan span = e.TimeSpan;
 		}
 		
 		private static void Filler(object plot) {
-			ISampleProvider sampleProvider = new AudioFileReader(FILE);
+			//ISampleProvider sampleProvider = new AudioFileReader(FILE);
+			AudioDevice device = new AudioDevice(FILE);
+			device.AudioTick += AudioTick;
 			
-			// add event
-			SampleToWaveProvider waveProvider = new SampleToWaveProvider(sampleProvider);
-			SampleChannel sampleChannel = new SampleChannel(waveProvider, true);
-			sampleChannel.PreVolumeMeter += OnPreVolumeMeter;
-			
-			// add timer
-			//System.Threading.Timer timer = new System.Threading.Timer(new TimerCallback(Tick));
-			//timer.Change(0, 500);
-			
-			// play
-			//IWavePlayer waveOut = new WaveOut();
-			//waveOut.Init(new SampleToWaveProvider(sampleChannel));
-			//waveOut.Play();
-			
-			//return;
-			
-			AudioDevice device = new AudioDevice();
 			float[] samples = new float[SAMPLE_WINDOW_SIZE];
 
-			Stopwatch stopwatch = new Stopwatch();
-			stopwatch.Start();
-			while(sampleChannel.Read(samples, 0, samples.Length) > 0)
+			//Stopwatch stopwatch = new Stopwatch();
+			//stopwatch.Start();
+			while(device.SampleChannel.Read(samples, 0, samples.Length) > 0)
 			{
 				device.WriteSamples(samples);
 				
-				double elapsedTime = stopwatch.Elapsed.TotalSeconds;
-				int position = (int)(elapsedTime * (44100/SAMPLE_WINDOW_SIZE));
+				//double elapsedTime = stopwatch.Elapsed.TotalSeconds;
+				double elapsedTime = device.Elapsed.TotalSeconds;
+				int position = (int)(elapsedTime * (44100/SAMPLE_WINDOW_SIZE)) * 2;
 				((Plot)plot).SetMarker(position, Color.White);
 				Thread.Sleep(10);
 			}
-			stopwatch.Stop();
+			//stopwatch.Stop();
 			device.Dispose();
 		}
 		
@@ -95,8 +72,6 @@ namespace com.badlogic.audio.samples.part4
 			
 			Plot plot = new Plot("Wave Plot", 1024, 512);
 			plot.plot(samples, SAMPLE_WINDOW_SIZE, Color.Red);
-			//plot.FormLoaded += new Plot.FormLoadEventHandler(PlotLoaded);
-			//plot.FormShown += new Plot.FormShownEventHandler(PlotShown);
 			plot.Shown += new EventHandler(PlotShown);
 			Application.Run(plot);
 		}
