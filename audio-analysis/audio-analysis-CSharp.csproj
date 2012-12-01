@@ -10,7 +10,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <StartupObject>com.badlogic.audio.samples.part4.RealTimePlot</StartupObject>
+    <StartupObject>com.badlogic.audio.samples.part6.SpectralFlux</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
     <PlatformTarget>x86</PlatformTarget>

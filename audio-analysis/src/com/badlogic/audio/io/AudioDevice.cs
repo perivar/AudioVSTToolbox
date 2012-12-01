@@ -79,8 +79,8 @@ namespace com.badlogic.audio.io
 			 * You get this callback model by default when you call the empty WaveOut constructor.
 			 * However, it will not work on a background thread, since there is no message pump.
 			 * */
-			//waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
-			waveOut = new WaveOut();
+			waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()); // best?
+			//waveOut = new WaveOut();
 			//waveOut.Volume = 0.5f;
 			waveOut.Init(PlayBuffer);
 			waveOut.Play();

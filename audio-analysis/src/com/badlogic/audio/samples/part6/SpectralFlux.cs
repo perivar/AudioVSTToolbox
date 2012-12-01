@@ -1,4 +1,5 @@
 using System;
+using System.Windows.Forms;
 using System.Drawing;
 using System.Collections.Generic;
 
@@ -42,7 +43,8 @@ namespace com.badlogic.audio.samples.part6
 
 			Plot plot = new Plot("Spectral Flux", 1024, 512);
 			plot.plot(spectralFlux, 1, Color.Red);
-			new PlaybackVisualizer(plot, 1024, new AudioFileReader(FILE));
+			//new PlaybackVisualizer(plot, 1024, new AudioFileReader(FILE));
+			new PlaybackVisualizer(plot, 1024, FILE);
 		}
 	}
 

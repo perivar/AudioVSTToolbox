@@ -44,25 +44,20 @@ namespace com.badlogic.audio.samples.part4
 		}
 		
 		private static void Filler(object plot) {
-			//ISampleProvider sampleProvider = new AudioFileReader(FILE);
 			AudioDevice device = new AudioDevice(FILE);
 			device.AudioTick += AudioTick;
 			
 			float[] samples = new float[SAMPLE_WINDOW_SIZE];
 
-			//Stopwatch stopwatch = new Stopwatch();
-			//stopwatch.Start();
 			while(device.SampleChannel.Read(samples, 0, samples.Length) > 0)
 			{
 				device.WriteSamples(samples);
 				
-				//double elapsedTime = stopwatch.Elapsed.TotalSeconds;
 				double elapsedTime = device.Elapsed.TotalSeconds;
 				int position = (int)(elapsedTime * (44100/SAMPLE_WINDOW_SIZE)) * 2;
 				((Plot)plot).SetMarker(position, Color.White);
 				Thread.Sleep(10);
 			}
-			//stopwatch.Stop();
 			device.Dispose();
 		}
 		
