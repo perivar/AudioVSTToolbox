@@ -39,14 +39,15 @@ namespace com.badlogic.audio.samples.part6
 				for(int i = 0; i < spectrum.Length; i++)
 				{
 					float @value = (spectrum[i] - lastSpectrum[i]);
-					flux += @value < 0? 0: @value;
+					flux += @value < 0 ? 0 : @value;
 				}
 				spectralFlux.Add(flux);
 			}
 
-			Plot plot = new Plot("Spectral Flux", 1024, 512);
+			Plot plot = new Plot("Rectified Spectral Flux", 1024, 512);
 			plot.plot(spectralFlux, 1, Color.Red);
-			new PlaybackVisualizer(plot, 1024, new AudioFileReader(FILE));
+			//new PlaybackVisualizer(plot, 1024, new AudioFileReader(FILE));
+			new PlaybackVisualizer(plot, 1024, FILE);
 		}
 	}
 

@@ -36,17 +36,17 @@ namespace com.badlogic.audio.samples.part6
 				for(int i = 0; i < spectrum.Length; i++)
 				{
 					float @value = (spectrum[i] - lastSpectrum[i]);
-					flux += @value < 0?0:@value;
+					flux += @value < 0 ? 0 : @value;
 				}
 				spectralFlux.Add(flux);
 
 				System.Array.Copy(spectrum, 0, lastSpectrum, 0, spectrum.Length);
 			} while((spectrum = spectrumProvider.nextSpectrum()) != null);
 
-			Plot plot = new Plot("Spectral Flux", 1024, 512);
+			Plot plot = new Plot("Hopping Spectral Flux", 1024, 512);
 			plot.plot(spectralFlux, 1, Color.Red);
-
-			new PlaybackVisualizer(plot, HOP_SIZE, new AudioFileReader(FILE));
+			//new PlaybackVisualizer(plot, HOP_SIZE, new AudioFileReader(FILE));
+			new PlaybackVisualizer(plot, HOP_SIZE, FILE);
 		}
 	}
 

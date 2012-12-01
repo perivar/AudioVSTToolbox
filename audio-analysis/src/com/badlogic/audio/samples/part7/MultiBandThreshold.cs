@@ -63,7 +63,8 @@ namespace com.badlogic.audio.samples.part7
 				plot.plot(thresholds[i], 1, -0.6f * (bands.Length / 2 - 2) + i, true, Color.Green);
 			}
 
-			new PlaybackVisualizer(plot, HOP_SIZE, new AudioFileReader(FILE));
+			//new PlaybackVisualizer(plot, HOP_SIZE, new AudioFileReader(FILE));
+			new PlaybackVisualizer(plot, HOP_SIZE, FILE);
 		}
 	}
 }

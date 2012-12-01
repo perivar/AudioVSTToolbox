@@ -5,44 +5,44 @@ using NAudio.Wave;
 
 namespace com.badlogic.audio.analysis
 {
-	// * Provides float[] arrays of successive spectrum frames retrieved via
-	// * FFT from a Decoder. The frames might overlapp by n samples also called
-	// * the hop size. Using a hop size smaller than the spectrum size is beneficial
-	// * in most cases as it smears out the spectra of successive frames somewhat.
-	// * @author mzechner
+	// Provides float[] arrays of successive spectrum frames retrieved via
+	// FFT from a Decoder. The frames might overlapp by n samples also called
+	// the hop size. Using a hop size smaller than the spectrum size is beneficial
+	// in most cases as it smears out the spectra of successive frames somewhat.
+	// @author mzechner
 	public class SpectrumProvider
 	{
-		/// the decoder to use *
+		/// the decoder to use
 		private readonly ISampleProvider decoder;
 
-		/// the current sample array *
+		/// the current sample array
 		private float[] samples;
 
-		/// the look ahead sample array *
+		/// the look ahead sample array
 		private float[] nextSamples;
 
-		/// temporary samples array *
+		/// temporary samples array
 		private float[] tempSamples;
 
-		/// the current sample, always modulo sample window size *
+		/// the current sample, always modulo sample window size
 		private int currentSample = 0;
 
-		/// the hop size *
+		/// the hop size
 		private readonly int hopSize;
 
-		/// the fft *
+		/// the fft
 		private readonly FFT fft;
 
-		//	 * Constructor, sets the {@link Decoder}, the sample window size and the
-		//	 * hop size for the spectra returned. Say the sample window size is 1024
-		//	 * samples. To get an overlapp of 50% you specify a hop size of 512 samples,
-		//	 * for 25% overlap you specify a hopsize of 256 and so on. Hop sizes are of
-		//	 * course not limited to powers of 2.
-		//	 * 
-		//	 * @param decoder The decoder to get the samples from.
-		//	 * @param sampleWindowSize The sample window size.
-		//	 * @param hopSize The hop size.
-		//	 * @param useHamming Wheter to use hamming smoothing or not.
+		// Constructor, sets the {@link Decoder}, the sample window size and the
+		// hop size for the spectra returned. Say the sample window size is 1024
+		// samples. To get an overlapp of 50% you specify a hop size of 512 samples,
+		// for 25% overlap you specify a hopsize of 256 and so on. Hop sizes are of
+		// course not limited to powers of 2.
+		// 
+		// @param decoder The decoder to get the samples from.
+		// @param sampleWindowSize The sample window size.
+		// @param hopSize The hop size.
+		// @param useHamming Wheter to use hamming smoothing or not.
 		public SpectrumProvider(ISampleProvider decoder, int sampleWindowSize, int hopSize, bool useHamming)
 		{
 			if(decoder == null)
@@ -70,8 +70,8 @@ namespace com.badlogic.audio.analysis
 			decoder.Read(nextSamples, 0, nextSamples.Length);
 		}
 
-		//	 * Returns the next spectrum or null if there's no more data.
-		//	 * @return The next spectrum or null.
+		// Returns the next spectrum or null if there's no more data.
+		// @return The next spectrum or null.
 		public virtual float[] nextSpectrum()
 		{
 			if(currentSample >= samples.Length)
@@ -91,7 +91,7 @@ namespace com.badlogic.audio.analysis
 			return fft.GetSpectrum();
 		}
 
-		//	 * @return the FFT instance used
+		// @return the FFT instance used
 		public virtual FFT getFFT()
 		{
 			return fft;

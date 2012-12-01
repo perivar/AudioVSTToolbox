@@ -1,52 +1,52 @@
 using System;
 
 //
-// *  Copyright (c) 2007 - 2008 by Damien Di Fede <ddf@compartmental.net>
-// *
-// *   This program is free software; you can redistribute it and/or modify
-// *   it under the terms of the GNU Library General Public License as published
-// *   by the Free Software Foundation; either version 2 of the License, or
-// *   (at your option) any later version.
-// *
-// *   This program is distributed in the hope that it will be useful,
-// *   but WITHOUT ANY WARRANTY; without even the implied warranty of
-// *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// *   GNU Library General Public License for more details.
-// *
-// *   You should have received a copy of the GNU Library General Public
-// *   License along with this program; if not, write to the Free Software
-// *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+//  Copyright (c) 2007 - 2008 by Damien Di Fede <ddf@compartmental.net>
+// 
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU Library General Public License as published
+//   by the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+// 
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU Library General Public License for more details.
+// 
+//   You should have received a copy of the GNU Library General Public
+//   License along with this program; if not, write to the Free Software
+//   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 // 
 
 namespace com.badlogic.audio.analysis
 {
 	///
-	// * FFT stands for Fast Fourier Transform. It is an efficient way to calculate the Complex
-	// * Discrete Fourier Transform. There is not much to say about this class other than the fact
-	// * that when you want to analyze the spectrum of an audio buffer you will almost always use
-	// * this class. One restriction of this class is that the audio buffers you want to analyze
-	// * must have a length that is a power of two. If you try to construct an FFT with a
-	// * <code>timeSize</code> that is not a power of two, an ArgumentException will be
-	// * thrown.
-	// * 
-	// * @see FourierTransform
-	// * @see <a href="http://www.dspguide.com/ch12.htm">The Fast Fourier Transform</a>
-	// * 
-	// * @author Damien Di Fede
-	// * 
+	// FFT stands for Fast Fourier Transform. It is an efficient way to calculate the Complex
+	// Discrete Fourier Transform. There is not much to say about this class other than the fact
+	// that when you want to analyze the spectrum of an audio buffer you will almost always use
+	// this class. One restriction of this class is that the audio buffers you want to analyze
+	// must have a length that is a power of two. If you try to construct an FFT with a
+	// <code>timeSize</code> that is not a power of two, an ArgumentException will be
+	// thrown.
+	// 
+	// @see FourierTransform
+	// @see <a href="http://www.dspguide.com/ch12.htm">The Fast Fourier Transform</a>
+	// 
+	// @author Damien Di Fede
+	// 
 	// 
 	public class FFT : FourierTransform
 	{
-		//  *
-		//   * Constructs an FFT that will accept sample buffers that are
-		//   * <code>timeSize</code> long and have been recorded with a sample rate of
-		//   * <code>sampleRate</code>. <code>timeSize</code> <em>must</em> be a
-		//   * power of two. This will throw an exception if it is not.
-		//   * 
-		//   * @param timeSize
-		//   *          the length of the sample buffers you will be analyzing
-		//   * @param sampleRate
-		//   *          the sample rate of the audio you will be analyzing
+		// 
+		// Constructs an FFT that will accept sample buffers that are
+		// <code>timeSize</code> long and have been recorded with a sample rate of
+		// <code>sampleRate</code>. <code>timeSize</code> <em>must</em> be a
+		// power of two. This will throw an exception if it is not.
+		// 
+		// @param timeSize
+		//          the length of the sample buffers you will be analyzing
+		// @param sampleRate
+		//          the sample rate of the audio you will be analyzing
 		//
 		public FFT(int timeSize, float sampleRate) : base(timeSize, sampleRate)
 		{
@@ -160,11 +160,11 @@ namespace com.badlogic.audio.analysis
 			FillSpectrum();
 		}
 
-		//  *
-		//   * Performs a forward transform on the passed buffers.
-		//   * 
-		//   * @param buffReal the real part of the time domain signal to transform
-		//   * @param buffImag the imaginary part of the time domain signal to transform
+		// 
+		// Performs a forward transform on the passed buffers.
+		// 
+		// @param buffReal the real part of the time domain signal to transform
+		// @param buffImag the imaginary part of the time domain signal to transform
 //
 		public void forward(float[] buffReal, float[] buffImag)
 		{

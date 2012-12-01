@@ -21,14 +21,21 @@ namespace com.badlogic.audio.visualization
 		int samplesPerPixel;
 		ISampleProvider decoder;
 		string FILE;
+		AudioDevice device;
+		
+		private void PlotFormClosing(object sender, FormClosingEventArgs e)
+		{
+			device.WavePlayer.Stop();
+		}
 		
 		private void PlotShown(object sender, EventArgs e) {
-			Thread t = new Thread (new ThreadStart(Filler2));
+			Thread t = new Thread (new ThreadStart(FillAudioDevice2));
+			t.IsBackground = true;
 			t.Start();
 		}
 		
-		private void Filler() {
-			AudioDevice device = new AudioDevice();
+		private void FillAudioDevice() {
+			this.device = new AudioDevice();
 			float[] samples = new float[1024];
 
 			Stopwatch stopwatch = new Stopwatch();
@@ -42,12 +49,11 @@ namespace com.badlogic.audio.visualization
 				plot.SetMarker(position, Color.White);
 				System.Threading.Thread.Sleep(10); // this is needed or else swing has no chance repainting the plot!
 			}
-			device.WavePlayer.Stop();
 			device.Dispose();
 		}
 		
-		private void Filler2() {
-			AudioDevice device = new AudioDevice(FILE);
+		private void FillAudioDevice2() {
+			this.device = new AudioDevice(FILE);
 			float[] samples = new float[1024];
 
 			while(device.SampleChannel.Read(samples, 0, samples.Length) > 0)
@@ -75,6 +81,7 @@ namespace com.badlogic.audio.visualization
 			this.decoder = decoder;
 			
 			plot.Shown += new EventHandler(PlotShown);
+			plot.FormClosing += new FormClosingEventHandler(PlotFormClosing);
 			Application.Run(plot);
 		}
 		
@@ -89,10 +96,11 @@ namespace com.badlogic.audio.visualization
 			this.plot = plot;
 			this.samplesPerPixel = samplesPerPixel;
 			this.FILE = FILE;
+			this.decoder = new AudioFileReader(FILE);
 			
 			plot.Shown += new EventHandler(PlotShown);
+			plot.FormClosing += new FormClosingEventHandler(PlotFormClosing);
 			Application.Run(plot);
 		}
 	}
-
 }
