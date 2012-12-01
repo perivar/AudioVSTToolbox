@@ -42,6 +42,7 @@ namespace com.badlogic.audio.visualization
 				plot.SetMarker(position, Color.White);
 				System.Threading.Thread.Sleep(10); // this is needed or else swing has no chance repainting the plot!
 			}
+			device.WavePlayer.Stop();
 			device.Dispose();
 		}
 		

@@ -167,11 +167,24 @@ namespace com.badlogic.audio.visualization
 
 				g = Graphics.FromImage(image);
 				float lastValue = (samples[0] / scalingFactor) * image.Height / 3 + image.Height / 2;
+				int lastx1 = -1;
+				int lastx2 = -1;
 				for(int i = 1; i < samples.Length; i++)
 				{
 					float @value = (samples[i] / scalingFactor) * image.Height / 3 + image.Height / 2;
-					g.DrawLine(new Pen(color), (int)((i-1) / samplesPerPixel), image.Height - (int)lastValue, (int)(i / samplesPerPixel), image.Height - (int)@value);
+					
+					int x1 = (int)((i-1) / samplesPerPixel);
+					int y1 = image.Height - (int)lastValue;
+					int x2 = (int)(i / samplesPerPixel);
+					int y2 = image.Height - (int)@value;
+					
+					//if (x1 == lastx1) continue;
+					
+					//g.DrawLine(new Pen(color), (int)((i-1) / samplesPerPixel), image.Height - (int)lastValue, (int)(i / samplesPerPixel), image.Height - (int)@value);
+					g.DrawLine(new Pen(color), x1, y1, x2, y2);
 					lastValue = @value;
+					lastx1 = x1;
+					lastx2 = x2;
 				}
 				g.Dispose();
 			}

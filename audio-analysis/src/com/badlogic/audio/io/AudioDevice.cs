@@ -18,22 +18,6 @@ namespace com.badlogic.audio.io
 	 */
 	public class AudioDevice
 	{
-		public class TimeOfTick : EventArgs
-		{
-			private TimeSpan timeSpan;
-			public TimeSpan TimeSpan
-			{
-				set
-				{
-					timeSpan = value;
-				}
-				get
-				{
-					return this.timeSpan;
-				}
-			}
-		}
-		
 		/// the buffer size in samples
 		private const int BUFFER_SIZE = 1024;
 
@@ -79,10 +63,11 @@ namespace com.badlogic.audio.io
 			 * You get this callback model by default when you call the empty WaveOut constructor.
 			 * However, it will not work on a background thread, since there is no message pump.
 			 * */
-			waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()); // best?
+			waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()); // seems to be the best way
 			//waveOut = new WaveOut();
 			//waveOut.Volume = 0.5f;
 			waveOut.Init(PlayBuffer);
+			waveOut.PlaybackStopped += new EventHandler<StoppedEventArgs>(_waveOutDevice_PlaybackStopped);
 			waveOut.Play();
 		}
 		
@@ -94,10 +79,6 @@ namespace com.badlogic.audio.io
 			SampleToWaveProvider waveProvider = new SampleToWaveProvider(sampleProvider);
 			this.sampleChannel = new SampleChannel(waveProvider, true);
 			sampleChannel.PreVolumeMeter += OnPreVolumeMeter;
-			
-			// add timer
-			System.Threading.Timer timer = new System.Threading.Timer(new TimerCallback(Tick));
-			timer.Change(0, 500);
 			
 			// play
 			//IWavePlayer waveOut = new WaveOut();
@@ -111,27 +92,6 @@ namespace com.badlogic.audio.io
 			//waveformPainter1.AddMax(e.MaxSampleValues[0]);
 			//waveformPainter2.AddMax(e.MaxSampleValues[1]);
 			float[] max = e.MaxSampleValues;
-		}
-		
-		// A delegate type for hooking up notifications.
-		public delegate void AudioTickHandler(object sender, TimeOfTick e);
-
-		// An event that clients can use to be notified when ticks
-		public event AudioTickHandler AudioTick;
-		
-		// Invoke the Audio Tick event; called when audio ticked
-		protected virtual void OnAudioTick(TimeOfTick e)
-		{
-			if (AudioTick != null)
-				AudioTick(this, e);
-		}
-		
-		private void Tick(object obj) {
-			TimeSpan currentTime = (waveOut.PlaybackState == PlaybackState.Stopped) ? TimeSpan.Zero : fileWaveStream.CurrentTime;
-			//trackBarPosition.Value = (int)currentTime.TotalSeconds;
-			TimeOfTick timeTick = new TimeOfTick();
-			timeTick.TimeSpan = currentTime;
-			OnAudioTick(timeTick);
 		}
 		
 		/**

@@ -39,14 +39,8 @@ namespace com.badlogic.audio.samples.part4
 			t.Start (sender);
 		}
 		
-		private static void AudioTick(object sender, AudioDevice.TimeOfTick e) {
-			TimeSpan span = e.TimeSpan;
-		}
-		
 		private static void Filler(object plot) {
 			AudioDevice device = new AudioDevice(FILE);
-			device.AudioTick += AudioTick;
-			
 			float[] samples = new float[SAMPLE_WINDOW_SIZE];
 
 			while(device.SampleChannel.Read(samples, 0, samples.Length) > 0)
