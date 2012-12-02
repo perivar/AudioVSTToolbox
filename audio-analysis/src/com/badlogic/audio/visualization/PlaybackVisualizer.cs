@@ -15,6 +15,7 @@ namespace com.badlogic.audio.visualization
 	// form the decoder as well as setting the marker in the
 	// plot accordingly.
 	// @author mzechner
+	// @author perivar@nerseth.com
 	public class PlaybackVisualizer
 	{
 		Plot plot;
@@ -22,19 +23,21 @@ namespace com.badlogic.audio.visualization
 		ISampleProvider decoder;
 		string FILE;
 		AudioDevice device;
+		Thread audioThread;
+		
+		private void PlotShown(object sender, EventArgs e) {
+			audioThread = new Thread (new ThreadStart(FillAudioDeviceUsingElapsed));
+			audioThread.IsBackground = true; // make sure the thread is closed on form close
+			audioThread.Start();
+		}
 		
 		private void PlotFormClosing(object sender, FormClosingEventArgs e)
 		{
-			device.WavePlayer.Stop();
+			// if the audio is playing when form closes, dispone the audio device
+			if (audioThread.IsAlive) device.Dispose();
 		}
 		
-		private void PlotShown(object sender, EventArgs e) {
-			Thread t = new Thread (new ThreadStart(FillAudioDevice2));
-			t.IsBackground = true;
-			t.Start();
-		}
-		
-		private void FillAudioDevice() {
+		private void FillAudioDeviceUsingStopwatch() {
 			this.device = new AudioDevice();
 			float[] samples = new float[1024];
 
@@ -45,14 +48,15 @@ namespace com.badlogic.audio.visualization
 				device.WriteSamples(samples);
 				
 				double elapsedTime = stopwatch.Elapsed.TotalSeconds;
-				int position = (int)(elapsedTime * (44100/samplesPerPixel) * 2 );
+				int position = (int)(elapsedTime * (44100 / samplesPerPixel) * 2 );
 				plot.SetMarker(position, Color.White);
 				System.Threading.Thread.Sleep(10); // this is needed or else swing has no chance repainting the plot!
 			}
+			stopwatch.Stop();
 			device.Dispose();
 		}
 		
-		private void FillAudioDevice2() {
+		private void FillAudioDeviceUsingElapsed() {
 			this.device = new AudioDevice(FILE);
 			float[] samples = new float[1024];
 
@@ -66,23 +70,6 @@ namespace com.badlogic.audio.visualization
 				System.Threading.Thread.Sleep(10); // this is needed or else swing has no chance repainting the plot!
 			}
 			device.Dispose();
-		}
-		
-		// Constructor, plays back the audio form the decoder and
-		// sets the marker of the plot accordingly. This will return
-		// when the playback is done.
-		// @param plot The plot.
-		// @param samplesPerPixel the numbe of samples per pixel.
-		// @param decoder The decoder.
-		public PlaybackVisualizer(Plot plot, int samplesPerPixel, ISampleProvider decoder)
-		{
-			this.plot = plot;
-			this.samplesPerPixel = samplesPerPixel;
-			this.decoder = decoder;
-			
-			plot.Shown += new EventHandler(PlotShown);
-			plot.FormClosing += new FormClosingEventHandler(PlotFormClosing);
-			Application.Run(plot);
 		}
 		
 		// Constructor, plays back the audio form the decoder and

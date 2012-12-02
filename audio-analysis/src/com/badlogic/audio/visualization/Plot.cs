@@ -93,7 +93,7 @@ namespace com.badlogic.audio.visualization
 			
 			System.Windows.Forms.Timer myTimer = new System.Windows.Forms.Timer();
 			myTimer.Tick += new EventHandler(TimerEventProcessor);
-			myTimer.Interval = 100;
+			myTimer.Interval = 50;
 			myTimer.Start();
 		}
 		

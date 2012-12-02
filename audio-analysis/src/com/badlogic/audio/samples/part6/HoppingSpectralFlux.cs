@@ -45,7 +45,6 @@ namespace com.badlogic.audio.samples.part6
 
 			Plot plot = new Plot("Hopping Spectral Flux", 1024, 512);
 			plot.plot(spectralFlux, 1, Color.Red);
-			//new PlaybackVisualizer(plot, HOP_SIZE, new AudioFileReader(FILE));
 			new PlaybackVisualizer(plot, HOP_SIZE, FILE);
 		}
 	}

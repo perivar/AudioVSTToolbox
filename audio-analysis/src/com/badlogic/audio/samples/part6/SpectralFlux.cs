@@ -38,13 +38,14 @@ namespace com.badlogic.audio.samples.part6
 				float flux = 0;
 				for(int i = 0; i < spectrum.Length; i++)
 					flux += (spectrum[i] - lastSpectrum[i]);
+				
 				spectralFlux.Add(flux);
 			}
 
 			Plot plot = new Plot("Spectral Flux", 1024, 512);
 			plot.plot(spectralFlux, 1, Color.Red);
-			//new PlaybackVisualizer(plot, 1024, new AudioFileReader(FILE));
 			new PlaybackVisualizer(plot, 1024, FILE);
+			//new PlaybackVisualizer(plot, spectralFlux.Count, FILE);
 		}
 	}
 

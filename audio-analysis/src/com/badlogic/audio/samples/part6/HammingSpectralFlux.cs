@@ -42,7 +42,6 @@ namespace com.badlogic.audio.samples.part6
 
 			Plot plot = new Plot("Hamming Spectral Flux", 1024, 512);
 			plot.plot(spectralFlux, 1, Color.Red);
-			//new PlaybackVisualizer(plot, 1024, new AudioFileReader(FILE));
 			new PlaybackVisualizer(plot, 1024, FILE);
 		}
 	}

@@ -28,7 +28,7 @@ namespace com.badlogic.audio.io
 		private byte[] buffer = new byte[BUFFER_SIZE*4];
 
 		// PlayBuffer
-		private BufferedWaveProvider PlayBuffer;
+		private BufferedWaveProvider bufferedWaveProvider;
 		
 		// fileWaveStream
 		private WaveStream fileWaveStream;
@@ -40,7 +40,11 @@ namespace com.badlogic.audio.io
 		
 		public TimeSpan Elapsed {
 			get {
-				return (waveOut.PlaybackState == PlaybackState.Stopped) ? TimeSpan.Zero : fileWaveStream.CurrentTime;
+				if (waveOut != null) {
+					return (waveOut.PlaybackState == PlaybackState.Stopped) ? TimeSpan.Zero : fileWaveStream.CurrentTime;
+				} else {
+					return TimeSpan.Zero;
+				}
 			}
 		}
 		
@@ -51,9 +55,10 @@ namespace com.badlogic.audio.io
 		public AudioDevice()
 		{
 			// BufferedWaveProvider
-			PlayBuffer = new BufferedWaveProvider(WaveFormat.CreateIeeeFloatWaveFormat(44100, 2));
-			PlayBuffer.BufferDuration = TimeSpan.FromMinutes(10);
-
+			bufferedWaveProvider = new BufferedWaveProvider(WaveFormat.CreateIeeeFloatWaveFormat(44100, 2));
+			bufferedWaveProvider.BufferDuration = TimeSpan.FromMinutes(10);
+			bufferedWaveProvider.DiscardOnBufferOverflow = true;
+			
 			// waveOut
 			/*
 			 * This is the default and recommended approach if you are creating a WaveOut object
@@ -66,7 +71,7 @@ namespace com.badlogic.audio.io
 			waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()); // seems to be the best way
 			//waveOut = new WaveOut();
 			//waveOut.Volume = 0.5f;
-			waveOut.Init(PlayBuffer);
+			waveOut.Init(bufferedWaveProvider);
 			waveOut.PlaybackStopped += new EventHandler<StoppedEventArgs>(_waveOutDevice_PlaybackStopped);
 			waveOut.Play();
 		}
@@ -75,10 +80,10 @@ namespace com.badlogic.audio.io
 			ISampleProvider sampleProvider = new AudioFileReader(fileName);
 			this.fileWaveStream = (WaveStream) sampleProvider;
 			
-			// add event
+			// create sample channel
 			SampleToWaveProvider waveProvider = new SampleToWaveProvider(sampleProvider);
 			this.sampleChannel = new SampleChannel(waveProvider, true);
-			sampleChannel.PreVolumeMeter += OnPreVolumeMeter;
+			this.sampleChannel.PreVolumeMeter += OnPreVolumeMeter;
 			
 			// play
 			//IWavePlayer waveOut = new WaveOut();
@@ -86,8 +91,7 @@ namespace com.badlogic.audio.io
 			//waveOut.Play();
 		}
 		
-		private void OnPreVolumeMeter(object sender, StreamVolumeEventArgs e)
-		{
+		private void OnPreVolumeMeter(object sender, StreamVolumeEventArgs e) {
 			// we know it is stereo
 			//waveformPainter1.AddMax(e.MaxSampleValues[0]);
 			//waveformPainter2.AddMax(e.MaxSampleValues[1]);
@@ -103,7 +107,7 @@ namespace com.badlogic.audio.io
 		public virtual void WriteSamples(float[] samples)
 		{
 			FillBuffer(samples);
-			PlayBuffer.AddSamples(buffer, 0, buffer.Length);
+			bufferedWaveProvider.AddSamples(buffer, 0, buffer.Length);
 		}
 
 		/**
@@ -112,7 +116,7 @@ namespace com.badlogic.audio.io
 		 */
 		public virtual void WriteSamples(byte[] buffer)
 		{
-			PlayBuffer.AddSamples(buffer, 0, buffer.Length);
+			bufferedWaveProvider.AddSamples(buffer, 0, buffer.Length);
 		}
 		
 		public void Dispose() {
@@ -166,17 +170,6 @@ namespace com.badlogic.audio.io
 		
 		private static void _waveOutDevice_PlaybackStopped (object sender, EventArgs e) {
 			System.Console.Out.WriteLine("Stopped!");
-		}
-		
-		public static WaveStream CreateIeeeFloatWaveStream(string fileName)
-		{
-			WaveStream readerStream = new WaveFileReader(fileName);
-			if (readerStream.WaveFormat.Encoding != WaveFormatEncoding.Pcm && readerStream.WaveFormat.Encoding != WaveFormatEncoding.IeeeFloat)
-			{
-				readerStream = WaveFormatConversionStream.CreatePcmStream(readerStream);
-				readerStream = new BlockAlignReductionStream(readerStream);
-			}
-			return readerStream;
 		}
 	}
 }

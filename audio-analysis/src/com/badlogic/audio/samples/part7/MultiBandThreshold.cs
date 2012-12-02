@@ -27,13 +27,12 @@ namespace com.badlogic.audio.samples.part7
 			float[] spectrum = spectrumProvider.nextSpectrum();
 			float[] lastSpectrum = new float[spectrum.Length];
 			List<List<float>> spectralFlux = new List<List<float>>();
-			for(int i = 0; i < bands.Length / 2; i++)
+			for(int i = 0; i < bands.Length / 2; i++) {
 				spectralFlux.Add(new List<float>());
+			}
 
-			do
-			{
-				for(int i = 0; i < bands.Length; i+=2)
-				{
+			do {
+				for(int i = 0; i < bands.Length; i+=2) {
 					int startFreq = spectrumProvider.getFFT().FreqToIndex(bands[i]);
 					int endFreq = spectrumProvider.getFFT().FreqToIndex(bands[i+1]);
 					float flux = 0;
@@ -56,14 +55,13 @@ namespace com.badlogic.audio.samples.part7
 				thresholds.Add(threshold);
 			}
 
-			Plot plot = new Plot("Spectral Flux", 1024, 512);
+			Plot plot = new Plot("Multiband Spectral Flux", 1024, 512);
 			for(int i = 0; i < bands.Length / 2; i++)
 			{
 				plot.plot(spectralFlux[i], 1, -0.6f * (bands.Length / 2 - 2) + i, false, Color.Red);
 				plot.plot(thresholds[i], 1, -0.6f * (bands.Length / 2 - 2) + i, true, Color.Green);
 			}
 
-			//new PlaybackVisualizer(plot, HOP_SIZE, new AudioFileReader(FILE));
 			new PlaybackVisualizer(plot, HOP_SIZE, FILE);
 		}
 	}

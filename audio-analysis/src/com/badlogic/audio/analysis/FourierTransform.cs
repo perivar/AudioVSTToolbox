@@ -406,9 +406,11 @@ namespace com.badlogic.audio.analysis
 			// special case: freq is lower than the bandwidth of spectrum[0]
 			if (freq < GetBandWidth() / 2)
 				return 0;
+			
 			// special case: freq is within the bandwidth of spectrum[spectrum.Length - 1]
 			if (freq > sampleRate / 2 - GetBandWidth() / 2)
 				return spectrum.Length - 1;
+			
 			// all other cases
 			float fraction = freq / (float) sampleRate;
 			int i = (int)Math.Round(timeSize * fraction);
@@ -421,10 +423,12 @@ namespace com.badlogic.audio.analysis
 		public float IndexToFreq(int i)
 		{
 			float bw = GetBandWidth();
+			
 			// special case: the width of the first bin is half that of the others.
 			//               so the center frequency is a quarter of the way.
 			if (i == 0)
 				return bw * 0.25f;
+			
 			// special case: the width of the last bin is half that of the others.
 			if (i == spectrum.Length - 1)
 			{
@@ -432,6 +436,7 @@ namespace com.badlogic.audio.analysis
 				float binHalfWidth = bw * 0.25f;
 				return lastBinBeginFreq + binHalfWidth;
 			}
+			
 			// the center frequency of the ith band is simply i*bw
 			// because the first band is half the width of all others.
 			// treating it as if it wasn't offsets us to the middle
@@ -444,17 +449,14 @@ namespace com.badlogic.audio.analysis
 		//     which average band you want the center frequency of.
 		public float GetAverageCenterFrequency(int i)
 		{
-			if (whichAverage == LINAVG)
-			{
+			if (whichAverage == LINAVG) {
 				// an average represents a certain number of bands in the spectrum
 				int avgWidth = (int) spectrum.Length / averages.Length;
 				// the "center" bin of the average, this is fudgy.
 				int centerBinIndex = i*avgWidth + avgWidth/2;
 				return IndexToFreq(centerBinIndex);
 
-			}
-			else if (whichAverage == LOGAVG)
-			{
+			} else if (whichAverage == LOGAVG) {
 				// which "octave" is this index in?
 				int octave = i / avgPerOctave;
 				// which band within that octave is this?
