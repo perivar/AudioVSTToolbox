@@ -3,10 +3,7 @@ using System.IO;
 
 using NAudio;
 using NAudio.Wave;
-
-using BigMansStuff.NAudio.FLAC;
-using BigMansStuff.NAudio.Ogg;
-using NAudio.WindowsMediaFormat;
+using NAudio.Wave.SampleProviders;
 
 using System.Collections.Generic;
 
@@ -19,14 +16,30 @@ namespace CommonUtils.Audio.NAudio
 	{
 		const string MP3Extension = ".mp3";
 		const string WAVExtension = ".wav";
-		const string OGGVExtension = ".ogg";
-		const string FLACExtension = ".flac";
-		const string WMAExtension = ".wma";
-		const string AIFFExtension = ".aiff";
+		
+		/// <summary>
+		/// Creates an WaveStream
+		/// (Audio file reader for MP3/WAV)
+		/// </summary>
+		/// <param name="filename"></param>
+		public static WaveStream CreateInputWaveStream(string filename)
+		{
+			WaveStream m_waveReader = null;
+
+			string fileExt = Path.GetExtension( filename.ToLower() );
+			if ( fileExt == MP3Extension ) {
+				m_waveReader = new Mp3FileReader(filename);
+			} else if ( fileExt == WAVExtension ) {
+				m_waveReader = new WaveFileReader(filename);
+			} else {
+				throw new ApplicationException("Cannot create Input WaveStream - Unknown file type: " + fileExt);
+			}
+			return m_waveReader;
+		}
 		
 		public static TimeSpan GetWaveFileTotalTime(string filePath) {
 			TimeSpan totalTime = TimeSpan.MinValue;
-			using (WaveFileReader reader = new WaveFileReader(filePath)) {
+			using (AudioFileReader reader = new AudioFileReader(filePath)) {
 				totalTime = reader.TotalTime;
 			}
 			return totalTime;
@@ -34,7 +47,7 @@ namespace CommonUtils.Audio.NAudio
 
 		public static WaveFormat GetWaveFormat(string filePath) {
 			WaveFormat frmt = null;
-			using (WaveFileReader reader = new WaveFileReader(filePath)) {
+			using (AudioFileReader reader = new AudioFileReader(filePath)) {
 				frmt = reader.WaveFormat;
 			}
 			return frmt;
@@ -124,8 +137,8 @@ namespace CommonUtils.Audio.NAudio
 		}
 
 		public static WaveStream ResampleWaveStream(string wavInFilePath, WaveFormat waveFormat) {
-			//WaveStream sourceStream = new WaveFileReader(wavInFilePath);
-			WaveStream sourceStream = CreateInputWaveChannel(wavInFilePath);
+
+			WaveStream sourceStream = CreateInputWaveStream(wavInFilePath);
 			
 			if (sourceStream.WaveFormat.Encoding != WaveFormatEncoding.Pcm)
 			{
@@ -133,14 +146,35 @@ namespace CommonUtils.Audio.NAudio
 				sourceStream = new BlockAlignReductionStream(sourceStream);
 			}
 			if (sourceStream.WaveFormat.SampleRate != waveFormat.SampleRate ||
-			    sourceStream.WaveFormat.BitsPerSample != waveFormat.BitsPerSample)
+			    sourceStream.WaveFormat.BitsPerSample != waveFormat.BitsPerSample ||
+			    sourceStream.WaveFormat.Channels != waveFormat.Channels)
 			{
 				sourceStream = new WaveFormatConversionStream(waveFormat, sourceStream);
 				sourceStream = new BlockAlignReductionStream(sourceStream);
 			}
 			
-			//sourceStream = new WaveChannel32(sourceStream);
 			return sourceStream;
+		}
+		
+		public static SampleChannel ResampleToSampleChannel(string wavInFilePath, WaveFormat waveFormat) {
+
+			WaveStream sourceStream = CreateInputWaveStream(wavInFilePath);
+			
+			if (sourceStream.WaveFormat.Encoding != WaveFormatEncoding.Pcm)
+			{
+				sourceStream = WaveFormatConversionStream.CreatePcmStream(sourceStream);
+				sourceStream = new BlockAlignReductionStream(sourceStream);
+			}
+			if (sourceStream.WaveFormat.SampleRate != waveFormat.SampleRate ||
+			    sourceStream.WaveFormat.BitsPerSample != waveFormat.BitsPerSample ||
+			    sourceStream.WaveFormat.Channels != waveFormat.Channels)
+			{
+				sourceStream = new WaveFormatConversionStream(waveFormat, sourceStream);
+				sourceStream = new BlockAlignReductionStream(sourceStream);
+			}
+			
+			SampleChannel sampleChannel = new SampleChannel(sourceStream);
+			return sampleChannel;
 		}
 
 		public static byte[] ResampleWav(string wavInFilePath, WaveFormat waveFormat) {
@@ -159,6 +193,7 @@ namespace CommonUtils.Audio.NAudio
 		}
 		#endregion
 		
+		#region ReadMonoFromFile
 		// Read Stereo
 		public static bool TryReadFloat(WaveStream waveStream, out float sampleValueLeft, out float sampleValueRight)
 		{
@@ -283,6 +318,51 @@ namespace CommonUtils.Audio.NAudio
 			
 			return data;
 		}
+
+		public static float[] ReadMonoFromFile2(string filename, int samplerate, int milliseconds, int startmillisecond, int channelToUse=1)
+		{
+			int totalmilliseconds = milliseconds <= 0 ? Int32.MaxValue : milliseconds + startmillisecond;
+			float[] data = null;
+
+			// read as mono file
+			List<float> floatList = new List<float>();
+			WaveFormat waveFormat = new WaveFormat(samplerate, 1);
+			SampleChannel sampleChannel = ResampleToSampleChannel(filename, waveFormat);
+			
+			int sampleCount = 0;
+			int bufferSize = 5512; /*read ten seconds at each iteration*/
+			float[] buffer = new float[bufferSize];
+
+			// read until we have read the number of samples (measured in ms) we are supposed to do
+			while (sampleChannel.Read(buffer, 0, bufferSize) > 0 && (float)(sampleCount)/ samplerate * 1000 < totalmilliseconds)
+			{
+				floatList.AddRange(buffer);
+				
+				// increment with size of data
+				sampleCount += bufferSize;
+			}
+			data = floatList.ToArray();
+
+			if ( (float)(sampleCount) / samplerate * 1000 < (milliseconds + startmillisecond)) {
+				// not enough samples to return the requested data
+				return null;
+			}
+			
+			// Select specific part of the song
+			int start = (int) ( (float) startmillisecond * samplerate / 1000);
+			int end = (milliseconds <= 0) ?
+				sampleCount :
+				(int) ( (float)(startmillisecond + milliseconds) * samplerate / 1000);
+			if (start != 0 || end != sampleCount)
+			{
+				float[] temp = new float[end - start];
+				Array.Copy(data, start, temp, 0, end - start);
+				data = temp;
+			}
+			
+			return data;
+		}
+		#endregion
 		
 		/// <summary>
 		/// Split a Stereo Wave file into two mono float arrays
@@ -291,7 +371,9 @@ namespace CommonUtils.Audio.NAudio
 		/// <param name="audioDataLeft">returned float array for the left channel</param>
 		/// <param name="audioDataRight">returned float array for the right channel</param>
 		public static void SplitStereoWaveFileToMono(string filePath, out float[] audioDataLeft, out float[] audioDataRight) {
-			using (WaveFileReader pcm = new WaveFileReader(filePath))
+			
+			//using (WaveFileReader pcm = new WaveFileReader(filePath))
+			using (AudioFileReader pcm = new AudioFileReader(filePath))
 			{
 				int channels = pcm.WaveFormat.Channels;
 				int bytesPerSample = pcm.WaveFormat.BitsPerSample/8;
@@ -361,8 +443,8 @@ namespace CommonUtils.Audio.NAudio
 			float[] channel2;
 			float[] channel3;
 			float[] channel4;
-			AudioUtilsNAudio.SplitStereoWaveFileToMono(filePathLeft, out channel1, out channel2);
-			AudioUtilsNAudio.SplitStereoWaveFileToMono(filePathRight, out channel3, out channel4);
+			SplitStereoWaveFileToMono(filePathLeft, out channel1, out channel2);
+			SplitStereoWaveFileToMono(filePathRight, out channel3, out channel4);
 			
 			// find out what channel is longest
 			int maxLength = Math.Max(channel1.Length, channel3.Length);
@@ -394,108 +476,13 @@ namespace CommonUtils.Audio.NAudio
 				}
 			}
 			return true;
-		}		
-		
-		/// <summary>
-		/// Creates an input WaveChannel
-		/// (Audio file reader for MP3/WAV/OGG/FLAC/WMA/AIFF/Other formats in the future)
-		/// </summary>
-		/// <param name="filename"></param>
-		public static WaveStream CreateInputWaveChannel(string filename)
-		{
-			WaveStream m_blockAlignedStream = null;
-			WaveStream m_waveReader = null;
-			WaveChannel32 m_waveChannel = null;
-
-			string fileExt = Path.GetExtension( filename.ToLower() );
-			if ( fileExt == MP3Extension )
-			{
-				m_waveReader = new Mp3FileReader(filename);
-				m_blockAlignedStream = new BlockAlignReductionStream(m_waveReader);
-				// Wave channel - reads from file and returns raw wave blocks
-				m_waveChannel = new WaveChannel32(m_blockAlignedStream);
-			}
-			else if ( fileExt == WAVExtension )
-			{
-				m_waveReader = new WaveFileReader(filename);
-				if (m_waveReader.WaveFormat.Encoding != WaveFormatEncoding.Pcm)
-				{
-					m_waveReader = WaveFormatConversionStream.CreatePcmStream(m_waveReader);
-					m_waveReader = new BlockAlignReductionStream(m_waveReader);
-				}
-				if (m_waveReader.WaveFormat.BitsPerSample != 16)
-				{
-					var format = new WaveFormat(m_waveReader.WaveFormat.SampleRate,
-					                            16, m_waveReader.WaveFormat.Channels);
-					m_waveReader = new WaveFormatConversionStream(format, m_waveReader);
-				}
-				
-				m_waveChannel = new WaveChannel32(m_waveReader);
-			}
-			else if (fileExt == OGGVExtension)
-			{
-				m_waveReader = new OggFileReader(filename);
-				if (m_waveReader.WaveFormat.Encoding != WaveFormatEncoding.Pcm)
-				{
-					m_waveReader = WaveFormatConversionStream.CreatePcmStream(m_waveReader);
-					m_waveReader = new BlockAlignReductionStream(m_waveReader);
-				}
-				if (m_waveReader.WaveFormat.BitsPerSample != 16)
-				{
-					var format = new WaveFormat(m_waveReader.WaveFormat.SampleRate,
-					                            16, m_waveReader.WaveFormat.Channels);
-					m_waveReader = new WaveFormatConversionStream(format, m_waveReader);
-				}
-
-				m_waveChannel = new WaveChannel32(m_waveReader);
-			}
-			else if (fileExt == FLACExtension)
-			{
-				m_waveReader = new FLACFileReader(filename);
-				if (m_waveReader.WaveFormat.Encoding != WaveFormatEncoding.Pcm)
-				{
-					m_waveReader = WaveFormatConversionStream.CreatePcmStream(m_waveReader);
-					m_waveReader = new BlockAlignReductionStream(m_waveReader);
-				}
-				if (m_waveReader.WaveFormat.BitsPerSample != 16)
-				{
-					var format = new WaveFormat(m_waveReader.WaveFormat.SampleRate,
-					                            16, m_waveReader.WaveFormat.Channels);
-					m_waveReader = new WaveFormatConversionStream(format, m_waveReader);
-				}
-
-				m_waveChannel = new WaveChannel32(m_waveReader);
-			}
-			else if (fileExt == WMAExtension)
-			{
-				m_waveReader = new WMAFileReader(filename);
-				if (m_waveReader.WaveFormat.Encoding != WaveFormatEncoding.Pcm)
-				{
-					m_waveReader = WaveFormatConversionStream.CreatePcmStream(m_waveReader);
-					m_waveReader = new BlockAlignReductionStream(m_waveReader);
-				}
-				if (m_waveReader.WaveFormat.BitsPerSample != 16)
-				{
-					var format = new WaveFormat(m_waveReader.WaveFormat.SampleRate,
-					                            16, m_waveReader.WaveFormat.Channels);
-					m_waveReader = new WaveFormatConversionStream(format, m_waveReader);
-				}
-
-				m_waveChannel = new WaveChannel32(m_waveReader);
-			}
-			else if (fileExt == AIFFExtension)
-			{
-				m_waveReader = new AiffFileReader(filename);
-				m_waveChannel = new WaveChannel32(m_waveReader);
-			}
-			else
-			{
-				throw new ApplicationException("Cannot create Input WaveChannel - Unknown file type: " + fileExt);
-			}
-			return m_waveReader;
-			//return m_waveChannel;
 		}
 		
+		/// <summary>
+		/// Convert a MP3 file to a Wav file
+		/// </summary>
+		/// <param name="mp3FilePath"></param>
+		/// <param name="wavFilePath"></param>
 		public static void ConvertMp3ToWav(string mp3FilePath, string wavFilePath) {
 			using (var reader = new Mp3FileReader(mp3FilePath)) {
 				using (var writer = new WaveFileWriter(wavFilePath, new WaveFormat())) {
@@ -510,7 +497,7 @@ namespace CommonUtils.Audio.NAudio
 		}
 	}
 	
-	
+	#region Providers
 	public class SineWaveProvider : WaveProvider32
 	{
 		private int sample = 0;
@@ -545,4 +532,5 @@ namespace CommonUtils.Audio.NAudio
 			return sampleCount;
 		}
 	}
+	#endregion
 }

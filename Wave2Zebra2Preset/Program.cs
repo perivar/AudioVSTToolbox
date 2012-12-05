@@ -22,6 +22,9 @@ using Un4seen.Bass.AddOn.Mix;
 using Un4seen.Bass.AddOn.Tags;
 using Un4seen.Bass.Misc;
 
+using NAudio;
+using NAudio.Wave;
+
 using Wave2Zebra2Preset.HermitGauges;
 
 using CommonUtils;
@@ -293,7 +296,8 @@ namespace Wave2Zebra2Preset
 			ReadColorPaletteBar(@"C:\rew-gradients.png", "c:\\rew-gradients.csv");
 			 */
 			
-			String fileName = @"C:\Users\perivar.nerseth\Music\Sleep Away.mp3";
+			//String fileName = @"C:\Users\perivar.nerseth\Music\Sleep Away.mp3";
+			String fileName = @"C:\Users\perivar.nerseth\Music\Maid with the Flaxen Hair.mp3";
 			//String fileName = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
 			//String fileName = @"G:\Cubase and Nuendo Projects\Music To Copy Learn\Britney Spears - Hold It Against Me\02 Hold It Against Me (Instrumental) 1.mp3";
 
@@ -310,6 +314,8 @@ namespace Wave2Zebra2Preset
 			//float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 20*1000 );
 			float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 0);
 			MathUtils.NormalizeInPlace(wavDataVB6);
+						
+			float[] wavDataNaudio = CommonUtils.Audio.NAudio.AudioUtilsNAudio.ReadMonoFromFile2(fileName, (int) sampleRate, secondsToSample*1000, 0);
 			
 			//VB6Spectrogram vb6Spect = new VB6Spectrogram();
 			//vb6Spect.ComputeColorPalette();
@@ -330,8 +336,10 @@ namespace Wave2Zebra2Preset
 
 			//VIPSLib.Audio.WAVFile wavefile = new VIPSLib.Audio.WAVFile();
 			//wavefile.ReadFromFileToDouble(fileName.Substring(0, fileName.LastIndexOf(".")) + ".wav");
-			RiffRead riff = new RiffRead(fileName.Substring(0, fileName.LastIndexOf(".")) + ".wav");
-			riff.Process();
+			//RiffRead riff = new RiffRead(fileName.Substring(0, fileName.LastIndexOf(".")) + ".wav");
+			//riff.Process();
+			
+			/*
 			VIPSLib.Audio.MFCC mfcclib = new VIPSLib.Audio.MFCC((float)sampleRate);
 			double[][] data = riff.SoundData;
 			double min;
@@ -342,6 +350,7 @@ namespace Wave2Zebra2Preset
 			float fmin;
 			float fmax;
 			MathUtils.ComputeMinAndMax(wavDataVB6, out fmin, out fmax);
+			 */
 			
 			//double[][] mfcc = mfcclib.Process(riff.SoundData[0]);
 			//float[][] mfccFloats = MathUtils.DoubleToFloat(mfcc);

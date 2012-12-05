@@ -45,6 +45,21 @@
     <Reference Include="Bass.Net">
       <HintPath>_SharedAssemblies\Bass.Net.dll</HintPath>
     </Reference>
+    <Reference Include="LibFlac">
+      <HintPath>..\CommonUtils\Audio\NAudio\LibFlac.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudio">
+      <HintPath>..\CommonUtils\Audio\NAudio\NAudio.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudio.WindowsMediaFormat">
+      <HintPath>..\CommonUtils\Audio\NAudio\NAudio.WindowsMediaFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudioFLAC">
+      <HintPath>..\CommonUtils\Audio\NAudio\NAudioFLAC.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudioOggVorbis">
+      <HintPath>..\CommonUtils\Audio\NAudio\NAudioOggVorbis.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -66,6 +81,12 @@
     </Compile>
     <Compile Include="..\CommonUtils\Audio\Bass\IAudio.cs">
       <Link>IAudio.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\Audio\NAudio\AudioUtilsNAudio.cs">
+      <Link>AudioUtilsNAudio.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\Audio\NAudio\AudioUtilsNAudioExtra.cs">
+      <Link>AudioUtilsNAudioExtra.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\Audio\RiffRead.cs">
       <Link>RiffRead.cs</Link>
