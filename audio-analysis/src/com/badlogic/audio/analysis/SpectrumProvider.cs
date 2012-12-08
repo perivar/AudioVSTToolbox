@@ -63,6 +63,12 @@ namespace com.badlogic.audio.analysis
 			this.tempSamples = new float[sampleWindowSize];
 			this.hopSize = hopSize;
 			fft = new FFT(sampleWindowSize, 44100);
+
+			// calculate averages based on a miminum octave width of 22 Hz
+			// split each octave into three bands
+			// this should result in 30 averages
+			//fft.LogAverages(22, 3);
+			
 			if(useHamming)
 				fft.Window(FFT.HAMMING);
 

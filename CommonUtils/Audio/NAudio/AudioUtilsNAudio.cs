@@ -7,6 +7,8 @@ using NAudio.Wave.SampleProviders;
 
 using System.Collections.Generic;
 
+using System.Linq;
+
 namespace CommonUtils.Audio.NAudio
 {
 	/// <summary>
@@ -37,6 +39,11 @@ namespace CommonUtils.Audio.NAudio
 			return m_waveReader;
 		}
 		
+		/// <summary>
+		/// Return the total time of an audio file
+		/// </summary>
+		/// <param name="filePath">audio file</param>
+		/// <returns>a TimeSpan of the total time</returns>
 		public static TimeSpan GetWaveFileTotalTime(string filePath) {
 			TimeSpan totalTime = TimeSpan.MinValue;
 			using (AudioFileReader reader = new AudioFileReader(filePath)) {
@@ -45,6 +52,11 @@ namespace CommonUtils.Audio.NAudio
 			return totalTime;
 		}
 
+		/// <summary>
+		/// Return the waveformat of an audio file
+		/// </summary>
+		/// <param name="filePath">audio file</param>
+		/// <returns>the files WaveFormat</returns>
 		public static WaveFormat GetWaveFormat(string filePath) {
 			WaveFormat frmt = null;
 			using (AudioFileReader reader = new AudioFileReader(filePath)) {
@@ -53,7 +65,11 @@ namespace CommonUtils.Audio.NAudio
 			return frmt;
 		}
 		
-		// Read A complete stream into a byte array
+		/// <summary>
+		/// Read a complete stream into a byte array
+		/// </summary>
+		/// <param name="input">a stream</param>
+		/// <returns>byte[] array</returns>
 		public static byte[] ReadFully(Stream input)
 		{
 			/*
@@ -86,28 +102,48 @@ namespace CommonUtils.Audio.NAudio
 		}
 
 		#region CreateWaveFile methods
-		public static void CreateWaveFile(Stream stream, string fileName, WaveFormat waveFormat) {
+		
+		/// <summary>
+		/// Create a wavefile using a stream
+		/// </summary>
+		/// <param name="inputStream">the input audio stream</param>
+		/// <param name="fileName">the audio file to save</param>
+		/// <param name="waveFormat">waveformat</param>
+		public static void CreateWaveFile(Stream inputStream, string fileName, WaveFormat waveFormat) {
 			using (WaveFileWriter writer = new WaveFileWriter(fileName, waveFormat))
 			{
 				byte[] buffer = new byte[16*1024];
 				for (; ;)
 				{
-					int bytes = stream.Read(buffer, 0, buffer.Length);
+					int bytes = inputStream.Read(buffer, 0, buffer.Length);
 					if (bytes == 0) break;
 					writer.Write(buffer, 0, bytes);
 				}
 			}
 		}
 
-		public static void CreateWaveFile(float[] wavData, string fileName, WaveFormat waveFormat) {
+		/// <summary>
+		/// Create a wavefile using audiodata
+		/// </summary>
+		/// <param name="audioData">the input audio data</param>
+		/// <param name="fileName">the audio file to save</param>
+		/// <param name="waveFormat">waveformat</param>
+		public static void CreateWaveFile(float[] audioData, string fileName, WaveFormat waveFormat) {
 			using (WaveFileWriter writer = new WaveFileWriter(fileName, waveFormat))
 			{
-				writer.WriteSamples(wavData, 0, wavData.Length);
+				writer.WriteSamples(audioData, 0, audioData.Length);
 			}
 		}
 		#endregion
 		
 		#region ResampleWav methods
+
+		/// <summary>
+		/// Resample wavefile to new waveformat and save output file
+		/// </summary>
+		/// <param name="wavInFilePath">input audiofile</param>
+		/// <param name="wavOutFilePath">output wavefile</param>
+		/// <param name="waveFormat">waveformat</param>
 		public static void ResampleWav(string wavInFilePath, string wavOutFilePath, WaveFormat waveFormat) {
 			using (var reader = new WaveFileReader(wavInFilePath))
 			{
@@ -118,6 +154,12 @@ namespace CommonUtils.Audio.NAudio
 			}
 		}
 		
+		/// <summary>
+		/// Resample wavefile to new waveformat and save output file
+		/// </summary>
+		/// <param name="wavIn">input stream</param>
+		/// <param name="waveFormat">waveformat</param>
+		/// <returns>byte[] array</returns>
 		public static byte[] ResampleWav(Stream wavIn, WaveFormat waveFormat) {
 			using (var reader = new WaveFileReader(wavIn))
 			{
@@ -136,7 +178,13 @@ namespace CommonUtils.Audio.NAudio
 			}
 		}
 
-		public static WaveStream ResampleWaveStream(string wavInFilePath, WaveFormat waveFormat) {
+		/// <summary>
+		/// Resample wavefile to new waveformat and return WaveStream
+		/// </summary>
+		/// <param name="wavInFilePath">audiofile</param>
+		/// <param name="waveFormat">waveformat</param>
+		/// <returns>WaveStream</returns>
+		public static WaveStream ResampleToWaveStream(string wavInFilePath, WaveFormat waveFormat) {
 
 			WaveStream sourceStream = CreateInputWaveStream(wavInFilePath);
 			
@@ -156,29 +204,24 @@ namespace CommonUtils.Audio.NAudio
 			return sourceStream;
 		}
 		
+		/// <summary>
+		/// Resample wavefile to new waveformat and return SampleChannel (supports floats)
+		/// </summary>
+		/// <param name="wavInFilePath">audiofile</param>
+		/// <param name="waveFormat">waveformat</param>
+		/// <returns>SampleChannel (supports floats)</returns>
 		public static SampleChannel ResampleToSampleChannel(string wavInFilePath, WaveFormat waveFormat) {
-
-			WaveStream sourceStream = CreateInputWaveStream(wavInFilePath);
-			
-			if (sourceStream.WaveFormat.Encoding != WaveFormatEncoding.Pcm)
-			{
-				sourceStream = WaveFormatConversionStream.CreatePcmStream(sourceStream);
-				sourceStream = new BlockAlignReductionStream(sourceStream);
-			}
-			if (sourceStream.WaveFormat.SampleRate != waveFormat.SampleRate ||
-			    sourceStream.WaveFormat.BitsPerSample != waveFormat.BitsPerSample ||
-			    sourceStream.WaveFormat.Channels != waveFormat.Channels)
-			{
-				sourceStream = new WaveFormatConversionStream(waveFormat, sourceStream);
-				sourceStream = new BlockAlignReductionStream(sourceStream);
-			}
-			
-			SampleChannel sampleChannel = new SampleChannel(sourceStream);
-			return sampleChannel;
+			return new SampleChannel(ResampleToWaveStream(wavInFilePath, waveFormat));
 		}
 
-		public static byte[] ResampleWav(string wavInFilePath, WaveFormat waveFormat) {
-			using (var reader = ResampleWaveStream(wavInFilePath, waveFormat))
+		/// <summary>
+		/// Resample wavefile to new waveformat and return byte array
+		/// </summary>
+		/// <param name="wavInFilePath">audiofile</param>
+		/// <param name="waveFormat">waveformat</param>
+		/// <returns>byte[] array</returns>
+		public static byte[] ResampleWavToBytes(string wavInFilePath, WaveFormat waveFormat) {
+			using (var reader = ResampleToWaveStream(wavInFilePath, waveFormat))
 			{
 				using (MemoryStream ms = new MemoryStream())
 				{
@@ -190,6 +233,29 @@ namespace CommonUtils.Audio.NAudio
 					return ms.ToArray();
 				}
 			}
+		}
+		
+		/// <summary>
+		/// Resample wavefile to new waveformat and return float array
+		/// </summary>
+		/// <param name="wavInFilePath">audiofile</param>
+		/// <param name="waveFormat">waveformat</param>
+		/// <returns>float[] array</returns>
+		public static float[] ResampleWavToFloats(string wavInFilePath, WaveFormat waveFormat) {
+
+			List<float> floatList = new List<float>();
+			SampleChannel sampleChannel = ResampleToSampleChannel(wavInFilePath, waveFormat);
+			
+			int readCount = 0;
+			int bufferSize = 16*1024;
+			float[] buffer = new float[bufferSize];
+			
+			// read until we have read the number of samples (measured in ms) we are supposed to do
+			while ((readCount = sampleChannel.Read(buffer, 0, bufferSize)) > 0)
+			{
+				floatList.AddRange(buffer.Take(readCount));
+			}
+			return floatList.ToArray();
 		}
 		#endregion
 		
@@ -240,7 +306,7 @@ namespace CommonUtils.Audio.NAudio
 		/// <param name = "milliseconds">milliseconds to read</param>
 		/// <param name = "startmillisecond">Start millisecond</param>
 		/// <returns>Array of samples</returns>
-		public static float[] ReadMonoFromFile(string filename, int samplerate, int milliseconds, int startmillisecond, int channelToUse=1)
+		public static float[] ReadMonoFromFileOld(string filename, int samplerate, int milliseconds, int startmillisecond, int channelToUse=1)
 		{
 			int totalmilliseconds = milliseconds <= 0 ? Int32.MaxValue : milliseconds + startmillisecond;
 			float[] data = null;
@@ -248,7 +314,7 @@ namespace CommonUtils.Audio.NAudio
 			// read as stereo file - do the mono thing later
 			List<float> floatList = new List<float>();
 			WaveFormat waveFormat = new WaveFormat(samplerate, 2);
-			WaveStream wave32 = ResampleWaveStream(filename, waveFormat);
+			WaveStream wave32 = ResampleToWaveStream(filename, waveFormat);
 			
 			int sampleCount = 0;
 
@@ -319,7 +385,15 @@ namespace CommonUtils.Audio.NAudio
 			return data;
 		}
 
-		public static float[] ReadMonoFromFile2(string filename, int samplerate, int milliseconds, int startmillisecond, int channelToUse=1)
+		/// <summary>
+		///   Read mono from file
+		/// </summary>
+		/// <param name = "filename">Name of the file</param>
+		/// <param name = "samplerate">Sample rate</param>
+		/// <param name = "milliseconds">milliseconds to read</param>
+		/// <param name = "startmillisecond">Start millisecond</param>
+		/// <returns>Array of samples</returns>
+		public static float[] ReadMonoFromFile(string filename, int samplerate, int milliseconds, int startmillisecond, int channelToUse=1)
 		{
 			int totalmilliseconds = milliseconds <= 0 ? Int32.MaxValue : milliseconds + startmillisecond;
 			float[] data = null;
@@ -330,16 +404,17 @@ namespace CommonUtils.Audio.NAudio
 			SampleChannel sampleChannel = ResampleToSampleChannel(filename, waveFormat);
 			
 			int sampleCount = 0;
-			int bufferSize = 5512; /*read ten seconds at each iteration*/
+			int readCount = 0;
+			int bufferSize = 16*1024;
 			float[] buffer = new float[bufferSize];
-
+			
 			// read until we have read the number of samples (measured in ms) we are supposed to do
-			while (sampleChannel.Read(buffer, 0, bufferSize) > 0 && (float)(sampleCount)/ samplerate * 1000 < totalmilliseconds)
+			while ((readCount = sampleChannel.Read(buffer, 0, bufferSize)) > 0 && (float)(sampleCount)/ samplerate * 1000 < totalmilliseconds)
 			{
-				floatList.AddRange(buffer);
+				floatList.AddRange(buffer.Take(readCount));
 				
 				// increment with size of data
-				sampleCount += bufferSize;
+				sampleCount += readCount;
 			}
 			data = floatList.ToArray();
 
@@ -353,8 +428,7 @@ namespace CommonUtils.Audio.NAudio
 			int end = (milliseconds <= 0) ?
 				sampleCount :
 				(int) ( (float)(startmillisecond + milliseconds) * samplerate / 1000);
-			if (start != 0 || end != sampleCount)
-			{
+			if (start != 0 || end != sampleCount) {
 				float[] temp = new float[end - start];
 				Array.Copy(data, start, temp, 0, end - start);
 				data = temp;
@@ -372,7 +446,6 @@ namespace CommonUtils.Audio.NAudio
 		/// <param name="audioDataRight">returned float array for the right channel</param>
 		public static void SplitStereoWaveFileToMono(string filePath, out float[] audioDataLeft, out float[] audioDataRight) {
 			
-			//using (WaveFileReader pcm = new WaveFileReader(filePath))
 			using (AudioFileReader pcm = new AudioFileReader(filePath))
 			{
 				int channels = pcm.WaveFormat.Channels;
@@ -496,7 +569,7 @@ namespace CommonUtils.Audio.NAudio
 			}
 		}
 	}
-	
+
 	#region Providers
 	public class SineWaveProvider : WaveProvider32
 	{

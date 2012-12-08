@@ -126,7 +126,7 @@ namespace com.badlogic.audio.analysis
 	// 
 	// @author Damien Di Fede
 	// @see <a href="http://www.dspguide.com/ch8.htm">The Discrete Fourier Transform</a>
-	// 
+	// @see for example: http://code.compartmental.net/minim/examples/FFT/LinLogAverages/LinLogAverages.pde
 	public abstract class FourierTransform
 	{
 		/// A constant indicating no window should be used on sample buffers.

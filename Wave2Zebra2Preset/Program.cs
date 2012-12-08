@@ -262,6 +262,21 @@ namespace Wave2Zebra2Preset
 		
 		public static void Main(string[] args)
 		{
+			/*
+			int nFFT = 1024;
+			int samplerate = 44100;
+			int length = samplerate * 10; // 10 sec
+			
+			double freq1, freq2;
+			int i1, i2;
+			for (int i = 0; i < nFFT + 1; i++) {
+				freq1 = MathUtils.Index2Freq(i, samplerate, nFFT);
+				freq2 = MathUtils.IndexToFreq(i, samplerate, nFFT);
+				i1 = MathUtils.Freq2Index(freq1, samplerate, nFFT);
+				i2 = MathUtils.FreqToIndex((float)freq2, samplerate, nFFT);
+			}
+			 */
+			
 			// http://www.music.mcgill.ca/~gary/307/week5/additive.html
 			//SaveColorPaletteBar("c:\\rew-colorbar-generated.png", "c:\\rew-colorbar-generated.csv", ColorPaletteType.REWColorPalette);
 			
@@ -297,8 +312,9 @@ namespace Wave2Zebra2Preset
 			 */
 			
 			//String fileName = @"C:\Users\perivar.nerseth\Music\Sleep Away.mp3";
-			String fileName = @"C:\Users\perivar.nerseth\Music\Maid with the Flaxen Hair.mp3";
-			//String fileName = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
+			//String fileName = @"C:\Users\perivar.nerseth\Music\Sleep Away32f.wav";
+			String fileName = @"C:\Users\perivar.nerseth\Music\Sleep Away16.wav";
+			//String fileName = @"C:\Users\perivar.nerseth\Music\Maid with the Flaxen Hair.mp3";
 			//String fileName = @"G:\Cubase and Nuendo Projects\Music To Copy Learn\Britney Spears - Hold It Against Me\02 Hold It Against Me (Instrumental) 1.mp3";
 
 			Console.WriteLine("Analyzer starting ...");
@@ -307,15 +323,19 @@ namespace Wave2Zebra2Preset
 			FingerprintManager manager = new FingerprintManager();
 
 			// VB6 FFT
-			double sampleRate = 5512;// 44100  default 5512
-			int fftWindowsSize = 2048; //4096  default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
-			float fftOverlapPercentage = 99.0f; // number between 0 and 100
-			int secondsToSample = 25; //15;
+			double sampleRate = 44100;// 44100, default 5512
+			int fftWindowsSize = 16384; //32768 16384 8192 4096 2048, default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
+			int secondsToSample = 25; //25, 15;
+			int fftOverlap = (int) (sampleRate * secondsToSample / 1280); // 32768:990, 16384:990, 8192:990, 4096:990
+			//float fftOverlapPercentage = 94.0f; // 99.0f number between 0 and 100
 			//float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 20*1000 );
-			float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 0);
-			MathUtils.NormalizeInPlace(wavDataVB6);
-						
-			float[] wavDataNaudio = CommonUtils.Audio.NAudio.AudioUtilsNAudio.ReadMonoFromFile2(fileName, (int) sampleRate, secondsToSample*1000, 0);
+			//float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 0);
+			//MathUtils.NormalizeInPlace(wavDataVB6);
+			//Export.exportCSV(@"c:\bass.csv", wavDataVB6);
+			
+			float[] wavDataNaudio = CommonUtils.Audio.NAudio.AudioUtilsNAudio.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 0);
+			//MathUtils.NormalizeInPlace(wavDataNaudio);
+			//Export.exportCSV(@"c:\naudio.csv", wavDataNaudio);
 			
 			//VB6Spectrogram vb6Spect = new VB6Spectrogram();
 			//vb6Spect.ComputeColorPalette();
@@ -323,7 +343,8 @@ namespace Wave2Zebra2Preset
 			//Export.exportCSV (@"c:\VB6Spectrogram-full.csv", vb6Spectrogram);
 			
 			// Exocortex.DSP FFT
-			int numberOfSamples = wavDataVB6.Length;
+			/*
+			int numberOfSamples = wavDataNaudio.Length;
 			fftOverlapPercentage = fftOverlapPercentage / 100;
 			long ColSampleWidth = (long)(fftWindowsSize * (1 - fftOverlapPercentage));
 			double fftOverlapSamples = fftWindowsSize * fftOverlapPercentage;
@@ -331,7 +352,7 @@ namespace Wave2Zebra2Preset
 			
 			int fftOverlap = (int)((numberOfSamples - fftWindowsSize) / NumCols);
 			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap;
-			
+			 */
 			//System.Console.Out.WriteLine(String.Format("EXO: fftWindowsSize: {0}, Overlap samples: {1:n2}.", fftWindowsSize, fftOverlap ));
 
 			//VIPSLib.Audio.WAVFile wavefile = new VIPSLib.Audio.WAVFile();
@@ -355,14 +376,7 @@ namespace Wave2Zebra2Preset
 			//double[][] mfcc = mfcclib.Process(riff.SoundData[0]);
 			//float[][] mfccFloats = MathUtils.DoubleToFloat(mfcc);
 			
-			float[][] exoSpectrogram = AudioAnalyzer.CreateSpectrogramLomont(wavDataVB6, sampleRate, fftWindowsSize, fftOverlap);
-			//float[][] exoSpectrogram = AudioAnalyzer.CreateSpectrogramLomont(wavDataVB6, sampleRate, fftWindowsSize, fftOverlap);
-			//repositoryGateway.drawSpectrogram1("Spectrogram1", fileName, exoSpectrogram);
-			//repositoryGateway.drawSpectrogram2("Spectrogram2", fileName, exoSpectrogram, sampleRate, numberOfSamples, fftWindowsSize);
-			//repositoryGateway.drawSpectrogram3("Spectrogram3", fileName, exoSpectrogram);
-			//repositoryGateway.drawSpectrogram4("Spectrogram4", fileName, exoSpectrogram);
-			//Export.exportCSV (@"c:\exoSpectrogram-full.csv", exoSpectrogram);
-			Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(exoSpectrogram, 1200, 600, secondsToSample*1000, sampleRate, ColorUtils.ColorPaletteType.REW);
+			Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(wavDataNaudio, 1200, 600, sampleRate, fftWindowsSize, fftOverlap, ColorUtils.ColorPaletteType.REW, false);
 			spectro.Save(@"c:\spectrogram-rew.png");
 			
 			//float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, secondsToSample*1000, 0);

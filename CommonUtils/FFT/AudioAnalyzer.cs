@@ -16,6 +16,147 @@ namespace CommonUtils.FFT
 	/// </summary>
 	public static class AudioAnalyzer
 	{
+		public static double LogBase = Math.E;
+		
+		/*
+		http://stackoverflow.com/questions/7735036/naudio-frequency-band-intensity
+		In the case of the frequency axis you will probably want to group
+		your bins into bands, which might each be an octave
+		(2:1 frequency range), or more commonly for higher resolution,
+		third octave.
+		So if you just want 10 "bars" then you might use the following
+		octave bands:
+		
+		   25 -    50 Hz
+		   50 -   100 Hz
+		  100 -   200 Hz
+		  200 -   400 Hz
+		  400 -   800 Hz
+		  800 -  1600 Hz
+		 1600 -  3200 Hz
+		 3200 -  6400 Hz
+		 6400 - 12800 Hz
+		12800 - 20000 Hz
+		 */
+		
+		/// <summary>
+		/// Get logarithmically spaced indices
+		/// </summary>
+		/// <param name = "sampleRate">Signal's sample rate</param>
+		/// <param name = "minFreq">Min frequency</param>
+		/// <param name = "maxFreq">Max frequency</param>
+		/// <param name = "logBins">Number of logarithmically spaced bins</param>
+		/// <param name = "fftSize">FFT Size</param>
+		/// <param name = "logBase">Log base of the logarithm to be spaced</param>
+		/// <returns>Gets an array of indexes</returns>
+		public static void GetLogFrequenciesIndex(double sampleRate, double minFreq, double maxFreq, int logBins, int fftSize, double logBase, out int[] indexes, out float[] frequencies)
+		{
+			GenerateLogFrequencies(sampleRate, minFreq, maxFreq, logBins, fftSize, logBase, out indexes, out frequencies);
+		}
+		
+		/// <summary>
+		/// Get logarithmically spaced indices
+		/// </summary>
+		/// <param name = "sampleRate">Signal's sample rate</param>
+		/// <param name = "minFreq">Min frequency</param>
+		/// <param name = "maxFreq">Max frequency</param>
+		/// <param name = "logBins">Number of logarithmically spaced bins</param>
+		/// <param name = "fftSize">FFT Size</param>
+		/// <param name = "logarithmicBase">Logarithm base</param>
+		private static void GenerateLogFrequencies(double sampleRate, double minFreq, double maxFreq, int logBins, int fftSize, double logarithmicBase, out int[] indexes, out float[] frequencies)
+		{
+			double logMin = Math.Log(minFreq, logarithmicBase);
+			double logMax = Math.Log(maxFreq, logarithmicBase);
+			double delta = (logMax - logMin)/ logBins;
+
+			indexes = new int[logBins + 1];
+			frequencies = new float[logBins + 1];
+			double accDelta = 0;
+			for (int i = 0; i <= logBins; ++i)
+			{
+				float freq = (float) Math.Pow(logarithmicBase, logMin + accDelta);
+				frequencies[i] = freq;
+
+				accDelta += delta; // accDelta = delta * i;
+				indexes[i] = MathUtils.FreqToIndex(freq, sampleRate, fftSize);
+			}
+		}
+		
+		/// <summary>
+		/// Logarithmic spacing of a frequency in a linear domain
+		/// </summary>
+		/// <param name="complexSignal">Spectrum to space</param>
+		/// <param name="logBins">number of log bins</param>
+		/// <param name="logFrequenciesIndex">array of logarithmically spaced indexes</param>
+		/// <returns>Logarithmically spaced signal</returns>
+		private static float[] ExtractLogBins(double[] complexSignal, int logBins, int[] logFrequenciesIndex)
+		{
+			#if SAFE
+			if (complexSignal == null)
+				throw new ArgumentNullException("complexSignal");
+			if (MinFrequency >= MaxFrequency)
+				throw new ArgumentException("Minimal frequency cannot be bigger or equal to Maximum frequency");
+			if (SampleRate <= 0)
+				throw new ArgumentException("sampleRate cannot be less or equal to zero");
+			#endif
+
+			float[] sumFreq = new float[logBins]; /*32*/
+			for (int i = 0; i < logBins; i++)
+			{
+				int lowBound = logFrequenciesIndex[i];
+				int hiBound = logFrequenciesIndex[i + 1];
+
+				if (hiBound*2 < complexSignal.Length) {
+					for (int j = lowBound; j < hiBound; j++)
+					{
+						double re = complexSignal[2*j];
+						double img = complexSignal[2*j + 1];
+						sumFreq[i] += (float) (Math.Sqrt(re*re + img*img));
+					}
+				}
+				sumFreq[i] = sumFreq[i]/(hiBound - lowBound);
+			}
+			return sumFreq;
+		}
+		
+		public static float[][] CreateLogSpectrogramLomont(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap, int logBins, int[] logFrequenciesIndex, float[] logFrequencies)
+		{
+			LomontFFT fft = new LomontFFT();
+			
+			// find the time
+			int numberOfSamples = samples.Length;
+			double seconds = numberOfSamples / sampleRate;
+
+			// overlap must be an integer smaller than the window size
+			// half the windows size is quite normal
+			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
+			
+			// width of the segment - i.e. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
+			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap;
+			float[][] frames = new float[numberOfSegments][];
+			
+			// even - Re, odd - Img
+			double[] complexSignal = new double[2*fftWindowsSize];
+			for (int i = 0; i < numberOfSegments; i++)
+			{
+				// apply Hanning Window
+				for (int j = 0; j < fftWindowsSize; j++)
+				{
+					// Weight by Hann Window
+					complexSignal[2*j] = (double) (windowArray[j] * samples[i * fftOverlap + j]);
+					
+					// need to clear out as fft modifies buffer (phase)
+					complexSignal[2*j + 1] = 0;
+				}
+
+				// FFT transform for gathering the spectrum
+				fft.FFT(complexSignal, true);
+
+				frames[i] = ExtractLogBins(complexSignal, logBins, logFrequenciesIndex);
+			}
+			return frames;
+		}
+
 		public static float[][] CreateSpectrogramLomont(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
 		{
 			LomontFFT fft = new LomontFFT();
@@ -468,6 +609,30 @@ namespace CommonUtils.FFT
 			}
 		}
 		
+		public static Bitmap GetSpectrogramImage(float[] audioData, int width, int height, double sampleRate, int fftWindowsSize, int fftOverlap, ColorUtils.ColorPaletteType colorPalette, bool doLinear)
+		{
+			float[][] spectrogram;
+			double minFrequency = 27.5;
+			double maxFrequency = sampleRate / 2;
+			int logBins = height - 2*40; // the margins used
+			int[] logFrequenciesIndex = new int[1];
+			float[] logFrequencies = new float[1];
+
+			// find the time
+			int numberOfSamples = audioData.Length;
+			double seconds = numberOfSamples / sampleRate;
+
+			if (doLinear) {
+				spectrogram = CreateSpectrogramLomont(audioData, sampleRate, fftWindowsSize, fftOverlap);
+			} else {
+				// calculate the log frequency index table
+				GetLogFrequenciesIndex(sampleRate, minFrequency, maxFrequency, logBins, fftWindowsSize, LogBase, out logFrequenciesIndex, out logFrequencies);
+				spectrogram = CreateLogSpectrogramLomont(audioData, sampleRate, fftWindowsSize, fftOverlap, logBins, logFrequenciesIndex, logFrequencies);
+			}
+			
+			return GetSpectrogramImage(spectrogram, width, height, seconds*1000, sampleRate, ColorUtils.ColorPaletteType.REW, doLinear, logFrequenciesIndex, logFrequencies);
+		}
+		
 		/// <summary>
 		/// Get a spectrogram of the signal specified at the input
 		/// </summary>
@@ -482,7 +647,7 @@ namespace CommonUtils.FFT
 		///   Y axis - frequency
 		///   Color - magnitude level of corresponding band value of the signal
 		/// </remarks>
-		public static Bitmap GetSpectrogramImage(float[][] spectrum, int width, int height, double milliseconds, double sampleRate, ColorUtils.ColorPaletteType colorPalette)
+		public static Bitmap GetSpectrogramImage(float[][] spectrum, int width, int height, double milliseconds, double sampleRate, ColorUtils.ColorPaletteType colorPalette, bool doLinear, int[] logFrequenciesIndex, float[] logFrequencies)
 		{
 			if (width < 0)
 				throw new ArgumentException("width should be bigger than 0");
@@ -505,7 +670,7 @@ namespace CommonUtils.FFT
 			string LABEL_Y = "Frequency (Hz)";  // Label for Y axis
 			
 			float MAX_FREQ = (float) sampleRate / 2;	// Maximum frequency (Hz) on vertical axis.
-			float MIN_FREQ = 0.0f;        	// Minimum frequency (Hz) on vertical axis.
+			float MIN_FREQ = 27.5f;        	// Minimum frequency (Hz) on vertical axis.
 			float FREQ_STEP = 1000;        	// Interval between ticks (dB) on vertical axis.
 
 			// if the max frequency gets lower than ... lower the frequency step
@@ -526,15 +691,6 @@ namespace CommonUtils.FFT
 			float TIMETOPIXEL = (float) WIDTH/(MAX_TIME-MIN_TIME); 	// Pixels/second
 			
 			// Colors
-			/*
-			// orange style
-			Color lineColor = ColorTranslator.FromHtml("#C7834C");
-			Color middleLineColor = ColorTranslator.FromHtml("#EFAB74");
-			Color labelColor = ColorTranslator.FromHtml("#A9652E");
-			Color tickColor = ColorTranslator.FromHtml("#A9652E");
-			Color fillOuterColor = ColorTranslator.FromHtml("#FFFFFF");
-			Color fillColor = ColorTranslator.FromHtml("#F9C998");
-			 */
 			// black, gray, white style
 			Color lineColor = ColorTranslator.FromHtml("#BFBFBF");
 			Color middleLineColor = ColorTranslator.FromHtml("#BFBFBF");
@@ -575,23 +731,49 @@ namespace CommonUtils.FFT
 			float x = 0;
 			float xMiddle = 0;
 
-			// Tick marks on the vertical axis
-			for ( float freqTick = MIN_FREQ; freqTick <= MAX_FREQ; freqTick += FREQ_STEP )
-			{
-				// draw horozontal main line
-				y = BOTTOM - FREQTOPIXEL*(freqTick-MIN_FREQ);
-				if (y < BOTTOM && y > TOP+1) {
-					g.DrawLine(linePen, LEFT-2, y, LEFT+WIDTH+2, y);
-				}
-
-				// draw horozontal middle line (between the main lines)
-				yMiddle = y-(FREQTOPIXEL*FREQ_STEP)/2;
-				if (yMiddle > TOP && yMiddle < HEIGHT+TOP) {
-					g.DrawLine(middleLinePen, LEFT, yMiddle, LEFT+WIDTH, yMiddle);
-				}
-
-				if ( freqTick != MAX_FREQ )
+			if (doLinear) {
+				// LINEAR SCALE
+				
+				// Tick marks on the vertical axis
+				for ( float freqTick = MIN_FREQ; freqTick <= MAX_FREQ; freqTick += FREQ_STEP )
 				{
+					// draw horozontal main line
+					y = BOTTOM - FREQTOPIXEL*(freqTick-MIN_FREQ);
+					if (y < BOTTOM && y > TOP+1) {
+						g.DrawLine(linePen, LEFT-2, y, LEFT+WIDTH+2, y);
+					}
+
+					// draw horozontal middle line (between the main lines)
+					yMiddle = y-(FREQTOPIXEL*FREQ_STEP)/2;
+					if (yMiddle > TOP && yMiddle < HEIGHT+TOP) {
+						g.DrawLine(middleLinePen, LEFT, yMiddle, LEFT+WIDTH, yMiddle);
+					}
+
+					if ( freqTick != MAX_FREQ )
+					{
+						// Numbers on the tick marks
+						Font drawFont = new Font("Arial", 8);
+						SolidBrush drawBrush = new SolidBrush(tickPen.Color);
+						
+						// left
+						g.DrawString(MathUtils.FormatNumber((int) freqTick), drawFont, drawBrush, LEFT - 33, y - drawFont.GetHeight(g)/2);
+
+						// right
+						g.DrawString(MathUtils.FormatNumber((int) freqTick), drawFont, drawBrush, WIDTH + LEFT + 4, y - drawFont.GetHeight(g)/2);
+					}
+				}
+			} else {
+				// LOG SCALE
+				for (int i = 0; i < logFrequencies.Length; i+=20)
+				{
+					float freqTick = logFrequencies[i];
+					y = BOTTOM - i;
+
+					// draw horozontal main line
+					if (y < BOTTOM && y > TOP+1) {
+						g.DrawLine(linePen, LEFT-2, y, LEFT+WIDTH+2, y);
+					}
+					
 					// Numbers on the tick marks
 					Font drawFont = new Font("Arial", 8);
 					SolidBrush drawBrush = new SolidBrush(tickPen.Color);
@@ -603,6 +785,7 @@ namespace CommonUtils.FFT
 					g.DrawString(MathUtils.FormatNumber((int) freqTick), drawFont, drawBrush, WIDTH + LEFT + 4, y - drawFont.GetHeight(g)/2);
 				}
 			}
+			
 			
 			if (drawLabels) {
 				// Label for vertical axis
@@ -658,6 +841,7 @@ namespace CommonUtils.FFT
 			double deltaY = (double) (HEIGHT- 1)/(numberOfSamplesY); 	// By how much the image will move upward
 			
 			int prevX = 0;
+			Color prevColor = Color.Black;
 			for (int i = 0; i < numberOfSamplesX; i++)
 			{
 				double xCoord = i*deltaX;
@@ -670,9 +854,11 @@ namespace CommonUtils.FFT
 						float dB = MathUtils.ConvertAmplitudeToDB(amplitude, minDb, maxDb);
 						int colorval = (int) MathUtils.ConvertAndMainainRatio(dB, minDb, maxDb, 0, 255); // 255 is full brightness, and good for REW colors (for SOX 220 is good)
 						colorbw = Color.FromArgb(colorval, colorval, colorval);
+						//colorbw = ValueToBlackWhiteColor(amplitude, max*0.010);
+						prevColor = colorbw;
+					} else {
+						colorbw = prevColor;
 					}
-					
-					//Color color = ValueToBlackWhiteColor(amplitude, max);
 					spectrogram.SetPixel((int) xCoord + 1, HEIGHT - (int) (deltaY*j) - 1, colorbw);
 				}
 				prevX = (int) xCoord;
@@ -693,6 +879,8 @@ namespace CommonUtils.FFT
 		/// <returns>Grey color corresponding to the value</returns>
 		public static Color ValueToBlackWhiteColor(double value, double maxValue)
 		{
+			if (double.IsNaN(value)) return Color.Black;
+			
 			int color = (int) (Math.Abs(value)*255/Math.Abs(maxValue));
 			if (color > 255)
 				color = 255;
