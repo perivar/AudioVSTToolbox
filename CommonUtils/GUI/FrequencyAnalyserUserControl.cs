@@ -116,8 +116,8 @@ namespace CommonUtils.GUI
 			AudioAnalyzer.PrepareSpectrumAnalysis(spectrumData, sampleRate, fftWindowsSize, fftOverlap,
 			                                      out m_mag, out m_freq, out foundMaxFrequency, out foundMaxDecibel);
 			
-			bmp = AudioAnalyzer.DrawSpectrumAnalysis(ref m_mag, ref m_freq, new Size(this.Width, this.Height),
-			                                   showMinFrequency, showMaxFrequency, foundMaxDecibel, foundMaxFrequency);
+			bmp = AudioAnalyzer.GetSpectrumImage(ref m_mag, ref m_freq, new Size(this.Width, this.Height),
+			                                     showMinFrequency, showMaxFrequency, foundMaxDecibel, foundMaxFrequency);
 			
 			// force redraw
 			this.Invalidate();

@@ -6,7 +6,6 @@ using System.Linq;
 using System.Drawing.Extended;
 using Lomont;
 using CommonUtils;
-using NAudio.WindowsMediaFormat;
 
 namespace CommonUtils.FFT
 {
@@ -279,7 +278,7 @@ namespace CommonUtils.FFT
 
 			// apply Hanning Window
 			// e.g. take 371 ms each 11.6 ms (2048 samples each 64 samples)
-			for (int j = 0; j < fftWindowsSize; j++)
+			for (int j = 0; (j < fftWindowsSize) && (samples.Length > fftOverlap+j); j++)
 			{
 				// Weight by Hann Window
 				complexSignal[2*j] = (double) (windowArray[j] * samples[fftOverlap + j]);

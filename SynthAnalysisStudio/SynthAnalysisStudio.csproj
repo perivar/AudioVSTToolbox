@@ -117,6 +117,9 @@
     <Compile Include="..\CommonUtils\BinaryFile.cs">
       <Link>BinaryFile.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\ColorUtils.cs">
+      <Link>ColorUtils.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\CSVWriter.cs">
       <Link>CSVWriter.cs</Link>
     </Compile>
