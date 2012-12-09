@@ -29,6 +29,7 @@ using Wave2Zebra2Preset.HermitGauges;
 
 using CommonUtils;
 using CommonUtils.FFT;
+using CommonUtils.Audio.NAudio;
 
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -333,7 +334,48 @@ namespace Wave2Zebra2Preset
 			//MathUtils.NormalizeInPlace(wavDataVB6);
 			//Export.exportCSV(@"c:\bass.csv", wavDataVB6);
 			
-			float[] wavDataNaudio = CommonUtils.Audio.NAudio.AudioUtilsNAudio.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 0);
+			float[] wavDataNaudio = AudioUtilsNAudio.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 0);
+			
+			/*
+			float[] wavDataNaudio = new float[(int) (sampleRate*secondsToSample)];
+			BasicOscillatorProvider basic = new BasicOscillatorProvider();
+
+			int length = (int)(sampleRate*3);
+			int offset = 0;
+
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-80);
+			basic.SetFrequency(220);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SINE);
+			offset += basic.Read(wavDataNaudio, offset, length);
+			
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-60);
+			basic.SetFrequency(440);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SQUARE);
+			offset += basic.Read(wavDataNaudio, offset, length);
+			
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-40);
+			basic.SetFrequency(880);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.TRIANGLE);
+			offset += basic.Read(wavDataNaudio, offset, length);
+			
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-20);
+			basic.SetFrequency(1760);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SAW);
+			offset += basic.Read(wavDataNaudio, offset, length);
+
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-10);
+			basic.SetFrequency(3520);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SINE);
+			offset += basic.Read(wavDataNaudio, offset, length);
+			
+			basic.Amplitude = MathUtils.DecibelToAmplitude(0);
+			basic.SetFrequency(1760);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SAW);
+			offset += basic.Read(wavDataNaudio, offset, length);
+
+			AudioUtilsNAudio.WriteIEEE32WaveFileMono(@"c:\sines.wav", 44100, wavDataNaudio);
+			 */
+			
 			//MathUtils.NormalizeInPlace(wavDataNaudio);
 			//Export.exportCSV(@"c:\naudio.csv", wavDataNaudio);
 			
@@ -376,7 +418,7 @@ namespace Wave2Zebra2Preset
 			//double[][] mfcc = mfcclib.Process(riff.SoundData[0]);
 			//float[][] mfccFloats = MathUtils.DoubleToFloat(mfcc);
 			
-			Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(wavDataNaudio, 1200, 600, sampleRate, fftWindowsSize, fftOverlap, ColorUtils.ColorPaletteType.SOX, true);
+			Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(wavDataNaudio, 1200, 600, sampleRate, fftWindowsSize, fftOverlap, ColorUtils.ColorPaletteType.PHOTOSOUNDER, true);
 			spectro.Save(@"c:\spectrogram-rew.png");
 			
 			//float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, secondsToSample*1000, 0);

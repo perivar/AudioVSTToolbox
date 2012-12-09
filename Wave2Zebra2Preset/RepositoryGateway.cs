@@ -535,8 +535,8 @@ namespace Wave2Zebra2Preset
 				}
 			}
 
-			float maxValdB = MathUtils.ConvertAmplitudeToDB((float)maxVal, minDb, maxDb);
-			float minValdB = MathUtils.ConvertAmplitudeToDB((float)minVal, minDb, maxDb);
+			float maxValdB = MathUtils.AmplitudeToDecibel((float)maxVal, minDb, maxDb);
+			float minValdB = MathUtils.AmplitudeToDecibel((float)minVal, minDb, maxDb);
 			
 			Axis.drawAxis(Axis.X_AXIS, 10, 10, 0, (float)MathUtils.ConvertToTime(sampleRate, numberOfSamples), 50, width-50, 50, false, height, g);
 			Axis.drawAxis(Axis.Y_AXIS, 100, 10, 20, (float)(sampleRate/2), 50, height-50, 50, true, height, g);
@@ -560,7 +560,7 @@ namespace Wave2Zebra2Preset
 					float amplitude = data[x][y];
 					Color colorbw = Color.Black;
 					if (amplitude > 0) {
-						float dB = MathUtils.ConvertAmplitudeToDB(amplitude, minDb, maxDb);
+						float dB = MathUtils.AmplitudeToDecibel(amplitude, minDb, maxDb);
 						int colorval = (int) MathUtils.ConvertAndMainainRatio(dB, minDb, maxDb, 0, 255); // 255 is full brightness, and good for REW colors (for SOX 220 is good)
 						colorbw = Color.FromArgb(colorval, colorval, colorval);
 					}
@@ -628,8 +628,8 @@ namespace Wave2Zebra2Preset
 				}
 			}
 
-			float maxValdB = MathUtils.ConvertAmplitudeToDB((float)maxVal, minDb, maxDb);
-			float minValdB = MathUtils.ConvertAmplitudeToDB((float)minVal, minDb, maxDb);
+			float maxValdB = MathUtils.AmplitudeToDecibel((float)maxVal, minDb, maxDb);
+			float minValdB = MathUtils.AmplitudeToDecibel((float)minVal, minDb, maxDb);
 
 			double minIntensity = Math.Abs(minVal);
 			double maxIntensity = maxVal + minIntensity;
@@ -656,7 +656,7 @@ namespace Wave2Zebra2Preset
 					int y = (int) MathUtils.RoundDown(j*verticalScaleFactor,0);
 
 					float amplitude = data[i][j];
-					float dB = MathUtils.ConvertAmplitudeToDB(amplitude, minDb, maxDb);
+					float dB = MathUtils.AmplitudeToDecibel(amplitude, minDb, maxDb);
 					
 					int color = (int) MathUtils.ConvertAndMainainRatio(dB, minValdB, maxValdB, 0, 256);
 					//Color c = VB6Spectrogram.PaletteValueColor(color, 256);

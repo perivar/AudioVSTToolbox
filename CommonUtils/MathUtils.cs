@@ -13,21 +13,21 @@ namespace CommonUtils
 		private static double LOG10SCALE = 1 / Math.Log(10);
 		
 		// handy static methods
-		public static double log10(double val)
+		public static double Log10(double val)
 		{
-			return Math.Log(val) * LOG10SCALE;
+			return Math.Log10(val);
 		}
-		public static double exp10(double val)
+		public static double Exp10(double val)
 		{
 			return Math.Exp(val / LOG10SCALE);
 		}
-		public static float flog10(double val)
+		public static float Log10Float(double val)
 		{
-			return (float)log10(val);
+			return (float)Log10(val);
 		}
-		public static float fexp10(double val)
+		public static float Exp10Float(double val)
 		{
-			return (float)exp10(val);
+			return (float)Exp10(val);
 		}
 		
 		public static float[] ReSampleToArbitrary(float[] input, int size)
@@ -73,15 +73,15 @@ namespace CommonUtils
 			
 			// TODO: Addition of Epsilon prevents log from returning minus infinity if value is zero
 			float newRange = (newMax - newMin);
-			float log_oldMin = flog10(Math.Abs(oldMin) + float.Epsilon);
-			float log_oldMax = flog10(oldMax + float.Epsilon);
+			float log_oldMin = Log10Float(Math.Abs(oldMin) + float.Epsilon);
+			float log_oldMax = Log10Float(oldMax + float.Epsilon);
 			float oldRange = (oldMax - oldMin);
 			float log_oldRange = (log_oldMax - log_oldMin);
 			float data_per_log_unit = newRange / log_oldRange;
 			
 			for(int x = 0; x < oldValueArray.Length; x++)
 			{
-				float log_oldValue = flog10(oldValueArray[x] + float.Epsilon);
+				float log_oldValue = Log10Float(oldValueArray[x] + float.Epsilon);
 				float newValue = (((log_oldValue - log_oldMin) * newRange) / log_oldRange) + newMin;
 				newValueArray[x] = newValue;
 			}
@@ -123,11 +123,11 @@ namespace CommonUtils
 			// Addition of Epsilon prevents log from returning minus infinity if value is zero
 			double oldRange = (oldMax - oldMin);
 			double newRange = (newMax - newMin);
-			double log_oldMin = flog10(Math.Abs(oldMin) + double.Epsilon);
-			double log_oldMax = flog10(oldMax + double.Epsilon);
+			double log_oldMin = Log10Float(Math.Abs(oldMin) + double.Epsilon);
+			double log_oldMax = Log10Float(oldMax + double.Epsilon);
 			double log_oldRange = (log_oldMax - log_oldMin);
 			//double data_per_log_unit = newRange / log_oldRange;
-			double log_oldValue = flog10(oldValue + double.Epsilon);
+			double log_oldValue = Log10Float(oldValue + double.Epsilon);
 			double newValue = (((log_oldValue - log_oldMin) * newRange) / log_oldRange) + newMin;
 			return newValue;
 		}
@@ -136,16 +136,17 @@ namespace CommonUtils
 			// Addition of Epsilon prevents log from returning minus infinity if value is zero
 			float oldRange = (oldMax - oldMin);
 			float newRange = (newMax - newMin);
-			float log_oldMin = flog10(Math.Abs(oldMin) + float.Epsilon);
-			float log_oldMax = flog10(oldMax + float.Epsilon);
+			float log_oldMin = Log10Float(Math.Abs(oldMin) + float.Epsilon);
+			float log_oldMax = Log10Float(oldMax + float.Epsilon);
 			float log_oldRange = (log_oldMax - log_oldMin);
 			//float data_per_log_unit = newRange / log_oldRange;
-			float log_oldValue = flog10(oldValue + float.Epsilon);
+			float log_oldValue = Log10Float(oldValue + float.Epsilon);
 			float newValue = (((log_oldValue - log_oldMin) * newRange) / log_oldRange) + newMin;
 			return newValue;
 		}
 		#endregion
 		
+		#region Round
 		public static double RoundToNearest(double number, double nearest) {
 			double rounded = Math.Round(number * (1 / nearest), MidpointRounding.AwayFromZero) / (1 / nearest);
 			return rounded;
@@ -160,6 +161,7 @@ namespace CommonUtils
 		{
 			return Math.Floor(number * Math.Pow(10, decimalPlaces)) / Math.Pow(10, decimalPlaces);
 		}
+		#endregion
 		
 		#region ComputeMinAndMax
 		public static void ComputeMinAndMax(double[,] data, out double min, out double max) {
@@ -252,46 +254,66 @@ namespace CommonUtils
 		}
 		#endregion
 		
-		public static float[] GetSineWave(float frequency, float amplitude, float sampleRate, int offset, int sampleCount, int sample = 0) {
-			float[] buffer = new float[sampleCount+offset];
-			for (int n = 0; n < sampleCount; n++)
-			{
-				buffer[n+offset] = (float)(amplitude * Math.Sin((2 * Math.PI * sample * frequency) / sampleRate));
-				sample++;
-				if (sample >= sampleRate) sample = 0;
-			}
-			return buffer;
-		}
+		#region ConvertDecibel
 		
-		// look at this http://jvalentino2.tripod.com/dft/index.html
-		public static float ConvertAmplitudeToDB(float amplitude, float MinDb, float MaxDb) {
-			// db = 20 * log10( fft[index] );
-			// Addition of smallestNumber prevents log from returning minus infinity if mag is zero
-			float smallestNumber = float.Epsilon;
-			float db = 20 * (float) Math.Log10( (float) (amplitude + smallestNumber) );
+		/// <summary>
+		/// Convert amplitude in the range between 0, 1 to decibel
+		/// </summary>
+		/// <param name="amplitude">amplitude</param>
+		/// <param name="minDb">minimum dB allowed</param>
+		/// <param name="maxDb">maximum dB allowed</param>
+		/// <seealso cref="http://jvalentino2.tripod.com/dft/index.html"></seealso>
+		/// <returns>decibel value</returns>
+		public static float AmplitudeToDecibel(float amplitude, float minDb, float maxDb) {
+			float db = AmplitudeToDecibel(amplitude);
 			
-			if (db < MinDb) db = MinDb;
-			if (db > MaxDb) db = MaxDb;
+			if (db < minDb) db = minDb;
+			if (db > maxDb) db = maxDb;
 			
 			return db;
 		}
 		
-		public static float ConvertFloatToDB(float amplitude) {
-			// 20 log10(mag) => 20/ln(10) ln(mag)
+		/// <summary>
+		/// Convert amplitude in the range between 0, 1 to decibel
+		/// </summary>
+		/// <param name="amplitude">amplitude</param>
+		/// <remarks>
+		/// As for decibels, their relation to amplitude is:
+		/// db 			~ 20 * log10 (amplitude),
+		/// amplitude 	~ 10 ^ (dB/20)
+		/// </remarks>
+		/// <seealso cref="http://www.plugindeveloper.com/05/decibel-calculator-online"></seealso>
+		/// <returns>decibel value</returns>
+		public static float AmplitudeToDecibel(float amplitude) {
+			// 20 log10 (mag) => 20/ln(10) ln(mag)
 			// javascript: var result = Math.log(x) * (20.0 / Math.LN10);
-			// http://www.plugindeveloper.com/05/decibel-calculator-online
+			// float result = Math.Log(x) * (20.0 / Math.Log(10));
+			
 			// Addition of smallestNumber prevents log from returning minus infinity if mag is zero
 			float smallestNumber = float.Epsilon;
-			double result = Math.Log(amplitude + smallestNumber) * (20.0 / Math.Log(10));
-			return (float) result;
+			float db = 20 * (float) Math.Log10( (float) (amplitude + smallestNumber) );
+			return (float) db;
 		}
 
-		public static float ConvertDBToFloat(float dB) {
+		/// <summary>
+		/// Convert decibel to amplitude in the range between 0, 1
+		/// </summary>
+		/// <param name="dB">value in decibel</param>
+		/// <remarks>
+		/// As for decibels, their relation to amplitude is:
+		/// db 			~ 20 * log10 (amplitude),
+		/// amplitude 	~ 10 ^ (dB/20)
+		/// </remarks>
+		/// <seealso cref="http://www.plugindeveloper.com/05/decibel-calculator-online"></seealso>
+		/// <returns>amplitude in the range between 0, 1</returns>
+		public static float DecibelToAmplitude(float dB) {
 			// javascript: var result = Math.exp((x) * (Math.LN10 / 20.0));
-			// http://www.plugindeveloper.com/05/decibel-calculator-online
-			double result = Math.Exp(( dB) * (Math.Log(10) / 20.0));
+			//double result = Math.Exp(( dB) * (Math.Log(10) / 20.0));
+			
+			double result = Exp10(dB / 20.0);
 			return (float) result;
 		}
+		#endregion
 		
 		/// <summary>
 		/// Return the frequency in Hz for each index in FFT
@@ -301,7 +323,8 @@ namespace CommonUtils
 		/// <param name="sampleRate">sample rate (e.g. 44100 Hz)</param>
 		/// <param name="nFFT">size of FFT (e.g. 1024)</param>
 		/// <returns>Frequency in Hz</returns>
-		public static float ConvertIndexToHz(int i, int spectrumLength, double sampleRate, double nFFT) {
+		public static float IndexToFreq(int i, int spectrumLength, double sampleRate, double nFFT) {
+			// spectrum length is normally half the fftWindowsSize?
 			double nyquistFreq = sampleRate / 2;
 			double firstFrequency = nyquistFreq / spectrumLength;
 			double frequency = firstFrequency *  i ;
@@ -382,9 +405,14 @@ namespace CommonUtils
 			return (int) (freq / (sampleRate / nFFT / 2.0));
 		}
 		
+		/// <summary>
+		/// Convert samplerate and number of samples to seconds
+		/// </summary>
+		/// <param name="sampleRate">samplerate</param>
+		/// <param name="numberOfSamples">number of samples</param>
+		/// <returns>time in seconds</returns>
 		public static double ConvertToTime(double sampleRate, int numberOfSamples) {
-			double time = numberOfSamples / sampleRate;
-			return time;
+			return numberOfSamples / sampleRate;
 		}
 		
 		#region FloatAndDoubleConversions
@@ -412,20 +440,24 @@ namespace CommonUtils
 		#endregion
 		
 		#region NumberFormatting
-		/* Return a nicer number
-		 * 0,1 --> 0,1
-		 * 0,2 --> 0,25
-		 * 0,7 --> 1
-		 * 1 --> 1
-		 * 2 --> 2,5
-		 * 9 --> 10
-		 * 25 --> 50
-		 * 58 --> 100
-		 * 99 --> 100
-		 * 158 --> 250
-		 * 267 --> 500
-		 * 832 --> 1000
-		 */
+		
+		/// <summary>
+		/// Return a nicer number
+		/// 0,1 --> 0,1
+		/// 0,2 --> 0,25
+		/// 0,7 --> 1
+		/// 1 --> 1
+		/// 2 --> 2,5
+		/// 9 --> 10
+		/// 25 --> 50
+		/// 58 --> 100
+		/// 99 --> 100
+		/// 158 --> 250
+		/// 267 --> 500
+		/// 832 --> 1000
+		/// </summary>
+		/// <param name="val">value to format</param>
+		/// <returns>formatted value</returns>
 		public static double GetNicerNumber(double val)
 		{
 			// get the first larger power of 10
@@ -449,7 +481,7 @@ namespace CommonUtils
 		/// 23067 => 23.1K
 		/// 133031 => 133K
 		/// </summary>
-		/// <param name="num"></param>
+		/// <param name="num">nummber to format</param>
 		/// <returns></returns>
 		public static string FormatNumber(int num) {
 			if (num >= 100000000)
@@ -580,7 +612,6 @@ namespace CommonUtils
 			// http://stackoverflow.com/questions/3723321/linq-to-get-closest-value
 			
 			//gets any that are within x of target
-			//var within = 1;
 			var withins = numbers.Select( n => new { n, distance = Math.Abs( n - target ) } )
 				.Where( p => p.distance <= within )
 				.Select( p => p.n );
@@ -599,6 +630,11 @@ namespace CommonUtils
 			return (x != 0) && ((x & (x - 1)) == 0);
 		}
 		
+		/// <summary>
+		/// Return next power of two
+		/// </summary>
+		/// <param name="x">value</param>
+		/// <returns>next power of two</returns>
 		public static int NextPowerOfTwo(int x)
 		{
 			x--; // comment out to always take the next biggest power of two, even if x is already a power of two
@@ -610,6 +646,11 @@ namespace CommonUtils
 			return (x+1);
 		}
 
+		/// <summary>
+		/// Return previous power of two
+		/// </summary>
+		/// <param name="x">value</param>
+		/// <returns>previous power of two</returns>
 		public static int PreviousPowerOfTwo(int x) {
 			if (x == 0) {
 				return 0;
@@ -684,22 +725,6 @@ namespace CommonUtils
 			}
 		}
 		
-		/** sqrt(a^2 + b^2) without under/overflow. **/
-		public static double Hypot(double a, double b)
-		{
-			double r;
-			if (Math.Abs(a) > Math.Abs(b)) {
-				r = b/a;
-				r = Math.Abs(a)*Math.Sqrt(1+r*r);
-			} else if (b != 0) {
-				r = a/b;
-				r = Math.Abs(b)*Math.Sqrt(1+r*r);
-			} else {
-				r = 0.0;
-			}
-			return r;
-		}
-		
 		/// <summary>
 		/// Normalize the input signal to -1 to 1
 		/// </summary>
@@ -751,10 +776,39 @@ namespace CommonUtils
 				bytes[i]--;               // scale bytes to -1..1
 			}
 		}
-		
 		#endregion
 		
+		/// <summary>
+		/// Perform a hypot calculation
+		/// </summary>
+		/// <param name="a"></param>
+		/// <param name="b"></param>
+		/// <remarks>
+		/// sqrt(a^2 + b^2) without under/overflow
+		/// </remarks>
+		/// <returns></returns>
+		public static double Hypot(double a, double b)
+		{
+			double r;
+			if (Math.Abs(a) > Math.Abs(b)) {
+				r = b/a;
+				r = Math.Abs(a)*Math.Sqrt(1+r*r);
+			} else if (b != 0) {
+				r = a/b;
+				r = Math.Abs(b)*Math.Sqrt(1+r*r);
+			} else {
+				r = 0.0;
+			}
+			return r;
+		}
+		
 		#region MinMaxAbs
+		
+		/// <summary>
+		/// Perform a Math.Abs on a full array
+		/// </summary>
+		/// <param name="doubleArray">array of floats</param>
+		/// <returns>array after Math.Abs</returns>
 		public static float[] Abs(float[] floatArray) {
 
 			if (floatArray == null) return null;
@@ -773,6 +827,11 @@ namespace CommonUtils
 			return absArray;
 		}
 
+		/// <summary>
+		/// Perform a Math.Abs on a full array
+		/// </summary>
+		/// <param name="doubleArray">array of doubles</param>
+		/// <returns>array after Math.Abs</returns>
 		public static double[] Abs(double[] doubleArray) {
 
 			if (doubleArray == null) return null;
@@ -791,14 +850,22 @@ namespace CommonUtils
 			return absArray;
 		}
 		
+		/// <summary>
+		/// Find maximum number when all numbers are made positive.
+		/// </summary>
+		/// <param name="data">data</param>
+		/// <returns>max</returns>
 		public static double Max(double[][] data) {
-			// Find maximum number when all numbers are made positive.
 			double max = data.Max((b) => b.Max((v) => Math.Abs(v)));
 			return max;
 		}
 
+		/// <summary>
+		/// Find minimum number when all numbers are made positive.
+		/// </summary>
+		/// <param name="data">data</param>
+		/// <returns>min</returns>
 		public static double Min(double[][] data) {
-			// Find maximum number when all numbers are made positive.
 			double min = data.Min((b) => b.Min((v) => Math.Abs(v)));
 			return min;
 		}

@@ -3,11 +3,10 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.Linq;
-
 using System.Drawing.Extended;
-
 using Lomont;
 using CommonUtils;
+using NAudio.WindowsMediaFormat;
 
 namespace CommonUtils.FFT
 {
@@ -344,18 +343,35 @@ namespace CommonUtils.FFT
 			}
 			return band;
 		}
+		
+		/// <summary>
+		/// Utility method to return a spectrum image based on audio data
+		/// </summary>
+		/// <param name="audioData"></param>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <param name="sampleRate"></param>
+		/// <param name="fftWindowsSize"></param>
+		/// <param name="fftOverlap"></param>
+		/// <returns></returns>
+		public static Bitmap GetSpectrumImage(float[] audioData, int width, int height, double sampleRate, int fftWindowsSize, int fftOverlap, float minFrequency, float maxFrequency) {
+
+			float[] mag;
+			float[] freq;
+			float foundMaxFreq, foundMaxDecibel;
+			float[] spectrumData = AudioAnalyzer.CreateSpectrumAnalysisLomont(audioData, sampleRate, fftWindowsSize, fftOverlap);
+			AudioAnalyzer.PrepareSpectrumAnalysis(spectrumData, sampleRate, fftWindowsSize, fftOverlap, out mag, out freq, out foundMaxFreq, out foundMaxDecibel);
+			Bitmap spectrum = AudioAnalyzer.GetSpectrumImage(ref mag, ref freq, new Size(1200, 600), minFrequency, maxFrequency, foundMaxDecibel, foundMaxFreq);
+			return spectrum;
+		}
 
 		public static void PrepareSpectrumAnalysis(float[] spectrumData, double sampleRate, int fftWindowsSize, int fftOverlap,
 		                                           out float[] m_mag, out float[] m_freq,
 		                                           out float foundMaxFrequency, out float foundMaxDecibel) {
-			/*
-			 * freq = index * samplerate / fftsize;
-			 * db = 20 * log10(fft[index]);
-			 * 20 log10 (mag) => 20/ ln(10) ln(mag)
-			 */
+
 			int spectrumDataLength = spectrumData.Length; // 1024 - half the fftWindowsSize (2048)
-			double numberOfSamples = fftOverlap + fftWindowsSize;
-			double seconds = numberOfSamples / sampleRate;
+			//int numberOfSamples = fftOverlap + fftWindowsSize;
+			//double seconds = MathUtils.ConvertToTime(sampleRate, numberOfSamples);
 
 			// prepare the data:
 			m_mag = new float[spectrumDataLength];
@@ -379,17 +395,15 @@ namespace CommonUtils.FFT
 					minIndex = i;
 				}
 
-				//m_mag[i] = MathUtils.ConvertAmplitudeToDB((float) spectrumData[i], -120.0f, 18.0f);
-				m_mag[i] = MathUtils.ConvertFloatToDB(spectrumData[i]);
-				m_freq[i] = MathUtils.ConvertIndexToHz (i, spectrumDataLength, sampleRate, fftWindowsSize);
+				m_mag[i] = MathUtils.AmplitudeToDecibel(spectrumData[i]);
+				m_freq[i] = MathUtils.IndexToFreq(i, spectrumDataLength, sampleRate, fftWindowsSize);
 			}
 			
 			// store the max findings
-			//foundMaxDecibel = MathUtils.ConvertAmplitudeToDB((float) spectrumData[maxIndex], -120.0f, 18.0f);
-			foundMaxDecibel = MathUtils.ConvertFloatToDB(spectrumData[maxIndex]);
-			foundMaxFrequency = MathUtils.ConvertIndexToHz (maxIndex, spectrumDataLength, sampleRate, fftWindowsSize);
+			foundMaxDecibel = MathUtils.AmplitudeToDecibel(spectrumData[maxIndex]);
+			foundMaxFrequency = MathUtils.IndexToFreq(maxIndex, spectrumDataLength, sampleRate, fftWindowsSize);
 		}
-
+		
 		/**
 		 * Draw a graph of the spectrum
 		 *
@@ -408,17 +422,17 @@ namespace CommonUtils.FFT
 		 * The above copyright notice and this permission notice shall be included in
 		 * all copies or substantial portions of the Software.
 		 */
-		public static Bitmap DrawSpectrumAnalysis(ref float[] mag, ref float[] freq,
-		                                          Size imageSize,
-		                                          float showMinFrequency = 0, float showMaxFrequency = 20000,
-		                                          float foundMaxDecibel = -1, float foundMaxFrequency = -1)
+		public static Bitmap GetSpectrumImage(ref float[] mag, ref float[] freq,
+		                                      Size imageSize,
+		                                      float minFrequency = 0, float maxFrequency = 20000,
+		                                      float foundMaxDecibel = -1, float foundMaxFrequency = -1)
 		{
 			// Basic constants
 			int TOTAL_HEIGHT = imageSize.Height;    // Height of graph
 			int TOTAL_WIDTH = imageSize.Width;      // Width of graph
 
-			float MIN_FREQ = showMinFrequency;  // Minimum frequency (Hz) on horizontal axis.
-			float MAX_FREQ = showMaxFrequency;	// Maximum frequency (Hz) on horizontal axis.
+			float MIN_FREQ = minFrequency;  	// Minimum frequency (Hz) on horizontal axis.
+			float MAX_FREQ = maxFrequency;		// Maximum frequency (Hz) on horizontal axis.
 			float FREQ_STEP = 2000;				// Interval between ticks (Hz) on horizontal axis.
 			float MAX_DB = -0.0f;				// Maximum dB magnitude on vertical axis.
 			float MIN_DB = -100.0f; //-60       // Minimum dB magnitude on vertical axis.
@@ -609,6 +623,19 @@ namespace CommonUtils.FFT
 			}
 		}
 		
+		
+		/// <summary>
+		/// Utility method to return spectrogramimage using audio data
+		/// </summary>
+		/// <param name="audioData"></param>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <param name="sampleRate"></param>
+		/// <param name="fftWindowsSize"></param>
+		/// <param name="fftOverlap"></param>
+		/// <param name="colorPalette"></param>
+		/// <param name="doLogScale"></param>
+		/// <returns></returns>
 		public static Bitmap GetSpectrogramImage(float[] audioData, int width, int height, double sampleRate, int fftWindowsSize, int fftOverlap, ColorUtils.ColorPaletteType colorPalette, bool doLogScale)
 		{
 			float[][] spectrogram;
@@ -655,8 +682,8 @@ namespace CommonUtils.FFT
 				throw new ArgumentException("height should be bigger than 0");
 
 			bool drawLabels = true;
-			float minDb = -90.0f; // -80.0f works good
-			float maxDb = 10.0f;
+			float minDb = -90.0f; // -80.0f also works good
+			float maxDb = 10.0f; // with the current color palettes 10.0f works well
 			
 			// Basic constants
 			int TOTAL_HEIGHT = height;    // Height of graph
@@ -851,7 +878,7 @@ namespace CommonUtils.FFT
 					float amplitude = spectrum[i][j];
 					Color colorbw = Color.Black;
 					if (amplitude > 0) {
-						float dB = MathUtils.ConvertAmplitudeToDB(amplitude, minDb, maxDb);
+						float dB = MathUtils.AmplitudeToDecibel(amplitude, minDb, maxDb);
 						int colorval = (int) MathUtils.ConvertAndMainainRatio(dB, minDb, maxDb, 0, 255); // 255 is full brightness, and good for REW colors (for SOX 220 is good, and for PHOTOSOUNDER 245 seems good)
 						colorbw = Color.FromArgb(colorval, colorval, colorval);
 						//colorbw = ValueToBlackWhiteColor(amplitude, max*0.010);

@@ -605,5 +605,118 @@ namespace CommonUtils.Audio.NAudio
 			return sampleCount;
 		}
 	}
+	
+	public class BasicOscillatorProvider : WaveProvider32
+	{
+		// Instance data
+		private WAVESHAPE waveshape;
+		private long periodSamples;
+		private long sampleNumber;
+		private Random rnd;
+
+		public float Amplitude { get; set; }
+		
+		/**
+		 * Waveshape enumeration
+		 */
+		public enum WAVESHAPE {
+			SINE, SQUARE, SAW, TRIANGLE, NOISE
+		}
+		
+		/**
+		 * Set waveshape of oscillator
+		 * @param waveshape Determines the waveshape of this oscillator
+		 */
+		public void SetOscWaveshape(WAVESHAPE waveshape) {
+			
+			this.waveshape = waveshape;
+		}
+		
+		/**
+		 * Set the frequency of the oscillator in Hz.
+		 * @param frequency Frequency in Hz for this oscillator
+		 */
+		public void SetFrequency(double frequency) {
+			
+			periodSamples = (long)(this.WaveFormat.SampleRate / frequency);
+		}
+		
+		public BasicOscillatorProvider() : base (44100, 1) // 44.1 kHz stereo
+		{
+			// Set defaults
+			SetOscWaveshape(WAVESHAPE.SINE);
+			SetFrequency(440.0);
+			Amplitude = 1.0f; // Max
+			
+			rnd = new Random();
+		}
+		
+		/**
+		 * Return the next sample of the oscillator's waveform
+		 *
+		 * @return Next oscillator sample
+		 */
+		protected double getSample() {
+			
+			/**	The relative position inside the period
+				of the waveform. 0.0 = beginning, 1.0 = end
+			 */
+			double x = sampleNumber / (double) periodSamples;
+			double value;
+			
+			switch (waveshape) {
+				default:
+				case WAVESHAPE.SINE:
+					value = Math.Sin(2.0 * Math.PI * x);
+					break;
+					
+				case WAVESHAPE.SQUARE:
+					if (sampleNumber < (periodSamples / 2)) {
+						value = 1.0;
+					}  else  {
+						value = -1.0;
+					}
+					break;
+					
+				case WAVESHAPE.SAW:
+					value = 2.0 * (x - Math.Floor(x + 0.5));
+					break;
+
+				case WAVESHAPE.TRIANGLE:
+					if (x < 0.25f) {
+						value = 4.0f * x;
+					}
+					else if (x < 0.75f) {
+						value = -4.0f * (x - 0.5f);
+					} else {
+						value = 4.0f * (x - 1.0f);
+					}
+					break;
+					
+				case WAVESHAPE.NOISE:
+					value = rnd.NextDouble(); 	// between 0..1
+					value *= 2;            		// between 0..2
+					value--;               		// between -1..1
+					break;
+			}
+			sampleNumber = (sampleNumber + 1) % periodSamples;
+			return value;
+		}
+		
+		public override int Read(float[] buffer, int offset, int sampleCount)
+		{
+			int sampleRate = WaveFormat.SampleRate * WaveFormat.Channels;
+
+			for (int n = 0; n < sampleCount; n++)
+			{
+				float fs = (float) (Amplitude * getSample());
+				buffer[n+offset] = fs;
+				if (sampleNumber >= sampleRate) sampleNumber = 0;
+			}
+			
+			return sampleCount;
+		}
+	}
+
 	#endregion
 }
