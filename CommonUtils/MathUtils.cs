@@ -812,5 +812,29 @@ namespace CommonUtils
 		public static double[] Flatten(double[][] data) {
 			return data.SelectMany((b) => (b)).ToArray();
 		}
+		
+		/// <summary>
+		/// Linear Interpolation
+		/// </summary>
+		/// <param name="y0">first number</param>
+		/// <param name="y1">second number</param>
+		/// <param name="fraction">fraction in the range [0,1}</param>
+		/// <remarks>
+		/// The standard way to blend between two colors (C1 and C2)
+		/// is just to linearly interpolate each red, green, and blue component
+		/// according to the following formulas:
+		/// R' = R1 + f * (R2 - R1)
+		/// G' = G1 + f * (G2 - G1)
+		/// B' = B1 + f * (B2 - B1)
+		/// Where f is a fraction the range [0,1].
+		/// When f is 0, our result is 100% C1,
+		/// and when f is 1, our result is 100% C2.
+		/// </remarks>
+		/// <returns>Interpolated double</returns>
+		public static double Interpolate(double y0, double y1, double fraction)
+		{
+			return y0 + (y1 - y0) * fraction;
+		}
+		
 	}
 }

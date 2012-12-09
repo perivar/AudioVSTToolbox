@@ -609,7 +609,7 @@ namespace CommonUtils.FFT
 			}
 		}
 		
-		public static Bitmap GetSpectrogramImage(float[] audioData, int width, int height, double sampleRate, int fftWindowsSize, int fftOverlap, ColorUtils.ColorPaletteType colorPalette, bool doLinear)
+		public static Bitmap GetSpectrogramImage(float[] audioData, int width, int height, double sampleRate, int fftWindowsSize, int fftOverlap, ColorUtils.ColorPaletteType colorPalette, bool doLogScale)
 		{
 			float[][] spectrogram;
 			double minFrequency = 27.5;
@@ -622,7 +622,7 @@ namespace CommonUtils.FFT
 			int numberOfSamples = audioData.Length;
 			double seconds = numberOfSamples / sampleRate;
 
-			if (doLinear) {
+			if (!doLogScale) {
 				spectrogram = CreateSpectrogramLomont(audioData, sampleRate, fftWindowsSize, fftOverlap);
 			} else {
 				// calculate the log frequency index table
@@ -630,7 +630,7 @@ namespace CommonUtils.FFT
 				spectrogram = CreateLogSpectrogramLomont(audioData, sampleRate, fftWindowsSize, fftOverlap, logBins, logFrequenciesIndex, logFrequencies);
 			}
 			
-			return GetSpectrogramImage(spectrogram, width, height, seconds*1000, sampleRate, ColorUtils.ColorPaletteType.REW, doLinear, logFrequenciesIndex, logFrequencies);
+			return GetSpectrogramImage(spectrogram, width, height, seconds*1000, sampleRate, colorPalette, doLogScale, logFrequenciesIndex, logFrequencies);
 		}
 		
 		/// <summary>
@@ -647,7 +647,7 @@ namespace CommonUtils.FFT
 		///   Y axis - frequency
 		///   Color - magnitude level of corresponding band value of the signal
 		/// </remarks>
-		public static Bitmap GetSpectrogramImage(float[][] spectrum, int width, int height, double milliseconds, double sampleRate, ColorUtils.ColorPaletteType colorPalette, bool doLinear, int[] logFrequenciesIndex, float[] logFrequencies)
+		public static Bitmap GetSpectrogramImage(float[][] spectrum, int width, int height, double milliseconds, double sampleRate, ColorUtils.ColorPaletteType colorPalette, bool doLogScale, int[] logFrequenciesIndex, float[] logFrequencies)
 		{
 			if (width < 0)
 				throw new ArgumentException("width should be bigger than 0");
@@ -655,7 +655,7 @@ namespace CommonUtils.FFT
 				throw new ArgumentException("height should be bigger than 0");
 
 			bool drawLabels = true;
-			float minDb = -80.0f;
+			float minDb = -90.0f; // -80.0f works good
 			float maxDb = 10.0f;
 			
 			// Basic constants
@@ -731,7 +731,7 @@ namespace CommonUtils.FFT
 			float x = 0;
 			float xMiddle = 0;
 
-			if (doLinear) {
+			if (!doLogScale) {
 				// LINEAR SCALE
 				
 				// Tick marks on the vertical axis
@@ -852,7 +852,7 @@ namespace CommonUtils.FFT
 					Color colorbw = Color.Black;
 					if (amplitude > 0) {
 						float dB = MathUtils.ConvertAmplitudeToDB(amplitude, minDb, maxDb);
-						int colorval = (int) MathUtils.ConvertAndMainainRatio(dB, minDb, maxDb, 0, 255); // 255 is full brightness, and good for REW colors (for SOX 220 is good)
+						int colorval = (int) MathUtils.ConvertAndMainainRatio(dB, minDb, maxDb, 0, 255); // 255 is full brightness, and good for REW colors (for SOX 220 is good, and for PHOTOSOUNDER 245 seems good)
 						colorbw = Color.FromArgb(colorval, colorval, colorval);
 						//colorbw = ValueToBlackWhiteColor(amplitude, max*0.010);
 						prevColor = colorbw;
@@ -863,7 +863,10 @@ namespace CommonUtils.FFT
 				}
 				prevX = (int) xCoord;
 			}
-			spectrogram = ColorUtils.Colorize(spectrogram, 255, colorPalette);
+			
+			if (colorPalette != ColorUtils.ColorPaletteType.BLACK_AND_WHITE) {
+				spectrogram = ColorUtils.Colorize(spectrogram, 255, colorPalette);
+			}
 			
 			// add the spectrogram to the full image
 			g.DrawImage(spectrogram, LEFT, TOP);

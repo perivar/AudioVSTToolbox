@@ -281,33 +281,41 @@ namespace CommonUtils
 		}
 		
 		/// <summary>
-		/// Linear interpolation using the RGB color space
+		/// Create a list of gradient colors based on the input list
 		/// </summary>
-		/// <param name="start">color start</param>
-		/// <param name="middle">color middle</param>
-		/// <param name="end">color end</param>
-		/// <param name="colorCount">number of gradients (colors) to create</param>
-		/// <returns>a List of Colors</returns>
-		public static List<Color> RgbLinearInterpolate(Color start, Color middle, Color end, int colorCount)
-		{
-			if (colorCount % 2 == 0)
-				throw new ArgumentException("colorCount should be and odd number. Currently it is: " + colorCount);
+		/// <param name="steps">number of gradients (colors) to create</param>
+		/// <param name="colors">the list of colors to transition between</param>
+		/// <returns>a List of gradients</returns>
+		public static List<Color> RgbLinearInterpolate(int steps, List<Color> colors) {
+			int parts = colors.Count - 1;
+			
+			List<Color> gradients = new List<Color>();
 
-			List<Color> ret = new List<Color>();
+			double partSteps = Math.Floor((double)steps / parts);
+			double remainder = steps - (partSteps * parts);
+			for (int col = 0; col < parts; col++) {
+				// get colors
+				Color c1 = colors[col];
+				Color c2 = colors[col + 1];
 
-			if (colorCount == 0)
-				return ret;
+				// ensure we get the right number of steps by adding remainder to final part
+				if (col == parts - 1) partSteps += remainder;
+				
+				// make gradient for this part
+				for (int step = 0; step < partSteps; step ++) {
+					double p = step / partSteps;
 
-			int size = (colorCount + 1) / 2;
-
-			List<Color> res = ColorUtils.RgbLinearInterpolate(start, middle, size);
-			if (res.Count > 0)
-				res.RemoveAt(res.Count - 1);
-
-			ret.AddRange(res);
-			ret.AddRange(ColorUtils.RgbLinearInterpolate(middle, end, size));
-
-			return ret;
+					// interpolate r, g, b
+					double r = MathUtils.Interpolate(c1.R, c2.R, p);
+					double g = MathUtils.Interpolate(c1.G, c2.G, p);
+					double b = MathUtils.Interpolate(c1.B, c2.B, p);
+					
+					// add to gradient array
+					gradients.Add(Color.FromArgb((int)Math.Round(r), (int)Math.Round(g), (int)Math.Round(b)));
+				}
+			}
+			
+			return gradients;
 		}
 		
 		/// <summary>
@@ -412,7 +420,6 @@ namespace CommonUtils
 					// create REW gradient
 					colors.Add(HSBColor.FromRGB(Color.Red));
 					colors.Add(HSBColor.FromRGB(Color.Yellow));
-					//colors.Add(new HSBColor(0.1666667f, 1.0f, 0.5f)); // yellow can also be added like this
 					colors.Add(HSBColor.FromRGB(Color.FromArgb(2, 178, 0))); // green
 					colors.Add(HSBColor.FromRGB(Color.FromArgb(0, 176, 178))); // light blue
 					colors.Add(HSBColor.FromRGB(Color.FromArgb(0, 0, 177))); // blue
@@ -459,7 +466,6 @@ namespace CommonUtils
 					// create REW gradient
 					colors.Add(HSLColor.FromRGB(Color.Red));
 					colors.Add(HSLColor.FromRGB(Color.Yellow));
-					//colors.Add(new HSLColor(0.1666667f, 1.0f, 0.5f)); // yellow can also be added like this
 					colors.Add(HSLColor.FromRGB(Color.FromArgb(2, 178, 0))); // green
 					colors.Add(HSLColor.FromRGB(Color.FromArgb(0, 176, 178))); // light blue
 					colors.Add(HSLColor.FromRGB(Color.FromArgb(0, 0, 177))); // blue
@@ -499,26 +505,50 @@ namespace CommonUtils
 		/// <returns>a list of gradients</returns>
 		public static List<Color> GetRGBColorGradients(int steps, ColorPaletteType type) {
 			
-			List<Color> gradients;
+			List<Color> colors = new List<Color>();
+
 			switch (type) {
-				case ColorPaletteType.PHOTOSOUNDER:
-					gradients = ColorUtils.RgbLinearInterpolate(
-						Color.FromArgb(255, 255, 255),
-						Color.FromArgb(249, 247, 78),
-						Color.FromArgb(0, 0, 100),
-						steps);
-					break;
 				case ColorPaletteType.REW:
+					// create REW gradient
+					colors.Add(Color.Red);
+					colors.Add(Color.Yellow);
+					colors.Add(Color.FromArgb(2, 178, 0)); // green
+					colors.Add(Color.FromArgb(0, 176, 178)); // light blue
+					colors.Add(Color.FromArgb(0, 0, 177)); // blue
+					colors.Add(Color.FromArgb(61, 0, 124)); // purple
+					break;
 				case ColorPaletteType.SOX:
+					// create SOX gradient
+					colors.Add(Color.FromArgb(255,255,254)); // white
+					colors.Add(Color.FromArgb(255,235,60));
+					colors.Add(Color.FromArgb(252,86,0));
+					colors.Add(Color.FromArgb(210,0,64));
+					colors.Add(Color.FromArgb(131,0,125));
+					colors.Add(Color.FromArgb(25,0,98));
+					colors.Add(Color.FromArgb(0,0,0)); // black
+					break;
+				case ColorPaletteType.PHOTOSOUNDER:
+					// create Photosounder gradient
+					colors.Add(Color.FromArgb(255, 255, 255)); // white
+					colors.Add(Color.FromArgb(255, 255, 112)); // skin color
+					colors.Add(Color.FromArgb(63, 120, 190)); // 
+					colors.Add(Color.FromArgb(16, 70, 180)); // 
+					colors.Add(Color.FromArgb(14, 55, 170)); // 
+					colors.Add(Color.FromArgb(12, 30, 155)); // 
+					colors.Add(Color.FromArgb(12, 30, 130)); // 
+					colors.Add(Color.FromArgb(10, 22, 110)); // 
+					colors.Add(Color.FromArgb(10, 21, 106)); // 
+					colors.Add(Color.FromArgb(10, 21, 104)); // 
+					colors.Add(Color.FromArgb(10, 21, 100)); // dark blue
+					break;
 				case ColorPaletteType.BLACK_AND_WHITE:
 				default:
 					// create black and white gradient
-					gradients = ColorUtils.RgbLinearInterpolate(
-						Color.White,
-						Color.Black,
-						steps);
+					colors.Add(Color.White);
+					colors.Add(Color.Black);
 					break;
 			}
+			List<Color> gradients = ColorUtils.RgbLinearInterpolate(steps, colors);
 			return gradients;
 		}
 		
@@ -603,7 +633,7 @@ namespace CommonUtils
 			List<Color> gradients;
 			switch (type) {
 				case ColorPaletteType.PHOTOSOUNDER:
-					gradients = ColorUtils.GetRGBColorGradients(257, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
+					gradients = ColorUtils.GetRGBColorGradients(256, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
 					break;
 				case ColorPaletteType.REW:
 					gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.REW);

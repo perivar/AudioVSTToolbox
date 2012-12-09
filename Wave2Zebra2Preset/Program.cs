@@ -376,7 +376,7 @@ namespace Wave2Zebra2Preset
 			//double[][] mfcc = mfcclib.Process(riff.SoundData[0]);
 			//float[][] mfccFloats = MathUtils.DoubleToFloat(mfcc);
 			
-			Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(wavDataNaudio, 1200, 600, sampleRate, fftWindowsSize, fftOverlap, ColorUtils.ColorPaletteType.REW, false);
+			Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(wavDataNaudio, 1200, 600, sampleRate, fftWindowsSize, fftOverlap, ColorUtils.ColorPaletteType.SOX, true);
 			spectro.Save(@"c:\spectrogram-rew.png");
 			
 			//float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, secondsToSample*1000, 0);
