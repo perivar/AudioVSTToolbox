@@ -108,8 +108,6 @@ namespace NAudio_Visualizing
 			this.customWaveViewer1.AutoSize = true;
 			this.customWaveViewer1.Location = new System.Drawing.Point(12, 38);
 			this.customWaveViewer1.Name = "customWaveViewer1";
-			this.customWaveViewer1.PenColor = System.Drawing.Color.DodgerBlue;
-			this.customWaveViewer1.PenWidth = 1F;
 			this.customWaveViewer1.Size = new System.Drawing.Size(757, 217);
 			this.customWaveViewer1.TabIndex = 6;
 			// 

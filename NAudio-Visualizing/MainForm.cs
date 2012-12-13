@@ -83,6 +83,10 @@ namespace NAudio_Visualizing
 		{
 			if (NAudioEngine.Instance.CanStop)
 				NAudioEngine.Instance.Stop();
+			
+			NAudioEngine.Instance.ChannelPosition = 0;
+			NAudioEngine.Instance.SelectionBegin = TimeSpan.FromMilliseconds(0);
+			NAudioEngine.Instance.SelectionEnd = TimeSpan.FromMilliseconds(0);
 		}
 		
 		protected override void OnClosing(System.ComponentModel.CancelEventArgs e)

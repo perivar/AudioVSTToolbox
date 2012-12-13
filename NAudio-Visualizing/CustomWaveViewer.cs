@@ -34,9 +34,6 @@ namespace CommonUtils.GUI
 		private int waveDisplayStartPosition = 0;
 		private double sampleRate = 44100;
 		
-		public Color PenColor { get; set; }
-		public float PenWidth { get; set; }
-
 		public void FitToScreen()
 		{
 			/*
@@ -48,74 +45,14 @@ namespace CommonUtils.GUI
 			 */
 		}
 
-		public void Zoom(int leftSample, int rightSample)
+		public void Zoom(double startLoopRegion, double endLoopRegion)
 		{
 			/*
 			startPosition = leftSample * bytesPerSample;
 			SamplesPerPixel = (rightSample - leftSample) / this.Width;
 			 */
 		}
-
-		#region MouseSelect
-		private Point mousePos, startPos;
-		private bool mouseDrag = false;
-
-		protected override void OnMouseDown(MouseEventArgs e)
-		{
-			if (e.Button == System.Windows.Forms.MouseButtons.Left)
-			{
-				startPos = e.Location;
-				mousePos = new Point(-1, -1);
-				mouseDrag = true;
-				DrawVerticalLine(e.X);
-			}
-
-			base.OnMouseDown(e);
-		}
-
-		protected override void OnMouseMove(MouseEventArgs e)
-		{
-			if (mouseDrag)
-			{
-				DrawVerticalLine(e.X);
-				if (mousePos.X != -1) DrawVerticalLine(mousePos.X);
-				mousePos = e.Location;
-			}
-			base.OnMouseMove(e);
-		}
-
-		protected override void OnMouseUp(MouseEventArgs e)
-		{
-			if (mouseDrag && e.Button == System.Windows.Forms.MouseButtons.Left)
-			{
-				mouseDrag = false;
-				DrawVerticalLine(startPos.X);
-
-				if (mousePos.X == -1) return;
-				DrawVerticalLine(mousePos.X);
-
-				int leftX = Math.Min(startPos.X, mousePos.X);
-				int rightX = Math.Max(startPos.X, mousePos.X);
-				
-				soundPlayer.SelectionBegin = TimeSpan.Zero;
-				soundPlayer.SelectionEnd = TimeSpan.Zero;
-				double position = (double)rightX / (double)this.Width * soundPlayer.ChannelLength;
-				soundPlayer.ChannelPosition = Math.Min(soundPlayer.ChannelLength, Math.Max(0, position));
-				startLoopRegion = -1;
-				endLoopRegion = -1;
-				
-			}
-			else if (e.Button == System.Windows.Forms.MouseButtons.Right) FitToScreen();
-
-			base.OnMouseUp(e);
-		}
-		#endregion
 		
-		private void DrawVerticalLine(int x)
-		{
-			ControlPaint.DrawReversibleLine(PointToScreen(new Point(x, 0)), PointToScreen(new Point(x, Height)), Color.Black);
-		}
-
 		protected override void OnResize(EventArgs e)
 		{
 			base.OnResize(e);
@@ -134,9 +71,6 @@ namespace CommonUtils.GUI
 			              ControlStyles.OptimizedDoubleBuffer, true);
 			InitializeComponent();
 			this.DoubleBuffered = true;
-
-			this.PenColor = Color.DodgerBlue;
-			this.PenWidth = 1;
 		}
 
 		/// <summary>
@@ -156,10 +90,19 @@ namespace CommonUtils.GUI
 				e.Graphics.DrawImage(offlineBitmap, 0, 0);
 			}
 
-			using (Pen linePen = new Pen(Color.Black, PenWidth))
+			// draw marker
+			using (Pen linePen = new Pen(Color.Black, 1))
 			{
 				double xLocation = progressPercent * this.Width;
 				e.Graphics.DrawLine(linePen, (float) xLocation, 0, (float) xLocation, Height);
+			}
+
+			// draw repeat region
+			using (Pen linePen = new Pen(Color.Chocolate, 2))
+			{
+				if (repeatRegion.Height > 0 && repeatRegion.Width > 0)  {
+					e.Graphics.DrawRectangle(linePen, repeatRegionStartXPosition, 0, repeatRegion.Width, repeatRegion.Height);
+				}
 			}
 			
 			// Calling the base class OnPaint
@@ -185,11 +128,11 @@ namespace CommonUtils.GUI
 			{
 				case "SelectionBegin":
 					startLoopRegion = soundPlayer.SelectionBegin.TotalSeconds;
-					//UpdateRepeatRegion();
+					UpdateRepeatRegion();
 					break;
 				case "SelectionEnd":
 					endLoopRegion = soundPlayer.SelectionEnd.TotalSeconds;
-					//UpdateRepeatRegion();
+					UpdateRepeatRegion();
 					break;
 				case "WaveformData":
 					UpdateWaveform();
@@ -282,8 +225,152 @@ namespace CommonUtils.GUI
 			// CustomWaveViewer
 			// 
 			this.Name = "CustomWaveViewer";
+			this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseDown);
+			this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseMove);
+			this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseUp);
 			this.ResumeLayout(false);
 		}
 		#endregion
+		
+		private const int mouseMoveTolerance = 3;
+		private bool AllowRepeatRegions = true;
+		private bool isMouseDown = false;
+		private Rectangle repeatRegion = new Rectangle();
+		private int repeatRegionStartXPosition = 0;
+		private bool isZooming = false;
+		private Point mouseDownPoint;
+		private Point currentPoint;
+		
+		void CustomWaveViewerMouseDown(object sender, MouseEventArgs e)
+		{
+			if (e.Button == System.Windows.Forms.MouseButtons.Left)
+			{
+				isMouseDown = true;
+				mouseDownPoint = e.Location;
+				
+				if ((Control.ModifierKeys & Keys.Control) == Keys.Control) {
+					// Control is being pressed
+					isZooming = true;
+				} else {
+					isZooming = false;
+				}
+			}
+			else if (e.Button == MouseButtons.Right) {
+				FitToScreen();
+			}
+			
+			//base.OnMouseDown(e);
+		}
+		
+		void CustomWaveViewerMouseMove(object sender, MouseEventArgs e)
+		{
+			currentPoint = e.Location;
+
+			if (isMouseDown && AllowRepeatRegions)
+			{
+				if (Math.Abs(currentPoint.X - mouseDownPoint.X) > mouseMoveTolerance)
+				{
+					if (mouseDownPoint.X < currentPoint.X)
+					{
+						startLoopRegion = ((double)mouseDownPoint.X / (double)this.Width) * soundPlayer.ChannelLength;
+						endLoopRegion = ((double)currentPoint.X / (double)this.Width) * soundPlayer.ChannelLength;
+					}
+					else
+					{
+						startLoopRegion = ((double)currentPoint.X / (double)this.Width) * soundPlayer.ChannelLength;
+						endLoopRegion = ((double)mouseDownPoint.X / (double)this.Width) * soundPlayer.ChannelLength;
+					}
+				}
+				else
+				{
+					startLoopRegion = -1;
+					endLoopRegion = -1;
+				}
+
+				UpdateRepeatRegion();
+				
+				//base.OnMouseMove(e);
+			}
+		}
+		
+		void CustomWaveViewerMouseUp(object sender, MouseEventArgs e)
+		{
+			if (!isMouseDown)
+				return;
+
+			bool updateRepeatRegion = false;
+			isMouseDown = false;
+			if (Math.Abs(currentPoint.X - mouseDownPoint.X) < mouseMoveTolerance)
+			{
+				if (PointInRepeatRegion(mouseDownPoint))
+				{
+					double position = ((double)currentPoint.X / (double)this.Width) * soundPlayer.ChannelLength;
+					soundPlayer.ChannelPosition = Math.Min(soundPlayer.ChannelLength, Math.Max(0, position));
+				}
+				else
+				{
+					soundPlayer.SelectionBegin = TimeSpan.Zero;
+					soundPlayer.SelectionEnd = TimeSpan.Zero;
+					double position = ((double)currentPoint.X / (double)this.Width) * soundPlayer.ChannelLength;
+					soundPlayer.ChannelPosition = Math.Min(soundPlayer.ChannelLength, Math.Max(0, position));
+					startLoopRegion = -1;
+					endLoopRegion = -1;
+					updateRepeatRegion = true;
+				}
+			}
+			else
+			{
+				soundPlayer.SelectionBegin = TimeSpan.FromSeconds(startLoopRegion);
+				soundPlayer.SelectionEnd = TimeSpan.FromSeconds(endLoopRegion);
+				double position = startLoopRegion;
+				soundPlayer.ChannelPosition = Math.Min(soundPlayer.ChannelLength, Math.Max(0, position));
+				updateRepeatRegion = true;
+			}
+
+			if (updateRepeatRegion) {
+				UpdateRepeatRegion();
+				//base.OnMouseUp(e);
+			}
+			if (isZooming) {
+				Zoom(startLoopRegion, endLoopRegion);
+			}
+		}
+		
+		private bool PointInRepeatRegion(Point point)
+		{
+			if (soundPlayer.ChannelLength == 0)
+				return false;
+
+			double regionLeft = (soundPlayer.SelectionBegin.TotalSeconds / soundPlayer.ChannelLength) * this.Width;
+			double regionRight = (soundPlayer.SelectionEnd.TotalSeconds / soundPlayer.ChannelLength) * this.Width;
+
+			return (point.X >= regionLeft && point.X < regionRight);
+		}
+		
+		private void UpdateRepeatRegion()
+		{
+			if (soundPlayer == null)
+				return;
+
+			double startPercent = startLoopRegion / soundPlayer.ChannelLength;
+			double startXLocation = startPercent * this.Width;
+			double endPercent = endLoopRegion / soundPlayer.ChannelLength;
+			double endXLocation = endPercent * this.Width;
+
+			if (soundPlayer.ChannelLength == 0 ||
+			    endXLocation <= startXLocation)
+			{
+				repeatRegion.Width = 0;
+				repeatRegion.Height = 0;
+				return;
+			}
+			
+			repeatRegionStartXPosition = (int) startXLocation;
+			repeatRegion.Width = (int) (endXLocation - startXLocation);
+			repeatRegion.Height = this.Height;
+			
+			// force redraw
+			this.Invalidate();
+		}
 	}
 }

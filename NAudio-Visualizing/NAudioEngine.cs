@@ -23,7 +23,7 @@ namespace NAudio_Visualizing
 		//private readonly DispatcherTimer positionTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle);
 		private readonly Timer positionTimer = new Timer();
 		private readonly BackgroundWorker waveformGenerateWorker = new BackgroundWorker();
-		private readonly int fftDataSize = (int)FFTDataSize.FFT2048;
+		private readonly int fftDataSize = (int)FFTDataSize.FFT8192;
 		private bool disposed;
 		private bool canPlay;
 		private bool canPause;
