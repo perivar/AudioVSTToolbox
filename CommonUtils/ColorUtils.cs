@@ -657,6 +657,22 @@ namespace CommonUtils
 			}
 			return outputMap;
 		}
+		
+		/// <summary>
+		///   Get corresponding grey pallet color of the spectrogram
+		/// </summary>
+		/// <param name = "value">Value</param>
+		/// <param name = "maxValue">Max range of the values</param>
+		/// <returns>Grey color corresponding to the value</returns>
+		public static Color ValueToBlackWhiteColor(double value, double maxValue)
+		{
+			if (double.IsNaN(value)) return Color.Black;
+			
+			int color = (int) (Math.Abs(value)*255/Math.Abs(maxValue));
+			if (color > 255)
+				color = 255;
+			return Color.FromArgb(color, color, color);
+		}
 	}
 	
 	public interface IColor {

@@ -1,12 +1,11 @@
 ﻿using System;
-using System.ComponentModel;
-
 using System.Drawing;
 using System.Drawing.Imaging;
 
 using System.Windows.Forms;
 
 using CommonUtils.FFT;
+using CommonUtils.Audio;
 
 namespace CommonUtils.GUI
 {

@@ -658,6 +658,52 @@ namespace CommonUtils.FFT
 			
 			return GetSpectrogramImage(spectrogram, width, height, seconds*1000, sampleRate, colorPalette, doLogScale, logFrequenciesIndex, logFrequencies);
 		}
+
+		/// <summary>
+		///   Get a spectrogram of the signal specified at the input
+		/// </summary>
+		/// <param name = "data">Signal</param>
+		/// <param name = "width">Width of the image</param>
+		/// <param name = "height">Height of the image</param>
+		/// <returns>Spectral image of the signal</returns>
+		/// <remarks>
+		///   X axis - time
+		///   Y axis - frequency
+		///   Color - magnitude level of corresponding band value of the signal
+		/// </remarks>
+		public static Bitmap GetSpectrogramImage(float[][] spectrum, int width, int height)
+		{
+			#if SAFE
+			if (width < 0)
+				throw new ArgumentException("width should be bigger than 0");
+			if (height < 0)
+				throw new ArgumentException("height should be bigger than 0");
+			#endif
+			Bitmap image = new Bitmap(width, height);
+			Graphics graphics = Graphics.FromImage(image);
+			/*Fill Back color*/
+			using (Brush brush = new SolidBrush(Color.Black))
+			{
+				graphics.FillRectangle(brush, new Rectangle(0, 0, width, height));
+			}
+			int bands = spectrum[0].Length;
+			double max = spectrum.Max((b) => b.Max((v) => Math.Abs(v)));
+			double deltaX = (double) (width - 1)/spectrum.Length; /*By how much the image will move to the left*/
+			double deltaY = (double) (height - 1)/(bands + 1); /*By how much the image will move upward*/
+			int prevX = 0;
+			for (int i = 0, n = spectrum.Length; i < n; i++)
+			{
+				double x = i*deltaX;
+				if ((int) x == prevX) continue;
+				for (int j = 0, m = spectrum[0].Length; j < m; j++)
+				{
+					Color color = ColorUtils.ValueToBlackWhiteColor(spectrum[i][j], max/10);
+					image.SetPixel((int) x, height - (int) (deltaY*j) - 1, color);
+				}
+				prevX = (int) x;
+			}
+			return image;
+		}
 		
 		/// <summary>
 		/// Get a spectrogram of the signal specified at the input
@@ -667,12 +713,15 @@ namespace CommonUtils.FFT
 		/// <param name="height">Height of the image</param>
 		/// <param name="milliseconds">Time in ms</param>
 		/// <param name="sampleRate">Sample rate in hz</param>
-		/// <returns>Spectral image of the signal</returns>
+		/// <param name="colorPalette">Specify to color palette</param>
+		/// <param name="doLogScale">log scale or not?</param>
+		/// <param name="logFrequenciesIndex">log frequency index array</param>
+		/// <param name="logFrequencies">log frequency array</param>
 		/// <remarks>
 		///   X axis - time
 		///   Y axis - frequency
 		///   Color - magnitude level of corresponding band value of the signal
-		/// </remarks>
+		/// <returns>Spectral image of the signal</returns>
 		public static Bitmap GetSpectrogramImage(float[][] spectrum, int width, int height, double milliseconds, double sampleRate, ColorUtils.ColorPaletteType colorPalette, bool doLogScale, int[] logFrequenciesIndex, float[] logFrequencies)
 		{
 			if (width < 0)
@@ -900,22 +949,6 @@ namespace CommonUtils.FFT
 			return fullImage;
 		}
 
-		/// <summary>
-		///   Get corresponding grey pallet color of the spectrogram
-		/// </summary>
-		/// <param name = "value">Value</param>
-		/// <param name = "maxValue">Max range of the values</param>
-		/// <returns>Grey color corresponding to the value</returns>
-		public static Color ValueToBlackWhiteColor(double value, double maxValue)
-		{
-			if (double.IsNaN(value)) return Color.Black;
-			
-			int color = (int) (Math.Abs(value)*255/Math.Abs(maxValue));
-			if (color > 255)
-				color = 255;
-			return Color.FromArgb(color, color, color);
-		}
-
 		// More waveform links:
 		// https://github.com/aalin/canvas_waveform
 		// http://www.hisschemoller.com/2010/mp3-wave-display/
@@ -923,7 +956,7 @@ namespace CommonUtils.FFT
 
 		// http://stackoverflow.com/questions/1215326/open-source-c-sharp-code-to-present-wave-form
 		// TODO: startPosition is NOT YET SUPPORTED
-		public static Bitmap DrawWaveform(float[] audioData, Size imageSize, int resolution, int amplitude, int startPosition, double sampleRate) {
+		public static Bitmap DrawWaveform(float[] audioData, Size imageSize, int resolution, int amplitude, int startPosition, double sampleRate, bool drawRaw=false) {
 
 			// Basic constants
 			int TOTAL_HEIGHT = imageSize.Height;    // Height of graph
@@ -931,6 +964,10 @@ namespace CommonUtils.FFT
 
 			int TOP = 5;                     		// Top of graph
 			int LEFT = 5;                    		// Left edge of graph
+			if (drawRaw) {
+				TOP = 0;                     		// Top of graph
+				LEFT = 0;                    		// Left edge of graph
+			}
 			int HEIGHT = imageSize.Height-2*TOP;	// Height of graph
 			int WIDTH = imageSize.Width-2*LEFT;     // Width of graph
 			
@@ -945,6 +982,13 @@ namespace CommonUtils.FFT
 			bool drawRoundedRectangles = true;
 			bool displayInformationBox = true;
 			bool displayTime = true;
+
+			if (drawRaw) {
+				drawLabels = false;
+				drawRoundedRectangles = false;
+				displayInformationBox = false;
+				displayTime = false;
+			}
 			
 			bool useAverages = false; // averages draws a "filled" waveform
 			
