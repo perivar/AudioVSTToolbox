@@ -125,6 +125,7 @@ namespace NAudio_Visualizing
 			this.Controls.Add(this.btnBrowse);
 			this.Name = "MainForm";
 			this.Text = "NAudio-Visualizing";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}

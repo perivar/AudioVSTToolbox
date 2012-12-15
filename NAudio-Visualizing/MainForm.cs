@@ -46,7 +46,6 @@ namespace NAudio_Visualizing
 					}
 					break;
 				case "ChannelPosition":
-					//clockDisplay.Time = TimeSpan.FromSeconds(engine.ChannelPosition);
 					txtTime.Text = TimeSpan.FromSeconds(engine.ChannelPosition).ToString();
 					break;
 				default:
@@ -59,7 +58,8 @@ namespace NAudio_Visualizing
 		
 		void BtnBrowseClick(object sender, EventArgs e)
 		{
-			openFileDialog.Filter = "(*.mp3)|*.mp3";
+			//openFileDialog.Filter = "(*.mp3)|*.mp3|(*.wav)|*.wav";
+			openFileDialog.Filter = "Audio Files(*.wav;*.mp3)|*.wav;*.mp3|All files (*.*)|*.*";
 			if (openFileDialog.ShowDialog() == DialogResult.OK)
 			{
 				NAudioEngine.Instance.OpenFile(openFileDialog.FileName);
@@ -89,7 +89,7 @@ namespace NAudio_Visualizing
 			NAudioEngine.Instance.SelectionEnd = TimeSpan.FromMilliseconds(0);
 		}
 		
-		protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+		void MainFormFormClosing(object sender, FormClosingEventArgs e)
 		{
 			NAudioEngine.Instance.Dispose();
 		}

@@ -39,7 +39,6 @@ namespace NAudio_Visualizing
 		private SampleAggregator sampleAggregator;
 		private SampleAggregator waveformAggregator;
 		private string pendingWaveformPath;
-		private float[] fullLevelData;
 		private float[] waveformData;
 		private TagLib.File fileTag;
 		private TimeSpan repeatStart;
@@ -357,7 +356,8 @@ namespace NAudio_Visualizing
 					{
 						DesiredLatency = 100
 					};
-					ActiveStream = new Mp3FileReader(path);
+					
+					ActiveStream = (WaveStream) new AudioFileReader(path);
 					inputStream = new WaveChannel32(ActiveStream);
 					sampleAggregator = new SampleAggregator(fftDataSize);
 					inputStream.Sample += inputStream_Sample;
