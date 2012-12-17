@@ -92,6 +92,7 @@ namespace NAudio_Visualizing
 		void MainFormFormClosing(object sender, FormClosingEventArgs e)
 		{
 			NAudioEngine.Instance.Dispose();
+			base.Dispose();
 		}
 	}
 }
