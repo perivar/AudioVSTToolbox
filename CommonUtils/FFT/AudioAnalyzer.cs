@@ -982,6 +982,7 @@ namespace CommonUtils.FFT
 			bool drawRoundedRectangles = true;
 			bool displayInformationBox = true;
 			bool displayTime = true;
+			bool useAverages = false; // averages draws a "filled" waveform
 
 			if (drawRaw) {
 				drawLabels = false;
@@ -989,8 +990,6 @@ namespace CommonUtils.FFT
 				displayInformationBox = false;
 				displayTime = false;
 			}
-			
-			bool useAverages = false; // averages draws a "filled" waveform
 			
 			// Colors
 			Color lineColor = ColorTranslator.FromHtml("#C7834C");
@@ -1044,7 +1043,6 @@ namespace CommonUtils.FFT
 			
 			float AMPLITUDETOPIXEL = (float) HEIGHT/(MAX_AMPLITUDE-MIN_AMPLITUDE); 	// Pixels/tick
 			float TIMETOPIXEL = (float) WIDTH/(MAX_TIME-MIN_TIME); 					// Pixels/second
-			
 			
 			// Set up for drawing
 			Bitmap png = new Bitmap( TOTAL_WIDTH, TOTAL_HEIGHT, PixelFormat.Format32bppArgb );
@@ -1196,6 +1194,11 @@ namespace CommonUtils.FFT
 							
 							yMax = TOP + HEIGHT - (int)((max * amplitude + 1) * 0.5 * HEIGHT);
 							yMin = TOP + HEIGHT - (int)((min * amplitude + 1) * 0.5 * HEIGHT);
+
+							// make sure that we draw something
+							if (yMin == yMax) {
+								yMin += 1;
+							}
 							yAxis = yMax;
 
 							// draw waveform

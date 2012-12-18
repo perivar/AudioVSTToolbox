@@ -2,14 +2,13 @@
 using System.Collections;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Data;
 using System.Windows.Forms;
-
 using CommonUtils.FFT;
 using CommonUtils.Audio;
-
 using NAudio.Wave;
 
 namespace CommonUtils.GUI
@@ -184,12 +183,34 @@ namespace CommonUtils.GUI
 			if (soundPlayer == null || soundPlayer.WaveformData == null)
 				return;
 
+			double sampleRate = 44100;
+			
 			if (soundPlayer.WaveformData != null && soundPlayer.WaveformData.Length > 1)
 			{
+				int totalNumberOfSamples = soundPlayer.WaveformData.Length;
+
+				// crop to the zoom area
+				float[] data;
+				if (endZoomSamplePosition != 0) {
+					data = new float[endZoomSamplePosition-startZoomSamplePosition];
+					Array.Copy(soundPlayer.WaveformData, startZoomSamplePosition, data, 0, endZoomSamplePosition-startZoomSamplePosition);
+				} else {
+					data = soundPlayer.WaveformData;
+					samplesPerPixel = (float) totalNumberOfSamples / (float) this.Width;
+				}
+				
+				this.offlineBitmap = AudioAnalyzer.DrawWaveform(data, new Size(this.Width, this.Height), 0, 1, 0, sampleRate, true);
+				this.Invalidate();
+				return;
+				
 				if (this.offlineBitmap == null) this.offlineBitmap = new Bitmap( this.Width, this.Height, PixelFormat.Format32bppArgb );
 				int height = offlineBitmap.Height;
 				int width = offlineBitmap.Width;
 				
+				//double durationSeconds = (samplesPerPixel * this.Width / sampleRate);
+				//double pixelsPerSeconds = this.Width / durationSeconds; 	// Pixels / Second
+				double pixelsPerSeconds = sampleRate / samplesPerPixel;
+
 				Color sampleColor = ColorTranslator.FromHtml("#4C2F1A");
 				Color fillColor = ColorTranslator.FromHtml("#F9C998");
 				using (Pen linePen = new Pen(sampleColor, 1))
@@ -197,26 +218,20 @@ namespace CommonUtils.GUI
 					using (Graphics g = Graphics.FromImage(offlineBitmap))
 					{
 						g.Clear(fillColor);
-
-						int totalNumberOfSamples = soundPlayer.WaveformData.Length;
-
-						// crop to the zoom area
-						float[] data;
-						if (endZoomSamplePosition != 0) {
-							data = new float[endZoomSamplePosition-startZoomSamplePosition];
-							Array.Copy(soundPlayer.WaveformData, startZoomSamplePosition, data, 0, endZoomSamplePosition-startZoomSamplePosition);
-						} else {
-							data = soundPlayer.WaveformData;
-							samplesPerPixel = (float) totalNumberOfSamples / (float) width;
-						}
 						
 						if (samplesPerPixel >= 1) {
+							
+							float xPrev = 0;
+							float yPrev = 0;
+							float yAxis = 0;
+							bool firstPoint = true;
+							
 							// the number of samples are greater than the available drawing space (i.e. greater than the number of pixles in the X-Axis)
-							for (int iPixel = 0; iPixel < offlineBitmap.Width; iPixel++)
+							for (int xAxis = 0; xAxis < width; xAxis++)
 							{
 								// determine start and end points within waveform (for this single pixel on the X axis)
-								int start 	= (int)((float)(iPixel) 		* samplesPerPixel);
-								int end 	= (int)((float)(iPixel + 1) 	* samplesPerPixel);
+								int start 	= (int)((float)(xAxis) 		* samplesPerPixel);
+								int end 	= (int)((float)(xAxis + 1) 	* samplesPerPixel);
 								
 								float min = float.MaxValue;
 								float max = float.MinValue;
@@ -226,9 +241,36 @@ namespace CommonUtils.GUI
 									min = val < min ? val : min;
 									max = val > max ? val : max;
 								}
+								
 								int yMax = height - (int)((max + 1) * .5 * height);
 								int yMin = height - (int)((min + 1) * .5 * height);
-								g.DrawLine(linePen, iPixel, yMax, iPixel, yMin);
+								
+								// make sure that we draw something
+								if (yMin == yMax) {
+									yMin += 1;
+								}
+								yAxis = yMax;
+								
+								// If it's the first point
+								if ( firstPoint ) {
+									// Move to the point
+									xPrev = xAxis;
+									yPrev = yAxis;
+									
+									firstPoint = false;
+								} else {
+									if (pixelsPerSeconds > 7500) {
+										// For smaller resolution, Draw line from the previous point
+										g.DrawLine(linePen, xPrev, yPrev, xAxis, yAxis);
+									} else {
+										// use yMax and yMin
+										g.DrawLine(linePen, xAxis, yMax, xAxis, yMin);
+									}
+									
+									// store values to next iteration
+									xPrev = xAxis;
+									yPrev = yAxis;
+								}
 							}
 						} else {
 							// the number of samples are less than the available drawing space

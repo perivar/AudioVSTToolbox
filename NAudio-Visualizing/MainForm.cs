@@ -26,7 +26,6 @@ namespace NAudio_Visualizing
 			soundEngine.PropertyChanged += NAudioEngine_PropertyChanged;
 			
 			customWaveViewer1.RegisterSoundPlayer(soundEngine);
-			//waveDisplayUserControl.RegisterSoundPlayer(soundEngine);
 		}
 		
 		#region NAudio Engine Events
