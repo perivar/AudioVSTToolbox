@@ -1195,7 +1195,11 @@ namespace CommonUtils.FFT
 							yMax = TOP + HEIGHT - (int)((max * amplitude + 1) * 0.5 * HEIGHT);
 							yMin = TOP + HEIGHT - (int)((min * amplitude + 1) * 0.5 * HEIGHT);
 
-							// make sure that we draw something
+							// limit within the drawing space
+							if (yMax < 0) yMax = 0;
+							if (yMin > HEIGHT) yMin = HEIGHT;
+							
+							// make sure that we always draw something
 							if (yMin == yMax) {
 								yMin += 1;
 							}

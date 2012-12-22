@@ -647,6 +647,27 @@ namespace CommonUtils
 		}
 
 		/// <summary>
+		/// Return next power of two
+		/// </summary>
+		/// <param name="x">value</param>
+		/// <returns>next power of two</returns>
+		public static int NextPow2(int x)
+		{
+			x = Math.Abs(x);
+			if (x != 0)
+				x--;
+
+			int i = 0;
+			while (x != 0)
+			{
+				x = x >> 1;
+				i++;
+			}
+
+			return i;
+		}
+		
+		/// <summary>
 		/// Return previous power of two
 		/// </summary>
 		/// <param name="x">value</param>
@@ -903,5 +924,36 @@ namespace CommonUtils
 			return y0 + (y1 - y0) * fraction;
 		}
 		
+		/// <summary>
+		/// Limit integer between min and max
+		/// </summary>
+		/// <param name="value">int value</param>
+		/// <param name="min">minimum value</param>
+		/// <param name="max">maximum value</param>
+		public static int LimitInt(int value, int min, int max)
+		{
+			if (value < min)
+				value = min;
+			if (value > max)
+				value = max;
+			
+			return value;
+		}
+
+		/// <summary>
+		/// Limit float between min and max
+		/// </summary>
+		/// <param name="value">float value</param>
+		/// <param name="min">minimum value</param>
+		/// <param name="max">maximum value</param>
+		public static float LimitFloat(float value, float min, float max)
+		{
+			if (value < min)
+				value = min;
+			if (value > max)
+				value = max;
+			
+			return value;
+		}
 	}
 }

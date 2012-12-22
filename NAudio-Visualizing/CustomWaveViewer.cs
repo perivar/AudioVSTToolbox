@@ -27,10 +27,12 @@ namespace CommonUtils.GUI
 		private int startLoopSamplePosition = -1;
 		private int endLoopSamplePosition = -1;
 
-		private int startZoomSamplePosition = -1;
-		private int endZoomSamplePosition = -1;
-		private int previousStartZoomSamplePosition = -1;
+		private int startZoomSamplePosition = 0;
+		private int endZoomSamplePosition = 0;
+		private int previousStartZoomSamplePosition = 0;
 
+		private int amplitude = 1; // 1 = default amplitude
+		
 		private float samplesPerPixel = 128;
 		
 		private const int mouseMoveTolerance = 3;
@@ -47,16 +49,25 @@ namespace CommonUtils.GUI
 		
 		public void Zoom(int startZoomSamplePosition, int endZoomSamplePosition)
 		{
-			previousStartZoomSamplePosition = startZoomSamplePosition;
-			samplesPerPixel = (float) (endZoomSamplePosition - startZoomSamplePosition) / (float) this.Width;
+			if (soundPlayer != null && soundPlayer.WaveformData != null && soundPlayer.WaveformData.Length > 1)
+			{
+				// make sure the zoom start and zoom end is correct
+				if (startZoomSamplePosition < 0)
+					startZoomSamplePosition = 0;
+				if (endZoomSamplePosition > (soundPlayer.WaveformData.Length))
+					endZoomSamplePosition = soundPlayer.WaveformData.Length;
+				
+				previousStartZoomSamplePosition = startZoomSamplePosition;
+				samplesPerPixel = (float) (endZoomSamplePosition - startZoomSamplePosition) / (float) this.Width;
 
-			// remove select region after zooming
-			startSelectXPosition = -1;
-			endSelectXPosition = -1;
-			selectRegion.Width = 0;
-			selectRegion.Height = 0;
+				// remove select region after zooming
+				startSelectXPosition = -1;
+				endSelectXPosition = -1;
+				selectRegion.Width = 0;
+				selectRegion.Height = 0;
 
-			UpdateWaveform();
+				UpdateWaveform();
+			}
 		}
 		
 		public void FitToScreen()
@@ -76,6 +87,9 @@ namespace CommonUtils.GUI
 			endSelectXPosition = -1;
 			selectRegion.Width = 0;
 			selectRegion.Height = 0;
+			
+			// reset amplitude
+			amplitude = 1;
 			
 			UpdateWaveform();
 		}
@@ -158,11 +172,9 @@ namespace CommonUtils.GUI
 			{
 				case "SelectionBegin":
 					startLoopSamplePosition = SecondsToSamplePosition(soundPlayer.SelectionBegin.TotalSeconds, soundPlayer.ChannelLength, soundPlayer.WaveformData.Length);
-					//UpdateLoopRegion();
 					break;
 				case "SelectionEnd":
 					endLoopSamplePosition = SecondsToSamplePosition(soundPlayer.SelectionEnd.TotalSeconds, soundPlayer.ChannelLength, soundPlayer.WaveformData.Length);
-					//UpdateLoopRegion();
 					break;
 				case "WaveformData":
 					FitToScreen();
@@ -173,7 +185,6 @@ namespace CommonUtils.GUI
 				case "ChannelLength":
 					startLoopSamplePosition = -1;
 					endLoopSamplePosition = -1;
-					//UpdateAllRegions();
 					break;
 			}
 		}
@@ -199,7 +210,7 @@ namespace CommonUtils.GUI
 					samplesPerPixel = (float) totalNumberOfSamples / (float) this.Width;
 				}
 				
-				this.offlineBitmap = AudioAnalyzer.DrawWaveform(data, new Size(this.Width, this.Height), 0, 1, 0, sampleRate, true);
+				this.offlineBitmap = AudioAnalyzer.DrawWaveform(data, new Size(this.Width, this.Height), 0, amplitude, 0, sampleRate, true);
 				this.Invalidate();
 				return;
 				
@@ -245,6 +256,10 @@ namespace CommonUtils.GUI
 								int yMax = height - (int)((max + 1) * .5 * height);
 								int yMin = height - (int)((min + 1) * .5 * height);
 								
+								// limit
+								if (yMax < 0) yMax = 0;
+								if (yMin > height) yMin = height;
+
 								// make sure that we draw something
 								if (yMin == yMax) {
 									yMin += 1;
@@ -333,9 +348,117 @@ namespace CommonUtils.GUI
 			this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseDown);
 			this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseMove);
 			this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseUp);
+			this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseWheel);
 			this.ResumeLayout(false);
 		}
 		#endregion
+		
+		void CustomWaveViewerMouseWheel(object sender, MouseEventArgs e)
+		{
+			// most of the mouse wheel zoom logic is taken from BlueberryThing Source
+			int range;
+			int midpoint;
+			int delta;
+			int oldstartZoomSamplePosition;
+			int oldendZoomSamplePosition;
+			int newstartZoomSamplePosition;
+			int newendZoomSamplePosition;
+			float hitpointFraction;
+			
+			oldstartZoomSamplePosition = startZoomSamplePosition;
+			oldendZoomSamplePosition = endZoomSamplePosition;
+			
+			range = endZoomSamplePosition - startZoomSamplePosition;
+			
+			// Scroll the display left/right
+			if ((Control.ModifierKeys & Keys.Control) == Keys.Control) {
+				delta = range / 8;
+				
+				// If scrolling right (forward in time on the waveform)
+				if (e.Delta > 0)
+				{
+					delta = MathUtils.LimitInt(delta, 0, (soundPlayer.WaveformData.Length) - endZoomSamplePosition);
+					newstartZoomSamplePosition = startZoomSamplePosition + delta;
+					newendZoomSamplePosition = endZoomSamplePosition + delta;
+				}
+				
+				// If scrolling left (backward in time on the waveform)
+				else
+				{
+					delta = MathUtils.LimitInt(delta, 0, startZoomSamplePosition);
+					newstartZoomSamplePosition = startZoomSamplePosition - delta;
+					newendZoomSamplePosition = endZoomSamplePosition - delta;
+				}
+			}
+
+			// change the amplitude up or down
+			else if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift) {
+				delta = range / 8;
+				
+				// If right (increase the amplitude)
+				if (e.Delta > 0)
+				{
+					amplitude*=2;
+				}
+				
+				// If left (decrease the amplitude)
+				else
+				{
+					amplitude/=2;
+					if (amplitude < 1) amplitude = 1;
+				}
+				
+				UpdateWaveform();
+				return;
+			}
+			
+			// Zoom the display in/out
+			else
+			{
+				midpoint = startZoomSamplePosition + (range / 2);
+				hitpointFraction = (float)e.X / (float)this.Width;
+				if (hitpointFraction < 0.0f)
+					hitpointFraction = 0.0f;
+				if (hitpointFraction > 1.0f)
+					hitpointFraction = 1.0f;
+				
+				if (e.Delta > 0)
+				{
+					// Zoom in
+					delta = range / 4;
+					newstartZoomSamplePosition = (int) (startZoomSamplePosition + (delta * hitpointFraction));
+					newendZoomSamplePosition = (int) (endZoomSamplePosition - (delta * (1.0 - hitpointFraction)));
+					
+				}
+				else
+				{
+					// Zoom out
+					delta = range / 3; // must use a higher delta than zoom in to make sure we can zoom out again
+					newstartZoomSamplePosition = (int) (startZoomSamplePosition - (delta * hitpointFraction));
+					newendZoomSamplePosition = (int) (endZoomSamplePosition + (delta * (1.0 - hitpointFraction)));
+				}
+				
+				// Limit the view
+				if (newstartZoomSamplePosition < 0)
+					newstartZoomSamplePosition = 0;
+				if (newstartZoomSamplePosition > midpoint)
+					newstartZoomSamplePosition = midpoint;
+				if (newendZoomSamplePosition < midpoint)
+					newendZoomSamplePosition = midpoint;
+				if (newendZoomSamplePosition > (soundPlayer.WaveformData.Length))
+					newendZoomSamplePosition = soundPlayer.WaveformData.Length;
+			}
+			
+			startZoomSamplePosition = newstartZoomSamplePosition;
+			endZoomSamplePosition = newendZoomSamplePosition;
+			
+			// If there a change in the view, then refresh the display
+			if ((startZoomSamplePosition != oldstartZoomSamplePosition)
+			    || (endZoomSamplePosition != oldendZoomSamplePosition))
+			{
+				Zoom(startZoomSamplePosition, endZoomSamplePosition);
+			}
+		}
 		
 		void CustomWaveViewerMouseDown(object sender, MouseEventArgs e)
 		{
