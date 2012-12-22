@@ -198,6 +198,10 @@ namespace CommonUtils.GUI
 			
 			if (soundPlayer.WaveformData != null && soundPlayer.WaveformData.Length > 1)
 			{
+				this.offlineBitmap = AudioAnalyzer.DrawWaveform2(soundPlayer.WaveformData, new Size(this.Width, this.Height), amplitude, startZoomSamplePosition, endZoomSamplePosition, sampleRate, true);
+				this.Invalidate();
+				return;
+				
 				int totalNumberOfSamples = soundPlayer.WaveformData.Length;
 
 				// crop to the zoom area
@@ -209,10 +213,6 @@ namespace CommonUtils.GUI
 					data = soundPlayer.WaveformData;
 					samplesPerPixel = (float) totalNumberOfSamples / (float) this.Width;
 				}
-				
-				this.offlineBitmap = AudioAnalyzer.DrawWaveform(data, new Size(this.Width, this.Height), 0, amplitude, 0, sampleRate, true);
-				this.Invalidate();
-				return;
 				
 				if (this.offlineBitmap == null) this.offlineBitmap = new Bitmap( this.Width, this.Height, PixelFormat.Format32bppArgb );
 				int height = offlineBitmap.Height;
