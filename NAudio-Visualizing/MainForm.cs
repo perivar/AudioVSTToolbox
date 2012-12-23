@@ -93,5 +93,16 @@ namespace NAudio_Visualizing
 			NAudioEngine.Instance.Dispose();
 			base.Dispose();
 		}
+		
+		void MainFormKeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.KeyCode == Keys.Space) {
+				if (NAudioEngine.Instance.IsPlaying) {
+					BtnPauseClick(null, EventArgs.Empty);
+				} else {
+					BtnPlayClick(null, EventArgs.Empty);
+				}
+			}
+		}
 	}
 }

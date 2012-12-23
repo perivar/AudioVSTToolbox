@@ -102,9 +102,9 @@ namespace NAudio_Visualizing
 			// 
 			// customWaveViewer1
 			// 
-			this.customWaveViewer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			                                                                       | System.Windows.Forms.AnchorStyles.Left)
-			                                                                      | System.Windows.Forms.AnchorStyles.Right)));
+			this.customWaveViewer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+									| System.Windows.Forms.AnchorStyles.Left) 
+									| System.Windows.Forms.AnchorStyles.Right)));
 			this.customWaveViewer1.AutoSize = true;
 			this.customWaveViewer1.Location = new System.Drawing.Point(12, 38);
 			this.customWaveViewer1.Name = "customWaveViewer1";
@@ -123,8 +123,10 @@ namespace NAudio_Visualizing
 			this.Controls.Add(this.btnPlay);
 			this.Controls.Add(this.txtFilePath);
 			this.Controls.Add(this.btnBrowse);
+			this.KeyPreview = true;
 			this.Name = "MainForm";
 			this.Text = "NAudio-Visualizing";
+			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainFormKeyDown);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}

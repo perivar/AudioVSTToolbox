@@ -193,128 +193,10 @@ namespace CommonUtils.GUI
 		{
 			if (soundPlayer == null || soundPlayer.WaveformData == null)
 				return;
-
-			double sampleRate = 44100;
 			
 			if (soundPlayer.WaveformData != null && soundPlayer.WaveformData.Length > 1)
 			{
-				this.offlineBitmap = AudioAnalyzer.DrawWaveform2(soundPlayer.WaveformData, new Size(this.Width, this.Height), amplitude, startZoomSamplePosition, endZoomSamplePosition, sampleRate, true);
-				this.Invalidate();
-				return;
-				
-				int totalNumberOfSamples = soundPlayer.WaveformData.Length;
-
-				// crop to the zoom area
-				float[] data;
-				if (endZoomSamplePosition != 0) {
-					data = new float[endZoomSamplePosition-startZoomSamplePosition];
-					Array.Copy(soundPlayer.WaveformData, startZoomSamplePosition, data, 0, endZoomSamplePosition-startZoomSamplePosition);
-				} else {
-					data = soundPlayer.WaveformData;
-					samplesPerPixel = (float) totalNumberOfSamples / (float) this.Width;
-				}
-				
-				if (this.offlineBitmap == null) this.offlineBitmap = new Bitmap( this.Width, this.Height, PixelFormat.Format32bppArgb );
-				int height = offlineBitmap.Height;
-				int width = offlineBitmap.Width;
-				
-				//double durationSeconds = (samplesPerPixel * this.Width / sampleRate);
-				//double pixelsPerSeconds = this.Width / durationSeconds; 	// Pixels / Second
-				double pixelsPerSeconds = sampleRate / samplesPerPixel;
-
-				Color sampleColor = ColorTranslator.FromHtml("#4C2F1A");
-				Color fillColor = ColorTranslator.FromHtml("#F9C998");
-				using (Pen linePen = new Pen(sampleColor, 1))
-				{
-					using (Graphics g = Graphics.FromImage(offlineBitmap))
-					{
-						g.Clear(fillColor);
-						
-						if (samplesPerPixel >= 1) {
-							
-							float xPrev = 0;
-							float yPrev = 0;
-							float yAxis = 0;
-							bool firstPoint = true;
-							
-							// the number of samples are greater than the available drawing space (i.e. greater than the number of pixles in the X-Axis)
-							for (int xAxis = 0; xAxis < width; xAxis++)
-							{
-								// determine start and end points within waveform (for this single pixel on the X axis)
-								int start 	= (int)((float)(xAxis) 		* samplesPerPixel);
-								int end 	= (int)((float)(xAxis + 1) 	* samplesPerPixel);
-								
-								float min = float.MaxValue;
-								float max = float.MinValue;
-								for (int i = start; i < end; i++)
-								{
-									float val = data[i];
-									min = val < min ? val : min;
-									max = val > max ? val : max;
-								}
-								
-								int yMax = height - (int)((max + 1) * .5 * height);
-								int yMin = height - (int)((min + 1) * .5 * height);
-								
-								// limit
-								if (yMax < 0) yMax = 0;
-								if (yMin > height) yMin = height;
-
-								// make sure that we draw something
-								if (yMin == yMax) {
-									yMin += 1;
-								}
-								yAxis = yMax;
-								
-								// If it's the first point
-								if ( firstPoint ) {
-									// Move to the point
-									xPrev = xAxis;
-									yPrev = yAxis;
-									
-									firstPoint = false;
-								} else {
-									if (pixelsPerSeconds > 7500) {
-										// For smaller resolution, Draw line from the previous point
-										g.DrawLine(linePen, xPrev, yPrev, xAxis, yAxis);
-									} else {
-										// use yMax and yMin
-										g.DrawLine(linePen, xAxis, yMax, xAxis, yMin);
-									}
-									
-									// store values to next iteration
-									xPrev = xAxis;
-									yPrev = yAxis;
-								}
-							}
-						} else {
-							// the number of samples are less than the available drawing space
-							// (i.e. less than the number of pixles in the X-Axis)
-							float x, y = 0;
-							int samples = data.Length;
-							if (samples > 1) {
-								// at least two samples
-								float mult_x = (float) width / (data.Length - 1);
-								List<Point> ps = new List<Point>();
-								for (int i = 0; i < data.Length; i++)
-								{
-									x = (i * mult_x);
-									y = height - (int)((data[i] + 1) * 0.5 * height);
-									Point p = new Point((int)x, (int)y);
-									ps.Add(p);
-								}
-
-								if (ps.Count > 0)
-								{
-									g.DrawLines(linePen, ps.ToArray());
-								}
-							} else {
-								// we have only one sample, draw a flat line
-								g.DrawLine(linePen, 0, 0.5f * height, width, 0.5f * height);
-							}
-						}
-					}
-				}
+				this.offlineBitmap = AudioAnalyzer.DrawWaveform(soundPlayer.WaveformData, new Size(this.Width, this.Height), amplitude, startZoomSamplePosition, endZoomSamplePosition, soundPlayer.SampleRate, true);
 
 				// force redraw
 				this.Invalidate();
@@ -353,6 +235,47 @@ namespace CommonUtils.GUI
 		}
 		#endregion
 		
+		private void ScrollTime(bool doScrollRight) {
+
+			if (soundPlayer.WaveformData == null) return;
+
+			int range;
+			int delta;
+			int oldstartZoomSamplePosition;
+			int oldendZoomSamplePosition;
+			int newstartZoomSamplePosition;
+			int newendZoomSamplePosition;
+
+			oldstartZoomSamplePosition = startZoomSamplePosition;
+			oldendZoomSamplePosition = endZoomSamplePosition;
+			
+			range = endZoomSamplePosition - startZoomSamplePosition;
+			delta = range / 20;
+			
+			// If scrolling right (forward in time on the waveform)
+			if (doScrollRight) {
+				delta = MathUtils.LimitInt(delta, 0, (soundPlayer.WaveformData.Length) - endZoomSamplePosition);
+				newstartZoomSamplePosition = startZoomSamplePosition + delta;
+				newendZoomSamplePosition = endZoomSamplePosition + delta;
+			} else {
+				// If scrolling left (backward in time on the waveform)
+				delta = MathUtils.LimitInt(delta, 0, startZoomSamplePosition);
+				newstartZoomSamplePosition = startZoomSamplePosition - delta;
+				newendZoomSamplePosition = endZoomSamplePosition - delta;
+			}
+			
+			startZoomSamplePosition = newstartZoomSamplePosition;
+			endZoomSamplePosition = newendZoomSamplePosition;
+			
+			// If there a change in the view, then refresh the display
+			if ((startZoomSamplePosition != oldstartZoomSamplePosition)
+			    || (endZoomSamplePosition != oldendZoomSamplePosition))
+			{
+				Zoom(startZoomSamplePosition, endZoomSamplePosition);
+			}
+		}
+
+		#region MouseAndKeyEvents
 		void CustomWaveViewerMouseWheel(object sender, MouseEventArgs e)
 		{
 			// most of the mouse wheel zoom logic is taken from BlueberryThing Source
@@ -372,7 +295,7 @@ namespace CommonUtils.GUI
 			
 			// Scroll the display left/right
 			if ((Control.ModifierKeys & Keys.Control) == Keys.Control) {
-				delta = range / 8;
+				delta = range / 20;
 				
 				// If scrolling right (forward in time on the waveform)
 				if (e.Delta > 0)
@@ -393,12 +316,15 @@ namespace CommonUtils.GUI
 
 			// change the amplitude up or down
 			else if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift) {
-				delta = range / 8;
 				
 				// If right (increase the amplitude)
 				if (e.Delta > 0)
 				{
-					amplitude*=2;
+					// increase the amplitude
+					if (amplitude * 2 < 5000) {
+						amplitude*=2;
+						UpdateWaveform();
+					}
 				}
 				
 				// If left (decrease the amplitude)
@@ -555,26 +481,86 @@ namespace CommonUtils.GUI
 			}
 		}
 		
+		/// <summary>Keys which can generate OnKeyDown event.</summary>
+		private static readonly Keys[] InputKeys = new []
+		{ Keys.Left, Keys.Up, Keys.Right, Keys.Down, Keys.Oemcomma, Keys.Home };
+
+		protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
+		{
+			if(Array.IndexOf<Keys>(InputKeys, e.KeyCode) != -1)
+			{
+				e.IsInputKey = true;
+			}
+			base.OnPreviewKeyDown(e);
+		}
+
+		protected override void OnKeyDown(KeyEventArgs e)
+		{
+			base.OnKeyDown(e);
+			
+			if (e.KeyCode == Keys.Up) {
+				// increase the amplitude
+				if (amplitude * 2 < 5000) {
+					amplitude*=2;
+					UpdateWaveform();
+				}
+			} else if (e.KeyCode == Keys.Down) {
+				// decrease the amplitude
+				amplitude/=2;
+				if (amplitude < 1) amplitude = 1;
+				UpdateWaveform();
+			} else if (e.KeyCode == Keys.Right) {
+				//MessageBox.Show("KeyDown: " + e.KeyCode);
+				ScrollTime(true);
+			} else if (e.KeyCode == Keys.Left) {
+				//MessageBox.Show("KeyDown: " + e.KeyCode);
+				ScrollTime(false);
+			} else if (e.KeyCode == Keys.Oemcomma || e.KeyCode == Keys.Home) {
+				soundPlayer.ChannelPosition = 0;
+				FitToScreen();
+			}
+		}
+		#endregion
+		
+		/// <summary>
+		/// Convert a sample position to a time in seconds
+		/// </summary>
+		/// <param name="samplePosition">sample position</param>
+		/// <param name="totalSamples">total number of samples</param>
+		/// <param name="totalDurationSeconds">total duration in seconds</param>
+		/// <returns>Time in seconds</returns>
 		private static double SamplePositionToSeconds(int samplePosition, int totalSamples, double totalDurationSeconds) {
 			double positionPercent = (double) samplePosition / (double) totalSamples;
 			double position = (totalDurationSeconds * positionPercent);
 			return Math.Min(totalDurationSeconds, Math.Max(0, position));
 		}
 
+		/// <summary>
+		/// Convert a time in seconds to sample position
+		/// </summary>
+		/// <param name="channelPositionSeconds">time in seconds</param>
+		/// <param name="totalDurationSeconds">total duration in seconds</param>
+		/// <param name="totalSamples">total number of samples</param>
+		/// <returns>Sample position</returns>
 		private static int SecondsToSamplePosition(double channelPositionSeconds, double totalDurationSeconds, int totalSamples) {
 			double progressPercent = channelPositionSeconds / totalDurationSeconds;
 			int position = (int) (totalSamples * progressPercent);
 			return Math.Min(totalSamples, Math.Max(0, position));
 		}
 		
-		private bool PointInLoopRegion(int curSamplePosition) {
+		/// <summary>
+		/// Check if a given sample position is within the current set loop
+		/// </summary>
+		/// <param name="samplePosition">sample position to check</param>
+		/// <returns>boolean that tells if the given sample position is within the current selection (loop)</returns>
+		private bool PointInLoopRegion(int samplePosition) {
 			if (soundPlayer.ChannelLength == 0)
 				return false;
 
 			double loopStartSamples = (soundPlayer.SelectionBegin.TotalSeconds / soundPlayer.ChannelLength) * soundPlayer.WaveformData.Length;
 			double loopEndSamples = (soundPlayer.SelectionEnd.TotalSeconds / soundPlayer.ChannelLength) * soundPlayer.WaveformData.Length;
 			
-			return (curSamplePosition >= loopStartSamples && curSamplePosition < loopEndSamples);
+			return (samplePosition >= loopStartSamples && samplePosition < loopEndSamples);
 		}
 		
 		private void UpdateSelectRegion()

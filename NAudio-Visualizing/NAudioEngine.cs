@@ -20,7 +20,6 @@ namespace NAudio_Visualizing
 	{
 		#region Fields
 		private static NAudioEngine instance;
-		//private readonly DispatcherTimer positionTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle);
 		private readonly Timer positionTimer = new Timer();
 		private readonly BackgroundWorker waveformGenerateWorker = new BackgroundWorker();
 		private readonly int fftDataSize = (int)FFTDataSize.FFT8192;
@@ -286,10 +285,10 @@ namespace NAudio_Visualizing
 			}
 			if (activeStream != null)
 			{
-				inputStream.Close();
-				inputStream = null;
-				ActiveStream.Close();
-				ActiveStream = null;
+				activeStream.Close();
+				activeStream = null;
+				//inputStream.Close();
+				//inputStream = null;
 			}
 			if (waveOutDevice != null)
 			{
@@ -437,7 +436,6 @@ namespace NAudio_Visualizing
 			}
 		}
 
-
 		public bool IsPlaying
 		{
 			get { return isPlaying; }
@@ -450,6 +448,15 @@ namespace NAudio_Visualizing
 				
 				//positionTimer.IsEnabled = value;
 				positionTimer.Enabled = value;
+			}
+		}
+		
+		public int SampleRate {
+			get {
+				if (ActiveStream != null)
+					return ActiveStream.WaveFormat.SampleRate;
+				else
+					return 44100; // Assume a default 44.1 kHz sample rate.
 			}
 		}
 		#endregion
