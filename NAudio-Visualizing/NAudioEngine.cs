@@ -1,4 +1,5 @@
 ﻿// (c) Copyright Jacob Johnston.
+// Modified by perivar@nerseth.com
 // This source is subject to Microsoft Public License (Ms-PL).
 // Please see http://go.microsoft.com/fwlink/?LinkID=131993 for details.
 // All other rights reserved.
@@ -18,11 +19,13 @@ namespace NAudio_Visualizing
 {
 	class NAudioEngine : INotifyPropertyChanged, IDisposable, IWaveformPlayer, ISpectrumPlayer
 	{
+		#region Enums
 		public enum StereoProcessingType {
 			CHANNEL_STEREO_LEFT = 1,
 			CHANNEL_STEREO_RIGHT = 2,
 			CHANNEL_MONOMIX = 3
 		}
+		#endregion
 		
 		#region Fields
 		private static NAudioEngine instance;
@@ -111,10 +114,12 @@ namespace NAudio_Visualizing
 		public int GetFFTFrequencyIndex(int frequency)
 		{
 			double maxFrequency;
-			if (ActiveStream != null)
+			if (ActiveStream != null) {
 				maxFrequency = ActiveStream.WaveFormat.SampleRate / 2.0d;
-			else
+			} else {
 				maxFrequency = 22050; // Assume a default 44.1 kHz sample rate.
+			}
+			
 			return (int)((frequency / maxFrequency) * (fftDataSize / 2));
 		}
 		#endregion

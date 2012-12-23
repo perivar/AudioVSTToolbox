@@ -262,10 +262,11 @@ namespace NAudio_Visualizing
 			bandWidth = Math.Max(((double)(maximumFrequencyIndex - minimumFrequencyIndex)) / this.Width, 1.0);
 
 			int actualBarCount;
-			if (barWidth >= 1.0d)
+			if (barWidth >= 1.0d) {
 				actualBarCount = BarCount;
-			else
+			} else {
 				actualBarCount = Math.Max((int)((this.Width - BarSpacing) / (barWidth + BarSpacing)), 1);
+			}
 			channelPeakData = new float[actualBarCount];
 
 			int indexCount = maximumFrequencyIndex - minimumFrequencyIndex;
@@ -297,18 +298,16 @@ namespace NAudio_Visualizing
 				double xCoord = BarSpacing + (barWidth * i) + (BarSpacing * i) + 1;
 				Rectangle barRectangle = new Rectangle()
 				{
-					//Margin = new Thickness(xCoord, height, 0, 0),
 					X = (int) xCoord,
-					//Y = (int) height,
+					Y = (int) height,
 					Width = (int) barWidth,
 					Height = 0,
 				};
 				barShapes.Add(barRectangle);
 				Rectangle peakRectangle = new Rectangle()
 				{
-					//Margin = new Thickness(xCoord, height - peakDotHeight, 0, 0),
 					X = (int) xCoord,
-					//Y = (int) (height - peakDotHeight),
+					Y = (int) (height - peakDotHeight),
 					Width = (int) barWidth,
 					Height = (int) peakDotHeight,
 				};
@@ -336,6 +335,5 @@ namespace NAudio_Visualizing
 			UpdateSpectrum();
 		}
 		#endregion
-		
 	}
 }
