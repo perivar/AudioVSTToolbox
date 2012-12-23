@@ -51,8 +51,8 @@ namespace NAudio_Visualizing
 		private int[] barLogScaleIndexMax;
 		
 		private BarHeightScalingStyles BarHeightScaling = BarHeightScalingStyles.Decibel;
-		private bool IsFrequencyScaleLinear = true;
-		private bool AveragePeaks = true;
+		private bool IsFrequencyScaleLinear = false;
+		private bool AveragePeaks = false;
 		private int PeakFallDelay = 10;
 		private double BarSpacing = 5.0d;
 		private int BarCount = 32;

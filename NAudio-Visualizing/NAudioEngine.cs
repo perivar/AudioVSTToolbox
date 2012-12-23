@@ -282,7 +282,8 @@ namespace NAudio_Visualizing
 							for (int i = 0; i < samples.Length; i+=2) {
 								float left = samples[i];
 								float right = samples[i+1];
-								floatList.Add((left+right/2));
+								// Make stored channel data stereo by averaging left and right values.
+								floatList.Add(( (left + right) / 2.0f));
 							}
 							break;
 					}
