@@ -16,13 +16,19 @@ using CommonUtils.Audio;
 
 namespace NAudio_Visualizing
 {
-	class NAudioEngine : INotifyPropertyChanged, IDisposable, IWaveformPlayer // ISpectrumPlayer,
+	class NAudioEngine : INotifyPropertyChanged, IDisposable, IWaveformPlayer, ISpectrumPlayer
 	{
+		public enum StereoProcessingType {
+			CHANNEL_STEREO_LEFT = 1,
+			CHANNEL_STEREO_RIGHT = 2,
+			CHANNEL_MONOMIX = 3
+		}
+		
 		#region Fields
 		private static NAudioEngine instance;
 		private readonly Timer positionTimer = new Timer();
 		private readonly BackgroundWorker waveformGenerateWorker = new BackgroundWorker();
-		private readonly int fftDataSize = (int)FFTDataSize.FFT8192;
+		private readonly int fftDataSize = (int)FFTDataSize.FFT2048; //.FFT8192;
 		private bool disposed;
 		private bool canPlay;
 		private bool canPause;
@@ -43,6 +49,7 @@ namespace NAudio_Visualizing
 		private TimeSpan repeatStart;
 		private TimeSpan repeatStop;
 		private bool inRepeatSet;
+		private StereoProcessingType stereoProcessing = StereoProcessingType.CHANNEL_MONOMIX;
 		#endregion
 
 		#region Constants
@@ -252,11 +259,34 @@ namespace NAudio_Visualizing
 			List<float> floatList = new List<float>();
 			while(sampleProvider.Read(samples, 0, samples.Length) > 0)
 			{
-				// only keep every 2nd sample (mono)
-				for (int i = 0; i < samples.Length; i+=2) {
-					floatList.Add(samples[i]);
+				if (waveformInputStream.WaveFormat.Channels == 1) {
+					floatList.AddRange(samples);
+				} else if (waveformInputStream.WaveFormat.Channels == 2) {
+					switch(stereoProcessing) {
+						case StereoProcessingType.CHANNEL_STEREO_LEFT:
+							for (int i = 0; i < samples.Length; i+=2) {
+								float left = samples[i];
+								float right = samples[i+1];
+								floatList.Add(left);
+							}
+							break;
+						case StereoProcessingType.CHANNEL_STEREO_RIGHT:
+							for (int i = 0; i < samples.Length; i+=2) {
+								float left = samples[i];
+								float right = samples[i+1];
+								floatList.Add(right);
+							}
+							break;
+						case StereoProcessingType.CHANNEL_MONOMIX:
+						default:
+							for (int i = 0; i < samples.Length; i+=2) {
+								float left = samples[i];
+								float right = samples[i+1];
+								floatList.Add((left+right/2));
+							}
+							break;
+					}
 				}
-				//floatList.AddRange(samples);
 
 				if (waveformGenerateWorker.CancellationPending)
 				{
@@ -457,6 +487,15 @@ namespace NAudio_Visualizing
 					return ActiveStream.WaveFormat.SampleRate;
 				else
 					return 44100; // Assume a default 44.1 kHz sample rate.
+			}
+		}
+		
+		public StereoProcessingType StereoProcessing {
+			set {
+				stereoProcessing = value;
+			}
+			get {
+				return stereoProcessing;
 			}
 		}
 		#endregion

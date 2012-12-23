@@ -44,9 +44,56 @@ namespace CommonUtils.GUI
 		private Rectangle selectRegion = new Rectangle();
 		private int startSelectXPosition = -1;
 		private int endSelectXPosition = -1;
-
 		#endregion
 		
+		#region Event Overrides
+		protected override void OnResize(EventArgs e)
+		{
+			base.OnResize(e);
+			FitToScreen();
+		}
+		
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
+		}
+		
+		/// <summary>
+		/// <see cref="Control.OnPaint"/>
+		/// </summary>
+		protected override void OnPaint(PaintEventArgs e)
+		{
+			if (offlineBitmap != null) {
+				e.Graphics.DrawImage(offlineBitmap, 0, 0);
+			}
+			
+			// draw marker
+			using (Pen markerPen = new Pen(Color.Black, 1))
+			{
+				// what samples are we showing?
+				if (progressSample >= startZoomSamplePosition && progressSample <= endZoomSamplePosition) {
+					double xLocation = (progressSample - startZoomSamplePosition) / samplesPerPixel;
+					e.Graphics.DrawLine(markerPen, (float) xLocation, 0, (float) xLocation, Height);
+				}
+			}
+			
+			// draw select region
+			using (Pen loopPen = new Pen(Color.Red, 2))
+			{
+				if (selectRegion.Height > 0 && selectRegion.Width > 0)  {
+					e.Graphics.DrawRectangle(loopPen, startSelectXPosition, 0, selectRegion.Width, selectRegion.Height);
+				}
+			}
+			
+			// Calling the base class OnPaint
+			base.OnPaint(e);
+		}
+		#endregion
+		
+		#region Zoom Methods
 		public void Zoom(int startZoomSamplePosition, int endZoomSamplePosition)
 		{
 			if (soundPlayer != null && soundPlayer.WaveformData != null && soundPlayer.WaveformData.Length > 1)
@@ -93,13 +140,9 @@ namespace CommonUtils.GUI
 			
 			UpdateWaveform();
 		}
+		#endregion
 		
-		protected override void OnResize(EventArgs e)
-		{
-			base.OnResize(e);
-			FitToScreen();
-		}
-
+		#region Constructors
 		/// <summary>
 		/// Creates a new WaveViewer control
 		/// </summary>
@@ -113,45 +156,7 @@ namespace CommonUtils.GUI
 			InitializeComponent();
 			this.DoubleBuffered = true;
 		}
-
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose(bool disposing)
-		{
-			base.Dispose(disposing);
-		}
-
-		/// <summary>
-		/// <see cref="Control.OnPaint"/>
-		/// </summary>
-		protected override void OnPaint(PaintEventArgs e)
-		{
-			if (offlineBitmap != null) {
-				e.Graphics.DrawImage(offlineBitmap, 0, 0);
-			}
-			
-			// draw marker
-			using (Pen markerPen = new Pen(Color.Black, 1))
-			{
-				// what samples are we showing?
-				if (progressSample >= startZoomSamplePosition && progressSample <= endZoomSamplePosition) {
-					double xLocation = (progressSample - startZoomSamplePosition) / samplesPerPixel;
-					e.Graphics.DrawLine(markerPen, (float) xLocation, 0, (float) xLocation, Height);
-				}
-			}
-			
-			// draw select region
-			using (Pen loopPen = new Pen(Color.Red, 2))
-			{
-				if (selectRegion.Height > 0 && selectRegion.Width > 0)  {
-					e.Graphics.DrawRectangle(loopPen, startSelectXPosition, 0, selectRegion.Width, selectRegion.Height);
-				}
-			}
-			
-			// Calling the base class OnPaint
-			base.OnPaint(e);
-		}
+		#endregion
 
 		#region Public Methods
 		/// <summary>
@@ -165,30 +170,8 @@ namespace CommonUtils.GUI
 			soundPlayer.PropertyChanged += soundPlayer_PropertyChanged;
 		}
 		#endregion
-
-		private void soundPlayer_PropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			switch (e.PropertyName)
-			{
-				case "SelectionBegin":
-					startLoopSamplePosition = SecondsToSamplePosition(soundPlayer.SelectionBegin.TotalSeconds, soundPlayer.ChannelLength, soundPlayer.WaveformData.Length);
-					break;
-				case "SelectionEnd":
-					endLoopSamplePosition = SecondsToSamplePosition(soundPlayer.SelectionEnd.TotalSeconds, soundPlayer.ChannelLength, soundPlayer.WaveformData.Length);
-					break;
-				case "WaveformData":
-					FitToScreen();
-					break;
-				case "ChannelPosition":
-					UpdateProgressIndicator();
-					break;
-				case "ChannelLength":
-					startLoopSamplePosition = -1;
-					endLoopSamplePosition = -1;
-					break;
-			}
-		}
 		
+		#region Private Drawing Methods
 		private void UpdateWaveform()
 		{
 			if (soundPlayer == null || soundPlayer.WaveformData == null)
@@ -214,6 +197,7 @@ namespace CommonUtils.GUI
 				this.Invalidate();
 			}
 		}
+		#endregion
 
 		#region Component Designer generated code
 		/// <summary>
@@ -235,46 +219,6 @@ namespace CommonUtils.GUI
 		}
 		#endregion
 		
-		private void ScrollTime(bool doScrollRight) {
-
-			if (soundPlayer.WaveformData == null) return;
-
-			int range;
-			int delta;
-			int oldstartZoomSamplePosition;
-			int oldendZoomSamplePosition;
-			int newstartZoomSamplePosition;
-			int newendZoomSamplePosition;
-
-			oldstartZoomSamplePosition = startZoomSamplePosition;
-			oldendZoomSamplePosition = endZoomSamplePosition;
-			
-			range = endZoomSamplePosition - startZoomSamplePosition;
-			delta = range / 20;
-			
-			// If scrolling right (forward in time on the waveform)
-			if (doScrollRight) {
-				delta = MathUtils.LimitInt(delta, 0, (soundPlayer.WaveformData.Length) - endZoomSamplePosition);
-				newstartZoomSamplePosition = startZoomSamplePosition + delta;
-				newendZoomSamplePosition = endZoomSamplePosition + delta;
-			} else {
-				// If scrolling left (backward in time on the waveform)
-				delta = MathUtils.LimitInt(delta, 0, startZoomSamplePosition);
-				newstartZoomSamplePosition = startZoomSamplePosition - delta;
-				newendZoomSamplePosition = endZoomSamplePosition - delta;
-			}
-			
-			startZoomSamplePosition = newstartZoomSamplePosition;
-			endZoomSamplePosition = newendZoomSamplePosition;
-			
-			// If there a change in the view, then refresh the display
-			if ((startZoomSamplePosition != oldstartZoomSamplePosition)
-			    || (endZoomSamplePosition != oldendZoomSamplePosition))
-			{
-				Zoom(startZoomSamplePosition, endZoomSamplePosition);
-			}
-		}
-
 		#region MouseAndKeyEvents
 		void CustomWaveViewerMouseWheel(object sender, MouseEventArgs e)
 		{
@@ -483,7 +427,7 @@ namespace CommonUtils.GUI
 		
 		/// <summary>Keys which can generate OnKeyDown event.</summary>
 		private static readonly Keys[] InputKeys = new []
-		{ Keys.Left, Keys.Up, Keys.Right, Keys.Down, Keys.Oemcomma, Keys.Home };
+		{ Keys.Left, Keys.Up, Keys.Right, Keys.Down, Keys.Oemcomma, Keys.Home, Keys.OemPeriod, Keys.End };
 
 		protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
 		{
@@ -518,10 +462,14 @@ namespace CommonUtils.GUI
 			} else if (e.KeyCode == Keys.Oemcomma || e.KeyCode == Keys.Home) {
 				soundPlayer.ChannelPosition = 0;
 				FitToScreen();
+			} else if (e.KeyCode == Keys.OemPeriod || e.KeyCode == Keys.End) {
+				soundPlayer.ChannelPosition = soundPlayer.ChannelLength;
+				FitToScreen();
 			}
 		}
 		#endregion
 		
+		#region Private Static Util Methods
 		/// <summary>
 		/// Convert a sample position to a time in seconds
 		/// </summary>
@@ -547,7 +495,9 @@ namespace CommonUtils.GUI
 			int position = (int) (totalSamples * progressPercent);
 			return Math.Min(totalSamples, Math.Max(0, position));
 		}
+		#endregion
 		
+		#region Private Methods
 		/// <summary>
 		/// Check if a given sample position is within the current set loop
 		/// </summary>
@@ -563,6 +513,46 @@ namespace CommonUtils.GUI
 			return (samplePosition >= loopStartSamples && samplePosition < loopEndSamples);
 		}
 		
+		private void ScrollTime(bool doScrollRight) {
+
+			if (soundPlayer.WaveformData == null) return;
+
+			int range;
+			int delta;
+			int oldstartZoomSamplePosition;
+			int oldendZoomSamplePosition;
+			int newstartZoomSamplePosition;
+			int newendZoomSamplePosition;
+
+			oldstartZoomSamplePosition = startZoomSamplePosition;
+			oldendZoomSamplePosition = endZoomSamplePosition;
+			
+			range = endZoomSamplePosition - startZoomSamplePosition;
+			delta = range / 20;
+			
+			// If scrolling right (forward in time on the waveform)
+			if (doScrollRight) {
+				delta = MathUtils.LimitInt(delta, 0, (soundPlayer.WaveformData.Length) - endZoomSamplePosition);
+				newstartZoomSamplePosition = startZoomSamplePosition + delta;
+				newendZoomSamplePosition = endZoomSamplePosition + delta;
+			} else {
+				// If scrolling left (backward in time on the waveform)
+				delta = MathUtils.LimitInt(delta, 0, startZoomSamplePosition);
+				newstartZoomSamplePosition = startZoomSamplePosition - delta;
+				newendZoomSamplePosition = endZoomSamplePosition - delta;
+			}
+			
+			startZoomSamplePosition = newstartZoomSamplePosition;
+			endZoomSamplePosition = newendZoomSamplePosition;
+			
+			// If there a change in the view, then refresh the display
+			if ((startZoomSamplePosition != oldstartZoomSamplePosition)
+			    || (endZoomSamplePosition != oldendZoomSamplePosition))
+			{
+				Zoom(startZoomSamplePosition, endZoomSamplePosition);
+			}
+		}
+		
 		private void UpdateSelectRegion()
 		{
 			selectRegion.Width = endSelectXPosition - startSelectXPosition;
@@ -571,5 +561,31 @@ namespace CommonUtils.GUI
 			// force redraw
 			this.Invalidate();
 		}
+		#endregion
+
+		#region Event Handlers
+		private void soundPlayer_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			switch (e.PropertyName)
+			{
+				case "SelectionBegin":
+					startLoopSamplePosition = SecondsToSamplePosition(soundPlayer.SelectionBegin.TotalSeconds, soundPlayer.ChannelLength, soundPlayer.WaveformData.Length);
+					break;
+				case "SelectionEnd":
+					endLoopSamplePosition = SecondsToSamplePosition(soundPlayer.SelectionEnd.TotalSeconds, soundPlayer.ChannelLength, soundPlayer.WaveformData.Length);
+					break;
+				case "WaveformData":
+					FitToScreen();
+					break;
+				case "ChannelPosition":
+					UpdateProgressIndicator();
+					break;
+				case "ChannelLength":
+					startLoopSamplePosition = -1;
+					endLoopSamplePosition = -1;
+					break;
+			}
+		}
+		#endregion
 	}
 }

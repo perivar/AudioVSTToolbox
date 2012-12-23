@@ -89,9 +89,14 @@
     <Compile Include="..\CommonUtils\MidiUtils.cs">
       <Link>Common\MidiUtils.cs</Link>
     </Compile>
+    <Compile Include="CustomSpectrumAnalyzer.cs" />
+    <Compile Include="CustomSpectrumAnalyzer.Designer.cs">
+      <DependentUpon>CustomSpectrumAnalyzer.cs</DependentUpon>
+    </Compile>
     <Compile Include="CustomWaveViewer.cs" />
     <Compile Include="FFTDataSize.cs" />
     <Compile Include="ISoundPlayer.cs" />
+    <Compile Include="ISpectrumPlayer.cs" />
     <Compile Include="IWaveformPlayer.cs" />
     <Compile Include="MainForm.cs" />
     <Compile Include="MainForm.Designer.cs">
@@ -102,6 +107,9 @@
     <Compile Include="SampleAggregator.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="CustomSpectrumAnalyzer.resx">
+      <DependentUpon>CustomSpectrumAnalyzer.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="CustomWaveViewer.resx">
       <DependentUpon>CustomWaveViewer.cs</DependentUpon>
     </EmbeddedResource>

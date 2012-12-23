@@ -10,7 +10,8 @@ using CommonUtils;
 namespace CommonUtils.FFT
 {
 	/// <summary>
-	/// Description of FFTUtils.
+	/// AudioAnalyzer Class. Contains methods for generating waveforms, spectrum graphs and spectrograms
+	/// perivar@nerseth.com
 	/// </summary>
 	public static class AudioAnalyzer
 	{
@@ -117,6 +118,17 @@ namespace CommonUtils.FFT
 			return sumFreq;
 		}
 		
+		/// <summary>
+		/// Generate a spectrogram array spaced logirithmically
+		/// </summary>
+		/// <param name="samples">audio data</param>
+		/// <param name="sampleRate">sample rate</param>
+		/// <param name="fftWindowsSize">fft window size</param>
+		/// <param name="fftOverlap">overlap</param>
+		/// <param name="logBins">number of log bins along the frequency axis</param>
+		/// <param name="logFrequenciesIndex">array of log frequency indexes</param>
+		/// <param name="logFrequencies">array of log frequencies</param>
+		/// <returns>log spectrogram jagged array</returns>
 		public static float[][] CreateLogSpectrogramLomont(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap, int logBins, int[] logFrequenciesIndex, float[] logFrequencies)
 		{
 			LomontFFT fft = new LomontFFT();
@@ -155,6 +167,14 @@ namespace CommonUtils.FFT
 			return frames;
 		}
 
+		/// <summary>
+		/// Generate a spectrogram array spaced linearily
+		/// </summary>
+		/// <param name="samples">audio data</param>
+		/// <param name="sampleRate">sample rate</param>
+		/// <param name="fftWindowsSize">fft window size</param>
+		/// <param name="fftOverlap">overlap</param>
+		/// <returns>spectrogram jagged array</returns>
 		public static float[][] CreateSpectrogramLomont(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
 		{
 			LomontFFT fft = new LomontFFT();
@@ -208,6 +228,14 @@ namespace CommonUtils.FFT
 			return frames;
 		}
 		
+		/// <summary>
+		/// Generate a spectrogram array spaced linearily
+		/// </summary>
+		/// <param name="samples">audio data</param>
+		/// <param name="sampleRate">sample rate</param>
+		/// <param name="fftWindowsSize">fft window size</param>
+		/// <param name="fftOverlap">overlap</param>
+		/// <returns>spectrogram jagged array</returns>
 		public static float[][] CreateSpectrogramExocortex(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
 		{
 			// overlap must be an integer smaller than the window size
@@ -261,6 +289,14 @@ namespace CommonUtils.FFT
 			return frames;
 		}
 		
+		/// <summary>
+		/// Generate a spectrum graph array spaced linearily
+		/// </summary>
+		/// <param name="samples">audio data</param>
+		/// <param name="sampleRate">sample rate</param>
+		/// <param name="fftWindowsSize">fft window size</param>
+		/// <param name="fftOverlap">overlap</param>
+		/// <returns>spectrum graph array</returns>
 		public static float[] CreateSpectrumAnalysisLomont(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
 		{
 			LomontFFT fft = new LomontFFT();
@@ -303,6 +339,14 @@ namespace CommonUtils.FFT
 			return band;
 		}
 		
+		/// <summary>
+		/// Generate a spectrum graph array spaced linearily
+		/// </summary>
+		/// <param name="samples">audio data</param>
+		/// <param name="sampleRate">sample rate</param>
+		/// <param name="fftWindowsSize">fft window size</param>
+		/// <param name="fftOverlap">overlap</param>
+		/// <returns>spectrum graph array</returns>
 		public static float[] CreateSpectrumAnalysisExocortex(float[] samples, double sampleRate, int fftWindowsSize, int fftOverlap)
 		{
 			// find the time
@@ -344,7 +388,7 @@ namespace CommonUtils.FFT
 		}
 		
 		/// <summary>
-		/// Utility method to return a spectrum image based on audio data
+		/// Utility method to return a spectrum graph image based on audio data
 		/// </summary>
 		/// <param name="audioData"></param>
 		/// <param name="width"></param>
@@ -352,7 +396,7 @@ namespace CommonUtils.FFT
 		/// <param name="sampleRate"></param>
 		/// <param name="fftWindowsSize"></param>
 		/// <param name="fftOverlap"></param>
-		/// <returns></returns>
+		/// <returns>Spectrum graph image</returns>
 		public static Bitmap GetSpectrumImage(float[] audioData, int width, int height, double sampleRate, int fftWindowsSize, int fftOverlap, float minFrequency, float maxFrequency) {
 
 			float[] mag;
@@ -364,6 +408,17 @@ namespace CommonUtils.FFT
 			return spectrum;
 		}
 
+		/// <summary>
+		/// Prepare the spectrum graph by extracting the amplitude as decibel and the frequencies as herz
+		/// </summary>
+		/// <param name="spectrumData">spectrum data</param>
+		/// <param name="sampleRate">sample rate</param>
+		/// <param name="fftWindowsSize">fft windows size</param>
+		/// <param name="fftOverlap">fft overlap</param>
+		/// <param name="m_mag">output the magnitude array as decibel</param>
+		/// <param name="m_freq">output the frequency array as herz</param>
+		/// <param name="foundMaxFrequency">output the max frequency found</param>
+		/// <param name="foundMaxDecibel">output the max frequency decibel found</param>
 		public static void PrepareSpectrumAnalysis(float[] spectrumData, double sampleRate, int fftWindowsSize, int fftOverlap,
 		                                           out float[] m_mag, out float[] m_freq,
 		                                           out float foundMaxFrequency, out float foundMaxDecibel) {
@@ -403,24 +458,21 @@ namespace CommonUtils.FFT
 			foundMaxFrequency = MathUtils.IndexToFreq(maxIndex, spectrumDataLength, sampleRate, fftWindowsSize);
 		}
 		
-		/**
-		 * Draw a graph of the spectrum
-		 *
-		 * Released under the MIT License
-		 *
-		 * Copyright (c) 2010 Gerald T. Beauregard
-		 * Ported to C# and heavily modifified by Per Ivar Nerseth, 2012
-		 *
-		 * Permission is hereby granted, free of charge, to any person obtaining a copy
-		 * of this software and associated documentation files (the "Software"), to
-		 * deal in the Software without restriction, including without limitation the
-		 * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-		 * sell copies of the Software, and to permit persons to whom the Software is
-		 * furnished to do so, subject to the following conditions:
-		 *
-		 * The above copyright notice and this permission notice shall be included in
-		 * all copies or substantial portions of the Software.
-		 */
+		/// <summary>
+		/// Get a spectrum of the signal specified at the input
+		/// </summary>
+		/// <param name="mag">array of magnitude values as decibel</param>
+		/// <param name="freq">array of frequency values as herz</param>
+		/// <param name="imageSize">Size of image</param>
+		/// <param name="minFrequency">minimum frequency to show</param>
+		/// <param name="maxFrequency">maximum frequency to show</param>
+		/// <param name="foundMaxDecibel">if specified output max decibel text</param>
+		/// <param name="foundMaxFrequency">if specified output max frequency text</param>
+		/// <returns>Spectral image of the signal</returns>
+		/// <remarks>This code is based on the code by Gerald T. Beauregard
+		/// which was released under the MIT License. (Copyright (c) 2010 Gerald T. Beauregard)
+		/// The code were ported to C# and heavily modifified by Per Ivar Nerseth, 2012
+		/// </remarks>
 		public static Bitmap GetSpectrumImage(ref float[] mag, ref float[] freq,
 		                                      Size imageSize,
 		                                      float minFrequency = 0, float maxFrequency = 20000,
@@ -622,9 +674,8 @@ namespace CommonUtils.FFT
 			}
 		}
 		
-		
 		/// <summary>
-		/// Utility method to return spectrogramimage using audio data
+		/// Utility method to return spectrogram image using audio data
 		/// </summary>
 		/// <param name="audioData"></param>
 		/// <param name="width"></param>
@@ -634,7 +685,7 @@ namespace CommonUtils.FFT
 		/// <param name="fftOverlap"></param>
 		/// <param name="colorPalette"></param>
 		/// <param name="doLogScale"></param>
-		/// <returns></returns>
+		/// <returns>Spectrogram image</returns>
 		public static Bitmap GetSpectrogramImage(float[] audioData, int width, int height, double sampleRate, int fftWindowsSize, int fftOverlap, ColorUtils.ColorPaletteType colorPalette, bool doLogScale)
 		{
 			float[][] spectrogram;
@@ -1301,7 +1352,7 @@ namespace CommonUtils.FFT
 		}
 
 		/// <summary>
-		/// Draw a waveform
+		/// Draw a waveform using start and end zoom sample position
 		/// </summary>
 		/// <param name="audioData">The audio data (mono)</param>
 		/// <param name="imageSize">Size of the image</param>
@@ -1669,6 +1720,14 @@ namespace CommonUtils.FFT
 			return png;
 		}
 		
+		/// <summary>
+		/// Calculate averages on data using start and end index
+		/// </summary>
+		/// <param name="data">float array with data</param>
+		/// <param name="startIndex">start index</param>
+		/// <param name="endIndex">end index</param>
+		/// <param name="posAvg">output positive average</param>
+		/// <param name="negAvg">output negative average</param>
 		private static void averages(float[] data, int startIndex, int endIndex, out float posAvg, out float negAvg)
 		{
 			posAvg = 0.0f;

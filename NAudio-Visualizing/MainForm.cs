@@ -26,6 +26,7 @@ namespace NAudio_Visualizing
 			soundEngine.PropertyChanged += NAudioEngine_PropertyChanged;
 			
 			customWaveViewer1.RegisterSoundPlayer(soundEngine);
+			customSpectrumAnalyzer1.RegisterSoundPlayer(soundEngine);
 		}
 		
 		#region NAudio Engine Events
