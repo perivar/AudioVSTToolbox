@@ -496,6 +496,12 @@ namespace NAudio_Visualizing
 			}
 		}
 		
+		public int FftDataSize {
+			get {
+				return fftDataSize;
+			}
+		}
+		
 		public StereoProcessingType StereoProcessing {
 			set {
 				stereoProcessing = value;

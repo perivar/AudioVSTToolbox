@@ -37,6 +37,7 @@ namespace NAudio_Visualizing
 		#region Fields
 		private readonly Timer animationTimer;
 		private ISpectrumPlayer soundPlayer;
+		private Bitmap offlineBitmap;
 		private readonly List<Rectangle> barShapes = new List<Rectangle>();
 		private readonly List<Rectangle> peakShapes = new List<Rectangle>();
 		private float[] channelData = new float[8192]; // store FFT results here
@@ -58,6 +59,7 @@ namespace NAudio_Visualizing
 		public int MaximumFrequency = 20000;
 		public int MinimumFrequency = 20;
 		public double ActualBarWidth = 0.0d;
+		public bool doSpectrumGraph = true;
 		#endregion
 
 		#region Constants
@@ -109,25 +111,29 @@ namespace NAudio_Visualizing
 		#region Event Overrides
 		protected override void OnPaint(PaintEventArgs e)
 		{
-			Color lineColor = ColorTranslator.FromHtml("#C7834C");
-			Color middleLineColor = ColorTranslator.FromHtml("#EFAB74");
-			Color textColor = ColorTranslator.FromHtml("#A9652E");
-			Color sampleColor = ColorTranslator.FromHtml("#4C2F1A");
-			Color fillOuterColor = ColorTranslator.FromHtml("#FFFFFF");
-			Color fillColor = ColorTranslator.FromHtml("#F9C998");
-			
-			if (barShapes.Count > 0 && peakShapes.Count > 0) {
-				Pen linePen = new Pen(lineColor, 0.5f);
-				Brush fillBrush = new SolidBrush(fillColor);
-				Brush sampleBrush = new SolidBrush(sampleColor);
-				e.Graphics.FillRectangle(fillBrush, 0, 0, this.Width, this.Height);
-				e.Graphics.DrawRectangle(linePen, 0, 0, this.Width - 1, this.Height - 1);
+			if (doSpectrumGraph) {
+				if (offlineBitmap != null) {
+					e.Graphics.DrawImage(offlineBitmap, 0, 0);
+				}
+			} else {
+				Color lineColor = ColorTranslator.FromHtml("#C7834C");
+				Color middleLineColor = ColorTranslator.FromHtml("#EFAB74");
+				Color textColor = ColorTranslator.FromHtml("#A9652E");
+				Color sampleColor = ColorTranslator.FromHtml("#4C2F1A");
+				Color fillOuterColor = ColorTranslator.FromHtml("#FFFFFF");
+				Color fillColor = ColorTranslator.FromHtml("#F9C998");
+				
+				if (barShapes.Count > 0 && peakShapes.Count > 0) {
+					Pen linePen = new Pen(lineColor, 0.5f);
+					Brush fillBrush = new SolidBrush(fillColor);
+					Brush sampleBrush = new SolidBrush(sampleColor);
+					e.Graphics.FillRectangle(fillBrush, 0, 0, this.Width, this.Height);
+					e.Graphics.DrawRectangle(linePen, 0, 0, this.Width - 1, this.Height - 1);
 
-				//e.Graphics.FillRectangles(Brushes.CadetBlue, barShapes.ToArray());
-				e.Graphics.FillRectangles(sampleBrush, barShapes.ToArray());
-				e.Graphics.FillRectangles(Brushes.DeepSkyBlue, peakShapes.ToArray());
+					e.Graphics.FillRectangles(sampleBrush, barShapes.ToArray());
+					e.Graphics.FillRectangles(Brushes.DeepSkyBlue, peakShapes.ToArray());
+				}
 			}
-			
 			// Calling the base class OnPaint
 			base.OnPaint(e);
 		}
@@ -159,82 +165,91 @@ namespace NAudio_Visualizing
 		/// </summary>
 		private void UpdateSpectrumShapes()
 		{
-			//return;
 			bool allZero = true;
-			double fftBucketHeight = 0f;
-			double barHeight = 0f;
-			double lastPeakHeight = 0f;
-			double peakYPos = 0f;
-			double height = this.Height;
-			int barIndex = 0;
-			double peakDotHeight = Math.Max(barWidth / 2.0f, 1);
-			double barHeightScale = (height - peakDotHeight);
+			if (doSpectrumGraph) {
+				float[] mag;
+				float[] freq;
+				float foundMaxFreq, foundMaxDecibel;
+				double sampleRate = soundPlayer.SampleRate;
+				int fftWindowsSize = soundPlayer.FftDataSize;
+				CommonUtils.FFT.AudioAnalyzer.PrepareSpectrumAnalysis(channelData, sampleRate, fftWindowsSize, out mag, out freq, out foundMaxFreq, out foundMaxDecibel);
+				this.offlineBitmap = CommonUtils.FFT.AudioAnalyzer.GetSpectrumImage(ref mag, ref freq, new Size(this.Width, this.Height), MinimumFrequency, MaximumFrequency, foundMaxDecibel, foundMaxFreq);
+			} else {
+				double fftBucketHeight = 0f;
+				double barHeight = 0f;
+				double lastPeakHeight = 0f;
+				double peakYPos = 0f;
+				double height = this.Height;
+				int barIndex = 0;
+				double peakDotHeight = Math.Max(barWidth / 2.0f, 1);
+				double barHeightScale = (height - peakDotHeight);
 
-			for (int i = minimumFrequencyIndex; i <= maximumFrequencyIndex; i++)
-			{
-				// If we're paused, keep drawing, but set the current height to 0 so the peaks fall.
-				if (!soundPlayer.IsPlaying)
+				for (int i = minimumFrequencyIndex; i <= maximumFrequencyIndex; i++)
 				{
-					barHeight = 0f;
-				}
-				else // Draw the maximum value for the bar's band
-				{
-					switch (BarHeightScaling)
+					// If we're paused, keep drawing, but set the current height to 0 so the peaks fall.
+					if (!soundPlayer.IsPlaying)
 					{
-						case BarHeightScalingStyles.Decibel:
-							double dbValue = 20 * Math.Log10((double)channelData[i]);
-							fftBucketHeight = ((dbValue - minDBValue) / dbScale) * barHeightScale;
-							break;
-						case BarHeightScalingStyles.Linear:
-							fftBucketHeight = (channelData[i] * scaleFactorLinear) * barHeightScale;
-							break;
-						case BarHeightScalingStyles.Sqrt:
-							fftBucketHeight = (((Math.Sqrt((double)channelData[i])) * scaleFactorSqr) * barHeightScale);
-							break;
-					}
-
-					if (barHeight < fftBucketHeight)
-						barHeight = fftBucketHeight;
-					if (barHeight < 0f)
 						barHeight = 0f;
-				}
+					}
+					else // Draw the maximum value for the bar's band
+					{
+						switch (BarHeightScaling)
+						{
+							case BarHeightScalingStyles.Decibel:
+								double dbValue = 20 * Math.Log10((double)channelData[i]);
+								fftBucketHeight = ((dbValue - minDBValue) / dbScale) * barHeightScale;
+								break;
+							case BarHeightScalingStyles.Linear:
+								fftBucketHeight = (channelData[i] * scaleFactorLinear) * barHeightScale;
+								break;
+							case BarHeightScalingStyles.Sqrt:
+								fftBucketHeight = (((Math.Sqrt((double)channelData[i])) * scaleFactorSqr) * barHeightScale);
+								break;
+						}
 
-				// If this is the last FFT bucket in the bar's group, draw the bar.
-				int currentIndexMax = IsFrequencyScaleLinear ? barIndexMax[barIndex] : barLogScaleIndexMax[barIndex];
-				if (i == currentIndexMax)
-				{
-					// Peaks can't surpass the height of the control.
-					if (barHeight > height)
-						barHeight = height;
-
-					if (AveragePeaks && barIndex > 0)
-						barHeight = (lastPeakHeight + barHeight) / 2;
-
-					peakYPos = barHeight;
-
-					if (channelPeakData[barIndex] < peakYPos) {
-						channelPeakData[barIndex] = (float)peakYPos;
-					} else {
-						channelPeakData[barIndex] = (float)(peakYPos + (PeakFallDelay * channelPeakData[barIndex])) / ((float)(PeakFallDelay + 1));
+						if (barHeight < fftBucketHeight)
+							barHeight = fftBucketHeight;
+						if (barHeight < 0f)
+							barHeight = 0f;
 					}
 
-					double xCoord = BarSpacing + (barWidth * barIndex) + (BarSpacing * barIndex) + 1;
+					// If this is the last FFT bucket in the bar's group, draw the bar.
+					int currentIndexMax = IsFrequencyScaleLinear ? barIndexMax[barIndex] : barLogScaleIndexMax[barIndex];
+					if (i == currentIndexMax)
+					{
+						// Peaks can't surpass the height of the control.
+						if (barHeight > height)
+							barHeight = height;
 
-					Rectangle barRect = barShapes[barIndex];
-					barRect.Y = (int)((height - 1) - barHeight);
-					barRect.Height = (int)barHeight;
-					barShapes[barIndex] = barRect;
-					
-					Rectangle peakRect = peakShapes[barIndex];
-					peakRect.Y = (int)((height - 1) - channelPeakData[barIndex] - peakDotHeight);
-					peakShapes[barIndex] = peakRect;
+						if (AveragePeaks && barIndex > 0)
+							barHeight = (lastPeakHeight + barHeight) / 2;
 
-					if (channelPeakData[barIndex] > 0.05)
-						allZero = false;
+						peakYPos = barHeight;
 
-					lastPeakHeight = barHeight;
-					barHeight = 0f;
-					barIndex++;
+						if (channelPeakData[barIndex] < peakYPos) {
+							channelPeakData[barIndex] = (float)peakYPos;
+						} else {
+							channelPeakData[barIndex] = (float)(peakYPos + (PeakFallDelay * channelPeakData[barIndex])) / ((float)(PeakFallDelay + 1));
+						}
+
+						double xCoord = BarSpacing + (barWidth * barIndex) + (BarSpacing * barIndex) + 1;
+
+						Rectangle barRect = barShapes[barIndex];
+						barRect.Y = (int)((height - 1) - barHeight);
+						barRect.Height = (int)barHeight;
+						barShapes[barIndex] = barRect;
+						
+						Rectangle peakRect = peakShapes[barIndex];
+						peakRect.Y = (int)((height - 1) - channelPeakData[barIndex] - peakDotHeight);
+						peakShapes[barIndex] = peakRect;
+
+						if (channelPeakData[barIndex] > 0.05)
+							allZero = false;
+
+						lastPeakHeight = barHeight;
+						barHeight = 0f;
+						barIndex++;
+					}
 				}
 			}
 
@@ -250,6 +265,11 @@ namespace NAudio_Visualizing
 			if (soundPlayer == null)
 				return;
 
+			if (doSpectrumGraph) {
+				UpdateSpectrumShapes();
+				return;
+			}
+			
 			barWidth = Math.Max(((double)(this.Width - (BarSpacing * (BarCount + 1))) / (double)BarCount), 1);
 			maximumFrequencyIndex = Math.Min(soundPlayer.GetFFTFrequencyIndex(MaximumFrequency) + 1, 8191);
 			minimumFrequencyIndex = Math.Min(soundPlayer.GetFFTFrequencyIndex(MinimumFrequency), 8191);

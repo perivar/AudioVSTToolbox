@@ -403,7 +403,7 @@ namespace CommonUtils.FFT
 			float[] freq;
 			float foundMaxFreq, foundMaxDecibel;
 			float[] spectrumData = AudioAnalyzer.CreateSpectrumAnalysisLomont(audioData, sampleRate, fftWindowsSize, fftOverlap);
-			AudioAnalyzer.PrepareSpectrumAnalysis(spectrumData, sampleRate, fftWindowsSize, fftOverlap, out mag, out freq, out foundMaxFreq, out foundMaxDecibel);
+			AudioAnalyzer.PrepareSpectrumAnalysis(spectrumData, sampleRate, fftWindowsSize, out mag, out freq, out foundMaxFreq, out foundMaxDecibel);
 			Bitmap spectrum = AudioAnalyzer.GetSpectrumImage(ref mag, ref freq, new Size(1200, 600), minFrequency, maxFrequency, foundMaxDecibel, foundMaxFreq);
 			return spectrum;
 		}
@@ -419,13 +419,11 @@ namespace CommonUtils.FFT
 		/// <param name="m_freq">output the frequency array as herz</param>
 		/// <param name="foundMaxFrequency">output the max frequency found</param>
 		/// <param name="foundMaxDecibel">output the max frequency decibel found</param>
-		public static void PrepareSpectrumAnalysis(float[] spectrumData, double sampleRate, int fftWindowsSize, int fftOverlap,
+		public static void PrepareSpectrumAnalysis(float[] spectrumData, double sampleRate, int fftWindowsSize,
 		                                           out float[] m_mag, out float[] m_freq,
 		                                           out float foundMaxFrequency, out float foundMaxDecibel) {
 
 			int spectrumDataLength = spectrumData.Length; // 1024 - half the fftWindowsSize (2048)
-			//int numberOfSamples = fftOverlap + fftWindowsSize;
-			//double seconds = MathUtils.ConvertToTime(sampleRate, numberOfSamples);
 
 			// prepare the data:
 			m_mag = new float[spectrumDataLength];
@@ -450,12 +448,12 @@ namespace CommonUtils.FFT
 				}
 
 				m_mag[i] = MathUtils.AmplitudeToDecibel(spectrumData[i]);
-				m_freq[i] = MathUtils.IndexToFreq(i, spectrumDataLength, sampleRate, fftWindowsSize);
+				m_freq[i] = (float) MathUtils.IndexToFreq(i, sampleRate, fftWindowsSize);
 			}
 			
 			// store the max findings
 			foundMaxDecibel = MathUtils.AmplitudeToDecibel(spectrumData[maxIndex]);
-			foundMaxFrequency = MathUtils.IndexToFreq(maxIndex, spectrumDataLength, sampleRate, fftWindowsSize);
+			foundMaxFrequency = (float) MathUtils.IndexToFreq(maxIndex, sampleRate, fftWindowsSize);
 		}
 		
 		/// <summary>

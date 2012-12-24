@@ -44,6 +44,11 @@ namespace CommonUtils.Audio
 		/// </summary>
 		/// <param name="frequency">The frequency for which to obtain a buffer index</param>
 		/// <returns>An index in the FFT data buffer</returns>
-		int GetFFTFrequencyIndex(int frequency);
+		int GetFFTFrequencyIndex(int frequency);	
+
+		/// <summary>
+		/// Return the FFt data size used
+		/// </summary>
+		int FftDataSize { get; }
 	}
 }
