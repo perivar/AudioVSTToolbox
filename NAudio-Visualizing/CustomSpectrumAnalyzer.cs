@@ -39,7 +39,7 @@ namespace NAudio_Visualizing
 		private ISpectrumPlayer soundPlayer;
 		private readonly List<Rectangle> barShapes = new List<Rectangle>();
 		private readonly List<Rectangle> peakShapes = new List<Rectangle>();
-		private float[] channelData = new float[8192];
+		private float[] channelData = new float[8192]; // store FFT results here
 		private float[] channelPeakData;
 		private double bandWidth = 1.0;
 		private double barWidth = 1;
@@ -212,10 +212,11 @@ namespace NAudio_Visualizing
 
 					peakYPos = barHeight;
 
-					if (channelPeakData[barIndex] < peakYPos)
+					if (channelPeakData[barIndex] < peakYPos) {
 						channelPeakData[barIndex] = (float)peakYPos;
-					else
+					} else {
 						channelPeakData[barIndex] = (float)(peakYPos + (PeakFallDelay * channelPeakData[barIndex])) / ((float)(PeakFallDelay + 1));
+					}
 
 					double xCoord = BarSpacing + (barWidth * barIndex) + (BarSpacing * barIndex) + 1;
 

@@ -113,14 +113,14 @@ namespace NAudio_Visualizing
 
 		public int GetFFTFrequencyIndex(int frequency)
 		{
-			double maxFrequency;
+			double sampleRate;
 			if (ActiveStream != null) {
-				maxFrequency = ActiveStream.WaveFormat.SampleRate / 2.0d;
+				sampleRate = ActiveStream.WaveFormat.SampleRate;
 			} else {
-				maxFrequency = 22050; // Assume a default 44.1 kHz sample rate.
+				sampleRate = 44100; // Assume a default 44.1 kHz sample rate.
 			}
 			
-			return (int)((frequency / maxFrequency) * (fftDataSize / 2));
+			return CommonUtils.MathUtils.FreqToIndex(frequency, sampleRate, fftDataSize);
 		}
 		#endregion
 
