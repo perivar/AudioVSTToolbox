@@ -1,12 +1,4 @@
-﻿/*
- * Created by SharpDevelop.
- * User: perivar.nerseth
- * Date: 23.12.2012
- * Time: 19:49
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-namespace NAudio_Visualizing
+﻿namespace NAudio_Visualizing
 {
 	partial class CustomSpectrumAnalyzer
 	{
@@ -40,8 +32,7 @@ namespace NAudio_Visualizing
 			// 
 			// CustomSpectrumAnalyzer
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
 			this.Name = "CustomSpectrumAnalyzer";
 			this.ResumeLayout(false);
 		}

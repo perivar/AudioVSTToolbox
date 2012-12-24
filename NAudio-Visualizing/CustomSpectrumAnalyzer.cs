@@ -39,26 +39,25 @@ namespace NAudio_Visualizing
 		private ISpectrumPlayer soundPlayer;
 		private readonly List<Rectangle> barShapes = new List<Rectangle>();
 		private readonly List<Rectangle> peakShapes = new List<Rectangle>();
-		private double[] barHeights;
-		private double[] peakHeights;
-		private float[] channelData = new float[2048];
+		private float[] channelData = new float[8192];
 		private float[] channelPeakData;
 		private double bandWidth = 1.0;
 		private double barWidth = 1;
-		private int maximumFrequencyIndex = 2047;
+		private int maximumFrequencyIndex = 8191; // one less than fftDataSize
 		private int minimumFrequencyIndex;
 		private int[] barIndexMax;
 		private int[] barLogScaleIndexMax;
 		
-		private BarHeightScalingStyles BarHeightScaling = BarHeightScalingStyles.Decibel;
-		private bool IsFrequencyScaleLinear = false;
-		private bool AveragePeaks = false;
-		private int PeakFallDelay = 10;
-		private double BarSpacing = 5.0d;
-		private int BarCount = 32;
-		private int MaximumFrequency = 20000;
-		private int MinimumFrequency = 20;
-		private double ActualBarWidth = 0.0d;
+		// Public fields
+		public BarHeightScalingStyles BarHeightScaling = BarHeightScalingStyles.Decibel;
+		public bool IsFrequencyScaleLinear = false;
+		public bool AveragePeaks = false;
+		public int PeakFallDelay = 10;
+		public double BarSpacing = 5.0d;
+		public int BarCount = 32;
+		public int MaximumFrequency = 20000;
+		public int MinimumFrequency = 20;
+		public double ActualBarWidth = 0.0d;
 		#endregion
 
 		#region Constants
@@ -220,19 +219,13 @@ namespace NAudio_Visualizing
 
 					double xCoord = BarSpacing + (barWidth * barIndex) + (BarSpacing * barIndex) + 1;
 
-					//barShapes[barIndex].Margin = new Thickness(xCoord, (height - 1) - barHeight, 0, 0);
-					//barShapes[barIndex].Height = barHeight;
 					Rectangle barRect = barShapes[barIndex];
-					//barRect.Height = (int)((height - 1) - barHeight); // (int)barHeight;
 					barRect.Y = (int)((height - 1) - barHeight);
 					barRect.Height = (int)barHeight;
 					barShapes[barIndex] = barRect;
 					
-					//peakShapes[barIndex].Margin = new Thickness(xCoord, (height - 1) - channelPeakData[barIndex] - peakDotHeight, 0, 0);
-					//peakShapes[barIndex].Height = peakDotHeight;
 					Rectangle peakRect = peakShapes[barIndex];
-					//peakRect.Height = (int)((height - 1) - channelPeakData[barIndex] - peakDotHeight); // (int)peakDotHeight;
-					peakRect.Y = (int)((height - 1) - channelPeakData[barIndex] - peakDotHeight); // (int)peakDotHeight;
+					peakRect.Y = (int)((height - 1) - channelPeakData[barIndex] - peakDotHeight);
 					peakShapes[barIndex] = peakRect;
 
 					if (channelPeakData[barIndex] > 0.05)
@@ -257,8 +250,8 @@ namespace NAudio_Visualizing
 				return;
 
 			barWidth = Math.Max(((double)(this.Width - (BarSpacing * (BarCount + 1))) / (double)BarCount), 1);
-			maximumFrequencyIndex = Math.Min(soundPlayer.GetFFTFrequencyIndex(MaximumFrequency) + 1, 2047);
-			minimumFrequencyIndex = Math.Min(soundPlayer.GetFFTFrequencyIndex(MinimumFrequency), 2047);
+			maximumFrequencyIndex = Math.Min(soundPlayer.GetFFTFrequencyIndex(MaximumFrequency) + 1, 8191);
+			minimumFrequencyIndex = Math.Min(soundPlayer.GetFFTFrequencyIndex(MinimumFrequency), 8191);
 			bandWidth = Math.Max(((double)(maximumFrequencyIndex - minimumFrequencyIndex)) / this.Width, 1.0);
 
 			int actualBarCount;
@@ -284,10 +277,7 @@ namespace NAudio_Visualizing
 			maxLogScaleIndexList.Add(maximumFrequencyIndex);
 			barIndexMax = maxIndexList.ToArray();
 			barLogScaleIndexMax = maxLogScaleIndexList.ToArray();
-
-			barHeights = new double[actualBarCount];
-			peakHeights = new double[actualBarCount];
-
+			
 			barShapes.Clear();
 			peakShapes.Clear();
 
