@@ -1381,7 +1381,7 @@ namespace CommonUtils.FFT
 			}
 			float MIN_AMPLITUDE = -1.0f / amplitude;
 			float MAX_AMPLITUDE = 1.0f / amplitude;
-			float AMPLITUDE_STEP = MAX_AMPLITUDE / 4;
+			float AMPLITUDE_STEP = MAX_AMPLITUDE / 5;
 			
 			string LABEL_X = "Time"; 					// Label for X axis
 			string LABEL_Y = "Amplitude";             	// Label for Y axis
@@ -1424,7 +1424,7 @@ namespace CommonUtils.FFT
 				// make sure the zoom start and zoom end is correct
 				if (startZoomSamplePosition < 0)
 					startZoomSamplePosition = 0;
-				if (endZoomSamplePosition > (audioData.Length))
+				if (endZoomSamplePosition > audioData.Length || endZoomSamplePosition < 0)
 					endZoomSamplePosition = audioData.Length;
 				
 				if (endZoomSamplePosition != 0) {

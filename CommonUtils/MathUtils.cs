@@ -161,6 +161,10 @@ namespace CommonUtils
 		{
 			return Math.Floor(number * Math.Pow(10, decimalPlaces)) / Math.Pow(10, decimalPlaces);
 		}
+		
+		public static double RoundDown(double number) {
+			return Math.Floor(number);
+		}
 		#endregion
 		
 		#region ComputeMinAndMax

@@ -252,9 +252,20 @@ namespace NAudio_Visualizing
 		private void waveformGenerateWorker_DoWork(object sender, DoWorkEventArgs e)
 		{
 			WaveformGenerationParams waveformParams = e.Argument as WaveformGenerationParams;
+
+			/*
+			float[] audio = CommonUtils.Audio.NAudio.AudioUtilsNAudio.ReadMonoFromFile(waveformParams.Path, 44100, 0, 0);
+			Dispatcher.CurrentDispatcher.Invoke(new Action(() =>
+			                                               {
+			                                               	WaveformData = audio;
+			                                               }));
+			return;
+			 */
+			
 			ISampleProvider sampleProvider = new AudioFileReader(waveformParams.Path);
 			WaveStream fileWaveStream = (WaveStream) sampleProvider;
 			WaveChannel32 waveformInputStream = new WaveChannel32(fileWaveStream);
+			waveformInputStream.PadWithZeroes = false;
 			waveformInputStream.Sample += waveStream_Sample;
 			
 			int frameLength = fftDataSize;

@@ -186,10 +186,13 @@ namespace CommonUtils.Audio.NAudio
 		/// <returns>WaveStream</returns>
 		public static WaveStream ResampleToWaveStream(string wavInFilePath, WaveFormat waveFormat) {
 
-			WaveStream sourceStream = CreateInputWaveStream(wavInFilePath);
+			//WaveStream sourceStream = CreateInputWaveStream(wavInFilePath);
+			WaveStream sourceStream = (WaveStream) new AudioFileReader(wavInFilePath);
 			
-			if (sourceStream.WaveFormat.Encoding != WaveFormatEncoding.Pcm)
-			{
+			if (sourceStream.WaveFormat.Encoding == WaveFormatEncoding.IeeeFloat) {
+				// TODO: if the source is IeeFloat, the CreatePcmSteeam and ConverstionStream fail!?
+				return sourceStream;
+			} else if (sourceStream.WaveFormat.Encoding != WaveFormatEncoding.Pcm) {
 				sourceStream = WaveFormatConversionStream.CreatePcmStream(sourceStream);
 				sourceStream = new BlockAlignReductionStream(sourceStream);
 			}
@@ -393,7 +396,7 @@ namespace CommonUtils.Audio.NAudio
 		/// <param name = "milliseconds">milliseconds to read</param>
 		/// <param name = "startmillisecond">Start millisecond</param>
 		/// <returns>Array of samples</returns>
-		public static float[] ReadMonoFromFile(string filename, int samplerate, int milliseconds, int startmillisecond, int channelToUse=1)
+		public static float[] ReadMonoFromFile(string filename, int samplerate, int milliseconds, int startmillisecond)
 		{
 			int totalmilliseconds = milliseconds <= 0 ? Int32.MaxValue : milliseconds + startmillisecond;
 			float[] data = null;
@@ -401,6 +404,7 @@ namespace CommonUtils.Audio.NAudio
 			// read as mono file
 			List<float> floatList = new List<float>();
 			WaveFormat waveFormat = new WaveFormat(samplerate, 1);
+			//WaveFormat waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(samplerate, 1);
 			SampleChannel sampleChannel = ResampleToSampleChannel(filename, waveFormat);
 			
 			int sampleCount = 0;
@@ -567,6 +571,130 @@ namespace CommonUtils.Audio.NAudio
 					}
 				}
 			}
+		}
+		
+		public static void GenerateAudioTestFile(int sampleRate, int secondsToSample, string filePath) {
+			
+			int totalNumberOfSamples = sampleRate * secondsToSample;
+			float[] audioData = new float[totalNumberOfSamples];
+			BasicOscillatorProvider basic = new BasicOscillatorProvider();
+
+			int length = (int) MathUtils.RoundDown(totalNumberOfSamples / 22);
+			int offset = 0;
+			int startFrequency = 110;
+
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-90);
+			basic.SetFrequency(startFrequency*1);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SINE);
+			offset += basic.Read(audioData, offset, length);
+
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-80);
+			basic.SetFrequency(startFrequency*2);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SAW);
+			offset += basic.Read(audioData, offset, length);
+			
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-70);
+			basic.SetFrequency(startFrequency*3);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SQUARE);
+			offset += basic.Read(audioData, offset, length);
+
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-60);
+			basic.SetFrequency(startFrequency*4);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.TRIANGLE);
+			offset += basic.Read(audioData, offset, length);
+			
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-50);
+			basic.SetFrequency(startFrequency*5);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SINE);
+			offset += basic.Read(audioData, offset, length);
+
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-40);
+			basic.SetFrequency(startFrequency*6);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SAW);
+			offset += basic.Read(audioData, offset, length);
+			
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-30);
+			basic.SetFrequency(startFrequency*7);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SQUARE);
+			offset += basic.Read(audioData, offset, length);
+
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-20);
+			basic.SetFrequency(startFrequency*8);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.TRIANGLE);
+			offset += basic.Read(audioData, offset, length);
+
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-10);
+			basic.SetFrequency(startFrequency*9);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SINE);
+			offset += basic.Read(audioData, offset, length);
+
+			basic.Amplitude = MathUtils.DecibelToAmplitude(0);
+			basic.SetFrequency(startFrequency*10);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SAW);
+			offset += basic.Read(audioData, offset, length);
+			
+			basic.Amplitude = MathUtils.DecibelToAmplitude(10);
+			basic.SetFrequency(startFrequency*11);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SQUARE);
+			offset += basic.Read(audioData, offset, length);
+
+			basic.Amplitude = MathUtils.DecibelToAmplitude(20);
+			basic.SetFrequency(startFrequency*12);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.TRIANGLE);
+			offset += basic.Read(audioData, offset, length);
+
+			// Down again
+			basic.Amplitude = 1.0f;
+			basic.SetFrequency(startFrequency*11);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SINE);
+			offset += basic.Read(audioData, offset, length);
+
+			basic.Amplitude = 0.9f;
+			basic.SetFrequency(startFrequency*10);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SAW);
+			offset += basic.Read(audioData, offset, length);
+			
+			basic.Amplitude = 0.8f;
+			basic.SetFrequency(startFrequency*9);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SQUARE);
+			offset += basic.Read(audioData, offset, length);
+
+			basic.Amplitude = 0.7f;
+			basic.SetFrequency(startFrequency*8);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.TRIANGLE);
+			offset += basic.Read(audioData, offset, length);
+
+			basic.Amplitude = 0.6f;
+			basic.SetFrequency(startFrequency*7);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SINE);
+			offset += basic.Read(audioData, offset, length);
+
+			basic.Amplitude = 0.5f;
+			basic.SetFrequency(startFrequency*6);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SAW);
+			offset += basic.Read(audioData, offset, length);
+			
+			basic.Amplitude = 0.4f;
+			basic.SetFrequency(startFrequency*5);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SQUARE);
+			offset += basic.Read(audioData, offset, length);
+
+			basic.Amplitude = 0.3f;
+			basic.SetFrequency(startFrequency*4);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.TRIANGLE);
+			offset += basic.Read(audioData, offset, length);
+
+			basic.Amplitude = 0.2f;
+			basic.SetFrequency(startFrequency*3);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SINE);
+			offset += basic.Read(audioData, offset, length);
+
+			basic.Amplitude = 0.1f;
+			basic.SetFrequency(startFrequency*2);
+			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SAW);
+			offset += basic.Read(audioData, offset, length);
+			
+			WriteIEEE32WaveFileMono(filePath, sampleRate, audioData);
 		}
 	}
 

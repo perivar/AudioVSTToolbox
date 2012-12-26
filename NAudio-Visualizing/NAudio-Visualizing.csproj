@@ -56,6 +56,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CommonUtils\Audio\NAudio\AudioUtilsNAudio.cs">
+      <Link>Common\AudioUtilsNAudio.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\ColorUtils.cs">
       <Link>Common\ColorUtils.cs</Link>
     </Compile>

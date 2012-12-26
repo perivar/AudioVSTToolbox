@@ -14,6 +14,8 @@ namespace NAudio_Visualizing
 		[STAThread]
 		private static void Main(string[] args)
 		{
+			//CommonUtils.Audio.NAudio.AudioUtilsNAudio.GenerateAudioTestFile(44100, 44, @"c:\audio-test.wav");
+			
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			Application.Run(new MainForm());
