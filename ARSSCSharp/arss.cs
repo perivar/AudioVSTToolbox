@@ -341,9 +341,17 @@ public static class GlobalMembersArss
 		              + "--bmsq-lut-size [integer]  Blackman Square kernel LUT size (default: 16000)\n"
 		              + "--pi [real]                pi (default: 3.1415926535897932)\n");
 	}
-
+	
 	public static void Main(string[] args)
 	{
+		float[] data = CommonUtils.Audio.NAudio.AudioUtilsNAudio.GenerateAudioTestData(44100, 5);
+		double[] doubleArray = MathUtils.FloatToDouble(data);
+		double[] doubleArrayPadded = MathUtils.PadZeros(doubleArray, MathUtils.NextPowerOfTwo(doubleArray.Length));
+		//CommonUtils.FFT.FFTTesting.TimeAll(doubleArrayPadded);
+		CommonUtils.FFT.FFTTesting.TestAll();
+		Console.ReadKey();
+		return;
+
 		/*
 		int _channels = 0;
 		int _samplecount = 0;

@@ -226,6 +226,60 @@ namespace CommonUtils.FFT
 			}
 		}
 		
+		public static void NAaudioFFTTestUsingDouble(string CSVFilePath=null, double[] audio_data=null, int testLoopCount=1) {
+			
+			if (audio_data == null) {
+				audio_data = GetSignalTestData();
+			}
+			
+			int binaryExponentitation = (int)Math.Log(audio_data.Length, 2);
+			NAudio.Dsp.Complex[] complexArray = new NAudio.Dsp.Complex[audio_data.Length];
+			for (int i = 0; i < audio_data.Length; i++) {
+				complexArray[i].X = (float) audio_data[i];
+				complexArray[i].Y = 0;
+			}
+			
+			// loop if neccesary - e.g. for performance test purposes
+			for (int i = 0; i < testLoopCount; i++) {
+				// perform the FFT
+				NAudio.Dsp.FastFourierTransform.FFT(true, binaryExponentitation, complexArray);
+			}
+			
+			// get the result
+			double[] spectrum_fft_real = new double[complexArray.Length];
+			double[] spectrum_fft_imag = new double[complexArray.Length];
+			double[] spectrum_fft_abs = new double[complexArray.Length];
+			
+			for (int i = 0; i < complexArray.Length; i++) {
+				float re  = complexArray[i].X;
+				float img = complexArray[i].Y;
+				spectrum_fft_real[i] = re;
+				spectrum_fft_imag[i] = img;
+				spectrum_fft_abs[i] = (float) Math.Sqrt(re*re + img*img);
+			}
+
+			// perform the inverse FFT (IFFT)
+			NAudio.Dsp.FastFourierTransform.FFT(false, binaryExponentitation, complexArray);
+
+			// get the result
+			double[] spectrum_inverse_real = new double[complexArray.Length];
+			double[] spectrum_inverse_imag = new double[complexArray.Length];
+			double[] spectrum_inverse_abs = new double[complexArray.Length];
+
+			for (int i = 0; i < complexArray.Length; i++) {
+				float re  = complexArray[i].X;
+				float img = complexArray[i].Y;
+				spectrum_inverse_real[i] = re;
+				spectrum_inverse_imag[i] = img;
+				spectrum_inverse_abs[i] = (float) Math.Sqrt(re*re + img*img);
+			}
+
+			
+			if (CSVFilePath!=null) {
+				CommonUtils.Export.exportCSV(CSVFilePath, audio_data, spectrum_fft_real, spectrum_fft_imag, spectrum_fft_abs, spectrum_inverse_real, spectrum_inverse_imag, spectrum_inverse_abs);
+			}
+		}
+		
 		public static void LomontFFTTestUsingDouble(string CSVFilePath=null, double[] audio_data=null, int testLoopCount=1) {
 			
 			if (audio_data == null) {
@@ -450,13 +504,65 @@ namespace CommonUtils.FFT
 			Console.Out.WriteLine("ExocortexFFTTestUsingFloats: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
 		}
 		
-		public static void TestAll(double[] audio_data) {
+		public static void TimeAll(double[] audio_data, int testLoopCount=1) {
+			
+			// Start the stopwatch
+			Stopwatch sw = Stopwatch.StartNew();
+			
+			sw.Restart();
+			CommonUtils.FFT.FFTTesting.FFTWTestUsingDouble(null, audio_data, testLoopCount);
+			sw.Stop();
+			Console.Out.WriteLine("FFTWTestUsingDouble: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
+
+			sw.Restart();
+			CommonUtils.FFT.FFTTesting.FFTWTestUsingDoubleFFTWLIB(null, audio_data, testLoopCount);
+			sw.Stop();
+			Console.Out.WriteLine("FFTWTestUsingDoubleFFTWLIB: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
+
+			sw.Restart();
+			CommonUtils.FFT.FFTTesting.FFTWTestUsingDoubleFFTWLIBR2R_INPLACE(null, audio_data, testLoopCount);
+			sw.Stop();
+			Console.Out.WriteLine("FFTWTestUsingDoubleFFTWLIBR2R_INPLACE: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
+
+			sw.Restart();
+			CommonUtils.FFT.FFTTesting.FFTWTestUsingDoubleFFTWLIBR2R(null, audio_data, testLoopCount);
+			sw.Stop();
+			Console.Out.WriteLine("FFTWTestUsingDoubleFFTWLIBR2R: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
+
+			sw.Restart();
+			CommonUtils.FFT.FFTTesting.LomontFFTTestUsingDouble(null, audio_data, testLoopCount);
+			sw.Stop();
+			Console.Out.WriteLine("LomontFFTTestUsingDouble: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
+			
+			sw.Restart();
+			CommonUtils.FFT.FFTTesting.NAaudioFFTTestUsingDouble(null, audio_data, testLoopCount);
+			sw.Stop();
+			Console.Out.WriteLine("NAaudioFFTTestUsingDouble: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
+			
+			sw.Restart();
+			CommonUtils.FFT.FFTTesting.ExocortexFFTTestUsingComplex(null, audio_data, testLoopCount);
+			sw.Stop();
+			Console.Out.WriteLine("ExocortexFFTTestUsingComplex: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
+
+			sw.Restart();
+			CommonUtils.FFT.FFTTesting.ExocortexFFTTestUsingComplexF(null, audio_data, testLoopCount);
+			sw.Stop();
+			Console.Out.WriteLine("ExocortexFFTTestUsingComplexF: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
+
+			sw.Restart();
+			CommonUtils.FFT.FFTTesting.ExocortexFFTTestUsingFloats(null, audio_data, testLoopCount);
+			sw.Stop();
+			Console.Out.WriteLine("ExocortexFFTTestUsingFloats: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
+		}
+		
+		public static void TestAll() {
 			CommonUtils.FFT.FFTTesting.OctaveFFTWOuput("OctaveFFTWOuput.csv");
 			CommonUtils.FFT.FFTTesting.FFTWTestUsingDouble("FFTWTestUsingDouble.csv");
 			CommonUtils.FFT.FFTTesting.FFTWTestUsingDoubleFFTWLIB("FFTWTestUsingDoubleFFTWLIB.csv");
 			CommonUtils.FFT.FFTTesting.FFTWTestUsingDoubleFFTWLIBR2R_INPLACE("FFTWTestUsingDoubleFFTWLIBR2R_INPLACE.csv");
 			CommonUtils.FFT.FFTTesting.FFTWTestUsingDoubleFFTWLIBR2R("FFTWTestUsingDoubleFFTWLIBR2R.csv");
 			CommonUtils.FFT.FFTTesting.LomontFFTTestUsingDouble("LomontFFTTestUsingDouble.csv");
+			CommonUtils.FFT.FFTTesting.NAaudioFFTTestUsingDouble("NAaudioFFTTestUsingDouble.csv");
 			CommonUtils.FFT.FFTTesting.ExocortexFFTTestUsingComplex("ExocortexFFTTestUsingComplex.csv");
 			CommonUtils.FFT.FFTTesting.ExocortexFFTTestUsingComplexF("ExocortexFFTTestUsingComplexF.csv");
 			CommonUtils.FFT.FFTTesting.ExocortexFFTTestUsingFloats("ExocortexFFTTestUsingFloats.csv");

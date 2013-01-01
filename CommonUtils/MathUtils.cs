@@ -932,5 +932,24 @@ namespace CommonUtils
 			
 			return value;
 		}
+		
+		/// <summary>
+		/// Pad array with zeros
+		/// </summary>
+		/// <param name="data">data array to be padded</param>
+		/// <param name="length">new length</param>
+		/// <returns>padded array</returns>
+		public static double[] PadZeros(double[] data, int length) {
+			double[] returnArray = new double[length];
+			
+			if (length < data.Length) {
+				// shorten?
+				Array.Copy(data, 0, returnArray, 0, length);
+			} else {
+				Array.Copy(data, 0, returnArray, 0, data.Length);
+			}
+			return returnArray;
+		}
+		
 	}
 }

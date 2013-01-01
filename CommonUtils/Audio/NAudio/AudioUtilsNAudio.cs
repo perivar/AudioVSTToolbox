@@ -573,7 +573,7 @@ namespace CommonUtils.Audio.NAudio
 			}
 		}
 		
-		public static void GenerateAudioTestFile(int sampleRate, int secondsToSample, string filePath) {
+		public static float[] GenerateAudioTestData(int sampleRate, int secondsToSample) {
 			
 			int totalNumberOfSamples = sampleRate * secondsToSample;
 			float[] audioData = new float[totalNumberOfSamples];
@@ -694,6 +694,12 @@ namespace CommonUtils.Audio.NAudio
 			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SAW);
 			offset += basic.Read(audioData, offset, length);
 			
+			return audioData;
+		}
+		
+		public static void GenerateAudioTestFile(int sampleRate, int secondsToSample, string filePath) {
+			
+			float[] audioData = GenerateAudioTestData(sampleRate, secondsToSample);
 			WriteIEEE32WaveFileMono(filePath, sampleRate, audioData);
 		}
 	}

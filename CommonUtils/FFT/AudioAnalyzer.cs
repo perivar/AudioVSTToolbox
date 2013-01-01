@@ -38,6 +38,7 @@ namespace CommonUtils.FFT
 		12800 - 20000 Hz
 		 */
 		
+		#region CreateLogSpectrogram
 		/// <summary>
 		/// Get logarithmically spaced indices
 		/// </summary>
@@ -119,7 +120,7 @@ namespace CommonUtils.FFT
 		}
 		
 		/// <summary>
-		/// Generate a spectrogram array spaced logirithmically
+		/// Generate a spectrogram array spaced logarithmically
 		/// </summary>
 		/// <param name="samples">audio data</param>
 		/// <param name="sampleRate">sample rate</param>
@@ -166,7 +167,9 @@ namespace CommonUtils.FFT
 			}
 			return frames;
 		}
+		#endregion
 
+		#region CreateSpectrogram
 		/// <summary>
 		/// Generate a spectrogram array spaced linearily
 		/// </summary>
@@ -288,7 +291,9 @@ namespace CommonUtils.FFT
 			
 			return frames;
 		}
+		#endregion
 		
+		#region CreateSpectrumAnalysis
 		/// <summary>
 		/// Generate a spectrum graph array spaced linearily
 		/// </summary>
@@ -386,7 +391,9 @@ namespace CommonUtils.FFT
 			}
 			return band;
 		}
+		#endregion
 		
+		#region DrawingMethods
 		/// <summary>
 		/// Utility method to return a spectrum graph image based on audio data
 		/// </summary>
@@ -1717,6 +1724,7 @@ namespace CommonUtils.FFT
 			
 			return png;
 		}
+		#endregion
 		
 		/// <summary>
 		/// Calculate averages on data using start and end index

@@ -59,7 +59,7 @@ namespace NAudio_Visualizing
 		public int MaximumFrequency = 20000;
 		public int MinimumFrequency = 20;
 		public double ActualBarWidth = 0.0d;
-		public bool doSpectrumGraph = true;
+		public bool DoSpectrumGraph = true;
 		#endregion
 
 		#region Constants
@@ -111,7 +111,7 @@ namespace NAudio_Visualizing
 		#region Event Overrides
 		protected override void OnPaint(PaintEventArgs e)
 		{
-			if (doSpectrumGraph) {
+			if (DoSpectrumGraph) {
 				if (offlineBitmap != null) {
 					e.Graphics.DrawImage(offlineBitmap, 0, 0);
 				}
@@ -166,7 +166,7 @@ namespace NAudio_Visualizing
 		private void UpdateSpectrumShapes()
 		{
 			bool allZero = true;
-			if (doSpectrumGraph) {
+			if (DoSpectrumGraph) {
 				float[] mag;
 				float[] freq;
 				float foundMaxFreq, foundMaxDecibel;
@@ -265,7 +265,7 @@ namespace NAudio_Visualizing
 			if (soundPlayer == null)
 				return;
 
-			if (doSpectrumGraph) {
+			if (DoSpectrumGraph) {
 				UpdateSpectrumShapes();
 				return;
 			}
