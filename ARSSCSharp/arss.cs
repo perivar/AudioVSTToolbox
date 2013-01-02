@@ -6,6 +6,7 @@ using System.IO;
 // TODO: FOR TESTING
 using System.Linq;
 using System.Drawing;
+using System.Diagnostics;
 
 using CommonUtils;
 
@@ -344,15 +345,12 @@ public static class GlobalMembersArss
 	
 	public static void Main(string[] args)
 	{
-		float[] data = CommonUtils.Audio.NAudio.AudioUtilsNAudio.GenerateAudioTestData(44100, 5);
-		double[] doubleArray = MathUtils.FloatToDouble(data);
-		double[] doubleArrayPadded = MathUtils.PadZeros(doubleArray, MathUtils.NextPowerOfTwo(doubleArray.Length));
-		//CommonUtils.FFT.FFTTesting.TimeAll(doubleArrayPadded);
-		CommonUtils.FFT.FFTTesting.TestAll();
+
+		/*
+		CommonUtils.FFT.FFTTesting.TimeSpectrograms();
 		Console.ReadKey();
 		return;
 
-		/*
 		int _channels = 0;
 		int _samplecount = 0;
 		int _samplerate = 0;
@@ -376,8 +374,6 @@ public static class GlobalMembersArss
 		BinaryFile binOut = new BinaryFile(_filenameOut, BinaryFile.ByteOrder.LittleEndian, true);
 		GlobalMembersSoundIO.WriteWaveFile(binOut, _sound, 1, _samplecount, _samplerate, 16);
 		
-		//CommonUtils.FFT.FFTTesting.TimeAll(1000);
-		//CommonUtils.FFT.FFTTesting.TestAll(null);
 		Console.ReadKey();
 		return;
 		 */

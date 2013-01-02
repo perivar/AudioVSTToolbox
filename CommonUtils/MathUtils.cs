@@ -951,5 +951,42 @@ namespace CommonUtils
 			return returnArray;
 		}
 		
+		/// <summary>
+		/// Calculate averages on data using start and end index
+		/// </summary>
+		/// <param name="data">float array with data</param>
+		/// <param name="startIndex">start index</param>
+		/// <param name="endIndex">end index</param>
+		/// <param name="posAvg">output positive average</param>
+		/// <param name="negAvg">output negative average</param>
+		public static void Averages(float[] data, int startIndex, int endIndex, out float posAvg, out float negAvg)
+		{
+			posAvg = 0.0f;
+			negAvg = 0.0f;
+
+			int posCount = 0, negCount = 0;
+
+			for (int i = startIndex; i < endIndex; i++)
+			{
+				if (data[i] > 0)
+				{
+					posCount++;
+					posAvg += data[i];
+				}
+				else
+				{
+					negCount++;
+					negAvg += data[i];
+				}
+			}
+
+			if (posCount != 0) {
+				posAvg /= posCount;
+			}
+			if (negCount != 0) {
+				negAvg /= negCount;
+			}
+		}
+		
 	}
 }

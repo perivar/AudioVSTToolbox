@@ -7,6 +7,9 @@ using CommonUtils;
 // For FTTW
 using fftwlib;
 
+// for Lomont
+using Lomont;
+
 namespace CommonUtils.FFT
 {
 	/// <summary>
@@ -25,6 +28,7 @@ namespace CommonUtils.FFT
 	/// </summary>
 	public static class FFTTesting
 	{
+		#region SimpleFFTTestMethods
 		public static void FFTWTestUsingDouble(string CSVFilePath=null, double[] audio_data=null, int testLoopCount=1) {
 			
 			if (audio_data == null) {
@@ -232,9 +236,11 @@ namespace CommonUtils.FFT
 				audio_data = GetSignalTestData();
 			}
 			
-			int binaryExponentitation = (int)Math.Log(audio_data.Length, 2);
-			NAudio.Dsp.Complex[] complexArray = new NAudio.Dsp.Complex[audio_data.Length];
-			for (int i = 0; i < audio_data.Length; i++) {
+			int windowLength = audio_data.Length;
+			
+			int binaryExponentitation = (int)Math.Log(windowLength, 2);
+			NAudio.Dsp.Complex[] complexArray = new NAudio.Dsp.Complex[windowLength];
+			for (int i = 0; i < windowLength; i++) {
 				complexArray[i].X = (float) audio_data[i];
 				complexArray[i].Y = 0;
 			}
@@ -253,9 +259,9 @@ namespace CommonUtils.FFT
 			for (int i = 0; i < complexArray.Length; i++) {
 				float re  = complexArray[i].X;
 				float img = complexArray[i].Y;
-				spectrum_fft_real[i] = re;
-				spectrum_fft_imag[i] = img;
-				spectrum_fft_abs[i] = (float) Math.Sqrt(re*re + img*img);
+				spectrum_fft_real[i] = re * windowLength;
+				spectrum_fft_imag[i] = img * windowLength;
+				spectrum_fft_abs[i] = (float) Math.Sqrt(re*re + img*img) * windowLength;
 			}
 
 			// perform the inverse FFT (IFFT)
@@ -282,31 +288,55 @@ namespace CommonUtils.FFT
 		
 		public static void LomontFFTTestUsingDouble(string CSVFilePath=null, double[] audio_data=null, int testLoopCount=1) {
 			
+			LomontFFT fft = new LomontFFT();
+			
 			if (audio_data == null) {
 				audio_data = GetSignalTestData();
 			}
 			
-			double[] spectrum_fft = null;
+			double[] complexSignal = FFTUtils.DoubleToComplexDouble(audio_data);
 
 			// loop if neccesary - e.g. for performance test purposes
 			for (int i = 0; i < testLoopCount; i++) {
+				
 				// perform the FFT
-				spectrum_fft = FFTUtils.FFT(audio_data);
+				fft.FFT(complexSignal, true);
 			}
 			
 			// get the result
 			double lengthSqrt = Math.Sqrt(audio_data.Length);
-			double[] spectrum_fft_real = FFTUtils.Real(spectrum_fft, lengthSqrt);
-			double[] spectrum_fft_imag = FFTUtils.Imag(spectrum_fft, lengthSqrt);
-			double[] spectrum_fft_abs = FFTUtils.Abs(spectrum_fft, lengthSqrt);
+			
+			int N = complexSignal.Length / 2;
 
+			double[] spectrum_fft_real = new double[N];
+			double[] spectrum_fft_imag = new double[N];
+			double[] spectrum_fft_abs = new double[N];
+			
+			for (int j = 0; j < N; j++) {
+				double re = complexSignal[2*j] * lengthSqrt;
+				double img = complexSignal[2*j + 1] * lengthSqrt;
+				
+				spectrum_fft_real[j] = re;
+				spectrum_fft_imag[j] = img;
+				spectrum_fft_abs[j] = Math.Sqrt(re*re + img*img);
+			}
+			
 			// perform the inverse FFT (IFFT)
-			double[] spectrum_inverse = FFTUtils.IFFT(spectrum_fft);
+			fft.FFT(complexSignal, false);
+
+			double[] spectrum_inverse_real = new double[N];
+			double[] spectrum_inverse_imag = new double[N];
+			double[] spectrum_inverse_abs = new double[N];
 
 			// get the result
-			double[] spectrum_inverse_real = FFTUtils.Real(spectrum_inverse);
-			double[] spectrum_inverse_imag = FFTUtils.Imag(spectrum_inverse);
-			double[] spectrum_inverse_abs = FFTUtils.Abs(spectrum_inverse);
+			for (int j = 0; j < N; j++) {
+				double re = complexSignal[2*j];
+				double img = complexSignal[2*j + 1];
+				
+				spectrum_inverse_real[j] = re;
+				spectrum_inverse_imag[j] = img;
+				spectrum_inverse_abs[j] = Math.Sqrt(re*re + img*img);
+			}
 			
 			if (CSVFilePath!=null) {
 				CommonUtils.Export.exportCSV(CSVFilePath, audio_data, spectrum_fft_real, spectrum_fft_imag, spectrum_fft_abs, spectrum_inverse_real, spectrum_inverse_imag, spectrum_inverse_abs);
@@ -442,6 +472,7 @@ namespace CommonUtils.FFT
 				CommonUtils.Export.exportCSV(CSVFilePath, audio_data, spectrum_fft_real, spectrum_fft_imag, spectrum_fft_abs, spectrum_inverse_real, spectrum_inverse_imag, spectrum_inverse_abs);
 			}
 		}
+		#endregion
 		
 		public static void OctaveFFTWOuput(string CSVFilePath) {
 			
@@ -457,6 +488,239 @@ namespace CommonUtils.FFT
 				CommonUtils.Export.exportCSV(CSVFilePath, audio_data, spectrum_fft_real, spectrum_fft_imag, spectrum_fft_abs, spectrum_inverse_real, spectrum_inverse_imag, spectrum_inverse_abs);
 			}
 		}
+		
+		#region CreateSpectrogramMethods
+		/// <summary>
+		/// Generate a spectrogram array spaced linearily
+		/// </summary>
+		/// <param name="samples">audio data</param>
+		/// <param name="fftWindowsSize">fft window size</param>
+		/// <param name="fftOverlap">overlap in number of samples (normaly half of the fft window size) [low number = high overlap]</param>
+		/// <returns>spectrogram jagged array</returns>
+		public static float[][] CreateSpectrogramExocortex(float[] samples, int fftWindowsSize, int fftOverlap)
+		{
+			// overlap must be an integer smaller than the window size
+			// half the windows size is quite normal
+			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
+			
+			int numberOfSamples = samples.Length;
+			
+			// width of the segment - e.g. split the file into X time slots (numberOfSegments) and do analysis on each slot
+			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap;
+			float[][] frames = new float[numberOfSegments][];
+			
+			// even - Re, odd - Img
+			float[] complexSignal = new float[2*fftWindowsSize];
+			for (int i = 0; i < numberOfSegments; i++)
+			{
+				// apply Hanning Window
+				for (int j = 0; j < fftWindowsSize; j++)
+				{
+					// Weight by Hann Window
+					complexSignal[2*j] = (float) (windowArray[j] * samples[i * fftOverlap + j]);
+					
+					// need to clear out as fft modifies buffer (phase)
+					complexSignal[2*j + 1] = 0;
+				}
+
+				// FFT transform for gathering the spectrum
+				Fourier.FFT(complexSignal, fftWindowsSize, FourierDirection.Forward);
+				
+				// get the ABS of the complex signal
+				float[] band = new float[fftWindowsSize/2];
+				for (int j = 0; j < fftWindowsSize/2; j++)
+				{
+					double re = complexSignal[2*j];
+					double img = complexSignal[2*j + 1];
+					
+					band[j] = (float) Math.Sqrt(re*re + img*img) * 4/fftWindowsSize;
+				}
+				frames[i] = band;
+			}
+			
+			return frames;
+		}
+		
+		/// <summary>
+		/// Generate a spectrogram array spaced linearily
+		/// </summary>
+		/// <param name="samples">audio data</param>
+		/// <param name="fftWindowsSize">fft window size</param>
+		/// <param name="fftOverlap">overlap in number of samples (normaly half of the fft window size) [low number = high overlap]</param>
+		/// <returns>spectrogram jagged array</returns>
+		public static float[][] CreateSpectrogramLomont(float[] samples, int fftWindowsSize, int fftOverlap)
+		{
+			LomontFFT fft = new LomontFFT();
+			
+			int numberOfSamples = samples.Length;
+
+			// overlap must be an integer smaller than the window size
+			// half the windows size is quite normal
+			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
+			
+			// width of the segment - e.g. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
+			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap;
+			float[][] frames = new float[numberOfSegments][];
+			
+			// even - Re, odd - Img
+			double[] complexSignal = new double[2*fftWindowsSize];
+			for (int i = 0; i < numberOfSegments; i++)
+			{
+				// apply Hanning Window
+				for (int j = 0; j < fftWindowsSize; j++)
+				{
+					// Weight by Hann Window
+					complexSignal[2*j] = (double) (windowArray[j] * samples[i * fftOverlap + j]);
+					
+					// need to clear out as fft modifies buffer (phase)
+					complexSignal[2*j + 1] = 0;
+				}
+
+				// FFT transform for gathering the spectrum
+				fft.FFT(complexSignal, true);
+
+				// get the ABS of the complex signal
+				float[] band = new float[fftWindowsSize/2];
+				for (int j = 0; j < fftWindowsSize/2; j++)
+				{
+					double re = complexSignal[2*j];
+					double img = complexSignal[2*j + 1];
+					
+					band[j] = (float) Math.Sqrt(re*re + img*img) * 4;
+				}
+				frames[i] = band;
+			}
+			return frames;
+		}
+
+		/// <summary>
+		/// Generate a spectrogram array spaced linearily
+		/// </summary>
+		/// <param name="samples">audio data</param>
+		/// <param name="fftWindowsSize">fft window size</param>
+		/// <param name="fftOverlap">overlap in number of samples (normaly half of the fft window size) [low number = high overlap]</param>
+		/// <returns>spectrogram jagged array</returns>
+		public static float[][] CreateSpectrogramFFTWLIB(float[] samples, int fftWindowsSize, int fftOverlap)
+		{
+			int numberOfSamples = samples.Length;
+
+			// overlap must be an integer smaller than the window size
+			// half the windows size is quite normal
+			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
+			
+			// width of the segment - e.g. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
+			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap;
+			float[][] frames = new float[numberOfSegments][];
+			
+			// even - Re, odd - Img
+			double[] complexSignal = new double[2*fftWindowsSize];
+			for (int i = 0; i < numberOfSegments; i++)
+			{
+				// apply Hanning Window
+				for (int j = 0; j < fftWindowsSize; j++)
+				{
+					// Weight by Hann Window
+					complexSignal[2*j] = (double) (windowArray[j] * samples[i * fftOverlap + j]);
+					
+					// need to clear out as fft modifies buffer (phase)
+					complexSignal[2*j + 1] = 0;
+				}
+
+				// prepare the input arrays
+				fftw_complexarray complexInput = new fftw_complexarray(complexSignal);
+				fftw_complexarray complexOutput = new fftw_complexarray(complexSignal.Length/2);
+				fftw_plan fft = fftw_plan.dft_1d(complexSignal.Length/2, complexInput, complexOutput, fftw_direction.Forward, fftw_flags.Estimate);
+				
+				// perform the FFT
+				fft.Execute();
+
+				// get the result
+				float[] band = MathUtils.DoubleToFloat(complexOutput.Abs);
+				frames[i] = band;
+				
+				// free up memory
+				complexInput = null;
+				complexOutput = null;
+				//GC.Collect();
+			}
+			return frames;
+		}
+
+		/// <summary>
+		/// Generate a spectrogram array spaced linearily
+		/// </summary>
+		/// <param name="samples">audio data</param>
+		/// <param name="fftWindowsSize">fft window size</param>
+		/// <param name="fftOverlap">overlap in number of samples (normaly half of the fft window size) [low number = high overlap]</param>
+		/// <returns>spectrogram jagged array</returns>
+		public static float[][] CreateSpectrogramFFTWLIB_INPLACE(float[] samples, int fftWindowsSize, int fftOverlap)
+		{
+			int numberOfSamples = samples.Length;
+
+			// overlap must be an integer smaller than the window size
+			// half the windows size is quite normal
+			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
+			
+			// width of the segment - e.g. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
+			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap;
+			float[][] frames = new float[numberOfSegments][];
+			
+			double[] signal = new double[fftWindowsSize];
+			for (int i = 0; i < numberOfSegments; i++)
+			{
+				// apply Hanning Window
+				for (int j = 0; j < fftWindowsSize; j++)
+				{
+					// Weight by Hann Window
+					signal[j] = (double) (windowArray[j] * samples[i * fftOverlap + j]);
+				}
+
+				// perform the FFT
+				FFTW_FFT_R2R(ref signal, ref signal, fftWindowsSize, fftMethod.DFT);
+				
+				// get the result
+				double[] complexDout = FFTUtils.HC2C(signal);
+				float[] band = MathUtils.DoubleToFloat(FFTUtils.Abs(complexDout));
+
+				frames[i] = band;
+			}
+			return frames;
+		}
+
+		public static void TimeSpectrograms(float[] data=null) {
+			
+			if (data == null) {
+				Console.Out.WriteLine("Generating 60 seconds of Audio Test Data");
+				data = CommonUtils.Audio.NAudio.AudioUtilsNAudio.GenerateAudioTestData(44100, 60);
+			}
+			
+			// Start the stopwatch
+			Stopwatch sw = Stopwatch.StartNew();
+			
+			int fftWindowSize = 4096;
+			int overlap = 2048;
+			
+			sw.Restart();
+			float[][] spec1 = CommonUtils.FFT.FFTTesting.CreateSpectrogramExocortex(data, fftWindowSize, overlap);
+			sw.Stop();
+			Console.Out.WriteLine("CreateSpectrogramExocortex: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
+
+			sw.Restart();
+			float[][] spec2 = CommonUtils.FFT.FFTTesting.CreateSpectrogramLomont(data, fftWindowSize, overlap);
+			sw.Stop();
+			Console.Out.WriteLine("CreateSpectrogramLomont: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
+			
+			sw.Restart();
+			float[][] spec3 = CommonUtils.FFT.FFTTesting.CreateSpectrogramFFTWLIB(data, fftWindowSize, overlap);
+			sw.Stop();
+			Console.Out.WriteLine("CreateSpectrogramFFTWLIB: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
+
+			sw.Restart();
+			float[][] spec4 = CommonUtils.FFT.FFTTesting.CreateSpectrogramFFTWLIB_INPLACE(data, fftWindowSize, overlap);
+			sw.Stop();
+			Console.Out.WriteLine("CreateSpectrogramFFTWLIB_INPLACE: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
+		}
+		#endregion
 		
 		public static void TimeAll(int testLoopCount) {
 			
@@ -504,7 +768,9 @@ namespace CommonUtils.FFT
 			Console.Out.WriteLine("ExocortexFFTTestUsingFloats: Time used: {0} ms",sw.Elapsed.TotalMilliseconds);
 		}
 		
-		public static void TimeAll(double[] audio_data, int testLoopCount=1) {
+		public static void TimeAll(double[] audio_data) {
+			
+			int testLoopCount = 1;
 			
 			// Start the stopwatch
 			Stopwatch sw = Stopwatch.StartNew();
