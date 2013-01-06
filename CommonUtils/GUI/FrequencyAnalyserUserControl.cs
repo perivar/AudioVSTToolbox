@@ -109,11 +109,11 @@ namespace CommonUtils.GUI
 		{
 			this.audioData = audioData;
 
-			float[] spectrumData = AudioAnalyzer.CreateSpectrumAnalysisLomont(audioData, sampleRate, fftWindowsSize, fftOverlap);
+			float[] spectrumData = AudioAnalyzer.CreateSpectrumAnalysisLomont(audioData, fftWindowsSize);
 			
 			float[] m_mag;
 			float[] m_freq;
-			AudioAnalyzer.PrepareSpectrumAnalysis(spectrumData, sampleRate, fftWindowsSize, fftOverlap,
+			AudioAnalyzer.PrepareSpectrumAnalysis(spectrumData, sampleRate, fftWindowsSize,
 			                                      out m_mag, out m_freq, out foundMaxFrequency, out foundMaxDecibel);
 			
 			bmp = AudioAnalyzer.GetSpectrumImage(ref m_mag, ref m_freq, new Size(this.Width, this.Height),
