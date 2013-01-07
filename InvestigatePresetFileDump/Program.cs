@@ -25,35 +25,35 @@ namespace InvestigatePresetFileDump
 
 			// create a writer and open the file
 			TextWriter tw = new StreamWriter(outputfilename);
-			tw.Write(SylenthPresetHeader());
+			tw.Write(PresetHeader());
 			
 			StringWriter stringWriter = new StringWriter();
 			string enumSections = ImportXMLFileReturnEnumSections(
-				@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\output.xml",
+				@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Release\output.xml",
 				stringWriter
 			);
 			
 			tw.WriteLine(enumSections);
 			tw.WriteLine(stringWriter.ToString());
-			tw.Write(SylenthPresetFooter());
+			tw.Write(PresetFooter());
 			
 			// close the stream
 			tw.Close();
 		}
 		
-		public static string SylenthPresetHeader() {
+		public static string PresetHeader() {
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("//--------------------------------------");
-			sb.AppendLine("//--- 010 Editor v3.1 Binary Template");
+			sb.AppendLine("//--- 010 Editor Binary Template");
 			sb.AppendLine("//");
-			sb.AppendLine("// File: Sylenth 1 Preset Format");
+			sb.AppendLine("// File: <filename>");
 			sb.AppendLine("// Author: Per Ivar Nerseth");
 			sb.AppendLine("// Revision: 1.0");
-			sb.AppendLine("// Purpose: Read Sylenth1 Preset Files");
+			sb.AppendLine("// Purpose: Read a specific VST's preset files");
 			sb.AppendLine("//--------------------------------------");
 			sb.AppendLine("");
 			sb.AppendLine("typedef struct {");
-			sb.AppendLine("    char presetType[4];     // '1lys' = 'syl1' backwards");
+			sb.AppendLine("    char presetType[4];     //");
 			sb.AppendLine("    long unknown1;          //");
 			sb.AppendLine("    long fxVersion;         //");
 			sb.AppendLine("    long numPrograms;       //");
@@ -63,7 +63,7 @@ namespace InvestigatePresetFileDump
 			return sb.ToString();
 		}
 		
-		public static string SylenthPresetFooter() {
+		public static string PresetFooter() {
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("LittleEndian();");
 			sb.AppendLine("");
@@ -90,16 +90,18 @@ namespace InvestigatePresetFileDump
 			var data = from row in xmlDoc.Descendants("Row")
 				orderby Convert.ToInt32(row.Element("IndexInFile").Value) ascending
 				select new {
-				Index = Convert.ToInt32(row.Element("IndexInFile").Value),
+				IndexInFile = Convert.ToInt32(row.Element("IndexInFile").Value),
 				ByteValue = Convert.ToByte(row.Element("ByteValue").Value),
-				NameFormatted = (string)row.Element("ParameterNameFormatted").Value,
-				DisplayValue = (string)row.Element("ParameterDisplay").Value,
+				ParameterName = (string)row.Element("ParameterName").Value,
+				ParameterNameFormatted = (string)row.Element("ParameterNameFormatted").Value,
+				ParameterLabel = (string)row.Element("ParameterLabel").Value,
+				ParameterDisplay = (string)row.Element("ParameterDisplay").Value,
 			};
 			
 			// then group the data
 			var groupQuery = from row in data
 				group row by new {
-				NameFormatted = row.NameFormatted
+				ParameterNameFormatted = row.ParameterNameFormatted
 			}
 			into groupedTable
 				select new
@@ -110,10 +112,10 @@ namespace InvestigatePresetFileDump
 				// var intQuery = query.Where( t => int.TryParse( t.Column, out i ) );
 				
 				Keys = groupedTable.Key,  // Each Key contains all the grouped by columns (if multiple groups)
-				LowestValue = (double)groupedTable.Min(p => GetDouble( p.DisplayValue, Double.MinValue ) ),
-				HighestValue = (double)groupedTable.Max(p => GetDouble( p.DisplayValue, Double.MinValue ) ),
-				FirstIndex = (int)groupedTable.First().Index,
-				LastIndex = (int)groupedTable.Last().Index,
+				LowestValue = (double)groupedTable.Min(p => GetDouble( p.ParameterDisplay, Double.MinValue ) ),
+				HighestValue = (double)groupedTable.Max(p => GetDouble( p.ParameterDisplay, Double.MinValue ) ),
+				FirstIndex = (int)groupedTable.First().IndexInFile,
+				LastIndex = (int)groupedTable.Last().IndexInFile,
 				SubGroup = groupedTable
 			};
 
@@ -124,7 +126,9 @@ namespace InvestigatePresetFileDump
 				int lastIndex = grp.LastIndex;
 				int numberOfBytes = (lastIndex-firstIndex+1);
 				
-				string datatype = NumberOfBytesToDataType(numberOfBytes, false );
+				// for IL Harmor use true
+				// otherwise false
+				string datatype = NumberOfBytesToDataType(numberOfBytes, true );
 				
 				// write seek part (i.e. move pointer to first byte) if the first byte is not
 				// directly succeding the last section that was written
@@ -134,14 +138,14 @@ namespace InvestigatePresetFileDump
 				if (grp.LowestValue != Double.MinValue && grp.HighestValue != Double.MinValue) {
 					double lowVal = (double)grp.LowestValue;
 					double highVal = (double)grp.HighestValue;
-					string name = grp.Keys.NameFormatted.ToString();
+					string name = grp.Keys.ParameterNameFormatted.ToString();
 					string datatypeAndName = String.Format("\t{0} {1};", datatype, CleanInput(name)).PadRight(35);
 					string indexAndValueRange = String.Format("// index {0}:{1} (value range {2} -> {3})", firstIndex, lastIndex, lowVal, highVal);
 					tw.Write(datatypeAndName);
 					tw.WriteLine(indexAndValueRange);
 				} else {
 					// insert enum instead of datatype
-					string enumName = grp.Keys.NameFormatted.ToString();
+					string enumName = grp.Keys.ParameterNameFormatted.ToString();
 					string datatypeAndName = String.Format("\t{0} {1};", CleanInput(enumName.ToUpper()), enumName).PadRight(35);
 					string indexRange = String.Format("// index {0}:{1} ", firstIndex, lastIndex);
 					tw.Write(datatypeAndName);
@@ -260,6 +264,9 @@ namespace InvestigatePresetFileDump
 			{
 				result = defaultValue;
 			}
+			
+			// special case
+			if (result == 3.911555E-07) result = 0;
 
 			return result;
 		}
