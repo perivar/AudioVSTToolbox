@@ -41,13 +41,14 @@
         	this.AnalyseBtn = new System.Windows.Forms.Button();
         	this.WaveBtn = new System.Windows.Forms.Button();
         	this.timer1 = new System.Windows.Forms.Timer(this.components);
+        	this.btnAutoAllAutomated = new System.Windows.Forms.Button();
         	this.SuspendLayout();
         	// 
         	// LoadBtn
         	// 
         	this.LoadBtn.Location = new System.Drawing.Point(331, 6);
         	this.LoadBtn.Name = "LoadBtn";
-        	this.LoadBtn.Size = new System.Drawing.Size(46, 23);
+        	this.LoadBtn.Size = new System.Drawing.Size(43, 23);
         	this.LoadBtn.TabIndex = 0;
         	this.LoadBtn.Text = "Load";
         	this.LoadBtn.UseVisualStyleBackColor = true;
@@ -55,9 +56,9 @@
         	// 
         	// SaveBtn
         	// 
-        	this.SaveBtn.Location = new System.Drawing.Point(380, 6);
+        	this.SaveBtn.Location = new System.Drawing.Point(376, 6);
         	this.SaveBtn.Name = "SaveBtn";
-        	this.SaveBtn.Size = new System.Drawing.Size(46, 23);
+        	this.SaveBtn.Size = new System.Drawing.Size(48, 23);
         	this.SaveBtn.TabIndex = 1;
         	this.SaveBtn.Text = "Save";
         	this.SaveBtn.UseVisualStyleBackColor = true;
@@ -84,12 +85,12 @@
         	// 
         	this.pluginPanel.Location = new System.Drawing.Point(1, 36);
         	this.pluginPanel.Name = "pluginPanel";
-        	this.pluginPanel.Size = new System.Drawing.Size(820, 231);
+        	this.pluginPanel.Size = new System.Drawing.Size(839, 251);
         	this.pluginPanel.TabIndex = 4;
         	// 
         	// InvestigatePluginPresetFileCheckbox
         	// 
-        	this.InvestigatePluginPresetFileCheckbox.Location = new System.Drawing.Point(531, 6);
+        	this.InvestigatePluginPresetFileCheckbox.Location = new System.Drawing.Point(506, 6);
         	this.InvestigatePluginPresetFileCheckbox.Name = "InvestigatePluginPresetFileCheckbox";
         	this.InvestigatePluginPresetFileCheckbox.Size = new System.Drawing.Size(87, 24);
         	this.InvestigatePluginPresetFileCheckbox.TabIndex = 5;
@@ -99,17 +100,17 @@
         	// 
         	// PresetContentBtn
         	// 
-        	this.PresetContentBtn.Location = new System.Drawing.Point(434, 6);
+        	this.PresetContentBtn.Location = new System.Drawing.Point(426, 6);
         	this.PresetContentBtn.Name = "PresetContentBtn";
-        	this.PresetContentBtn.Size = new System.Drawing.Size(93, 23);
+        	this.PresetContentBtn.Size = new System.Drawing.Size(78, 23);
         	this.PresetContentBtn.TabIndex = 6;
-        	this.PresetContentBtn.Text = "Chunk Changes";
+        	this.PresetContentBtn.Text = "ChunkChngs";
         	this.PresetContentBtn.UseVisualStyleBackColor = true;
         	this.PresetContentBtn.Click += new System.EventHandler(this.PresetContentBtnClick);
         	// 
         	// TextDiffCheckbox
         	// 
-        	this.TextDiffCheckbox.Location = new System.Drawing.Point(613, 6);
+        	this.TextDiffCheckbox.Location = new System.Drawing.Point(633, 6);
         	this.TextDiffCheckbox.Name = "TextDiffCheckbox";
         	this.TextDiffCheckbox.Size = new System.Drawing.Size(63, 24);
         	this.TextDiffCheckbox.TabIndex = 7;
@@ -119,7 +120,7 @@
         	// 
         	// MidiNoteCheckbox
         	// 
-        	this.MidiNoteCheckbox.Location = new System.Drawing.Point(673, 6);
+        	this.MidiNoteCheckbox.Location = new System.Drawing.Point(693, 6);
         	this.MidiNoteCheckbox.Name = "MidiNoteCheckbox";
         	this.MidiNoteCheckbox.Size = new System.Drawing.Size(45, 24);
         	this.MidiNoteCheckbox.TabIndex = 8;
@@ -129,7 +130,7 @@
         	// 
         	// AnalyseBtn
         	// 
-        	this.AnalyseBtn.Location = new System.Drawing.Point(714, 6);
+        	this.AnalyseBtn.Location = new System.Drawing.Point(734, 6);
         	this.AnalyseBtn.Name = "AnalyseBtn";
         	this.AnalyseBtn.Size = new System.Drawing.Size(42, 23);
         	this.AnalyseBtn.TabIndex = 9;
@@ -139,7 +140,7 @@
         	// 
         	// WaveBtn
         	// 
-        	this.WaveBtn.Location = new System.Drawing.Point(756, 6);
+        	this.WaveBtn.Location = new System.Drawing.Point(776, 6);
         	this.WaveBtn.Name = "WaveBtn";
         	this.WaveBtn.Size = new System.Drawing.Size(65, 23);
         	this.WaveBtn.TabIndex = 10;
@@ -152,13 +153,24 @@
         	this.timer1.Enabled = true;
         	this.timer1.Tick += new System.EventHandler(this.Timer1Tick);
         	// 
+        	// btnAutoAllAutomated
+        	// 
+        	this.btnAutoAllAutomated.Location = new System.Drawing.Point(585, 4);
+        	this.btnAutoAllAutomated.Name = "btnAutoAllAutomated";
+        	this.btnAutoAllAutomated.Size = new System.Drawing.Size(42, 23);
+        	this.btnAutoAllAutomated.TabIndex = 18;
+        	this.btnAutoAllAutomated.Text = "AutoAllAutomation";
+        	this.btnAutoAllAutomated.UseVisualStyleBackColor = true;
+        	this.btnAutoAllAutomated.Click += new System.EventHandler(this.BtnAutoAllAutomatedClick);
+        	// 
         	// EditorFrame
         	// 
         	this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
         	this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         	this.AutoSize = true;
         	this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-        	this.ClientSize = new System.Drawing.Size(822, 266);
+        	this.ClientSize = new System.Drawing.Size(852, 289);
+        	this.Controls.Add(this.btnAutoAllAutomated);
         	this.Controls.Add(this.WaveBtn);
         	this.Controls.Add(this.AnalyseBtn);
         	this.Controls.Add(this.MidiNoteCheckbox);
@@ -180,6 +192,7 @@
         	this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.EditorFrameKeyUp);
         	this.ResumeLayout(false);
         }
+        private System.Windows.Forms.Button btnAutoAllAutomated;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Button WaveBtn;
         private System.Windows.Forms.Button AnalyseBtn;

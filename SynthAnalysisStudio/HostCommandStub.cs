@@ -327,6 +327,7 @@ namespace SynthAnalysisStudio
 			string name = PluginContext.PluginCommandStub.GetParameterName(index);
 			string label = PluginContext.PluginCommandStub.GetParameterLabel(index);
 			string display = PluginContext.PluginCommandStub.GetParameterDisplay(index);
+			if ("".Equals(display)) display = "" + value;
 			System.Diagnostics.Debug.WriteLine("SetParameterAutomated. Name: {0}, Label: {1}, Value: {2}", name, label, display);
 			
 			if (DoInvestigatePluginPresetFileFormat) {

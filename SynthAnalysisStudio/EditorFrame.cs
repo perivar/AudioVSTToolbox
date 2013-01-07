@@ -5,6 +5,8 @@ using System.Windows.Forms;
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 
+using System.Diagnostics; // for stopwatch
+
 using SynthAnalysisStudio;
 using CommonUtils.VST;
 
@@ -460,6 +462,38 @@ namespace SynthAnalysisStudio
 			// which I do every 100 ms.  This works great ;)
 			if (doGUIRefresh) {
 				PluginContext.PluginCommandStub.EditorIdle();
+			}
+		}
+		
+		void BtnAutoAllAutomatedClick(object sender, EventArgs e)
+		{
+			// time how long this takes
+			Stopwatch stopwatch = Stopwatch.StartNew();
+			
+			int paramCount = PluginContext.PluginInfo.ParameterCount;
+			for (int paramIndex = 0; paramIndex < paramCount; paramIndex++)
+			{
+				string paramName = PluginContext.PluginCommandStub.GetParameterName(paramIndex);
+				string paramLabel = PluginContext.PluginCommandStub.GetParameterLabel(paramIndex);
+				string paramDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(paramIndex);
+				bool canBeAutomated = PluginContext.PluginCommandStub.CanParameterBeAutomated(paramIndex);
+				
+				// step through the steps
+				for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.025f) {
+					System.Console.Out.WriteLine("Measuring {0}/{1} {2} at value {3:0.00} ...", paramIndex, paramCount, paramName, paramValue);
+
+					// set the parameters
+					PluginContext.PluginCommandStub.SetParameter(paramIndex, paramValue);
+					((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(paramIndex, paramValue);
+					
+					// wait
+					System.Threading.Thread.Sleep(10);
+					
+					// storing in xml file happens if doing track changes and saving it manually
+				}
+
+				// wait a bit longer
+				System.Threading.Thread.Sleep(20);
 			}
 		}
 	}
