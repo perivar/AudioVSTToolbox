@@ -18,6 +18,9 @@ namespace InvestigatePresetFileDump
 {
 	class Program
 	{
+		private const bool DO_FXP_WRAP = true;
+		private const int FXP_OFFSET = 60; // 60;
+		
 		public static void Main(string[] args)
 		{
 
@@ -49,26 +52,37 @@ namespace InvestigatePresetFileDump
 			sb.AppendLine("// File: <filename>");
 			sb.AppendLine("// Author: Per Ivar Nerseth");
 			sb.AppendLine("// Revision: 1.0");
-			sb.AppendLine("// Purpose: Read a specific VST's preset files");
+			sb.AppendLine("// Purpose: Read a specific VST's preset files (wrapped in a fxp file)");
 			sb.AppendLine("//--------------------------------------");
+			
+			if (DO_FXP_WRAP) {
+				sb.AppendLine("");
+				sb.AppendLine("typedef struct {");
+				sb.AppendLine("    char chunkMagic[4];     // 'CcnK'");
+				sb.AppendLine("    long byteSize;          // of this chunk, excl. magic + byteSize");
+				sb.AppendLine("    char fxMagic[4];        // 'FxCk', 'FxBk', 'FBCh' or 'FPCh'");
+				sb.AppendLine("");
+				sb.AppendLine("    long version;");
+				sb.AppendLine("    char fxID[4];           // fx unique id");
+				sb.AppendLine("    long fxVersion;");
+				sb.AppendLine("    long numPrograms;");
+				sb.AppendLine("    char name[28];");
+				sb.AppendLine("    long chunkSize;");
+				sb.AppendLine("} presetHEADER;");
+			}
 			sb.AppendLine("");
-			sb.AppendLine("typedef struct {");
-			sb.AppendLine("    char presetType[4];     //");
-			sb.AppendLine("    long unknown1;          //");
-			sb.AppendLine("    long fxVersion;         //");
-			sb.AppendLine("    long numPrograms;       //");
-			sb.AppendLine("    long unknown2;          //");
-			sb.AppendLine("} presetHEADER;");
-			sb.AppendLine("");
+			
 			return sb.ToString();
 		}
 		
 		public static string PresetFooter() {
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("LittleEndian();");
-			sb.AppendLine("");
-			sb.AppendLine("SetBackColor( cLtYellow );");
-			sb.AppendLine("presetHEADER header;");
+			if (DO_FXP_WRAP) {
+				sb.AppendLine("");
+				sb.AppendLine("SetBackColor( cLtYellow );");
+				sb.AppendLine("presetHEADER header;");
+			}
 			sb.AppendLine("");
 			sb.AppendLine("SetBackColor( cLtGray );");
 			sb.AppendLine("presetCONTENT content;");
@@ -119,35 +133,57 @@ namespace InvestigatePresetFileDump
 				SubGroup = groupedTable
 			};
 
+			// turn into list
+			var groupedList = groupQuery.ToList();
+
 			int prevIndex = 0;
-			foreach (var grp in groupQuery)
-			{
-				int firstIndex = grp.FirstIndex;
-				int lastIndex = grp.LastIndex;
+			bool prevSkipSeek = false;
+			for (int i = 0; i < groupedList.Count; i++) {
+				var curElement = groupedList.ElementAt(i);
+
+				int firstIndex = curElement.FirstIndex;
+				int lastIndex = curElement.LastIndex;
 				int numberOfBytes = (lastIndex-firstIndex+1);
 				
 				// for IL Harmor use true
 				// otherwise false
-				string datatype = NumberOfBytesToDataType(numberOfBytes, true );
+				string dataType = NumberOfBytesToDataType(ref numberOfBytes, true );
+				if (numberOfBytes != (lastIndex-firstIndex+1)) {
+					// the number of bytes was changed.
+					lastIndex = firstIndex + numberOfBytes - 1;
+				}
+				
+				// check if we should convert ushorts to ints and skip the Seek next time around?
+				bool skipSeek = false;
+				if (i + 1 < groupedList.Count) {
+					var nextElement = groupedList.ElementAt(i + 1);
+					if ((dataType.Equals("ushort") || dataType.Equals("byte") || dataType.Equals("unknown")) && nextElement.FirstIndex == firstIndex + 4) {
+						dataType = "int";
+						skipSeek = true;
+						lastIndex = firstIndex + 3;
+						numberOfBytes = 4;
+					}
+				}
 				
 				// write seek part (i.e. move pointer to first byte) if the first byte is not
 				// directly succeding the last section that was written
-				if (prevIndex+1 != firstIndex) {
-					tw.WriteLine("\tFSeek( {0} );", firstIndex);
+				if (!prevSkipSeek && (prevIndex + 1 != firstIndex)) {
+					tw.WriteLine("\tFSeek( {0} );", firstIndex + FXP_OFFSET);
 				}
-				if (grp.LowestValue != Double.MinValue && grp.HighestValue != Double.MinValue) {
-					double lowVal = (double)grp.LowestValue;
-					double highVal = (double)grp.HighestValue;
-					string name = grp.Keys.ParameterNameFormatted.ToString();
-					string datatypeAndName = String.Format("\t{0} {1};", datatype, CleanInput(name)).PadRight(35);
-					string indexAndValueRange = String.Format("// index {0}:{1} (value range {2} -> {3})", firstIndex, lastIndex, lowVal, highVal);
+				
+				if (curElement.LowestValue != Double.MinValue && curElement.HighestValue != Double.MinValue) {
+					double lowVal = (double)curElement.LowestValue;
+					double highVal = (double)curElement.HighestValue;
+					string name = curElement.Keys.ParameterNameFormatted.ToString();
+					string datatypeAndName = String.Format("\t{0} {1};", dataType, CleanInput(name)).PadRight(35);
+					string indexAndValueRange = String.Format("// index {0}:{1} = {4} bytes (value range {2} -> {3})", firstIndex, lastIndex, lowVal, highVal, numberOfBytes);
 					tw.Write(datatypeAndName);
 					tw.WriteLine(indexAndValueRange);
 				} else {
 					// insert enum instead of datatype
-					string enumName = grp.Keys.ParameterNameFormatted.ToString();
+					string enumName = curElement.Keys.ParameterNameFormatted.ToString();
 					string datatypeAndName = String.Format("\t{0} {1};", CleanInput(enumName.ToUpper()), enumName).PadRight(35);
-					string indexRange = String.Format("// index {0}:{1} ", firstIndex, lastIndex);
+					string indexRange = String.Format("// index {0}:{1} = {2} bytes ", firstIndex, lastIndex, numberOfBytes);
 					tw.Write(datatypeAndName);
 					tw.WriteLine(indexRange);
 					string enumsection = getEnumSectionXMLFormat(xmlfilename, enumName);
@@ -155,6 +191,7 @@ namespace InvestigatePresetFileDump
 				}
 				
 				prevIndex = lastIndex;
+				prevSkipSeek = skipSeek;
 			}
 			
 			tw.WriteLine("} presetCONTENT;");
@@ -217,7 +254,7 @@ namespace InvestigatePresetFileDump
 			}
 			
 			int numberOfBytes = dictionary.First().Value.Count;
-			string datatype = NumberOfBytesToDataType(numberOfBytes, true);
+			string datatype = NumberOfBytesToDataType(ref numberOfBytes, true);
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine(String.Format("typedef enum <{0}> {{", datatype));
 			
@@ -271,7 +308,7 @@ namespace InvestigatePresetFileDump
 			return result;
 		}
 		
-		public static string NumberOfBytesToDataType( int numberOfBytes, bool isEnum ) {
+		public static string NumberOfBytesToDataType(ref int numberOfBytes, bool isEnum ) {
 			string datatype = "";
 			switch (numberOfBytes) {
 				case 1:
@@ -287,11 +324,20 @@ namespace InvestigatePresetFileDump
 						datatype = "float";
 					}
 					break;
+				case 5:
+				case 6:
+				case 7:
 				case 8:
-					datatype = "long";
+					numberOfBytes = 8;
+					datatype = "uint64";
 					break;
+					//case 16:
+					//	numberOfBytes = 16;
+					//	datatype = "16bytes";
+					//	break;
 				default:
-					datatype = "int";
+					numberOfBytes = 4;
+					datatype = "uint32";
 					break;
 			}
 			return datatype;
