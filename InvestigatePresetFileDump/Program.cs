@@ -31,8 +31,9 @@ namespace InvestigatePresetFileDump
 			tw.Write(PresetHeader());
 			
 			StringWriter stringWriter = new StringWriter();
-			string enumSections = ImportXMLFileReturnEnumSections(
-				@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Release\output.xml",
+			string enumSections = ImportXMLFileReturnEnumSections2(
+				//@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Release\output.xml",
+				@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\output2.xml",
 				stringWriter
 			);
 			
@@ -77,16 +78,138 @@ namespace InvestigatePresetFileDump
 		
 		public static string PresetFooter() {
 			StringBuilder sb = new StringBuilder();
-			sb.AppendLine("LittleEndian();");
+			
 			if (DO_FXP_WRAP) {
 				sb.AppendLine("");
+				sb.AppendLine("BigEndian();");
 				sb.AppendLine("SetBackColor( cLtYellow );");
 				sb.AppendLine("presetHEADER header;");
 			}
+
 			sb.AppendLine("");
+			sb.AppendLine("LittleEndian();");
 			sb.AppendLine("SetBackColor( cLtGray );");
 			sb.AppendLine("presetCONTENT content;");
+
 			return sb.ToString();
+		}
+		
+		public static string ImportXMLFileReturnEnumSections2(string xmlfilename, TextWriter tw)
+		{
+			StringBuilder enumSections = new StringBuilder();
+			tw.WriteLine("typedef struct {");
+			
+			XDocument xmlDoc = XDocument.Load(xmlfilename);
+			Dictionary<string, List<byte>> dictionary = new Dictionary<string, List<byte>>();
+
+			// first sort the data
+			//http://stackoverflow.com/questions/5603284/linq-to-xml-groupby
+			var data = from row in xmlDoc.Descendants("Row")
+				orderby Convert.ToInt32(row.Element("IndexInFile").Value) ascending
+				select new {
+				IndexInFile = Convert.ToInt32(row.Element("IndexInFile").Value),
+				ByteValue = Convert.ToByte(row.Element("ByteValue").Value),
+				ParameterName = (string)row.Element("ParameterName").Value,
+				ParameterNameFormatted = (string)row.Element("ParameterNameFormatted").Value,
+				ParameterLabel = (string)row.Element("ParameterLabel").Value,
+				ParameterDisplay = (string)row.Element("ParameterDisplay").Value,
+			};
+			
+			// then group the data
+			var groupQuery = from row in data
+				group row by new {
+				IndexInFile = row.IndexInFile,
+				ParameterNameFormatted = row.ParameterNameFormatted
+			}
+			into groupedTable
+				select new
+			{
+				Keys = groupedTable.Key,  // Each Key contains all the grouped by columns (if multiple groups)
+				LowestValue = (double)groupedTable.Min(p => GetDouble( p.ParameterDisplay, Double.MinValue ) ),
+				HighestValue = (double)groupedTable.Max(p => GetDouble( p.ParameterDisplay, Double.MinValue ) ),
+				SubGroup = groupedTable
+			};
+			
+			// turn into dictionary
+			var groupedDict = groupQuery.ToDictionary(p => p.Keys.IndexInFile, t => t.SubGroup);
+
+			int low = groupedDict.Keys.Min();
+			int high = groupedDict.Keys.Max();
+			
+			tw.WriteLine("\tFSeek( {0} );", low + FXP_OFFSET);
+			
+			int numberOfBytes = 0;
+			int prevFirstIndex = 0;
+			string prevName = "";
+			Dictionary<string, int> processedNames = new Dictionary<string, int>();
+			for (int i = low; i <= high; i++) {
+				if (groupedDict.ContainsKey(i)) {
+					string name = groupedDict[i].Key.ParameterNameFormatted;
+					int firstIndex = groupedDict[i].Key.IndexInFile;
+					if (!name.Equals(prevName)) {
+						// we detected a new parameter
+						
+						// check if we have processed name before
+						if (!processedNames.ContainsKey(prevName)) {
+							processedNames.Add(prevName, 1);
+						} else {
+							processedNames[prevName]++;
+							prevName = prevName + processedNames[prevName];
+						}
+						
+						if (i != low) {
+							//string dataType = NumberOfBytesToDataType(ref numberOfBytes, true, false);
+
+							// determine the dataType and Name
+							string datatypeAndName = "";
+							if (numberOfBytes > 8) {
+								datatypeAndName = String.Format("\tchar {0}[{1}];", CleanInput(prevName), numberOfBytes).PadRight(35);
+							} else {
+								string dataType = "";
+								switch (numberOfBytes) {
+									case 1:
+										dataType = "byte";
+										break;
+									case 2:
+										dataType = "int16";
+										break;
+									case 4:
+										dataType = "int32";
+										break;
+									case 8:
+										dataType = "int64";
+										break;
+									default:
+										dataType = numberOfBytes + "bytes";
+										break;
+								}
+								datatypeAndName = String.Format("\t{0} {1};", dataType, CleanInput(prevName)).PadRight(35);
+							}
+
+							int prevLastIndex = prevFirstIndex + numberOfBytes - 1;
+							string indexAndValueRange = String.Format("// index {0}:{1} = {2} bytes", prevFirstIndex, prevLastIndex, numberOfBytes);
+
+							// output
+							tw.Write(datatypeAndName);
+							tw.WriteLine(indexAndValueRange);
+						}
+						
+						// reset
+						numberOfBytes = 1;
+						prevFirstIndex = firstIndex;
+						prevName = name;
+					} else {
+						numberOfBytes++;
+					}
+				} else {
+					// missing
+					numberOfBytes++;
+				}
+			}
+			
+			tw.WriteLine("} presetCONTENT;");
+			
+			return enumSections.ToString();
 		}
 
 		/* Import XML file output from
@@ -136,6 +259,7 @@ namespace InvestigatePresetFileDump
 			// turn into list
 			var groupedList = groupQuery.ToList();
 
+			int originalLastIndex = 0;
 			int prevIndex = 0;
 			bool prevSkipSeek = false;
 			for (int i = 0; i < groupedList.Count; i++) {
@@ -143,11 +267,12 @@ namespace InvestigatePresetFileDump
 
 				int firstIndex = curElement.FirstIndex;
 				int lastIndex = curElement.LastIndex;
+				originalLastIndex = lastIndex;
 				int numberOfBytes = (lastIndex-firstIndex+1);
 				
-				// for IL Harmor use true
-				// otherwise false
-				string dataType = NumberOfBytesToDataType(ref numberOfBytes, true );
+				// for IL Harmor use ints
+				// otherwise use floats
+				string dataType = NumberOfBytesToDataType(ref numberOfBytes, true, true );
 				if (numberOfBytes != (lastIndex-firstIndex+1)) {
 					// the number of bytes was changed.
 					lastIndex = firstIndex + numberOfBytes - 1;
@@ -176,14 +301,14 @@ namespace InvestigatePresetFileDump
 					double highVal = (double)curElement.HighestValue;
 					string name = curElement.Keys.ParameterNameFormatted.ToString();
 					string datatypeAndName = String.Format("\t{0} {1};", dataType, CleanInput(name)).PadRight(35);
-					string indexAndValueRange = String.Format("// index {0}:{1} = {4} bytes (value range {2} -> {3})", firstIndex, lastIndex, lowVal, highVal, numberOfBytes);
+					string indexAndValueRange = String.Format("// index {0}:{1} = {4} bytes (value range {2} -> {3})", firstIndex, originalLastIndex, lowVal, highVal, numberOfBytes);
 					tw.Write(datatypeAndName);
 					tw.WriteLine(indexAndValueRange);
 				} else {
 					// insert enum instead of datatype
 					string enumName = curElement.Keys.ParameterNameFormatted.ToString();
 					string datatypeAndName = String.Format("\t{0} {1};", CleanInput(enumName.ToUpper()), enumName).PadRight(35);
-					string indexRange = String.Format("// index {0}:{1} = {2} bytes ", firstIndex, lastIndex, numberOfBytes);
+					string indexRange = String.Format("// index {0}:{1} = {2} bytes ", firstIndex, originalLastIndex, numberOfBytes);
 					tw.Write(datatypeAndName);
 					tw.WriteLine(indexRange);
 					string enumsection = getEnumSectionXMLFormat(xmlfilename, enumName);
@@ -308,7 +433,7 @@ namespace InvestigatePresetFileDump
 			return result;
 		}
 		
-		public static string NumberOfBytesToDataType(ref int numberOfBytes, bool isEnum ) {
+		public static string NumberOfBytesToDataType(ref int numberOfBytes, bool use4BytesAsInt, bool update = false ) {
 			string datatype = "";
 			switch (numberOfBytes) {
 				case 1:
@@ -318,7 +443,7 @@ namespace InvestigatePresetFileDump
 					datatype = "ushort";
 					break;
 				case 4:
-					if (isEnum) {
+					if (use4BytesAsInt) {
 						datatype = "int";
 					} else {
 						datatype = "float";
@@ -328,7 +453,7 @@ namespace InvestigatePresetFileDump
 				case 6:
 				case 7:
 				case 8:
-					numberOfBytes = 8;
+					if (update) numberOfBytes = 8;
 					datatype = "uint64";
 					break;
 					//case 16:
@@ -336,7 +461,7 @@ namespace InvestigatePresetFileDump
 					//	datatype = "16bytes";
 					//	break;
 				default:
-					numberOfBytes = 4;
+					if (update) numberOfBytes = 4;
 					datatype = "uint32";
 					break;
 			}

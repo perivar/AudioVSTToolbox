@@ -5,10 +5,20 @@ using System.Windows.Forms;
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 
+using System.Collections.Generic;
 using System.Diagnostics; // for stopwatch
 
 using SynthAnalysisStudio;
+
 using CommonUtils.VST;
+
+using CommonUtils; // for BinaryFile
+using CommonUtils.Diff; // for BinaryDiff
+using DiffPlex; // for TextDiff
+using DiffPlex.Model; // for TextDiff
+using System.Xml;
+
+using System.Linq;
 
 namespace SynthAnalysisStudio
 {
@@ -17,6 +27,8 @@ namespace SynthAnalysisStudio
 	/// </summary>
 	public partial class EditorFrame : Form
 	{
+		List<InvestigatedPluginPresetFileFormat> InvestigatedPluginPresetFileFormatList = new List<InvestigatedPluginPresetFileFormat>();
+		
 		VstPlaybackNAudio playback;
 		bool hasNoKeyDown = true;
 		public bool doGUIRefresh = true;
@@ -470,30 +482,136 @@ namespace SynthAnalysisStudio
 			// time how long this takes
 			Stopwatch stopwatch = Stopwatch.StartNew();
 			
+			Dictionary<string, int> processedParameters = new Dictionary<string, int>();
 			int paramCount = PluginContext.PluginInfo.ParameterCount;
 			for (int paramIndex = 0; paramIndex < paramCount; paramIndex++)
 			{
 				string paramName = PluginContext.PluginCommandStub.GetParameterName(paramIndex);
 				string paramLabel = PluginContext.PluginCommandStub.GetParameterLabel(paramIndex);
-				string paramDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(paramIndex);
-				bool canBeAutomated = PluginContext.PluginCommandStub.CanParameterBeAutomated(paramIndex);
+				
+				// check if this plugin has more than one parameter with the same name
+				if (!processedParameters.ContainsKey(paramName)) {
+					processedParameters.Add(paramName, 1);
+				} else {
+					processedParameters[paramName]++;
+					paramName = paramName + processedParameters[paramName];
+				}
+				
+				// initialize
+				PluginContext.PluginCommandStub.SetParameter(paramIndex, 0);
 				
 				// step through the steps
 				for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.025f) {
 					System.Console.Out.WriteLine("Measuring {0}/{1} {2} at value {3:0.00} ...", paramIndex, paramCount, paramName, paramValue);
 
+					byte[] previousChunkData = PluginContext.PluginCommandStub.GetChunk(true);
+					
 					// set the parameters
 					PluginContext.PluginCommandStub.SetParameter(paramIndex, paramValue);
-					((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(paramIndex, paramValue);
+					//((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(paramIndex, paramValue);
+					
+					byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);
+					
+					DetectChunkChanges(previousChunkData, chunkData, paramName, paramLabel, String.Format("{0:0.00}", paramValue));
 					
 					// wait
 					System.Threading.Thread.Sleep(10);
-					
-					// storing in xml file happens if doing track changes and saving it manually
 				}
 
 				// wait a bit longer
-				System.Threading.Thread.Sleep(20);
+				System.Threading.Thread.Sleep(10);
+			}
+			
+			// store to xml file
+			//set formatting options
+			XmlWriterSettings settings = new XmlWriterSettings();
+			settings.Indent = true;
+			settings.IndentChars = "\t";
+			string outputFile = "\\output2.xml";
+
+			using (XmlWriter writer = XmlWriter.Create(Application.StartupPath+outputFile, settings))
+			{
+				writer.WriteStartDocument();
+				writer.WriteStartElement("TrackedPresetFileChanges");
+
+				for (int i = 0; i < InvestigatedPluginPresetFileFormatList.Count; i++)
+				{
+					InvestigatedPluginPresetFileFormat row = InvestigatedPluginPresetFileFormatList[i];
+					writer.WriteStartElement("Row");
+					writer.WriteElementString("IndexInFile", "" + row.IndexInFile);
+					writer.WriteElementString("ByteValue", "" + row.ByteValue);
+					writer.WriteElementString("ByteValueHexString", row.ByteValueHexString);
+					writer.WriteElementString("ParameterName", row.ParameterName);
+					writer.WriteElementString("ParameterNameFormatted", row.ParameterNameFormatted);
+					writer.WriteElementString("ParameterLabel", row.ParameterLabel);
+					writer.WriteElementString("ParameterDisplay", row.ParameterDisplay);
+					writer.WriteElementString("TextChanges", row.TextChanges);
+					writer.WriteEndElement();
+				}
+				
+				writer.WriteEndElement();
+				writer.WriteEndDocument();
+				MessageBox.Show("Information in the the table is successfully saved in the following location: \n" + Application.StartupPath + outputFile, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+			}
+		}
+		
+		
+		private void DetectChunkChanges(byte[] previousChunkData, byte[] chunkData, string name, string label, string display) {
+
+			bool debugChunkFiles = true;
+			DiffType InvestigatePluginPresetFileFormatDiffType = DiffType.Binary;
+			
+			// do a binary comparison between what changed before and after this method was called
+			
+			// if the chunk is not empty, try to detect what has changed
+			if (chunkData != null && chunkData.Length > 0) {
+				int chunkLength = chunkData.Length;
+				
+				// binary comparison to find out where the chunk has changed
+				if (previousChunkData != null && previousChunkData.Length > 0) {
+					
+					if (debugChunkFiles) {
+						BinaryFile.ByteArrayToFile("Preset Chunk Data - previousChunkData.dat", previousChunkData);
+						BinaryFile.ByteArrayToFile("Preset Chunk Data - chunkData.dat", chunkData);
+					}
+					
+					if (InvestigatePluginPresetFileFormatDiffType == DiffType.Binary) {
+						SimpleBinaryDiff.Diff diff = SimpleBinaryDiff.GetDiff(previousChunkData, chunkData);
+						if (diff != null) {
+							System.Diagnostics.Debug.WriteLine("BinDiff: {0}", diff);
+							
+							// store each of the chunk differences in a list
+							foreach (SimpleBinaryDiff.DiffPoint point in diff.Points) {
+								this.InvestigatedPluginPresetFileFormatList.Add(
+									new InvestigatedPluginPresetFileFormat(point.Index, point.NewValue, name, label, display));
+							}
+						}
+					} else if (InvestigatePluginPresetFileFormatDiffType == DiffType.Text) {
+						// assume we are dealing with text and not binary data
+						var d = new Differ();
+						string OldText = BinaryFile.ByteArrayToString(previousChunkData);
+						string NewText = BinaryFile.ByteArrayToString(chunkData);
+						
+						DiffResult res = d.CreateWordDiffs(OldText, NewText, true, true, new[] {' ', '\r', '\n'});
+						//DiffResult res = d.CreateCharacterDiffs(OldText, NewText, true, true);
+
+						List<UnidiffEntry> diffList = UnidiffSeqFormater.GenerateWithLineNumbers(res);
+						var queryTextDiffs = from dl in diffList
+							where dl.Type == UnidiffType.Insert
+							select dl;
+						
+						foreach (var e in queryTextDiffs) {
+							string text = e.Text;
+							text = text.Replace("\n", "");
+							if (text != "") {
+								System.Diagnostics.Debug.WriteLine(String.Format("TextDiff: {0} {1}", e.Index, text));
+								
+								this.InvestigatedPluginPresetFileFormatList.Add(
+									new InvestigatedPluginPresetFileFormat(e.Index, 0, name, label, display, text));
+							}
+						}
+					}
+				}
 			}
 		}
 	}
