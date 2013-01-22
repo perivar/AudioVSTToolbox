@@ -14,6 +14,8 @@ using System.IO;
 using System.Data;
 using System.Data.OleDb;
 
+using CommonUtils;
+
 namespace InvestigatePresetFileDump
 {
 	class Program
@@ -96,6 +98,520 @@ namespace InvestigatePresetFileDump
 		
 		public static string ImportXMLFileReturnEnumSections2(string xmlfilename, TextWriter tw)
 		{
+			#region nameMap
+			Dictionary<string, string> nameMap = new Dictionary<string, string>();
+			
+			nameMap.Add("AStartingPhase", "A - Starting phase");
+			nameMap.Add("APhaseRandomness", "A - Phase randomness");
+			nameMap.Add("APredelay", "A - Predelay");
+			nameMap.Add("AEnvelopeReleasePo", "A - Envelope release polyphonic scale");
+			nameMap.Add("ATimbre1_2Mix", "A - Timbre 1 & 2 mix");
+			nameMap.Add("ASubHarmonic1", "A - Sub-harmonic 1");
+			nameMap.Add("ASubHarmonic2", "A - Sub-harmonic 2");
+			nameMap.Add("ASubHarmonic3", "A - Sub-harmonic 3");
+			nameMap.Add("AHarmonicProtection", "A - Harmonic protection");
+			nameMap.Add("AClippingThreshold", "A - Clipping threshold");
+			nameMap.Add("AFX_DryMix", "A - FX / dry mix");
+			nameMap.Add("ATimeDomainVolume", "A - Time domain volume");
+			nameMap.Add("AFrequencyDomainEn", "A - Frequency domain envelope volume");
+			nameMap.Add("AAutoGain", "A - Auto-gain");
+			nameMap.Add("AVelocityToVolume", "A - Velocity to volume envelope attack time");
+			nameMap.Add("AVelocityToVolume2", "A - Velocity to volume envelope attack scale");
+			nameMap.Add("AReleaseVelocityTo", "A - Release velocity to envelope release scale");
+
+			nameMap.Add("ATremoloDepth", "A - Tremolo depth");
+			nameMap.Add("ATremoloSpeed", "A - Tremolo speed");
+			nameMap.Add("ATremoloStereoGap", "A - Tremolo stereo gap");
+
+			nameMap.Add("ABlurMix", "A - Blur mix");
+			nameMap.Add("ATimeBlurAttack", "A - Time blur attack");
+			nameMap.Add("ATimeBlurDecay", "A - Time blur decay");
+			nameMap.Add("AHarmonicBlurAmoun", "A - Harmonic blur amount");
+			nameMap.Add("AHarmonicBlurBotto", "A - Harmonic blur bottom tension");
+			nameMap.Add("AHarmonicBlurTopT", "A - Harmonic blur top tension");
+
+			nameMap.Add("APrismAmount", "A - Prism amount");
+			nameMap.Add("AHarmonizerMix", "A - Harmonizer mix");
+			nameMap.Add("AHarmonizerWidth", "A - Harmonizer width");
+			nameMap.Add("AHarmonizerStrength", "A - Harmonizer strength");
+			nameMap.Add("AHarmonizerPattern", "A - Harmonizer pattern - shift - offset");
+			nameMap.Add("AHarmonizerPattern2", "A - Harmonizer pattern - shift - step");
+			nameMap.Add("AHarmonizerPattern3", "A - Harmonizer pattern - gap - offset");
+			nameMap.Add("AHarmonizerPattern4", "A - Harmonizer pattern - gap - step");
+
+			nameMap.Add("AUnisonOrder", "A - Unison order");
+			nameMap.Add("AUnisonDistribution", "A - Unison distribution");
+			nameMap.Add("AUnisonAlternateDi", "A - Unison alternate distribution");
+			nameMap.Add("AUnisonPanning", "A - Unison panning");
+			nameMap.Add("AUnisonPitchThickn", "A - Unison pitch thickness");
+			nameMap.Add("AUnisonPhase", "A - Unison phase");
+
+			nameMap.Add("AFreqMultiplicator", "A - Freq multiplicator");
+			nameMap.Add("AFreqDivider", "A - Freq divider");
+			nameMap.Add("AHarmonicDetuningM", "A - Harmonic detuning multiplicator");
+			nameMap.Add("AHarmonicDetuningD", "A - Harmonic detuning divider");
+			nameMap.Add("APitchArticulatorA", "A - Pitch articulator amount");
+			nameMap.Add("APitchVibratoDepth", "A - Pitch vibrato depth");
+			nameMap.Add("APitchVibratoSpeed", "A - Pitch vibrato speed");
+			nameMap.Add("ALinear_Logarithmi", "A - Linear / logarithmic portamento curve");
+			nameMap.Add("AFixed_VariablePo", "A - Fixed / variable portamento / legato time");
+			nameMap.Add("APortamento_Legato", "A - Portamento / legato time");
+			nameMap.Add("APortamentoPitchLi", "A - Portamento pitch limit");
+
+			nameMap.Add("AAdaptiveFilter1E", "A - Adaptive filter 1 envelope mode");
+			nameMap.Add("AFilter1Frequency", "A - Filter 1 frequency");
+			nameMap.Add("AFilter1Scale", "A - Filter 1 scale");
+			nameMap.Add("AFilter1Width", "A - Filter 1 width");
+			nameMap.Add("AKeyToFilter1Fre", "A - Key to filter 1 frequency");
+			nameMap.Add("AFilter1EnvelopeA", "A - Filter 1 envelope amount");
+
+			//"A - Filter 1 resonance type";
+
+			nameMap.Add("AFilter1Resonance", "A - Filter 1 resonance / noise amount");
+			nameMap.Add("AFilter1Resonance2", "A - Filter 1 resonance / noise scale");
+			nameMap.Add("AFilter1Resonance3", "A - Filter 1 resonance width / noise length");
+			nameMap.Add("AFilter1Resonance4", "A - Filter 1 resonance offset");
+			nameMap.Add("AFilter1Resonance5", "A - Filter 1 resonance adaptive width / free noise");
+			nameMap.Add("AFilter1Resonance6", "A - Filter 1 resonance self-oscillation");
+
+			nameMap.Add("AAdaptiveFilter2E", "A - Adaptive filter 2 envelope mode");
+			nameMap.Add("AFilter2Frequency", "A - Filter 2 frequency");
+			nameMap.Add("AFilter2Scale", "A - Filter 2 scale");
+			nameMap.Add("AFilter2Width", "A - Filter 2 width");
+			nameMap.Add("AKeyToFilter2Fre", "A - Key to filter 2 frequency");
+			nameMap.Add("AFilter2EnvelopeA", "A - Filter 2 envelope amount");
+
+			nameMap.Add("AFilter2Resonance", "A - Filter 2 resonance / noise amount");
+			nameMap.Add("AFilter2Resonance2", "A - Filter 2 resonance / noise scale");
+			nameMap.Add("AFilter2Resonance3", "A - Filter 2 resonance width / noise length");
+			nameMap.Add("AFilter2Resonance4", "A - Filter 2 resonance offset");
+			nameMap.Add("AFilter2Resonance5", "A - Filter 2 resonance adaptive width / free noise");
+
+			nameMap.Add("AFilter1_2Mix_p", "A - Filter 1 & 2 mix (parallel - serial)");
+
+			nameMap.Add("APluckDecayLength", "A - Pluck decay length");
+
+			nameMap.Add("APhaserMix", "A - Phaser mix");
+			nameMap.Add("APhaserScale", "A - Phaser scale");
+			nameMap.Add("APhaserWidth", "A - Phaser width");
+			nameMap.Add("APhaserOffset", "A - Phaser offset");
+			nameMap.Add("APhaserOffsetMotio", "A - Phaser offset motion speed");
+			nameMap.Add("AKeyToPhaserOffse", "A - Key to phaser offset");
+
+			nameMap.Add("AImageTimeOffsetS", "A - Image time offset smoothing");
+			nameMap.Add("AImageTimeOffset", "A - Image time offset");
+			nameMap.Add("AImageFineSpeed", "A - Image fine speed");
+			nameMap.Add("AImageCoarseSpeed", "A - Image coarse speed");
+			nameMap.Add("AImageSharpening", "A - Image sharpening");
+			nameMap.Add("AImageGainInterpol", "A - Image gain interpolation curve");
+			nameMap.Add("AImageGainPixelSc", "A - Image gain pixel scale");
+			nameMap.Add("AImageGainMix", "A - Image gain mix");
+			nameMap.Add("AImageFreqMode", "A - Image freq mode");
+			nameMap.Add("AImageFreqInterpol", "A - Image freq interpolation curve");
+			nameMap.Add("AImageFreqPixelSc", "A - Image freq pixel scale");
+			nameMap.Add("AFormantShift", "A - Formant shift");
+			nameMap.Add("AImageFormantShift", "A - Image formant shift mix");
+
+			// Articulators
+			nameMap.Add("APanningArticulat", "A - Panning - Articulator output smoothing");
+			nameMap.Add("AVolumeArticulato", "A - Volume - Articulator output smoothing");
+			nameMap.Add("AFX_DryMixArti", "A - FX / dry mix - Articulator output smoothing");
+			nameMap.Add("ATimbre1_2Mix9", "A - Timbre 1 & 2 mix - Articulator output smoothing");
+			nameMap.Add("AFilter1Frequency9", "A - Filter 1 frequency - Articulator output smoothing");
+			nameMap.Add("AFilter2Frequency9", "A - Filter 2 frequency - Articulator output smoothing");
+			nameMap.Add("AFilter1WidthAr", "A - Filter 1 width - Articulator output smoothing");
+			nameMap.Add("AFilter2WidthAr", "A - Filter 2 width - Articulator output smoothing");
+			nameMap.Add("AFilter1Resonance31", "A - Filter 1 resonance amount - Articulator output smoothing");
+			nameMap.Add("AFilter2Resonance30", "A - Filter 2 resonance amount - Articulator output smoothing");
+			nameMap.Add("AFilter1Resonance32", "A - Filter 1 resonance width - Articulator output smoothing");
+			nameMap.Add("AFilter2Resonance31", "A - Filter 2 resonance width - Articulator output smoothing");
+			nameMap.Add("AFilter1Resonance33", "A - Filter 1 resonance offset - Articulator output smoothing");
+			nameMap.Add("AFilter2Resonance32", "A - Filter 2 resonance offset - Articulator output smoothing");
+			nameMap.Add("AFilter1_2Mix9", "A - Filter 1 & 2 mix - Articulator output smoothing");
+			nameMap.Add("APluckAmountArti", "A - Pluck amount - Articulator output smoothing");
+			nameMap.Add("APhaserMixArticu", "A - Phaser mix - Articulator output smoothing");
+			nameMap.Add("APhaserWidthArti", "A - Phaser width - Articulator output smoothing");
+			nameMap.Add("APhaserOffsetArt", "A - Phaser offset - Articulator output smoothing");
+			nameMap.Add("AHarmonizerMixAr", "A - Harmonizer mix - Articulator output smoothing");
+			nameMap.Add("AHarmonizerWidth9", "A - Harmonizer width - Articulator output smoothing");
+			nameMap.Add("AHarmonicClippingT9", "A - Harmonic clipping threshold - Articulator output smoothing");
+			nameMap.Add("AHarmonicBlurAmoun10", "A - Harmonic blur amount - Articulator output smoothing");
+			nameMap.Add("APrismAmountArti", "A - Prism amount - Articulator output smoothing");
+			nameMap.Add("APitchArticulator", "A - Pitch - Articulator output smoothing");
+			nameMap.Add("APitchVibratoDepth10", "A - Pitch vibrato depth - Articulator output smoothing");
+			nameMap.Add("AUnisonPitchThickn10", "A - Unison pitch thickness - Articulator output smoothing");
+			nameMap.Add("AImageTimeOffset9", "A - Image time offset - Articulator output smoothing");
+			nameMap.Add("AImageFineSpeed9", "A - Image fine speed - Articulator output smoothing");
+			nameMap.Add("AImageFormantShift10", "A - Image formant shift - Articulator output smoothing");
+			nameMap.Add("AImageFreqPixelSc10", "A - Image freq pixel scale - Articulator output smoothing");
+			nameMap.Add("AFilter1EnvelopeA2", "A - Filter 1 envelope amount - Articulator output smoothing");
+			nameMap.Add("AFilter2EnvelopeA2", "A - Filter 2 envelope amount - Articulator output smoothing");
+			nameMap.Add("AGlobalEnvelopeAtt", "A - Global envelope attack time - Articulator output smoothing");
+			nameMap.Add("AGlobalEnvelopeAtt2", "A - Global envelope attack scale - Articulator output smoothing");
+			nameMap.Add("AGlobalEnvelopeDec", "A - Global envelope decay scale - Articulator output smoothing");
+			nameMap.Add("AGlobalEnvelopeSus", "A - Global envelope sustain offset - Articulator output smoothing");
+			nameMap.Add("AGlobalEnvelopeRel", "A - Global envelope release scale - Articulator output smoothing");
+			nameMap.Add("AGlobalLFOAmount", "A - Global LFO amount - Articulator output smoothing");
+			nameMap.Add("AGlobalLFOSpeed", "A - Global LFO speed - Articulator output smoothing");
+			nameMap.Add("AGlobalLFOPhase", "A - Global LFO phase - Articulator output smoothing");
+			nameMap.Add("AUnisonPhaseArti", "A - Unison phase - Articulator output smoothing");
+			nameMap.Add("APredelayArticula", "A - Predelay - Articulator output smoothing");
+
+			// Envelopes
+			nameMap.Add("APanningAttackTi", "A - Panning - Attack time scale");
+			nameMap.Add("APanningDecayTim", "A - Panning - Decay time scale");
+			nameMap.Add("APanningSustainL", "A - Panning - Sustain level offset");
+			nameMap.Add("APanningReleaseT", "A - Panning - Release time scale");
+			nameMap.Add("APanningLFOSpeed", "A - Panning - LFO speed");
+			nameMap.Add("APanningLFOTensi", "A - Panning - LFO tension");
+			nameMap.Add("APanningLFOSkew", "A - Panning - LFO skew");
+			nameMap.Add("APanningLFOPulse", "A - Panning - LFO pulse width");
+
+			nameMap.Add("AVolumeAttackTim", "A - Volume - Attack time scale");
+			nameMap.Add("AVolumeDecayTime", "A - Volume - Decay time scale");
+			nameMap.Add("AVolumeSustainLe", "A - Volume - Sustain level offset");
+			nameMap.Add("AVolumeReleaseTi", "A - Volume - Release time scale");
+			nameMap.Add("AVolumeLFOSpeed", "A - Volume - LFO speed");
+			nameMap.Add("AVolumeLFOTensio", "A - Volume - LFO tension");
+			nameMap.Add("AVolumeLFOSkew", "A - Volume - LFO skew");
+			nameMap.Add("AVolumeLFOPulse", "A - Volume - LFO pulse width");
+
+			nameMap.Add("AFX_DryMixAtta", "A - FX / dry mix - Attack time scale");
+			nameMap.Add("AFX_DryMixDeca", "A - FX / dry mix - Decay time scale");
+			nameMap.Add("AFX_DryMixSust", "A - FX / dry mix - Sustain level offset");
+			nameMap.Add("AFX_DryMixRele", "A - FX / dry mix - Release time scale");
+			nameMap.Add("AFX_DryMixLFO", "A - FX / dry mix - LFO speed");
+			nameMap.Add("AFX_DryMixLFO2", "A - FX / dry mix - LFO tension");
+			nameMap.Add("AFX_DryMixLFO3", "A - FX / dry mix - LFO skew");
+			nameMap.Add("AFX_DryMixLFO4", "A - FX / dry mix - LFO pulse width");
+
+			nameMap.Add("ATimbre1_2Mix__2", "A - Timbre 1 & 2 mix - Attack time scale");
+			nameMap.Add("ATimbre1_2Mix2", "A - Timbre 1 & 2 mix - Decay time scale");
+			nameMap.Add("ATimbre1_2Mix3", "A - Timbre 1 & 2 mix - Sustain level offset");
+			nameMap.Add("ATimbre1_2Mix4", "A - Timbre 1 & 2 mix - Release time scale");
+			nameMap.Add("ATimbre1_2Mix5", "A - Timbre 1 & 2 mix - LFO speed");
+			nameMap.Add("ATimbre1_2Mix6", "A - Timbre 1 & 2 mix - LFO tension");
+			nameMap.Add("ATimbre1_2Mix7", "A - Timbre 1 & 2 mix - LFO skew");
+			nameMap.Add("ATimbre1_2Mix8", "A - Timbre 1 & 2 mix - LFO pulse width");
+
+			nameMap.Add("AFilter1Frequency__2", "A - Filter 1 frequency - Attack time scale");
+			nameMap.Add("AFilter1Frequency2", "A - Filter 1 frequency - Decay time scale");
+			nameMap.Add("AFilter1Frequency3", "A - Filter 1 frequency - Sustain level offset");
+			nameMap.Add("AFilter1Frequency4", "A - Filter 1 frequency - Release time scale");
+			nameMap.Add("AFilter1Frequency5", "A - Filter 1 frequency - LFO speed");
+			nameMap.Add("AFilter1Frequency6", "A - Filter 1 frequency - LFO tension");
+			nameMap.Add("AFilter1Frequency7", "A - Filter 1 frequency - LFO skew");
+			nameMap.Add("AFilter1Frequency8", "A - Filter 1 frequency - LFO pulse width");
+
+			nameMap.Add("AFilter2Frequency__2", "A - Filter 2 frequency - Attack time scale");
+			nameMap.Add("AFilter2Frequency2", "A - Filter 2 frequency - Decay time scale");
+			nameMap.Add("AFilter2Frequency3", "A - Filter 2 frequency - Sustain level offset");
+			nameMap.Add("AFilter2Frequency4", "A - Filter 2 frequency - Release time scale");
+			nameMap.Add("AFilter2Frequency5", "A - Filter 2 frequency - LFO speed");
+			nameMap.Add("AFilter2Frequency6", "A - Filter 2 frequency - LFO tension");
+			nameMap.Add("AFilter2Frequency7", "A - Filter 2 frequency - LFO skew");
+			nameMap.Add("AFilter2Frequency8", "A - Filter 2 frequency - LFO pulse width");
+
+			nameMap.Add("AFilter1WidthAt", "A - Filter 1 width - Attack time scale");
+			nameMap.Add("AFilter1WidthDe", "A - Filter 1 width - Decay time scale");
+			nameMap.Add("AFilter1WidthSu", "A - Filter 1 width - Sustain level offset");
+			nameMap.Add("AFilter1WidthRe", "A - Filter 1 width - Release time scale");
+			nameMap.Add("AFilter1WidthLF", "A - Filter 1 width - LFO speed");
+			nameMap.Add("AFilter1WidthLF2", "A - Filter 1 width - LFO tension");
+			nameMap.Add("AFilter1WidthLF3", "A - Filter 1 width - LFO skew");
+			nameMap.Add("AFilter1WidthLF4", "A - Filter 1 width - LFO pulse width");
+
+			nameMap.Add("AFilter2WidthAt", "A - Filter 2 width - Attack time scale");
+			nameMap.Add("AFilter2WidthDe", "A - Filter 2 width - Decay time scale");
+			nameMap.Add("AFilter2WidthSu", "A - Filter 2 width - Sustain level offset");
+			nameMap.Add("AFilter2WidthRe", "A - Filter 2 width - Release time scale");
+			nameMap.Add("AFilter2WidthLF", "A - Filter 2 width - LFO speed");
+			nameMap.Add("AFilter2WidthLF2", "A - Filter 2 width - LFO tension");
+			nameMap.Add("AFilter2WidthLF3", "A - Filter 2 width - LFO skew");
+			nameMap.Add("AFilter2WidthLF4", "A - Filter 2 width - LFO pulse width");
+
+			nameMap.Add("AFilter1Resonance7", "A - Filter 1 resonance amount - Attack time scale");
+			nameMap.Add("AFilter1Resonance8", "A - Filter 1 resonance amount - Decay time scale");
+			nameMap.Add("AFilter1Resonance9", "A - Filter 1 resonance amount - Sustain level offset");
+			nameMap.Add("AFilter1Resonance10", "A - Filter 1 resonance amount - Release time scale");
+			nameMap.Add("AFilter1Resonance11", "A - Filter 1 resonance amount - LFO speed");
+			nameMap.Add("AFilter1Resonance12", "A - Filter 1 resonance amount - LFO tension");
+			nameMap.Add("AFilter1Resonance13", "A - Filter 1 resonance amount - LFO skew");
+			nameMap.Add("AFilter1Resonance14", "A - Filter 1 resonance amount - LFO pulse width");
+
+			nameMap.Add("AFilter2Resonance6", "A - Filter 2 resonance amount - Attack time scale");
+			nameMap.Add("AFilter2Resonance7", "A - Filter 2 resonance amount - Decay time scale");
+			nameMap.Add("AFilter2Resonance8", "A - Filter 2 resonance amount - Sustain level offset");
+			nameMap.Add("AFilter2Resonance9", "A - Filter 2 resonance amount - Release time scale");
+			nameMap.Add("AFilter2Resonance10", "A - Filter 2 resonance amount - LFO speed");
+			nameMap.Add("AFilter2Resonance11", "A - Filter 2 resonance amount - LFO tension");
+			nameMap.Add("AFilter2Resonance12", "A - Filter 2 resonance amount - LFO skew");
+			nameMap.Add("AFilter2Resonance13", "A - Filter 2 resonance amount - LFO pulse width");
+
+			nameMap.Add("AFilter1Resonance15", "A - Filter 1 resonance width - Attack time scale");
+			nameMap.Add("AFilter1Resonance16", "A - Filter 1 resonance width - Decay time scale");
+			nameMap.Add("AFilter1Resonance17", "A - Filter 1 resonance width - Sustain level offset");
+			nameMap.Add("AFilter1Resonance18", "A - Filter 1 resonance width - Release time scale");
+			nameMap.Add("AFilter1Resonance19", "A - Filter 1 resonance width - LFO speed");
+			nameMap.Add("AFilter1Resonance20", "A - Filter 1 resonance width - LFO tension");
+			nameMap.Add("AFilter1Resonance21", "A - Filter 1 resonance width - LFO skew");
+			nameMap.Add("AFilter1Resonance22", "A - Filter 1 resonance width - LFO pulse width");
+
+			nameMap.Add("AFilter2Resonance14", "A - Filter 2 resonance width - Attack time scale");
+			nameMap.Add("AFilter2Resonance15", "A - Filter 2 resonance width - Decay time scale");
+			nameMap.Add("AFilter2Resonance16", "A - Filter 2 resonance width - Sustain level offset");
+			nameMap.Add("AFilter2Resonance17", "A - Filter 2 resonance width - Release time scale");
+			nameMap.Add("AFilter2Resonance18", "A - Filter 2 resonance width - LFO speed");
+			nameMap.Add("AFilter2Resonance19", "A - Filter 2 resonance width - LFO tension");
+			nameMap.Add("AFilter2Resonance20", "A - Filter 2 resonance width - LFO skew");
+			nameMap.Add("AFilter2Resonance21", "A - Filter 2 resonance width - LFO pulse width");
+
+			nameMap.Add("AFilter1Resonance23", "A - Filter 1 resonance offset - Attack time scale");
+			nameMap.Add("AFilter1Resonance24", "A - Filter 1 resonance offset - Decay time scale");
+			nameMap.Add("AFilter1Resonance25", "A - Filter 1 resonance offset - Sustain level offset");
+			nameMap.Add("AFilter1Resonance26", "A - Filter 1 resonance offset - Release time scale");
+			nameMap.Add("AFilter1Resonance27", "A - Filter 1 resonance offset - LFO speed");
+			nameMap.Add("AFilter1Resonance28", "A - Filter 1 resonance offset - LFO tension");
+			nameMap.Add("AFilter1Resonance29", "A - Filter 1 resonance offset - LFO skew");
+			nameMap.Add("AFilter1Resonance30", "A - Filter 1 resonance offset - LFO pulse width");
+
+			nameMap.Add("AFilter2Resonance22", "A - Filter 2 resonance offset - Attack time scale");
+			nameMap.Add("AFilter2Resonance23", "A - Filter 2 resonance offset - Decay time scale");
+			nameMap.Add("AFilter2Resonance24", "A - Filter 2 resonance offset - Sustain level offset");
+			nameMap.Add("AFilter2Resonance25", "A - Filter 2 resonance offset - Release time scale");
+			nameMap.Add("AFilter2Resonance26", "A - Filter 2 resonance offset - LFO speed");
+			nameMap.Add("AFilter2Resonance27", "A - Filter 2 resonance offset - LFO tension");
+			nameMap.Add("AFilter2Resonance28", "A - Filter 2 resonance offset - LFO skew");
+			nameMap.Add("AFilter2Resonance29", "A - Filter 2 resonance offset - LFO pulse width");
+
+			nameMap.Add("AFilter1_2Mix", "A - Filter 1 & 2 mix - Attack time scale");
+			nameMap.Add("AFilter1_2Mix2", "A - Filter 1 & 2 mix - Decay time scale");
+			nameMap.Add("AFilter1_2Mix3", "A - Filter 1 & 2 mix - Sustain level offset");
+			nameMap.Add("AFilter1_2Mix4", "A - Filter 1 & 2 mix - Release time scale");
+			nameMap.Add("AFilter1_2Mix5", "A - Filter 1 & 2 mix - LFO speed");
+			nameMap.Add("AFilter1_2Mix6", "A - Filter 1 & 2 mix - LFO tension");
+			nameMap.Add("AFilter1_2Mix7", "A - Filter 1 & 2 mix - LFO skew");
+			nameMap.Add("AFilter1_2Mix8", "A - Filter 1 & 2 mix - LFO pulse width");
+
+			nameMap.Add("APluckAmountAtta", "A - Pluck amount - Attack time scale");
+			nameMap.Add("APluckAmountDeca", "A - Pluck amount - Decay time scale");
+			nameMap.Add("APluckAmountSust", "A - Pluck amount - Sustain level offset");
+			nameMap.Add("APluckAmountRele", "A - Pluck amount - Release time scale");
+			nameMap.Add("APluckAmountLFO", "A - Pluck amount - LFO speed");
+			nameMap.Add("APluckAmountLFO2", "A - Pluck amount - LFO tension");
+			nameMap.Add("APluckAmountLFO3", "A - Pluck amount - LFO skew");
+			nameMap.Add("APluckAmountLFO4", "A - Pluck amount - LFO pulse width");
+
+			nameMap.Add("APhaserMixAttack", "A - Phaser mix - Attack time scale");
+			nameMap.Add("APhaserMixDecay", "A - Phaser mix - Decay time scale");
+			nameMap.Add("APhaserMixSustai", "A - Phaser mix - Sustain level offset");
+			nameMap.Add("APhaserMixReleas", "A - Phaser mix - Release time scale");
+			nameMap.Add("APhaserMixLFOSp", "A - Phaser mix - LFO speed");
+			nameMap.Add("APhaserMixLFOTe", "A - Phaser mix - LFO tension");
+			nameMap.Add("APhaserMixLFOSk", "A - Phaser mix - LFO skew");
+			nameMap.Add("APhaserMixLFOPu", "A - Phaser mix - LFO pulse width");
+
+			nameMap.Add("APhaserWidthAtta", "A - Phaser width - Attack time scale");
+			nameMap.Add("APhaserWidthDeca", "A - Phaser width - Decay time scale");
+			nameMap.Add("APhaserWidthSust", "A - Phaser width - Sustain level offset");
+			nameMap.Add("APhaserWidthRele", "A - Phaser width - Release time scale");
+			nameMap.Add("APhaserWidthLFO", "A - Phaser width - LFO speed");
+			nameMap.Add("APhaserWidthLFO2", "A - Phaser width - LFO tension");
+			nameMap.Add("APhaserWidthLFO3", "A - Phaser width - LFO skew");
+			nameMap.Add("APhaserWidthLFO4", "A - Phaser width - LFO pulse width");
+
+			nameMap.Add("APhaserOffsetAtt", "A - Phaser offset - Attack time scale");
+			nameMap.Add("APhaserOffsetDec", "A - Phaser offset - Decay time scale");
+			nameMap.Add("APhaserOffsetSus", "A - Phaser offset - Sustain level offset");
+			nameMap.Add("APhaserOffsetRel", "A - Phaser offset - Release time scale");
+			nameMap.Add("APhaserOffsetLFO", "A - Phaser offset - LFO speed");
+			nameMap.Add("APhaserOffsetLFO2", "A - Phaser offset - LFO tension");
+			nameMap.Add("APhaserOffsetLFO3", "A - Phaser offset - LFO skew");
+			nameMap.Add("APhaserOffsetLFO4", "A - Phaser offset - LFO pulse width");
+
+			nameMap.Add("AHarmonizerMixAt", "A - Harmonizer mix - Attack time scale");
+			nameMap.Add("AHarmonizerMixDe", "A - Harmonizer mix - Decay time scale");
+			nameMap.Add("AHarmonizerMixSu", "A - Harmonizer mix - Sustain level offset");
+			nameMap.Add("AHarmonizerMixRe", "A - Harmonizer mix - Release time scale");
+			nameMap.Add("AHarmonizerMixLF", "A - Harmonizer mix - LFO speed");
+			nameMap.Add("AHarmonizerMixLF2", "A - Harmonizer mix - LFO tension");
+			nameMap.Add("AHarmonizerMixLF3", "A - Harmonizer mix - LFO skew");
+			nameMap.Add("AHarmonizerMixLF4", "A - Harmonizer mix - LFO pulse width");
+
+			nameMap.Add("AHarmonizerWidth__2", "A - Harmonizer width - Attack time scale");
+			nameMap.Add("AHarmonizerWidth2", "A - Harmonizer width - Decay time scale");
+			nameMap.Add("AHarmonizerWidth3", "A - Harmonizer width - Sustain level offset");
+			nameMap.Add("AHarmonizerWidth4", "A - Harmonizer width - Release time scale");
+			nameMap.Add("AHarmonizerWidth5", "A - Harmonizer width - LFO speed");
+			nameMap.Add("AHarmonizerWidth6", "A - Harmonizer width - LFO tension");
+			nameMap.Add("AHarmonizerWidth7", "A - Harmonizer width - LFO skew");
+			nameMap.Add("AHarmonizerWidth8", "A - Harmonizer width - LFO pulse width");
+
+			nameMap.Add("AHarmonicClippingT", "A - Harmonic clipping threshold - Attack time scale");
+			nameMap.Add("AHarmonicClippingT2", "A - Harmonic clipping threshold - Decay time scale");
+			nameMap.Add("AHarmonicClippingT3", "A - Harmonic clipping threshold - Sustain level offset");
+			nameMap.Add("AHarmonicClippingT4", "A - Harmonic clipping threshold - Release time scale");
+			nameMap.Add("AHarmonicClippingT5", "A - Harmonic clipping threshold - LFO speed");
+			nameMap.Add("AHarmonicClippingT6", "A - Harmonic clipping threshold - LFO tension");
+			nameMap.Add("AHarmonicClippingT7", "A - Harmonic clipping threshold - LFO skew");
+			nameMap.Add("AHarmonicClippingT8", "A - Harmonic clipping threshold - LFO pulse width");
+
+			nameMap.Add("AHarmonicBlurAmoun2", "A - Harmonic blur amount - Attack time scale");
+			nameMap.Add("AHarmonicBlurAmoun3", "A - Harmonic blur amount - Decay time scale");
+			nameMap.Add("AHarmonicBlurAmoun4", "A - Harmonic blur amount - Sustain level offset");
+			nameMap.Add("AHarmonicBlurAmoun5", "A - Harmonic blur amount - Release time scale");
+			nameMap.Add("AHarmonicBlurAmoun6", "A - Harmonic blur amount - LFO speed");
+			nameMap.Add("AHarmonicBlurAmoun7", "A - Harmonic blur amount - LFO tension");
+			nameMap.Add("AHarmonicBlurAmoun8", "A - Harmonic blur amount - LFO skew");
+			nameMap.Add("AHarmonicBlurAmoun9", "A - Harmonic blur amount - LFO pulse width");
+
+			nameMap.Add("APrismAmountAtta", "A - Prism amount - Attack time scale");
+			nameMap.Add("APrismAmountDeca", "A - Prism amount - Decay time scale");
+			nameMap.Add("APrismAmountSust", "A - Prism amount - Sustain level offset");
+			nameMap.Add("APrismAmountRele", "A - Prism amount - Release time scale");
+			nameMap.Add("APrismAmountLFO", "A - Prism amount - LFO speed");
+			nameMap.Add("APrismAmountLFO2", "A - Prism amount - LFO tension");
+			nameMap.Add("APrismAmountLFO3", "A - Prism amount - LFO skew");
+			nameMap.Add("APrismAmountLFO4", "A - Prism amount - LFO pulse width");
+
+			nameMap.Add("APitchAttackTime", "A - Pitch - Attack time scale");
+			nameMap.Add("APitchDecayTime", "A - Pitch - Decay time scale");
+			nameMap.Add("APitchSustainLev", "A - Pitch - Sustain level offset");
+			nameMap.Add("APitchReleaseTim", "A - Pitch - Release time scale");
+			nameMap.Add("APitchLFOSpeed", "A - Pitch - LFO speed");
+			nameMap.Add("APitchLFOTension", "A - Pitch - LFO tension");
+			nameMap.Add("APitchLFOSkew", "A - Pitch - LFO skew");
+			nameMap.Add("APitchLFOPulseW", "A - Pitch - LFO pulse width");
+
+			nameMap.Add("APitchVibratoDepth2", "A - Pitch vibrato depth - Attack time scale");
+			nameMap.Add("APitchVibratoDepth3", "A - Pitch vibrato depth - Decay time scale");
+			nameMap.Add("APitchVibratoDepth4", "A - Pitch vibrato depth - Sustain level offset");
+			nameMap.Add("APitchVibratoDepth5", "A - Pitch vibrato depth - Release time scale");
+			nameMap.Add("APitchVibratoDepth6", "A - Pitch vibrato depth - LFO speed");
+			nameMap.Add("APitchVibratoDepth7", "A - Pitch vibrato depth - LFO tension");
+			nameMap.Add("APitchVibratoDepth8", "A - Pitch vibrato depth - LFO skew");
+			nameMap.Add("APitchVibratoDepth9", "A - Pitch vibrato depth - LFO pulse width");
+
+			nameMap.Add("AUnisonPitchThickn2", "A - Unison pitch thickness - Attack time scale");
+			nameMap.Add("AUnisonPitchThickn3", "A - Unison pitch thickness - Decay time scale");
+			nameMap.Add("AUnisonPitchThickn4", "A - Unison pitch thickness - Sustain level offset");
+			nameMap.Add("AUnisonPitchThickn5", "A - Unison pitch thickness - Release time scale");
+			nameMap.Add("AUnisonPitchThickn6", "A - Unison pitch thickness - LFO speed");
+			nameMap.Add("AUnisonPitchThickn7", "A - Unison pitch thickness - LFO tension");
+			nameMap.Add("AUnisonPitchThickn8", "A - Unison pitch thickness - LFO skew");
+			nameMap.Add("AUnisonPitchThickn9", "A - Unison pitch thickness - LFO pulse width");
+
+			nameMap.Add("AImageTimeOffset__2", "A - Image time offset - Attack time scale");
+			nameMap.Add("AImageTimeOffset2", "A - Image time offset - Decay time scale");
+			nameMap.Add("AImageTimeOffset3", "A - Image time offset - Sustain level offset");
+			nameMap.Add("AImageTimeOffset4", "A - Image time offset - Release time scale");
+			nameMap.Add("AImageTimeOffset5", "A - Image time offset - LFO speed");
+			nameMap.Add("AImageTimeOffset6", "A - Image time offset - LFO tension");
+			nameMap.Add("AImageTimeOffset7", "A - Image time offset - LFO skew");
+			nameMap.Add("AImageTimeOffset8", "A - Image time offset - LFO pulse width");
+
+			nameMap.Add("AImageFineSpeed__2", "A - Image fine speed - Attack time scale");
+			nameMap.Add("AImageFineSpeed2", "A - Image fine speed - Decay time scale");
+			nameMap.Add("AImageFineSpeed3", "A - Image fine speed - Sustain level offset");
+			nameMap.Add("AImageFineSpeed4", "A - Image fine speed - Release time scale");
+			nameMap.Add("AImageFineSpeed5", "A - Image fine speed - LFO speed");
+			nameMap.Add("AImageFineSpeed6", "A - Image fine speed - LFO tension");
+			nameMap.Add("AImageFineSpeed7", "A - Image fine speed - LFO skew");
+			nameMap.Add("AImageFineSpeed8", "A - Image fine speed - LFO pulse width");
+
+			nameMap.Add("AImageFormantShift2", "A - Image formant shift - Attack time scale");
+			nameMap.Add("AImageFormantShift3", "A - Image formant shift - Decay time scale");
+			nameMap.Add("AImageFormantShift4", "A - Image formant shift - Sustain level offset");
+			nameMap.Add("AImageFormantShift5", "A - Image formant shift - Release time scale");
+			nameMap.Add("AImageFormantShift6", "A - Image formant shift - LFO speed");
+			nameMap.Add("AImageFormantShift7", "A - Image formant shift - LFO tension");
+			nameMap.Add("AImageFormantShift8", "A - Image formant shift - LFO skew");
+			nameMap.Add("AImageFormantShift9", "A - Image formant shift - LFO pulse width");
+
+			nameMap.Add("AImageFreqPixelSc2", "A - Image freq pixel scale - Attack time scale");
+			nameMap.Add("AImageFreqPixelSc3", "A - Image freq pixel scale - Decay time scale");
+			nameMap.Add("AImageFreqPixelSc4", "A - Image freq pixel scale - Sustain level offset");
+			nameMap.Add("AImageFreqPixelSc5", "A - Image freq pixel scale - Release time scale");
+			nameMap.Add("AImageFreqPixelSc6", "A - Image freq pixel scale - LFO speed");
+			nameMap.Add("AImageFreqPixelSc7", "A - Image freq pixel scale - LFO tension");
+			nameMap.Add("AImageFreqPixelSc8", "A - Image freq pixel scale - LFO skew");
+			nameMap.Add("AImageFreqPixelSc9", "A - Image freq pixel scale - LFO pulse width");
+
+			nameMap.Add("ModulationX", "Modulation X");
+			nameMap.Add("ModulationY", "Modulation Y");
+			nameMap.Add("ModulationZ", "Modulation Z");
+			nameMap.Add("LegatoPitchLimit", "Legato pitch limit");
+			nameMap.Add("LegatoMode", "Legato mode");
+			nameMap.Add("PortamentoMode", "Portamento mode");
+			nameMap.Add("Velocity_ReleaseToP", "Velocity / release to portamento / legato time");
+			nameMap.Add("StrumMode", "Strum mode");
+			nameMap.Add("StrumTime", "Strum time");
+			nameMap.Add("StrumTension", "Strum tension");
+			nameMap.Add("PartA_BMix", "Part A & B mix");
+			nameMap.Add("PreFXMainVolume", "Pre-FX main volume");
+			nameMap.Add("PostFXMainVolume", "Post-FX main volume");
+			nameMap.Add("VelocityToVolume", "Velocity to volume");
+			nameMap.Add("MainPitch", "Main pitch");
+			nameMap.Add("MainLFOAmount", "Main LFO amount");
+			nameMap.Add("InvertArpeggiator_if", "Invert arpeggiator (if any)");
+
+			nameMap.Add("DistortionAmount", "Distortion amount");
+			nameMap.Add("DistortionAsymmetry_", "Distortion asymmetry / extra");
+			nameMap.Add("DistortionWetVolume", "Distortion wet volume");
+			nameMap.Add("DistortionMix", "Distortion mix");
+			nameMap.Add("DistortionHighcut", "Distortion highcut");
+
+			nameMap.Add("EnableReverb", "Enable reverb");
+			nameMap.Add("ReverbLowcut", "Reverb lowcut");
+			nameMap.Add("ReverbHighcut", "Reverb highcut");
+			nameMap.Add("ReverbPredelay", "Reverb predelay");
+			nameMap.Add("ReverbRoomSize", "Reverb room size");
+			nameMap.Add("ReverbDiffusion", "Reverb diffusion");
+			nameMap.Add("ReverbDecay", "Reverb decay");
+			nameMap.Add("ReverbHighDamping", "Reverb high damping");
+			nameMap.Add("ReverbColor", "Reverb color");
+			nameMap.Add("ReverbWetVolume", "Reverb wet volume");
+
+			nameMap.Add("ChorusOrder", "Chorus order");
+			nameMap.Add("ChorusDepth", "Chorus depth");
+			nameMap.Add("ChorusSpeed", "Chorus speed");
+			nameMap.Add("ChorusDelay", "Chorus delay");
+			nameMap.Add("ChorusSpread", "Chorus spread");
+			nameMap.Add("ChorusCross", "Chorus cross");
+			nameMap.Add("ChorusMix", "Chorus mix");
+
+			nameMap.Add("EnableDelay", "Enable delay");
+			nameMap.Add("DelayFeedbackMode", "Delay feedback mode");
+			nameMap.Add("DelayFeedbackLevel", "Delay feedback level");
+			nameMap.Add("DelayTime", "Delay time");
+			nameMap.Add("DelayTimeStereoOffse", "Delay time stereo offset");
+			nameMap.Add("DelayInputVolume", "Delay input volume");
+			nameMap.Add("DelayInputPanning", "Delay input panning");
+			nameMap.Add("DelayLowcut", "Delay lowcut");
+			nameMap.Add("DelayHighcut", "Delay highcut");
+			nameMap.Add("DelayFeedbackDamping", "Delay feedback damping");
+
+			nameMap.Add("CompressionAmount", "Compression amount");
+			nameMap.Add("CompressionLowBand", "Compression low band");
+			nameMap.Add("CompressionMidBand", "Compression mid band");
+			#endregion
+			
+			// enums
+			/*
+			typedef enum <int> EQTYPE {
+				LowShelf = 0,
+				HighShelf = 1,
+				Band = 8,
+				LowPass = 3,
+				HighPass = 4,
+				AllPass = 5,
+				Notch = 6,
+				BandPass = 7,
+				Band_alt = 9,
+				Band_alt2 = 2
+			} var1;
+			 */
+			
 			StringBuilder enumSections = new StringBuilder();
 			tw.WriteLine("typedef struct {");
 			
@@ -119,7 +635,8 @@ namespace InvestigatePresetFileDump
 			var groupQuery = from row in data
 				group row by new {
 				IndexInFile = row.IndexInFile,
-				ParameterNameFormatted = row.ParameterNameFormatted
+				ParameterNameFormatted = row.ParameterNameFormatted,
+				ParameterName = row.ParameterName
 			}
 			into groupedTable
 				select new
@@ -133,6 +650,25 @@ namespace InvestigatePresetFileDump
 			// turn into dictionary
 			var groupedDict = groupQuery.ToDictionary(p => p.Keys.IndexInFile, t => t.SubGroup);
 
+			// read in file	with manual entries
+			TextReader manualFileReader = new StreamReader(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\InvestigatePresetFileDump\manual harmor entries.txt");
+			string line = null;
+			while ((line = manualFileReader.ReadLine()) != null) {
+				Match indexMatch = Regex.Match(line, @"(^\d+)\s+(.+)$");
+				Match enumMatch = Regex.Match(line, @"(^[a-zA-Z\s]+)\s+(\d+)$");
+				if (indexMatch.Success) {
+					string index = indexMatch.Groups[1].Value;
+					int indexKey = int.Parse(index);
+					string field = indexMatch.Groups[2].Value;
+					if (!groupedDict.ContainsKey(indexKey)) {
+						//groupedDict.Add(indexKey, null);
+					}
+				} else if (enumMatch.Success) {
+					string enumEntry = enumMatch.Groups[1].Value.Trim();
+					string enumValue = enumMatch.Groups[2].Value;
+				}
+			}
+			
 			int low = groupedDict.Keys.Min();
 			int high = groupedDict.Keys.Max();
 			
@@ -140,21 +676,23 @@ namespace InvestigatePresetFileDump
 			
 			int numberOfBytes = 0;
 			int prevFirstIndex = 0;
+			string prevNameFormatted = "";
 			string prevName = "";
 			Dictionary<string, int> processedNames = new Dictionary<string, int>();
 			for (int i = low; i <= high; i++) {
 				if (groupedDict.ContainsKey(i)) {
-					string name = groupedDict[i].Key.ParameterNameFormatted;
+					string nameFormatted = groupedDict[i].Key.ParameterNameFormatted;
+					string name = groupedDict[i].Key.ParameterName;
 					int firstIndex = groupedDict[i].Key.IndexInFile;
-					if (!name.Equals(prevName)) {
+					if (!nameFormatted.Equals(prevNameFormatted)) {
 						// we detected a new parameter
 						
 						// check if we have processed name before
-						if (!processedNames.ContainsKey(prevName)) {
-							processedNames.Add(prevName, 1);
+						if (!processedNames.ContainsKey(prevNameFormatted)) {
+							processedNames.Add(prevNameFormatted, 1);
 						} else {
-							processedNames[prevName]++;
-							prevName = prevName + processedNames[prevName];
+							processedNames[prevNameFormatted]++;
+							prevNameFormatted = String.Format("{0}__{1}", prevNameFormatted, processedNames[prevNameFormatted]);
 						}
 						
 						if (i != low) {
@@ -163,7 +701,7 @@ namespace InvestigatePresetFileDump
 							// determine the dataType and Name
 							string datatypeAndName = "";
 							if (numberOfBytes > 8) {
-								datatypeAndName = String.Format("\tchar {0}[{1}];", CleanInput(prevName), numberOfBytes).PadRight(35);
+								datatypeAndName = String.Format("\tchar {0}[{1}];", CleanInput(prevNameFormatted), numberOfBytes).PadRight(35);
 							} else {
 								string dataType = "";
 								switch (numberOfBytes) {
@@ -183,20 +721,33 @@ namespace InvestigatePresetFileDump
 										dataType = numberOfBytes + "bytes";
 										break;
 								}
-								datatypeAndName = String.Format("\t{0} {1};", dataType, CleanInput(prevName)).PadRight(35);
+								datatypeAndName = String.Format("\t{0} {1};", dataType, CleanInput(prevNameFormatted)).PadRight(35);
+							}
+							
+							//nameMap
+							if (nameMap.ContainsKey(CleanInput(prevNameFormatted))) {
+								prevName = nameMap[CleanInput(prevNameFormatted)];
+								//prevName = CleanInput(StringUtils.ConvertCaseString(prevName, StringUtils.Case.PascalCase));
 							}
 
 							int prevLastIndex = prevFirstIndex + numberOfBytes - 1;
-							string indexAndValueRange = String.Format("// index {0}:{1} = {2} bytes", prevFirstIndex, prevLastIndex, numberOfBytes);
+							string indexAndValueRange = String.Format("// index {0}:{1} = {2} bytes ({3})", prevFirstIndex, prevLastIndex, numberOfBytes, prevName);
 
 							// output
 							tw.Write(datatypeAndName);
 							tw.WriteLine(indexAndValueRange);
+							/*
+							tw.Write(CleanInput(prevNameFormatted));
+							tw.Write("=\"");
+							tw.Write(prevName);
+							tw.Write("\";\n");
+							 */
 						}
 						
 						// reset
 						numberOfBytes = 1;
 						prevFirstIndex = firstIndex;
+						prevNameFormatted = nameFormatted;
 						prevName = name;
 					} else {
 						numberOfBytes++;
