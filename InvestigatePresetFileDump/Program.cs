@@ -33,7 +33,7 @@ namespace InvestigatePresetFileDump
 			tw.Write(PresetHeader());
 			
 			StringWriter stringWriter = new StringWriter();
-			string enumSections = ImportXMLFileReturnEnumSections2(
+			string enumSections = ImportXMLFileReturnEnumSectionsILHarmor(
 				//@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Release\output.xml",
 				@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\output2.xml",
 				stringWriter
@@ -96,7 +96,7 @@ namespace InvestigatePresetFileDump
 			return sb.ToString();
 		}
 		
-		public static string ImportXMLFileReturnEnumSections2(string xmlfilename, TextWriter tw)
+		public static string ImportXMLFileReturnEnumSectionsILHarmor(string xmlfilename, TextWriter tw)
 		{
 			#region nameMap
 			Dictionary<string, string> nameMap = new Dictionary<string, string>();
@@ -596,22 +596,6 @@ namespace InvestigatePresetFileDump
 			nameMap.Add("CompressionMidBand", "Compression mid band");
 			#endregion
 			
-			// enums
-			/*
-			typedef enum <int> EQTYPE {
-				LowShelf = 0,
-				HighShelf = 1,
-				Band = 8,
-				LowPass = 3,
-				HighPass = 4,
-				AllPass = 5,
-				Notch = 6,
-				BandPass = 7,
-				Band_alt = 9,
-				Band_alt2 = 2
-			} var1;
-			 */
-			
 			StringBuilder enumSections = new StringBuilder();
 			tw.WriteLine("typedef struct {");
 			
@@ -648,26 +632,72 @@ namespace InvestigatePresetFileDump
 			};
 			
 			// turn into dictionary
-			var groupedDict = groupQuery.ToDictionary(p => p.Keys.IndexInFile, t => t.SubGroup);
+			//var groupedDict = groupQuery.ToDictionary(p => p.Keys.IndexInFile, t => t.SubGroup);
+			var groupedDict = groupQuery.Select(i => new TemplateEntry {
+			                                    	ParameterName = i.Keys.ParameterName,
+			                                    	ParameterNameFormatted = i.Keys.ParameterNameFormatted,
+			                                    	IndexInFile = i.Keys.IndexInFile,
+			                                    	LowestValue = i.LowestValue,
+			                                    	HighestValue = i.HighestValue
+			                                    }).ToDictionary(p => p.IndexInFile, t => t);
+			
+			// enums
+			/*
+typedef enum <uint> EQSHAPE {
+    Bell        = 0x00000000,   // 0 (default)
+    LowShelf    = 0x3F800000,   // 1
+    LowCut      = 0x40000000,   // 2,
+    HighShelf   = 0x40400000,   // 3,
+    HighCut     = 0x40800000,   // 4,
+    Notch       = 0x40A00000    // 5
+} var1;
+			 */
 
-			// read in file	with manual entries
+			// read in file	with manual enum entries
 			TextReader manualFileReader = new StreamReader(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\InvestigatePresetFileDump\manual harmor entries.txt");
 			string line = null;
+			StringBuilder sb = new StringBuilder();
+			int lineCount = 0;
 			while ((line = manualFileReader.ReadLine()) != null) {
 				Match indexMatch = Regex.Match(line, @"(^\d+)\s+(.+)$");
 				Match enumMatch = Regex.Match(line, @"(^[a-zA-Z\s]+)\s+(\d+)$");
 				if (indexMatch.Success) {
+
+					if (lineCount > 0) {
+						sb.AppendLine("} var1;");
+						sb.AppendLine("");
+					}
+					
 					string index = indexMatch.Groups[1].Value;
 					int indexKey = int.Parse(index);
 					string field = indexMatch.Groups[2].Value;
+					string datatype = "int";
+					
 					if (!groupedDict.ContainsKey(indexKey)) {
-						//groupedDict.Add(indexKey, null);
+						groupedDict.Add(indexKey, new TemplateEntry {
+						                	ParameterName = field,
+						                	ParameterNameFormatted = StringUtils.ConvertCaseString(field, StringUtils.Case.PascalCase),
+						                	IndexInFile = indexKey,
+						                	IsEnum = true
+						                } );
+
+					} else {
+						groupedDict[indexKey].ParameterName = field;
+						groupedDict[indexKey].ParameterNameFormatted = StringUtils.ConvertCaseString(field, StringUtils.Case.PascalCase);
+						groupedDict[indexKey].IsEnum = true;
 					}
+					
+					sb.AppendLine(String.Format("typedef enum <{0}> {1} {{", datatype, CleanInput(StringUtils.ConvertCaseString(field, StringUtils.Case.PascalCase).ToUpper()) ));
 				} else if (enumMatch.Success) {
 					string enumEntry = enumMatch.Groups[1].Value.Trim();
 					string enumValue = enumMatch.Groups[2].Value;
+					sb.Append(String.Format("\t{0}", enumEntry).PadRight(20));
+					sb.Append(String.Format("= {0}", enumValue));
+					sb.AppendLine(",");
 				}
+				lineCount++;
 			}
+			enumSections = sb;
 			
 			int low = groupedDict.Keys.Min();
 			int high = groupedDict.Keys.Max();
@@ -678,12 +708,14 @@ namespace InvestigatePresetFileDump
 			int prevFirstIndex = 0;
 			string prevNameFormatted = "";
 			string prevName = "";
+			bool isPrevEnum = false;
 			Dictionary<string, int> processedNames = new Dictionary<string, int>();
 			for (int i = low; i <= high; i++) {
 				if (groupedDict.ContainsKey(i)) {
-					string nameFormatted = groupedDict[i].Key.ParameterNameFormatted;
-					string name = groupedDict[i].Key.ParameterName;
-					int firstIndex = groupedDict[i].Key.IndexInFile;
+					bool isEnum = groupedDict[i].IsEnum;
+					string nameFormatted = groupedDict[i].ParameterNameFormatted;
+					string name = groupedDict[i].ParameterName;
+					int firstIndex = groupedDict[i].IndexInFile;
 					if (!nameFormatted.Equals(prevNameFormatted)) {
 						// we detected a new parameter
 						
@@ -696,32 +728,36 @@ namespace InvestigatePresetFileDump
 						}
 						
 						if (i != low) {
-							//string dataType = NumberOfBytesToDataType(ref numberOfBytes, true, false);
-
-							// determine the dataType and Name
+							string dataType = "";
 							string datatypeAndName = "";
-							if (numberOfBytes > 8) {
-								datatypeAndName = String.Format("\tchar {0}[{1}];", CleanInput(prevNameFormatted), numberOfBytes).PadRight(35);
+							// determine the dataType and Name
+							if (isPrevEnum) {
+								// insert enum instead of datatype
+								string enumName = prevNameFormatted;
+								datatypeAndName = String.Format("\t{0} {1};", CleanInput(enumName.ToUpper()), enumName).PadRight(55);
 							} else {
-								string dataType = "";
-								switch (numberOfBytes) {
-									case 1:
-										dataType = "byte";
-										break;
-									case 2:
-										dataType = "int16";
-										break;
-									case 4:
-										dataType = "int32";
-										break;
-									case 8:
-										dataType = "int64";
-										break;
-									default:
-										dataType = numberOfBytes + "bytes";
-										break;
+								if (numberOfBytes > 8) {
+									datatypeAndName = String.Format("\tchar {0}[{1}];", CleanInput(prevNameFormatted), numberOfBytes).PadRight(55);
+								} else {
+									switch (numberOfBytes) {
+										case 1:
+											dataType = "byte";
+											break;
+										case 2:
+											dataType = "int16";
+											break;
+										case 4:
+											dataType = "int32";
+											break;
+										case 8:
+											dataType = "int64";
+											break;
+										default:
+											dataType = numberOfBytes + "bytes";
+											break;
+									}
+									datatypeAndName = String.Format("\t{0} {1};", dataType, CleanInput(prevNameFormatted)).PadRight(55);
 								}
-								datatypeAndName = String.Format("\t{0} {1};", dataType, CleanInput(prevNameFormatted)).PadRight(35);
 							}
 							
 							//nameMap
@@ -749,6 +785,7 @@ namespace InvestigatePresetFileDump
 						prevFirstIndex = firstIndex;
 						prevNameFormatted = nameFormatted;
 						prevName = name;
+						isPrevEnum = isEnum;
 					} else {
 						numberOfBytes++;
 					}
@@ -1055,6 +1092,25 @@ namespace InvestigatePresetFileDump
 			}
 			return strIn;
 			 */
+		}
+	}
+	
+	public class TemplateEntry {
+		
+		public string ParameterName { get; set; }
+		public string ParameterNameFormatted { get; set; }
+		public int IndexInFile { get; set; }
+		public double LowestValue { get; set; }
+		public double HighestValue { get; set; }
+		public bool IsEnum { get; set; }
+		
+		public override string ToString()
+		{
+			if (IsEnum) {
+				return string.Format("{0} = {1} [enum]", IndexInFile, ParameterName);
+			} else {
+				return string.Format("{0} = {1} [{2} - {3}]", IndexInFile, ParameterName, LowestValue, HighestValue);
+			}
 		}
 	}
 }
