@@ -1,11 +1,11 @@
-969		A - Unison distribution
+969,4	A - Unison distribution
 Classic				0
 Blurred				1
 Uniform				2
 Random				3
 Hz					4
 
-2421	A - Timbre blending mode
+2421,4	A - Timbre blending mode
 Fade				0
 Subtract			1
 Multiply			2
@@ -13,17 +13,17 @@ Maximum				3
 Minimum				4
 Pluck				5
 
-2441	A - Clipping mode
+2441,4	A - Clipping mode
 High threshold		0
 Soft low threshold	1
 Hard low threshold	2
 Subtraction			3
 
-2445	A - Sub-harmonic configuration
+2445,4	A - Sub-harmonic configuration
 Around fundamental	0
 Below fundamental	1
 
-2461	A - Phaser type
+2461,4	A - Phaser type
 Classic				200
 Triangle			201
 Eggs				202
@@ -36,7 +36,7 @@ Box					208
 Freq				209
 Custom				210
 
-2473	A - Filter 1 shape
+2473,4	A - Filter 1 shape
 Classic low pass 	0
 Classic band pass	1
 Classic band stop	2
@@ -57,7 +57,7 @@ Flat band pass		16
 Custom shape 1		17
 Custom shape 2		18
 
-2477	A - Filter 2 shape
+2477,4	A - Filter 2 shape
 Classic low pass 	0
 Classic band pass	1
 Classic band stop	2
@@ -78,7 +78,7 @@ Flat band pass		16
 Custom shape 1		17
 Custom shape 2		18
 
-2481	A - Filter 1 resonance type
+2481,4	A - Filter 1 resonance type
 Classic				100
 Cuberdon			101
 Pedestal			102
@@ -92,7 +92,7 @@ Noise				109
 Custom shape 1		110
 Custom shape 2		111
 
-2485	A - Filter 2 resonance type
+2485,4	A - Filter 2 resonance type
 Classic				100
 Cuberdon			101
 Pedestal			102
@@ -106,33 +106,13 @@ Noise				109
 Custom shape 1		110
 Custom shape 2		111
 
-84981	Strum mode
+84981,4	Strum mode
 Up					0
 Down				1
 Alt					2
 Random				3
 
-85101 - 85108	Chorus options
-Off
-Classic
-Thick
-Deep chorus
-Flanger
-Alt flanger
-Stereoized
-Modulation
-Surround flanger
-Vibration
-
-85045 - 85078	Reverb option
-Classic
-Large hall
-Cathedral
-The venue
-Drum room
-Small studio
-
-85237	Distortion type
+85237,4		Distortion type
 Off					0
 Classic				1
 Hill				2
@@ -146,9 +126,10 @@ Sincrush			9
 Bitcrush			10
 Bitjam				11
 
-85241	Compression type
+85241,4		Compression type
 Off					0
 Limiting			1
 Warming				2
 Heating				3
 Burning				4
+	

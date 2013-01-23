@@ -25,8 +25,7 @@ namespace InvestigatePresetFileDump
 		
 		public static void Main(string[] args)
 		{
-
-			string outputfilename = @"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\InvestigatePresetFileDump\Sweetscape Template Output V2.txt";
+			string outputfilename = @"..\..\Sweetscape Template Output.txt";
 
 			// create a writer and open the file
 			TextWriter tw = new StreamWriter(outputfilename);
@@ -34,8 +33,7 @@ namespace InvestigatePresetFileDump
 			
 			StringWriter stringWriter = new StringWriter();
 			string enumSections = ImportXMLFileReturnEnumSectionsILHarmor(
-				//@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Release\output.xml",
-				@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\output2.xml",
+				@"..\..\output.xml",
 				stringWriter
 			);
 			
@@ -641,71 +639,86 @@ namespace InvestigatePresetFileDump
 			                                    	HighestValue = i.HighestValue
 			                                    }).ToDictionary(p => p.IndexInFile, t => t);
 			
-			// enums
-			/*
-typedef enum <uint> EQSHAPE {
-    Bell        = 0x00000000,   // 0 (default)
-    LowShelf    = 0x3F800000,   // 1
-    LowCut      = 0x40000000,   // 2,
-    HighShelf   = 0x40400000,   // 3,
-    HighCut     = 0x40800000,   // 4,
-    Notch       = 0x40A00000    // 5
-} var1;
-			 */
-
 			// read in file	with manual enum entries
-			TextReader manualFileReader = new StreamReader(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\InvestigatePresetFileDump\manual harmor entries.txt");
-			string line = null;
-			StringBuilder sb = new StringBuilder();
+			TextReader manualFileReader = new StreamReader(@"..\..\manual harmor entries.txt");
 			int lineCount = 0;
+			string line = null;
+			
+			// the enums dictionary
+			// the dictionary key is a pair where the key is the enum name and the value is the enum byte size
+			// the dictionary value is a list of pairs where the key is the enum param name and the value is the enum param value
+			Dictionary<KeyValuePair<string, int>, List<KeyValuePair<string, int>>> enums = new Dictionary<KeyValuePair<string, int>, List<KeyValuePair<string, int>>>();
+			string enumBeingProcessed = "";
+			KeyValuePair<string, int> enumBeingProcessedPair = new KeyValuePair<string, int>();
 			while ((line = manualFileReader.ReadLine()) != null) {
-				Match indexMatch = Regex.Match(line, @"(^\d+)\s+(.+)$");
-				Match enumMatch = Regex.Match(line, @"(^[a-zA-Z\s]+)\s+(\d+)$");
+				Match indexMatch = Regex.Match(line, @"(^\d+),(\d+)\s+(.+)$");
+				Match enumMatch = Regex.Match(line, @"(^[a-zA-Z0-9\s]+)\s+(\d+)$");
 				if (indexMatch.Success) {
-
-					if (lineCount > 0) {
-						sb.AppendLine("} var1;");
-						sb.AppendLine("");
-					}
-					
+					// new enum
 					string index = indexMatch.Groups[1].Value;
 					int indexKey = int.Parse(index);
-					string field = indexMatch.Groups[2].Value;
-					string datatype = "int";
+					string bytes = indexMatch.Groups[2].Value;
+					int numBytes = int.Parse(bytes);
+					string field = indexMatch.Groups[3].Value;
+					string fieldFormatted = StringUtils.ConvertCaseString(field, StringUtils.Case.PascalCase);
+					
+					enumBeingProcessed = CleanInput(fieldFormatted.ToUpper());
+					enumBeingProcessedPair = new KeyValuePair<string, int>(enumBeingProcessed, numBytes);
 					
 					if (!groupedDict.ContainsKey(indexKey)) {
 						groupedDict.Add(indexKey, new TemplateEntry {
 						                	ParameterName = field,
-						                	ParameterNameFormatted = StringUtils.ConvertCaseString(field, StringUtils.Case.PascalCase),
+						                	ParameterNameFormatted = fieldFormatted,
 						                	IndexInFile = indexKey,
 						                	IsEnum = true
 						                } );
 
 					} else {
 						groupedDict[indexKey].ParameterName = field;
-						groupedDict[indexKey].ParameterNameFormatted = StringUtils.ConvertCaseString(field, StringUtils.Case.PascalCase);
+						groupedDict[indexKey].ParameterNameFormatted = fieldFormatted;
 						groupedDict[indexKey].IsEnum = true;
 					}
 					
-					sb.AppendLine(String.Format("typedef enum <{0}> {1} {{", datatype, CleanInput(StringUtils.ConvertCaseString(field, StringUtils.Case.PascalCase).ToUpper()) ));
+					enums.Add(enumBeingProcessedPair, new List<KeyValuePair<string, int>>() );
 				} else if (enumMatch.Success) {
-					string enumEntry = enumMatch.Groups[1].Value.Trim();
+					// new enum value element
+					string enumEntry = CleanInput(enumMatch.Groups[1].Value.Trim());
 					string enumValue = enumMatch.Groups[2].Value;
-					sb.Append(String.Format("\t{0}", enumEntry).PadRight(20));
-					sb.Append(String.Format("= {0}", enumValue));
-					sb.AppendLine(",");
+					
+					enums[enumBeingProcessedPair].Add(new KeyValuePair<string, int>(enumEntry, int.Parse(enumValue)));
+				} else {
+					// shouldn't get here
 				}
 				lineCount++;
+			}
+			
+			// create the enum sections
+			StringBuilder sb = new StringBuilder();
+			foreach (var enumEntry in enums)
+			{
+				sb.AppendLine(String.Format("typedef enum <{0}> {{", NumberOfBytesToDataType(enumEntry.Key.Value)));
+				int count = 1;
+				foreach (var enumValueEntry in enumEntry.Value) {
+					sb.Append(String.Format("\t{0}_{1}", enumEntry.Key.Key, enumValueEntry.Key).PadRight(20));
+					sb.Append(String.Format("= {0}", enumValueEntry.Value));
+					if (count < enumEntry.Value.Count) {
+						sb.AppendLine(",");
+						count++;
+					} else {
+						sb.AppendLine();
+					}
+				}
+				sb.AppendLine(String.Format("}} {0};\n", enumEntry.Key.Key));
 			}
 			enumSections = sb;
 			
 			int low = groupedDict.Keys.Min();
 			int high = groupedDict.Keys.Max();
 			
-			tw.WriteLine("\tFSeek( {0} );", low + FXP_OFFSET);
-			
 			int numberOfBytes = 0;
 			int prevFirstIndex = 0;
+			int prevLastIndex = 0;
+			int prevPrevLastIndex = 0;
 			string prevNameFormatted = "";
 			string prevName = "";
 			bool isPrevEnum = false;
@@ -715,6 +728,7 @@ typedef enum <uint> EQSHAPE {
 					bool isEnum = groupedDict[i].IsEnum;
 					string nameFormatted = groupedDict[i].ParameterNameFormatted;
 					string name = groupedDict[i].ParameterName;
+					
 					int firstIndex = groupedDict[i].IndexInFile;
 					if (!nameFormatted.Equals(prevNameFormatted)) {
 						// we detected a new parameter
@@ -727,79 +741,96 @@ typedef enum <uint> EQSHAPE {
 							prevNameFormatted = String.Format("{0}__{1}", prevNameFormatted, processedNames[prevNameFormatted]);
 						}
 						
+						// convert shortened name to correct name
+						if (nameMap.ContainsKey(CleanInput(prevNameFormatted))) {
+							prevName = nameMap[CleanInput(prevNameFormatted)];
+							prevNameFormatted = CleanInput(StringUtils.ConvertCaseString(prevName, StringUtils.Case.PascalCase));
+						}
+						
+						// skip first entry (since we are just writing one entry after the fact)
 						if (i != low) {
-							string dataType = "";
-							string datatypeAndName = "";
-							// determine the dataType and Name
-							if (isPrevEnum) {
-								// insert enum instead of datatype
-								string enumName = prevNameFormatted;
-								datatypeAndName = String.Format("\t{0} {1};", CleanInput(enumName.ToUpper()), enumName).PadRight(55);
-							} else {
-								if (numberOfBytes > 8) {
-									datatypeAndName = String.Format("\tchar {0}[{1}];", CleanInput(prevNameFormatted), numberOfBytes).PadRight(55);
-								} else {
-									switch (numberOfBytes) {
-										case 1:
-											dataType = "byte";
-											break;
-										case 2:
-											dataType = "int16";
-											break;
-										case 4:
-											dataType = "int32";
-											break;
-										case 8:
-											dataType = "int64";
-											break;
-										default:
-											dataType = numberOfBytes + "bytes";
-											break;
-									}
-									datatypeAndName = String.Format("\t{0} {1};", dataType, CleanInput(prevNameFormatted)).PadRight(55);
-								}
-							}
-							
-							//nameMap
-							if (nameMap.ContainsKey(CleanInput(prevNameFormatted))) {
-								prevName = nameMap[CleanInput(prevNameFormatted)];
-								//prevName = CleanInput(StringUtils.ConvertCaseString(prevName, StringUtils.Case.PascalCase));
-							}
-
-							int prevLastIndex = prevFirstIndex + numberOfBytes - 1;
-							string indexAndValueRange = String.Format("// index {0}:{1} = {2} bytes ({3})", prevFirstIndex, prevLastIndex, numberOfBytes, prevName);
-
-							// output
-							tw.Write(datatypeAndName);
-							tw.WriteLine(indexAndValueRange);
-							/*
-							tw.Write(CleanInput(prevNameFormatted));
-							tw.Write("=\"");
-							tw.Write(prevName);
-							tw.Write("\";\n");
-							 */
+							OutputTemplateLine(tw, isPrevEnum, prevName, prevNameFormatted, numberOfBytes, prevFirstIndex, ref prevLastIndex, prevPrevLastIndex);
 						}
 						
 						// reset
 						numberOfBytes = 1;
+						prevPrevLastIndex = prevLastIndex;
 						prevFirstIndex = firstIndex;
 						prevNameFormatted = nameFormatted;
 						prevName = name;
 						isPrevEnum = isEnum;
 					} else {
+						// continue processing the same field
 						numberOfBytes++;
 					}
 				} else {
-					// missing
+					// missing entry
 					numberOfBytes++;
 				}
 			}
 			
+			// output the last entry
+			OutputTemplateLine(tw, isPrevEnum, prevName, prevNameFormatted, numberOfBytes, prevFirstIndex, ref prevLastIndex, prevPrevLastIndex);
 			tw.WriteLine("} presetCONTENT;");
 			
 			return enumSections.ToString();
 		}
 
+		public static void OutputTemplateLine(TextWriter tw, bool isPrevEnum, string prevName, string prevNameFormatted, int numberOfBytes, int prevFirstIndex, ref int prevLastIndex, int prevPrevLastIndex) {
+
+			string dataType = "";
+			string datatypeAndName = "";
+			// determine the dataType and Name
+			if (isPrevEnum) {
+				// insert enum instead of datatype
+				string enumName = CleanInput(prevNameFormatted.ToUpper());
+				datatypeAndName = String.Format("\t{0} {1};", enumName, prevNameFormatted).PadRight(55);
+				if (numberOfBytes < 4) {
+					// TODO: do we have to do something with the fact that it's not 4 bytes (int)?
+				} else {
+					numberOfBytes = 4;
+				}
+			} else {
+				if (numberOfBytes > 8) {
+					//datatypeAndName = String.Format("\tchar {0}[{1}];", CleanInput(prevNameFormatted), numberOfBytes).PadRight(55);
+
+					// force int32 - 4 bytes
+					datatypeAndName = String.Format("\tint32 {0};", CleanInput(prevNameFormatted)).PadRight(55);
+					numberOfBytes = 4;
+				} else {
+					dataType = NumberOfBytesToDataType(numberOfBytes);
+					datatypeAndName = String.Format("\t{0} {1};", dataType, CleanInput(prevNameFormatted)).PadRight(55);
+				}
+			}
+			
+			// set prevLastIndex
+			prevLastIndex = prevFirstIndex + numberOfBytes - 1;
+			
+			// create comment
+			string indexAndValueRange = String.Format("// index {0}:{1} = {2} bytes ({3})", prevFirstIndex, prevLastIndex, numberOfBytes, prevName);
+
+			// write seek part (i.e. move pointer to first byte) if the first byte is not
+			// directly succeding the last section that was written
+			bool prevSkipSeek = false;
+			if (!prevSkipSeek && (prevPrevLastIndex + 1 != prevFirstIndex)) {
+				string seekEntry = String.Format("\tFSeek( {0} );", prevFirstIndex + FXP_OFFSET).PadRight(55);
+				string seekComment = String.Format("// skipped {0} bytes", prevFirstIndex - prevPrevLastIndex - 1);
+				tw.WriteLine("{0}{1}", seekEntry, seekComment);
+			}
+			
+			// output
+			tw.Write(datatypeAndName);
+			tw.WriteLine(indexAndValueRange);
+
+			/*
+							tw.Write(CleanInput(prevNameFormatted));
+							tw.Write("=\"");
+							tw.Write(prevName);
+							tw.Write("\";\n");
+			 */
+			
+		}
+		
 		/* Import XML file output from
 		 * */
 		public static string ImportXMLFileReturnEnumSections(string xmlfilename, TextWriter tw)
@@ -1019,6 +1050,29 @@ typedef enum <uint> EQSHAPE {
 			if (result == 3.911555E-07) result = 0;
 
 			return result;
+		}
+		
+		public static string NumberOfBytesToDataType(int numberOfBytes) {
+			string dataType = "";
+			switch (numberOfBytes) {
+				case 1:
+					dataType = "byte";
+					break;
+				case 2:
+					dataType = "int16";
+					break;
+				case 4:
+					dataType = "int32";
+					break;
+				case 8:
+					dataType = "int64";
+					break;
+				default:
+					//dataType = numberOfBytes + "bytes";
+					dataType = "uint32";
+					break;
+			}
+			return dataType;
 		}
 		
 		public static string NumberOfBytesToDataType(ref int numberOfBytes, bool use4BytesAsInt, bool update = false ) {
