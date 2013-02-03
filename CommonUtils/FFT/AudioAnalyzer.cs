@@ -603,12 +603,18 @@ namespace CommonUtils.FFT
 		///   Y axis - frequency
 		///   Color - magnitude level of corresponding band value of the signal
 		/// </remarks>
+		/// <remarks>This is a copy of the method with the same name from
+		/// Soundfingerprinting.SoundTools.Imaging.cs in
+		/// https://code.google.com/p/soundfingerprinting/
+		/// </remarks>
 		public static Bitmap GetSpectrogramImage(float[][] spectrogram, int width, int height)
 		{
+			#if SAFE
 			if (width < 0)
 				throw new ArgumentException("width should be bigger than 0");
 			if (height < 0)
 				throw new ArgumentException("height should be bigger than 0");
+			#endif
 			Bitmap image = new Bitmap(width, height);
 			Graphics graphics = Graphics.FromImage(image);
 			
@@ -656,10 +662,12 @@ namespace CommonUtils.FFT
 		/// <returns>Spectral image of the signal</returns>
 		public static Bitmap GetSpectrogramImage(float[][] spectrogram, int width, int height, double milliseconds, double sampleRate, ColorUtils.ColorPaletteType colorPalette, bool doLogScale, int[] logFrequenciesIndex, float[] logFrequencies)
 		{
+			#if SAFE
 			if (width < 0)
 				throw new ArgumentException("width should be bigger than 0");
 			if (height < 0)
 				throw new ArgumentException("height should be bigger than 0");
+			#endif
 
 			bool drawLabels = true;
 			float minDb = -90.0f; // -80.0f also works good
@@ -1264,6 +1272,71 @@ namespace CommonUtils.FFT
 			}
 			
 			return png;
+		}
+		
+		/// <summary>
+		/// Draw a waveform of the signal
+		/// </summary>
+		/// <param name = "data">Data to be drawn</param>
+		/// <param name = "width">Width of the image</param>
+		/// <param name = "height">Height of the image</param>
+		/// <returns>Bitmap</returns>
+		/// <remarks>This is a copy of the method GetSignalImage from
+		/// Soundfingerprinting.SoundTools.Imaging.cs in
+		/// https://code.google.com/p/soundfingerprinting/
+		/// </remarks>
+		public static Bitmap DrawWaveform(float[] data, int width, int height)
+		{
+			#if SAFE
+			// create new image
+			if (data == null)
+				throw new ArgumentException("Bitmap data was not supplied");
+			if (width < 0)
+				throw new ArgumentException("width should be bigger than 0");
+			if (height < 0)
+				throw new ArgumentException("height should be bigger than 0");
+			#endif
+			Bitmap image = new Bitmap(width, height);
+			Graphics graphics = Graphics.FromImage(image);
+			/*Fill Back color*/
+			using (Brush brush = new SolidBrush(Color.Black))
+			{
+				graphics.FillRectangle(brush, new Rectangle(0, 0, width, height));
+			}
+			const int gridline = 50; /*Every 50 pixels draw gridline*/
+			/*Draw gridlines*/
+			using (Pen pen = new Pen(Color.Red, 1))
+			{
+				/*Draw horizontal gridlines*/
+				for (int i = 1; i < height/gridline; i++)
+				{
+					graphics.DrawLine(pen, 0, i*gridline, width, i*gridline);
+				}
+
+				/*Draw vertical gridlines*/
+				for (int i = 1; i < width/gridline; i++)
+				{
+					graphics.DrawLine(pen, i*gridline, 0, i*gridline, height);
+				}
+			}
+			int center = height/2;
+			/*Draw lines*/
+			using (Pen pen = new Pen(Color.MediumSpringGreen, 1))
+			{
+				/*Find delta X, by which the lines will be drawn*/
+				double deltaX = (double) width/data.Length;
+				double normalizeFactor = data.Max((a) => Math.Abs(a))/((double) height/2);
+				for (int i = 0, n = data.Length; i < n; i++)
+				{
+					graphics.DrawLine(pen, (float) (i*deltaX), center, (float) (i*deltaX), (float) (center - (data[i]/normalizeFactor)));
+				}
+			}
+			using (Pen pen = new Pen(Color.DarkGreen, 1))
+			{
+				/*Draw center line*/
+				graphics.DrawLine(pen, 0, center, width, center);
+			}
+			return image;
 		}
 		#endregion
 	}

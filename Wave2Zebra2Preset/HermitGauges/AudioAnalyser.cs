@@ -18,7 +18,7 @@
 using System;
 
 using Wave2Zebra2Preset.HermitGauges;
-using CommonUtils.Audio;
+using CommonUtils.Audio.Bass;
 using Lomont;
 
 namespace Wave2Zebra2Preset.HermitGauges

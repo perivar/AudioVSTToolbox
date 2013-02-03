@@ -30,6 +30,7 @@ using Wave2Zebra2Preset.HermitGauges;
 using CommonUtils;
 using CommonUtils.FFT;
 using CommonUtils.Audio.NAudio;
+using CommonUtils.Audio.Bass;
 
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -335,6 +336,7 @@ namespace Wave2Zebra2Preset
 			//Export.exportCSV(@"c:\bass.csv", wavDataVB6);
 			
 			float[] wavDataNaudio = AudioUtilsNAudio.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 0);
+			//float[] wavDataNaudio = AudioUtilsNAudio.ReadMonoFromFile(fileName, (int) sampleRate, 0, 0);
 			
 			/*
 			float[] wavDataNaudio = new float[(int) (sampleRate*secondsToSample)];
@@ -418,14 +420,26 @@ namespace Wave2Zebra2Preset
 			//double[][] mfcc = mfcclib.Process(riff.SoundData[0]);
 			//float[][] mfccFloats = MathUtils.DoubleToFloat(mfcc);
 			
-			Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(wavDataNaudio, 1200, 600, sampleRate, fftWindowsSize, fftOverlap, ColorUtils.ColorPaletteType.PHOTOSOUNDER, true);
-			spectro.Save(@"c:\spectrogram-rew.png");
+			// GENERATE SPECTROGRAM
+			//Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(wavDataNaudio, 1200, 600, sampleRate, fftWindowsSize, fftOverlap, ColorUtils.ColorPaletteType.PHOTOSOUNDER, true);
+			//spectro.Save(@"c:\spectrogram-rew.png");
+			
+			// The following lines replicate the BtnDrawSpectrumClick method
+			// from Soundfingerprinting.SoundTools.DrawningTool
+			fileName = @"C:\Users\perivar.nerseth\Music\Maid with the Flaxen Hair.mp3";
+			float[] wavDataBass = AudioUtilsBass.ReadMonoFromFile(fileName, 5512, 0, 0 );
+			float[][] data = AudioAnalyzer.CreateSpectrogramLomont(wavDataBass, 2048, 64);
+			Bitmap image = AudioAnalyzer.GetSpectrogramImage(data, 1000, 800);
+			image.Save(@"C:\Users\perivar.nerseth\Music\Maid with the Flaxen Hair_spectrum_2.jpg", ImageFormat.Jpeg);
 			
 			//float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, secondsToSample*1000, 0);
 			//Bitmap logspectro = AudioAnalyzer.GetSpectrogramImage(logSpectrogram, 1200, 600, secondsToSample*1000, sampleRate, ColorUtils.ColorPaletteType.REW);
 			//logspectro.Save(@"c:\spectrogram-log.png");
 			
 			//Bitmap waveform = AudioAnalyzer.DrawWaveform(wavDataVB6, new Size (1200, 600), 0, 1, 0, sampleRate);
+			//waveform.Save(@"c:\waveform.png");
+			
+			//Bitmap waveform = AudioAnalyzer.DrawWaveform(wavDataNaudio, 1200, 600);
 			//waveform.Save(@"c:\waveform.png");
 			
 			Console.Write("Press any key to continue . . . ");

@@ -13,7 +13,7 @@ using Wave2Zebra2Preset.DataAccess;
 using Wave2Zebra2Preset.Model;
 
 using CommonUtils;
-using CommonUtils.Audio;
+using CommonUtils.Audio.Bass;
 
 using Un4seen.Bass.AddOn.Tags;
 

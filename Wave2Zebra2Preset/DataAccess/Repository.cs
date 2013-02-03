@@ -15,7 +15,7 @@ using Wave2Zebra2Preset.Model;
 using Un4seen.Bass.AddOn.Tags;
 
 using CommonUtils;
-using CommonUtils.Audio;
+using CommonUtils.Audio.Bass;
 
 namespace Wave2Zebra2Preset.DataAccess
 {

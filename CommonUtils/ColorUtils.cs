@@ -664,6 +664,10 @@ namespace CommonUtils
 		/// <param name = "value">Value</param>
 		/// <param name = "maxValue">Max range of the values</param>
 		/// <returns>Grey color corresponding to the value</returns>
+		/// <remarks>This is a copy of the method with the same name from
+		/// Soundfingerprinting.SoundTools.Imaging.cs in
+		/// https://code.google.com/p/soundfingerprinting/
+		/// </remarks>
 		public static Color ValueToBlackWhiteColor(double value, double maxValue)
 		{
 			if (double.IsNaN(value)) return Color.Black;
