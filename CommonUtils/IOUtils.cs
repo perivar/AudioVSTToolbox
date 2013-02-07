@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
 namespace CommonUtils
@@ -16,6 +17,32 @@ namespace CommonUtils
 				throw new ArgumentNullException("extensions");
 			IEnumerable<FileInfo> files = dir.EnumerateFiles();
 			return files.Where(f => extensions.Contains(f.Extension)).ToArray<FileInfo>();
+		}
+		
+		/// <summary>
+		/// Get Files using regexp pattern like \.mp3|\.mp4\.wav\.ogg
+		/// </summary>
+		/// <param name="path">Directoy Path</param>
+		/// <param name="searchPatternExpression">Regexp pattern like \.mp3|\.mp4\.wav\.ogg</param>
+		/// <param name="searchOption">SearchOption like SearchOption.AllDirectories</param>
+		/// <returns>IEnumerable array of filenames</returns>
+		/// <example>IOUtils.GetFiles(path, "\\.mp3|\\.mp4\\.wav\\.ogg", SearchOption.AllDirectories);</example>
+		public static IEnumerable<string> GetFiles(string path, string searchPatternExpression = "", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+		{
+			Regex reSearchPattern = new Regex(searchPatternExpression);
+			return Directory.EnumerateFiles(path, "*", searchOption).Where(file => reSearchPattern.IsMatch(Path.GetExtension(file)));
+		}
+
+		/// <summary>
+		/// Get Files using regexp array of extensions and executes in parallel
+		/// </summary>
+		/// <param name="path">Directoy Path</param>
+		/// <param name="searchPatterns">Array of extensions like: string[] extensions = { "*.mp3", "*.wav", "*.ogg" };</param>
+		/// <param name="searchOption">SearchOption like SearchOption.AllDirectories</param>
+		/// <returns>IEnumerable array of filenames</returns>
+		public static IEnumerable<string> GetFiles(string path, string[] searchPatterns, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+		{
+			return searchPatterns.AsParallel().SelectMany(searchPattern => Directory.EnumerateFiles(path, searchPattern, searchOption));
 		}
 		
 		public static bool IsDirectory(string fileOrDirectoryPath) {

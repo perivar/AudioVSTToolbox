@@ -77,7 +77,7 @@ namespace CommonUtils
 		private long dataSize = 0;
 		private int sampleCount;
 		private int wFormatTag;
-		private double[][] soundData;
+		private float[][] soundData;
 		
 		private Dictionary<string, string> infoChunks = new Dictionary<string, string>();
 
@@ -92,7 +92,7 @@ namespace CommonUtils
 		public long DataSize { get { return dataSize;  } set { dataSize = value; } }
 		public int SampleCount { get { return sampleCount;  } set { sampleCount = value; } }
 		public int Format { get { return wFormatTag;  } set { wFormatTag = value; } }
-		public double[][] SoundData { get { return soundData;  } set { soundData = value; } }
+		public float[][] SoundData { get { return soundData;  } set { soundData = value; } }
 		public Dictionary<string, string> InfoChunks { get { return infoChunks;  } set { infoChunks = value; } }
 
 		public RiffRead (string value) {
@@ -345,9 +345,9 @@ namespace CommonUtils
 						if (sfield.Equals("data")) {
 							sampleCount = (int) dataSize / (wBitsPerSample / 8) / nChannels;
 							
-							soundData = new double[nChannels][];
+							soundData = new float[nChannels][];
 							for (int ic = 0; ic < nChannels; ic++) {
-								soundData[ic] = new double[sampleCount];
+								soundData[ic] = new float[sampleCount];
 							}
 
 							//********Data loading********
@@ -403,7 +403,7 @@ namespace CommonUtils
 			}
 		}
 
-		public static void Read8Bit(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+		public static void Read8Bit(BinaryFile wavfile, float[][] sound, Int32 samplecount, Int32 channels)
 		{
 			Int32 i = new Int32();
 			Int32 ic = new Int32();
@@ -417,12 +417,12 @@ namespace CommonUtils
 				for (ic = 0;ic<channels;ic++)
 				{
 					@byte = wavfile.ReadByte();
-					sound[ic][i] = (double) @byte/128.0 - 1.0;
+					sound[ic][i] = (float) @byte/128.0f - 1.0f;
 				}
 			}
 		}
 
-		public static void Read16Bit(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+		public static void Read16Bit(BinaryFile wavfile, float[][] sound, Int32 samplecount, Int32 channels)
 		{
 			Int32 i = new Int32();
 			Int32 ic = new Int32();
@@ -433,14 +433,14 @@ namespace CommonUtils
 
 			for (i = 0; i<samplecount; i++) {
 				for (ic = 0; ic<channels; ic++) {
-					double d = (double) wavfile.ReadInt16();
-					d = d / 32768.0;
-					sound[ic][i] = d;
+					float f = (float) wavfile.ReadInt16();
+					f = f / 32768.0f;
+					sound[ic][i] = f;
 				}
 			}
 		}
 
-		public static void Read32Bit(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+		public static void Read32Bit(BinaryFile wavfile, float[][] sound, Int32 samplecount, Int32 channels)
 		{
 			Int32 i = new Int32();
 			Int32 ic = new Int32();
@@ -452,14 +452,14 @@ namespace CommonUtils
 			for (i = 0;i<samplecount;i++) {
 				for (ic = 0;ic<channels;ic++)
 				{
-					double d = (double) wavfile.ReadInt32();
-					d = d / 2147483648.0;
-					sound[ic][i] = d;
+					float f = (float) wavfile.ReadInt32();
+					f = f / 2147483648.0f;
+					sound[ic][i] = f;
 				}
 			}
 		}
 
-		public static void Read32BitFloat(BinaryFile wavfile, double[][] sound, Int32 samplecount, Int32 channels)
+		public static void Read32BitFloat(BinaryFile wavfile, float[][] sound, Int32 samplecount, Int32 channels)
 		{
 			Int32 i = new Int32();
 			Int32 ic = new Int32();
@@ -471,8 +471,8 @@ namespace CommonUtils
 			for (i = 0;i<samplecount;i++) {
 				for (ic = 0;ic<channels;ic++)
 				{
-					double d = (double) wavfile.ReadSingle();
-					sound[ic][i] = d;
+					float f = (float) wavfile.ReadSingle();
+					sound[ic][i] = f;
 				}
 			}
 		}
