@@ -1,6 +1,10 @@
-﻿
-using System;
+﻿using System;
 
+/**
+ * Class for computing a windowed fast Fourier transform.
+ *  Implements some of the window functions for the STFT from
+ *  Harris (1978), Proc. IEEE, 66, 1, 51-83.
+ */
 namespace VIPSLib.Audio
 {
 	public class FFT
@@ -24,7 +28,6 @@ namespace VIPSLib.Audio
 		public const int FFT_POWER_PHASE = 6;
 		/** used to specify a inline power phase Fourier transform */
 		public const int FFT_INLINE_POWER_PHASE = 7;
-
 
 		/** used to specify a rectangular window function */
 		public const int WND_NONE = -1;
@@ -107,7 +110,6 @@ namespace VIPSLib.Audio
 			SetWindowFunction(windowFunctionType, support);
 		}
 		
-		
 		public void Transform(double[] re, double[] im)
 		{
 			//check for correct size of the real part data array
@@ -162,7 +164,6 @@ namespace VIPSLib.Audio
 					break;
 			}
 		}
-
 
 		/** The FFT method. Calculation is inline, for complex data stored
 		 *  in 2 separate arrays. Length of input data must be a power of two.
@@ -234,7 +235,6 @@ namespace VIPSLib.Audio
 			}
 		}
 
-
 		/** Computes the power spectrum of a real sequence (in place).
 		 *  @param re the real input and output data; length must be a power of 2
 		 */
@@ -248,7 +248,6 @@ namespace VIPSLib.Audio
 				re[i] = re[i] * re[i] + im[i] * im[i];
 		}
 
-
 		/** Computes the magnitude spectrum of a real sequence (in place).
 		 *  @param re the real input and output data; length must be a power of 2
 		 */
@@ -261,7 +260,6 @@ namespace VIPSLib.Audio
 			for (int i = 0; i < re.Length; i++)
 				re[i] = Math.Sqrt(re[i] * re[i] + im[i] * im[i]);
 		}
-
 
 		/** Computes the power spectrum of a real sequence (in place).
 		 *  @param re the real input and output data; length must be a power of 2
@@ -281,7 +279,6 @@ namespace VIPSLib.Audio
 			}
 		}
 
-
 		/** Converts a real power sequence from to magnitude representation,
 		 *  by computing the square root of each value.
 		 *  @param re the real input (power) and output (magnitude) data; length
@@ -292,7 +289,6 @@ namespace VIPSLib.Audio
 			for (int i = 0; i < re.Length; i++)
 				re[i] = Math.Sqrt(re[i]);
 		}
-
 
 		/** Computes a complex (or real if im[] == {0,...}) FFT and converts
 		 *  the results to polar coordinates (power and phase). Both arrays
@@ -313,7 +309,6 @@ namespace VIPSLib.Audio
 				re[i] = pow;
 			}
 		}
-
 
 		/** Inline computation of the inverse FFT given spectral input data
 		 *  in polar coordinates (power and phase).
@@ -337,7 +332,6 @@ namespace VIPSLib.Audio
 			CalFFT(pow, ph, FFT_REVERSE);
 		}
 
-
 		/** Computes a complex (or real if im[] == {0,...}) FFT and converts
 		 *  the results to polar coordinates (magnitude and phase). Both arrays
 		 *  must be the same length, which is a power of 2.
@@ -351,7 +345,6 @@ namespace VIPSLib.Audio
 			PowerPhaseFFT(re, im);
 			ToMagnitude(re);
 		}
-
 
 		/** Fill an array with the values of a standard Hamming window function
 		 *  @param data the array to be filled
@@ -369,7 +362,6 @@ namespace VIPSLib.Audio
 				windowFunction[i] = scale * (25.0/46.0 - 21.0/46.0 * Math.Cos(factor * i));
 		}
 
-
 		/** Fill an array with the values of a standard Hanning window function
 		 *  @param data the array to be filled
 		 *  @param size the number of non zero values; if the array is larger than
@@ -384,7 +376,6 @@ namespace VIPSLib.Audio
 			for (int i = 0; start < stop; start++, i++)
 				windowFunction[i] = 0.5 * (1 - Math.Cos(factor * i));
 		}
-
 
 		/** Fill an array with the values of a minimum 4-sample Blackman-Harris
 		 *  window function
@@ -405,7 +396,6 @@ namespace VIPSLib.Audio
 				                             0.01168 * Math.Cos(3 * PI2 * i / size));
 		}
 
-
 		/** Fill an array with the values of a 74-dB 4-sample Blackman-Harris
 		 *  window function
 		 *  @param data the array to be filled
@@ -425,7 +415,6 @@ namespace VIPSLib.Audio
 				                             0.00183 * Math.Cos(3 * PI2 * i / size));
 		}
 
-
 		/** Fill an array with the values of a minimum 3-sample Blackman-Harris
 		 *  window function
 		 *  @param data the array to be filled
@@ -444,7 +433,6 @@ namespace VIPSLib.Audio
 				                             0.07922 * Math.Cos(2 * PI2 * i / size));
 		}
 
-
 		/** Fill an array with the values of a 61-dB 3-sample Blackman-Harris
 		 *  window function
 		 *  @param data the array to be filled
@@ -462,7 +450,6 @@ namespace VIPSLib.Audio
 				                             0.49364 * Math.Cos(PI2 * i / size) +
 				                             0.05677 * Math.Cos(2 * PI2 * i / size));
 		}
-
 
 		/** Fill an array with the values of a Gaussian window function
 		 *  @param data the array to be filled
@@ -489,7 +476,6 @@ namespace VIPSLib.Audio
 				windowFunction[i] /= sum;
 		}
 
-
 		/** Fill an array with the values of a rectangular window function
 		 *  @param data the array to be filled
 		 *  @param size the number of non zero values; if the array is larger than
@@ -503,7 +489,6 @@ namespace VIPSLib.Audio
 			for (int i = start; i < stop; i++)
 				windowFunction[i] = 1.0 / (double) size;
 		}
-
 
 		/**
 		 * This method allows to change the window function to one of the predefined

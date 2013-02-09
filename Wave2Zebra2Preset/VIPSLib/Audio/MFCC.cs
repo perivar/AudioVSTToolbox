@@ -2,6 +2,32 @@
 
 using System;
 
+/**
+ * <b>Mel Frequency Cepstrum Coefficients - MFCCs</b>
+ *
+ * <p>Description: </p>
+ * Computes the MFCC representation of a pcm signal. The signal is cut into
+ * short overlapping frames, and for each frame, a feature vector is is computed,
+ * which consists of Mel Frequency Cepstrum Coefficients.<br>
+ * The cepstrum is the inverse Fourier transform of the log-spectrum. We call
+ * mel-cepstrum the cepstrum computed after a non-linear frequency wrapping onto
+ * a perceptual frequency scale, the Mel-frequency scale. Since it is a inverse
+ * Fourier transform, the resulting coefficients are called Mel frequency
+ * cepstrum coefficients (MFCC). Only the first few coefficients are used to
+ * represent a frame. The number of coefficients is a an important parameter.
+ * Therefore MFCCs provide a low-dimensional, smoothed version of the log
+ * spectrum, and thus are a good and compact representation of the spectral shape.
+ * They are widely used as features for speech recognition, and have also proved
+ * useful in music instrument recognition [1].<br>
+ *<br>
+ * [1] Aucouturier, Pachet "Improving Trimbre Similarity: How high's the sky?",
+ *     in Journal of Negative Results in Speech and Audio Sciences, 1(1), 2004.
+ *
+ *
+ * @author Klaus Seyerlehner
+ * @version 1.0
+ * Ported to C# by royalgarter-lifetime-projects
+ */
 namespace VIPSLib.Audio
 {
 	public class MFCC
@@ -27,8 +53,6 @@ namespace VIPSLib.Audio
 		private Matrix dctMatrix;
 		private Matrix melFilterBanks;
 		private FFT normalizedPowerFFT;
-		
-		
 
 		/**
 		 * Creates a new MFCC object with default window size of 512 for the given
@@ -194,7 +218,6 @@ namespace VIPSLib.Audio
 			return centers;
 		}
 
-
 		/**
 		 * This method creats a matrix containing <code>numberFilters</code>
 		 * mel-filters. Each filter is represented by one row of this matrix. Thus all
@@ -289,7 +312,6 @@ namespace VIPSLib.Audio
 			return result;
 		}
 
-
 		/**
 		 * Compute mel frequency from linear frequency.
 		 *
@@ -301,7 +323,6 @@ namespace VIPSLib.Audio
 			return (2595.0 * (Math.Log(1.0 + inputFreq / 700.0) / Math.Log(10.0)));
 		}
 
-
 		/**
 		 * Compute linear frequency from mel frequency.
 		 *
@@ -312,7 +333,6 @@ namespace VIPSLib.Audio
 		{
 			return (700.0 * (Math.Pow(10.0, (inputFreq / 2595.0)) - 1.0));
 		}
-
 
 		/**
 		 * Generates the DCT matrix for the known number of filters (input vector) and
@@ -352,7 +372,6 @@ namespace VIPSLib.Audio
 
 			return matrix;
 		}
-
 		
 		/**
 		 * Performs the transformation of the input data to MFCCs.
@@ -379,7 +398,6 @@ namespace VIPSLib.Audio
 				Array.Resize<double>(ref input, lenNew);
 				//throw new Exception("Input data must be multiple of hop size (windowSize/2).");
 			}
-			
 
 			//create return array with appropriate size
 			int len = (input.Length/hopSize)-1;
@@ -396,7 +414,6 @@ namespace VIPSLib.Audio
 			return mfcc;
 		}
 
-
 		/**
 		 * Returns the window size.
 		 *
@@ -406,7 +423,6 @@ namespace VIPSLib.Audio
 		{
 			return windowSize;
 		}
-
 
 		/**
 		 * Transforms one window of MFCCs. The following steps are

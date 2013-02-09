@@ -1,19 +1,65 @@
 ﻿using System;
 
+/*
+   Jama = Java Matrix class.
+<P>
+   The Java Matrix Class provides the fundamental operations of numerical
+   linear algebra.  Various constructors create Matrices from two dimensional
+   arrays of double precision floating point numbers.  Various "gets" and
+   "sets" provide access to submatrices and matrix elements.  Several methods
+   implement basic matrix arithmetic, including matrix addition and
+   multiplication, matrix norms, and element-by-element array operations.
+   Methods for reading and printing matrices are also included.  All the
+   operations in this version of the Matrix Class involve real matrices.
+   Complex matrices may be handled in a future version.
+<P>
+   Five fundamental matrix decompositions, which consist of pairs or triples
+   of matrices, permutation vectors, and the like, produce results in five
+   decomposition classes.  These decompositions are accessed by the Matrix
+   class to compute solutions of simultaneous linear equations, determinants,
+   inverses and other matrix functions.  The five decompositions are:
+<P><UL>
+   <LI>Cholesky Decomposition of symmetric, positive definite matrices.
+   <LI>LU Decomposition of rectangular matrices.
+   <LI>QR Decomposition of rectangular matrices.
+   <LI>Singular Value Decomposition of rectangular matrices.
+   <LI>Eigenvalue Decomposition of both symmetric and nonsymmetric square matrices.
+</UL>
+<DL>
+<DT><B>Example of use:</B></DT>
+<P>
+<DD>Solve a linear system A x = b and compute the residual norm, ||b - A x||.
+<P><PRE>
+      double[][] vals = {{1.,2.,3},{4.,5.,6.},{7.,8.,10.}};
+      Matrix A = new Matrix(vals);
+      Matrix b = Matrix.random(3,1);
+      Matrix x = A.solve(b);
+      Matrix r = A.times(x).minus(b);
+      double rnorm = r.normInf();
+</PRE></DD>
+</DL>
+
+@author The MathWorks, Inc. and the National Institute of Standards and Technology.
+@version 5 August 1998
+Ported to C# by royalgarter-lifetime-projects
+ */
 namespace VIPSLib.Maths
 {
 	public class Matrix
 	{
+		// Array for internal storage of elements.
 		private double[][] A;
-		private int m;
-		private int n;
 		
+		// Number of rows
+		private int m;
+		
+		// Number of columns
+		private int n;
 
 		/** Construct an m-by-n matrix of zeros.
 	   @param m    Number of rows.
 	   @param n    Number of colums.
 		 */
-
 		public Matrix (int m, int n) {
 			this.m = m;
 			this.n = n;
@@ -27,7 +73,6 @@ namespace VIPSLib.Maths
 	   @param n    Number of colums.
 	   @param s    Fill the matrix with this scalar value.
 		 */
-
 		public Matrix (int m, int n, double s) {
 			this.m = m;
 			this.n = n;
@@ -46,7 +91,6 @@ namespace VIPSLib.Maths
 	   @exception  Exception All rows must have the same length
 	   @see        #constructWithCopy
 		 */
-
 		public Matrix (double[][] A) {
 			m = A.Length;
 			n = A[0].Length;
@@ -63,7 +107,6 @@ namespace VIPSLib.Maths
 	   @param m    Number of rows.
 	   @param n    Number of colums.
 		 */
-
 		public Matrix (double[][] A, int m, int n) {
 			this.A = A;
 			this.m = m;
@@ -75,7 +118,6 @@ namespace VIPSLib.Maths
 	   @param m    Number of rows.
 	   @exception  Exception Array length must be a multiple of m.
 		 */
-
 		public Matrix (double[] vals, int m) {
 			this.m = m;
 			n = (m != 0 ? vals.Length/m : 0);
@@ -91,7 +133,6 @@ namespace VIPSLib.Maths
 				}
 			}
 		}
-		
 		
 		public static Matrix ConstructWithCopy(double[][] A) {
 			int m = A.Length;
@@ -112,7 +153,6 @@ namespace VIPSLib.Maths
 
 		/** Make a deep copy of a matrix
 		 */
-
 		public Matrix Copy () {
 			Matrix X = new Matrix(m,n);
 			double[][] C = X.GetArray();
@@ -126,7 +166,6 @@ namespace VIPSLib.Maths
 
 		/** Clone the Matrix object.
 		 */
-
 		public Object Clone () {
 			return this.Copy();
 		}
@@ -134,7 +173,6 @@ namespace VIPSLib.Maths
 		/** Access the internal two-dimensional array.
    		@return     Pointer to the two-dimensional array of matrix elements.
 		 */
-
 		public double[][] GetArray () {
 			return A;
 		}
@@ -142,7 +180,6 @@ namespace VIPSLib.Maths
 		/** Copy the internal two-dimensional array.
   		 @return     Two-dimensional array copy of matrix elements.
 		 */
-
 		public double[][] GetArrayCopy () {
 			double[][] C = new double[m][];
 			for (int i = 0; i < m; i++)
@@ -158,7 +195,6 @@ namespace VIPSLib.Maths
 		/** Make a one-dimensional column packed copy of the internal array.
    		@return     Matrix elements packed in a one-dimensional array by columns.
 		 */
-
 		public double[] GetColumnPackedCopy () {
 			double[] vals = new double[m*n];
 			for (int i = 0; i < m; i++) {
@@ -172,7 +208,6 @@ namespace VIPSLib.Maths
 		/** Make a one-dimensional row packed copy of the internal array.
    		@return     Matrix elements packed in a one-dimensional array by rows.
 		 */
-
 		public double[] GetRowPackedCopy () {
 			double[] vals = new double[m*n];
 			for (int i = 0; i < m; i++) {
@@ -186,7 +221,6 @@ namespace VIPSLib.Maths
 		/** Get row dimension.
    		@return     m, the number of rows.
 		 */
-
 		public int GetRowDimension () {
 			return m;
 		}
@@ -194,7 +228,6 @@ namespace VIPSLib.Maths
 		/** Get column dimension.
    		@return     n, the number of columns.
 		 */
-
 		public int GetColumnDimension () {
 			return n;
 		}
@@ -205,7 +238,6 @@ namespace VIPSLib.Maths
 	   @return     A(i,j)
 	   @exception  Exception
 		 */
-
 		public double[] this[int i]
 		{
 			get { return A[i]; }
@@ -224,7 +256,6 @@ namespace VIPSLib.Maths
 	   @return     A(i0:i1,j0:j1)
 	   @exception  Exception Submatrix indices
 		 */
-
 		public Matrix GetMatrix (int i0, int i1, int j0, int j1) {
 			Matrix X = new Matrix(i1-i0+1,j1-j0+1);
 			double[][] B = X.GetArray();
@@ -246,7 +277,6 @@ namespace VIPSLib.Maths
 	   @return     A(r(:),c(:))
 	   @exception  Exception Submatrix indices
 		 */
-
 		public Matrix GetMatrix (int[] r, int[] c) {
 			Matrix X = new Matrix(r.Length,c.Length);
 			double[][] B = X.GetArray();
@@ -269,7 +299,6 @@ namespace VIPSLib.Maths
 	   @return     A(i0:i1,c(:))
 	   @exception  Exception Submatrix indices
 		 */
-
 		public Matrix GetMatrix (int i0, int i1, int[] c) {
 			Matrix X = new Matrix(i1-i0+1,c.Length);
 			double[][] B = X.GetArray();
@@ -292,7 +321,6 @@ namespace VIPSLib.Maths
 	   @return     A(r(:),j0:j1)
 	   @exception  Exception Submatrix indices
 		 */
-
 		public Matrix GetMatrix (int[] r, int j0, int j1) {
 			Matrix X = new Matrix(r.Length,j1-j0+1);
 			double[][] B = X.GetArray();
@@ -314,7 +342,6 @@ namespace VIPSLib.Maths
 	   @param s    A(i,j).
 	   @exception  Exception
 		 */
-
 		public void Set (int i, int j, double s) {
 			A[i][j] = s;
 		}
@@ -327,7 +354,6 @@ namespace VIPSLib.Maths
 	   @param X    A(i0:i1,j0:j1)
 	   @exception  Exception Submatrix indices
 		 */
-
 		public void SetMatrix (int i0, int i1, int j0, int j1, Matrix X) {
 			try {
 				for (int i = i0; i <= i1; i++) {
@@ -346,7 +372,6 @@ namespace VIPSLib.Maths
 	   @param X    A(r(:),c(:))
 	   @exception  Exception Submatrix indices
 		 */
-
 		public void SetMatrix (int[] r, int[] c, Matrix X) {
 			try {
 				for (int i = 0; i < r.Length; i++) {
@@ -366,7 +391,6 @@ namespace VIPSLib.Maths
 	   @param X    A(r(:),j0:j1)
 	   @exception  Exception Submatrix indices
 		 */
-
 		public void SetMatrix (int[] r, int j0, int j1, Matrix X) {
 			try {
 				for (int i = 0; i < r.Length; i++) {
@@ -386,7 +410,6 @@ namespace VIPSLib.Maths
 	   @param X    A(i0:i1,c(:))
 	   @exception  Exception Submatrix indices
 		 */
-
 		public void SetMatrix (int i0, int i1, int[] c, Matrix X) {
 			try {
 				for (int i = i0; i <= i1; i++) {
@@ -402,7 +425,6 @@ namespace VIPSLib.Maths
 		/** Matrix transpose.
    		@return    A'
 		 */
-
 		public Matrix Transpose () {
 			Matrix X = new Matrix(n,m);
 			double[][] C = X.GetArray();
@@ -417,7 +439,6 @@ namespace VIPSLib.Maths
 		/** One norm
    		@return    maximum column sum.
 		 */
-
 		public double Norm1 () {
 			double f = 0;
 			for (int j = 0; j < n; j++) {
@@ -433,7 +454,6 @@ namespace VIPSLib.Maths
 		/** Two norm
    		@return    maximum singular value.
 		 */
-
 		public double Norm2 () {
 			throw new Exception("Not implement yet");
 		}
@@ -441,7 +461,6 @@ namespace VIPSLib.Maths
 		/** Infinity norm
    		@return    maximum row sum.
 		 */
-
 		public double NormInf () {
 			double f = 0;
 			for (int i = 0; i < m; i++) {
@@ -457,7 +476,6 @@ namespace VIPSLib.Maths
 		/** Frobenius norm
    		@return    sqrt of sum of squares of all elements.
 		 */
-
 		public double NormF () {
 			double f = 0;
 			for (int i = 0; i < m; i++) {
@@ -471,7 +489,6 @@ namespace VIPSLib.Maths
 		/**  Unary minus
   		 @return    -A
 		 */
-
 		public Matrix Uminus () {
 			Matrix X = new Matrix(m,n);
 			double[][] C = X.GetArray();
@@ -487,7 +504,6 @@ namespace VIPSLib.Maths
 	   @param B    another matrix
 	   @return     A + B
 		 */
-
 		public Matrix Plus (Matrix B) {
 			CheckMatrixDimensions(B);
 			Matrix X = new Matrix(m,n);
@@ -504,7 +520,6 @@ namespace VIPSLib.Maths
 	   @param B    another matrix
 	   @return     A + B
 		 */
-
 		public Matrix PlusEquals (Matrix B) {
 			CheckMatrixDimensions(B);
 			for (int i = 0; i < m; i++) {
@@ -519,7 +534,6 @@ namespace VIPSLib.Maths
 	   @param B    another matrix
 	   @return     A - B
 		 */
-
 		public Matrix Minus (Matrix B) {
 			CheckMatrixDimensions(B);
 			Matrix X = new Matrix(m,n);
@@ -536,7 +550,6 @@ namespace VIPSLib.Maths
 	   @param B    another matrix
 	   @return     A - B
 		 */
-
 		public Matrix MinusEquals (Matrix B) {
 			CheckMatrixDimensions(B);
 			for (int i = 0; i < m; i++) {
@@ -551,7 +564,6 @@ namespace VIPSLib.Maths
 	   @param B    another matrix
 	   @return     A.*B
 		 */
-
 		public Matrix ArrayTimes (Matrix B) {
 			CheckMatrixDimensions(B);
 			Matrix X = new Matrix(m,n);
@@ -568,7 +580,6 @@ namespace VIPSLib.Maths
 	   @param B    another matrix
 	   @return     A.*B
 		 */
-
 		public Matrix ArrayTimesEquals (Matrix B) {
 			CheckMatrixDimensions(B);
 			for (int i = 0; i < m; i++) {
@@ -583,7 +594,6 @@ namespace VIPSLib.Maths
 	   @param B    another matrix
 	   @return     A./B
 		 */
-
 		public Matrix ArrayRightDivide (Matrix B) {
 			CheckMatrixDimensions(B);
 			Matrix X = new Matrix(m,n);
@@ -600,7 +610,6 @@ namespace VIPSLib.Maths
 	   @param B    another matrix
 	   @return     A./B
 		 */
-
 		public Matrix ArrayRightDivideEquals (Matrix B) {
 			CheckMatrixDimensions(B);
 			for (int i = 0; i < m; i++) {
@@ -615,7 +624,6 @@ namespace VIPSLib.Maths
 	   @param B    another matrix
 	   @return     A.\B
 		 */
-
 		public Matrix ArrayLeftDivide (Matrix B) {
 			CheckMatrixDimensions(B);
 			Matrix X = new Matrix(m,n);
@@ -632,7 +640,6 @@ namespace VIPSLib.Maths
 	   @param B    another matrix
 	   @return     A.\B
 		 */
-
 		public Matrix ArrayLeftDivideEquals (Matrix B) {
 			CheckMatrixDimensions(B);
 			for (int i = 0; i < m; i++) {
@@ -647,7 +654,6 @@ namespace VIPSLib.Maths
 	   @param s    scalar
 	   @return     s*A
 		 */
-
 		public Matrix Times (double s) {
 			Matrix X = new Matrix(m,n);
 			double[][] C = X.GetArray();
@@ -663,7 +669,6 @@ namespace VIPSLib.Maths
 	   @param s    scalar
 	   @return     replace A by s*A
 		 */
-
 		public Matrix TimesEquals (double s) {
 			for (int i = 0; i < m; i++) {
 				for (int j = 0; j < n; j++) {
@@ -678,7 +683,6 @@ namespace VIPSLib.Maths
 	   @return     Matrix product, A * B
 	   @exception  Exception Matrix inner dimensions must agree.
 		 */
-
 		public Matrix Times (Matrix B) {
 			if (B.m != n) {
 				throw new Exception("Matrix inner dimensions must agree.");
@@ -832,7 +836,6 @@ namespace VIPSLib.Maths
 		/** Matrix trace.
   		 @return     sum of the diagonal elements.
 		 */
-
 		public double Trace () {
 			double t = 0;
 			for (int i = 0; i < Math.Min(m,n); i++) {
@@ -846,7 +849,6 @@ namespace VIPSLib.Maths
 	   @param n    Number of colums.
 	   @return     An m-by-n matrix with uniformly distributed random elements.
 		 */
-
 		public static Matrix Random (int m, int n) {
 			Random rand = new Random();
 			Matrix A = new Matrix(m,n);
@@ -864,7 +866,6 @@ namespace VIPSLib.Maths
 	   @param n    Number of colums.
 	   @return     An m-by-n matrix with ones on the diagonal and zeros elsewhere.
 		 */
-
 		public static Matrix Identity (int m, int n) {
 			Matrix A = new Matrix(m,n);
 			double[][] X = A.GetArray();
@@ -951,13 +952,14 @@ namespace VIPSLib.Maths
 				result += (vec1[i]-meanVec1)*(vec2[i]-meanVec2);
 			}
 			return result / Math.Max(1, dim-1);
-//		int dim = vec1.Length;
-//		if(vec2.Length != dim)
-//			(new Exception("vectors are not of same length")).printStackTrace();
-//		double[] times = new double[dim];
-//		for(int i=0; i<dim; i++)
-//			times[i] += vec1[i]*vec2[i];
-//		return mean(times) - mean(vec1)*mean(vec2);
+			
+			// int dim = vec1.Length;
+			// if(vec2.Length != dim)
+			//   (new Exception("vectors are not of same length")).printStackTrace();
+			// double[] times = new double[dim];
+			// for(int i=0; i<dim; i++)
+			//   times[i] += vec1[i]*vec2[i];
+			// return mean(times) - mean(vec1)*mean(vec2);
 		}
 
 		/**
