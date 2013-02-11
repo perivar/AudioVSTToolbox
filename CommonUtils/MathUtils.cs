@@ -700,9 +700,9 @@ namespace CommonUtils
 		private const float MAXRMS = 3;
 
 		/// <summary>
-		///   Normalizing the input power (volume)
+		///   Normalizing the input power (volume) to -1 to 1
 		/// </summary>
-		/// <param name = "samples">Samples of a song to be normalized</param>
+		/// <param name="samples">Signal to be Normalized</param>
 		public static void NormalizeInPlace(float[] samples)
 		{
 			int nsamples = samples.Length;
