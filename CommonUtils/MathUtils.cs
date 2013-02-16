@@ -165,6 +165,11 @@ namespace CommonUtils
 		public static double RoundDown(double number) {
 			return Math.Floor(number);
 		}
+
+		public static double RoundUp(double number) {
+			return Math.Ceiling(number);
+		}
+
 		#endregion
 		
 		#region ComputeMinAndMax
