@@ -65,6 +65,9 @@ namespace CommonUtils
 		/// <param name="fileOrDirectoryPath">path</param>
 		/// <returns>bool if the path is a directory</returns>
 		public static bool IsDirectory(string fileOrDirectoryPath) {
+			
+			return Directory.Exists(fileOrDirectoryPath);
+			/*
 			// get the file attributes for file or directory
 			FileAttributes attr = File.GetAttributes(fileOrDirectoryPath);
 
@@ -74,6 +77,7 @@ namespace CommonUtils
 			} else {
 				return false;
 			}
+			 */
 		}
 		
 		/// <summary>
