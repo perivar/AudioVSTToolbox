@@ -12,6 +12,16 @@ namespace CommonUtils
 	/// </summary>
 	public static class ColorUtils
 	{
+		private static List<Color> matlabGraphColorList = new List<Color>() {
+			Color.FromArgb(191, 191, 0), // Orange'ish
+			Color.FromArgb(191, 0, 191), // Purple
+			Color.FromArgb(0, 191, 191), // Cyan'ish
+			Color.FromArgb(255, 0, 0), // Red
+			Color.FromArgb(0, 127, 0), // Green
+			Color.FromArgb(0, 0, 255), // Blue
+			Color.FromArgb(63, 63, 63) // Dark Gray
+		};
+
 		public enum ColorPaletteType {
 			REW = 1,
 			SOX = 2,
@@ -677,6 +687,24 @@ namespace CommonUtils
 				color = 255;
 			return Color.FromArgb(color, color, color);
 		}
+		
+		public static Color MatlabGraphColor(int index) {
+			
+			int colorIndex = index % 7;
+			return matlabGraphColorList[colorIndex];
+
+			/*
+			List<Color> colorList = new List<Color>();
+			colorList.Add(Color.FromArgb(191, 191, 0)); // Orange'ish
+			colorList.Add(Color.FromArgb(191, 0, 191)); // Purple
+			colorList.Add(Color.FromArgb(0, 191, 191)); // Cyan'ish
+			colorList.Add(Color.FromArgb(255, 0, 0)); // Red
+			colorList.Add(Color.FromArgb(0, 127, 0)); // Green
+			colorList.Add(Color.FromArgb(0, 0, 255)); // Blue
+			colorList.Add(Color.FromArgb(63, 63, 63)); // Dark Gray
+			 */
+		}
+		
 	}
 	
 	public interface IColor {
