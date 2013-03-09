@@ -581,7 +581,17 @@ namespace CommonUtils
 			}
 			png.Save(imageToSave);
 		}
-		
+
+		/// <summary>
+		/// Create a color map that tells the GDI rendering method how it should draw the colors.
+		/// What we're actually doing here is creating a table that specifies a new color for each shade of gray
+		/// (all 256) of them. The easiest way to do this is to create a palette image that's
+		/// 256 pixels wide by 1 pixel high.
+		/// That means that we can directly map each pixel in the palette image to a shade of gray.
+		/// </summary>
+		/// <param name="gradients">a list of gradients</param>
+		/// <param name="height">height og gradient palette</param>
+		/// <returns>Color Palette Image</returns>
 		public static Bitmap GetColorGradientsPalette(List<Color> gradients, int height = 0) {
 			int width = gradients.Count;
 			
@@ -608,7 +618,7 @@ namespace CommonUtils
 		/// <param name="mask">Gray shaded image to be colorized</param>
 		/// <param name="alpha">0-255</param>
 		/// <returns>a colorized bitmap</returns>
-		public static Bitmap Colorize(Bitmap mask, byte alpha, ColorPaletteType type)
+		public static Bitmap Colorize(Image mask, byte alpha, ColorPaletteType type)
 		{
 			// Create new bitmap to act as a work surface for the colorization process
 			Bitmap output = new Bitmap(mask.Width, mask.Height, PixelFormat.Format32bppArgb);
@@ -633,7 +643,14 @@ namespace CommonUtils
 			return output;
 		}
 
-		private static ColorMap[] CreatePaletteIndex(byte Alpha, ColorPaletteType type)
+		/// <summary>
+		/// Build an array of color mappings to remap our greyscale mask to full color
+		/// Accept an alpha byte to specify the transparancy of the output image
+		/// </summary>
+		/// <param name="alpha">specify the transparancy of the output image</param>
+		/// <param name="type">ColorPaletteType (Photosounder, Rew or Sox)</param>
+		/// <returns>a ColorMap array</returns>
+		private static ColorMap[] CreatePaletteIndex(byte alpha, ColorPaletteType type)
 		{
 			ColorMap[] outputMap = new ColorMap[256];
 
@@ -663,7 +680,7 @@ namespace CommonUtils
 			{
 				outputMap[x] = new ColorMap();
 				outputMap[x].OldColor = Color.FromArgb(x, x, x);
-				outputMap[x].NewColor = Color.FromArgb(Alpha, palette.GetPixel(255-x, 0));
+				outputMap[x].NewColor = Color.FromArgb(alpha, palette.GetPixel(255-x, 0));
 			}
 			return outputMap;
 		}
@@ -688,6 +705,12 @@ namespace CommonUtils
 			return Color.FromArgb(color, color, color);
 		}
 		
+		/// <summary>
+		/// Matlab graphs (as plotted using 'plot' have 7 different colors
+		/// that the graph toggles around.
+		/// </summary>
+		/// <param name="index">any number</param>
+		/// <returns>a Color</returns>
 		public static Color MatlabGraphColor(int index) {
 			
 			int colorIndex = index % 7;

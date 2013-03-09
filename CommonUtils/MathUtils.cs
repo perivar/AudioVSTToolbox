@@ -30,6 +30,187 @@ namespace CommonUtils
 			return (float)Exp10(val);
 		}
 		
+		#region PowerOfTwo
+		/// <summary>
+		/// Check if a given number is power of two
+		/// </summary>
+		/// <param name="x">the number of check</param>
+		/// <returns>true or false</returns>
+		public static bool IsPowerOfTwo(int x)
+		{
+			return (x != 0) && ((x & (x - 1)) == 0);
+		}
+		
+		/// <summary>
+		/// Return next power of two
+		/// </summary>
+		/// <param name="x">value</param>
+		/// <returns>next power of two</returns>
+		public static int NextPowerOfTwo(int x)
+		{
+			x--; // comment out to always take the next biggest power of two, even if x is already a power of two
+			x |= (x >> 1);
+			x |= (x >> 2);
+			x |= (x >> 4);
+			x |= (x >> 8);
+			x |= (x >> 16);
+			return (x+1);
+		}
+
+		/// <summary>
+		/// Return next power of two
+		/// </summary>
+		/// <param name="x">value</param>
+		/// <returns>next power of two</returns>
+		public static int NextPow2(int x)
+		{
+			x = Math.Abs(x);
+			if (x != 0)
+				x--;
+
+			int i = 0;
+			while (x != 0)
+			{
+				x = x >> 1;
+				i++;
+			}
+
+			return i;
+		}
+		
+		/// <summary>
+		/// Return previous power of two
+		/// </summary>
+		/// <param name="x">value</param>
+		/// <returns>previous power of two</returns>
+		public static int PreviousPowerOfTwo(int x) {
+			if (x == 0) {
+				return 0;
+			}
+			// x--; Uncomment this, if you want a strictly less than 'x' result.
+			x |= (x >> 1);
+			x |= (x >> 2);
+			x |= (x >> 4);
+			x |= (x >> 8);
+			x |= (x >> 16);
+			return x - (x >> 1);
+		}
+		#endregion
+		
+		#region Normalize
+		/// <summary>
+		/// Calculate the root mean square (RMS) of an array
+		/// </summary>
+		/// <param name="x">array of ints</param>
+		/// <returns>RMS</returns>
+		public static double RootMeanSquare(int[] x)
+		{
+			double sum = 0;
+			for (int i = 0; i < x.Length; i++)
+			{
+				sum += (x[i]*x[i]);
+			}
+			return Math.Sqrt(sum / x.Length);
+		}
+		
+		/// <summary>
+		/// Calculate the root mean square (RMS) of an array
+		/// </summary>
+		/// <param name="x">array of floats</param>
+		/// <returns>RMS</returns>
+		public static double RootMeanSquare(float[] x)
+		{
+			double sum = 0;
+			for (int i = 0; i < x.Length; i++)
+			{
+				sum += (x[i]*x[i]);
+			}
+			return Math.Sqrt(sum / x.Length);
+		}
+		
+		// normalize power (volume) of a wave file.
+		// minimum and maximum rms to normalize from.
+		private const float MINRMS = 0.1f;
+		private const float MAXRMS = 3;
+
+		/// <summary>
+		///   Normalizing the input power (volume) to -1 to 1
+		/// </summary>
+		/// <param name="samples">Signal to be Normalized</param>
+		public static void NormalizeInPlace(float[] samples)
+		{
+			int nsamples = samples.Length;
+			float rms = (float) RootMeanSquare(samples);
+
+			// we don't want to normalize by the real RMS, because excessive clipping will occur
+			rms = rms * 10;
+			
+			if (rms < MINRMS)
+				rms = MINRMS;
+			if (rms > MAXRMS)
+				rms = MAXRMS;
+
+			for (int i = 0; i < nsamples; i++) {
+				samples[i] /= rms;
+				samples[i] = Math.Min(samples[i], 1);
+				samples[i] = Math.Max(samples[i], -1);
+			}
+		}
+		
+		/// <summary>
+		/// Normalize the input signal to -1 to 1
+		/// </summary>
+		/// <param name="data">Signal to be Normalized</param>
+		public static void Normalize(ref double[][] data)
+		{
+			// Find maximum number when all numbers are made positive.
+			double max = data.Max((b) => b.Max((v) => Math.Abs(v)));
+			
+			if (max == 0.0f)
+				return;
+
+			// divide by max and return
+			data = data.Select(i => i.Select(j => j/max).ToArray()).ToArray();
+			
+			// to normalize only positive numbers add Abs
+			//data = data.Select(i => i.Select(j => Math.Abs(j)/max).ToArray()).ToArray();
+		}
+
+		/// <summary>
+		/// Normalize the input signal to -1 to 1
+		/// </summary>
+		/// <param name="data">Signal to be Normalized</param>
+		public static void Normalize(ref double[] data)
+		{
+			// Find maximum number when all numbers are made positive.
+			double max = data.Max((b) => Math.Abs(b));
+			
+			if (max == 0.0f)
+				return;
+
+			// divide by max and return
+			data = data.Select(i => i/max).ToArray();
+		}
+		
+		/// <summary>
+		/// Normalize the input signal to -1 to 1
+		/// </summary>
+		/// <param name="data">Signal to be Normalized</param>
+		public static void Normalize(ref byte[] bytes) {
+			
+			// Find maximum number when all numbers are made positive.
+			byte max = bytes.Max();
+			
+			for (int i = 0; i < bytes.Length; i++)
+			{
+				bytes[i] /= max;     	 // scale bytes to 0..1
+				bytes[i] *= 2;            // scale bytes to 0..2
+				bytes[i]--;               // scale bytes to -1..1
+			}
+		}
+		#endregion
+		
+		#region Resample
 		public static float[] ReSampleToArbitrary(float[] input, int size)
 		{
 			float[] returnArray = new float[size];
@@ -52,8 +233,9 @@ namespace CommonUtils
 			}
 			return returnArray;
 		}
+		#endregion
 		
-		#region ConvertRangeAndMaintainRation
+		#region ConvertRangeAndMaintainRatio
 		public static float[] ConvertRangeAndMainainRatio(float[] oldValueArray, float oldMin, float oldMax, float newMin, float newMax) {
 			float[] newValueArray = new float[oldValueArray.Length];
 			float oldRange = (oldMax - oldMin);
@@ -324,6 +506,7 @@ namespace CommonUtils
 		}
 		#endregion
 
+		#region Time, Index and Freq Conversion
 		/// <summary>
 		/// Return the frequency in Hz for each index in FFT
 		///
@@ -396,6 +579,7 @@ namespace CommonUtils
 		public static double ConvertToTime(double sampleRate, int numberOfSamples) {
 			return numberOfSamples / sampleRate;
 		}
+		#endregion
 		
 		#region FloatAndDoubleConversions
 		public static double[] FloatToDouble(float[] floatArray) {
@@ -482,25 +666,6 @@ namespace CommonUtils
 		}
 		#endregion
 		
-		/// <summary>
-		/// Return Median of a int array.
-		/// NB! The array need to be sorted first
-		/// </summary>
-		/// <param name="pNumbers"></param>
-		/// <returns></returns>
-		public static double GetMedian(int[] pNumbers)  {
-
-			int size = pNumbers.Length;
-
-			int mid = size /2;
-
-			double median = (size % 2 != 0) ? (double)pNumbers[mid] :
-				((double)pNumbers[mid] + (double)pNumbers[mid-1]) / 2;
-
-			return median;
-
-		}
-		
 		#region FindClosest
 		/// <summary>
 		/// Find the closest number in a list of numbers
@@ -579,208 +744,7 @@ namespace CommonUtils
 		}
 		#endregion
 		
-		/// <summary>
-		/// Find all numbers that are within x of target
-		/// Use like this:
-		/// List<float> list = new List<float> { 10f, 20f, 22f, 30f };
-		/// float target = 21f;
-		/// float within = 1;
-		/// var result = FindWithinTarget(list, target, within);
-		/// </summary>
-		/// <param name="numbers"></param>
-		/// <param name="x"></param>
-		/// <returns></returns>
-		public static IEnumerable<float> FindWithinTarget(IEnumerable<float> numbers, float target, float within) {
-			// http://stackoverflow.com/questions/3723321/linq-to-get-closest-value
-			
-			//gets any that are within x of target
-			var withins = numbers.Select( n => new { n, distance = Math.Abs( n - target ) } )
-				.Where( p => p.distance <= within )
-				.Select( p => p.n );
-			
-			return withins;
-		}
-		
-		#region PowerOfTwo
-		/// <summary>
-		/// Check if a given number is power of two
-		/// </summary>
-		/// <param name="x">the number of check</param>
-		/// <returns>true or false</returns>
-		public static bool IsPowerOfTwo(int x)
-		{
-			return (x != 0) && ((x & (x - 1)) == 0);
-		}
-		
-		/// <summary>
-		/// Return next power of two
-		/// </summary>
-		/// <param name="x">value</param>
-		/// <returns>next power of two</returns>
-		public static int NextPowerOfTwo(int x)
-		{
-			x--; // comment out to always take the next biggest power of two, even if x is already a power of two
-			x |= (x >> 1);
-			x |= (x >> 2);
-			x |= (x >> 4);
-			x |= (x >> 8);
-			x |= (x >> 16);
-			return (x+1);
-		}
-
-		/// <summary>
-		/// Return next power of two
-		/// </summary>
-		/// <param name="x">value</param>
-		/// <returns>next power of two</returns>
-		public static int NextPow2(int x)
-		{
-			x = Math.Abs(x);
-			if (x != 0)
-				x--;
-
-			int i = 0;
-			while (x != 0)
-			{
-				x = x >> 1;
-				i++;
-			}
-
-			return i;
-		}
-		
-		/// <summary>
-		/// Return previous power of two
-		/// </summary>
-		/// <param name="x">value</param>
-		/// <returns>previous power of two</returns>
-		public static int PreviousPowerOfTwo(int x) {
-			if (x == 0) {
-				return 0;
-			}
-			// x--; Uncomment this, if you want a strictly less than 'x' result.
-			x |= (x >> 1);
-			x |= (x >> 2);
-			x |= (x >> 4);
-			x |= (x >> 8);
-			x |= (x >> 16);
-			return x - (x >> 1);
-		}
-		#endregion
-		
-		#region Normalize
-		/// <summary>
-		/// Calculate the root mean square (RMS) of an array
-		/// </summary>
-		/// <param name="x">array of ints</param>
-		/// <returns>RMS</returns>
-		public static double RootMeanSquare(int[] x)
-		{
-			double sum = 0;
-			for (int i = 0; i < x.Length; i++)
-			{
-				sum += (x[i]*x[i]);
-			}
-			return Math.Sqrt(sum / x.Length);
-		}
-		
-		/// <summary>
-		/// Calculate the root mean square (RMS) of an array
-		/// </summary>
-		/// <param name="x">array of floats</param>
-		/// <returns>RMS</returns>
-		public static double RootMeanSquare(float[] x)
-		{
-			double sum = 0;
-			for (int i = 0; i < x.Length; i++)
-			{
-				sum += (x[i]*x[i]);
-			}
-			return Math.Sqrt(sum / x.Length);
-		}
-		
-		// normalize power (volume) of a wave file.
-		// minimum and maximum rms to normalize from.
-		private const float MINRMS = 0.1f;
-		private const float MAXRMS = 3;
-
-		/// <summary>
-		///   Normalizing the input power (volume) to -1 to 1
-		/// </summary>
-		/// <param name="samples">Signal to be Normalized</param>
-		public static void NormalizeInPlace(float[] samples)
-		{
-			int nsamples = samples.Length;
-			float rms = (float) RootMeanSquare(samples);
-
-			// we don't want to normalize by the real RMS, because excessive clipping will occur
-			rms = rms * 10;
-			
-			if (rms < MINRMS)
-				rms = MINRMS;
-			if (rms > MAXRMS)
-				rms = MAXRMS;
-
-			for (int i = 0; i < nsamples; i++) {
-				samples[i] /= rms;
-				samples[i] = Math.Min(samples[i], 1);
-				samples[i] = Math.Max(samples[i], -1);
-			}
-		}
-		
-		/// <summary>
-		/// Normalize the input signal to -1 to 1
-		/// </summary>
-		/// <param name="data">Signal to be Normalized</param>
-		public static void Normalize(ref double[][] data)
-		{
-			// Find maximum number when all numbers are made positive.
-			double max = data.Max((b) => b.Max((v) => Math.Abs(v)));
-			
-			if (max == 0.0f)
-				return;
-
-			// divide by max and return
-			data = data.Select(i => i.Select(j => j/max).ToArray()).ToArray();
-			
-			// to normalize only positive numbers add Abs
-			//data = data.Select(i => i.Select(j => Math.Abs(j)/max).ToArray()).ToArray();
-		}
-
-		/// <summary>
-		/// Normalize the input signal to -1 to 1
-		/// </summary>
-		/// <param name="data">Signal to be Normalized</param>
-		public static void Normalize(ref double[] data)
-		{
-			// Find maximum number when all numbers are made positive.
-			double max = data.Max((b) => Math.Abs(b));
-			
-			if (max == 0.0f)
-				return;
-
-			// divide by max and return
-			data = data.Select(i => i/max).ToArray();
-		}
-		
-		/// <summary>
-		/// Normalize the input signal to -1 to 1
-		/// </summary>
-		/// <param name="data">Signal to be Normalized</param>
-		public static void Normalize(ref byte[] bytes) {
-			
-			// Find maximum number when all numbers are made positive.
-			byte max = bytes.Max();
-			
-			for (int i = 0; i < bytes.Length; i++)
-			{
-				bytes[i] /= max;     	 // scale bytes to 0..1
-				bytes[i] *= 2;            // scale bytes to 0..2
-				bytes[i]--;               // scale bytes to -1..1
-			}
-		}
-		#endregion
-		
+		#region Calculus
 		/// <summary>
 		/// Perform a hypot calculation
 		/// </summary>
@@ -804,6 +768,27 @@ namespace CommonUtils
 			}
 			return r;
 		}
+		
+		/// <summary>
+		/// Multiply signal with factor
+		/// </summary>
+		/// <param name="data">Signal to be processed</param>
+		public static void Multiply(ref float[] data, float factor)
+		{
+			// multiply by factor and return
+			data = data.Select(i => i * factor).ToArray();
+		}
+
+		/// <summary>
+		/// Divide signal with factor
+		/// </summary>
+		/// <param name="data">Signal to be processed</param>
+		public static void Divide(ref float[] data, float factor)
+		{
+			// divide by factor and return
+			data = data.Select(i => i / factor).ToArray();
+		}
+		#endregion
 		
 		#region MinMaxAbs
 		
@@ -873,7 +858,79 @@ namespace CommonUtils
 			return min;
 		}
 		#endregion
+		
+		/// <summary>
+		/// Return Median of a int array.
+		/// NB! The array need to be sorted first
+		/// </summary>
+		/// <param name="pNumbers"></param>
+		/// <returns></returns>
+		public static double GetMedian(int[] pNumbers)  {
 
+			int size = pNumbers.Length;
+
+			int mid = size /2;
+
+			double median = (size % 2 != 0) ? (double)pNumbers[mid] :
+				((double)pNumbers[mid] + (double)pNumbers[mid-1]) / 2;
+
+			return median;
+
+		}
+		
+		/// <summary>
+		/// Find all numbers that are within x of target
+		/// Use like this:
+		/// List<float> list = new List<float> { 10f, 20f, 22f, 30f };
+		/// float target = 21f;
+		/// float within = 1;
+		/// var result = FindWithinTarget(list, target, within);
+		/// </summary>
+		/// <param name="numbers"></param>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		public static IEnumerable<float> FindWithinTarget(IEnumerable<float> numbers, float target, float within) {
+			// http://stackoverflow.com/questions/3723321/linq-to-get-closest-value
+			
+			//gets any that are within x of target
+			var withins = numbers.Select( n => new { n, distance = Math.Abs( n - target ) } )
+				.Where( p => p.distance <= within )
+				.Select( p => p.n );
+			
+			return withins;
+		}
+		
+		/// <summary>
+		/// The goal of pre-emphasis is to compensate the high-frequency part
+		/// that was suppressed during the sound production mechanism of humans.
+		/// Moreover, it can also amplify the importance of high-frequency formants.
+		/// It's not neccesary for only music, but important for speech
+		/// </summary>
+		/// <param name="samples">Audio data to preemphase</param>
+		/// <param name="preEmphasisAlpha">Pre-Emphasis Alpha (Set to 0 if no pre-emphasis should be performed)</param>
+		/// <returns>processed audio</returns>
+		public static float[] PreEmphase(float[] samples, float preEmphasisAlpha){
+			float[] EmphasedSamples = new float[samples.Length];
+			for (int i = 1; i < samples.Length; i++){
+				EmphasedSamples[i] = (float) samples[i] - preEmphasisAlpha * samples[i - 1];
+			}
+			return EmphasedSamples;
+		}
+		
+		/// <summary>
+		/// The goal of pre-emphasis is to compensate the high-frequency part
+		/// that was suppressed during the sound production mechanism of humans.
+		/// Moreover, it can also amplify the importance of high-frequency formants.
+		/// It's not neccesary for only music, but important for speech.
+		/// This method uses a fixed pre emphasis alpha factor of 0.95
+		/// </summary>
+		/// <param name="samples">Audio data to preemphase</param>
+		/// <returns>processed audio</returns>
+		public static float[] PreEmphase(float[] samples) {
+			float PREEMPHASISALPHA = 0.95f;
+			return PreEmphase(samples, PREEMPHASISALPHA);
+		}
+		
 		/// <summary>
 		/// Flatten Jagged Array (i.e. convert from double[][] to double[])
 		/// </summary>
@@ -906,6 +963,7 @@ namespace CommonUtils
 			return y0 + (y1 - y0) * fraction;
 		}
 		
+		#region Limit methods
 		/// <summary>
 		/// Limit integer between min and max
 		/// </summary>
@@ -937,6 +995,7 @@ namespace CommonUtils
 			
 			return value;
 		}
+		#endregion
 		
 		/// <summary>
 		/// Pad array with zeros

@@ -10,7 +10,13 @@ namespace CommonUtils
 	/// </summary>
 	public class ImageUtils
 	{
-		public static void drawColorGradient(string directory, string filename, bool useHSL) {
+		/// <summary>
+		/// Store color gradient to file
+		/// </summary>
+		/// <param name="directory">directory name</param>
+		/// <param name="filename">filename to use (extension is ignored and replaced with png)</param>
+		/// <param name="useHSL">bool whether to use HSL or HSB</param>
+		public static void DrawColorGradient(string directory, string filename, bool useHSL) {
 			
 			string mode = "";
 			if (useHSL) {
@@ -52,8 +58,12 @@ namespace CommonUtils
 			g.Dispose();
 		}
 
-		// Slow grayscale conversion method from
-		// http://www.switchonthecode.com/tutorials/csharp-tutorial-convert-a-color-image-to-grayscale
+		/// <summary>
+		/// Slow grayscale conversion method from
+		/// http://www.switchonthecode.com/tutorials/csharp-tutorial-convert-a-color-image-to-grayscale
+		/// </summary>
+		/// <param name="original">original bitmap to change</param>
+		/// <returns>grayscaled version</returns>
 		public static Bitmap MakeGrayscaleSlow(Bitmap original)
 		{
 			//make an empty bitmap the same size as original
@@ -82,8 +92,12 @@ namespace CommonUtils
 			return newBitmap;
 		}
 		
-		// Slightly faster grayscale conversion method from
-		// http://www.switchonthecode.com/tutorials/csharp-tutorial-convert-a-color-image-to-grayscale
+		/// <summary>
+		/// Slightly faster grayscale conversion method from
+		/// http://www.switchonthecode.com/tutorials/csharp-tutorial-convert-a-color-image-to-grayscale
+		/// </summary>
+		/// <param name="original">original bitmap to change</param>
+		/// <returns>grayscaled version</returns>
 		public static Bitmap MakeGrayscaleFast(Bitmap original)
 		{
 			unsafe
@@ -135,8 +149,12 @@ namespace CommonUtils
 			}
 		}
 		
-		// Fastest grayscale conversion method from
-		// http://www.switchonthecode.com/tutorials/csharp-tutorial-convert-a-color-image-to-grayscale
+		/// <summary>
+		/// Fastest grayscale conversion method from
+		/// http://www.switchonthecode.com/tutorials/csharp-tutorial-convert-a-color-image-to-grayscale
+		/// </summary>
+		/// <param name="original">original bitmap to change</param>
+		/// <returns>grayscaled version</returns>
 		public static Bitmap MakeGrayscaleFastest(Bitmap original)
 		{
 			//create a blank bitmap the same size as original
@@ -171,7 +189,24 @@ namespace CommonUtils
 			g.Dispose();
 			return newBitmap;
 		}
+
+		/// <summary>
+		/// Create a grayscaled version of the passed image
+		/// </summary>
+		/// <param name="original">original bitmap to change</param>
+		/// <returns>grayscaled version</returns>
+		public static Bitmap MakeGrayscale(Bitmap original)
+		{
+			return MakeGrayscaleFastest(original);
+		}
 		
+		/// <summary>
+		/// Resize an image using high quality scaling
+		/// </summary>
+		/// <param name="originalImage">original image</param>
+		/// <param name="width">new width</param>
+		/// <param name="height">new height</param>
+		/// <returns></returns>
 		public static Bitmap Resize(Image originalImage, int width, int height) {
 			Bitmap newImage = new Bitmap(width, height, PixelFormat.Format32bppRgb);
 			Graphics canvas = Graphics.FromImage(newImage);
@@ -181,16 +216,53 @@ namespace CommonUtils
 			canvas.DrawImage(originalImage, 0, 0, width, height);
 			return newImage;
 		}
+
+		/// <summary>
+		/// Resize an image using low quality scaling
+		/// </summary>
+		/// <param name="image">image</param>
+		/// <param name="maxWidth">max width</param>
+		/// <param name="maxHeight">max height</param>
+		/// <param name="preserveRatio">bool whether to preserve ratio or force both width and height</param>
+		/// <returns></returns>
+		public static Image Resize(Image originalImage, int maxWidth, int maxHeight, bool preserveRatio)
+		{
+			double ratioX = (double)maxWidth / originalImage.Width;
+			double ratioY = (double)maxHeight / originalImage.Height;
+			double ratio = Math.Min(ratioX, ratioY);
+
+			Bitmap newImage = null;
+			int newWidth = 0;
+			int newHeight = 0;
+			if (preserveRatio) {
+				newWidth = (int)(originalImage.Width * ratio);
+				newHeight = (int)(originalImage.Height * ratio);
+			} else {
+				newWidth = maxWidth;
+				newHeight = maxHeight;
+			}
+			newImage = new Bitmap(newWidth, newHeight);
+			
+			Graphics canvas = Graphics.FromImage(newImage);
+			canvas.InterpolationMode = InterpolationMode.NearestNeighbor;
+
+			canvas.DrawImage(originalImage, 0, 0, newWidth, newHeight);
+			return newImage;
+		}
 		
-		// Get the image's color pixels as a byte array
+		/// <summary>
+		/// Get the image's color pixels as a byte array
+		/// </summary>
+		/// <param name="imageIn">image</param>
+		/// <returns>byte array</returns>
 		public static byte[] ImageToByteArray(Image imageIn)
 		{
 			Bitmap bmp = new Bitmap(imageIn);
 			
 			// Lock the bitmap's bits.
-			Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+			Rectangle rect = new Rectangle(Point.Empty, bmp.Size);
 			BitmapData bmpData =
-				bmp.LockBits(rect, ImageLockMode.ReadWrite,
+				bmp.LockBits(rect, ImageLockMode.ReadOnly,
 				             bmp.PixelFormat);
 			
 			// Get the address of the first line.
@@ -211,7 +283,14 @@ namespace CommonUtils
 			return rgbValues;
 		}
 		
-		// Take a byte array of color pixels and create a bitmap Image
+		/// <summary>
+		/// Take a byte array of color pixels and create a bitmap Image 
+		/// </summary>
+		/// <param name="rgbValues">byte array of rgbValues</param>
+		/// <param name="width">width</param>
+		/// <param name="height">height</param>
+		/// <param name="pixelFormat">pixelformat</param>
+		/// <returns>image</returns>
 		public static Image ByteArrayToImage(byte[] rgbValues, int width, int height, PixelFormat pixelFormat)
 		{
 			//Here create the Bitmap to the know height, width and format
@@ -219,8 +298,8 @@ namespace CommonUtils
 
 			//Create a BitmapData and Lock all pixels to be written
 			BitmapData bmpData = bmp.LockBits(
-				new Rectangle(0, 0, bmp.Width, bmp.Height),
-				ImageLockMode.ReadWrite, bmp.PixelFormat);
+				new Rectangle(Point.Empty, bmp.Size),
+				ImageLockMode.WriteOnly, bmp.PixelFormat);
 
 			//Copy the data from the byte array into BitmapData.Scan0
 			System.Runtime.InteropServices.Marshal.Copy(rgbValues, 0, bmpData.Scan0, rgbValues.Length);
@@ -266,11 +345,11 @@ namespace CommonUtils
 			Bitmap newBitmap = new Bitmap(width, height, PixelFormat.Format32bppRgb);
 
 			// Declare an array to hold the bytes of the bitmap.
-			for (int y = 0; y < newBitmap.Height; y++)
+			for (int x = 0; x < newBitmap.Width; x++)
 			{
-				for (int x = 0; x < newBitmap.Width; x++)
+				for (int y = 0; y < newBitmap.Height; y++)
 				{
-					byte gray = grayscaleByteArray[x + (y * newBitmap.Height)];
+					byte gray = grayscaleByteArray[x + (y * newBitmap.Width)];
 					
 					//create the color object
 					Color newColor =  Color.FromArgb(gray, gray, gray);
@@ -318,5 +397,6 @@ namespace CommonUtils
 			averageValue /= (uint)(bmp.Width * bmp.Height);
 			return grayscaleByteArray;
 		}
+		
 	}
 }
