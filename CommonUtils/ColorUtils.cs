@@ -700,8 +700,12 @@ namespace CommonUtils
 			if (double.IsNaN(value)) return Color.Black;
 			
 			int color = (int) (Math.Abs(value)*255/Math.Abs(maxValue));
-			if (color > 255)
+			if (color > 255) {
 				color = 255;
+			} else if (color < 0) {
+				color = 0;
+			}
+			
 			return Color.FromArgb(color, color, color);
 		}
 		
