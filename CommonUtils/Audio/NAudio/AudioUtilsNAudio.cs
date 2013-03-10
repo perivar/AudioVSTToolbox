@@ -187,7 +187,12 @@ namespace CommonUtils.Audio.NAudio
 		public static WaveStream ResampleToWaveStream(string wavInFilePath, WaveFormat waveFormat) {
 
 			//WaveStream sourceStream = CreateInputWaveStream(wavInFilePath);
-			WaveStream sourceStream = (WaveStream) new AudioFileReader(wavInFilePath);
+			WaveStream sourceStream = null;
+			try {
+				sourceStream = (WaveStream) new AudioFileReader(wavInFilePath);
+			} catch (Exception) {
+				return null;
+			}
 			
 			if (sourceStream.WaveFormat.Encoding == WaveFormatEncoding.IeeeFloat) {
 				// TODO: if the source is IeeFloat, the CreatePcmSteeam and ConverstionStream fail!?
@@ -214,7 +219,12 @@ namespace CommonUtils.Audio.NAudio
 		/// <param name="waveFormat">waveformat</param>
 		/// <returns>SampleChannel (supports floats)</returns>
 		public static SampleChannel ResampleToSampleChannel(string wavInFilePath, WaveFormat waveFormat) {
-			return new SampleChannel(ResampleToWaveStream(wavInFilePath, waveFormat));
+			try {
+				SampleChannel sampleChannel = new SampleChannel(ResampleToWaveStream(wavInFilePath, waveFormat));
+				return sampleChannel;
+			} catch (Exception) {
+				return null;
+			}
 		}
 
 		/// <summary>
@@ -406,6 +416,7 @@ namespace CommonUtils.Audio.NAudio
 			WaveFormat waveFormat = new WaveFormat(samplerate, 1);
 			//WaveFormat waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(samplerate, 1);
 			SampleChannel sampleChannel = ResampleToSampleChannel(filename, waveFormat);
+			if (sampleChannel == null) return data;
 			
 			int sampleCount = 0;
 			int readCount = 0;
