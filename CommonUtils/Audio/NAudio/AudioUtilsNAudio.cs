@@ -413,8 +413,8 @@ namespace CommonUtils.Audio.NAudio
 
 			// read as mono file
 			List<float> floatList = new List<float>();
-			WaveFormat waveFormat = new WaveFormat(samplerate, 1);
-			//WaveFormat waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(samplerate, 1);
+			//WaveFormat waveFormat = new WaveFormat(samplerate, 1);
+			WaveFormat waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(samplerate, 1);
 			SampleChannel sampleChannel = ResampleToSampleChannel(filename, waveFormat);
 			if (sampleChannel == null) return data;
 			
