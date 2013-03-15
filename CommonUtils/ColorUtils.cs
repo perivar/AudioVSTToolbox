@@ -26,7 +26,8 @@ namespace CommonUtils
 			REW = 1,
 			SOX = 2,
 			PHOTOSOUNDER = 3,
-			BLACK_AND_WHITE = 4
+			BLACK_AND_WHITE = 4,
+			MATLAB = 5
 		}
 		
 		public static long ColorToLong(Color color)
@@ -451,6 +452,18 @@ namespace CommonUtils
 					colors.Add(HSBColor.FromRGB(Color.FromArgb(249, 247, 78))); // 
 					colors.Add(HSBColor.FromRGB(Color.FromArgb(0, 0, 100))); // blue
 					break;
+				case ColorPaletteType.MATLAB:
+					// create Matlab / Octave gradient (jet(64))
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(127, 0, 0)));
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(255, 2, 0)));
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(255, 131, 0)));
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(249, 255, 6)));
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(119, 255, 135)));
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(0, 244, 255)));
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(0, 115, 255)));
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(0, 0, 240)));
+					colors.Add(HSBColor.FromRGB(Color.FromArgb(0, 0, 127)));
+					break;
 				case ColorPaletteType.BLACK_AND_WHITE:
 				default:
 					// create black and white gradient
@@ -496,6 +509,18 @@ namespace CommonUtils
 					colors.Add(HSLColor.FromRGB(Color.FromArgb(255, 255, 254))); // white
 					colors.Add(HSLColor.FromRGB(Color.FromArgb(249, 247, 78))); // 
 					colors.Add(HSLColor.FromRGB(Color.FromArgb(0, 0, 100))); // blue
+					break;
+				case ColorPaletteType.MATLAB:
+					// create Matlab / Octave gradient (jet(64))
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(127, 0, 0)));
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(255, 2, 0)));
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(255, 131, 0)));
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(249, 255, 6)));
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(119, 255, 135)));
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(0, 244, 255)));
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(0, 115, 255)));
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(0, 0, 240)));
+					colors.Add(HSLColor.FromRGB(Color.FromArgb(0, 0, 127)));
 					break;
 				case ColorPaletteType.BLACK_AND_WHITE:
 				default:
@@ -667,6 +692,9 @@ namespace CommonUtils
 					break;
 				case ColorPaletteType.SOX:
 					gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.SOX);
+					break;
+				case ColorPaletteType.MATLAB:
+					gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.MATLAB);
 					break;
 				default:
 					gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.SOX);
