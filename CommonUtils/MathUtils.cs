@@ -301,16 +301,17 @@ namespace CommonUtils
 			return newValue;
 		}
 
+		// TODO: Does not seem to work if oldMin is a minus value and oldValue also is minus
 		public static double ConvertAndMainainRatioLog(double oldValue, double oldMin, double oldMax, double newMin, double newMax) {
 			// Addition of Epsilon prevents log from returning minus infinity if value is zero
 			double oldRange = (oldMax - oldMin);
 			double newRange = (newMax - newMin);
-			double log_oldMin = Log10Float(Math.Abs(oldMin) + double.Epsilon);
-			double log_oldMax = Log10Float(oldMax + double.Epsilon);
+			double log_oldMin = Log10(Math.Abs(oldMin) + double.Epsilon);
+			double log_oldMax = Log10(oldMax + double.Epsilon);
 			double log_oldRange = (log_oldMax - log_oldMin);
 			//double data_per_log_unit = newRange / log_oldRange;
-			double log_oldValue = Log10Float(oldValue + double.Epsilon);
-			double newValue = (((log_oldValue - log_oldMin) * newRange) / log_oldRange) + newMin;
+			double log_oldValue = Log10(Math.Abs(oldValue) + double.Epsilon);
+			double newValue = (((log_oldValue - log_oldMin) * newRange) / oldRange) + newMin;
 			return newValue;
 		}
 
