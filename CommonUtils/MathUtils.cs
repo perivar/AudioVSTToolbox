@@ -774,10 +774,30 @@ namespace CommonUtils
 		/// Multiply signal with factor
 		/// </summary>
 		/// <param name="data">Signal to be processed</param>
+		public static void Multiply(ref double[] data, double factor)
+		{
+			// multiply by factor and return
+			data = data.Select(i => i * factor).ToArray();
+		}
+
+		/// <summary>
+		/// Multiply signal with factor
+		/// </summary>
+		/// <param name="data">Signal to be processed</param>
 		public static void Multiply(ref float[] data, float factor)
 		{
 			// multiply by factor and return
 			data = data.Select(i => i * factor).ToArray();
+		}
+
+		/// <summary>
+		/// Divide signal with factor
+		/// </summary>
+		/// <param name="data">Signal to be processed</param>
+		public static void Divide(ref double[] data, double factor)
+		{
+			// divide by factor and return
+			data = data.Select(i => i / factor).ToArray();
 		}
 
 		/// <summary>
