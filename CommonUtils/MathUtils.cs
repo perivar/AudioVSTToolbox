@@ -98,59 +98,29 @@ namespace CommonUtils
 		#endregion
 		
 		#region Normalize
-		/// <summary>
-		/// Calculate the root mean square (RMS) of an array
-		/// </summary>
-		/// <param name="x">array of ints</param>
-		/// <returns>RMS</returns>
-		public static double RootMeanSquare(int[] x)
-		{
-			double sum = 0;
-			for (int i = 0; i < x.Length; i++)
-			{
-				sum += (x[i]*x[i]);
-			}
-			return Math.Sqrt(sum / x.Length);
-		}
-		
-		/// <summary>
-		/// Calculate the root mean square (RMS) of an array
-		/// </summary>
-		/// <param name="x">array of floats</param>
-		/// <returns>RMS</returns>
-		public static double RootMeanSquare(float[] x)
-		{
-			double sum = 0;
-			for (int i = 0; i < x.Length; i++)
-			{
-				sum += (x[i]*x[i]);
-			}
-			return Math.Sqrt(sum / x.Length);
-		}
-		
-		// normalize power (volume) of a wave file.
+		// normalize power (volume) of an audio file.
 		// minimum and maximum rms to normalize from.
+		// these values has been detected empirically
 		private const float MINRMS = 0.1f;
 		private const float MAXRMS = 3;
 
 		/// <summary>
-		///   Normalizing the input power (volume) to -1 to 1
+		/// Normalizing the input power (volume) to -1 to 1
 		/// </summary>
 		/// <param name="samples">Signal to be Normalized</param>
 		public static void NormalizeInPlace(float[] samples)
 		{
-			int nsamples = samples.Length;
-			float rms = (float) RootMeanSquare(samples);
+			double squares = samples.AsParallel().Aggregate<float, double>(0, (current, t) => current + (t * t));
 
 			// we don't want to normalize by the real RMS, because excessive clipping will occur
-			rms = rms * 10;
+			float rms = (float)Math.Sqrt(squares / samples.Length) * 10;
 			
 			if (rms < MINRMS)
 				rms = MINRMS;
 			if (rms > MAXRMS)
 				rms = MAXRMS;
 
-			for (int i = 0; i < nsamples; i++) {
+			for (int i = 0; i < samples.Length; i++) {
 				samples[i] /= rms;
 				samples[i] = Math.Min(samples[i], 1);
 				samples[i] = Math.Max(samples[i], -1);
