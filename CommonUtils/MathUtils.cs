@@ -850,6 +850,63 @@ namespace CommonUtils
 		}
 		#endregion
 		
+		#region Extension method (IndexesWhere and 2D Row and Column accessors and 2D Array Deep Copy)
+		/// <summary>
+		/// Extension method to return indexes for linq queries
+		/// </summary>
+		/// <param name="source">array</param>
+		/// <param name="predicate">query [e.g. t => t.StartsWith("t")]</param>
+		/// <example>
+		/// string[] s = {"zero", "one", "two", "three", "four", "five"};
+		/// var x = s.IndexesWhere(t => t.StartsWith("t"));
+		/// </example>
+		/// <returns>Enumeration of indices</returns>
+		public static IEnumerable<int> IndexesWhere<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+		{
+			int index=0;
+			foreach (T element in source)
+			{
+				if (predicate(element))
+				{
+					yield return index;
+				}
+				index++;
+			}
+		}
+		
+		public static IEnumerable<T> Row<T>(this T[,] array, int row)
+		{
+			for (int i = 0; i < array.GetLength(1); i++)
+			{
+				yield return array[row, i];
+			}
+		}
+		public static IEnumerable<T> Column<T>(this T[,] array, int column)
+		{
+			for (int i = 0; i < array.GetLength(0); i++)
+			{
+				yield return array[i, column];
+			}
+		}
+		public static IEnumerable<T> Row<T>(this T[][] array, int row)
+		{
+			for (int i = 0; i < array.Length; i++)
+			{
+				yield return array[row][i];
+			}
+		}
+		public static IEnumerable<T> Column<T>(this T[][] array, int column)
+		{
+			var col = array.Select(row => row[column]);
+			return col;
+		}		
+		
+		public static T[][] DeepCopy<T>(this T[][] array)
+		{
+			return array.Select(a => a.ToArray()).ToArray();
+		}
+		#endregion
+		
 		/// <summary>
 		/// Return Median of a int array.
 		/// NB! The array need to be sorted first
