@@ -284,7 +284,7 @@ namespace CommonUtils
 		}
 		
 		/// <summary>
-		/// Take a byte array of color pixels and create a bitmap Image 
+		/// Take a byte array of color pixels and create a bitmap Image
 		/// </summary>
 		/// <param name="rgbValues">byte array of rgbValues</param>
 		/// <param name="width">width</param>
@@ -310,7 +310,13 @@ namespace CommonUtils
 			return bmp;
 		}
 		
-		// Take a byte array of 8 bit greyscale pixels and create a bitmap Image
+		/// <summary>
+		/// Take a byte array of 8 bit greyscale pixels and create a bitmap Image
+		/// </summary>
+		/// <param name="grayscaleByteArray">byte array of 8bit grayscale values</param>
+		/// <param name="width">width</param>
+		/// <param name="height">height</param>
+		/// <returns>image</returns>
 		public static Image ByteArray8BitGrayscaleToImage(byte[] grayscaleByteArray, int width, int height)
 		{
 			//Here create the Bitmap to the know height, width and format
@@ -338,7 +344,13 @@ namespace CommonUtils
 			return newBitmap;
 		}
 
-		// Take a byte array of 8 bit greyscale pixels and create a bitmap Image
+		/// <summary>
+		/// Take a byte array of 8 bit greyscale pixels and create a bitmap Image
+		/// </summary>
+		/// <param name="grayscaleByteArray">byte array of 8bit grayscale values</param>
+		/// <param name="width">width</param>
+		/// <param name="height">height</param>
+		/// <returns>image</returns>
 		public static Image ByteArrayGrayscaleToImage(byte[] grayscaleByteArray, int width, int height)
 		{
 			//Here create the Bitmap to the know height, width and format
@@ -361,7 +373,12 @@ namespace CommonUtils
 			return newBitmap;
 		}
 		
-		// Reduce colors to 8-bit grayscale and calculate average color value
+		/// <summary>
+		/// Reduce colors to 8-bit grayscale and calculate average color value
+		/// </summary>
+		/// <param name="bmp">an image</param>
+		/// <param name="averageValue">calculated average color value</param>
+		/// <returns>byte array</returns>
 		public static byte[] ImageToByteArray8BitGrayscale(Bitmap bmp, out uint averageValue) {
 			
 			// Declare an array to hold the bytes of the bitmap.
@@ -398,5 +415,74 @@ namespace CommonUtils
 			return grayscaleByteArray;
 		}
 		
+		/// <summary>
+		/// Convert a double array with values between [0 - 1] to an image
+		/// </summary>
+		/// <param name="rawImage">double 2d array</param>
+		/// <returns>an Image</returns>
+		public unsafe static Image DoubleArrayToImage(double[][] rawImage)
+		{
+			//int width = rawImage.GetLength(1);
+			//int height = rawImage.GetLength(0);
+			int width = rawImage[0].Length;
+			int height = rawImage.Length;
+
+			Bitmap Image = new Bitmap(width, height);
+			BitmapData bitmapData = Image.LockBits(
+				new Rectangle(0, 0, width, height),
+				ImageLockMode.ReadWrite,
+				PixelFormat.Format32bppArgb
+			);
+			ColorARGB* startingPosition = (ColorARGB*) bitmapData.Scan0;
+
+
+			for (int i = 0; i < height; i++)
+				for (int j = 0; j < width; j++)
+			{
+				double color = rawImage[i][j];
+				byte rgb = (byte)(color * 255);
+
+				ColorARGB* position = startingPosition + j + i * width;
+				position->A = 255;
+				position->R = rgb;
+				position->G = rgb;
+				position->B = rgb;
+			}
+
+			Image.UnlockBits(bitmapData);
+			return Image;
+		}
+	}
+	
+	/// <summary>
+	/// Color struct used by the DoubleArrayToImage method
+	/// </summary>
+	public struct ColorARGB
+	{
+		public byte B;
+		public byte G;
+		public byte R;
+		public byte A;
+
+		public ColorARGB(Color color)
+		{
+			A = color.A;
+			R = color.R;
+			G = color.G;
+			B = color.B;
+		}
+
+		public ColorARGB(byte a, byte r, byte g, byte b)
+		{
+			A = a;
+			R = r;
+			G = g;
+			B = b;
+		}
+
+		public Color ToColor()
+		{
+			return Color.FromArgb(A, R, G, B);
+		}
 	}
 }

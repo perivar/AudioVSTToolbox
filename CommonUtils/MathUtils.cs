@@ -299,6 +299,30 @@ namespace CommonUtils
 		}
 		#endregion
 		
+		/// <summary>
+		/// Scale data from one format to another (similar to ConvertRangeAndMainainRatio)
+		/// </summary>
+		/// <example>
+		/// double [-1,1] to int [0-255]
+		/// int[] integers = doubles.Select(x => x.Scale(-1,1,0,255)).ToArray();
+		/// 
+		/// int [0-255] to double [-1,1]
+		/// double[] doubles = integers.Select(x => ((double)x).Scale(0,255,-1,1)).ToArray();</example>
+		/// <see cref="http://stackoverflow.com/questions/5383937/array-data-normalization">Array Data Normalization</see>
+		/// <param name="elementToScale">double value</param>
+		/// <param name="rangeMin">original min value</param>
+		/// <param name="rangeMax">original max value</param>
+		/// <param name="scaledRangeMin">new min value</param>
+		/// <param name="scaledRangeMax">new max value</param>
+		/// <returns></returns>
+		public static double Scale(this double elementToScale,
+		                           double rangeMin, double rangeMax,
+		                           double scaledRangeMin, double scaledRangeMax)
+		{
+			var scaled = scaledRangeMin + ((elementToScale - rangeMin) * (scaledRangeMax - scaledRangeMin) / (rangeMax - rangeMin));
+			return scaled;
+		}
+		
 		#region Round
 		public static double RoundToNearest(double number, double nearest) {
 			double rounded = Math.Round(number * (1 / nearest), MidpointRounding.AwayFromZero) / (1 / nearest);
@@ -899,7 +923,7 @@ namespace CommonUtils
 		{
 			var col = array.Select(row => row[column]);
 			return col;
-		}		
+		}
 		
 		public static T[][] DeepCopy<T>(this T[][] array)
 		{
