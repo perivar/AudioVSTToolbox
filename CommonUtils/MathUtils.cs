@@ -178,6 +178,18 @@ namespace CommonUtils
 				bytes[i]--;               // scale bytes to -1..1
 			}
 		}
+		
+		/// <summary>
+		/// To normalize a matrix such that all values fall in the range [0, 1]
+		/// </summary>
+		/// <param name="data">Signal to be Normalized</param>
+		public static double[][] Normalize(double[][] data)
+		{
+			double min = data.Min(b => b.Min());
+			double max = data.Max(b => b.Max());
+			double[][] inorm = data.Select(i => i.Select(x => (x - min) / (max - min)).ToArray()).ToArray();
+			return inorm;
+		}
 		#endregion
 		
 		#region Resample
@@ -307,7 +319,12 @@ namespace CommonUtils
 		/// int[] integers = doubles.Select(x => x.Scale(-1,1,0,255)).ToArray();
 		/// 
 		/// int [0-255] to double [-1,1]
-		/// double[] doubles = integers.Select(x => ((double)x).Scale(0,255,-1,1)).ToArray();</example>
+		/// double[] doubles = integers.Select(x => ((double)x).Scale(0,255,-1,1)).ToArray();
+		/// 
+		/// double min = jaggedArray.Min(b => b.Min());
+		/// double max = jaggedArray.Max(b => b.Max());
+		/// double[][] doubles = jaggedArray.Select(i => i.Select(j => j.Scale(min, max, 0, 255)).ToArray()).ToArray();
+		/// </example>
 		/// <see cref="http://stackoverflow.com/questions/5383937/array-data-normalization">Array Data Normalization</see>
 		/// <param name="elementToScale">double value</param>
 		/// <param name="rangeMin">original min value</param>
