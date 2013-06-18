@@ -268,7 +268,7 @@ namespace CommonUtils
 		}
 		#endregion
 		
-		#region ConvertAndMaintainRatio
+		#region ConvertAndMaintainRatio and Scale methods
 		public static double ConvertAndMainainRatio(double oldValue, double oldMin, double oldMax, double newMin, double newMax) {
 			double oldRange = (oldMax - oldMin);
 			double newRange = (newMax - newMin);
@@ -309,7 +309,6 @@ namespace CommonUtils
 			float newValue = (((log_oldValue - log_oldMin) * newRange) / log_oldRange) + newMin;
 			return newValue;
 		}
-		#endregion
 		
 		/// <summary>
 		/// Scale data from one format to another (similar to ConvertRangeAndMainainRatio)
@@ -339,6 +338,48 @@ namespace CommonUtils
 			var scaled = scaledRangeMin + ((elementToScale - rangeMin) * (scaledRangeMax - scaledRangeMin) / (rangeMax - rangeMin));
 			return scaled;
 		}
+		#endregion
+		
+		#region Jagged Array init using Linq
+		
+		/// <summary>
+		/// Initialize a jagged array in many dimensions
+		/// </summary>
+		/// <example>
+		/// double[][] my2DArray = CreateJaggedArray<double[][]>(noOfRows, noOfCols);
+		/// int[][][] my3DArray = CreateJaggedArray<int[][][]>(1, 2, 3);
+		/// </example>
+		/// <param name="lengths">array that contain the length of each dimension</param>
+		/// <returns>a initialized multidimensional jagged array</returns>
+		public static T CreateJaggedArray<T>(params int[] lengths)
+		{
+			return (T)InitializeJaggedArray(typeof(T).GetElementType(), 0, lengths);
+		}
+
+		/// <summary>
+		/// Method that initialize a jagged array
+		/// </summary>
+		/// <param name="type">unit of measure</param>
+		/// <param name="index">index</param>
+		/// <param name="lengths">array that contain the length of each dimension</param>
+		/// <returns>an object</returns>
+		private static object InitializeJaggedArray(Type type, int index, int[] lengths)
+		{
+			Array array = Array.CreateInstance(type, lengths[index]);
+			Type elementType = type.GetElementType();
+
+			if (elementType != null)
+			{
+				for (int i = 0; i < lengths[index]; i++)
+				{
+					array.SetValue(
+						InitializeJaggedArray(elementType, index + 1, lengths), i);
+				}
+			}
+
+			return array;
+		}
+		#endregion
 		
 		#region Round
 		public static double RoundToNearest(double number, double nearest) {
@@ -819,6 +860,26 @@ namespace CommonUtils
 		{
 			// divide by factor and return
 			data = data.Select(i => i / factor).ToArray();
+		}
+		
+		/// <summary>
+		/// Convert radian to degrees
+		/// </summary>
+		/// <param name="angle">angle in radian</param>
+		/// <returns>degrees</returns>
+		public static double RadianToDegree(double angle)
+		{
+			return angle * (180.0 / Math.PI);
+		}
+		
+		/// <summary>
+		/// Convert degrees to radian
+		/// </summary>
+		/// <param name="angle">angle in degrees</param>
+		/// <returns>radian</returns>
+		public static double DegreeToRadian(double angle)
+		{
+			return Math.PI * angle / 180.0;
 		}
 		#endregion
 		
