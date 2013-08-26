@@ -620,7 +620,9 @@ namespace CommonUtils
 		/// <see cref="IndexToFreq">See the converse method IndexToFreq for more details</see>
 		public static int FreqToIndex(double frequency, double sampleRate, int fftDataSize)
 		{
-			return (int) (frequency * fftDataSize / sampleRate);
+			//return (int) (frequency * fftDataSize / sampleRate);
+			// added rounding - taken from https://github.com/wo80/AcoustID.NET/blob/master/AcoustID/Util/Helper.cs
+			return (int) Math.Round(frequency * fftDataSize / sampleRate);
 		}
 		
 		/// <summary>
@@ -634,7 +636,30 @@ namespace CommonUtils
 		}
 		#endregion
 		
-		#region FloatAndDoubleConversions
+		#region Float, Int And Double Conversions
+		public static int[] FloatToInt(float[] floatArray) {
+			int[] intArray = Array.ConvertAll(floatArray, x => (int)(float)x);
+			return intArray;
+		}
+
+		public static int[] DoubleToInt(double[] doubleArray) {
+			// http://stackoverflow.com/questions/2103944/json-to-c-sharp-convert-an-arraylist-of-doubles-to-an-array-of-ints
+			int[] intArray = Array.ConvertAll(doubleArray, x => (int)(double)x);
+			// Note the cast is framed as (int)(double).
+			// This first unboxes the boxed double and then casts to an int.
+			return intArray;
+		}
+
+		public static float[] IntToFloat(int[] intArray) {
+			float[] floatArray = Array.ConvertAll(intArray, x => (float)x);
+			return floatArray;
+		}
+
+		public static double[] IntToDouble(int[] intArray) {
+			double[] doubleArray = Array.ConvertAll(intArray, x => (double)x);
+			return doubleArray;
+		}
+		
 		public static double[] FloatToDouble(float[] floatArray) {
 			double[] doubleArray = Array.ConvertAll(floatArray, x => (double)x);
 			return doubleArray;
