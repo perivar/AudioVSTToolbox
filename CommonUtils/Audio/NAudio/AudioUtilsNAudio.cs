@@ -594,62 +594,62 @@ namespace CommonUtils.Audio.NAudio
 			int offset = 0;
 			int startFrequency = 110;
 
-			basic.Amplitude = MathUtils.DecibelToAmplitude(-90);
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-33);
 			basic.SetFrequency(startFrequency*1);
 			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SINE);
 			offset += basic.Read(audioData, offset, length);
 
-			basic.Amplitude = MathUtils.DecibelToAmplitude(-80);
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-30);
 			basic.SetFrequency(startFrequency*2);
 			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SAW);
 			offset += basic.Read(audioData, offset, length);
 			
-			basic.Amplitude = MathUtils.DecibelToAmplitude(-70);
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-27);
 			basic.SetFrequency(startFrequency*3);
 			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SQUARE);
 			offset += basic.Read(audioData, offset, length);
 
-			basic.Amplitude = MathUtils.DecibelToAmplitude(-60);
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-24);
 			basic.SetFrequency(startFrequency*4);
 			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.TRIANGLE);
 			offset += basic.Read(audioData, offset, length);
 			
-			basic.Amplitude = MathUtils.DecibelToAmplitude(-50);
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-21);
 			basic.SetFrequency(startFrequency*5);
 			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SINE);
 			offset += basic.Read(audioData, offset, length);
 
-			basic.Amplitude = MathUtils.DecibelToAmplitude(-40);
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-18);
 			basic.SetFrequency(startFrequency*6);
 			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SAW);
 			offset += basic.Read(audioData, offset, length);
 			
-			basic.Amplitude = MathUtils.DecibelToAmplitude(-30);
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-15);
 			basic.SetFrequency(startFrequency*7);
 			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SQUARE);
 			offset += basic.Read(audioData, offset, length);
 
-			basic.Amplitude = MathUtils.DecibelToAmplitude(-20);
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-12);
 			basic.SetFrequency(startFrequency*8);
 			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.TRIANGLE);
 			offset += basic.Read(audioData, offset, length);
 
-			basic.Amplitude = MathUtils.DecibelToAmplitude(-10);
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-9);
 			basic.SetFrequency(startFrequency*9);
 			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SINE);
 			offset += basic.Read(audioData, offset, length);
 
-			basic.Amplitude = MathUtils.DecibelToAmplitude(0);
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-6);
 			basic.SetFrequency(startFrequency*10);
 			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SAW);
 			offset += basic.Read(audioData, offset, length);
 			
-			basic.Amplitude = MathUtils.DecibelToAmplitude(10);
+			basic.Amplitude = MathUtils.DecibelToAmplitude(-3);
 			basic.SetFrequency(startFrequency*11);
 			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SQUARE);
 			offset += basic.Read(audioData, offset, length);
 
-			basic.Amplitude = MathUtils.DecibelToAmplitude(20);
+			basic.Amplitude = MathUtils.DecibelToAmplitude(0);
 			basic.SetFrequency(startFrequency*12);
 			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.TRIANGLE);
 			offset += basic.Read(audioData, offset, length);
