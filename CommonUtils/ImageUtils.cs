@@ -201,7 +201,7 @@ namespace CommonUtils
 		}
 		
 		/// <summary>
-		/// Resize an image using high quality scaling
+		/// Resize an image using high quality scaling (with smoothing and high quality bilinear interpolation)
 		/// </summary>
 		/// <param name="originalImage">original image</param>
 		/// <param name="width">new width</param>
@@ -209,16 +209,19 @@ namespace CommonUtils
 		/// <returns></returns>
 		public static Bitmap Resize(Image originalImage, int width, int height) {
 			Bitmap newImage = new Bitmap(width, height, PixelFormat.Format32bppRgb);
-			Graphics canvas = Graphics.FromImage(newImage);
-			canvas.CompositingQuality = CompositingQuality.HighQuality;
-			canvas.InterpolationMode = InterpolationMode.HighQualityBilinear;
-			canvas.SmoothingMode = SmoothingMode.HighQuality;
-			canvas.DrawImage(originalImage, 0, 0, width, height);
+			using (Graphics canvas = Graphics.FromImage(newImage))
+			{
+				canvas.CompositingQuality = CompositingQuality.HighQuality;
+				canvas.InterpolationMode = InterpolationMode.HighQualityBilinear;
+				canvas.SmoothingMode = SmoothingMode.HighQuality;
+				canvas.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				canvas.DrawImage(originalImage, 0, 0, width, height);
+			}
 			return newImage;
 		}
 
 		/// <summary>
-		/// Resize an image using low quality scaling
+		/// Resize an image using low quality scaling (no smoothing)
 		/// </summary>
 		/// <param name="image">image</param>
 		/// <param name="maxWidth">max width</param>
@@ -243,10 +246,12 @@ namespace CommonUtils
 			}
 			newImage = new Bitmap(newWidth, newHeight);
 			
-			Graphics canvas = Graphics.FromImage(newImage);
-			canvas.InterpolationMode = InterpolationMode.NearestNeighbor;
-
-			canvas.DrawImage(originalImage, 0, 0, newWidth, newHeight);
+			using (Graphics canvas = Graphics.FromImage(newImage))
+			{
+				canvas.InterpolationMode = InterpolationMode.NearestNeighbor;
+				canvas.PixelOffsetMode = PixelOffsetMode.Half;
+				canvas.DrawImage(originalImage, 0, 0, newWidth, newHeight);
+			}
 			return newImage;
 		}
 		
