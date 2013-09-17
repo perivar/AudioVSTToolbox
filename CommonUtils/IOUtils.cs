@@ -87,16 +87,15 @@ namespace CommonUtils
 		/// <param name="msg">message to log</param>
 		public static void LogMessageToFile(FileInfo file, string msg)
 		{
-			System.IO.StreamWriter sw = System.IO.File.AppendText(file.FullName);
-			try
+			// Make sure to support Multithreaded write access
+			using (FileStream fs = new FileStream(file.FullName, FileMode.Append, FileAccess.Write, FileShare.Write))
 			{
-				string logLine = System.String.Format(
-					"{0:G}: {1}", System.DateTime.Now, msg);
-				sw.WriteLine(logLine);
-			}
-			finally
-			{
-				sw.Close();
+				using (StreamWriter sw = new StreamWriter(fs))
+				{
+					string logLine = System.String.Format(
+						"{0:G}: {1}", System.DateTime.Now, msg);
+					sw.WriteLine(logLine);
+				}
 			}
 		}
 	}
