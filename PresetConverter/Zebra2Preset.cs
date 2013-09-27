@@ -668,6 +668,12 @@ namespace PresetConverter
 		public int PCore_GScale = 0;                 // GUI Scale (GScale=0)
 		public int PCore_ChLay = 0;                  // Channel Layout (ChLay=0)
 		public int PCore_SurrO = 1;                  // Surround Options (SurrO=1)
+		public int PCore_Rev = 1559;                  // Revision
+		public float PCore_LED = 0.00f;                  // LED Colour
+		public int PCore_PAGE = 0;                  // PAGE
+		public int PCore_PagesOn = 0;                  // Display PAGES
+		public int PCore_CoreN = 3;                  // binary data for CoreN
+		public int PCore_Slice = 4;                  // binary data for Slice
 
 		// Section: LFOG (#cm=LFOG)
 		public int LFOG_Sync = 4;                    // Sync (Sync=4)
@@ -1945,6 +1951,7 @@ namespace PresetConverter
 			Read(filePath);
 		}
 
+		#region Generate C# Code Methods
 		// Read a zebra 2 native preset (initialize extended format) and create all the class fields
 		public void GenerateClassFields(string inFilePath, string outFilePath)
 		{
@@ -2155,6 +2162,7 @@ namespace PresetConverter
 			tw.Close();
 			file.Close();
 		}
+		#endregion
 
 		#region Generate Preset Sections
 		private string GeneratePresetHeader() {
@@ -3551,7 +3559,7 @@ namespace PresetConverter
 		 * */
 		#endregion
 		
-		public override string ToString() {
+		public string GetPreset() {
 			StringBuilder buffer = new StringBuilder();
 			
 			buffer.Append(GeneratePresetHeader());
@@ -5479,7 +5487,7 @@ namespace PresetConverter
 		}
 		
 		public bool Write(string filePath) {
-			string presetString = ToString();
+			string presetString = GetPreset();
 			
 			// create a writer and open the file
 			// TODO: Normally the PresetName is the filename - care about that?
@@ -5496,5 +5504,8 @@ namespace PresetConverter
 			return true;
 		}
 		
+		public override string ToString() {
+			return String.Format("{0} ({1})", this.PresetName, this.PresetDescription);
+		}
 	}
 }

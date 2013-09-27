@@ -3,6 +3,7 @@ using System.Text;
 using System.IO;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 using CommonUtils;
 
@@ -16,7 +17,7 @@ namespace PresetConverter
 		static string _version = "1.2";
 		
 		public static void Main(string[] args)
-		{	
+		{
 			bool processDirectory = false;
 			bool doProcessInitPresets = false;
 			bool doOutputSylenthPresetTextDump = false;
@@ -63,14 +64,14 @@ namespace PresetConverter
 			// define default sylenth template for Zebra2
 			string zebra2_Sylenth1_PresetTemplate = @"Zebra2-Default Sylenth1 Template.h2p";
 			
-			FileInfo[] presetFiles;
+			IEnumerable<FileInfo> presetFiles;
 			if (processDirectory) {
 				// process directory
 				DirectoryInfo sylenthPresetDir = new DirectoryInfo(sylenthPresetDirString);
 				presetFiles = sylenthPresetDir.GetFilesByExtensions(".fxb", ".fxp");
 				
-				Console.WriteLine("Processing {0} files in directory: '{1}' ...", presetFiles.Length, sylenthPresetDir.Name);
-				IOUtils.LogMessageToFile(outputStatusLog, String.Format("Processing {0} files in directory: '{1}' ...", presetFiles.Length, sylenthPresetDir.Name));
+				Console.WriteLine("Processing {0} files in directory: '{1}' ...", presetFiles.Count(), sylenthPresetDir.Name);
+				IOUtils.LogMessageToFile(outputStatusLog, String.Format("Processing {0} files in directory: '{1}' ...", presetFiles.Count(), sylenthPresetDir.Name));
 			} else {
 				// process single preset
 				FileInfo sylenthPresetFile = new FileInfo(sylenthPreset);
@@ -92,7 +93,7 @@ namespace PresetConverter
 						string outSylenthPresetTextDumpPath = Path.GetFileNameWithoutExtension(presetFile.Name) + "_Text.txt";
 						TextWriter tw = new StreamWriter(outSylenthPresetTextDumpPath);
 						tw.WriteLine(sylenth1);
-						tw.Close();
+						 tw.Close();
 					}
 
 					// define output dir
