@@ -18,6 +18,9 @@ namespace PresetConverter
 		
 		public static void Main(string[] args)
 		{
+			//Zebra2Preset.GenerateClassFields(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\PresetConverter\_SharedResources\Zebra2-Default Sylenth1 Template.h2p", @"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\PresetConverter\_SharedResources\properties.cs");
+			//Zebra2Preset.GenerateWriteMethod(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\PresetConverter\_SharedResources\Zebra2-Default Sylenth1 Template.h2p", @"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\PresetConverter\_SharedResources\getpreset.cs");
+			
 			bool processDirectory = false;
 			bool doProcessInitPresets = false;
 			bool doOutputSylenthPresetTextDump = false;
@@ -93,7 +96,7 @@ namespace PresetConverter
 						string outSylenthPresetTextDumpPath = Path.GetFileNameWithoutExtension(presetFile.Name) + "_Text.txt";
 						TextWriter tw = new StreamWriter(outSylenthPresetTextDumpPath);
 						tw.WriteLine(sylenth1);
-						 tw.Close();
+						tw.Close();
 					}
 
 					// define output dir

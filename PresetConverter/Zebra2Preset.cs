@@ -31,12 +31,12 @@ namespace PresetConverter
 			}
 		}
 		
+		#region Zebra2 Enums
 		public enum ReverbMode : int {
 			Reverb = 0,
 			MetalVerb = 1
 		}
 		
-		#region Zebra2 Enums
 		public enum VoiceMode : int {
 			poly = 0,
 			retrigger = 1,
@@ -94,6 +94,12 @@ namespace PresetConverter
 			Trig_32_bars = 32
 		}
 		
+		/// <summary>
+		/// quadric:Exponential curves. Attack is convex, Decay and Release are concave.
+		/// linear:Straight lines. Linear envelopes can sound unnatural.
+		/// v-slope: Exponential curvature via a slider:  the far left position is extremely  concave,
+		/// -50 is close to quadric, the center is linear, the far right is extremely convex.
+		/// </summary>
 		public enum EnvelopeMode : int {
 			quadric = 0,
 			linear = 1,
@@ -300,7 +306,10 @@ namespace PresetConverter
 			AP_Phaser_4 = 16,
 			AP_Phaser_8 = 17,
 			LP_Vintage2 = 18,
-			SR_Decimate = 19
+			SR_Decimate = 19,
+			LP_TN6SVF = 20, // TyrellN6’s state variable lowpass
+			LP_MS2035 = 21, // Early version of Diva’s rev1 BITE lowpass
+			LP_MS20SK = 22  // Early version of Diva’s rev2 BITE lowpass
 		}
 		
 		public enum DelayMode : int {
@@ -393,7 +402,7 @@ namespace PresetConverter
 		public string PresetUsage {set; get;}
 		
 		// Section: Main (#cm=main)
-		public float Main_CcOp = 40.37f;             // Output (CcOp=40.37)
+		public float Main_CcOp = 100.00f;            // Output (CcOp=100.00)
 		public int Main_LFOG = 1;                    // Active #LFOG (#LFOG=1)
 		public int Main_LFOG2 = 1;                   // Active #LFOG2 (#LFOG2=1)
 
@@ -407,11 +416,11 @@ namespace PresetConverter
 		public float PCore_X_4 = 00.00f;             // X4 (X_4=0.00)
 		public float PCore_Y_4 = 00.00f;             // Y4 (Y_4=0.00)
 		public string PCore_MT11 = "none:assigned";  // XY1 TargetX1 (MT11=none:assigned)
-		public float PCore_ML11 = 15.00f;            // XY1 Right1 (ML11=15.00)
-		public float PCore_MR11 = -15.00f;           // XY1 Left1 (MR11=-15.00)
+		public float PCore_ML11 = 48.00f;            // XY1 Right1 (ML11=48.00)
+		public float PCore_MR11 = -48.00f;           // XY1 Left1 (MR11=-48.00)
 		public string PCore_MT12 = "none:assigned";  // XY1 TargetX2 (MT12=none:assigned)
-		public float PCore_ML12 = 50.00f;            // XY1 Right2 (ML12=50.00)
-		public float PCore_MR12 = -50.00f;           // XY1 Left2 (MR12=-50.00)
+		public float PCore_ML12 = 15.00f;            // XY1 Right2 (ML12=15.00)
+		public float PCore_MR12 = -15.00f;           // XY1 Left2 (MR12=-15.00)
 		public string PCore_MT13 = "none:assigned";  // XY1 TargetX3 (MT13=none:assigned)
 		public float PCore_ML13 = 50.00f;            // XY1 Right3 (ML13=50.00)
 		public float PCore_MR13 = -50.00f;           // XY1 Left3 (MR13=-50.00)
@@ -440,8 +449,8 @@ namespace PresetConverter
 		public float PCore_ML23 = 50.00f;            // XY1 Up3 (ML23=50.00)
 		public float PCore_MR23 = -50.00f;           // XY1 Down3 (MR23=-50.00)
 		public string PCore_MT24 = "none:assigned";  // XY1 TargetY4 (MT24=none:assigned)
-		public float PCore_ML24 = 48.00f;            // XY1 Up4 (ML24=48.00)
-		public float PCore_MR24 = -48.00f;           // XY1 Down4 (MR24=-48.00)
+		public float PCore_ML24 = 50.00f;            // XY1 Up4 (ML24=50.00)
+		public float PCore_MR24 = -50.00f;           // XY1 Down4 (MR24=-50.00)
 		public string PCore_MT25 = "none:assigned";  // XY1 TargetY5 (MT25=none:assigned)
 		public float PCore_ML25 = 50.00f;            // XY1 Up5 (ML25=50.00)
 		public float PCore_MR25 = -50.00f;           // XY1 Down5 (MR25=-50.00)
@@ -461,8 +470,8 @@ namespace PresetConverter
 		public float PCore_ML32 = 50.00f;            // XY2 Right2 (ML32=50.00)
 		public float PCore_MR32 = -50.00f;           // XY2 Left2 (MR32=-50.00)
 		public string PCore_MT33 = "none:assigned";  // XY2 TargetX3 (MT33=none:assigned)
-		public float PCore_ML33 = 50.00f;            // XY2 Right3 (ML33=50.00)
-		public float PCore_MR33 = -50.00f;           // XY2 Left3 (MR33=-50.00)
+		public float PCore_ML33 = 48.00f;            // XY2 Right3 (ML33=48.00)
+		public float PCore_MR33 = -48.00f;           // XY2 Left3 (MR33=-48.00)
 		public string PCore_MT34 = "none:assigned";  // XY2 TargetX4 (MT34=none:assigned)
 		public float PCore_ML34 = 50.00f;            // XY2 Right4 (ML34=50.00)
 		public float PCore_MR34 = -50.00f;           // XY2 Left4 (MR34=-50.00)
@@ -479,8 +488,8 @@ namespace PresetConverter
 		public float PCore_ML38 = 50.00f;            // XY2 Right8 (ML38=50.00)
 		public float PCore_MR38 = -50.00f;           // XY2 Left8 (MR38=-50.00)
 		public string PCore_MT41 = "none:assigned";  // XY2 TargetY1 (MT41=none:assigned)
-		public float PCore_ML41 = 50.00f;            // XY2 Up1 (ML41=50.00)
-		public float PCore_MR41 = -50.00f;           // XY2 Down1 (MR41=-50.00)
+		public float PCore_ML41 = 15.00f;            // XY2 Up1 (ML41=15.00)
+		public float PCore_MR41 = -15.00f;           // XY2 Down1 (MR41=-15.00)
 		public string PCore_MT42 = "none:assigned";  // XY2 TargetY2 (MT42=none:assigned)
 		public float PCore_ML42 = 50.00f;            // XY2 Up2 (ML42=50.00)
 		public float PCore_MR42 = -50.00f;           // XY2 Down2 (MR42=-50.00)
@@ -503,8 +512,8 @@ namespace PresetConverter
 		public float PCore_ML48 = 50.00f;            // XY2 Up8 (ML48=50.00)
 		public float PCore_MR48 = -50.00f;           // XY2 Down8 (MR48=-50.00)
 		public string PCore_MT51 = "none:assigned";  // XY3 TargetX1 (MT51=none:assigned)
-		public float PCore_ML51 = 08.00f;            // XY3 Right1 (ML51=8.00)
-		public float PCore_MR51 = -08.00f;           // XY3 Left1 (MR51=-8.00)
+		public float PCore_ML51 = 50.00f;            // XY3 Right1 (ML51=50.00)
+		public float PCore_MR51 = -50.00f;           // XY3 Left1 (MR51=-50.00)
 		public string PCore_MT52 = "none:assigned";  // XY3 TargetX2 (MT52=none:assigned)
 		public float PCore_ML52 = 50.00f;            // XY3 Right2 (ML52=50.00)
 		public float PCore_MR52 = -50.00f;           // XY3 Left2 (MR52=-50.00)
@@ -581,8 +590,8 @@ namespace PresetConverter
 		public float PCore_ML82 = 50.00f;            // XY4 Up2 (ML82=50.00)
 		public float PCore_MR82 = -50.00f;           // XY4 Down2 (MR82=-50.00)
 		public string PCore_MT83 = "none:assigned";  // XY4 TargetY3 (MT83=none:assigned)
-		public float PCore_ML83 = 08.00f;            // XY4 Up3 (ML83=8.00)
-		public float PCore_MR83 = -08.00f;           // XY4 Down3 (MR83=-8.00)
+		public float PCore_ML83 = 50.00f;            // XY4 Up3 (ML83=50.00)
+		public float PCore_MR83 = -50.00f;           // XY4 Down3 (MR83=-50.00)
 		public string PCore_MT84 = "none:assigned";  // XY4 TargetY4 (MT84=none:assigned)
 		public float PCore_ML84 = 50.00f;            // XY4 Up4 (ML84=50.00)
 		public float PCore_MR84 = -50.00f;           // XY4 Down4 (MR84=-50.00)
@@ -605,7 +614,7 @@ namespace PresetConverter
 		public float PCore_MMVD1 = 00.00f;           // Matrix1 Via (MMVD1=0.00)
 		public string PCore_MMT2 = "none:assigned";  // Matrix2 Target (MMT2=none:assigned)
 		public int PCore_MMS2 = 0;                   // Matrix2 Source (MMS2=0)
-		public float PCore_MMD2 = 00.00f;            // Matrix2 Depth (MMD2=0.00)
+		public float PCore_MMD2 = -100.00f;          // Matrix2 Depth (MMD2=-100.00)
 		public int PCore_MMVS2 = 0;                  // Matrix2 ViaSrc (MMVS2=0)
 		public float PCore_MMVD2 = 00.00f;           // Matrix2 Via (MMVD2=0.00)
 		public string PCore_MMT3 = "none:assigned";  // Matrix3 Target (MMT3=none:assigned)
@@ -658,7 +667,7 @@ namespace PresetConverter
 		public float PCore_MMD12 = 00.00f;           // Matrix12 Depth (MMD12=0.00)
 		public int PCore_MMVS12 = 0;                 // Matrix12 ViaSrc (MMVS12=0)
 		public float PCore_MMVD12 = 00.00f;          // Matrix12 Via (MMVD12=0.00)
-		public int PCore_SBase = 4;                  // SwingBase (SBase=4)
+		public int PCore_SBase = 3;                  // SwingBase (SBase=3)
 		public float PCore_Swing = 00.00f;           // Swing (Swing=0.00)
 		public int PCore_STrig = 1;                  // SwingTrigger (STrig=1)
 		public int PCore_PSong = 0;                  // PatchSong (PSong=0)
@@ -668,12 +677,12 @@ namespace PresetConverter
 		public int PCore_GScale = 0;                 // GUI Scale (GScale=0)
 		public int PCore_ChLay = 0;                  // Channel Layout (ChLay=0)
 		public int PCore_SurrO = 1;                  // Surround Options (SurrO=1)
-		public int PCore_Rev = 1559;                  // Revision
-		public float PCore_LED = 0.00f;                  // LED Colour
-		public int PCore_PAGE = 0;                  // PAGE
-		public int PCore_PagesOn = 0;                  // Display PAGES
-		public int PCore_CoreN = 3;                  // binary data for CoreN
-		public int PCore_Slice = 4;                  // binary data for Slice
+		public int PCore_Rev = 1559;                 // Revision (Rev=1559)
+		public float PCore_LED = 00.00f;             // LED Colour (LED=0.00)
+		public int PCore_PAGE = 0;                   // PAGE (PAGE=0)
+		public int PCore_PagesOn = 0;                // Display PAGES (PagesOn=0)
+		public int PCore_CoreN = 3;                  // binary data for CoreN (CoreN=3)
+		public int PCore_Slice = 4;                  // binary data for Slice (Slice=4)
 
 		// Section: LFOG (#cm=LFOG)
 		public int LFOG_Sync = 4;                    // Sync (Sync=4)
@@ -682,9 +691,9 @@ namespace PresetConverter
 		public float LFOG_Phse = 00.00f;             // Phase (Phse=0.00)
 		public float LFOG_Rate = 100.00f;            // Rate (Rate=100.00)
 		public float LFOG_Amp = 100.00f;             // Amplitude (Amp=100.00)
-		public int LFOG_Slew = (int) LFOSlew.fast;	 // LFO Slew (Slew=1)
+		public int LFOG_Slew = 1;                    // SlewRate (Slew=1)
 		public int LFOG_Nstp = 16;                   // Num Steps (Nstp=16)
-		public int LFOG_Stps = 3;                    // binary data for Steps (Stps=3)
+		public int LFOG_Stps = 5;                    // binary data for Steps (Stps=5)
 		public int LFOG_UWv = 0;                     // User Wave Mode (UWv=0)
 
 		// Section: LFOG2 (#cm=LFOG2)
@@ -694,9 +703,9 @@ namespace PresetConverter
 		public float LFOG2_Phse = 00.00f;            // Phase (Phse=0.00)
 		public float LFOG2_Rate = 100.00f;           // Rate (Rate=100.00)
 		public float LFOG2_Amp = 100.00f;            // Amplitude (Amp=100.00)
-		public int LFOG2_Slew = (int) LFOSlew.fast;	 // LFO Slew (Slew=1)
+		public int LFOG2_Slew = 1;                   // SlewRate (Slew=1)
 		public int LFOG2_Nstp = 16;                  // Num Steps (Nstp=16)
-		public int LFOG2_Stps = 4;                   // binary data for Steps (Stps=4)
+		public int LFOG2_Stps = 6;                   // binary data for Steps (Stps=6)
 		public int LFOG2_UWv = 0;                    // User Wave Mode (UWv=0)
 
 		// Section: VCC (#cm=VCC)
@@ -710,17 +719,17 @@ namespace PresetConverter
 		public float VCC_Porta = 00.00f;             // Portamento (Porta=0.00)
 		public int VCC_PB = 2;                       // PitchBendUp (PB=2)
 		public int VCC_PBD = 2;                      // PitchBendDown (PBD=2)
-		public int VCC_ArSc = 4;                     // ArpSync (ArSc=4)
+		public int VCC_ArSc = 3;                     // ArpSync (ArSc=3)
 		public int VCC_ArOrd = 0;                    // ArpOrder (ArOrd=0)
 		public int VCC_ArLp = 0;                     // ArpLoop (ArLp=0)
 		public int VCC_ArOct = 1;                    // ArpOctave (ArOct=1)
-		public int VCC_ArLL = 16;                    // ArpLoopLength (ArLL=16)
+		public int VCC_ArLL = 8;                     // ArpLoopLength (ArLL=8)
 		public int VCC_ArTr = 0;                     // ArpPortamento (ArTr=0)
 		public int VCC_Drft = 1;                     // Drift (Drft=1)
 		public int VCC_MTunS = 0;                    // TuningMode (MTunS=0)
-		public int VCC_MTunN = 5;                    // binary data for Tuning (MTunN=5)
-		public int VCC_MTunT = 6;                    // binary data for TuningTable (MTunT=6)
-		public int VCC_Trsp = -12;                   // Transpose (Trsp=-12)
+		public int VCC_MTunN = 7;                    // binary data for Tuning (MTunN=7)
+		public int VCC_MTunT = 8;                    // binary data for TuningTable (MTunT=8)
+		public int VCC_Trsp = 0;                     // Transpose (Trsp=0)
 		public float VCC_FTun = 00.00f;              // FineTuneCents (FTun=0.00)
 		public float VCC_PortRg = 100.00f;           // PortaRange (PortRg=100.00)
 		public int VCC_PortaM = 0;                   // PortamentoMode (PortaM=0)
@@ -849,7 +858,7 @@ namespace PresetConverter
 		public float ENV1_SusT = 00.00f;             // Fall/Rise (SusT=0.00)
 		public float ENV1_Sus2 = 00.00f;             // Sustain2 (Sus2=0.00)
 		public float ENV1_Rel = 15.00f;              // Release (Rel=15.00)
-		public float ENV1_Vel = 30.00f;              // Velocity (Vel=30.00)
+		public float ENV1_Vel = 00.00f;              // Velocity (Vel=0.00)
 		public float ENV1_V2I = 00.00f;              // Vel2I (V2I=0.00)
 		public float ENV1_V2A = 00.00f;              // Vel2A (V2A=0.00)
 		public float ENV1_V2D = 00.00f;              // Vel2D (V2D=0.00)
@@ -878,7 +887,7 @@ namespace PresetConverter
 		public float ENV2_SusT = 00.00f;             // Fall/Rise (SusT=0.00)
 		public float ENV2_Sus2 = 00.00f;             // Sustain2 (Sus2=0.00)
 		public float ENV2_Rel = 15.00f;              // Release (Rel=15.00)
-		public float ENV2_Vel = 30.00f;              // Velocity (Vel=30.00)
+		public float ENV2_Vel = 00.00f;              // Velocity (Vel=0.00)
 		public float ENV2_V2I = 00.00f;              // Vel2I (V2I=0.00)
 		public float ENV2_V2A = 00.00f;              // Vel2A (V2A=0.00)
 		public float ENV2_V2D = 00.00f;              // Vel2D (V2D=0.00)
@@ -893,7 +902,7 @@ namespace PresetConverter
 		public float ENV2_K2FR = 00.00f;             // Key2FR (K2FR=0.00)
 		public float ENV2_K2S2 = 00.00f;             // Key2S2 (K2S2=0.00)
 		public float ENV2_K2R = 00.00f;              // Key2R (K2R=0.00)
-		public float ENV2_Slope = 00.00f;            // Slope (Slope=0.00)
+		public float ENV2_Slope = -60.00f;           // Slope (Slope=-60.00)
 		public int ENV2_TBase = 0;                   // Timebase (TBase=0)
 
 		// Section: ENV3 (#cm=ENV3)
@@ -905,9 +914,9 @@ namespace PresetConverter
 		public float ENV3_Dec = 50.00f;              // Decay (Dec=50.00)
 		public float ENV3_Sus = 80.00f;              // Sustain (Sus=80.00)
 		public float ENV3_SusT = 00.00f;             // Fall/Rise (SusT=0.00)
-		public float ENV3_Sus2 = 00.00f;             // Sustain2 (Sus2=0.00)
+		public float ENV3_Sus2 = 46.33f;             // Sustain2 (Sus2=46.33)
 		public float ENV3_Rel = 15.00f;              // Release (Rel=15.00)
-		public float ENV3_Vel = 30.00f;              // Velocity (Vel=30.00)
+		public float ENV3_Vel = 00.00f;              // Velocity (Vel=0.00)
 		public float ENV3_V2I = 00.00f;              // Vel2I (V2I=0.00)
 		public float ENV3_V2A = 00.00f;              // Vel2A (V2A=0.00)
 		public float ENV3_V2D = 00.00f;              // Vel2D (V2D=0.00)
@@ -922,7 +931,7 @@ namespace PresetConverter
 		public float ENV3_K2FR = 00.00f;             // Key2FR (K2FR=0.00)
 		public float ENV3_K2S2 = 00.00f;             // Key2S2 (K2S2=0.00)
 		public float ENV3_K2R = 00.00f;              // Key2R (K2R=0.00)
-		public float ENV3_Slope = 00.00f;            // Slope (Slope=0.00)
+		public float ENV3_Slope = -70.00f;           // Slope (Slope=-70.00)
 		public int ENV3_TBase = 0;                   // Timebase (TBase=0)
 
 		// Section: ENV4 (#cm=ENV4)
@@ -936,7 +945,7 @@ namespace PresetConverter
 		public float ENV4_SusT = 00.00f;             // Fall/Rise (SusT=0.00)
 		public float ENV4_Sus2 = 00.00f;             // Sustain2 (Sus2=0.00)
 		public float ENV4_Rel = 15.00f;              // Release (Rel=15.00)
-		public float ENV4_Vel = 30.00f;              // Velocity (Vel=30.00)
+		public float ENV4_Vel = 00.00f;              // Velocity (Vel=0.00)
 		public float ENV4_V2I = 00.00f;              // Vel2I (V2I=0.00)
 		public float ENV4_V2A = 00.00f;              // Vel2A (V2A=0.00)
 		public float ENV4_V2D = 00.00f;              // Vel2D (V2D=0.00)
@@ -951,12 +960,12 @@ namespace PresetConverter
 		public float ENV4_K2FR = 00.00f;             // Key2FR (K2FR=0.00)
 		public float ENV4_K2S2 = 00.00f;             // Key2S2 (K2S2=0.00)
 		public float ENV4_K2R = 00.00f;              // Key2R (K2R=0.00)
-		public float ENV4_Slope = 00.00f;            // Slope (Slope=0.00)
+		public float ENV4_Slope = -70.00f;           // Slope (Slope=-70.00)
 		public int ENV4_TBase = 0;                   // Timebase (TBase=0)
 
 		// Section: MSEG1 (#cm=MSEG1)
-		public int MSEG1_TmUn = 1;                   // TimeUnit (TmUn=1)
-		public int MSEG1_Env = 7;                    // binary data for Envelope (Env=7)
+		public int MSEG1_TmUn = 0;                   // TimeUnit (TmUn=0)
+		public int MSEG1_Env = 9;                    // binary data for Envelope (Env=9)
 		public float MSEG1_Vel = 00.00f;             // Velocity (Vel=0.00)
 		public float MSEG1_Atk = 00.00f;             // Attack (Atk=0.00)
 		public float MSEG1_Lpt = 00.00f;             // Loop (Lpt=0.00)
@@ -964,8 +973,8 @@ namespace PresetConverter
 		public int MSEG1_Trig = 0;                   // Trigger (Trig=0)
 
 		// Section: MSEG2 (#cm=MSEG2)
-		public int MSEG2_TmUn = 1;                   // TimeUnit (TmUn=1)
-		public int MSEG2_Env = 8;                    // binary data for Envelope (Env=8)
+		public int MSEG2_TmUn = 0;                   // TimeUnit (TmUn=0)
+		public int MSEG2_Env = 10;                   // binary data for Envelope (Env=10)
 		public float MSEG2_Vel = 00.00f;             // Velocity (Vel=0.00)
 		public float MSEG2_Atk = 00.00f;             // Attack (Atk=0.00)
 		public float MSEG2_Lpt = 00.00f;             // Loop (Lpt=0.00)
@@ -973,8 +982,8 @@ namespace PresetConverter
 		public int MSEG2_Trig = 0;                   // Trigger (Trig=0)
 
 		// Section: MSEG3 (#cm=MSEG3)
-		public int MSEG3_TmUn = 1;                   // TimeUnit (TmUn=1)
-		public int MSEG3_Env = 9;                    // binary data for Envelope (Env=9)
+		public int MSEG3_TmUn = 0;                   // TimeUnit (TmUn=0)
+		public int MSEG3_Env = 11;                   // binary data for Envelope (Env=11)
 		public float MSEG3_Vel = 00.00f;             // Velocity (Vel=0.00)
 		public float MSEG3_Atk = 00.00f;             // Attack (Atk=0.00)
 		public float MSEG3_Lpt = 00.00f;             // Loop (Lpt=0.00)
@@ -982,8 +991,8 @@ namespace PresetConverter
 		public int MSEG3_Trig = 0;                   // Trigger (Trig=0)
 
 		// Section: MSEG4 (#cm=MSEG4)
-		public int MSEG4_TmUn = 1;                   // TimeUnit (TmUn=1)
-		public int MSEG4_Env = 10;                   // binary data for Envelope (Env=10)
+		public int MSEG4_TmUn = 0;                   // TimeUnit (TmUn=0)
+		public int MSEG4_Env = 12;                   // binary data for Envelope (Env=12)
 		public float MSEG4_Vel = 00.00f;             // Velocity (Vel=0.00)
 		public float MSEG4_Atk = 00.00f;             // Attack (Atk=0.00)
 		public float MSEG4_Lpt = 00.00f;             // Loop (Lpt=0.00)
@@ -997,9 +1006,9 @@ namespace PresetConverter
 		public float LFO1_Phse = 00.00f;             // Phase (Phse=0.00)
 		public float LFO1_Rate = 100.00f;            // Rate (Rate=100.00)
 		public float LFO1_Amp = 100.00f;             // Amplitude (Amp=100.00)
-		public int LFO1_Slew = (int) LFOSlew.fast;	 // LFO Slew (Slew=1)
+		public int LFO1_Slew = 1;                    // SlewRate (Slew=1)
 		public int LFO1_Nstp = 16;                   // Num Steps (Nstp=16)
-		public int LFO1_Stps = 11;                   // binary data for Steps (Stps=11)
+		public int LFO1_Stps = 13;                   // binary data for Steps (Stps=13)
 		public int LFO1_UWv = 0;                     // User Wave Mode (UWv=0)
 		public float LFO1_Dly = 00.00f;              // Delay (Dly=0.00)
 		public int LFO1_DMS1 = 0;                    // DepthMod Src1 (DMS1=0)
@@ -1014,9 +1023,9 @@ namespace PresetConverter
 		public float LFO2_Phse = 00.00f;             // Phase (Phse=0.00)
 		public float LFO2_Rate = 100.00f;            // Rate (Rate=100.00)
 		public float LFO2_Amp = 100.00f;             // Amplitude (Amp=100.00)
-		public int LFO2_Slew = (int) LFOSlew.fast;	 // LFO Slew (Slew=1)
+		public int LFO2_Slew = 1;                    // SlewRate (Slew=1)
 		public int LFO2_Nstp = 16;                   // Num Steps (Nstp=16)
-		public int LFO2_Stps = 12;                   // binary data for Steps (Stps=12)
+		public int LFO2_Stps = 14;                   // binary data for Steps (Stps=14)
 		public int LFO2_UWv = 0;                     // User Wave Mode (UWv=0)
 		public float LFO2_Dly = 00.00f;              // Delay (Dly=0.00)
 		public int LFO2_DMS1 = 0;                    // DepthMod Src1 (DMS1=0)
@@ -1031,9 +1040,9 @@ namespace PresetConverter
 		public float LFO3_Phse = 00.00f;             // Phase (Phse=0.00)
 		public float LFO3_Rate = 100.00f;            // Rate (Rate=100.00)
 		public float LFO3_Amp = 100.00f;             // Amplitude (Amp=100.00)
-		public int LFO3_Slew = (int) LFOSlew.fast;	 // LFO Slew (Slew=1)
+		public int LFO3_Slew = 1;                    // SlewRate (Slew=1)
 		public int LFO3_Nstp = 16;                   // Num Steps (Nstp=16)
-		public int LFO3_Stps = 13;                   // binary data for Steps (Stps=13)
+		public int LFO3_Stps = 15;                   // binary data for Steps (Stps=15)
 		public int LFO3_UWv = 0;                     // User Wave Mode (UWv=0)
 		public float LFO3_Dly = 00.00f;              // Delay (Dly=0.00)
 		public int LFO3_DMS1 = 0;                    // DepthMod Src1 (DMS1=0)
@@ -1048,9 +1057,9 @@ namespace PresetConverter
 		public float LFO4_Phse = 00.00f;             // Phase (Phse=0.00)
 		public float LFO4_Rate = 100.00f;            // Rate (Rate=100.00)
 		public float LFO4_Amp = 100.00f;             // Amplitude (Amp=100.00)
-		public int LFO4_Slew = (int) LFOSlew.fast;	 // LFO Slew (Slew=1)
+		public int LFO4_Slew = 1;                    // SlewRate (Slew=1)
 		public int LFO4_Nstp = 16;                   // Num Steps (Nstp=16)
-		public int LFO4_Stps = 14;                   // binary data for Steps (Stps=14)
+		public int LFO4_Stps = 16;                   // binary data for Steps (Stps=16)
 		public int LFO4_UWv = 0;                     // User Wave Mode (UWv=0)
 		public float LFO4_Dly = 00.00f;              // Delay (Dly=0.00)
 		public int LFO4_DMS1 = 0;                    // DepthMod Src1 (DMS1=0)
@@ -1059,16 +1068,28 @@ namespace PresetConverter
 		public float LFO4_FMD1 = 00.00f;             // FreqMod Dpt (FMD1=0.00)
 
 		// Section: MMap1 (#cm=MMap1)
-		public int MMap1_Mode = 0;                   // Mode (Mode=0)
+		public int MMap1_Mode = 3;                   // Mode (Mode=3)
 		public int MMap1_MSrc = 0;                   // MSrc (MSrc=0)
-		public int MMap1_Stps = 15;                  // binary data for Steps (Stps=15)
+		public int MMap1_Stps = 17;                  // binary data for Steps (Stps=17)
 		public int MMap1_Num = 17;                   // Number (Num=17)
 
 		// Section: MMap2 (#cm=MMap2)
-		public int MMap2_Mode = 0;                   // Mode (Mode=0)
+		public int MMap2_Mode = 3;                   // Mode (Mode=3)
 		public int MMap2_MSrc = 0;                   // MSrc (MSrc=0)
-		public int MMap2_Stps = 16;                  // binary data for Steps (Stps=16)
-		public int MMap2_Num = 17;                   // Number (Num=17)
+		public int MMap2_Stps = 18;                  // binary data for Steps (Stps=18)
+		public int MMap2_Num = 6;                    // Number (Num=6)
+
+		// Section: MMap3 (#cm=MMap3)
+		public int MMap3_Mode = 3;                   // Mode (Mode=3)
+		public int MMap3_MSrc = 0;                   // MSrc (MSrc=0)
+		public int MMap3_Stps = 19;                  // binary data for Steps (Stps=19)
+		public int MMap3_Num = 17;                   // Number (Num=17)
+
+		// Section: MMap4 (#cm=MMap4)
+		public int MMap4_Mode = 3;                   // Mode (Mode=3)
+		public int MMap4_MSrc = 0;                   // MSrc (MSrc=0)
+		public int MMap4_Stps = 20;                  // binary data for Steps (Stps=20)
+		public int MMap4_Num = 17;                   // Number (Num=17)
 
 		// Section: MMix1 (#cm=MMix1)
 		public int MMix1_Type = 0;                   // Mode (Type=0)
@@ -1099,23 +1120,23 @@ namespace PresetConverter
 		public float MMix4_Cst = 50.00f;             // Constant (Cst=50.00)
 
 		// Section: Grid (#cm=Grid)
-		public int Grid_Grid = 17;                   // binary data for Grid Structure (Grid=17)
+		public int Grid_Grid = 21;                   // binary data for Grid Structure (Grid=21)
 		public int Grid_GByp = 0;                    // Bypass (GByp=0)
 
 		// Section: OSC1 (#cm=OSC1)
-		public int OSC1_Wave = 0;                    // WaveForm (Wave=0)
+		public int OSC1_Wave = 2;                    // WaveForm (Wave=2)
 		public float OSC1_Tune = 00.00f;             // Tune (Tune=0.00)
 		public float OSC1_KeyScl = 100.00f;          // key scale (KeyScl=100.00)
 		public int OSC1_TMSrc = 0;                   // TuneModSrc (TMSrc=0)
 		public float OSC1_TMDpt = 00.00f;            // TuneModDepth (TMDpt=0.00)
-		public float OSC1_Phse = 00.00f;             // Phase (Phse=0.00)
+		public float OSC1_Phse = 50.00f;             // Phase (Phse=50.00)
 		public int OSC1_PhsMSrc = 0;                 // PhaseModSrc (PhsMSrc=0)
 		public float OSC1_PhsMDpt = 00.00f;          // PhaseModDepth (PhsMDpt=0.00)
-		public float OSC1_WNum = 01.00f;             // WaveWarp (WNum=1.00)
+		public float OSC1_WNum = 02.00f;             // WaveWarp (WNum=2.00)
 		public int OSC1_WPSrc = 0;                   // WarpModSrc (WPSrc=0)
 		public float OSC1_WPDpt = 00.00f;            // WarpModDepth (WPDpt=0.00)
 		public float OSC1_VtoD = 00.00f;             // Vibrato (VtoD=0.00)
-		public int OSC1_Curve = 18;                  // binary data for Curve (Curve=18)
+		public int OSC1_Curve = 22;                  // binary data for Curve (Curve=22)
 		public float OSC1_Prec = 05.00f;             // Resolution (Prec=5.00)
 		public int OSC1_FX1Tp = 0;                   // SpectraFX1 Type (FX1Tp=0)
 		public float OSC1_SFX1 = 00.00f;             // SpectraFX1 Val (SFX1=0.00)
@@ -1127,7 +1148,7 @@ namespace PresetConverter
 		public float OSC1_FX2Dt = 00.00f;            // SFX2ModDepth (FX2Dt=0.00)
 		public int OSC1_Poly = 0;                    // PolyWave (Poly=0)
 		public float OSC1_Dtun = 00.00f;             // Detune (Dtun=0.00)
-		public int OSC1_KVsc = 19;                   // binary data for KeyVelZones (KVsc=19)
+		public int OSC1_KVsc = 23;                   // binary data for KeyVelZones (KVsc=23)
 		public float OSC1_Vol = 100.00f;             // Volume (Vol=100.00)
 		public int OSC1_VolSc = 0;                   // VolumeModSrc (VolSc=0)
 		public float OSC1_VolDt = 00.00f;            // VolumeModDepth (VolDt=0.00)
@@ -1140,25 +1161,25 @@ namespace PresetConverter
 		public int OSC1_SncOn = 0;                   // Sync Active (SncOn=0)
 		public float OSC1_PolW = 50.00f;             // Poly Width (PolW=50.00)
 		public int OSC1_PwmOn = 0;                   // PWM Mode (PwmOn=0)
-		public int OSC1_WaTb = 20;                   // binary data for WaveTable (WaTb=20)
+		public int OSC1_WaTb = 24;                   // binary data for WaveTable (WaTb=24)
 		public int OSC1_RePhs = 0;                   // Reset Phase (RePhs=0)
-		public float OSC1_Norm = 00.00f;             // Normalize (Norm=0.00)
+		public float OSC1_Norm = 15.00f;             // Normalize (Norm=15.00)
 		public int OSC1_Rend = 0;                    // Renderer (Rend=0)
 
 		// Section: OSC2 (#cm=OSC2)
-		public int OSC2_Wave = 0;                    // WaveForm (Wave=0)
+		public int OSC2_Wave = 2;                    // WaveForm (Wave=2)
 		public float OSC2_Tune = 00.00f;             // Tune (Tune=0.00)
 		public float OSC2_KeyScl = 100.00f;          // key scale (KeyScl=100.00)
 		public int OSC2_TMSrc = 0;                   // TuneModSrc (TMSrc=0)
 		public float OSC2_TMDpt = 00.00f;            // TuneModDepth (TMDpt=0.00)
-		public float OSC2_Phse = 00.00f;             // Phase (Phse=0.00)
+		public float OSC2_Phse = 50.00f;             // Phase (Phse=50.00)
 		public int OSC2_PhsMSrc = 0;                 // PhaseModSrc (PhsMSrc=0)
 		public float OSC2_PhsMDpt = 00.00f;          // PhaseModDepth (PhsMDpt=0.00)
-		public float OSC2_WNum = 01.00f;             // WaveWarp (WNum=1.00)
+		public float OSC2_WNum = 02.00f;             // WaveWarp (WNum=2.00)
 		public int OSC2_WPSrc = 0;                   // WarpModSrc (WPSrc=0)
 		public float OSC2_WPDpt = 00.00f;            // WarpModDepth (WPDpt=0.00)
 		public float OSC2_VtoD = 00.00f;             // Vibrato (VtoD=0.00)
-		public int OSC2_Curve = 21;                  // binary data for Curve (Curve=21)
+		public int OSC2_Curve = 25;                  // binary data for Curve (Curve=25)
 		public float OSC2_Prec = 05.00f;             // Resolution (Prec=5.00)
 		public int OSC2_FX1Tp = 0;                   // SpectraFX1 Type (FX1Tp=0)
 		public float OSC2_SFX1 = 00.00f;             // SpectraFX1 Val (SFX1=0.00)
@@ -1170,7 +1191,7 @@ namespace PresetConverter
 		public float OSC2_FX2Dt = 00.00f;            // SFX2ModDepth (FX2Dt=0.00)
 		public int OSC2_Poly = 0;                    // PolyWave (Poly=0)
 		public float OSC2_Dtun = 00.00f;             // Detune (Dtun=0.00)
-		public int OSC2_KVsc = 22;                   // binary data for KeyVelZones (KVsc=22)
+		public int OSC2_KVsc = 26;                   // binary data for KeyVelZones (KVsc=26)
 		public float OSC2_Vol = 100.00f;             // Volume (Vol=100.00)
 		public int OSC2_VolSc = 0;                   // VolumeModSrc (VolSc=0)
 		public float OSC2_VolDt = 00.00f;            // VolumeModDepth (VolDt=0.00)
@@ -1183,25 +1204,25 @@ namespace PresetConverter
 		public int OSC2_SncOn = 0;                   // Sync Active (SncOn=0)
 		public float OSC2_PolW = 50.00f;             // Poly Width (PolW=50.00)
 		public int OSC2_PwmOn = 0;                   // PWM Mode (PwmOn=0)
-		public int OSC2_WaTb = 23;                   // binary data for WaveTable (WaTb=23)
+		public int OSC2_WaTb = 27;                   // binary data for WaveTable (WaTb=27)
 		public int OSC2_RePhs = 0;                   // Reset Phase (RePhs=0)
-		public float OSC2_Norm = 00.00f;             // Normalize (Norm=0.00)
+		public float OSC2_Norm = 15.00f;             // Normalize (Norm=15.00)
 		public int OSC2_Rend = 0;                    // Renderer (Rend=0)
 
 		// Section: OSC3 (#cm=OSC3)
-		public int OSC3_Wave = 0;                    // WaveForm (Wave=0)
+		public int OSC3_Wave = 2;                    // WaveForm (Wave=2)
 		public float OSC3_Tune = 00.00f;             // Tune (Tune=0.00)
 		public float OSC3_KeyScl = 100.00f;          // key scale (KeyScl=100.00)
 		public int OSC3_TMSrc = 0;                   // TuneModSrc (TMSrc=0)
 		public float OSC3_TMDpt = 00.00f;            // TuneModDepth (TMDpt=0.00)
-		public float OSC3_Phse = 00.00f;             // Phase (Phse=0.00)
+		public float OSC3_Phse = 50.00f;             // Phase (Phse=50.00)
 		public int OSC3_PhsMSrc = 0;                 // PhaseModSrc (PhsMSrc=0)
 		public float OSC3_PhsMDpt = 00.00f;          // PhaseModDepth (PhsMDpt=0.00)
-		public float OSC3_WNum = 01.00f;             // WaveWarp (WNum=1.00)
+		public float OSC3_WNum = 02.00f;             // WaveWarp (WNum=2.00)
 		public int OSC3_WPSrc = 0;                   // WarpModSrc (WPSrc=0)
 		public float OSC3_WPDpt = 00.00f;            // WarpModDepth (WPDpt=0.00)
 		public float OSC3_VtoD = 00.00f;             // Vibrato (VtoD=0.00)
-		public int OSC3_Curve = 24;                  // binary data for Curve (Curve=24)
+		public int OSC3_Curve = 28;                  // binary data for Curve (Curve=28)
 		public float OSC3_Prec = 05.00f;             // Resolution (Prec=5.00)
 		public int OSC3_FX1Tp = 0;                   // SpectraFX1 Type (FX1Tp=0)
 		public float OSC3_SFX1 = 00.00f;             // SpectraFX1 Val (SFX1=0.00)
@@ -1213,7 +1234,7 @@ namespace PresetConverter
 		public float OSC3_FX2Dt = 00.00f;            // SFX2ModDepth (FX2Dt=0.00)
 		public int OSC3_Poly = 0;                    // PolyWave (Poly=0)
 		public float OSC3_Dtun = 00.00f;             // Detune (Dtun=0.00)
-		public int OSC3_KVsc = 25;                   // binary data for KeyVelZones (KVsc=25)
+		public int OSC3_KVsc = 29;                   // binary data for KeyVelZones (KVsc=29)
 		public float OSC3_Vol = 100.00f;             // Volume (Vol=100.00)
 		public int OSC3_VolSc = 0;                   // VolumeModSrc (VolSc=0)
 		public float OSC3_VolDt = 00.00f;            // VolumeModDepth (VolDt=0.00)
@@ -1226,25 +1247,25 @@ namespace PresetConverter
 		public int OSC3_SncOn = 0;                   // Sync Active (SncOn=0)
 		public float OSC3_PolW = 50.00f;             // Poly Width (PolW=50.00)
 		public int OSC3_PwmOn = 0;                   // PWM Mode (PwmOn=0)
-		public int OSC3_WaTb = 26;                   // binary data for WaveTable (WaTb=26)
+		public int OSC3_WaTb = 30;                   // binary data for WaveTable (WaTb=30)
 		public int OSC3_RePhs = 0;                   // Reset Phase (RePhs=0)
-		public float OSC3_Norm = 00.00f;             // Normalize (Norm=0.00)
+		public float OSC3_Norm = 15.00f;             // Normalize (Norm=15.00)
 		public int OSC3_Rend = 0;                    // Renderer (Rend=0)
 
 		// Section: OSC4 (#cm=OSC4)
-		public int OSC4_Wave = 0;                    // WaveForm (Wave=0)
+		public int OSC4_Wave = 2;                    // WaveForm (Wave=2)
 		public float OSC4_Tune = 00.00f;             // Tune (Tune=0.00)
 		public float OSC4_KeyScl = 100.00f;          // key scale (KeyScl=100.00)
 		public int OSC4_TMSrc = 0;                   // TuneModSrc (TMSrc=0)
 		public float OSC4_TMDpt = 00.00f;            // TuneModDepth (TMDpt=0.00)
-		public float OSC4_Phse = 00.00f;             // Phase (Phse=0.00)
+		public float OSC4_Phse = 50.00f;             // Phase (Phse=50.00)
 		public int OSC4_PhsMSrc = 0;                 // PhaseModSrc (PhsMSrc=0)
 		public float OSC4_PhsMDpt = 00.00f;          // PhaseModDepth (PhsMDpt=0.00)
-		public float OSC4_WNum = 01.00f;             // WaveWarp (WNum=1.00)
+		public float OSC4_WNum = 02.00f;             // WaveWarp (WNum=2.00)
 		public int OSC4_WPSrc = 0;                   // WarpModSrc (WPSrc=0)
-		public float OSC4_WPDpt = 00.00f;            // WarpModDepth (WPDpt=0.00)
+		public float OSC4_WPDpt = 15.00f;            // WarpModDepth (WPDpt=15.00)
 		public float OSC4_VtoD = 00.00f;             // Vibrato (VtoD=0.00)
-		public int OSC4_Curve = 27;                  // binary data for Curve (Curve=27)
+		public int OSC4_Curve = 31;                  // binary data for Curve (Curve=31)
 		public float OSC4_Prec = 05.00f;             // Resolution (Prec=5.00)
 		public int OSC4_FX1Tp = 0;                   // SpectraFX1 Type (FX1Tp=0)
 		public float OSC4_SFX1 = 00.00f;             // SpectraFX1 Val (SFX1=0.00)
@@ -1256,7 +1277,7 @@ namespace PresetConverter
 		public float OSC4_FX2Dt = 00.00f;            // SFX2ModDepth (FX2Dt=0.00)
 		public int OSC4_Poly = 0;                    // PolyWave (Poly=0)
 		public float OSC4_Dtun = 00.00f;             // Detune (Dtun=0.00)
-		public int OSC4_KVsc = 28;                   // binary data for KeyVelZones (KVsc=28)
+		public int OSC4_KVsc = 32;                   // binary data for KeyVelZones (KVsc=32)
 		public float OSC4_Vol = 100.00f;             // Volume (Vol=100.00)
 		public int OSC4_VolSc = 0;                   // VolumeModSrc (VolSc=0)
 		public float OSC4_VolDt = 00.00f;            // VolumeModDepth (VolDt=0.00)
@@ -1269,9 +1290,9 @@ namespace PresetConverter
 		public int OSC4_SncOn = 0;                   // Sync Active (SncOn=0)
 		public float OSC4_PolW = 50.00f;             // Poly Width (PolW=50.00)
 		public int OSC4_PwmOn = 0;                   // PWM Mode (PwmOn=0)
-		public int OSC4_WaTb = 29;                   // binary data for WaveTable (WaTb=29)
+		public int OSC4_WaTb = 33;                   // binary data for WaveTable (WaTb=33)
 		public int OSC4_RePhs = 0;                   // Reset Phase (RePhs=0)
-		public float OSC4_Norm = 00.00f;             // Normalize (Norm=0.00)
+		public float OSC4_Norm = 20.00f;             // Normalize (Norm=20.00)
 		public int OSC4_Rend = 0;                    // Renderer (Rend=0)
 
 		// Section: Noise1 (#cm=Noise1)
@@ -1282,14 +1303,14 @@ namespace PresetConverter
 		public float Noise1_F2 = 00.00f;             // Filter2 (F2=0.00)
 		public int Noise1_F2Src = 0;                 // F2 ModSrc (F2Src=0)
 		public float Noise1_F2Dpt = 00.00f;          // F2 ModDepth (F2Dpt=0.00)
-		public int Noise1_KVsc = 30;                 // binary data for KeyVelZones (KVsc=30)
-		public float Noise1_Vol = 100.00f;           // Volume (Vol=100.00)
+		public int Noise1_KVsc = 34;                 // binary data for KeyVelZones (KVsc=34)
+		public float Noise1_Vol = 00.00f;            // Volume (Vol=0.00)
 		public int Noise1_VolSc = 0;                 // VolumeModSrc (VolSc=0)
 		public float Noise1_VolDt = 00.00f;          // VolumeModDepth (VolDt=0.00)
 		public float Noise1_Pan = 00.00f;            // Pan (Pan=0.00)
 		public int Noise1_PanSc = 0;                 // PanModSrc (PanSc=0)
 		public float Noise1_PanDt = 00.00f;          // PanModDepth (PanDt=0.00)
-		public int Noise1_Poly = 0;                  // Poly (Poly=0)
+		public int Noise1_Poly = 1;                  // Poly (Poly=1)
 		public float Noise1_PolW = 50.00f;           // Width (PolW=50.00)
 
 		// Section: Noise2 (#cm=Noise2)
@@ -1300,14 +1321,14 @@ namespace PresetConverter
 		public float Noise2_F2 = 00.00f;             // Filter2 (F2=0.00)
 		public int Noise2_F2Src = 0;                 // F2 ModSrc (F2Src=0)
 		public float Noise2_F2Dpt = 00.00f;          // F2 ModDepth (F2Dpt=0.00)
-		public int Noise2_KVsc = 31;                 // binary data for KeyVelZones (KVsc=31)
-		public float Noise2_Vol = 100.00f;           // Volume (Vol=100.00)
+		public int Noise2_KVsc = 35;                 // binary data for KeyVelZones (KVsc=35)
+		public float Noise2_Vol = 00.00f;            // Volume (Vol=0.00)
 		public int Noise2_VolSc = 0;                 // VolumeModSrc (VolSc=0)
 		public float Noise2_VolDt = 00.00f;          // VolumeModDepth (VolDt=0.00)
 		public float Noise2_Pan = 00.00f;            // Pan (Pan=0.00)
 		public int Noise2_PanSc = 0;                 // PanModSrc (PanSc=0)
 		public float Noise2_PanDt = 00.00f;          // PanModDepth (PanDt=0.00)
-		public int Noise2_Poly = 0;                  // Poly (Poly=0)
+		public int Noise2_Poly = 1;                  // Poly (Poly=1)
 		public float Noise2_PolW = 50.00f;           // Width (PolW=50.00)
 
 		// Section: VCF1 (#cm=VCF1)
@@ -1369,7 +1390,7 @@ namespace PresetConverter
 		public float FMO1_FMDpt = 00.00f;            // FM ModDepth (FMDpt=0.00)
 		public float FMO1_VtoD = 00.00f;             // Vibrato (VtoD=0.00)
 		public float FMO1_Dtun = 00.00f;             // Detune (Dtun=0.00)
-		public int FMO1_KVsc = 32;                   // binary data for KeyVelZones (KVsc=32)
+		public int FMO1_KVsc = 36;                   // binary data for KeyVelZones (KVsc=36)
 		public float FMO1_Vol = 100.00f;             // Volume (Vol=100.00)
 		public int FMO1_VolSc = 0;                   // VolumeModSrc (VolSc=0)
 		public float FMO1_VolDt = 00.00f;            // VolumeModDepth (VolDt=0.00)
@@ -1391,7 +1412,7 @@ namespace PresetConverter
 		public float FMO2_FMDpt = 00.00f;            // FM ModDepth (FMDpt=0.00)
 		public float FMO2_VtoD = 00.00f;             // Vibrato (VtoD=0.00)
 		public float FMO2_Dtun = 00.00f;             // Detune (Dtun=0.00)
-		public int FMO2_KVsc = 33;                   // binary data for KeyVelZones (KVsc=33)
+		public int FMO2_KVsc = 37;                   // binary data for KeyVelZones (KVsc=37)
 		public float FMO2_Vol = 100.00f;             // Volume (Vol=100.00)
 		public int FMO2_VolSc = 0;                   // VolumeModSrc (VolSc=0)
 		public float FMO2_VolDt = 00.00f;            // VolumeModDepth (VolDt=0.00)
@@ -1413,7 +1434,7 @@ namespace PresetConverter
 		public float FMO3_FMDpt = 00.00f;            // FM ModDepth (FMDpt=0.00)
 		public float FMO3_VtoD = 00.00f;             // Vibrato (VtoD=0.00)
 		public float FMO3_Dtun = 00.00f;             // Detune (Dtun=0.00)
-		public int FMO3_KVsc = 34;                   // binary data for KeyVelZones (KVsc=34)
+		public int FMO3_KVsc = 38;                   // binary data for KeyVelZones (KVsc=38)
 		public float FMO3_Vol = 100.00f;             // Volume (Vol=100.00)
 		public int FMO3_VolSc = 0;                   // VolumeModSrc (VolSc=0)
 		public float FMO3_VolDt = 00.00f;            // VolumeModDepth (VolDt=0.00)
@@ -1435,7 +1456,7 @@ namespace PresetConverter
 		public float FMO4_FMDpt = 00.00f;            // FM ModDepth (FMDpt=0.00)
 		public float FMO4_VtoD = 00.00f;             // Vibrato (VtoD=0.00)
 		public float FMO4_Dtun = 00.00f;             // Detune (Dtun=0.00)
-		public int FMO4_KVsc = 35;                   // binary data for KeyVelZones (KVsc=35)
+		public int FMO4_KVsc = 39;                   // binary data for KeyVelZones (KVsc=39)
 		public float FMO4_Vol = 100.00f;             // Volume (Vol=100.00)
 		public int FMO4_VolSc = 0;                   // VolumeModSrc (VolSc=0)
 		public float FMO4_VolDt = 00.00f;            // VolumeModDepth (VolDt=0.00)
@@ -1454,13 +1475,13 @@ namespace PresetConverter
 		public float Comb1_TMDpt = 00.00f;           // TuneModDepth (TMDpt=0.00)
 		public float Comb1_Detn = 00.00f;            // Detune (Detn=0.00)
 		public float Comb1_VtoD = 00.00f;            // Vibrato (VtoD=0.00)
-		public float Comb1_FB = 00.00f;              // Feedback (FB=0.00)
+		public float Comb1_FB = 50.00f;              // Feedback (FB=50.00)
 		public int Comb1_FBSrc = 0;                  // FBModSrc (FBSrc=0)
 		public float Comb1_FBDpt = 00.00f;           // FBModDepth (FBDpt=0.00)
-		public float Comb1_Damp = 00.00f;            // Damp (Damp=0.00)
+		public float Comb1_Damp = 10.00f;            // Damp (Damp=10.00)
 		public int Comb1_DmpSrc = 0;                 // DampModSrc (DmpSrc=0)
 		public float Comb1_DmpDpt = 00.00f;          // DampModDepth (DmpDpt=0.00)
-		public float Comb1_Exc = 00.00f;             // PreFill (Exc=0.00)
+		public float Comb1_Exc = 100.00f;            // PreFill (Exc=100.00)
 		public float Comb1_Inj = 00.00f;             // Input (Inj=0.00)
 		public int Comb1_InjSrc = 0;                 // InModSrc (InjSrc=0)
 		public float Comb1_InjDpt = 00.00f;          // InputMod (InjDpt=0.00)
@@ -1490,13 +1511,13 @@ namespace PresetConverter
 		public float Comb2_TMDpt = 00.00f;           // TuneModDepth (TMDpt=0.00)
 		public float Comb2_Detn = 00.00f;            // Detune (Detn=0.00)
 		public float Comb2_VtoD = 00.00f;            // Vibrato (VtoD=0.00)
-		public float Comb2_FB = 00.00f;              // Feedback (FB=0.00)
+		public float Comb2_FB = 50.00f;              // Feedback (FB=50.00)
 		public int Comb2_FBSrc = 0;                  // FBModSrc (FBSrc=0)
 		public float Comb2_FBDpt = 00.00f;           // FBModDepth (FBDpt=0.00)
-		public float Comb2_Damp = 00.00f;            // Damp (Damp=0.00)
+		public float Comb2_Damp = 10.00f;            // Damp (Damp=10.00)
 		public int Comb2_DmpSrc = 0;                 // DampModSrc (DmpSrc=0)
 		public float Comb2_DmpDpt = 00.00f;          // DampModDepth (DmpDpt=0.00)
-		public float Comb2_Exc = 00.00f;             // PreFill (Exc=0.00)
+		public float Comb2_Exc = 100.00f;            // PreFill (Exc=100.00)
 		public float Comb2_Inj = 00.00f;             // Input (Inj=0.00)
 		public int Comb2_InjSrc = 0;                 // InModSrc (InjSrc=0)
 		public float Comb2_InjDpt = 00.00f;          // InputMod (InjDpt=0.00)
@@ -1588,7 +1609,7 @@ namespace PresetConverter
 		public float XMF1_Bias = 00.00f;             // Bias (Bias=0.00)
 		public float XMF1_OLoad = 00.00f;            // Overload (OLoad=0.00)
 		public float XMF1_Click = 00.00f;            // Click (Click=0.00)
-		public int XMF1_Drv = 0;                     // Driver (Drv=0)
+		public int XMF1_Drv = 1;                     // Driver (Drv=1)
 		public int XMF1_Rout = 0;                    // Routing (Rout=0)
 		public int XMF1_Typ2 = -1;                   // Type2 (Typ2=-1)
 
@@ -1610,7 +1631,7 @@ namespace PresetConverter
 		public float XMF2_Bias = 00.00f;             // Bias (Bias=0.00)
 		public float XMF2_OLoad = 00.00f;            // Overload (OLoad=0.00)
 		public float XMF2_Click = 00.00f;            // Click (Click=0.00)
-		public int XMF2_Drv = 0;                     // Driver (Drv=0)
+		public int XMF2_Drv = 1;                     // Driver (Drv=1)
 		public int XMF2_Rout = 0;                    // Routing (Rout=0)
 		public int XMF2_Typ2 = -1;                   // Type2 (Typ2=-1)
 
@@ -1619,7 +1640,7 @@ namespace PresetConverter
 		public float SB1_Freq = 00.00f;              // Frequency (Freq=0.00)
 		public int SB1_FMSrc = 0;                    // FModSource (FMSrc=0)
 		public float SB1_FMDpt = 00.00f;             // FModDepth (FMDpt=0.00)
-		public float SB1_Offs = 00.00f;              // Offset (Offs=0.00)
+		public float SB1_Offs = 10.00f;              // Offset (Offs=10.00)
 		public int SB1_OMSrc = 0;                    // OModSource (OMSrc=0)
 		public float SB1_OMDpt = 00.00f;             // OModDepth (OMDpt=0.00)
 		public float SB1_Mix = 50.00f;               // Mix (Mix=50.00)
@@ -1650,22 +1671,22 @@ namespace PresetConverter
 		public int VCA1_PanMS2 = 0;                  // Pan Mod Src2 (PanMS2=0)
 		public float VCA1_PanMD2 = 00.00f;           // Pan Mod Dpt2 (PanMD2=0.00)
 		public float VCA1_Vol2 = 50.00f;             // Volume2 (Vol2=50.00)
-		public int VCA1_VCA2 = 1;                    // VCA2 (VCA2=1)
+		public int VCA1_VCA2 = 2;                    // VCA2 (VCA2=2)
 		public int VCA1_ModSrc2 = 0;                 // Modulation2 (ModSrc2=0)
 		public float VCA1_ModDpt2 = 00.00f;          // Mod Depth2 (ModDpt2=0.00)
 		public float VCA1_Pan3 = 00.00f;             // Pan3 (Pan3=0.00)
 		public int VCA1_PanMS3 = 0;                  // Pan Mod Src3 (PanMS3=0)
 		public float VCA1_PanMD3 = 00.00f;           // Pan Mod Dpt3 (PanMD3=0.00)
 		public float VCA1_Vol3 = 50.00f;             // Volume3 (Vol3=50.00)
-		public int VCA1_VCA3 = 1;                    // VCA3 (VCA3=1)
-		public int VCA1_ModSrc3 = 0;                 // Modulation3 (ModSrc3=0)
+		public int VCA1_VCA3 = 3;                    // VCA3 (VCA3=3)
+		public int VCA1_ModSrc3 = 22;                // Modulation3 (ModSrc3=22)
 		public float VCA1_ModDpt3 = 00.00f;          // Mod Depth3 (ModDpt3=0.00)
 		public float VCA1_Pan4 = 00.00f;             // Pan4 (Pan4=0.00)
 		public int VCA1_PanMS4 = 0;                  // Pan Mod Src4 (PanMS4=0)
 		public float VCA1_PanMD4 = 00.00f;           // Pan Mod Dpt4 (PanMD4=0.00)
 		public float VCA1_Vol4 = 50.00f;             // Volume4 (Vol4=50.00)
-		public int VCA1_VCA4 = 1;                    // VCA4 (VCA4=1)
-		public int VCA1_ModSrc4 = 0;                 // Modulation4 (ModSrc4=0)
+		public int VCA1_VCA4 = 4;                    // VCA4 (VCA4=4)
+		public int VCA1_ModSrc4 = 23;                // Modulation4 (ModSrc4=23)
 		public float VCA1_ModDpt4 = 00.00f;          // Mod Depth4 (ModDpt4=0.00)
 		public int VCA1_MT1 = 0;                     // Mute1 (MT1=0)
 		public int VCA1_MT2 = 0;                     // Mute2 (MT2=0)
@@ -1679,7 +1700,7 @@ namespace PresetConverter
 		public int VCA1_Bus2 = 0;                    // Bus2 (Bus2=0)
 		public int VCA1_Bus3 = 0;                    // Bus3 (Bus3=0)
 		public int VCA1_Bus4 = 0;                    // Bus4 (Bus4=0)
-		public float VCA1_Send1 = 00.00f;            // Send1 (Send1=0.00)
+		public float VCA1_Send1 = 100.00f;           // Send1 (Send1=100.00)
 		public int VCA1_SnSrc1 = 0;                  // SendMod1 (SnSrc1=0)
 		public float VCA1_SnDpt1 = 00.00f;           // SendDepth1 (SnDpt1=0.00)
 		public float VCA1_Send2 = 00.00f;            // Send2 (Send2=0.00)
@@ -1688,11 +1709,11 @@ namespace PresetConverter
 		public int VCA1_AttS = 1;                    // AttackSmooth (AttS=1)
 
 		// Section: GridFX (#cm=GridFX)
-		public int GridFX_Grid = 36;                 // binary data for Grid Structure (Grid=36)
+		public int GridFX_Grid = 40;                 // binary data for Grid Structure (Grid=40)
 		public int GridFX_GByp = 0;                  // Bypass (GByp=0)
 
 		// Section: ModFX1 (#cm=ModFX1)
-		public int ModFX1_Mode = 0;                  // Mode (Mode=0)
+		public int ModFX1_Mode = 2;                  // Mode (Mode=2)
 		public float ModFX1_Cent = 20.00f;           // Center (Cent=20.00)
 		public float ModFX1_Sped = 50.00f;           // Speed (Sped=50.00)
 		public float ModFX1_PhOff = 50.00f;          // Stereo (PhOff=50.00)
@@ -1707,7 +1728,7 @@ namespace PresetConverter
 		public float ModFX1_Heq = 00.00f;            // High Boost dB (Heq=0.00)
 		public float ModFX1_Q1 = 00.00f;             // Q1 (Q1=0.00)
 		public float ModFX1_Q2 = 00.00f;             // Q2 (Q2=0.00)
-		public int ModFX1_EQon = 1;                  // EQ (EQon=1)
+		public int ModFX1_EQon = 0;                  // EQ (EQon=0)
 
 		// Section: ModFX2 (#cm=ModFX2)
 		public int ModFX2_Mode = 0;                  // Mode (Mode=0)
@@ -1750,7 +1771,7 @@ namespace PresetConverter
 
 		// Section: Delay2 (#cm=Delay2)
 		public int Delay2_Mode = 0;                  // Mode (Mode=0)
-		public float Delay2_Mix = 00.00f;            // Mix (Mix=0.00)
+		public float Delay2_Mix = 30.00f;            // Mix (Mix=30.00)
 		public float Delay2_FB = 10.00f;             // Feedback (FB=10.00)
 		public float Delay2_CB = 25.00f;             // X-back (CB=25.00)
 		public float Delay2_LP = 100.00f;            // Lowpass (LP=100.00)
@@ -1809,37 +1830,37 @@ namespace PresetConverter
 
 		// Section: Rev1 (#cm=Rev1)
 		public int Rev1_Mode = 0;                    // Mode (Mode=0)
-		public float Rev1_Dry = 82.00f;              // Dry (Dry=82.00)
-		public float Rev1_Wet = 52.00f;              // Wet (Wet=52.00)
-		public float Rev1_FB = 43.00f;               // Feedback (FB=43.00)
-		public float Rev1_Damp = 04.00f;             // Damp (Damp=4.00)
-		public float Rev1_Size = 75.00f;             // Range (Size=75.00)
+		public float Rev1_Dry = 85.00f;              // Dry (Dry=85.00)
+		public float Rev1_Wet = 00.00f;              // Wet (Wet=0.00)
+		public float Rev1_FB = 50.00f;               // Feedback (FB=50.00)
+		public float Rev1_Damp = 27.90f;             // Damp (Damp=27.90)
+		public float Rev1_Size = 50.00f;             // Range (Size=50.00)
 		public float Rev1_Spd = 50.00f;              // Speed (Spd=50.00)
 		public float Rev1_Dpt = 50.00f;              // Modulation (Dpt=50.00)
-		public float Rev1_DFB = 70.00f;              // Diff Feedback (DFB=70.00)
+		public float Rev1_DFB = 50.00f;              // Diff Feedback (DFB=50.00)
 		public float Rev1_DSize = 50.00f;            // Diff Range (DSize=50.00)
-		public float Rev1_EMix = 100.00f;            // Diff Mix (EMix=100.00)
+		public float Rev1_EMix = 80.00f;             // Diff Mix (EMix=80.00)
 		public float Rev1_DMod = 50.00f;             // Diff Mod (DMod=50.00)
-		public float Rev1_DSpd = 55.00f;             // Diff Speed (DSpd=55.00)
-		public float Rev1_Pre = 00.00f;              // PreDelay (Pre=0.00)
+		public float Rev1_DSpd = 100.00f;            // Diff Speed (DSpd=100.00)
+		public float Rev1_Pre = 10.00f;              // PreDelay (Pre=10.00)
 
 		// Section: Comp1 (#cm=Comp1)
-		public int Comp1_Type = 0;                   // Type (Type=0)
-		public float Comp1_Rat = 100.00f;            // Compression (Rat=100.00)
-		public float Comp1_Thres = -20.00f;          // Threshold (Thres=-20.00)
-		public float Comp1_Att = 30.00f;             // Attack (Att=30.00)
-		public float Comp1_Rel = 50.00f;             // Release (Rel=50.00)
+		public int Comp1_Type = 1;                   // Type (Type=1)
+		public float Comp1_Rat = 01.00f;             // Compression (Rat=1.00)
+		public float Comp1_Thres = -96.00f;          // Threshold (Thres=-96.00)
+		public float Comp1_Att = 00.00f;             // Attack (Att=0.00)
+		public float Comp1_Rel = 00.00f;             // Release (Rel=0.00)
 		public float Comp1_Input = 00.00f;           // Input (Input=0.00)
 		public float Comp1_Output = 00.00f;          // Output (Output=0.00)
 
 		// Section: Comp2 (#cm=Comp2)
-		public int Comp2_Type = 0;                   // Type (Type=0)
+		public int Comp2_Type = 1;                   // Type (Type=1)
 		public float Comp2_Rat = 100.00f;            // Compression (Rat=100.00)
 		public float Comp2_Thres = -20.00f;          // Threshold (Thres=-20.00)
 		public float Comp2_Att = 30.00f;             // Attack (Att=30.00)
 		public float Comp2_Rel = 50.00f;             // Release (Rel=50.00)
 		public float Comp2_Input = 00.00f;           // Input (Input=0.00)
-		public float Comp2_Output = 00.00f;          // Output (Output=0.00)
+		public float Comp2_Output = -10.00f;         // Output (Output=-10.00)
 
 		// Section: EQ1 (#cm=EQ1)
 		public float EQ1_Fc1 = 20.00f;               // Freq LowShelf (fc1=20.00)
@@ -1898,35 +1919,57 @@ namespace PresetConverter
 		public float SB3_Freq = 00.00f;              // Frequency (Freq=0.00)
 		public int SB3_FMSrc = 0;                    // FModSource (FMSrc=0)
 		public float SB3_FMDpt = 00.00f;             // FModDepth (FMDpt=0.00)
-		public float SB3_Offs = 00.00f;              // Offset (Offs=0.00)
+		public float SB3_Offs = 05.00f;              // Offset (Offs=5.00)
 		public int SB3_OMSrc = 0;                    // OModSource (OMSrc=0)
 		public float SB3_OMDpt = 00.00f;             // OModDepth (OMDpt=0.00)
 		public float SB3_Mix = 50.00f;               // Mix (Mix=50.00)
 		public int SB3_MMSrc = 0;                    // MModSource (MMSrc=0)
 		public float SB3_MMDpt = 00.00f;             // MModDepth (MMDpt=0.00)
 
+		// Section: XMF3 (#cm=XMF3)
+		public int XMF3_Typ = 0;                     // Type (Typ=0)
+		public float XMF3_Cut = 150.00f;             // Cutoff (Cut=150.00)
+		public float XMF3_Res = 00.00f;              // Resonance (Res=0.00)
+		public float XMF3_FM1 = 00.00f;              // Freq mod 1 (FM1=0.00)
+		public int XMF3_FS1 = 0;                     // Modsource1 (FS1=0)
+		public float XMF3_FM2 = 00.00f;              // Freq mod 2 (FM2=0.00)
+		public int XMF3_FS2 = 0;                     // Modsource2 (FS2=0)
+		public float XMF3_KeyScl = 00.00f;           // KeyFollow (KeyScl=0.00)
+		public float XMF3_FOff = 00.00f;             // FreqOffset (FOff=0.00)
+		public float XMF3_FOMod = 00.00f;            // FreqOffMod (FOMod=0.00)
+		public int XMF3_FOSrc = 0;                   // FreqOffSrc (FOSrc=0)
+		public float XMF3_XFM = 00.00f;              // FilterFM (XFM=0.00)
+		public float XMF3_XFMD = 00.00f;             // XFMmod (XFMD=0.00)
+		public int XMF3_XFMS = 0;                    // XFMrc (XFMS=0)
+		public float XMF3_Bias = 00.00f;             // Bias (Bias=0.00)
+		public float XMF3_OLoad = 00.00f;            // Overload (OLoad=0.00)
+		public float XMF3_Click = 00.00f;            // Click (Click=0.00)
+		public int XMF3_Drv = 1;                     // Driver (Drv=1)
+		public int XMF3_Rout = 0;                    // Routing (Rout=0)
+		public int XMF3_Typ2 = -1;                   // Type2 (Typ2=-1)
+
 		// Section: ZMas (#cm=ZMas)
-		public float ZMas_Ret1 = 00.00f;             // Return1 (Ret1=0.00)
+		public float ZMas_Ret1 = 100.00f;            // Return1 (Ret1=100.00)
 		public float ZMas_Ret2 = 00.00f;             // Return2 (Ret2=0.00)
 		public float ZMas_Mast = 100.00f;            // Master (Mast=100.00)
-		public int ZMas_XY1L = 37;                   // binary data for XY1 Label (XY1L=37)
-		public int ZMas_XY2L = 38;                   // binary data for XY2 Label (XY2L=38)
-		public int ZMas_XY3L = 39;                   // binary data for XY3 Label (XY3L=39)
-		public int ZMas_XY4L = 40;                   // binary data for XY4 Label (XY4L=40)
-		public int ZMas_XY1T = 41;                   // binary data for XY1 Text (XY1T=41)
-		public int ZMas_XY2T = 42;                   // binary data for XY2 Text (XY2T=42)
-		public int ZMas_XY3T = 43;                   // binary data for XY3 Text (XY3T=43)
-		public int ZMas_XY4T = 44;                   // binary data for XY4 Text (XY4T=44)
-		public int ZMas_OSC1 = 45;                   // binary data for Oscillator1 (OSC1=45)
-		public int ZMas_OSC2 = 46;                   // binary data for Oscillator2 (OSC2=46)
-		public int ZMas_OSC3 = 47;                   // binary data for Oscillator3 (OSC3=47)
-		public int ZMas_OSC4 = 48;                   // binary data for Oscillator4 (OSC4=48)
-		public int ZMas_MSEG1 = 49;                  // binary data for MSEG1 (MSEG1=49)
-		public int ZMas_MSEG2 = 50;                  // binary data for MSEG2 (MSEG2=50)
-		public int ZMas_MSEG3 = 51;                  // binary data for MSEG3 (MSEG3=51)
-		public int ZMas_MSEG4 = 52;                  // binary data for MSEG4 (MSEG4=52)
-		public int ZMas_Rev1 = 53;                   // binary data for Rev1 (Rev1=53)
-		public int ZMas_Pn3 = 0;                     // FXPaneMem (Pn3=0)
+		public int ZMas_XY1L = 41;                   // binary data for XY1 Label (XY1L=41)
+		public int ZMas_XY2L = 42;                   // binary data for XY2 Label (XY2L=42)
+		public int ZMas_XY3L = 43;                   // binary data for XY3 Label (XY3L=43)
+		public int ZMas_XY4L = 44;                   // binary data for XY4 Label (XY4L=44)
+		public int ZMas_XY1T = 45;                   // binary data for XY1 Text (XY1T=45)
+		public int ZMas_XY2T = 46;                   // binary data for XY2 Text (XY2T=46)
+		public int ZMas_XY3T = 47;                   // binary data for XY3 Text (XY3T=47)
+		public int ZMas_XY4T = 48;                   // binary data for XY4 Text (XY4T=48)
+		public int ZMas_OSC1 = 49;                   // binary data for Oscillator1 (OSC1=49)
+		public int ZMas_OSC2 = 50;                   // binary data for Oscillator2 (OSC2=50)
+		public int ZMas_OSC3 = 51;                   // binary data for Oscillator3 (OSC3=51)
+		public int ZMas_OSC4 = 52;                   // binary data for Oscillator4 (OSC4=52)
+		public int ZMas_MSEG1 = 53;                  // binary data for MSEG1 (MSEG1=53)
+		public int ZMas_MSEG2 = 54;                  // binary data for MSEG2 (MSEG2=54)
+		public int ZMas_MSEG3 = 55;                  // binary data for MSEG3 (MSEG3=55)
+		public int ZMas_MSEG4 = 56;                  // binary data for MSEG4 (MSEG4=56)
+		public int ZMas_Rev1 = 57;                   // binary data for Rev1 (Rev1=57)
+		public int ZMas_Pn3 = 4;                     // FXPaneMem (Pn3=4)
 		public int ZMas_Pn4 = 0;                     // OSC1PaneMem (Pn4=0)
 		public int ZMas_Pn5 = 0;                     // OSC2PaneMem (Pn5=0)
 		public int ZMas_Pn6 = 0;                     // OSC3PaneMem (Pn6=0)
@@ -1935,8 +1978,8 @@ namespace PresetConverter
 		public int ZMas_Pn9 = 0;                     // VCF2PaneMem (Pn9=0)
 		public int ZMas_Pn10 = 0;                    // VCF3PaneMem (Pn10=0)
 		public int ZMas_Pn11 = 0;                    // VCF4PaneMem (Pn11=0)
-		public int ZMas_Rack0 = 54;                  // binary data for MainRackMem (Rack0=54)
-		public int ZMas_Rack1 = 55;                  // binary data for ModRackMem (Rack1=55)
+		public int ZMas_Rack0 = 58;                  // binary data for MainRackMem (Rack0=58)
+		public int ZMas_Rack1 = 59;                  // binary data for ModRackMem (Rack1=59)
 		
 		public int strangeNumberBeforeBinaryChunk = 0;
 		public string UglyCompressedBinaryData = ""; // uglyCompressedBinaryData
@@ -1953,7 +1996,7 @@ namespace PresetConverter
 
 		#region Generate C# Code Methods
 		// Read a zebra 2 native preset (initialize extended format) and create all the class fields
-		public void GenerateClassFields(string inFilePath, string outFilePath)
+		public static void GenerateClassFields(string inFilePath, string outFilePath)
 		{
 			int strangeNumberBeforeBinaryChunk = 0;
 			int counter = 0;
@@ -2061,8 +2104,8 @@ namespace PresetConverter
 			file.Close();
 		}
 
-		// Read a zebra 2 native preset (initialize extended format) and create a Write Preset method
-		public void GenerateWriteMethod(string inFilePath, string outFilePath)
+		// Read a zebra 2 native preset (initialize extended format) and create a GetPreset method
+		public static void GenerateGetPresetMethod(string inFilePath, string outFilePath)
 		{
 			int strangeNumberBeforeBinaryChunk = 0;
 			int counter = 0;
@@ -2071,9 +2114,9 @@ namespace PresetConverter
 			StringBuilder uglyCompressedBinaryData = new StringBuilder();
 			
 			TextWriter tw = new StreamWriter(outFilePath);
-			tw.WriteLine("#region Zebra2 Write Preset Method");
+			tw.WriteLine("#region Zebra2 GetPreset Method");
 			
-			tw.WriteLine("public string GeneratePresetContentNew() {");
+			tw.WriteLine("public string GenerateGetPresetNew() {");
 			tw.WriteLine("\tStringBuilder buffer = new StringBuilder();");
 			
 			// Read the file line by line.
@@ -2196,7 +2239,7 @@ namespace PresetConverter
 			buffer.AppendLine("/*");
 			buffer.AppendLine("	Modulator Reference Table");
 			buffer.AppendLine("*/");
-			buffer.AppendLine("#nm=32");
+			buffer.AppendLine("#nm=34");
 			buffer.AppendLine("#ms=none");
 			buffer.AppendLine("#ms=ModWhl");
 			buffer.AppendLine("#ms=PitchW");
@@ -2225,6 +2268,8 @@ namespace PresetConverter
 			buffer.AppendLine("#ms=Lfo4");
 			buffer.AppendLine("#ms=MMap1");
 			buffer.AppendLine("#ms=MMap2");
+			buffer.AppendLine("#ms=MMap3");
+			buffer.AppendLine("#ms=MMap4");
 			buffer.AppendLine("#ms=MMix1");
 			buffer.AppendLine("#ms=MMix2");
 			buffer.AppendLine("#ms=MMix3");
@@ -3841,6 +3886,12 @@ namespace PresetConverter
 			buffer.Append(String.Format("GScale={0}", PCore_GScale).PadRight(20)).AppendLine("// GUI Scale");
 			buffer.Append(String.Format("ChLay={0}", PCore_ChLay).PadRight(20)).AppendLine("// Channel Layout");
 			buffer.Append(String.Format("SurrO={0}", PCore_SurrO).PadRight(20)).AppendLine("// Surround Options");
+			buffer.Append(String.Format("Rev={0}", PCore_Rev).PadRight(20)).AppendLine("// Revision");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "LED={0:0.00}", PCore_LED).PadRight(20)).AppendLine("// LED Colour");
+			buffer.Append(String.Format("PAGE={0}", PCore_PAGE).PadRight(20)).AppendLine("// PAGE");
+			buffer.Append(String.Format("PagesOn={0}", PCore_PagesOn).PadRight(20)).AppendLine("// Display PAGES");
+			buffer.Append(String.Format("CoreN={0}", PCore_CoreN).PadRight(20)).AppendLine("// binary data for CoreN");
+			buffer.Append(String.Format("Slice={0}", PCore_Slice).PadRight(20)).AppendLine("// binary data for Slice");
 
 			buffer.AppendLine("\n#cm=LFOG");
 			buffer.Append(String.Format("Sync={0}", LFOG_Sync).PadRight(20)).AppendLine("// Sync");
@@ -3849,7 +3900,7 @@ namespace PresetConverter
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Phse={0:0.00}", LFOG_Phse).PadRight(20)).AppendLine("// Phase");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Rate={0:0.00}", LFOG_Rate).PadRight(20)).AppendLine("// Rate");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Amp={0:0.00}", LFOG_Amp).PadRight(20)).AppendLine("// Amplitude");
-			buffer.Append(String.Format("Slew={0}", LFOG_Slew).PadRight(20)).AppendLine("// Slew");
+			buffer.Append(String.Format("Slew={0}", LFOG_Slew).PadRight(20)).AppendLine("// SlewRate");
 			buffer.Append(String.Format("Nstp={0}", LFOG_Nstp).PadRight(20)).AppendLine("// Num Steps");
 			buffer.Append(String.Format("Stps={0}", LFOG_Stps).PadRight(20)).AppendLine("// binary data for Steps");
 			buffer.Append(String.Format("UWv={0}", LFOG_UWv).PadRight(20)).AppendLine("// User Wave Mode");
@@ -3861,7 +3912,7 @@ namespace PresetConverter
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Phse={0:0.00}", LFOG2_Phse).PadRight(20)).AppendLine("// Phase");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Rate={0:0.00}", LFOG2_Rate).PadRight(20)).AppendLine("// Rate");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Amp={0:0.00}", LFOG2_Amp).PadRight(20)).AppendLine("// Amplitude");
-			buffer.Append(String.Format("Slew={0}", LFOG2_Slew).PadRight(20)).AppendLine("// Slew");
+			buffer.Append(String.Format("Slew={0}", LFOG2_Slew).PadRight(20)).AppendLine("// SlewRate");
 			buffer.Append(String.Format("Nstp={0}", LFOG2_Nstp).PadRight(20)).AppendLine("// Num Steps");
 			buffer.Append(String.Format("Stps={0}", LFOG2_Stps).PadRight(20)).AppendLine("// binary data for Steps");
 			buffer.Append(String.Format("UWv={0}", LFOG2_UWv).PadRight(20)).AppendLine("// User Wave Mode");
@@ -3873,20 +3924,16 @@ namespace PresetConverter
 			buffer.Append(String.Format("#LFO4={0}", VCC_LFO4).PadRight(20)).AppendLine("// Active #LFO4");
 			buffer.Append(String.Format("Voices={0}", VCC_Voices).PadRight(20)).AppendLine("// Voices");
 			buffer.Append(String.Format("Voicing={0}", VCC_Voicing).PadRight(20)).AppendLine("// Voicing");
-			buffer.Append(String.Format("Mode={0}", VCC_Mode).PadRight(20)).AppendFormat("// Mode={0} (0 = poly, 1 = retrigger, 2 = legato, 3 = arpeggiator, 4 = duophonic)\n", (VoiceMode) VCC_Mode);
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Porta={0:0.00}", VCC_Porta).PadRight(20)).AppendLine("// Portamento (0.00 - 100.00)");
+			buffer.Append(String.Format("Mode={0}", VCC_Mode).PadRight(20)).AppendLine("// Mode");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Porta={0:0.00}", VCC_Porta).PadRight(20)).AppendLine("// Portamento");
 			buffer.Append(String.Format("PB={0}", VCC_PB).PadRight(20)).AppendLine("// PitchBendUp");
 			buffer.Append(String.Format("PBD={0}", VCC_PBD).PadRight(20)).AppendLine("// PitchBendDown");
-			
-			// Arpeggiator Main
-			buffer.Append(String.Format("ArSc={0}", VCC_ArSc).PadRight(20)).AppendLine("// ArpSync (0=1:64, 1=1:32, 2=1:16, 3=1:8, 4=1:4, 5=1:2, 6=1:1, 7=1:32 dot, 8=1:16 dot, 9=1:8 dot, 10=1:4 dot, 11=1:2 dot, 12=1:16 trip, 13=1:8 trip, 14=1:4 trip, 15=1:2 trip, 16=1:1 trip)");
-			buffer.Append(String.Format("ArOrd={0}", VCC_ArOrd).PadRight(20)).AppendLine("// ArpOrder (0 = By Note, 1 = As Played)");
-			buffer.Append(String.Format("ArLp={0}", VCC_ArLp).PadRight(20)).AppendLine("// ArpLoop (0 = Forward F-->, 1 = Backward B <--, 2 = ForwardBackward FB <->, 3 = BackwardForward BF >-<)");
-			buffer.Append(String.Format("ArOct={0}", VCC_ArOct).PadRight(20)).AppendLine("// ArpOctave (0, 1, 2)");
-			buffer.Append(String.Format("ArLL={0}", VCC_ArLL).PadRight(20)).AppendLine("// ArpLoopLength (1 - 16)");
-			buffer.Append(String.Format("ArTr={0}", VCC_ArTr).PadRight(20)).AppendLine("// ArpPortamento ( 0 = Off, 1 = On)");
-			
-			// Drift, Portamento etc
+			buffer.Append(String.Format("ArSc={0}", VCC_ArSc).PadRight(20)).AppendLine("// ArpSync");
+			buffer.Append(String.Format("ArOrd={0}", VCC_ArOrd).PadRight(20)).AppendLine("// ArpOrder");
+			buffer.Append(String.Format("ArLp={0}", VCC_ArLp).PadRight(20)).AppendLine("// ArpLoop");
+			buffer.Append(String.Format("ArOct={0}", VCC_ArOct).PadRight(20)).AppendLine("// ArpOctave");
+			buffer.Append(String.Format("ArLL={0}", VCC_ArLL).PadRight(20)).AppendLine("// ArpLoopLength");
+			buffer.Append(String.Format("ArTr={0}", VCC_ArTr).PadRight(20)).AppendLine("// ArpPortamento");
 			buffer.Append(String.Format("Drft={0}", VCC_Drft).PadRight(20)).AppendLine("// Drift");
 			buffer.Append(String.Format("MTunS={0}", VCC_MTunS).PadRight(20)).AppendLine("// TuningMode");
 			buffer.Append(String.Format("MTunN={0}", VCC_MTunN).PadRight(20)).AppendLine("// binary data for Tuning");
@@ -3896,8 +3943,6 @@ namespace PresetConverter
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "PortRg={0:0.00}", VCC_PortRg).PadRight(20)).AppendLine("// PortaRange");
 			buffer.Append(String.Format("PortaM={0}", VCC_PortaM).PadRight(20)).AppendLine("// PortamentoMode");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Porta2={0:0.00}", VCC_Porta2).PadRight(20)).AppendLine("// Portamento2");
-			
-			// Arpeggiator
 			buffer.Append(String.Format("Agte1={0}", VCC_Agte1).PadRight(20)).AppendLine("// Arp Gate1");
 			buffer.Append(String.Format("Atrp1={0}", VCC_Atrp1).PadRight(20)).AppendLine("// Arp Transpose1");
 			buffer.Append(String.Format("Avoc1={0}", VCC_Avoc1).PadRight(20)).AppendLine("// Arp Voices1");
@@ -4242,6 +4287,18 @@ namespace PresetConverter
 			buffer.Append(String.Format("MSrc={0}", MMap2_MSrc).PadRight(20)).AppendLine("// MSrc");
 			buffer.Append(String.Format("Stps={0}", MMap2_Stps).PadRight(20)).AppendLine("// binary data for Steps");
 			buffer.Append(String.Format("Num={0}", MMap2_Num).PadRight(20)).AppendLine("// Number");
+
+			buffer.AppendLine("\n#cm=MMap3");
+			buffer.Append(String.Format("Mode={0}", MMap3_Mode).PadRight(20)).AppendLine("// Mode");
+			buffer.Append(String.Format("MSrc={0}", MMap3_MSrc).PadRight(20)).AppendLine("// MSrc");
+			buffer.Append(String.Format("Stps={0}", MMap3_Stps).PadRight(20)).AppendLine("// binary data for Steps");
+			buffer.Append(String.Format("Num={0}", MMap3_Num).PadRight(20)).AppendLine("// Number");
+
+			buffer.AppendLine("\n#cm=MMap4");
+			buffer.Append(String.Format("Mode={0}", MMap4_Mode).PadRight(20)).AppendLine("// Mode");
+			buffer.Append(String.Format("MSrc={0}", MMap4_MSrc).PadRight(20)).AppendLine("// MSrc");
+			buffer.Append(String.Format("Stps={0}", MMap4_Stps).PadRight(20)).AppendLine("// binary data for Steps");
+			buffer.Append(String.Format("Num={0}", MMap4_Num).PadRight(20)).AppendLine("// Number");
 
 			buffer.AppendLine("\n#cm=MMix1");
 			buffer.Append(String.Format("Type={0}", MMix1_Type).PadRight(20)).AppendLine("// Mode");
@@ -5064,6 +5121,28 @@ namespace PresetConverter
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Mix={0:0.00}", SB3_Mix).PadRight(20)).AppendLine("// Mix");
 			buffer.Append(String.Format("MMSrc={0}", SB3_MMSrc).PadRight(20)).AppendLine("// MModSource");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "MMDpt={0:0.00}", SB3_MMDpt).PadRight(20)).AppendLine("// MModDepth");
+
+			buffer.AppendLine("\n#cm=XMF3");
+			buffer.Append(String.Format("Typ={0}", XMF3_Typ).PadRight(20)).AppendLine("// Type");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Cut={0:0.00}", XMF3_Cut).PadRight(20)).AppendLine("// Cutoff");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Res={0:0.00}", XMF3_Res).PadRight(20)).AppendLine("// Resonance");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FM1={0:0.00}", XMF3_FM1).PadRight(20)).AppendLine("// Freq mod 1");
+			buffer.Append(String.Format("FS1={0}", XMF3_FS1).PadRight(20)).AppendLine("// Modsource1");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FM2={0:0.00}", XMF3_FM2).PadRight(20)).AppendLine("// Freq mod 2");
+			buffer.Append(String.Format("FS2={0}", XMF3_FS2).PadRight(20)).AppendLine("// Modsource2");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "KeyScl={0:0.00}", XMF3_KeyScl).PadRight(20)).AppendLine("// KeyFollow");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FOff={0:0.00}", XMF3_FOff).PadRight(20)).AppendLine("// FreqOffset");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FOMod={0:0.00}", XMF3_FOMod).PadRight(20)).AppendLine("// FreqOffMod");
+			buffer.Append(String.Format("FOSrc={0}", XMF3_FOSrc).PadRight(20)).AppendLine("// FreqOffSrc");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "XFM={0:0.00}", XMF3_XFM).PadRight(20)).AppendLine("// FilterFM");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "XFMD={0:0.00}", XMF3_XFMD).PadRight(20)).AppendLine("// XFMmod");
+			buffer.Append(String.Format("XFMS={0}", XMF3_XFMS).PadRight(20)).AppendLine("// XFMrc");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Bias={0:0.00}", XMF3_Bias).PadRight(20)).AppendLine("// Bias");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "OLoad={0:0.00}", XMF3_OLoad).PadRight(20)).AppendLine("// Overload");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Click={0:0.00}", XMF3_Click).PadRight(20)).AppendLine("// Click");
+			buffer.Append(String.Format("Drv={0}", XMF3_Drv).PadRight(20)).AppendLine("// Driver");
+			buffer.Append(String.Format("Rout={0}", XMF3_Rout).PadRight(20)).AppendLine("// Routing");
+			buffer.Append(String.Format("Typ2={0}", XMF3_Typ2).PadRight(20)).AppendLine("// Type2");
 
 			buffer.AppendLine("\n#cm=ZMas");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Ret1={0:0.00}", ZMas_Ret1).PadRight(20)).AppendLine("// Return1");

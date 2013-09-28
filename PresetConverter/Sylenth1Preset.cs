@@ -2716,11 +2716,14 @@ namespace PresetConverter
 					} else {
 						if (filterCtlWarmDrive == ONOFF.On) {
 							// LP Xcite: 24dB lowpass, with a frequency-dependent exciter as Drive, adding high frequencies.
-							zebraFilter = Zebra2Preset.FilterType.LP_Xcite;
+							//zebraFilter = Zebra2Preset.FilterType.LP_Xcite;
+							zebraFilter = Zebra2Preset.FilterType.LP_TN6SVF;
+							//zebraFilter = Zebra2Preset.FilterType.LP_Allround;
 						} else {
 							// LP Vintage:  CPU-friendly analogue-modeled transistor ladder with 24dB rolloff. Sounds nice and old
 							// LP Vintage2: More CPU-intensive version of LP Vintage, capable of self-oscillation.
-							zebraFilter = Zebra2Preset.FilterType.LP_Vintage2;
+							//zebraFilter = Zebra2Preset.FilterType.LP_Vintage2;
+							zebraFilter = Zebra2Preset.FilterType.LP_Vintage;
 						}
 					}
 					break;
@@ -2990,8 +2993,8 @@ namespace PresetConverter
 			ObjectUtils.SetField(z2, LFOTrigFieldName, (int) Zebra2Preset.LFOGlobalTriggering.Trig_off);
 			//ObjectUtils.SetField(z2, LFOPhseFieldName, ConvertSylenthValueToZebra(Content.LFO1Offset, -10, 10, 0, 100));
 			ObjectUtils.SetField(z2, LFOPhseFieldName, 0.0f);
-			// add a little (2 too much?)
-			ObjectUtils.SetField(z2, LFOAmpFieldName, ConvertSylenthValueToZebra(sylenthLFOGain, 0, 10, 0, 100));
+			// TODO: Amp value can never be zero - add a little (5 too much? 4 seems good)
+			ObjectUtils.SetField(z2, LFOAmpFieldName, ConvertSylenthValueToZebra(sylenthLFOGain, 0, 10, 4, 100));
 			ObjectUtils.SetField(z2, LFOSlewFieldName, (int) Zebra2Preset.LFOSlew.fast);	// LFO Slew (Slew=1)
 		}
 		#endregion
@@ -3036,8 +3039,8 @@ namespace PresetConverter
 				// Filters have real range is -150 to 150)
 				// TODO: Filter min and max are probably not good?
 				// I think these should be exponential rather than linear?!
-				float cutOffMin = -140; // -120
-				float cutOffMax = 140;  // 120
+				float cutOffMin = -150; // -120
+				float cutOffMax = 150;  // 120
 				switch (sylenthModDestination) {
 					case YMODDEST.None:
 						// should never get here
@@ -3406,7 +3409,8 @@ namespace PresetConverter
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "LFO1_FMD1";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
+						// Force LFO Mod Matrix since e.g. LFO1 rate or gain cannot be modulated by any other LFO
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue, true));
 						
 						break;
 					case YMODDEST.LFO1Gain:
@@ -3416,7 +3420,8 @@ namespace PresetConverter
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "LFO1_DMD1";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, 0, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
+						// Force LFO Mod Matrix since e.g. LFO1 rate or gain cannot be modulated by any other LFO
+						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue, true));
 						
 						break;
 					case YMODDEST.LFO2Rate:
@@ -3789,7 +3794,7 @@ namespace PresetConverter
 				zebraUsedModSources.Clear(); // reset the list that keeps track of the used mod sources for a preset
 				convertCounter++;
 				
-				//if (convertCounter == 50) break;
+				if (convertCounter == 50) break;
 				
 				// Skip if the Preset Name is Init
 				if (!doProcessInitPresets && (Content.PresetName == "Init" || Content.PresetName == "Default")) { //  || !Content.PresetName.StartsWith("SEQ Afrodiseq"
@@ -4404,34 +4409,44 @@ namespace PresetConverter
 					#endregion
 					
 					#region Envelopes
+					float envelopeMin = 0;
+					float envelopeMax = 120;
+					// Set correct Envelope Slope (v-slope)
+					int envelopeMode = (int) Zebra2Preset.EnvelopeMode.v_slope;
+					float envelopeSlope = -70.00f;
 					// Envelope 1 - Used as Amp Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvAAttack, "ENV1_TBase", "ENV1_Atk");
-					//SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvADecay, "ENV1_TBase", "ENV1_Dec");
-					zebra2Preset.ENV1_Dec = ConvertSylenthValueToZebra(Content.AmpEnvADecay, 0, 10, 0, 130);
+					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvADecay, "ENV1_TBase", "ENV1_Dec");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvARelease, "ENV1_TBase", "ENV1_Rel");
-					zebra2Preset.ENV1_Sus = ConvertSylenthValueToZebra(Content.AmpEnvASustain, 0, 10, 0, 100);
+					zebra2Preset.ENV1_Sus = ConvertSylenthValueToZebra(Content.AmpEnvASustain, 0, 10, envelopeMin, envelopeMax);
 					zebra2Preset.ENV1_Vel = 70;
+					zebra2Preset.ENV1_Mode = envelopeMode;
+					zebra2Preset.ENV1_Slope = envelopeSlope;
 					
 					// Envelope 2 - Used as Amp Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBAttack, "ENV2_TBase", "ENV2_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBDecay, "ENV2_TBase", "ENV2_Dec");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBRelease, "ENV2_TBase", "ENV2_Rel");
-					zebra2Preset.ENV2_Sus = ConvertSylenthValueToZebra(Content.AmpEnvBSustain, 0, 10, 0, 100);
+					zebra2Preset.ENV2_Sus = ConvertSylenthValueToZebra(Content.AmpEnvBSustain, 0, 10, envelopeMin, envelopeMax);
 					zebra2Preset.ENV2_Vel = 70;
+					zebra2Preset.ENV2_Mode = envelopeMode;
+					zebra2Preset.ENV2_Slope = envelopeSlope;
 					
 					// Envelope 3 - Used as Mod Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Attack, "ENV3_TBase", "ENV3_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Decay, "ENV3_TBase", "ENV3_Dec");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Release, "ENV3_TBase", "ENV3_Rel");
-					//zebra2Preset.ENV3_Sus = ConvertSylenthValueToZebra(Content.ModEnv1Sustain, 0, 10, 0, 100);
-					zebra2Preset.ENV3_Sus = ConvertSylenthValueToZebra(Content.ModEnv1Sustain, 0, 10, 0, 130);
+					zebra2Preset.ENV3_Sus = ConvertSylenthValueToZebra(Content.ModEnv1Sustain, 0, 10, envelopeMin, envelopeMax);
+					zebra2Preset.ENV3_Mode = envelopeMode;
+					zebra2Preset.ENV3_Slope = envelopeSlope;
 
 					// Envelope 4 - Used as Mod Envelope
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Attack, "ENV4_TBase", "ENV4_Atk");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Decay, "ENV4_TBase", "ENV4_Dec");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Release, "ENV4_TBase", "ENV4_Rel");
-					//zebra2Preset.ENV4_Sus = ConvertSylenthValueToZebra(Content.ModEnv2Sustain, 0, 10, 0, 100);
-					zebra2Preset.ENV4_Sus = ConvertSylenthValueToZebra(Content.ModEnv2Sustain, 0, 10, 0, 130);
+					zebra2Preset.ENV4_Sus = ConvertSylenthValueToZebra(Content.ModEnv2Sustain, 0, 10, envelopeMin, envelopeMax);
+					zebra2Preset.ENV4_Mode = envelopeMode;
+					zebra2Preset.ENV4_Slope = envelopeSlope;
 					#endregion
 					
 					#region Modulation
