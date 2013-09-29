@@ -14,7 +14,7 @@ namespace PresetConverter
 		// define the log file
 		static FileInfo outputStatusLog = new FileInfo("preset_converter_log.txt");
 		
-		static string _version = "1.2";
+		static string _version = "1.3";
 		
 		public static void Main(string[] args)
 		{
@@ -125,7 +125,7 @@ namespace PresetConverter
 		
 		public static void PrintUsage() {
 			Console.WriteLine("Preset Converter. Version {0}.", _version);
-			Console.WriteLine("Copyright (C) 2010-2012 Per Ivar Nerseth.");
+			Console.WriteLine("Copyright (C) 2010-2013 Per Ivar Nerseth.");
 			Console.WriteLine("NOTE! This version only supports Sylenth1 to Zebra2 preset conversion");
 			Console.WriteLine();
 			Console.WriteLine("Usage: PresetConverter.exe <Arguments>");

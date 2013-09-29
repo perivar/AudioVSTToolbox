@@ -578,6 +578,7 @@ namespace PresetConverter
 		public List<string> zebraUsedModSources = new List<string>();
 		#endregion
 
+		#region Constructors
 		public Sylenth1Preset()
 		{
 		}
@@ -585,6 +586,7 @@ namespace PresetConverter
 		public Sylenth1Preset(string filePath) {
 			Read(filePath);
 		}
+		#endregion
 		
 		public static float EnumUintToFloat(uint uintValue) {
 			// the values are stored as LittleEndian
@@ -2172,6 +2174,451 @@ namespace PresetConverter
 			}
 		}
 		
+		#region Logging (Debug or Error)
+		public static void DoLog(string logMsg) {
+			Console.Out.WriteLine(logMsg);
+			IOUtils.LogMessageToFile(outputStatusLog, logMsg);
+		}
+		
+		public void DoDebug(string debugMsg) {
+			if (logLevel == LogLevel.Debug) IOUtils.LogMessageToFile(outputStatusLog, debugMsg);
+		}
+
+		public static void DoError(string errorMsg) {
+			Console.Out.WriteLine(errorMsg);
+			IOUtils.LogMessageToFile(outputStatusLog, errorMsg);
+			IOUtils.LogMessageToFile(outputErrorLog, errorMsg);
+		}
+		#endregion
+		
+		#region Sylenth Preset Consistency Verification
+		
+		// find out what value is stored in the Enum Value and return a text string
+		private static string EnumToLongText(object enumValue) {
+			string enumString = null;
+			uint i = Convert.ToUInt32(enumValue);
+			float f = BinaryFile.ByteArrayToSingle(BitConverter.GetBytes(i), BinaryFile.ByteOrder.LittleEndian);
+			enumString = String.Format("0x{0} (float: {1} uint: {2})", ((Enum)enumValue).ToString("X"), f, i);
+			return enumString;
+		}
+
+		// find closest enum based on value, return text
+		private static T FindClosestEnum<T>(Enum enumValue) {
+			
+			List<T> enumList = StringUtils.EnumValuesToList<T>();
+			
+			List<float> floatList = enumList.ConvertAll<float>( x => BinaryFile.UIntToSingle(Convert.ToUInt32(x), BinaryFile.ByteOrder.LittleEndian));
+			float target = BinaryFile.UIntToSingle(Convert.ToUInt32(enumValue), BinaryFile.ByteOrder.LittleEndian);
+			float closestFloat = MathUtils.FindClosest(floatList, target);
+			uint closestValue = BinaryFile.SingleToUInt(closestFloat, BinaryFile.ByteOrder.LittleEndian);
+			
+			// convert to Enum type
+			T closest = (T)Enum.ToObject(typeof(T), closestValue);
+			
+			return closest;
+		}
+
+		// find closest enum based on value, return text
+		private static string FindClosestEnumText<T>(Enum enumValue) {
+			
+			List<T> enumList = StringUtils.EnumValuesToList<T>();
+			
+			// find closest Enum
+			T closest = FindClosestEnum<T>(enumValue);
+
+			// build result text
+			string enumFoundText = closest.ToString() + " " + EnumToLongText(closest);
+			List<string> enumAllTextList = enumList.ConvertAll<string>(x => x.ToString() + " " + EnumToLongText(x));
+			string enumAllString = "";
+			foreach (string s in enumAllTextList) {
+				if (enumFoundText == s) {
+					enumAllString += "\t" + s + " <----- Closest match! \n";
+				} else {
+					enumAllString += "\t" + s + "\n";
+				}
+			}
+			return String.Format("\nClosest enum is {0} in: \n{1}", enumFoundText, enumAllString);
+		}
+		
+		private static bool IsEnumConsistent<T>(Enum enumValue, bool doTryToFix) {
+			string errorMsg = "";
+			if (!Enum.IsDefined(typeof(T), enumValue)) {
+				errorMsg = String.Format("Error! Consistency check failed for {0}! {1} is not a valid entry.", typeof(T), EnumToLongText(enumValue));
+				if (!doTryToFix) {
+					errorMsg += FindClosestEnumText<T>(enumValue);
+				}
+				DoError(errorMsg);
+				return false;
+			}
+			return true;
+		}
+
+		private static bool MakeEnumConsistent<T>(Sylenth1Preset.Syl1PresetContent presetContent, Enum enumValue, string fieldName, bool doTryToFix) {
+			if (doTryToFix) {
+				T enumFound = FindClosestEnum<T>(enumValue);
+				
+				// use reflection to try to add correct field
+				try {
+					var type = typeof(Sylenth1Preset.Syl1PresetContent);
+					var field = type.GetField(fieldName);
+					field.SetValue(presetContent, enumFound);
+				} catch (Exception) {
+					DoError(String.Format("Warning! Could not find field {0} and store {1}!", fieldName, enumFound));
+					return false;
+				}
+				
+				DoLog(String.Format("Stored closest match for {0}: {1} {2}", typeof(ARPMODE), enumFound.ToString(), EnumToLongText(enumFound)));
+			}
+			return true;
+		}
+		
+		/// <summary>
+		/// Verify that the loaded Sylenth content is consistent. I.e. that none of the ny of the enums are undefined
+		/// </summary>
+		/// <param name="presetContent">Preset Content</param>
+		/// <param name="doTryToFix">Whether to try to estimate the enums or not</param>
+		/// <returns></returns>
+		private static bool IsConsistent(Sylenth1Preset.Syl1PresetContent presetContent, bool doTryToFix) {
+			bool result = true;
+
+			// check if any of the enums are undefined
+			if (!IsEnumConsistent<ARPMODE>(presetContent.ArpMode, doTryToFix)) {
+				result = MakeEnumConsistent<ARPMODE>(presetContent, presetContent.ArpMode, "ArpMode", doTryToFix);
+			}
+			if (!IsEnumConsistent<ARPVELO>(presetContent.ArpVelo, doTryToFix)) {
+				result = MakeEnumConsistent<ARPVELO>(presetContent, presetContent.ArpVelo, "ArpVelo", doTryToFix);
+			}
+			if (!IsEnumConsistent<CHORUSMODE>(presetContent.ChorusMode, doTryToFix)) {
+				result = MakeEnumConsistent<CHORUSMODE>(presetContent, presetContent.ChorusMode, "ChorusMode", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.DelayPingPong, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.DelayPingPong, "DelayPingPong", doTryToFix);
+			}
+			if (!IsEnumConsistent<DISTORTTYPE>(presetContent.DistortType, doTryToFix)) {
+				result = MakeEnumConsistent<DISTORTTYPE>(presetContent, presetContent.DistortType, "DistortType", doTryToFix);
+			}
+			
+			if (!IsEnumConsistent<FILTERAINPUT>(presetContent.FilterAInput, doTryToFix)) {
+				result = MakeEnumConsistent<FILTERAINPUT>(presetContent, presetContent.FilterAInput, "FilterAInput", doTryToFix);
+			}
+			if (!IsEnumConsistent<FILTERTYPE>(presetContent.FilterAType, doTryToFix)) {
+				result = MakeEnumConsistent<FILTERTYPE>(presetContent, presetContent.FilterAType, "FilterAType", doTryToFix);
+			}
+			if (!IsEnumConsistent<FILTERDB>(presetContent.FilterADB, doTryToFix)) {
+				result = MakeEnumConsistent<FILTERDB>(presetContent, presetContent.FilterADB, "FilterADB", doTryToFix);
+			}
+			if (!IsEnumConsistent<FILTERBINPUT>(presetContent.FilterBInput, doTryToFix)) {
+				result = MakeEnumConsistent<FILTERBINPUT>(presetContent, presetContent.FilterBInput, "FilterBInput", doTryToFix);
+			}
+			if (!IsEnumConsistent<FILTERTYPE>(presetContent.FilterBType, doTryToFix)) {
+				result = MakeEnumConsistent<FILTERTYPE>(presetContent, presetContent.FilterBType, "FilterBType", doTryToFix);
+			}
+			if (!IsEnumConsistent<FILTERDB>(presetContent.FilterBDB, doTryToFix)) {
+				result = MakeEnumConsistent<FILTERDB>(presetContent, presetContent.FilterBDB, "FilterBDB", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.FilterCtlWarmDrive, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.FilterCtlWarmDrive, "FilterCtlWarmDrive", doTryToFix);
+			}
+
+			if (!IsEnumConsistent<ONOFF>(presetContent.LFO1Free, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.LFO1Free, "LFO1Free", doTryToFix);
+			}
+			if (!IsEnumConsistent<LFOWAVE>(presetContent.LFO1Wave, doTryToFix)) {
+				result = MakeEnumConsistent<LFOWAVE>(presetContent, presetContent.LFO1Wave, "LFO1Wave", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.LFO2Free, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.LFO2Free, "LFO2Free", doTryToFix);
+			}
+			if (!IsEnumConsistent<LFOWAVE>(presetContent.LFO2Wave, doTryToFix)) {
+				result = MakeEnumConsistent<LFOWAVE>(presetContent, presetContent.LFO2Wave, "LFO2Wave", doTryToFix);
+			}
+			
+			if (!IsEnumConsistent<ONOFF>(presetContent.MonoLegato, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.MonoLegato, "MonoLegato", doTryToFix);
+			}
+
+			if (!IsEnumConsistent<ONOFF>(presetContent.OscA1Invert, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscA1Invert, "OscA1Invert", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.OscA1Retrig, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscA1Retrig, "OscA1Retrig", doTryToFix);
+			}
+			if (!IsEnumConsistent<VOICES>(presetContent.OscA1Voices, doTryToFix)) {
+				result = MakeEnumConsistent<VOICES>(presetContent, presetContent.OscA1Voices, "OscA1Voices", doTryToFix);
+			}
+			if (!IsEnumConsistent<OSCWAVE>(presetContent.OscA1Wave, doTryToFix)) {
+				result = MakeEnumConsistent<OSCWAVE>(presetContent, presetContent.OscA1Wave, "OscA1Wave", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.OscA2Invert, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscA2Invert, "OscA2Invert", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.OscA2Retrig, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscA2Retrig, "OscA2Retrig", doTryToFix);
+			}
+			if (!IsEnumConsistent<VOICES>(presetContent.OscA2Voices, doTryToFix)) {
+				result = MakeEnumConsistent<VOICES>(presetContent, presetContent.OscA2Voices, "OscA2Voices", doTryToFix);
+			}
+			if (!IsEnumConsistent<OSCWAVE>(presetContent.OscA2Wave, doTryToFix)) {
+				result = MakeEnumConsistent<OSCWAVE>(presetContent, presetContent.OscA2Wave, "OscA2Wave", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.OscB1Invert, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscB1Invert, "OscB1Invert", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.OscB1Retrig, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscB1Retrig, "OscB1Retrig", doTryToFix);
+			}
+			if (!IsEnumConsistent<VOICES>(presetContent.OscB1Voices, doTryToFix)) {
+				result = MakeEnumConsistent<VOICES>(presetContent, presetContent.OscB1Voices, "OscB1Voices", doTryToFix);
+			}
+			if (!IsEnumConsistent<OSCWAVE>(presetContent.OscB1Wave, doTryToFix)) {
+				result = MakeEnumConsistent<OSCWAVE>(presetContent, presetContent.OscB1Wave, "OscB1Wave", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.OscB2Invert, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscB2Invert, "OscB2Invert", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.OscB2Retrig, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscB2Retrig, "OscB2Retrig", doTryToFix);
+			}
+			if (!IsEnumConsistent<VOICES>(presetContent.OscB2Voices, doTryToFix)) {
+				result = MakeEnumConsistent<VOICES>(presetContent, presetContent.OscB2Voices, "OscB2Voices", doTryToFix);
+			}
+			if (!IsEnumConsistent<OSCWAVE>(presetContent.OscB2Wave, doTryToFix)) {
+				result = MakeEnumConsistent<OSCWAVE>(presetContent, presetContent.OscB2Wave, "OscB2Wave", doTryToFix);
+			}
+			
+			if (!IsEnumConsistent<PORTAMODE>(presetContent.PortaMode, doTryToFix)) {
+				result = MakeEnumConsistent<PORTAMODE>(presetContent, presetContent.PortaMode, "PortaMode", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.Solo, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.Solo, "Solo", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.Sync, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.Sync, "Sync", doTryToFix);
+			}
+
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold01, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold01, "XArpHold01", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold02, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold02, "XArpHold02", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold03, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold03, "XArpHold03", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold04, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold04, "XArpHold04", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold05, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold05, "XArpHold05", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold06, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold06, "XArpHold06", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold07, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold07, "XArpHold07", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold08, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold08, "XArpHold08", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold09, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold09, "XArpHold09", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold10, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold10, "XArpHold10", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold11, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold11, "XArpHold11", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold12, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold12, "XArpHold12", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold13, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold13, "XArpHold13", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold14, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold14, "XArpHold14", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold15, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold15, "XArpHold15", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold16, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold16, "XArpHold16", doTryToFix);
+			}
+			
+			if (!IsEnumConsistent<XMODSOURCE>(presetContent.XModMisc1ASource, doTryToFix)) {
+				result = MakeEnumConsistent<XMODSOURCE>(presetContent, presetContent.XModMisc1ASource, "XModMisc1ASource", doTryToFix);
+			}
+			if (!IsEnumConsistent<XMODSOURCE>(presetContent.XModMisc1BSource, doTryToFix)) {
+				result = MakeEnumConsistent<XMODSOURCE>(presetContent, presetContent.XModMisc1BSource, "XModMisc1BSource", doTryToFix);
+			}
+			if (!IsEnumConsistent<XMODSOURCE>(presetContent.XModMisc2ASource, doTryToFix)) {
+				result = MakeEnumConsistent<XMODSOURCE>(presetContent, presetContent.XModMisc2ASource, "XModMisc2ASource", doTryToFix);
+			}
+			if (!IsEnumConsistent<XMODSOURCE>(presetContent.XModMisc2BSource, doTryToFix)) {
+				result = MakeEnumConsistent<XMODSOURCE>(presetContent, presetContent.XModMisc2BSource, "XModMisc2BSource", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XSwArpOnOff, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwArpOnOff, "XSwArpOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XSwChorusOnOff, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwChorusOnOff, "XSwChorusOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XSwCompOnOff, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwCompOnOff, "XSwCompOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XSwDelayOnOff, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwDelayOnOff, "XSwDelayOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XSwDistOnOff, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwDistOnOff, "XSwDistOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XSwEQOnOff, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwEQOnOff, "XSwEQOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XSwPhaserOnOff, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwPhaserOnOff, "XSwPhaserOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistent<ONOFF>(presetContent.XSwReverbOnOff, doTryToFix)) {
+				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwReverbOnOff, "XSwReverbOnOff", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModEnv1Dest1, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModEnv1Dest1, "YModEnv1Dest1", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModEnv1Dest2, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModEnv1Dest2, "YModEnv1Dest2", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModEnv2Dest1, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModEnv2Dest1, "YModEnv2Dest1", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModEnv2Dest2, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModEnv2Dest2, "YModEnv2Dest2", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModLFO1Dest1, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModLFO1Dest1, "YModLFO1Dest1", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModLFO1Dest2, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModLFO1Dest2, "YModLFO1Dest2", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModLFO2Dest1, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModLFO2Dest1, "YModLFO2Dest1", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModLFO2Dest2, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModLFO2Dest2, "YModLFO2Dest2", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc1ADest1, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc1ADest1, "YModMisc1ADest1", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc1ADest2, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc1ADest2, "YModMisc1ADest2", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc1BDest1, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc1BDest1, "YModMisc1BDest1", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc1BDest2, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc1BDest2, "YModMisc1BDest2", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc2ADest1, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc2ADest1, "YModMisc2ADest1", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc2ADest2, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc2ADest2, "YModMisc2ADest2", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc2BDest1, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc2BDest1, "YModMisc2BDest1", doTryToFix);
+			}
+			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc2BDest2, doTryToFix)) {
+				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc2BDest2, "YModMisc2BDest2", doTryToFix);
+			}
+			if (!IsEnumConsistent<YPARTSELECT>(presetContent.YPartSelect, doTryToFix)) {
+				result = MakeEnumConsistent<YPARTSELECT>(presetContent, presetContent.YPartSelect, "YPartSelect", doTryToFix);
+			}
+			if (!IsEnumConsistent<ZEQMODE>(presetContent.ZEQMode, doTryToFix)) {
+				result = MakeEnumConsistent<ZEQMODE>(presetContent, presetContent.ZEQMode, "ZEQMode", doTryToFix);
+			}
+			
+			return result;
+		}
+		#endregion
+		
+		#region Read and Write Methods
+		public bool ReadFXP(FXP fxp, string filePath="")
+		{
+			BinaryFile bFile = new BinaryFile(fxp.ChunkDataByteArray, BinaryFile.ByteOrder.LittleEndian);
+			
+			string presetType = bFile.ReadString(4);
+			int presetVersion1 = bFile.ReadInt32();
+			int fxVersion = bFile.ReadInt32();
+			int numProgramsUnused = bFile.ReadInt32();
+			int presetVersion2 = bFile.ReadInt32();
+			
+			DoLog(String.Format("Preset Type: '{0}', Preset Version1: '{1}', fxVersion: '{2}',  numProgramsUnused: '{3}', presetVersion2: '{4}'", presetType, presetVersion1, fxVersion, numProgramsUnused, presetVersion2));
+			
+			// if Sylenth 1 preset format
+			if (presetType == "1lys") { // '1lys' = 'syl1' backwards
+				
+				// check if this is a bank or a single preset file
+				if (fxp.FxMagic == "FBCh") {
+					// this is a bank of presets
+					
+					// use numberOfPrograms to read in an array of Sylenth Presets
+					int numPrograms = fxp.ProgramCount;
+					List<Sylenth1Preset.Syl1PresetContent> contentList = new List<Sylenth1Preset.Syl1PresetContent>();
+					int i = 0;
+					try {
+						Sylenth1Preset.Syl1PresetContent presetContent = null;
+						for (i = 0; i < numPrograms; i++) {
+							presetContent = new Sylenth1Preset.Syl1PresetContent(bFile, (presetVersion1==2202 || presetVersion1 == 2211));
+							DoLog(String.Format("Start processing {0} '{1}' ...", i, presetContent.PresetName));
+							if (IsConsistent(presetContent, DO_TRY_FIX_INCONSISTENT_ENUMS)) {
+								contentList.Add(presetContent);
+							} else {
+								DoError(String.Format("Error! The loaded preset failed the consistency check! {0} '{1}' ({2})", i, presetContent.PresetName, filePath));
+							}
+						}
+					} catch(EndOfStreamException eose) {
+						DoError(String.Format("Error! Failed reading presets from bank {0}. Read {1} presets. (Expected {2}) Msg: {3}!", filePath, i, numPrograms, eose.Message));
+						return false;
+					}
+
+					// store list as array
+					this.ContentArray = contentList.ToArray();
+					DoLog(String.Format("Finished reading {0} presets from bank {1} ...", numPrograms, filePath));
+					return true;
+				} else if (fxp.FxMagic == "FPCh") {
+					// single preset file
+					this.ContentArray = new Syl1PresetContent[1];
+					this.ContentArray[0] = new Sylenth1Preset.Syl1PresetContent(bFile, presetVersion1==2202);
+
+					DoLog(String.Format("Finished reading preset file {0} ...", filePath));
+					return true;
+				}
+			} else {
+				DoError(String.Format("Error! The preset file is not a valid Sylenth1 Preset! ({0}). If you are sure it is a Sylenth preset, try to open it in Sylenth and resave (Tip! init full bank before loading and resaving)", filePath));
+				return false;
+			}
+			return false;
+		}
+		
+		public bool Read(string filePath)
+		{
+			// store filepath
+			FilePath = filePath;
+			
+			FXP fxp = new FXP();
+			fxp.ReadFile(filePath);
+			
+			if (!ReadFXP(fxp, filePath)) {
+				return false;
+			}
+			return true;
+		}
+		
+		public bool Write(string filePath)
+		{
+			throw new NotImplementedException();
+		}
+		#endregion
+		
 		#region Sylenth to Zebra conversion methods
 		private static float ConvertSylenthValueToZebra(float storedSylenthValue, float displaySylenthMin, float displaySylenthMax, float zebraMin, float zebraMax) {
 			float sylenthDisplayValue = MathUtils.ConvertAndMainainRatio(storedSylenthValue, 0, 1, displaySylenthMin, displaySylenthMax);
@@ -2536,7 +2983,8 @@ namespace PresetConverter
 		public static float ConvertSylenthFrequencyToZebra(float filterFrequency, float filterControlFrequency, FloatToHz mode) {
 			float actualFrequencyHertz = ConvertSylenthFrequencyToHertz(filterFrequency, filterControlFrequency, mode);
 			int midiNote = Zebra2Preset.FilterFrequencyToMidiNote(actualFrequencyHertz);
-			return midiNote; // TODO: adjust with one to be on the safe side?!
+			// TODO: adjust with two to be on the safe side?!
+			return midiNote + 2;
 		}
 		
 		private static int ConvertSylenthDelayTimingsToZebra(float delayTime) {
@@ -2717,8 +3165,9 @@ namespace PresetConverter
 						if (filterCtlWarmDrive == ONOFF.On) {
 							// LP Xcite: 24dB lowpass, with a frequency-dependent exciter as Drive, adding high frequencies.
 							//zebraFilter = Zebra2Preset.FilterType.LP_Xcite;
-							zebraFilter = Zebra2Preset.FilterType.LP_TN6SVF;
+							//zebraFilter = Zebra2Preset.FilterType.LP_TN6SVF;
 							//zebraFilter = Zebra2Preset.FilterType.LP_Allround;
+							zebraFilter = Zebra2Preset.FilterType.LP_OldDrive;
 						} else {
 							// LP Vintage:  CPU-friendly analogue-modeled transistor ladder with 24dB rolloff. Sounds nice and old
 							// LP Vintage2: More CPU-intensive version of LP Vintage, capable of self-oscillation.
@@ -2742,7 +3191,8 @@ namespace PresetConverter
 						zebraFilter = Zebra2Preset.FilterType.BP_RezBand;
 					} else {
 						// BP QBand Another resonant bandpass, with a different character
-						zebraFilter = Zebra2Preset.FilterType.BP_QBand;
+						//zebraFilter = Zebra2Preset.FilterType.BP_QBand;
+						zebraFilter = Zebra2Preset.FilterType.BP_RezBand;
 					}
 					break;
 			}
@@ -2993,13 +3443,13 @@ namespace PresetConverter
 			ObjectUtils.SetField(z2, LFOTrigFieldName, (int) Zebra2Preset.LFOGlobalTriggering.Trig_off);
 			//ObjectUtils.SetField(z2, LFOPhseFieldName, ConvertSylenthValueToZebra(Content.LFO1Offset, -10, 10, 0, 100));
 			ObjectUtils.SetField(z2, LFOPhseFieldName, 0.0f);
-			// TODO: Amp value can never be zero - add a little (5 too much? 4 seems good)
-			ObjectUtils.SetField(z2, LFOAmpFieldName, ConvertSylenthValueToZebra(sylenthLFOGain, 0, 10, 4, 100));
+			// TODO: Amp value can never be zero - add a little (5 too much? 3 seems best)
+			ObjectUtils.SetField(z2, LFOAmpFieldName, ConvertSylenthValueToZebra(sylenthLFOGain, 0, 10, 3, 100));
 			ObjectUtils.SetField(z2, LFOSlewFieldName, (int) Zebra2Preset.LFOSlew.fast);	// LFO Slew (Slew=1)
 		}
 		#endregion
 
-		#region Modulation Methods
+		#region Zebra Modulation Methods
 		private class ZebraModulationPair {
 			public string ZebraModSourceFieldName { set; get; }
 			public Object ZebraModSourceFieldValue { set; get; }
@@ -3775,6 +4225,7 @@ namespace PresetConverter
 		}
 		#endregion
 		
+		#region ToZebra2Preset
 		public List<Zebra2Preset> ToZebra2Preset(string defaultZebra2PresetFile, bool doProcessInitPresets) {
 			List<Zebra2Preset> zebra2PresetList = new List<Zebra2Preset>();
 
@@ -3785,7 +4236,6 @@ namespace PresetConverter
 			// Alot wrong:
 			// 175 Arab flute
 			// 236 Dr Crush Kick
-			// 268 and 239 chiptunes
 			// +++
 			
 			int convertCounter = 0;
@@ -3794,7 +4244,7 @@ namespace PresetConverter
 				zebraUsedModSources.Clear(); // reset the list that keeps track of the used mod sources for a preset
 				convertCounter++;
 				
-				if (convertCounter == 50) break;
+				//if (convertCounter == 200) break;
 				
 				// Skip if the Preset Name is Init
 				if (!doProcessInitPresets && (Content.PresetName == "Init" || Content.PresetName == "Default")) { //  || !Content.PresetName.StartsWith("SEQ Afrodiseq"
@@ -4044,7 +4494,7 @@ namespace PresetConverter
 					
 					#region Effects
 					
-					// Arpeggiator
+					#region Arpeggiator
 					if (Content.XSwArpOnOff == ONOFF.On) {
 						
 						// Set correct voice mode
@@ -4168,8 +4618,9 @@ namespace PresetConverter
 						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold15, Content.XArpTransp15, Content.XArpVelo15, 15);
 						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold16, Content.XArpTransp16, Content.XArpVelo16, 16);
 					}
+					#endregion
 					
-					// Distortion = Shaper 3
+					#region Distortion = Shaper 3
 					if (Content.XSwDistOnOff == ONOFF.On) {
 						// get how hard to distort
 						float distortionAmount = ConvertSylenthValueToZebra(Content.DistortAmount, 0, 10, 0, 100);
@@ -4192,6 +4643,8 @@ namespace PresetConverter
 							case DISTORTTYPE.Decimate:
 							case DISTORTTYPE.BitCrush:
 								zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.Crush;
+								// increase depth when using crush
+								zebra2Preset.Shape3_Depth = ( zebra2Preset.Shape3_Depth + 50 > 100 ? 100 : zebra2Preset.Shape3_Depth + 50);
 								break;
 							case DISTORTTYPE.FoldBack:
 								zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.Shape;
@@ -4210,8 +4663,9 @@ namespace PresetConverter
 						zebra2Preset.Shape3_Output = 00.00f;         // Output (Output=0.00)
 						zebra2Preset.Shape3_HiOut = 00.00f;          // HiOut (HiOut=0.00)
 					}
+					#endregion
 
-					// Phaser
+					#region Phaser
 					if (Content.XSwPhaserOnOff == ONOFF.On) {
 						// Mode Phaser: classic phaser unit
 						zebra2Preset.ModFX1_Mode = (int) Zebra2Preset.ModFXType.Phaser;
@@ -4264,8 +4718,9 @@ namespace PresetConverter
 						zebra2Preset.ModFX1_Q2 = 0.00f;				// Q2
 						zebra2Preset.ModFX1_EQon = 1;				// EQ
 					}
+					#endregion
 					
-					// Chorus
+					#region Chorus
 					if (Content.XSwChorusOnOff == ONOFF.On) {
 						// Mode Chorus: chorus / flanger using short delay lines
 						zebra2Preset.ModFX2_Mode = (int) Zebra2Preset.ModFXType.Chorus;
@@ -4321,8 +4776,9 @@ namespace PresetConverter
 						zebra2Preset.ModFX2_Q2 = 0.00f;				// Q2
 						zebra2Preset.ModFX2_EQon = 1;				// EQ
 					}
+					#endregion
 					
-					// Equaliser on MasterBus
+					#region Equaliser on MasterBus
 					if (Content.XSwEQOnOff == ONOFF.On) {
 						float eqBassFreq = ValueToHz(Content.EQBassFreq, FloatToHz.EQBassFreq); // 13.75f, 880.0f
 						float eqTrebleFreq = ValueToHz(Content.EQTrebleFreq, FloatToHz.EQTrebleFreq); // 440, 28160
@@ -4347,14 +4803,17 @@ namespace PresetConverter
 						zebra2Preset.EQ1_Res4 = 25.00f;              // Q HiShelf (res4=25.00)
 						zebra2Preset.EQ1_Gain4 = 00.00f;             // Gain HiShelf (gain4=0.00)
 					}
+					#endregion
 					
-					// Delay
+					#region Delay
 					if (Content.XSwDelayOnOff == ONOFF.On) {
 
-						zebra2Preset.Delay1_Mix = ConvertSylenthValueToZebra(Content.DelayDry_Wet, 0, 100, 0, 40); // the range is 0, 100, but using 0 - x i get a more correct volume
+						zebra2Preset.Delay1_Mix = ConvertSylenthValueToZebra(Content.DelayDry_Wet, 0, 100, 0, 50); // the range is 0, 100, but using 0 - x i get a more correct volume
 						
 						// Feedback
-						zebra2Preset.Delay1_FB = ConvertSylenthValueToZebra(Content.DelayFeedback, 0, 100, 0, 50);
+						//zebra2Preset.Delay1_FB = ConvertSylenthValueToZebra(Content.DelayFeedback, 0, 100, 0, 50);
+						zebra2Preset.Delay1_CB = ConvertSylenthValueToZebra(Content.DelayFeedback, 0, 100, 0, 50);
+						zebra2Preset.Delay1_FB = 0;
 						
 						// If ping pong, use X-back and serial 2
 						if (Content.DelayPingPong == ONOFF.On) {
@@ -4380,14 +4839,16 @@ namespace PresetConverter
 						// set volume to zero?
 						zebra2Preset.Delay1_Mix = 0;
 					}
+					#endregion
 
-					// Reverb
+					#region Reverb
 					if (Content.XSwReverbOnOff == ONOFF.On) {
 						zebra2Preset.Rev1_Damp = ConvertSylenthValueToZebra(Content.ReverbDamp, 0, 10, 0, 100);
 						
 						// sylenth dry/wet slider makes up two zebra2 sliders (dry and wet)
 						zebra2Preset.Rev1_Dry = 80;
-						zebra2Preset.Rev1_Wet = ConvertSylenthValueToZebra(Content.ReverbDry_Wet, 0, 100, 0, 10); // reduce the range to limit wetness
+						// reduce the range to limit wetness (80 is better than 100)
+						zebra2Preset.Rev1_Wet = ConvertSylenthValueToZebra(Content.ReverbDry_Wet, 0, 100, 0, 80);
 						
 						// sylenth stores the predelay in ms (0 - 200)
 						zebra2Preset.Rev1_Pre = ConvertSylenthValueToZebra(Content.ReverbPredelay, 0, 200, 0, 100);
@@ -4398,14 +4859,16 @@ namespace PresetConverter
 						zebra2Preset.Rev1_Wet = 0;
 						zebra2Preset.Rev1_Dry = 100;
 					}
+					#endregion
 					
-					// Compression
+					#region Compression
 					if (Content.XSwCompOnOff == ONOFF.On) {
 						zebra2Preset.Comp1_Att = ConvertSylenthValueToZebra(Content.CompAttack, 0.1f, 300, 0, 100);
 						zebra2Preset.Comp1_Rel = ConvertSylenthValueToZebra(Content.CompRelease, 1, 500, 0, 100);
 						zebra2Preset.Comp1_Thres = ConvertSylenthValueToZebra(Content.CompThreshold, -30, 0, -96, 0);
 						zebra2Preset.Comp1_Rat = MathUtils.ConvertAndMainainRatio(Content.CompRatio, 0, 1, 0, 100);
 					}
+					#endregion
 					#endregion
 					
 					#region Envelopes
@@ -4437,6 +4900,7 @@ namespace PresetConverter
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Decay, "ENV3_TBase", "ENV3_Dec");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Release, "ENV3_TBase", "ENV3_Rel");
 					zebra2Preset.ENV3_Sus = ConvertSylenthValueToZebra(Content.ModEnv1Sustain, 0, 10, envelopeMin, envelopeMax);
+					zebra2Preset.ENV3_Vel = 70;
 					zebra2Preset.ENV3_Mode = envelopeMode;
 					zebra2Preset.ENV3_Slope = envelopeSlope;
 
@@ -4445,6 +4909,7 @@ namespace PresetConverter
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Decay, "ENV4_TBase", "ENV4_Dec");
 					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Release, "ENV4_TBase", "ENV4_Rel");
 					zebra2Preset.ENV4_Sus = ConvertSylenthValueToZebra(Content.ModEnv2Sustain, 0, 10, envelopeMin, envelopeMax);
+					zebra2Preset.ENV4_Vel = 70;
 					zebra2Preset.ENV4_Mode = envelopeMode;
 					zebra2Preset.ENV4_Slope = envelopeSlope;
 					#endregion
@@ -4480,446 +4945,6 @@ namespace PresetConverter
 			}
 			return zebra2PresetList;
 		}
-
-		private static void DoLog(string logMsg) {
-			Console.Out.WriteLine(logMsg);
-			IOUtils.LogMessageToFile(outputStatusLog, logMsg);
-		}
-		
-		private void DoDebug(string debugMsg) {
-			if (logLevel == LogLevel.Debug) IOUtils.LogMessageToFile(outputStatusLog, debugMsg);
-		}
-
-		private static void DoError(string errorMsg) {
-			Console.Out.WriteLine(errorMsg);
-			IOUtils.LogMessageToFile(outputStatusLog, errorMsg);
-			IOUtils.LogMessageToFile(outputErrorLog, errorMsg);
-		}
-		
-		#region Consistency Verification
-		
-		// find out what value is stored in the Enum Value and return a text string
-		private static string EnumToLongText(object enumValue) {
-			string enumString = null;
-			uint i = Convert.ToUInt32(enumValue);
-			float f = BinaryFile.ByteArrayToSingle(BitConverter.GetBytes(i), BinaryFile.ByteOrder.LittleEndian);
-			enumString = String.Format("0x{0} (float: {1} uint: {2})", ((Enum)enumValue).ToString("X"), f, i);
-			return enumString;
-		}
-
-		// find closest enum based on value, return text
-		private static T FindClosestEnum<T>(Enum enumValue) {
-			
-			List<T> enumList = StringUtils.EnumValuesToList<T>();
-			
-			List<float> floatList = enumList.ConvertAll<float>( x => BinaryFile.UIntToSingle(Convert.ToUInt32(x), BinaryFile.ByteOrder.LittleEndian));
-			float target = BinaryFile.UIntToSingle(Convert.ToUInt32(enumValue), BinaryFile.ByteOrder.LittleEndian);
-			float closestFloat = MathUtils.FindClosest(floatList, target);
-			uint closestValue = BinaryFile.SingleToUInt(closestFloat, BinaryFile.ByteOrder.LittleEndian);
-			
-			// convert to Enum type
-			T closest = (T)Enum.ToObject(typeof(T), closestValue);
-			
-			return closest;
-		}
-
-		// find closest enum based on value, return text
-		private static string FindClosestEnumText<T>(Enum enumValue) {
-			
-			List<T> enumList = StringUtils.EnumValuesToList<T>();
-			
-			// find closest Enum
-			T closest = FindClosestEnum<T>(enumValue);
-
-			// build result text
-			string enumFoundText = closest.ToString() + " " + EnumToLongText(closest);
-			List<string> enumAllTextList = enumList.ConvertAll<string>(x => x.ToString() + " " + EnumToLongText(x));
-			string enumAllString = "";
-			foreach (string s in enumAllTextList) {
-				if (enumFoundText == s) {
-					enumAllString += "\t" + s + " <----- Closest match! \n";
-				} else {
-					enumAllString += "\t" + s + "\n";
-				}
-			}
-			return String.Format("\nClosest enum is {0} in: \n{1}", enumFoundText, enumAllString);
-		}
-		
-		private static bool IsEnumConsistent<T>(Enum enumValue, bool doTryToFix) {
-			string errorMsg = "";
-			if (!Enum.IsDefined(typeof(T), enumValue)) {
-				errorMsg = String.Format("Error! Consistency check failed for {0}! {1} is not a valid entry.", typeof(T), EnumToLongText(enumValue));
-				if (!doTryToFix) {
-					errorMsg += FindClosestEnumText<T>(enumValue);
-				}
-				DoError(errorMsg);
-				return false;
-			}
-			return true;
-		}
-
-		private static bool MakeEnumConsistent<T>(Sylenth1Preset.Syl1PresetContent presetContent, Enum enumValue, string fieldName, bool doTryToFix) {
-			if (doTryToFix) {
-				T enumFound = FindClosestEnum<T>(enumValue);
-				
-				// use reflection to try to add correct field
-				try {
-					var type = typeof(Sylenth1Preset.Syl1PresetContent);
-					var field = type.GetField(fieldName);
-					field.SetValue(presetContent, enumFound);
-				} catch (Exception) {
-					DoError(String.Format("Warning! Could not find field {0} and store {1}!", fieldName, enumFound));
-					return false;
-				}
-				
-				DoLog(String.Format("Stored closest match for {0}: {1} {2}", typeof(ARPMODE), enumFound.ToString(), EnumToLongText(enumFound)));
-			}
-			return true;
-		}
-		
-		/// <summary>
-		/// Verify that the loaded Sylenth content is consistent. I.e. that none of the ny of the enums are undefined
-		/// </summary>
-		/// <param name="presetContent">Preset Content</param>
-		/// <param name="doTryToFix">Whether to try to estimate the enums or not</param>
-		/// <returns></returns>
-		private static bool IsConsistent(Sylenth1Preset.Syl1PresetContent presetContent, bool doTryToFix) {
-			bool result = true;
-
-			// check if any of the enums are undefined
-			if (!IsEnumConsistent<ARPMODE>(presetContent.ArpMode, doTryToFix)) {
-				result = MakeEnumConsistent<ARPMODE>(presetContent, presetContent.ArpMode, "ArpMode", doTryToFix);
-			}
-			if (!IsEnumConsistent<ARPVELO>(presetContent.ArpVelo, doTryToFix)) {
-				result = MakeEnumConsistent<ARPVELO>(presetContent, presetContent.ArpVelo, "ArpVelo", doTryToFix);
-			}
-			if (!IsEnumConsistent<CHORUSMODE>(presetContent.ChorusMode, doTryToFix)) {
-				result = MakeEnumConsistent<CHORUSMODE>(presetContent, presetContent.ChorusMode, "ChorusMode", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.DelayPingPong, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.DelayPingPong, "DelayPingPong", doTryToFix);
-			}
-			if (!IsEnumConsistent<DISTORTTYPE>(presetContent.DistortType, doTryToFix)) {
-				result = MakeEnumConsistent<DISTORTTYPE>(presetContent, presetContent.DistortType, "DistortType", doTryToFix);
-			}
-			
-			if (!IsEnumConsistent<FILTERAINPUT>(presetContent.FilterAInput, doTryToFix)) {
-				result = MakeEnumConsistent<FILTERAINPUT>(presetContent, presetContent.FilterAInput, "FilterAInput", doTryToFix);
-			}
-			if (!IsEnumConsistent<FILTERTYPE>(presetContent.FilterAType, doTryToFix)) {
-				result = MakeEnumConsistent<FILTERTYPE>(presetContent, presetContent.FilterAType, "FilterAType", doTryToFix);
-			}
-			if (!IsEnumConsistent<FILTERDB>(presetContent.FilterADB, doTryToFix)) {
-				result = MakeEnumConsistent<FILTERDB>(presetContent, presetContent.FilterADB, "FilterADB", doTryToFix);
-			}
-			if (!IsEnumConsistent<FILTERBINPUT>(presetContent.FilterBInput, doTryToFix)) {
-				result = MakeEnumConsistent<FILTERBINPUT>(presetContent, presetContent.FilterBInput, "FilterBInput", doTryToFix);
-			}
-			if (!IsEnumConsistent<FILTERTYPE>(presetContent.FilterBType, doTryToFix)) {
-				result = MakeEnumConsistent<FILTERTYPE>(presetContent, presetContent.FilterBType, "FilterBType", doTryToFix);
-			}
-			if (!IsEnumConsistent<FILTERDB>(presetContent.FilterBDB, doTryToFix)) {
-				result = MakeEnumConsistent<FILTERDB>(presetContent, presetContent.FilterBDB, "FilterBDB", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.FilterCtlWarmDrive, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.FilterCtlWarmDrive, "FilterCtlWarmDrive", doTryToFix);
-			}
-
-			if (!IsEnumConsistent<ONOFF>(presetContent.LFO1Free, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.LFO1Free, "LFO1Free", doTryToFix);
-			}
-			if (!IsEnumConsistent<LFOWAVE>(presetContent.LFO1Wave, doTryToFix)) {
-				result = MakeEnumConsistent<LFOWAVE>(presetContent, presetContent.LFO1Wave, "LFO1Wave", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.LFO2Free, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.LFO2Free, "LFO2Free", doTryToFix);
-			}
-			if (!IsEnumConsistent<LFOWAVE>(presetContent.LFO2Wave, doTryToFix)) {
-				result = MakeEnumConsistent<LFOWAVE>(presetContent, presetContent.LFO2Wave, "LFO2Wave", doTryToFix);
-			}
-			
-			if (!IsEnumConsistent<ONOFF>(presetContent.MonoLegato, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.MonoLegato, "MonoLegato", doTryToFix);
-			}
-
-			if (!IsEnumConsistent<ONOFF>(presetContent.OscA1Invert, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscA1Invert, "OscA1Invert", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.OscA1Retrig, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscA1Retrig, "OscA1Retrig", doTryToFix);
-			}
-			if (!IsEnumConsistent<VOICES>(presetContent.OscA1Voices, doTryToFix)) {
-				result = MakeEnumConsistent<VOICES>(presetContent, presetContent.OscA1Voices, "OscA1Voices", doTryToFix);
-			}
-			if (!IsEnumConsistent<OSCWAVE>(presetContent.OscA1Wave, doTryToFix)) {
-				result = MakeEnumConsistent<OSCWAVE>(presetContent, presetContent.OscA1Wave, "OscA1Wave", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.OscA2Invert, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscA2Invert, "OscA2Invert", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.OscA2Retrig, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscA2Retrig, "OscA2Retrig", doTryToFix);
-			}
-			if (!IsEnumConsistent<VOICES>(presetContent.OscA2Voices, doTryToFix)) {
-				result = MakeEnumConsistent<VOICES>(presetContent, presetContent.OscA2Voices, "OscA2Voices", doTryToFix);
-			}
-			if (!IsEnumConsistent<OSCWAVE>(presetContent.OscA2Wave, doTryToFix)) {
-				result = MakeEnumConsistent<OSCWAVE>(presetContent, presetContent.OscA2Wave, "OscA2Wave", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.OscB1Invert, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscB1Invert, "OscB1Invert", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.OscB1Retrig, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscB1Retrig, "OscB1Retrig", doTryToFix);
-			}
-			if (!IsEnumConsistent<VOICES>(presetContent.OscB1Voices, doTryToFix)) {
-				result = MakeEnumConsistent<VOICES>(presetContent, presetContent.OscB1Voices, "OscB1Voices", doTryToFix);
-			}
-			if (!IsEnumConsistent<OSCWAVE>(presetContent.OscB1Wave, doTryToFix)) {
-				result = MakeEnumConsistent<OSCWAVE>(presetContent, presetContent.OscB1Wave, "OscB1Wave", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.OscB2Invert, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscB2Invert, "OscB2Invert", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.OscB2Retrig, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.OscB2Retrig, "OscB2Retrig", doTryToFix);
-			}
-			if (!IsEnumConsistent<VOICES>(presetContent.OscB2Voices, doTryToFix)) {
-				result = MakeEnumConsistent<VOICES>(presetContent, presetContent.OscB2Voices, "OscB2Voices", doTryToFix);
-			}
-			if (!IsEnumConsistent<OSCWAVE>(presetContent.OscB2Wave, doTryToFix)) {
-				result = MakeEnumConsistent<OSCWAVE>(presetContent, presetContent.OscB2Wave, "OscB2Wave", doTryToFix);
-			}
-			
-			if (!IsEnumConsistent<PORTAMODE>(presetContent.PortaMode, doTryToFix)) {
-				result = MakeEnumConsistent<PORTAMODE>(presetContent, presetContent.PortaMode, "PortaMode", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.Solo, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.Solo, "Solo", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.Sync, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.Sync, "Sync", doTryToFix);
-			}
-
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold01, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold01, "XArpHold01", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold02, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold02, "XArpHold02", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold03, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold03, "XArpHold03", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold04, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold04, "XArpHold04", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold05, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold05, "XArpHold05", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold06, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold06, "XArpHold06", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold07, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold07, "XArpHold07", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold08, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold08, "XArpHold08", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold09, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold09, "XArpHold09", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold10, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold10, "XArpHold10", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold11, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold11, "XArpHold11", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold12, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold12, "XArpHold12", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold13, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold13, "XArpHold13", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold14, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold14, "XArpHold14", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold15, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold15, "XArpHold15", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XArpHold16, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XArpHold16, "XArpHold16", doTryToFix);
-			}
-			
-			if (!IsEnumConsistent<XMODSOURCE>(presetContent.XModMisc1ASource, doTryToFix)) {
-				result = MakeEnumConsistent<XMODSOURCE>(presetContent, presetContent.XModMisc1ASource, "XModMisc1ASource", doTryToFix);
-			}
-			if (!IsEnumConsistent<XMODSOURCE>(presetContent.XModMisc1BSource, doTryToFix)) {
-				result = MakeEnumConsistent<XMODSOURCE>(presetContent, presetContent.XModMisc1BSource, "XModMisc1BSource", doTryToFix);
-			}
-			if (!IsEnumConsistent<XMODSOURCE>(presetContent.XModMisc2ASource, doTryToFix)) {
-				result = MakeEnumConsistent<XMODSOURCE>(presetContent, presetContent.XModMisc2ASource, "XModMisc2ASource", doTryToFix);
-			}
-			if (!IsEnumConsistent<XMODSOURCE>(presetContent.XModMisc2BSource, doTryToFix)) {
-				result = MakeEnumConsistent<XMODSOURCE>(presetContent, presetContent.XModMisc2BSource, "XModMisc2BSource", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XSwArpOnOff, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwArpOnOff, "XSwArpOnOff", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XSwChorusOnOff, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwChorusOnOff, "XSwChorusOnOff", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XSwCompOnOff, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwCompOnOff, "XSwCompOnOff", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XSwDelayOnOff, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwDelayOnOff, "XSwDelayOnOff", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XSwDistOnOff, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwDistOnOff, "XSwDistOnOff", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XSwEQOnOff, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwEQOnOff, "XSwEQOnOff", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XSwPhaserOnOff, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwPhaserOnOff, "XSwPhaserOnOff", doTryToFix);
-			}
-			if (!IsEnumConsistent<ONOFF>(presetContent.XSwReverbOnOff, doTryToFix)) {
-				result = MakeEnumConsistent<ONOFF>(presetContent, presetContent.XSwReverbOnOff, "XSwReverbOnOff", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModEnv1Dest1, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModEnv1Dest1, "YModEnv1Dest1", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModEnv1Dest2, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModEnv1Dest2, "YModEnv1Dest2", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModEnv2Dest1, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModEnv2Dest1, "YModEnv2Dest1", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModEnv2Dest2, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModEnv2Dest2, "YModEnv2Dest2", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModLFO1Dest1, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModLFO1Dest1, "YModLFO1Dest1", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModLFO1Dest2, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModLFO1Dest2, "YModLFO1Dest2", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModLFO2Dest1, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModLFO2Dest1, "YModLFO2Dest1", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModLFO2Dest2, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModLFO2Dest2, "YModLFO2Dest2", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc1ADest1, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc1ADest1, "YModMisc1ADest1", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc1ADest2, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc1ADest2, "YModMisc1ADest2", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc1BDest1, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc1BDest1, "YModMisc1BDest1", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc1BDest2, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc1BDest2, "YModMisc1BDest2", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc2ADest1, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc2ADest1, "YModMisc2ADest1", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc2ADest2, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc2ADest2, "YModMisc2ADest2", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc2BDest1, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc2BDest1, "YModMisc2BDest1", doTryToFix);
-			}
-			if (!IsEnumConsistent<YMODDEST>(presetContent.YModMisc2BDest2, doTryToFix)) {
-				result = MakeEnumConsistent<YMODDEST>(presetContent, presetContent.YModMisc2BDest2, "YModMisc2BDest2", doTryToFix);
-			}
-			if (!IsEnumConsistent<YPARTSELECT>(presetContent.YPartSelect, doTryToFix)) {
-				result = MakeEnumConsistent<YPARTSELECT>(presetContent, presetContent.YPartSelect, "YPartSelect", doTryToFix);
-			}
-			if (!IsEnumConsistent<ZEQMODE>(presetContent.ZEQMode, doTryToFix)) {
-				result = MakeEnumConsistent<ZEQMODE>(presetContent, presetContent.ZEQMode, "ZEQMode", doTryToFix);
-			}
-			
-			return result;
-		}
 		#endregion
-		
-		public bool ReadFXP(FXP fxp, string filePath="")
-		{
-			BinaryFile bFile = new BinaryFile(fxp.ChunkDataByteArray, BinaryFile.ByteOrder.LittleEndian);
-			
-			string presetType = bFile.ReadString(4);
-			int presetVersion1 = bFile.ReadInt32();
-			int fxVersion = bFile.ReadInt32();
-			int numProgramsUnused = bFile.ReadInt32();
-			int presetVersion2 = bFile.ReadInt32();
-			
-			DoLog(String.Format("Preset Type: '{0}', Preset Version1: '{1}', fxVersion: '{2}',  numProgramsUnused: '{3}', presetVersion2: '{4}'", presetType, presetVersion1, fxVersion, numProgramsUnused, presetVersion2));
-			
-			// if Sylenth 1 preset format
-			if (presetType == "1lys") { // '1lys' = 'syl1' backwards
-				
-				// check if this is a bank or a single preset file
-				if (fxp.FxMagic == "FBCh") {
-					// this is a bank of presets
-					
-					// use numberOfPrograms to read in an array of Sylenth Presets
-					int numPrograms = fxp.ProgramCount;
-					List<Sylenth1Preset.Syl1PresetContent> contentList = new List<Sylenth1Preset.Syl1PresetContent>();
-					int i = 0;
-					try {
-						Sylenth1Preset.Syl1PresetContent presetContent = null;
-						for (i = 0; i < numPrograms; i++) {
-							presetContent = new Sylenth1Preset.Syl1PresetContent(bFile, (presetVersion1==2202 || presetVersion1 == 2211));
-							DoLog(String.Format("Start processing {0} '{1}' ...", i, presetContent.PresetName));
-							if (IsConsistent(presetContent, DO_TRY_FIX_INCONSISTENT_ENUMS)) {
-								contentList.Add(presetContent);
-							} else {
-								DoError(String.Format("Error! The loaded preset failed the consistency check! {0} '{1}' ({2})", i, presetContent.PresetName, filePath));
-							}
-						}
-					} catch(EndOfStreamException eose) {
-						DoError(String.Format("Error! Failed reading presets from bank {0}. Read {1} presets. (Expected {2}) Msg: {3}!", filePath, i, numPrograms, eose.Message));
-						return false;
-					}
-
-					// store list as array
-					this.ContentArray = contentList.ToArray();
-					DoLog(String.Format("Finished reading {0} presets from bank {1} ...", numPrograms, filePath));
-					return true;
-				} else if (fxp.FxMagic == "FPCh") {
-					// single preset file
-					this.ContentArray = new Syl1PresetContent[1];
-					this.ContentArray[0] = new Sylenth1Preset.Syl1PresetContent(bFile, presetVersion1==2202);
-
-					DoLog(String.Format("Finished reading preset file {0} ...", filePath));
-					return true;
-				}
-			} else {
-				DoError(String.Format("Error! The preset file is not a valid Sylenth1 Preset! ({0}). If you are sure it is a Sylenth preset, try to open it in Sylenth and resave (Tip! init full bank before loading and resaving)", filePath));
-				return false;
-			}
-			return false;
-		}
-		
-		public bool Read(string filePath)
-		{
-			// store filepath
-			FilePath = filePath;
-			
-			FXP fxp = new FXP();
-			fxp.ReadFile(filePath);
-			
-			if (!ReadFXP(fxp, filePath)) {
-				return false;
-			}
-			return true;
-		}
-		
-		public bool Write(string filePath)
-		{
-			throw new NotImplementedException();
-		}
 	}
 }
