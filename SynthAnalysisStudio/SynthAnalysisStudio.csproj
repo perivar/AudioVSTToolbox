@@ -105,7 +105,7 @@
     <Compile Include="..\CommonUtils\Audio\Bass\BassProxy.cs">
       <Link>Audio\BassProxy.cs</Link>
     </Compile>
-    <Compile Include="..\CommonUtils\Audio\Bass\IAudio.cs">
+    <Compile Include="..\CommonUtils\Audio\IAudio.cs">
       <Link>Audio\IAudio.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\Audio\NAudio\AudioUtilsNAudio.cs">
