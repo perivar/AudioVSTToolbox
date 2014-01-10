@@ -348,6 +348,10 @@ namespace SynthAnalysisStudio
 				if (chunkData != null && chunkData.Length > 0) {
 					int chunkLength = chunkData.Length;
 					
+					// TODO: DELETE THIS
+					WavesSSLChannel sslChPreset = new WavesSSLChannel();
+					sslChPreset.ReadChunkData(chunkData);
+					
 					// binary comparison to find out where the chunk has changed
 					if (previousChunkData != null && previousChunkData.Length > 0) {
 						

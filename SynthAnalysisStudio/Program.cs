@@ -100,6 +100,10 @@ namespace SynthAnalysisStudio
 		[STAThread]
 		static void Main(string[] args)
 		{
+			//WavesSSLChannel ssl = new WavesSSLChannel();
+			//ssl.Read(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslchannel-kick.fxp");
+			//ssl.Write(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslchannel-kick.txt");
+			
 			/*
 			PresetConverter.Zebra2Preset.LFOSync lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_1_4;
 			double ms = 0;
