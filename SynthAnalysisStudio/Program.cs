@@ -102,7 +102,7 @@ namespace SynthAnalysisStudio
 		{
 			WavesSSLChannel ssl = new WavesSSLChannel();
 			//ssl.Read(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslchannel-kick.fxp");
-			ssl.Read(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000");
+			ssl.ReadXPst(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000");
 			ssl.Write(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslchannel-kick.txt");
 			
 			/*

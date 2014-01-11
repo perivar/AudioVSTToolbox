@@ -31,16 +31,31 @@ namespace SynthAnalysisStudio
 		
 		public bool Write(string filePath)
 		{
-			// create a writer and open the file
-			TextWriter tw = new StreamWriter(filePath);
-			
-			// write the preset string
-			tw.Write(ToString());
-			
-			// close the stream
-			tw.Close();
-			
-			return true;
+			if (PluginName != "<not set>") {
+				// create a writer and open the file
+				TextWriter tw = new StreamWriter(filePath);
+				
+				// write the preset string
+				tw.Write(ToString());
+				
+				// close the stream
+				tw.Close();
+				
+				return true;
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// Read Waves XPst files
+		/// E.g. C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000
+		/// </summary>
+		/// <param name="filePath">file to XPst file (e.g. with the filename '1000')</param>
+		/// <returns>true if succesful</returns>
+		public bool ReadXPst(string filePath)
+		{
+			string xmlString = File.ReadAllText(filePath);
+			return ParseXml(xmlString);
 		}
 
 		/// <summary>
@@ -161,7 +176,7 @@ namespace SynthAnalysisStudio
 			// And get the real world data
 			XmlNode parametersNode = presetDataNode.SelectSingleNode("Parameters[@Type='RealWorld']");
 			if (parametersNode != null && parametersNode.InnerText != null) {
-				RealWorldParameters = parametersNode.InnerText;
+				RealWorldParameters = parametersNode.InnerText; //.Replace("\r", "").Replace("\n", "");
 			}
 			
 			ReadRealWorldParameters();
