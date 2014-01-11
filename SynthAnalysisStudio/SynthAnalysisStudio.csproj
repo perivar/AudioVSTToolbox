@@ -243,7 +243,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WavesPreset.cs" />
     <Compile Include="WavesSSLChannel.cs" />
+    <Compile Include="WavesSSLComp.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CommonUtils\GUI\FrequencyAnalyserUserControl.resx">

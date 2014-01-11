@@ -1,23 +1,15 @@
 ﻿using System;
-using System.IO;
 using System.Text;
-using System.Xml;
 using System.Globalization;
-
-using PresetConverter;
-using CommonUtils;
 
 namespace SynthAnalysisStudio
 {
 	/// <summary>
 	/// Description of WavesSSLChannel.
 	/// </summary>
-	public class WavesSSLChannel : Preset
+	public class WavesSSLChannel : WavesPreset
 	{
 		#region Public Fields
-		public string PresetName = "";
-		public string PluginVersion = "";
-		
 		public float CompThreshold;
 		public float CompRatio;
 		public bool CompFastAttack;
@@ -66,261 +58,75 @@ namespace SynthAnalysisStudio
 		{
 		}
 		
-		public bool ReadChunkData(byte[] byteArray) {
-			
-			BinaryFile bf = new BinaryFile(byteArray, BinaryFile.ByteOrder.BigEndian);
-			
-			int val1 = bf.ReadInt32();
-			int val2 = bf.ReadInt32();
-			int val3 = bf.ReadInt32();
-			string val4 = bf.ReadString(4);
-			string val5 = bf.ReadString(4);
-			
-			//int chunkSize = byteArray.Length - 32;
-			int chunkSize = bf.ReadInt32();
-			//int val6 = bf.ReadInt32();
-
-			string val7 = bf.ReadString(4);
-			
-			byte[] chunkDataByteArray = new byte[chunkSize];
-			chunkDataByteArray = bf.ReadBytes(0, chunkSize, BinaryFile.ByteOrder.LittleEndian);
-			string chunkData = BinaryFile.ByteArrayToString(chunkDataByteArray);
-			
-			int val8 = bf.ReadInt32(BinaryFile.ByteOrder.LittleEndian);
-			
-			// read the xml chunk into memory
-			XmlDocument doc = new XmlDocument();
-			try {
-				if (chunkData != null) doc.LoadXml(chunkData);
+		protected override void ReadRealWorldParameters()
+		{
+			if (PluginName == "SSLChannel") {
 				
-				XmlNode presetNode = doc.SelectSingleNode("//Preset[@Name]");
-				//PresetName = presetNode.Attributes["Name"].Value;
+				// split the parameters text into sections
+				string[] splittedPhrase = RealWorldParameters.Split(' ', '\n');
 				
-				XmlNode pluginVersion = presetNode.SelectSingleNode("PresetHeader/PluginVersion");
-				if (pluginVersion != null && pluginVersion.InnerText != null) {
-					PluginVersion = pluginVersion.InnerText;
-				}
+				CompThreshold = float.Parse(splittedPhrase[0], CultureInfo.InvariantCulture); // compression threshold in dB
+				CompRatio = float.Parse(splittedPhrase[1], CultureInfo.InvariantCulture); // compression ratio
+				CompFastAttack = (splittedPhrase[2] == "1"); // compression fast attack
+				CompRelease = float.Parse(splittedPhrase[3], CultureInfo.InvariantCulture); // compression release in ms
+
+				string Delimiter1 = splittedPhrase[4];
 				
-				XmlNode pluginName = presetNode.SelectSingleNode("PresetHeader/PluginName");
-				if (pluginName != null && pluginName.InnerText != null) {
-					if (pluginName.InnerText == "SSLChannel") {
-						#region SSLChannel
-						XmlNode activeSetup = presetNode.SelectSingleNode("PresetHeader/ActiveSetup");
-						XmlNode presetDataNode = doc.SelectSingleNode("//Preset/PresetData[@Setup='" + activeSetup.InnerText + "']");
-						
-						// Get the node's attributes
-						XmlAttribute att = presetDataNode.Attributes["SetupName"];
-						if (att != null && att.Value != null) {
-							PresetName = att.Value;
-						}
+				ExpThreshold = float.Parse(splittedPhrase[5], CultureInfo.InvariantCulture); // expander threshold in dB
+				ExpRange = float.Parse(splittedPhrase[6], CultureInfo.InvariantCulture); // expander range in dB
+				ExpGate = (splittedPhrase[7] == "1"); // expander gate
+				ExpFastAttack = (splittedPhrase[8] == "1"); // expander fast attack
+				ExpRelease = float.Parse(splittedPhrase[9], CultureInfo.InvariantCulture); // expander release in ms
 
-						XmlNode parametersNode = presetDataNode.SelectSingleNode("Parameters[@Type='RealWorld']");
-						
-						// split the parameters text into sections
-						string[] splittedPhrase = parametersNode.InnerText.Split(' ', '\n');
-						
-						CompThreshold = float.Parse(splittedPhrase[0], CultureInfo.InvariantCulture); // compression threshold in dB
-						CompRatio = float.Parse(splittedPhrase[1], CultureInfo.InvariantCulture); // compression ratio
-						CompFastAttack = (splittedPhrase[2] == "1"); // compression fast attack
-						CompRelease = float.Parse(splittedPhrase[3], CultureInfo.InvariantCulture); // compression release in ms
+				string Delimiter2 = splittedPhrase[10];
+				
+				DynToByPass = (splittedPhrase[11] == "1"); // Dyn To By Pass
+				DynToChannelOut = (splittedPhrase[12] == "1"); // Dyn To Channel Out
+				
+				LFTypeBell = (splittedPhrase[13] == "1"); // Bell
+				LFGain = float.Parse(splittedPhrase[14], CultureInfo.InvariantCulture); // dB
+				LFFrq = float.Parse(splittedPhrase[15], CultureInfo.InvariantCulture); // Hz
+				
+				LMFGain = float.Parse(splittedPhrase[16], CultureInfo.InvariantCulture); // dB
+				LMFFrq = float.Parse(splittedPhrase[17], CultureInfo.InvariantCulture); // KHz
+				LMFQ = float.Parse(splittedPhrase[18], CultureInfo.InvariantCulture);
+				
+				HMFGain = float.Parse(splittedPhrase[19], CultureInfo.InvariantCulture); // dB
+				HMFFrq = float.Parse(splittedPhrase[20], CultureInfo.InvariantCulture); // KHz
+				HMFQ = float.Parse(splittedPhrase[21], CultureInfo.InvariantCulture);
+				
+				HFTypeBell = (splittedPhrase[22] == "1"); // Bell
+				HFGain = float.Parse(splittedPhrase[23], CultureInfo.InvariantCulture); // dB
+				HFFrq = float.Parse(splittedPhrase[24], CultureInfo.InvariantCulture); // KHz
+				
+				EQToBypass = (splittedPhrase[25] == "1");
+				EQToDynSC  = (splittedPhrase[26] == "1");
 
-						string Delimiter1 = splittedPhrase[4];
-						
-						ExpThreshold = float.Parse(splittedPhrase[5], CultureInfo.InvariantCulture); // expander threshold in dB
-						ExpRange = float.Parse(splittedPhrase[6], CultureInfo.InvariantCulture); // expander range in dB
-						ExpGate = (splittedPhrase[7] == "1"); // expander gate
-						ExpFastAttack = (splittedPhrase[8] == "1"); // expander fast attack
-						ExpRelease = float.Parse(splittedPhrase[9], CultureInfo.InvariantCulture); // expander release in ms
+				HPFrq = float.Parse(splittedPhrase[27], CultureInfo.InvariantCulture); // Hz
+				LPFrq = float.Parse(splittedPhrase[28], CultureInfo.InvariantCulture); // KHz
 
-						string Delimiter2 = splittedPhrase[10];
-						
-						DynToByPass = (splittedPhrase[11] == "1"); // Dyn To By Pass
-						DynToChannelOut = (splittedPhrase[12] == "1"); // Dyn To Channel Out
-						
-						LFTypeBell = (splittedPhrase[13] == "1"); // Bell
-						LFGain = float.Parse(splittedPhrase[14], CultureInfo.InvariantCulture); // dB
-						LFFrq = float.Parse(splittedPhrase[15], CultureInfo.InvariantCulture); // Hz
-						
-						LMFGain = float.Parse(splittedPhrase[16], CultureInfo.InvariantCulture); // dB
-						LMFFrq = float.Parse(splittedPhrase[17], CultureInfo.InvariantCulture); // KHz
-						LMFQ = float.Parse(splittedPhrase[18], CultureInfo.InvariantCulture);
-						
-						HMFGain = float.Parse(splittedPhrase[19], CultureInfo.InvariantCulture); // dB
-						HMFFrq = float.Parse(splittedPhrase[20], CultureInfo.InvariantCulture); // KHz
-						HMFQ = float.Parse(splittedPhrase[21], CultureInfo.InvariantCulture);
-						
-						HFTypeBell = (splittedPhrase[22] == "1"); // Bell
-						HFGain = float.Parse(splittedPhrase[23], CultureInfo.InvariantCulture); // dB
-						HFFrq = float.Parse(splittedPhrase[24], CultureInfo.InvariantCulture); // KHz
-						
-						EQToBypass = (splittedPhrase[25] == "1");
-						EQToDynSC  = (splittedPhrase[26] == "1");
+				FilterSplit = (splittedPhrase[29] == "1");
+				
+				Gain = float.Parse(splittedPhrase[30], CultureInfo.InvariantCulture); // dB
 
-						HPFrq = float.Parse(splittedPhrase[27], CultureInfo.InvariantCulture); // Hz
-						LPFrq = float.Parse(splittedPhrase[28], CultureInfo.InvariantCulture); // KHz
+				Analog = (splittedPhrase[31] == "1");
+				
+				string Delimiter3 = splittedPhrase[32];
+				string Delimiter4 = splittedPhrase[33];
+				
+				VUShowOutput = (splittedPhrase[34] == "1");
 
-						FilterSplit = (splittedPhrase[29] == "1");
-						
-						Gain = float.Parse(splittedPhrase[30], CultureInfo.InvariantCulture); // dB
+				string Delimiter5 = splittedPhrase[35];
+				string Delimiter6 = splittedPhrase[36];
 
-						Analog = (splittedPhrase[31] == "1");
-						
-						string Delimiter3 = splittedPhrase[32];
-						string Delimiter4 = splittedPhrase[33];
-						
-						VUShowOutput = (splittedPhrase[34] == "1");
-
-						string Delimiter5 = splittedPhrase[35];
-						string Delimiter6 = splittedPhrase[36];
-
-						float Unknown1 = float.Parse(splittedPhrase[37], CultureInfo.InvariantCulture);
-						float Unknown2 = float.Parse(splittedPhrase[38], CultureInfo.InvariantCulture);
-						
-						PhaseReverse = (splittedPhrase[39] == "1");
-						InputTrim = float.Parse(splittedPhrase[40], CultureInfo.InvariantCulture); // dB
-						#endregion
-					} else if (pluginName.InnerText == "SSLComp") {
-						#region SSLComp
-						XmlNode activeSetup = presetNode.SelectSingleNode("PresetHeader/ActiveSetup");
-						XmlNode presetDataNode = doc.SelectSingleNode("//Preset/PresetData[@Setup='" + activeSetup.InnerText + "']");
-						
-						// Get the node's attributes
-						XmlAttribute att = presetDataNode.Attributes["SetupName"];
-						if (att != null && att.Value != null) {
-							PresetName = att.Value;
-						}
-
-						XmlNode parametersNode = presetDataNode.SelectSingleNode("Parameters[@Type='RealWorld']");
-						
-						// split the parameters text into sections
-						string[] splittedPhrase = parametersNode.InnerText.Split(' ', '\n');
-
-
-						//Threshold (-15 - +15)
-						CompThreshold = float.Parse(splittedPhrase[0], CultureInfo.InvariantCulture); // compression threshold in dB
-
-						//Ratio (2:1=0, 4:1=1, 10:1=2)
-						int ratio = int.Parse(splittedPhrase[1]);
-						switch(ratio) {
-							case 0:
-								CompRatio = 2;
-								break;
-							case 1:
-								CompRatio = 4;
-								break;
-							case 2:
-								CompRatio = 10;
-								break;
-						}
-						
-						// Fade [Off=0,Out=1,In=2]
-						string Fade = "";
-						int fade = int.Parse(splittedPhrase[2]);
-						switch(fade) {
-							case 0:
-								Fade = "Off";
-								break;
-							case 1:
-								Fade = "Out";
-								break;
-							case 2:
-								Fade = "In";
-								break;
-						}
-						
-						// Attack [0 - 5, .1 ms, .3 ms, 1 ms, 3 ms, 10 ms, 30 ms)
-						float CompAttack;
-						int attack = int.Parse(splittedPhrase[3]);
-						switch(attack) {
-							case 0:
-								CompAttack = 0.1f;
-								break;
-							case 1:
-								CompAttack = 0.3f;
-								break;
-							case 2:
-								CompAttack = 1.0f;
-								break;
-							case 3:
-								CompAttack = 3.0f;
-								break;
-							case 4:
-								CompAttack = 10.0f;
-								break;
-							case 5:
-								CompAttack = 30.0f;
-								break;
-						}
-						
-						// Release [0 - 4, .1 s, .3 s, .6 s, 1.2 s, Auto)
-						int release = int.Parse(splittedPhrase[4]);
-						switch(release) {
-							case 0:
-								CompRelease = 0.1f;
-								break;
-							case 1:
-								CompRelease = 0.3f;
-								break;
-							case 2:
-								CompRelease = 0.6f;
-								break;
-							case 3:
-								CompRelease = 1.2f;
-								break;
-							case 4:
-								CompRelease = -1.0f;
-								break;
-						}
-
-						//Make Up (-5 - +15)
-						Gain = float.Parse(splittedPhrase[5], CultureInfo.InvariantCulture); // dB
-						
-						//*
-						string Delimiter1 = splittedPhrase[6];
-						
-						//Rate-S (1 - +60)
-						float RateS = float.Parse(splittedPhrase[7], CultureInfo.InvariantCulture);
-						
-						//In
-						bool In = (splittedPhrase[8] == "1");
-
-						//Analog
-						Analog = (splittedPhrase[9] == "1");
-						
-						#endregion
-					} else {
-						// do nothing
-					}
-				}
-			} catch (XmlException) {
-				return false;
+				float Unknown1 = float.Parse(splittedPhrase[37], CultureInfo.InvariantCulture);
+				float Unknown2 = float.Parse(splittedPhrase[38], CultureInfo.InvariantCulture);
+				
+				PhaseReverse = (splittedPhrase[39] == "1");
+				InputTrim = float.Parse(splittedPhrase[40], CultureInfo.InvariantCulture); // dB
 			}
-			
-			return true;
 		}
-		
-		public bool Read(string filePath)
-		{
-			FXP fxp = new FXP();
-			fxp.ReadFile(filePath);
-			byte[] chunkData = fxp.ChunkDataByteArray;
-			return ReadChunkData(chunkData);
-		}
-		
-		public bool Write(string filePath)
-		{
-			// create a writer and open the file
-			TextWriter tw = new StreamWriter(filePath);
-			
-			// write the preset string
-			tw.Write(ToString());
-			
-			// close the stream
-			tw.Close();
-			
-			return true;
-		}
-		
+
 		public override string ToString() {
 			StringBuilder sb = new StringBuilder();
 			
