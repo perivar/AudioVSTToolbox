@@ -12,12 +12,13 @@ namespace SynthAnalysisStudio
 		#region Public Fields
 		public float Threshold;
 		public string Ratio;
-		public string Fade;
 		public float Attack;
 		public string Release;
 		public float MakeupGain;
+		public float RateS;
 		public bool In;
 		public bool Analog;
+		public string Fade;
 		#endregion
 		
 		public WavesSSLComp()
@@ -112,7 +113,7 @@ namespace SynthAnalysisStudio
 				string Delimiter1 = splittedPhrase[6];
 				
 				//Rate-S (1 - +60)
-				float RateS = float.Parse(splittedPhrase[7], CultureInfo.InvariantCulture);
+				RateS = float.Parse(splittedPhrase[7], CultureInfo.InvariantCulture);
 				
 				//In
 				In = (splittedPhrase[8] == "1");
@@ -130,10 +131,11 @@ namespace SynthAnalysisStudio
 			
 			sb.AppendLine("Compression:");
 			sb.AppendLine(String.Format("\tThreshold: {0} dB", Threshold));
-			sb.AppendLine(String.Format("\tRatio: {0}", Ratio));
-			sb.AppendLine(String.Format("\tAttack: {0}", Attack));
-			sb.AppendLine(String.Format("\tRelease: {0}", Release));
 			sb.AppendLine(String.Format("\tMake-up Gain: {0} dB", MakeupGain));
+			sb.AppendLine(String.Format("\tAttack: {0} ms", Attack));
+			sb.AppendLine(String.Format("\tRelease: {0}", Release));
+			sb.AppendLine(String.Format("\tRatio: {0}", Ratio));
+			sb.AppendLine(String.Format("\tRate-S: {0} s", RateS));
 			sb.AppendLine(String.Format("\tIn: {0}", In));
 			sb.AppendLine(String.Format("\tAnalog: {0}", Analog));
 			sb.AppendLine(String.Format("\tFade: {0}", Fade));

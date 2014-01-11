@@ -349,8 +349,21 @@ namespace SynthAnalysisStudio
 					int chunkLength = chunkData.Length;
 					
 					// TODO: DELETE THIS
-					WavesSSLChannel sslChPreset = new WavesSSLChannel();
-					sslChPreset.ReadChunkData(chunkData);
+					string wavesPluginName = WavesPreset.GetPluginName(chunkData);
+					if (wavesPluginName != null) {
+						switch (wavesPluginName) {
+							case "SSLChannel":
+								WavesSSLChannel sslChannel = new WavesSSLChannel();
+								sslChannel.ReadChunkData(chunkData);
+								sslChannel.Write("sslchannel-output.txt");
+								break;
+							case "SSLComp":
+								WavesSSLComp sslComp = new WavesSSLComp();
+								sslComp.ReadChunkData(chunkData);
+								sslComp.Write("sslcomp-output.txt");
+								break;
+						}
+					}
 					
 					// binary comparison to find out where the chunk has changed
 					if (previousChunkData != null && previousChunkData.Length > 0) {

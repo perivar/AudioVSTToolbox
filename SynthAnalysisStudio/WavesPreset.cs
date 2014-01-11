@@ -25,8 +25,8 @@ namespace SynthAnalysisStudio
 		{
 			FXP fxp = new FXP();
 			fxp.ReadFile(filePath);
-			byte[] chunkData = fxp.ChunkDataByteArray;
-			return ReadChunkData(chunkData);
+			byte[] chunkDataByteArray = fxp.ChunkDataByteArray;
+			return ReadChunkData(chunkDataByteArray);
 		}
 		
 		public bool Write(string filePath)
@@ -43,9 +43,13 @@ namespace SynthAnalysisStudio
 			return true;
 		}
 
-		public bool ReadChunkData(byte[] byteArray) {
-			
-			BinaryFile bf = new BinaryFile(byteArray, BinaryFile.ByteOrder.BigEndian);
+		/// <summary>
+		/// Parse out the xml string from the passed chunk data byte array
+		/// </summary>
+		/// <param name="chunkDataByteArray"></param>
+		/// <returns>xml string</returns>
+		private static string ParseChunkData(byte[] chunkDataByteArray) {
+			BinaryFile bf = new BinaryFile(chunkDataByteArray, BinaryFile.ByteOrder.BigEndian);
 			
 			int val1 = bf.ReadInt32();
 			int val2 = bf.ReadInt32();
@@ -59,15 +63,51 @@ namespace SynthAnalysisStudio
 
 			string val7 = bf.ReadString(4);
 			
-			byte[] chunkDataByteArray = new byte[chunkSize];
-			chunkDataByteArray = bf.ReadBytes(0, chunkSize, BinaryFile.ByteOrder.LittleEndian);
-			string chunkData = BinaryFile.ByteArrayToString(chunkDataByteArray);
+			byte[] xmlChunkBytes = new byte[chunkSize];
+			xmlChunkBytes = bf.ReadBytes(0, chunkSize, BinaryFile.ByteOrder.LittleEndian);
+			string xmlString = BinaryFile.ByteArrayToString(xmlChunkBytes);
 			
 			int val8 = bf.ReadInt32(BinaryFile.ByteOrder.LittleEndian);
-
-			return ParseXml(chunkData);
+			
+			return xmlString;
+		}
+		
+		public bool ReadChunkData(byte[] chunkDataByteArray) {
+			
+			string xmlString = ParseChunkData(chunkDataByteArray);
+			return ParseXml(xmlString);
 		}
 
+		public static string GetPluginName(byte[] chunkDataByteArray) {
+			
+			string xmlString = ParseChunkData(chunkDataByteArray);
+			return GetPluginName(xmlString);
+		}
+		
+		private static string GetPluginName(string xmlString) {
+			
+			XmlDocument xml = new XmlDocument();
+			try {
+				if (xmlString != null) xml.LoadXml(xmlString);
+				
+				// Get preset node that has a Name attribude
+				// e.g. <Preset Name=""><PresetHeader><PluginName>SSLChannel</PluginName></PresetHeader></Preset>
+				XmlNode firstPresetNode = xml.SelectSingleNode("//Preset[@Name]");
+
+				if (firstPresetNode != null) {
+
+					// Read some values from the PresetHeader section
+					XmlNode pluginNameNode = firstPresetNode.SelectSingleNode("PresetHeader/PluginName");
+					if (pluginNameNode != null && pluginNameNode.InnerText != null) {
+						return pluginNameNode.InnerText;
+					}
+				}
+				return null;
+			} catch (XmlException) {
+				return null;
+			}
+		}
+		
 		private bool ParseXml(string xmlString) {
 
 			XmlDocument xml = new XmlDocument();
