@@ -4222,17 +4222,17 @@ namespace PresetConverter
 		public static void MillisecondsToLFOSyncAndValue(float timeInMs, out LFOSync lfoSync, out int lfoValue) {
 			
 			if (float.IsNaN(timeInMs) || float.IsInfinity(timeInMs)) {
-				Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0} ms.)", timeInMs);
-				//IOUtils.LogMessageToFile(outputStatusLog, String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0} ms.)", timeInMs));
-				Sylenth1Preset.DoError(String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0} ms.)", timeInMs));
+				Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0:0.##} ms.)", timeInMs);
+				//IOUtils.LogMessageToFile(outputStatusLog, String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0:0.##} ms.)", timeInMs));
+				Sylenth1Preset.DoError(String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0:0.##} ms.)", timeInMs));
 				lfoValue = 0;
 				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
 				return;
 			}
 			if (timeInMs < 12.5) {
-				Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0} ms.)", timeInMs);
-				//IOUtils.LogMessageToFile(outputStatusLog, String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0} ms.)", timeInMs));
-				Sylenth1Preset.DoError(String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0} ms.)", timeInMs));
+				Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0:0.##} ms.)", timeInMs);
+				//IOUtils.LogMessageToFile(outputStatusLog, String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0:0.##} ms.)", timeInMs));
+				Sylenth1Preset.DoError(String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0:0.##} ms.)", timeInMs));
 				lfoValue = 200;
 				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
 				return;
@@ -4450,7 +4450,7 @@ namespace PresetConverter
 		// with three parameters each (Freq, Q and Gain )
 		// Freq is stored as a number between 0 - 100.
 		// Gains is stored as the actual dB value, number between -24 and 24.
-		// This method converts the zebra freq value to hz
+		// This method converts the zebra freq value to Hz
 		public static float EqualiserFreqValueToHz(float oldValue) {
 			float newValue = 0;
 			newValue = 55.0f * (float) Math.Exp(0.05765476f * oldValue);
