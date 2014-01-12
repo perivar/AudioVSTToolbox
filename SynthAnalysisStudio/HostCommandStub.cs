@@ -362,6 +362,8 @@ namespace SynthAnalysisStudio
 								sslComp.ReadChunkData(chunkData);
 								sslComp.Write("sslcomp-output.txt");
 								break;
+							case "PuigChild":
+								break;
 						}
 					}
 					

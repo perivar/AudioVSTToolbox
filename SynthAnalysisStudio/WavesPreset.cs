@@ -16,6 +16,7 @@ namespace SynthAnalysisStudio
 	public abstract class WavesPreset : Preset
 	{
 		public string PresetName = "<not set>";
+		public string PresetGroup = null;
 		public string PluginName = "<not set>";
 		public string PluginVersion = "<not set>";
 		public string ActiveSetup = "CURRENT";
@@ -160,6 +161,11 @@ namespace SynthAnalysisStudio
 			XmlNode pluginVersionNode = presetNode.SelectSingleNode("PresetHeader/PluginVersion");
 			if (pluginVersionNode != null && pluginVersionNode.InnerText != null) {
 				PluginVersion = pluginVersionNode.InnerText;
+			}
+
+			XmlNode pluginGroupNode = presetNode.SelectSingleNode("PresetHeader/Group");
+			if (pluginGroupNode != null && pluginGroupNode.InnerText != null) {
+				PresetGroup = pluginGroupNode.InnerText;
 			}
 
 			XmlNode activeSetupNode = presetNode.SelectSingleNode("PresetHeader/ActiveSetup");

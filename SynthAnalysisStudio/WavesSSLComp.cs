@@ -9,16 +9,30 @@ namespace SynthAnalysisStudio
 	/// </summary>
 	public class WavesSSLComp : WavesPreset
 	{
+		// Ratio [2:1=0, 4:1=1, 10:1=2]
+		public enum RatioType {
+			Ratio_2_1 = 0,
+			Ratio_4_1 = 1,
+			Ratio_10_1 = 2
+		}
+
+		// Fade [Off=0 or *, Out=1, In=2]
+		public enum FadeType {
+			Off = 0,
+			Out = 1,
+			In = 2
+		}
+		
 		#region Public Fields
 		public float Threshold;
-		public string Ratio;
+		public RatioType Ratio;
 		public float Attack;
-		public string Release;
+		public float Release;
 		public float MakeupGain;
 		public float RateS;
 		public bool In;
 		public bool Analog;
-		public string Fade;
+		public FadeType Fade;
 		#endregion
 		
 		public WavesSSLComp()
@@ -39,31 +53,13 @@ namespace SynthAnalysisStudio
 				Threshold = float.Parse(splittedPhrase[0], CultureInfo.InvariantCulture); // compression threshold in dB
 
 				//Ratio (2:1=0, 4:1=1, 10:1=2)
-				int ratio = int.Parse(splittedPhrase[1]);
-				switch(ratio) {
-					case 0:
-						Ratio = "2:1";
-						break;
-					case 1:
-						Ratio = "4:1";
-						break;
-					case 2:
-						Ratio = "10:1";
-						break;
-				}
+				Ratio = (RatioType) Enum.Parse(typeof(RatioType), splittedPhrase[1]);
 				
-				// Fade [Off=0,Out=1,In=2]
-				int fade = int.Parse(splittedPhrase[2]);
-				switch(fade) {
-					case 0:
-						Fade = "Off";
-						break;
-					case 1:
-						Fade = "Out";
-						break;
-					case 2:
-						Fade = "In";
-						break;
+				// Fade [Off=0 or *, Out=1, In=2]
+				if (splittedPhrase[2] != "*") {
+					Fade = (FadeType) Enum.Parse(typeof(FadeType), splittedPhrase[2]);
+				} else {
+					Fade = FadeType.Off;
 				}
 				
 				// Attack [0 - 5, .1 ms, .3 ms, 1 ms, 3 ms, 10 ms, 30 ms)
@@ -89,33 +85,34 @@ namespace SynthAnalysisStudio
 						break;
 				}
 				
-				// Release [0 - 4, .1 s, .3 s, .6 s, 1.2 s, Auto)
+				// Release: 0 - 4, .1 s, .3 s, .6 s, 1.2 s, Auto (-1)
 				int release = int.Parse(splittedPhrase[4]);
 				switch(release) {
 					case 0:
-						Release = "0.1 s";
+						Release = 0.1f;
 						break;
 					case 1:
-						Release = "0.3 s";
+						Release = 0.3f;
 						break;
 					case 2:
-						Release = "0.6 s";
+						Release = 0.6f;
 						break;
 					case 3:
-						Release = "1.2 s";
+						Release = 1.2f;
 						break;
 					case 4:
-						Release = "Auto";
+						Release = -1.0f;
 						break;
 				}
 
-				//Make-Up Gain (-5 - +15)
-				MakeupGain = float.Parse(splittedPhrase[5], CultureInfo.InvariantCulture); // dB
+				//Make-Up Gain (-5 - +15) dB
+				MakeupGain = float.Parse(splittedPhrase[5], CultureInfo.InvariantCulture);
 				
 				//*
 				string Delimiter1 = splittedPhrase[6];
 				
-				//Rate-S (1 - +60)
+				//Rate-S (1 - +60) seconds
+				// Autofade duration. Variable from 1 to 60 seconds
 				RateS = float.Parse(splittedPhrase[7], CultureInfo.InvariantCulture);
 				
 				//In
@@ -130,15 +127,22 @@ namespace SynthAnalysisStudio
 			StringBuilder sb = new StringBuilder();
 			
 			sb.AppendLine(String.Format("PresetName: {0}", PresetName));
+			if (PresetGroup != null) {
+				sb.AppendLine(String.Format("Group: {0}", PresetGroup));
+			}
 			sb.AppendLine();
 			
 			sb.AppendLine("Compression:");
 			sb.AppendLine(String.Format("\tThreshold: {0:0.##} dB", Threshold));
 			sb.AppendLine(String.Format("\tMake-up Gain: {0:0.##} dB", MakeupGain));
 			sb.AppendLine(String.Format("\tAttack: {0:0.##} ms", Attack));
-			sb.AppendLine(String.Format("\tRelease: {0}", Release));
+			if (Release == -1.0f) {
+				sb.AppendLine("\tRelease: Auto");
+			} else {
+				sb.AppendLine(String.Format("\tRelease: {0} s", Release));
+			}
 			sb.AppendLine(String.Format("\tRatio: {0}", Ratio));
-			sb.AppendLine(String.Format("\tRate-S: {0} s", RateS));
+			sb.AppendLine(String.Format("\tRate-S (Autofade duration): {0} s", RateS));
 			sb.AppendLine(String.Format("\tIn: {0}", In));
 			sb.AppendLine(String.Format("\tAnalog: {0}", Analog));
 			sb.AppendLine(String.Format("\tFade: {0}", Fade));

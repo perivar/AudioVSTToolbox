@@ -105,8 +105,8 @@ namespace SynthAnalysisStudio
 			//ssl.ReadXPst(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000");
 			//ssl.Write(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslchannel-kick.txt");
 			
-			WavesSSLComp comp = new WavesSSLComp();
-			comp.ReadXPst(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLComp.bundle\Contents\Resources\XPst\1000");
+			//WavesSSLComp comp = new WavesSSLComp();
+			//comp.ReadXPst(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLComp.bundle\Contents\Resources\XPst\1000");
 			
 			/*
 			PresetConverter.Zebra2Preset.LFOSync lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_1_4;

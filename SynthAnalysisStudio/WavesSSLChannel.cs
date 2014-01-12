@@ -131,6 +131,9 @@ namespace SynthAnalysisStudio
 			StringBuilder sb = new StringBuilder();
 			
 			sb.AppendLine(String.Format("PresetName: {0}", PresetName));
+			if (PresetGroup != null) {
+				sb.AppendLine(String.Format("Group: {0}", PresetGroup));
+			}
 			sb.AppendLine();
 			
 			sb.AppendLine("Compression:");
