@@ -134,58 +134,58 @@ namespace SynthAnalysisStudio
 			sb.AppendLine();
 			
 			sb.AppendLine("Compression:");
-			sb.AppendLine(String.Format("\tThreshold: {0} dB", CompThreshold));
+			sb.AppendLine(String.Format("\tThreshold: {0:0.##} dB", CompThreshold));
 			sb.AppendLine(String.Format("\tRatio: {0}", CompRatio));
 			sb.AppendLine(String.Format("\tFast Attack: {0}", CompFastAttack));
-			sb.AppendLine(String.Format("\tRelease: {0} ms", CompRelease));
+			sb.AppendLine(String.Format("\tRelease: {0:0.##} ms", CompRelease));
 			sb.AppendLine();
 			
 			sb.AppendLine("Expander/Gate:");
-			sb.AppendLine(String.Format("\tThreshold: {0} dB", ExpThreshold));
-			sb.AppendLine(String.Format("\tRange: {0} dB", ExpRange));
+			sb.AppendLine(String.Format("\tThreshold: {0:0.##} dB", ExpThreshold));
+			sb.AppendLine(String.Format("\tRange: {0:0.##} dB", ExpRange));
 			sb.AppendLine(String.Format("\tGate: {0}", ExpGate));
 			sb.AppendLine(String.Format("\tFast Attack: {0}", ExpFastAttack));
-			sb.AppendLine(String.Format("\tRelease: {0} ms", ExpRelease));
+			sb.AppendLine(String.Format("\tRelease: {0:0.##} ms", ExpRelease));
 			sb.AppendLine();
 			
 			sb.AppendLine("Dynamics To:");
 			sb.AppendLine(String.Format("\tBypass: {0}", DynToByPass));
-			sb.AppendLine(String.Format("\tChannel Out (Post EQ): {0}", DynToChannelOut));
+			sb.AppendLine(String.Format("\tChannel Out (Dynamics Post EQ): {0}", DynToChannelOut));
 			sb.AppendLine();
 			
 			sb.AppendLine("EQ Section:");
 			sb.AppendLine(String.Format("\tLF Type Bell: {0}", LFTypeBell));
-			sb.AppendLine(String.Format("\tLF Gain: {0} dB", LFGain));
-			sb.AppendLine(String.Format("\tLF Frequency: {0} Hz", LFFrq));
+			sb.AppendLine(String.Format("\tLF Gain: {0:0.##} dB", LFGain));
+			sb.AppendLine(String.Format("\tLF Frequency: {0:0.##} Hz", LFFrq));
 			
-			sb.AppendLine(String.Format("\tLMF Gain: {0} dB", LMFGain));
-			sb.AppendLine(String.Format("\tLMF Frequency: {0} KHz", LMFFrq));
-			sb.AppendLine(String.Format("\tLMF Q: {0}", LMFQ));
+			sb.AppendLine(String.Format("\tLMF Gain: {0:0.##} dB", LMFGain));
+			sb.AppendLine(String.Format("\tLMF Frequency: {0:0.##} KHz", LMFFrq));
+			sb.AppendLine(String.Format("\tLMF Q: {0:0.##}", LMFQ));
 
-			sb.AppendLine(String.Format("\tHMF Gain: {0} dB", HMFGain));
-			sb.AppendLine(String.Format("\tHMF Frequency: {0} KHz", HMFFrq));
-			sb.AppendLine(String.Format("\tHMF Q: {0}", HMFQ));
+			sb.AppendLine(String.Format("\tHMF Gain: {0:0.##} dB", HMFGain));
+			sb.AppendLine(String.Format("\tHMF Frequency: {0:0.##} KHz", HMFFrq));
+			sb.AppendLine(String.Format("\tHMF Q: {0:0.##}", HMFQ));
 
 			sb.AppendLine(String.Format("\tHF Type Bell: {0}", HFTypeBell));
-			sb.AppendLine(String.Format("\tHF Gain: {0} dB", HFGain));
-			sb.AppendLine(String.Format("\tHF Frequency: {0} KHz", HFFrq));
+			sb.AppendLine(String.Format("\tHF Gain: {0:0.##} dB", HFGain));
+			sb.AppendLine(String.Format("\tHF Frequency: {0:0.##} KHz", HFFrq));
 			
 			sb.AppendLine(String.Format("\tTo Bypass: {0}", EQToBypass));
 			sb.AppendLine(String.Format("\tTo Dynamics Side-Chain: {0}", EQToDynSC));
 			sb.AppendLine();
 			
 			sb.AppendLine("Low and High Pass Filters:");
-			sb.AppendLine(String.Format("\tHP Frequency: {0} Hz", HPFrq));
-			sb.AppendLine(String.Format("\tLP Frequency: {0} KHz", LPFrq));
-			sb.AppendLine(String.Format("\tFilter Split (Before Dynamics): {0}", FilterSplit));
+			sb.AppendLine(String.Format("\tHP Frequency: {0:0.##} Hz", HPFrq));
+			sb.AppendLine(String.Format("\tLP Frequency: {0:0.##} KHz", LPFrq));
+			sb.AppendLine(String.Format("\tFilter Split (Filters Before Dynamics): {0}", FilterSplit));
 			sb.AppendLine();
 			
 			sb.AppendLine("Master Section:");
-			sb.AppendLine(String.Format("\tGain: {0} dB", Gain));
+			sb.AppendLine(String.Format("\tGain: {0:0.##} dB", Gain));
 			sb.AppendLine(String.Format("\tAnalog: {0}", Analog));
 			sb.AppendLine(String.Format("\tVU Show Output: {0}", VUShowOutput));
 			sb.AppendLine(String.Format("\tPhase Reverse: {0}", PhaseReverse));
-			sb.AppendLine(String.Format("\tInput Trim : {0} dB", InputTrim ));
+			sb.AppendLine(String.Format("\tInput Trim : {0:0.##} dB", InputTrim ));
 			
 			return sb.ToString();
 		}

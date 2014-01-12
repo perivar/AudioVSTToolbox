@@ -119,6 +119,18 @@ namespace CommonUtils
 		public static string RemoveNonAsciiCharacters(string strIn) {
 			return Regex.Replace(strIn, @"[^\u0000-\u007F]", string.Empty);
 		}
+
+		/// <summary>
+		/// Trim each line of the multi-line string and then trim the result.
+		/// </summary>
+		/// <param name="multiLineString">untrimmed multi-line string</param>
+		/// <returns>trimmed multi-line string</returns>
+		public static string TrimMultiLine(string multiLineString) {
+			string trimmedByLine = string.Join(
+				"\n",
+				multiLineString.Split('\n').Select(s => s.Trim())).Trim();
+			return trimmedByLine;
+		}
 		
 		/// <summary>
 		/// Make sure the passed string can be used as a filename

@@ -29,6 +29,9 @@ namespace SynthAnalysisStudio
 		{
 			if (PluginName == "SSLComp") {
 				
+				// <Parameters Type="RealWorld">8 1 * 3 4 3 * 1 1 1
+				// 0 0 0.95000000000000006661 1 0.95000000000000006661 </Parameters>
+				
 				// split the parameters text into sections
 				string[] splittedPhrase = RealWorldParameters.Split(' ', '\n');
 
@@ -130,9 +133,9 @@ namespace SynthAnalysisStudio
 			sb.AppendLine();
 			
 			sb.AppendLine("Compression:");
-			sb.AppendLine(String.Format("\tThreshold: {0} dB", Threshold));
-			sb.AppendLine(String.Format("\tMake-up Gain: {0} dB", MakeupGain));
-			sb.AppendLine(String.Format("\tAttack: {0} ms", Attack));
+			sb.AppendLine(String.Format("\tThreshold: {0:0.##} dB", Threshold));
+			sb.AppendLine(String.Format("\tMake-up Gain: {0:0.##} dB", MakeupGain));
+			sb.AppendLine(String.Format("\tAttack: {0:0.##} ms", Attack));
 			sb.AppendLine(String.Format("\tRelease: {0}", Release));
 			sb.AppendLine(String.Format("\tRatio: {0}", Ratio));
 			sb.AppendLine(String.Format("\tRate-S: {0} s", RateS));

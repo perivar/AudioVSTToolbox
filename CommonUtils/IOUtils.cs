@@ -98,6 +98,38 @@ namespace CommonUtils
 				}
 			}
 		}
+		
+		/// <summary>
+		/// Read everything from a file as text (string)
+		/// </summary>
+		/// <param name="filePath">file</param>
+		/// <returns>string</returns>
+		public static string ReadTextFromFile(string filePath) {
+			return File.ReadAllText(filePath);
+		}
+		
+		/// <summary>
+		/// Write text to a file
+		/// </summary>
+		/// <param name="filePath">file</param>
+		/// <param name="text">text to write</param>
+		/// <returns>true if successful</returns>
+		public static bool WriteTextToFile(string filePath, string text) {
+			try {
+				// create a writer and open the file
+				TextWriter tw = new StreamWriter(filePath);
+				
+				// write the text
+				tw.Write(text);
+				
+				// close the stream
+				tw.Close();
+			} catch (Exception) {
+				return false;
+			}
+			return true;
+		}
+
 	}
 }
 

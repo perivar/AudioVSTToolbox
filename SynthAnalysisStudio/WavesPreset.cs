@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Linq;
 using System.Xml;
 using System.Globalization;
 
@@ -133,6 +134,8 @@ namespace SynthAnalysisStudio
 				XmlNodeList presetNodeList = xml.SelectNodes("//Preset[@Name]");
 				foreach (XmlNode presetNode in presetNodeList) {
 					ParsePresetNode(presetNode);
+					Console.Out.WriteLine(ToString());
+					Console.Out.WriteLine();
 				}
 				return true;
 			} catch (XmlException) {
@@ -166,22 +169,24 @@ namespace SynthAnalysisStudio
 			
 			// Read the preset data node
 			XmlNode presetDataNode = presetNode.SelectSingleNode("PresetData[@Setup='" + ActiveSetup + "']");
-			
-			// Get the preset data node's attributes
-			XmlAttribute setupNameAtt = presetDataNode.Attributes["SetupName"];
-			if (setupNameAtt != null && setupNameAtt.Value != null) {
-				SetupName = setupNameAtt.Value;
+			if (presetDataNode != null) {
+				// Get the preset data node's attributes
+				XmlAttribute setupNameAtt = presetDataNode.Attributes["SetupName"];
+				if (setupNameAtt != null && setupNameAtt.Value != null) {
+					SetupName = setupNameAtt.Value;
+				}
+
+				// And get the real world data
+				XmlNode parametersNode = presetDataNode.SelectSingleNode("Parameters[@Type='RealWorld']");
+				if (parametersNode != null && parametersNode.InnerText != null) {
+					RealWorldParameters = StringUtils.TrimMultiLine(parametersNode.InnerText);
+				}
+				
+				ReadRealWorldParameters();
 			}
 
-			// And get the real world data
-			XmlNode parametersNode = presetDataNode.SelectSingleNode("Parameters[@Type='RealWorld']");
-			if (parametersNode != null && parametersNode.InnerText != null) {
-				RealWorldParameters = parametersNode.InnerText; //.Replace("\r", "").Replace("\n", "");
-			}
-			
-			ReadRealWorldParameters();
 		}
-
+		
 		protected abstract void ReadRealWorldParameters();
 		
 	}

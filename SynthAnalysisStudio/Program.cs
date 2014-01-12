@@ -100,10 +100,13 @@ namespace SynthAnalysisStudio
 		[STAThread]
 		static void Main(string[] args)
 		{
-			WavesSSLChannel ssl = new WavesSSLChannel();
+			//WavesSSLChannel ssl = new WavesSSLChannel();
 			//ssl.Read(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslchannel-kick.fxp");
-			ssl.ReadXPst(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000");
-			ssl.Write(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslchannel-kick.txt");
+			//ssl.ReadXPst(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000");
+			//ssl.Write(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslchannel-kick.txt");
+			
+			WavesSSLComp comp = new WavesSSLComp();
+			comp.ReadXPst(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLComp.bundle\Contents\Resources\XPst\1000");
 			
 			/*
 			PresetConverter.Zebra2Preset.LFOSync lfoSync = PresetConverter.Zebra2Preset.LFOSync.SYNC_1_4;
@@ -215,9 +218,9 @@ namespace SynthAnalysisStudio
 					//float[] wavDataAbs = MathUtils.Abs(wavData);
 					
 					double ms = 0;
-					double hz = 0;
-					if (AudioUtils.CalculateLFODelay(wavData, sampleRate, out ms, out hz, 0.05f, 50)) {
-						Console.Out.WriteLine("Sampled:\t{0:0.000} ms\t{1:0.000} Hz", ms, hz);
+					double Hz = 0;
+					if (AudioUtils.CalculateLFODelay(wavData, sampleRate, out ms, out Hz, 0.05f, 50)) {
+						Console.Out.WriteLine("Sampled:\t{0:0.000} ms\t{1:0.000} Hz", ms, Hz);
 
 						// get enum name
 						string enumName = "";
