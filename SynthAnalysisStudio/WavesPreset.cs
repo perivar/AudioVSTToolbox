@@ -50,9 +50,12 @@ namespace SynthAnalysisStudio
 
 		/// <summary>
 		/// Read Waves XPst files
-		/// E.g. C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000
+		/// E.g. 
+		/// C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000
+		/// or
+		/// C:\Users\Public\Waves Audio\Plug-In Settings\*.xps files
 		/// </summary>
-		/// <param name="filePath">file to XPst file (e.g. with the filename '1000')</param>
+		/// <param name="filePath">file to xps file (e.g. with the filename '1000' or *.xps)</param>
 		/// <returns>true if succesful</returns>
 		public bool ReadXPst(string filePath)
 		{
