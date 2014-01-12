@@ -136,10 +136,26 @@ namespace SynthAnalysisStudio
 			}
 			sb.AppendLine();
 			
+			sb.Append("Routing Diagram: ");
+			if (!FilterSplit && !DynToChannelOut) {
+				sb.AppendLine("DYN -> FLTR -> EQ (default)");
+			} else if (FilterSplit && !DynToChannelOut) {
+				sb.AppendLine("FLTR -> DYN -> EQ");
+			} else if (DynToChannelOut) {
+				sb.AppendLine("FLTR -> EQ -> DYN");
+			}
+			sb.AppendLine();
+			
+			sb.AppendLine("Low and High Pass Filters:");
+			sb.AppendLine(String.Format("\tHP Frequency (18 dB/octave): {0:0.##} Hz (16 - 350 Hz)", HPFrq));
+			sb.AppendLine(String.Format("\tLP Frequency (12 dB/octave): {0:0.##} KHz (22 - 3 KHz)", LPFrq));
+			sb.AppendLine(String.Format("\tFilter Split (Filters before Dynamics): {0}", FilterSplit));
+			sb.AppendLine();
+
 			sb.AppendLine("Compression:");
 			sb.AppendLine(String.Format("\tThreshold: {0:0.##} dB", CompThreshold));
 			sb.AppendLine(String.Format("\tRatio: {0}", CompRatio));
-			sb.AppendLine(String.Format("\tFast Attack: {0}", CompFastAttack));
+			sb.AppendLine(String.Format("\tFast Attack: {0} (Fast=1 ms otherwise Auto-Sense)", CompFastAttack));
 			sb.AppendLine(String.Format("\tRelease: {0:0.##} ms", CompRelease));
 			sb.AppendLine();
 			
@@ -147,13 +163,13 @@ namespace SynthAnalysisStudio
 			sb.AppendLine(String.Format("\tThreshold: {0:0.##} dB", ExpThreshold));
 			sb.AppendLine(String.Format("\tRange: {0:0.##} dB", ExpRange));
 			sb.AppendLine(String.Format("\tGate: {0}", ExpGate));
-			sb.AppendLine(String.Format("\tFast Attack: {0}", ExpFastAttack));
+			sb.AppendLine(String.Format("\tFast Attack: {0} (Fast=1 ms otherwise Auto-Sense)", ExpFastAttack));
 			sb.AppendLine(String.Format("\tRelease: {0:0.##} ms", ExpRelease));
 			sb.AppendLine();
 			
 			sb.AppendLine("Dynamics To:");
 			sb.AppendLine(String.Format("\tBypass: {0}", DynToByPass));
-			sb.AppendLine(String.Format("\tChannel Out (Dynamics Post EQ): {0}", DynToChannelOut));
+			sb.AppendLine(String.Format("\tChannel Out (Dynamics after EQ): {0}", DynToChannelOut));
 			sb.AppendLine();
 			
 			sb.AppendLine("EQ Section:");
@@ -175,12 +191,6 @@ namespace SynthAnalysisStudio
 			
 			sb.AppendLine(String.Format("\tTo Bypass: {0}", EQToBypass));
 			sb.AppendLine(String.Format("\tTo Dynamics Side-Chain: {0}", EQToDynSC));
-			sb.AppendLine();
-			
-			sb.AppendLine("Low and High Pass Filters:");
-			sb.AppendLine(String.Format("\tHP Frequency: {0:0.##} Hz", HPFrq));
-			sb.AppendLine(String.Format("\tLP Frequency: {0:0.##} KHz", LPFrq));
-			sb.AppendLine(String.Format("\tFilter Split (Filters Before Dynamics): {0}", FilterSplit));
 			sb.AppendLine();
 			
 			sb.AppendLine("Master Section:");

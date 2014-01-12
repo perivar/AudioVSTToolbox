@@ -15,13 +15,13 @@ namespace SynthAnalysisStudio
 	/// </summary>
 	public abstract class WavesPreset : Preset
 	{
-		public string PresetName = "<not set>";
+		public string PresetName = null;
 		public string PresetGroup = null;
-		public string PluginName = "<not set>";
-		public string PluginVersion = "<not set>";
+		public string PluginName = null;
+		public string PluginVersion = null;
 		public string ActiveSetup = "CURRENT";
-		public string SetupName = "<not set>";
-		public string RealWorldParameters = "<not set>";
+		public string SetupName = null;
+		public string RealWorldParameters = null;
 		
 		public bool Read(string filePath)
 		{
@@ -33,7 +33,7 @@ namespace SynthAnalysisStudio
 		
 		public bool Write(string filePath)
 		{
-			if (PluginName != "<not set>") {
+			if (PluginName != null) {
 				// create a writer and open the file
 				TextWriter tw = new StreamWriter(filePath);
 				
@@ -50,17 +50,18 @@ namespace SynthAnalysisStudio
 
 		/// <summary>
 		/// Read Waves XPst files
-		/// E.g. 
+		/// E.g.
 		/// C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000
 		/// or
 		/// C:\Users\Public\Waves Audio\Plug-In Settings\*.xps files
 		/// </summary>
 		/// <param name="filePath">file to xps file (e.g. with the filename '1000' or *.xps)</param>
+		/// <param name="writer">TextWriter e.g. Console.Out or TextWriter tw = new StreamWriter()</param>
 		/// <returns>true if succesful</returns>
-		public bool ReadXPst(string filePath)
+		public bool ReadXps(string filePath, TextWriter tw)
 		{
 			string xmlString = File.ReadAllText(filePath);
-			return ParseXml(xmlString);
+			return ParseXml(xmlString, tw);
 		}
 
 		/// <summary>
@@ -95,7 +96,7 @@ namespace SynthAnalysisStudio
 		public bool ReadChunkData(byte[] chunkDataByteArray) {
 			
 			string xmlString = ParseChunkData(chunkDataByteArray);
-			return ParseXml(xmlString);
+			return ParseXml(xmlString, null);
 		}
 
 		public static string GetPluginName(byte[] chunkDataByteArray) {
@@ -128,7 +129,7 @@ namespace SynthAnalysisStudio
 			}
 		}
 		
-		private bool ParseXml(string xmlString) {
+		private bool ParseXml(string xmlString, TextWriter tw) {
 
 			XmlDocument xml = new XmlDocument();
 			try {
@@ -138,8 +139,11 @@ namespace SynthAnalysisStudio
 				XmlNodeList presetNodeList = xml.SelectNodes("//Preset[@Name]");
 				foreach (XmlNode presetNode in presetNodeList) {
 					ParsePresetNode(presetNode);
-					Console.Out.WriteLine(ToString());
-					Console.Out.WriteLine();
+					if (tw != null) {
+						tw.WriteLine(ToString());
+						tw.WriteLine();
+						tw.WriteLine("-------------------------------------------------------");
+					}
 				}
 				return true;
 			} catch (XmlException) {
@@ -153,27 +157,37 @@ namespace SynthAnalysisStudio
 			XmlAttribute nameAtt = presetNode.Attributes["Name"];
 			if (nameAtt != null && nameAtt.Value != null) {
 				PresetName = nameAtt.Value;
+			} else {
+				PresetName = "";
 			}
 
 			// Read some values from the PresetHeader section
 			XmlNode pluginNameNode = presetNode.SelectSingleNode("PresetHeader/PluginName");
 			if (pluginNameNode != null && pluginNameNode.InnerText != null) {
 				PluginName = pluginNameNode.InnerText;
+			} else {
+				PluginName = "";
 			}
 
 			XmlNode pluginVersionNode = presetNode.SelectSingleNode("PresetHeader/PluginVersion");
 			if (pluginVersionNode != null && pluginVersionNode.InnerText != null) {
 				PluginVersion = pluginVersionNode.InnerText;
+			} else {
+				PluginVersion = "";
 			}
 
 			XmlNode pluginGroupNode = presetNode.SelectSingleNode("PresetHeader/Group");
 			if (pluginGroupNode != null && pluginGroupNode.InnerText != null) {
 				PresetGroup = pluginGroupNode.InnerText;
+			} else {
+				PresetGroup = null;
 			}
 
 			XmlNode activeSetupNode = presetNode.SelectSingleNode("PresetHeader/ActiveSetup");
 			if (activeSetupNode != null && activeSetupNode.InnerText != null) {
 				ActiveSetup = activeSetupNode.InnerText;
+			} else {
+				ActiveSetup = "CURRENT";
 			}
 			
 			// Read the preset data node

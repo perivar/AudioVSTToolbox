@@ -100,10 +100,23 @@ namespace SynthAnalysisStudio
 		[STAThread]
 		static void Main(string[] args)
 		{
-			//WavesSSLChannel ssl = new WavesSSLChannel();
-			//ssl.Read(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslchannel-kick.fxp");
-			//ssl.ReadXPst(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000");
-			//ssl.Write(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslchannel-kick.txt");
+			/*
+			#region Waves SSLChannel preset conversion
+			WavesSSLChannel ssl = new WavesSSLChannel();
+			TextWriter tw1 = new StreamWriter(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslchannel-output.txt");
+			ssl.ReadXps(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000", tw1);
+			ssl.ReadXps(@"C:\Users\Public\Waves Audio\Plug-In Settings\SSLChannel Settings.xps", tw1);
+			tw1.Close();
+			#endregion
+
+			#region Waves SSLComp preset conversion
+			WavesSSLComp sslcomp = new WavesSSLComp();
+			TextWriter tw2 = new StreamWriter(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslcomp-output.txt");
+			sslcomp.ReadXps(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLComp.bundle\Contents\Resources\XPst\1000", tw2);
+			sslcomp.ReadXps(@"C:\Users\Public\Waves Audio\Plug-In Settings\SSLComp Settings.xps", tw2);
+			tw2.Close();
+			#endregion
+			 */
 			
 			//WavesSSLComp comp = new WavesSSLComp();
 			//comp.ReadXPst(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLComp.bundle\Contents\Resources\XPst\1000");
