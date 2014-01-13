@@ -482,6 +482,8 @@ namespace SynthAnalysisStudio
 			// time how long this takes
 			Stopwatch stopwatch = Stopwatch.StartNew();
 			
+			string paramDisplay = null;
+			
 			Dictionary<string, int> processedParameters = new Dictionary<string, int>();
 			int paramCount = PluginContext.PluginInfo.ParameterCount;
 			for (int paramIndex = 0; paramIndex < paramCount; paramIndex++)
@@ -501,9 +503,7 @@ namespace SynthAnalysisStudio
 				PluginContext.PluginCommandStub.SetParameter(paramIndex, 0);
 				
 				// step through the steps
-				for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.025f) {
-					System.Console.Out.WriteLine("Measuring {0}/{1} {2} at value {3:0.00} ...", paramIndex, paramCount, paramName, paramValue);
-
+				for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
 					byte[] previousChunkData = PluginContext.PluginCommandStub.GetChunk(true);
 					
 					// set the parameters
@@ -512,7 +512,11 @@ namespace SynthAnalysisStudio
 					
 					byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);
 					
-					DetectChunkChanges(previousChunkData, chunkData, paramName, paramLabel, String.Format("{0:0.00}", paramValue));
+					paramDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(paramIndex);
+					
+					System.Console.Out.WriteLine("Measuring {0}/{1} {2} at value {3:0.00} ({4}) ...", paramIndex, paramCount, paramName, paramValue, paramDisplay);
+
+					DetectChunkChanges(previousChunkData, chunkData, paramName, paramLabel, paramDisplay, String.Format("{0:0.00}", paramValue));
 					
 					// wait
 					System.Threading.Thread.Sleep(10);
@@ -545,6 +549,7 @@ namespace SynthAnalysisStudio
 					writer.WriteElementString("ParameterNameFormatted", row.ParameterNameFormatted);
 					writer.WriteElementString("ParameterLabel", row.ParameterLabel);
 					writer.WriteElementString("ParameterDisplay", row.ParameterDisplay);
+					writer.WriteElementString("ParameterValue", row.ParameterValue);
 					writer.WriteElementString("TextChanges", row.TextChanges);
 					writer.WriteEndElement();
 				}
@@ -556,7 +561,7 @@ namespace SynthAnalysisStudio
 		}
 		
 		
-		private void DetectChunkChanges(byte[] previousChunkData, byte[] chunkData, string name, string label, string display) {
+		private void DetectChunkChanges(byte[] previousChunkData, byte[] chunkData, string paramName, string paramLabel, string paramDisplay, string paramValue) {
 
 			bool debugChunkFiles = true;
 			DiffType InvestigatePluginPresetFileFormatDiffType = DiffType.Binary;
@@ -583,7 +588,7 @@ namespace SynthAnalysisStudio
 							// store each of the chunk differences in a list
 							foreach (SimpleBinaryDiff.DiffPoint point in diff.Points) {
 								this.InvestigatedPluginPresetFileFormatList.Add(
-									new InvestigatedPluginPresetFileFormat(point.Index, point.NewValue, name, label, display));
+									new InvestigatedPluginPresetFileFormat(point.Index, point.NewValue, paramName, paramLabel, paramDisplay, null, paramValue));
 							}
 						}
 					} else if (InvestigatePluginPresetFileFormatDiffType == DiffType.Text) {
@@ -607,7 +612,7 @@ namespace SynthAnalysisStudio
 								System.Diagnostics.Debug.WriteLine(String.Format("TextDiff: {0} {1}", e.Index, text));
 								
 								this.InvestigatedPluginPresetFileFormatList.Add(
-									new InvestigatedPluginPresetFileFormat(e.Index, 0, name, label, display, text));
+									new InvestigatedPluginPresetFileFormat(e.Index, 0, paramName, paramLabel, paramDisplay, text, paramValue));
 							}
 						}
 					}

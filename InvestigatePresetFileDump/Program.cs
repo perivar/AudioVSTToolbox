@@ -32,8 +32,8 @@ namespace InvestigatePresetFileDump
 			tw.Write(PresetHeader());
 			
 			StringWriter stringWriter = new StringWriter();
-			string enumSections = ImportXMLFileReturnEnumSectionsILHarmor(
-				@"..\..\output.xml",
+			string enumSections = ImportXMLFileReturnEnumSections(
+				@"..\..\UAD-SSLChannel-output.xml",
 				stringWriter
 			);
 			

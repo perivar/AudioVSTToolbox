@@ -20,6 +20,7 @@ namespace SynthAnalysisStudio
 		private string _parameterNameFormatted;
 		private string _parameterLabel;
 		private string _parameterDisplay;
+		private string _parameterValue;
 
 		private string _textChanges;
 		
@@ -48,6 +49,19 @@ namespace SynthAnalysisStudio
 		{
 			_textChanges = textChanges;
 		}
+
+		public InvestigatedPluginPresetFileFormat(int indexInFile,
+		                                          byte byteValue,
+		                                          string parameterName,
+		                                          string parameterLabel,
+		                                          string parameterDisplay,
+		                                          string textChanges,
+		                                          string parameterValue)
+			: this (indexInFile, byteValue, parameterName, parameterLabel, parameterDisplay, textChanges)
+		{
+			_parameterValue = parameterValue;
+		}
+
 		
 		public int IndexInFile
 		{
@@ -112,6 +126,16 @@ namespace SynthAnalysisStudio
 			}
 		}
 
+		public string ParameterValue
+		{
+			get { return _parameterValue; }
+			set {
+				_parameterValue = value;
+				this.NotifyPropertyChanged("ParameterValue");
+			}
+		}
+		
+		
 		public string TextChanges
 		{
 			get { return _textChanges; }

@@ -301,7 +301,11 @@ namespace SynthAnalysisStudio
 		public int GetCurrentPluginID()
 		{
 			RaisePluginCalled("GetCurrentPluginID()");
-			return PluginContext.PluginInfo.PluginID;
+			if (PluginContext.PluginInfo != null) {
+				return PluginContext.PluginInfo.PluginID;
+			} else {
+				return -1;
+			}
 		}
 
 		/// <inheritdoc />
