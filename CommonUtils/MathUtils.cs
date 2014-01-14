@@ -725,7 +725,7 @@ namespace CommonUtils
 		/// 23067 => 23.1K
 		/// 133031 => 133K
 		/// </summary>
-		/// <param name="num">nummber to format</param>
+		/// <param name="num">number to format</param>
 		/// <returns></returns>
 		public static string FormatNumber(int num) {
 			if (num >= 100000000)

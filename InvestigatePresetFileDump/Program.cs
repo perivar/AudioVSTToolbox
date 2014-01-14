@@ -41,6 +41,8 @@ namespace InvestigatePresetFileDump
 			tw.WriteLine(stringWriter.ToString());
 			tw.Write(PresetFooter());
 			
+			tw.WriteLine(GetValueTables(@"..\..\UAD-SSLChannel-output.xml"));
+			
 			// close the stream
 			tw.Close();
 		}
@@ -831,6 +833,23 @@ namespace InvestigatePresetFileDump
 			
 		}
 		
+		private static string GetValueTables(string xmlfilename) {
+			
+			XDocument xmlDoc = XDocument.Load(xmlfilename);
+
+			// find highest and lowest display value
+			var sortedValues = from row in xmlDoc.Descendants("Row")
+				orderby float.Parse(row.Element("ParameterValue").Value) ascending
+				group row by row.Element("ParameterName") into groupedTable
+				select groupedTable;
+
+			StringWriter sw = new StringWriter();
+			foreach (var group in sortedValues)
+				sw.WriteLine("{0} in {1}", group.Distinct().Count(), group.Key);
+			
+			return sw.ToString();
+		}
+		
 		/* Import XML file output from
 		 * */
 		public static string ImportXMLFileReturnEnumSections(string xmlfilename, TextWriter tw)
@@ -852,6 +871,7 @@ namespace InvestigatePresetFileDump
 				ParameterNameFormatted = (string)row.Element("ParameterNameFormatted").Value,
 				ParameterLabel = (string)row.Element("ParameterLabel").Value,
 				ParameterDisplay = (string)row.Element("ParameterDisplay").Value,
+				ParameterValue = (string)row.Element("ParameterValue").Value
 			};
 			
 			// then group the data
@@ -868,8 +888,10 @@ namespace InvestigatePresetFileDump
 				// var intQuery = query.Where( t => int.TryParse( t.Column, out i ) );
 				
 				Keys = groupedTable.Key,  // Each Key contains all the grouped by columns (if multiple groups)
-				LowestValue = (double)groupedTable.Min(p => GetDouble( p.ParameterDisplay, Double.MinValue ) ),
-				HighestValue = (double)groupedTable.Max(p => GetDouble( p.ParameterDisplay, Double.MinValue ) ),
+				LowestValue = (double)groupedTable.Min(p => GetDouble( p.ParameterValue, Double.MinValue ) ),
+				HighestValue = (double)groupedTable.Max(p => GetDouble( p.ParameterValue, Double.MinValue ) ),
+				LowestDisplay = groupedTable.First().ParameterDisplay,
+				HighestDisplay = groupedTable.Last().ParameterDisplay,
 				FirstIndex = (int)groupedTable.First().IndexInFile,
 				LastIndex = (int)groupedTable.Last().IndexInFile,
 				SubGroup = groupedTable
@@ -889,9 +911,8 @@ namespace InvestigatePresetFileDump
 				originalLastIndex = lastIndex;
 				int numberOfBytes = (lastIndex-firstIndex+1);
 				
-				// for IL Harmor use ints
-				// otherwise use floats
-				string dataType = NumberOfBytesToDataType(ref numberOfBytes, true, true );
+				// use floats
+				string dataType = NumberOfBytesToDataType(ref numberOfBytes, false, true );
 				if (numberOfBytes != (lastIndex-firstIndex+1)) {
 					// the number of bytes was changed.
 					lastIndex = firstIndex + numberOfBytes - 1;
@@ -920,7 +941,31 @@ namespace InvestigatePresetFileDump
 					double highVal = (double)curElement.HighestValue;
 					string name = curElement.Keys.ParameterNameFormatted.ToString();
 					string datatypeAndName = String.Format("\t{0} {1};", dataType, CleanInput(name)).PadRight(35);
-					string indexAndValueRange = String.Format("// index {0}:{1} = {4} bytes (value range {2} -> {3})", firstIndex, originalLastIndex, lowVal, highVal, numberOfBytes);
+					
+					// find highest and lowest display value
+					var highlowdisplay = from row in xmlDoc.Descendants("Row")
+						where (string)row.Element("ParameterNameFormatted") == name
+						orderby float.Parse(row.Element("ParameterValue").Value) ascending
+						select new {
+						IndexInFile = Convert.ToInt32(row.Element("IndexInFile").Value),
+						ByteValue = Convert.ToByte(row.Element("ByteValue").Value),
+						ParameterName = (string)row.Element("ParameterName").Value,
+						ParameterNameFormatted = (string)row.Element("ParameterNameFormatted").Value,
+						ParameterLabel = (string)row.Element("ParameterLabel").Value,
+						ParameterDisplay = (string)row.Element("ParameterDisplay").Value,
+						ParameterValue = (string)row.Element("ParameterValue").Value
+					};
+					string lowestDisplay = highlowdisplay.First().ParameterDisplay;
+					string highestDisplay = highlowdisplay.Last().ParameterDisplay;
+					
+					string indexAndValueRange = String.Format("// index {0}:{1} = {4} bytes (value range {2} -> {3}) ({5} -> {6})",
+					                                          firstIndex,
+					                                          originalLastIndex,
+					                                          lowVal,
+					                                          highVal,
+					                                          numberOfBytes,
+					                                          lowestDisplay,
+					                                          highestDisplay);
 					tw.Write(datatypeAndName);
 					tw.WriteLine(indexAndValueRange);
 				} else {
@@ -1031,6 +1076,71 @@ namespace InvestigatePresetFileDump
 			return sb.ToString();
 		}
 
+		public static string ExtractSortableString(string value) {
+
+			string returnValue = "";
+			double result = 0;
+			double rootNumber = 0;
+			
+			// also check if there might be a engineering number there
+			// like 0.00 k or 100 m
+			Regex r1 = new Regex(@"(-?[0-9]*\.?[0-9]+)\s?([km]?)");
+			Match m1 = r1.Match(value);
+			if (m1.Success) {
+				//string match1 = m1.Groups[0].Value; 	// contains the whole regexp
+				string match2 = m1.Groups[1].Value; 	// contains first group
+				string match3 = m1.Groups[2].Value;
+				
+				rootNumber = double.Parse(match2, System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture);
+				
+				// did it find a metric value like k or m?
+				if (!"".Equals(match3)) {
+					if ("k".Equals(match3)) {
+						result = rootNumber * 1e3;
+					} else if ("m".Equals(match3)) {
+						result = rootNumber * 1e6;
+					}
+				} else {
+					result = rootNumber;
+				}
+				returnValue = String.Format("{0:0.##}", result);
+			} else {
+				returnValue = value;
+			}
+
+			return returnValue;
+		}
+
+		public static double ExtractDouble(string value, double defaultValue) {
+
+			double result = defaultValue;
+			double rootNumber = 0;
+			
+			// also check if there might be a engineering number there
+			// like 0.00 k or 100 m
+			Regex r1 = new Regex(@"(-?[0-9]*\.?[0-9]+)\s?([km]?)");
+			Match m1 = r1.Match(value);
+			if (m1.Success) {
+				//string match1 = m1.Groups[0].Value;
+				string match2 = m1.Groups[1].Value;
+				string match3 = m1.Groups[2].Value;
+				
+				rootNumber = double.Parse(match2, System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture);
+				
+				// did it find a metric value like k or m?
+				if (!"".Equals(match3)) {
+					if ("k".Equals(match3)) {
+						result = rootNumber * 1e3;
+					} else if ("m".Equals(match3)) {
+						result = rootNumber * 1e6;
+					}
+				} else {
+					result = rootNumber;
+				}
+			}
+
+			return result;
+		}
 		
 		public static double GetDouble(string value, double defaultValue)
 		{
@@ -1165,6 +1275,17 @@ namespace InvestigatePresetFileDump
 			} else {
 				return string.Format("{0} = {1} [{2} - {3}]", IndexInFile, ParameterName, LowestValue, HighestValue);
 			}
+		}
+	}
+	
+	public class MixedNumbersAndStringsComparer : IComparer<string> {
+		public int Compare(string x, string y) {
+			double xVal, yVal;
+
+			if(double.TryParse(x, out xVal) && double.TryParse(y, out yVal))
+				return xVal.CompareTo(yVal);
+			else
+				return string.Compare(x, y);
 		}
 	}
 }
