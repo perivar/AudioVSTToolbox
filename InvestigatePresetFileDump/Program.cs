@@ -41,7 +41,8 @@ namespace InvestigatePresetFileDump
 			tw.WriteLine(stringWriter.ToString());
 			tw.Write(PresetFooter());
 			
-			tw.WriteLine(GetValueTables(@"..\..\UAD-SSLChannel-output.xml"));
+			// dump value tables
+			DumpValueTables(@"..\..\UAD-SSLChannel-output.xml", @"..\..", false, tw);
 			
 			// close the stream
 			tw.Close();
@@ -50,7 +51,7 @@ namespace InvestigatePresetFileDump
 		public static string PresetHeader() {
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("//--------------------------------------");
-			sb.AppendLine("//--- 010 Editor Binary Template");
+			sb.AppendLine("// 010 Editor Binary Template");
 			sb.AppendLine("//");
 			sb.AppendLine("// File: <filename>");
 			sb.AppendLine("// Author: Per Ivar Nerseth");
@@ -833,7 +834,7 @@ namespace InvestigatePresetFileDump
 			
 		}
 		
-		private static string GetValueTables(string xmlfilename) {
+		private static bool DumpValueTables(string xmlfilename, string folderName, bool doOutputCSV, TextWriter sw) {
 			
 			XDocument xmlDoc = XDocument.Load(xmlfilename);
 
@@ -854,26 +855,53 @@ namespace InvestigatePresetFileDump
 			                        	}
 			                        });
 
-			StringWriter sw = new StringWriter();
 			sw.WriteLine();
 			sw.WriteLine();
-			sw.WriteLine("//--------------------------------------");
+			sw.WriteLine("// -----------------------------------------------");
+			sw.WriteLine("// Parameter Dump");
+			sw.WriteLine("// -----------------------------------------------");
+			
 			foreach (var parameter in sortedParameters) {
+				
+				// find number of unique DisplayParameter items
 				int res = (from x in parameter.Items
 				           select x.ParameterDisplay).Distinct().Count();
-				sw.WriteLine("// {0} - unique parameters: {1}", parameter.Key, res);
+				
+				// write to csv file
+				TextWriter tw = null;
+				if (doOutputCSV) {
+					string outputfilename = folderName + Path.DirectorySeparatorChar + CleanInput(parameter.Key) + ".csv";
+					tw = new StreamWriter(outputfilename);
+					tw.WriteLine("ParameterValue;ParameterDisplayNumber;ParameterDisplay");
+				}
+				
+				// output to passed text writer
+				sw.WriteLine();
+				sw.WriteLine("// Parameter: {0} (Unique Parameters: {1})", parameter.Key, res);
+				sw.WriteLine("// Value\tDisplayNumber\tDisplay");
+				
+				// boolean ?
 				if (res == 2) {
-					// boolean
-					sw.WriteLine("// \t\t{0:0.00}\t{1}", parameter.Items.First().ParameterValue, parameter.Items.First().ParameterDisplay);
-					sw.WriteLine("// \t\t{0:0.00}\t{1}", parameter.Items.Last().ParameterValue, parameter.Items.Last().ParameterDisplay);
+					// write to csv file
+					if (doOutputCSV) tw.WriteLine("{0:0.00};{1}", parameter.Items.First().ParameterValue, parameter.Items.First().ParameterDisplay);
+					if (doOutputCSV) tw.WriteLine("{0:0.00};{1}", parameter.Items.Last().ParameterValue, parameter.Items.Last().ParameterDisplay);
+
+					// output to passed text writer
+					sw.WriteLine("// {0:0.00}\t\t{1}", parameter.Items.First().ParameterValue, parameter.Items.First().ParameterDisplay);
+					sw.WriteLine("// {0:0.00}\t\t{1}", parameter.Items.Last().ParameterValue, parameter.Items.Last().ParameterDisplay);
 				} else {
 					foreach (var item in parameter.Items) {
-						sw.WriteLine("// \t\t{0:0.00}\t\t{1}\t\t{2}", item.ParameterValue, ExtractSortableString(item.ParameterDisplay), item.ParameterDisplay);
+						// write to csv file
+						if (doOutputCSV) tw.WriteLine("{0:0.00};{1};{2}", item.ParameterValue, ExtractSortableString(item.ParameterDisplay), item.ParameterDisplay);
+						
+						// output to passed text writer
+						sw.WriteLine("// {0:0.00}\t\t{1}\t\t\t{2}", item.ParameterValue, ExtractSortableString(item.ParameterDisplay), item.ParameterDisplay);
 					}
 				}
+				if (doOutputCSV) tw.Close();
 			}
 			
-			return sw.ToString();
+			return true;
 		}
 		
 		/* Import XML file output from
@@ -1129,7 +1157,7 @@ namespace InvestigatePresetFileDump
 				} else {
 					result = rootNumber;
 				}
-				returnValue = String.Format("{0:0.##}", result);
+				returnValue = String.Format("{0:0.00}", result);
 			} else {
 				returnValue = value;
 			}
