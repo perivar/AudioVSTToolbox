@@ -503,15 +503,15 @@ namespace SynthAnalysisStudio
 				PluginContext.PluginCommandStub.SetParameter(paramIndex, 0);
 				
 				// step through the steps
-				for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.020f) {
+				for (float paramValue = 1.0f; paramValue >= 0.0f; paramValue -= 0.010f) {
 					byte[] previousChunkData = PluginContext.PluginCommandStub.GetChunk(true);
 					
 					// set the parameters
 					PluginContext.PluginCommandStub.SetParameter(paramIndex, paramValue);
-					//((HostCommandStub) PluginContext.HostCommandStub).SetParameterAutomated(paramIndex, paramValue);
 					
 					byte[] chunkData = PluginContext.PluginCommandStub.GetChunk(true);
 					
+					// and read the display back
 					paramDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(paramIndex);
 					
 					System.Console.Out.WriteLine("Measuring {0}/{1} {2} at value {3:0.00} ({4}) ...", paramIndex, paramCount, paramName, paramValue, paramDisplay);
@@ -519,11 +519,11 @@ namespace SynthAnalysisStudio
 					DetectChunkChanges(previousChunkData, chunkData, paramName, paramLabel, paramDisplay, String.Format("{0:0.00}", paramValue));
 					
 					// wait
-					System.Threading.Thread.Sleep(10);
+					System.Threading.Thread.Sleep(5);
 				}
 
 				// wait a bit longer
-				System.Threading.Thread.Sleep(10);
+				System.Threading.Thread.Sleep(5);
 			}
 			
 			// store to xml file
