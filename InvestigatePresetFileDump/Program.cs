@@ -837,15 +837,41 @@ namespace InvestigatePresetFileDump
 			
 			XDocument xmlDoc = XDocument.Load(xmlfilename);
 
-			// find highest and lowest display value
-			var sortedValues = from row in xmlDoc.Descendants("Row")
-				orderby float.Parse(row.Element("ParameterValue").Value) ascending
-				group row by row.Element("ParameterName") into groupedTable
-				select groupedTable;
+			// sort and "distinct" the query by using multiple group by's
+			var sortedParameters = (from row in xmlDoc.Descendants("Row")
+			                        orderby float.Parse(row.Element("ParameterValue").Value) ascending
+			                        group row by (string) row.Element("ParameterName").Value into g
+			                        select new {
+			                        	Key = g.Key,
+			                        	Items = from i in g
+			                        		group i by new {
+			                        		Value = float.Parse(i.Element("ParameterValue").Value),
+			                        		Display = (string) i.Element("ParameterDisplay").Value }
+			                        	into d
+			                        		select new {
+			                        		ParameterValue = d.Key.Value,
+			                        		ParameterDisplay = d.Key.Display
+			                        	}
+			                        });
 
 			StringWriter sw = new StringWriter();
-			foreach (var group in sortedValues)
-				sw.WriteLine("{0} in {1}", group.Distinct().Count(), group.Key);
+			sw.WriteLine();
+			sw.WriteLine();
+			sw.WriteLine("//--------------------------------------");
+			foreach (var parameter in sortedParameters) {
+				int res = (from x in parameter.Items
+				           select x.ParameterDisplay).Distinct().Count();
+				sw.WriteLine("// {0} - unique parameters: {1}", parameter.Key, res);
+				if (res == 2) {
+					// boolean
+					sw.WriteLine("// \t\t{0:0.00}\t{1}", parameter.Items.First().ParameterValue, parameter.Items.First().ParameterDisplay);
+					sw.WriteLine("// \t\t{0:0.00}\t{1}", parameter.Items.Last().ParameterValue, parameter.Items.Last().ParameterDisplay);
+				} else {
+					foreach (var item in parameter.Items) {
+						sw.WriteLine("// \t\t{0:0.00}\t\t{1}\t\t{2}", item.ParameterValue, ExtractSortableString(item.ParameterDisplay), item.ParameterDisplay);
+					}
+				}
+			}
 			
 			return sw.ToString();
 		}
