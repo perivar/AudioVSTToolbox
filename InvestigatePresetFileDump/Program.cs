@@ -25,6 +25,13 @@ namespace InvestigatePresetFileDump
 		
 		public static void Main(string[] args)
 		{
+			FindClosest(@"..\..\ParametersMap.xml", "Input", -11);
+			FindClosest(@"..\..\ParametersMap.xml", "CMP Ratio", 5);
+			FindClosest(@"..\..\ParametersMap.xml", "LP Freq", 15000);
+
+			System.Console.Read();
+			return;
+			
 			string outputfilename = @"..\..\Sweetscape Template Output.txt";
 
 			// create a writer and open the file
@@ -46,6 +53,65 @@ namespace InvestigatePresetFileDump
 			
 			// close the stream
 			tw.Close();
+		}
+		
+		private static float FindClosest(string xmlfilename, string name, float searchFor) {
+			
+			XDocument xmlDoc = XDocument.Load(xmlfilename);
+			
+			var entries = (from entry in xmlDoc.Descendants("Entry")
+			               where entry.Parent.Attribute("name").Value == name
+			               select new
+			               {
+			               	DisplayText = (string) entry.Element("DisplayText").Value,
+			               	DisplayNumber = (float) GetDouble(entry.Element("DisplayNumber").Value, 0),
+			               	Value = float.Parse(entry.Element("Value").Value)
+			               });
+			
+			// lists to store values
+			List<string> displayText = new List<string>();
+			List<float> displayNumbers = new List<float>();
+			List<float> values = new List<float>();
+			
+			foreach (var entry in entries) {
+				displayText.Add(entry.DisplayText);
+				displayNumbers.Add(entry.DisplayNumber);
+				values.Add(entry.Value);
+			}
+			
+			// find closests float value
+			float foundClosest = displayNumbers.Aggregate( (x,y) => Math.Abs(x - searchFor) < Math.Abs(y - searchFor) ? x : y);
+			int foundIndex = displayNumbers.IndexOf(foundClosest);
+			string foundClosestDisplayText = displayText[foundIndex];
+			float foundParameterValue = values[foundIndex];
+			
+			Console.Out.WriteLine("Searching '{0}' for value {1}. Found {2} with text '{3}'. Value = {4}", name, searchFor, foundClosest, foundClosestDisplayText, foundParameterValue);
+			
+			return foundParameterValue;
+			
+			/*
+			var numbers = new List<float> { 10f, 20f, 22f, 30f };
+			var target = 21f;
+
+			//gets single number which is closest
+			var closest = numbers.Select( n => new { n, distance = Math.Abs( n - target ) } )
+				.OrderBy( p => p.distance )
+				.First().n;
+
+			//get two closest
+			var take = 2;
+			var closests = numbers.Select( n => new { n, distance = Math.Abs( n - target ) } )
+				.OrderBy( p => p.distance )
+				.Select( p => p.n )
+				.Take( take );
+
+			//gets any that are within x of target
+			var within = 1;
+			var withins = numbers.Select( n => new { n, distance = Math.Abs( n - target ) } )
+				.Where( p => p.distance <= within )
+				.Select( p => p.n );
+			 */
+			
 		}
 		
 		public static string PresetHeader() {
@@ -861,44 +927,101 @@ namespace InvestigatePresetFileDump
 			sw.WriteLine("// Parameter Dump");
 			sw.WriteLine("// -----------------------------------------------");
 			
-			foreach (var parameter in sortedParameters) {
-				
-				// find number of unique DisplayParameter items
-				int res = (from x in parameter.Items
-				           select x.ParameterDisplay).Distinct().Count();
-				
-				// write to csv file
-				TextWriter tw = null;
-				if (doOutputCSV) {
-					string outputfilename = folderName + Path.DirectorySeparatorChar + CleanInput(parameter.Key) + ".csv";
-					tw = new StreamWriter(outputfilename);
-					tw.WriteLine("ParameterValue;ParameterDisplayNumber;ParameterDisplay");
-				}
-				
-				// output to passed text writer
-				sw.WriteLine();
-				sw.WriteLine("// Parameter: {0} (Unique Parameters: {1})", parameter.Key, res);
-				sw.WriteLine("// Value\tDisplayNumber\tDisplay");
-				
-				// boolean ?
-				if (res == 2) {
-					// write to csv file
-					if (doOutputCSV) tw.WriteLine("{0:0.00};{1}", parameter.Items.First().ParameterValue, parameter.Items.First().ParameterDisplay);
-					if (doOutputCSV) tw.WriteLine("{0:0.00};{1}", parameter.Items.Last().ParameterValue, parameter.Items.Last().ParameterDisplay);
+			
+			// store to xml file
+			//set formatting options
+			XmlWriterSettings settings = new XmlWriterSettings();
+			settings.Indent = true;
+			settings.IndentChars = "\t";
+			string outputFile = folderName + Path.DirectorySeparatorChar + "ParametersMap.xml";
 
-					// output to passed text writer
-					sw.WriteLine("// {0:0.00}\t\t{1}", parameter.Items.First().ParameterValue, parameter.Items.First().ParameterDisplay);
-					sw.WriteLine("// {0:0.00}\t\t{1}", parameter.Items.Last().ParameterValue, parameter.Items.Last().ParameterDisplay);
-				} else {
-					foreach (var item in parameter.Items) {
-						// write to csv file
-						if (doOutputCSV) tw.WriteLine("{0:0.00};{1};{2}", item.ParameterValue, ExtractSortableString(item.ParameterDisplay), item.ParameterDisplay);
-						
-						// output to passed text writer
-						sw.WriteLine("// {0:0.00}\t\t{1}\t\t\t{2}", item.ParameterValue, ExtractSortableString(item.ParameterDisplay), item.ParameterDisplay);
+			using (XmlWriter writer = XmlWriter.Create(outputFile, settings))
+			{
+				writer.WriteStartDocument();
+				writer.WriteStartElement("ParametersMap");
+				
+				foreach (var parameter in sortedParameters) {
+					
+					// find number of unique DisplayParameter items
+					int res = (from x in parameter.Items
+					           select x.ParameterDisplay).Distinct().Count();
+					
+					// write to csv file
+					TextWriter tw = null;
+					if (doOutputCSV) {
+						string outputfilename = folderName + Path.DirectorySeparatorChar + CleanInput(parameter.Key) + ".csv";
+						tw = new StreamWriter(outputfilename);
+						tw.WriteLine("ParameterValue;ParameterDisplayNumber;ParameterDisplay");
 					}
+					
+					// start Parameter xml element
+					writer.WriteStartElement("Parameter");
+					writer.WriteAttributeString("name", parameter.Key);
+					writer.WriteAttributeString("name-formatted", CleanInput(parameter.Key));
+					
+					// output to passed text writer
+					sw.WriteLine();
+					sw.WriteLine("// Parameter: {0} (Unique Parameters: {1})", parameter.Key, res);
+					sw.WriteLine("// Value\tDisplayNumber\tDisplay");
+					
+					// boolean ?
+					if (res == 2) {
+						string firstDisplay = parameter.Items.First().ParameterDisplay;
+						float firstValue = parameter.Items.First().ParameterValue;
+						string lastDisplay = parameter.Items.Last().ParameterDisplay;
+						float lastValue = parameter.Items.Last().ParameterValue;
+						
+						// write to csv file
+						if (doOutputCSV) tw.WriteLine("{0:0.00};{1}", firstValue, firstDisplay);
+						if (doOutputCSV) tw.WriteLine("{0:0.00};{1}", lastValue, lastDisplay);
+
+						// output to passed text writer
+						sw.WriteLine("// {0:0.00}\t\t{1}", firstValue, firstDisplay);
+						sw.WriteLine("// {0:0.00}\t\t{1}", lastValue, lastDisplay);
+						
+						// write boolean to xml
+						writer.WriteStartElement("Entry");
+						writer.WriteElementString("DisplayText", firstDisplay);
+						writer.WriteElementString("DisplayNumber", String.Format("{0:0.00}", firstValue));
+						writer.WriteElementString("Value", String.Format("{0:0.00}", firstValue));
+						writer.WriteEndElement();
+						writer.WriteStartElement("Entry");
+						writer.WriteElementString("DisplayText", lastDisplay);
+						writer.WriteElementString("DisplayNumber", String.Format("{0:0.00}", lastValue));
+						writer.WriteElementString("Value", String.Format("{0:0.00}", lastValue));
+						writer.WriteEndElement();
+					} else {
+						foreach (var item in parameter.Items) {
+							float parameterValue = item.ParameterValue;
+							string displayText = item.ParameterDisplay;
+							string displayNumber = ExtractSortableString(item.ParameterDisplay);
+							
+							// write to xml
+							writer.WriteStartElement("Entry");
+
+							// write to csv file
+							if (doOutputCSV) tw.WriteLine("{0:0.00};{1};{2}", parameterValue, displayNumber, displayText);
+							
+							// output to passed text writer
+							sw.WriteLine("// {0:0.00}\t\t{1}\t\t\t{2}", parameterValue, displayNumber, displayText);
+
+							// write to xml
+							writer.WriteElementString("DisplayText", displayText);
+							writer.WriteElementString("DisplayNumber", displayNumber);
+							writer.WriteElementString("Value", String.Format("{0:0.00}", parameterValue));
+							writer.WriteEndElement();
+						}
+					}
+					
+					// end Parameter xml element
+					writer.WriteEndElement();
+
+					if (doOutputCSV) tw.Close();
 				}
-				if (doOutputCSV) tw.Close();
+
+				// end ParametersMap xml element
+				writer.WriteEndElement();
+				writer.WriteEndDocument();
 			}
 			
 			return true;
@@ -1329,17 +1452,6 @@ namespace InvestigatePresetFileDump
 			} else {
 				return string.Format("{0} = {1} [{2} - {3}]", IndexInFile, ParameterName, LowestValue, HighestValue);
 			}
-		}
-	}
-	
-	public class MixedNumbersAndStringsComparer : IComparer<string> {
-		public int Compare(string x, string y) {
-			double xVal, yVal;
-
-			if(double.TryParse(x, out xVal) && double.TryParse(y, out yVal))
-				return xVal.CompareTo(yVal);
-			else
-				return string.Compare(x, y);
 		}
 	}
 }
