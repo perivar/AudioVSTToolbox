@@ -156,7 +156,7 @@ namespace SynthAnalysisStudio
 			sb.AppendLine(String.Format("\tThreshold: {0:0.##} dB", CompThreshold));
 			sb.AppendLine(String.Format("\tRatio: {0}", CompRatio));
 			sb.AppendLine(String.Format("\tFast Attack: {0} (Fast=1 ms otherwise Auto-Sense)", CompFastAttack));
-			sb.AppendLine(String.Format("\tRelease: {0:0.##} ms", CompRelease));
+			sb.AppendLine(String.Format("\tRelease: {0:0.##} s", CompRelease));
 			sb.AppendLine();
 			
 			sb.AppendLine("Expander/Gate:");
@@ -164,7 +164,7 @@ namespace SynthAnalysisStudio
 			sb.AppendLine(String.Format("\tRange: {0:0.##} dB", ExpRange));
 			sb.AppendLine(String.Format("\tGate: {0}", ExpGate));
 			sb.AppendLine(String.Format("\tFast Attack: {0} (Fast=1 ms otherwise Auto-Sense)", ExpFastAttack));
-			sb.AppendLine(String.Format("\tRelease: {0:0.##} ms", ExpRelease));
+			sb.AppendLine(String.Format("\tRelease: {0:0.##} s", ExpRelease));
 			sb.AppendLine();
 			
 			sb.AppendLine("Dynamics To:");
