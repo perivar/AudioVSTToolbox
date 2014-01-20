@@ -101,6 +101,20 @@ namespace SynthAnalysisStudio
 		static void Main(string[] args)
 		{
 			/*
+			UADSSLChannel ssl = new UADSSLChannel();
+			ssl.Read(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\InvestigatePresetFileDump\UAD-SSLChannel-KICK-Kick Drum.fxp");
+			ssl.Write(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\InvestigatePresetFileDump\UAD-SSLChannel-KICK-Kick Drum-write.fxp");
+			*/
+
+			WavesSSLChannel wavesSSLChannel = new WavesSSLChannel();
+			wavesSSLChannel.ReadXps(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000", null);
+
+			WavesSSLChannelToUADSSLChannelAdapter sslChannelAdapter = new WavesSSLChannelToUADSSLChannelAdapter(wavesSSLChannel);			
+			UADSSLChannel uadSSLChannel = sslChannelAdapter.DoConvert();
+			uadSSLChannel.Write(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\" + uadSSLChannel.PresetName + ".fxp");
+			return;
+			
+			/*
 			#region Waves SSLChannel preset conversion
 			WavesSSLChannel ssl = new WavesSSLChannel();
 			TextWriter tw1 = new StreamWriter(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslchannel-output.txt");

@@ -25,12 +25,14 @@ namespace InvestigatePresetFileDump
 		
 		public static void Main(string[] args)
 		{
+			/*
 			FindClosest(@"..\..\ParametersMap.xml", "Input", -11);
 			FindClosest(@"..\..\ParametersMap.xml", "CMP Ratio", 5);
 			FindClosest(@"..\..\ParametersMap.xml", "LP Freq", 15000);
 
 			System.Console.Read();
 			return;
+			 */
 			
 			string outputfilename = @"..\..\Sweetscape Template Output.txt";
 
@@ -53,6 +55,13 @@ namespace InvestigatePresetFileDump
 			
 			// close the stream
 			tw.Close();
+			
+			
+			// dump read write methods
+			string outputfilenameMethods = @"..\..\ReadWriteMethods.txt";
+			TextWriter twMethodDump = new StreamWriter(outputfilenameMethods);
+			ImportXMLFileDumpReadWriteMethods(@"..\..\UAD-SSLChannel-output.xml", twMethodDump);
+			twMethodDump.Close();
 		}
 		
 		private static float FindClosest(string xmlfilename, string name, float searchFor) {
@@ -958,6 +967,7 @@ namespace InvestigatePresetFileDump
 					writer.WriteStartElement("Parameter");
 					writer.WriteAttributeString("name", parameter.Key);
 					writer.WriteAttributeString("name-formatted", CleanInput(parameter.Key));
+					writer.WriteAttributeString("unique-displaytext", res.ToString());
 					
 					// output to passed text writer
 					sw.WriteLine();
@@ -1163,6 +1173,151 @@ namespace InvestigatePresetFileDump
 			tw.WriteLine("} presetCONTENT;");
 			
 			return enumSections.ToString();
+		}
+		
+		public static void ImportXMLFileDumpReadWriteMethods(string xmlfilename, TextWriter tw)
+		{
+			StringBuilder variables = new StringBuilder();
+			StringBuilder readMethod = new StringBuilder();
+			StringBuilder writeMethod = new StringBuilder();
+			
+			XDocument xmlDoc = XDocument.Load(xmlfilename);
+			Dictionary<string, List<byte>> dictionary = new Dictionary<string, List<byte>>();
+
+			// first sort the data
+			//http://stackoverflow.com/questions/5603284/linq-to-xml-groupby
+			var data = from row in xmlDoc.Descendants("Row")
+				orderby Convert.ToInt32(row.Element("IndexInFile").Value) ascending
+				select new {
+				IndexInFile = Convert.ToInt32(row.Element("IndexInFile").Value),
+				ByteValue = Convert.ToByte(row.Element("ByteValue").Value),
+				ParameterName = (string)row.Element("ParameterName").Value,
+				ParameterNameFormatted = (string)row.Element("ParameterNameFormatted").Value,
+				ParameterLabel = (string)row.Element("ParameterLabel").Value,
+				ParameterDisplay = (string)row.Element("ParameterDisplay").Value,
+				ParameterValue = (string)row.Element("ParameterValue").Value
+			};
+			
+			// then group the data
+			var groupQuery = from row in data
+				group row by new {
+				ParameterName = row.ParameterName
+			}
+			into groupedTable
+				select new
+			{
+				Keys = groupedTable.Key,  // Each Key contains all the grouped by columns (if multiple groups)
+				LowestValue = (double)groupedTable.Min(p => GetDouble( p.ParameterValue, Double.MinValue ) ),
+				HighestValue = (double)groupedTable.Max(p => GetDouble( p.ParameterValue, Double.MinValue ) ),
+				LowestDisplay = groupedTable.First().ParameterDisplay,
+				HighestDisplay = groupedTable.Last().ParameterDisplay,
+				FirstIndex = (int)groupedTable.First().IndexInFile,
+				LastIndex = (int)groupedTable.Last().IndexInFile,
+				SubGroup = groupedTable
+			};
+
+			// turn into list
+			var groupedList = groupQuery.ToList();
+
+			variables.AppendLine("#region Parameter Variable Names");
+			readMethod.AppendLine("// Read Parameters");
+			writeMethod.AppendLine("// Write Parameters");
+			
+			int originalLastIndex = 0;
+			int prevIndex = 0;
+			bool prevSkipSeek = false;
+			for (int i = 0; i < groupedList.Count; i++) {
+				var curElement = groupedList.ElementAt(i);
+
+				int firstIndex = curElement.FirstIndex;
+				int lastIndex = curElement.LastIndex;
+				originalLastIndex = lastIndex;
+				int numberOfBytes = (lastIndex-firstIndex+1);
+				
+				// 4 bytes is float, not int
+				string dataType = NumberOfBytesToDataType(ref numberOfBytes, false, true );
+				if (numberOfBytes != (lastIndex-firstIndex+1)) {
+					// the number of bytes was changed.
+					lastIndex = firstIndex + numberOfBytes - 1;
+				}
+				
+				// check if we should convert ushorts to ints and skip the Seek next time around?
+				bool skipSeek = false;
+				if (i + 1 < groupedList.Count) {
+					var nextElement = groupedList.ElementAt(i + 1);
+					if ((dataType.Equals("ushort") || dataType.Equals("byte") || dataType.Equals("unknown")) && nextElement.FirstIndex == firstIndex + 4) {
+						dataType = "int";
+						skipSeek = true;
+						lastIndex = firstIndex + 3;
+						numberOfBytes = 4;
+					}
+				}
+				
+				double lowVal = (double)curElement.LowestValue;
+				double highVal = (double)curElement.HighestValue;
+				string name = curElement.Keys.ParameterName.ToString();
+				string variableName = CleanInput(name.ToPascalCase());
+				string datatypeAndName = String.Format("public {0} {1};", dataType, variableName).PadRight(25);
+				
+				// find highest and lowest display value
+				var highlowdisplay = from row in xmlDoc.Descendants("Row")
+					where (string)row.Element("ParameterName") == name
+					orderby float.Parse(row.Element("ParameterValue").Value) ascending
+					select new {
+					IndexInFile = Convert.ToInt32(row.Element("IndexInFile").Value),
+					ByteValue = Convert.ToByte(row.Element("ByteValue").Value),
+					ParameterName = (string)row.Element("ParameterName").Value,
+					ParameterLabel = (string)row.Element("ParameterLabel").Value,
+					ParameterDisplay = (string)row.Element("ParameterDisplay").Value,
+					ParameterValue = (string)row.Element("ParameterValue").Value
+				};
+				string lowestDisplay = highlowdisplay.First().ParameterDisplay;
+				string highestDisplay = highlowdisplay.Last().ParameterDisplay;
+				
+				string valueRange = String.Format("// ({0} -> {1})",
+				                                  lowestDisplay,
+				                                  highestDisplay);
+				
+				variables.Append(datatypeAndName).AppendLine(valueRange);
+
+				// Read: input = bFile.ReadSingle();
+				// Write: bFile.Write((float) 0); // float output_pan; -1 to 1 (0 = middle)
+				switch(dataType) {
+					case "byte":	// 1 byte
+						readMethod.AppendLine(string.Format("{0} = bFile.ReadByte();", variableName));
+						writeMethod.AppendLine(string.Format("bFile.Write((byte) {0}); {1}", variableName, valueRange));
+						break;
+					case "ushort":	// 2 bytes
+						readMethod.AppendLine(string.Format("{0} = bFile.ReadUInt16();", variableName));
+						writeMethod.AppendLine(string.Format("bFile.Write((ushort) {0}); {1}", variableName, valueRange));
+						break;
+					case "uint32": 	// 4 bytes
+						readMethod.AppendLine(string.Format("{0} = bFile.ReadUInt32();", variableName));
+						writeMethod.AppendLine(string.Format("bFile.Write((uint32) {0}); {1}", variableName, valueRange));
+						break;
+					case "float": 	// 4 bytes
+						readMethod.AppendLine(string.Format("{0} = bFile.ReadSingle();", variableName));
+						writeMethod.AppendLine(string.Format("bFile.Write((float) {0}); {1}", variableName, valueRange));
+						break;
+					case "uint64": 	// 8 bytes
+						readMethod.AppendLine(string.Format("{0} = bFile.ReadUInt64();", variableName));
+						writeMethod.AppendLine(string.Format("bFile.Write((uint64) {0}); {1}", variableName, valueRange));
+						break;
+					default:
+						readMethod.AppendLine(string.Format("{0} = bFile.ReadString({1});", variableName, numberOfBytes));
+						writeMethod.AppendLine(string.Format("bFile.Write({0}, {1}); {2}", variableName, numberOfBytes, valueRange));
+						break;
+				}
+				
+				prevIndex = lastIndex;
+				prevSkipSeek = skipSeek;
+			}
+			
+			variables.AppendLine("#endregion");
+			
+			tw.WriteLine(variables.ToString());
+			tw.WriteLine(readMethod.ToString());
+			tw.WriteLine(writeMethod.ToString());
 		}
 		
 		public static List<string> getUniqueValues(string xmlfilename, string NameFormattedValue)

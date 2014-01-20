@@ -51,7 +51,7 @@ namespace SynthAnalysisStudio
 		public bool Analog;
 		public bool VUShowOutput;
 		public bool PhaseReverse;
-		public float InputTrim ;
+		public float InputTrim;
 		#endregion
 		
 		public WavesSSLChannel()

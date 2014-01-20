@@ -15,6 +15,14 @@ namespace CommonUtils
 	/// </summary>
 	public static class StringUtils
 	{
+		/// <summary>
+		/// Pascal case
+		/// The first letter in the identifier and the first letter of each subsequent concatenated word are capitalized. You can use Pascal case for identifiers of three or more characters. For example:
+		/// E.g. "BackColor"
+		/// Camel case
+		/// The first letter of an identifier is lowercase and the first letter of each subsequent concatenated word is capitalized. For example:
+		/// E.g. "backColor"
+		/// </summary>
 		public enum Case {
 			PascalCase,
 			CamelCase
@@ -24,7 +32,15 @@ namespace CommonUtils
 		/// Converts the phrase to specified convention.
 		/// </summary>
 		/// <param name="phrase"></param>
-		/// <param name="cases">The cases.</param>
+		/// <param name="cases">A Capitalization Style (Pascal or Camel)</param>
+		/// <description>
+		/// Pascal case
+		/// The first letter in the identifier and the first letter of each subsequent concatenated word are capitalized. You can use Pascal case for identifiers of three or more characters. For example:
+		/// E.g. "BackColor"
+		/// Camel case
+		/// The first letter of an identifier is lowercase and the first letter of each subsequent concatenated word is capitalized. For example:
+		/// E.g. "backColor"
+		/// </description>
 		/// <returns>string</returns>
 		public static string ConvertCaseString(string phrase, Case cases) {
 			string[] splittedPhrase = phrase.Split(' ', '-', '.');
@@ -45,6 +61,16 @@ namespace CommonUtils
 				sb.Append(new String(splittedPhraseChars));
 			}
 			return sb.ToString();
+		}
+		
+		
+		/// <summary>
+		/// Convert the first letter to lowercase and return
+		/// </summary>
+		/// <param name="phrase">Phrase to convert</param>
+		/// <returns>string</returns>
+		public static string ConvertFirstLetterLowerCase(string phrase) {
+			return Char.ToLowerInvariant(phrase[0]) + phrase.Substring(1);
 		}
 		
 		/// <summary>
@@ -366,6 +392,75 @@ namespace CommonUtils
 			char[] chars = new char[bytes.Length / sizeof(char)];
 			System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
 			return new string(chars);
+		}
+		
+		
+		// Convert the string to Pascal case.
+		public static string ToPascalCase(this string the_string)
+		{
+			// If there are 0 or 1 characters, just return the string.
+			if (the_string == null) return the_string;
+			if (the_string.Length < 2) return the_string.ToUpper();
+
+			// Split the string into words.
+			string[] words = the_string.Split(
+				new char[] { },
+				StringSplitOptions.RemoveEmptyEntries);
+
+			// Combine the words.
+			string result = "";
+			foreach (string word in words)
+			{
+				result +=
+					word.Substring(0, 1).ToUpper() +
+					word.Substring(1);
+			}
+
+			return result;
+		}
+		
+		// Convert the string to camel case.
+		public static string ToCamelCase(this string the_string)
+		{
+			// If there are 0 or 1 characters, just return the string.
+			if (the_string == null || the_string.Length < 2) return the_string;
+
+			// Split the string into words.
+			string[] words = the_string.Split(
+				new char[] { },
+				StringSplitOptions.RemoveEmptyEntries);
+
+			// Combine the words.
+			string result = words[0].ToLower();
+			for (int i = 1; i < words.Length; i++)
+			{
+				result +=
+					words[i].Substring(0, 1).ToUpper() +
+					words[i].Substring(1);
+			}
+
+			return result;
+		}
+		
+		// Capitalize the first character and add a space before
+		// each capitalized letter (except the first character).
+		public static string ToProperCase(this string the_string)
+		{
+			// If there are 0 or 1 characters, just return the string.
+			if (the_string == null) return the_string;
+			if (the_string.Length < 2) return the_string.ToUpper();
+
+			// Start with the first character.
+			string result = the_string.Substring(0, 1).ToUpper();
+
+			// Add the remaining characters.
+			for (int i = 1; i < the_string.Length; i++)
+			{
+				if (Char.IsUpper(the_string[i])) result += " ";
+				result += the_string[i];
+			}
+
+			return result;
 		}
 	}
 }
