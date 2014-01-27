@@ -106,6 +106,7 @@ namespace SynthAnalysisStudio
 			WavesSSLChannelToUADSSLChannelAdapter sslChannelAdapter = new WavesSSLChannelToUADSSLChannelAdapter(wavesSSLChannel);
 			UADSSLChannel uadSSLChannel = sslChannelAdapter.DoConvert();
 			uadSSLChannel.Write(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\" + uadSSLChannel.PresetName + ".fxp");
+			Console.Out.WriteLine(uadSSLChannel);
 			return;
 			
 			/*

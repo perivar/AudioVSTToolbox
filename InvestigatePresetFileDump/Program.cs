@@ -1180,6 +1180,7 @@ namespace InvestigatePresetFileDump
 			StringBuilder variables = new StringBuilder();
 			StringBuilder readMethod = new StringBuilder();
 			StringBuilder writeMethod = new StringBuilder();
+			StringBuilder toStringMethod = new StringBuilder();
 			
 			XDocument xmlDoc = XDocument.Load(xmlfilename);
 			Dictionary<string, List<byte>> dictionary = new Dictionary<string, List<byte>>();
@@ -1222,6 +1223,7 @@ namespace InvestigatePresetFileDump
 			variables.AppendLine("#region Parameter Variable Names");
 			readMethod.AppendLine("// Read Parameters");
 			writeMethod.AppendLine("// Write Parameters");
+			toStringMethod.AppendLine("public override string ToString() {\n\tStringBuilder sb = new StringBuilder();");
 			
 			int originalLastIndex = 0;
 			int prevIndex = 0;
@@ -1274,50 +1276,58 @@ namespace InvestigatePresetFileDump
 				string lowestDisplay = highlowdisplay.First().ParameterDisplay;
 				string highestDisplay = highlowdisplay.Last().ParameterDisplay;
 				
-				string valueRange = String.Format("// ({0} -> {1})",
+				string commentedValueRange = String.Format("// ({0} -> {1})",
+				                                           lowestDisplay,
+				                                           highestDisplay);
+				string valueRange = String.Format("{0} -> {1}",
 				                                  lowestDisplay,
 				                                  highestDisplay);
 				
-				variables.Append(datatypeAndName).AppendLine(valueRange);
+				variables.Append(datatypeAndName).AppendLine(commentedValueRange);
 
 				// Read: input = bFile.ReadSingle();
 				// Write: bFile.Write((float) 0); // float output_pan; -1 to 1 (0 = middle)
 				switch(dataType) {
 					case "byte":	// 1 byte
 						readMethod.AppendLine(string.Format("{0} = bFile.ReadByte();", variableName));
-						writeMethod.AppendLine(string.Format("bFile.Write((byte) {0}); {1}", variableName, valueRange));
+						writeMethod.AppendLine(string.Format("bFile.Write((byte) {0}); {1}", variableName, commentedValueRange));
 						break;
 					case "ushort":	// 2 bytes
 						readMethod.AppendLine(string.Format("{0} = bFile.ReadUInt16();", variableName));
-						writeMethod.AppendLine(string.Format("bFile.Write((ushort) {0}); {1}", variableName, valueRange));
+						writeMethod.AppendLine(string.Format("bFile.Write((ushort) {0}); {1}", variableName, commentedValueRange));
 						break;
 					case "uint32": 	// 4 bytes
 						readMethod.AppendLine(string.Format("{0} = bFile.ReadUInt32();", variableName));
-						writeMethod.AppendLine(string.Format("bFile.Write((uint32) {0}); {1}", variableName, valueRange));
+						writeMethod.AppendLine(string.Format("bFile.Write((uint32) {0}); {1}", variableName, commentedValueRange));
 						break;
 					case "float": 	// 4 bytes
 						readMethod.AppendLine(string.Format("{0} = bFile.ReadSingle();", variableName));
-						writeMethod.AppendLine(string.Format("bFile.Write((float) {0}); {1}", variableName, valueRange));
+						writeMethod.AppendLine(string.Format("bFile.Write((float) {0}); {1}", variableName, commentedValueRange));
 						break;
 					case "uint64": 	// 8 bytes
 						readMethod.AppendLine(string.Format("{0} = bFile.ReadUInt64();", variableName));
-						writeMethod.AppendLine(string.Format("bFile.Write((uint64) {0}); {1}", variableName, valueRange));
+						writeMethod.AppendLine(string.Format("bFile.Write((uint64) {0}); {1}", variableName, commentedValueRange));
 						break;
 					default:
 						readMethod.AppendLine(string.Format("{0} = bFile.ReadString({1});", variableName, numberOfBytes));
-						writeMethod.AppendLine(string.Format("bFile.Write({0}, {1}); {2}", variableName, numberOfBytes, valueRange));
+						writeMethod.AppendLine(string.Format("bFile.Write({0}, {1}); {2}", variableName, numberOfBytes, commentedValueRange));
 						break;
 				}
+
+				// sb.Append(String.Format("Input: \t{0:0.00}", Input).PadRight(20)).AppendFormat(" = {0} \t({1})\n", FindClosestDisplayText("Input", Input), "-20.0 dB -> 20.0 dB");
+				toStringMethod.AppendLine(string.Format("\tsb.Append(String.Format(\"{0}: {{0:0.00}}\", {1}).PadRight(20)).AppendFormat(\"= {{0}} ({{1}})\\n\", FindClosestDisplayText(\"{0}\", {1}), \"{2}\");", name, variableName, valueRange));
 				
 				prevIndex = lastIndex;
 				prevSkipSeek = skipSeek;
 			}
 			
 			variables.AppendLine("#endregion");
+			toStringMethod.AppendLine("\treturn sb.ToString();\n}");
 			
 			tw.WriteLine(variables.ToString());
 			tw.WriteLine(readMethod.ToString());
 			tw.WriteLine(writeMethod.ToString());
+			tw.WriteLine(toStringMethod.ToString());
 		}
 		
 		public static List<string> getUniqueValues(string xmlfilename, string NameFormattedValue)

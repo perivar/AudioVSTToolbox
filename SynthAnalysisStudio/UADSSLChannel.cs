@@ -1,5 +1,12 @@
 ﻿using System;
+using System.Text;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml;
+using System.Xml.Linq;
+using System.Globalization;
+
 using PresetConverter;
 using CommonUtils;
 
@@ -54,9 +61,115 @@ namespace SynthAnalysisStudio
 		public float Power;      // (Off -> On)
 		#endregion
 		
+		// lists to store lookup values
+		Dictionary<string, List<string>> displayTextDict = new Dictionary<string, List<string>>();
+		Dictionary<string, List<float>> displayNumbersDict = new Dictionary<string, List<float>>();
+		Dictionary<string, List<float>> valuesDict = new Dictionary<string, List<float>>();
+		
 		public UADSSLChannel()
 		{
+			InitializeMappingTables(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\InvestigatePresetFileDump\ParametersMap.xml");
 		}
+		
+		#region FindClosest Example Methods
+		/*
+			var numbers = new List<float> { 10f, 20f, 22f, 30f };
+			var target = 21f;
+
+			//gets single number which is closest
+			var closest = numbers.Select( n => new { n, distance = Math.Abs( n - target ) } )
+				.OrderBy( p => p.distance )
+				.First().n;
+
+			//get two closest
+			var take = 2;
+			var closests = numbers.Select( n => new { n, distance = Math.Abs( n - target ) } )
+				.OrderBy( p => p.distance )
+				.Select( p => p.n )
+				.Take( take );
+
+			//gets any that are within x of target
+			var within = 1;
+			var withins = numbers.Select( n => new { n, distance = Math.Abs( n - target ) } )
+				.Where( p => p.distance <= within )
+				.Select( p => p.n );
+		 */
+		#endregion
+
+		#region FindClosest and Dependent Methods
+		private void InitializeMappingTables(string xmlfilename) {
+			XDocument xmlDoc = XDocument.Load(xmlfilename);
+			
+			var entries = (from entry in xmlDoc.Descendants("Entry")
+			               group entry by (string) entry.Parent.Attribute("name").Value into g
+			               select new {
+			               	g.Key,
+			               	Value = g.ToList()
+			               });
+
+			displayTextDict = entries.ToDictionary(o => o.Key, o => o.Value.Elements("DisplayText").Select(p => p.Value).ToList());
+			displayNumbersDict = entries.ToDictionary(o => o.Key, o => o.Value.Elements("DisplayNumber").Select(p => (float)GetDouble(p.Value, 0)).ToList());
+			valuesDict = entries.ToDictionary(o => o.Key, o => o.Value.Elements("Value").Select(p => float.Parse(p.Value)).ToList());
+		}
+		
+		/// <summary>
+		/// Search for the display value that is closest to the passed parameter and return the float value
+		/// </summary>
+		/// <param name="paramName">parameter to search within</param>
+		/// <param name="searchDisplayValue">display value (e.g. '2500' from the 2.5 kHz)</param>
+		/// <returns>the float value (between 0 - 1) that corresponds to the closest match</returns>
+		public float FindClosestValue(string paramName, float searchDisplayValue) {
+			
+			// find closest float value
+			float foundClosest = displayNumbersDict[paramName].Aggregate( (x,y) => Math.Abs(x - searchDisplayValue) < Math.Abs(y - searchDisplayValue) ? x : y);
+			int foundIndex = displayNumbersDict[paramName].IndexOf(foundClosest);
+			string foundClosestDisplayText = displayTextDict[paramName][foundIndex];
+			float foundParameterValue = valuesDict[paramName][foundIndex];
+			
+			//Console.Out.WriteLine("Searching '{0}' for value {1}. Found {2} with text '{3}'. Value = {4}", paramName, searchDisplayValue, foundClosest, foundClosestDisplayText, foundParameterValue);
+			
+			return foundParameterValue;
+		}
+
+		/// <summary>
+		/// Search for the float value that is closest to the passed parameter and return the display text
+		/// </summary>
+		/// <param name="paramName">parameter to search within</param>
+		/// <param name="searchParamValue">float value (between 0 - 1)</param>
+		/// <returns>the display text that corresponds to the closest match</returns>
+		public string FindClosestDisplayText(string paramName, float searchParamValue) {
+
+			// find closest display text
+			float foundClosest = valuesDict[paramName].Aggregate( (x,y) => Math.Abs(x - searchParamValue) < Math.Abs(y - searchParamValue) ? x : y);
+			int foundIndex = valuesDict[paramName].IndexOf(foundClosest);
+			string foundClosestDisplayText = displayTextDict[paramName][foundIndex];
+			float foundParameterValue = valuesDict[paramName][foundIndex];
+			
+			//Console.Out.WriteLine("Searching '{0}' for value {1}. Found {2} with text '{3}'. Value = {4}", paramName, searchParamValue, foundClosest, foundClosestDisplayText, foundParameterValue);
+			
+			return foundClosestDisplayText;
+		}
+		
+		private static double GetDouble(string value, double defaultValue)
+		{
+			double result;
+
+			// Try parsing in the current culture
+			if (!double.TryParse(value, System.Globalization.NumberStyles.Any, CultureInfo.CurrentCulture, out result) &&
+			    // Then try in US english
+			    !double.TryParse(value, System.Globalization.NumberStyles.Any, CultureInfo.GetCultureInfo("en-US"), out result) &&
+			    // Then in neutral language
+			    !double.TryParse(value, System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out result))
+			{
+				result = defaultValue;
+			}
+			
+			// special case
+			if (result == 3.911555E-07) result = 0;
+
+			return result;
+		}
+		#endregion
 		
 		#region Read and Write Methods
 		public bool ReadFXP(FXP fxp, string filePath="")
@@ -207,5 +320,48 @@ namespace SynthAnalysisStudio
 			return chunkData;
 		}
 		#endregion
+		
+		public override string ToString() {
+			StringBuilder sb = new StringBuilder();
+			
+			sb.AppendLine(String.Format("PresetName: {0}", PresetName));
+			sb.Append(String.Format("Input: {0:0.00}", Input).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("Input", Input), "-20.0 dB -> 20.0 dB");
+			sb.Append(String.Format("Phase: {0:0.00}", Phase).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("Phase", Phase), "Normal -> Inverted");
+			sb.Append(String.Format("HP Freq: {0:0.00}", HPFreq).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("HP Freq", HPFreq), "Out -> 304 Hz");
+			sb.Append(String.Format("LP Freq: {0:0.00}", LPFreq).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("LP Freq", LPFreq), "Out -> 3.21 k");
+			sb.Append(String.Format("HP/LP Dyn SC: {0:0.00}", HP_LPDynSC).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("HP/LP Dyn SC", HP_LPDynSC), "Off -> On");
+			sb.Append(String.Format("CMP Ratio: {0:0.00}", CMPRatio).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("CMP Ratio", CMPRatio), "1.00:1 -> Limit");
+			sb.Append(String.Format("CMP Thresh: {0:0.00}", CMPThresh).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("CMP Thresh", CMPThresh), "10.0 dB -> -20.0 dB");
+			sb.Append(String.Format("CMP Release: {0:0.00}", CMPRelease).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("CMP Release", CMPRelease), "0.10 s -> 4.00 s");
+			sb.Append(String.Format("CMP Attack: {0:0.00}", CMPAttack).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("CMP Attack", CMPAttack), "Auto -> Fast");
+			sb.Append(String.Format("Stereo Link: {0:0.00}", StereoLink).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("Stereo Link", StereoLink), "UnLink -> Link");
+			sb.Append(String.Format("Select: {0:0.00}", Select).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("Select", Select), "Expand -> Gate 2");
+			sb.Append(String.Format("EXP Thresh: {0:0.00}", EXPThresh).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("EXP Thresh", EXPThresh), "-30.0 dB -> 10.0 dB");
+			sb.Append(String.Format("EXP Range: {0:0.00}", EXPRange).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("EXP Range", EXPRange), "0.0 dB -> 40.0 dB");
+			sb.Append(String.Format("EXP Release: {0:0.00}", EXPRelease).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("EXP Release", EXPRelease), "0.10 s -> 4.00 s");
+			sb.Append(String.Format("EXP Attack: {0:0.00}", EXPAttack).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("EXP Attack", EXPAttack), "Auto -> Fast");
+			sb.Append(String.Format("DYN In: {0:0.00}", DYNIn).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("DYN In", DYNIn), "Out -> In");
+			sb.Append(String.Format("Comp In: {0:0.00}", CompIn).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("Comp In", CompIn), "Out -> In");
+			sb.Append(String.Format("Exp In: {0:0.00}", ExpIn).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("Exp In", ExpIn), "Out -> In");
+			sb.Append(String.Format("LF Gain: {0:0.00}", LFGain).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("LF Gain", LFGain), "-10.0 dB -> 10.0 dB");
+			sb.Append(String.Format("LF Freq: {0:0.00}", LFFreq).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("LF Freq", LFFreq), "36.1 Hz -> 355 Hz");
+			sb.Append(String.Format("LF Bell: {0:0.00}", LFBell).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("LF Bell", LFBell), "Shelf -> Bell");
+			sb.Append(String.Format("LMF Gain: {0:0.00}", LMFGain).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("LMF Gain", LMFGain), "-15.6 dB -> 15.6 dB");
+			sb.Append(String.Format("LMF Freq: {0:0.00}", LMFFreq).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("LMF Freq", LMFFreq), "251 Hz -> 2.17 k");
+			sb.Append(String.Format("LMF Q: {0:0.00}", LMFQ).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("LMF Q", LMFQ), "2.50 -> 2.50");
+			sb.Append(String.Format("HMF Q: {0:0.00}", HMFQ).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("HMF Q", HMFQ), "4.00 -> 0.40");
+			sb.Append(String.Format("HMF Gain: {0:0.00}", HMFGain).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("HMF Gain", HMFGain), "-16.5 dB -> 16.5 dB");
+			sb.Append(String.Format("HMF Freq: {0:0.00}", HMFFreq).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("HMF Freq", HMFFreq), "735 Hz -> 6.77 k");
+			sb.Append(String.Format("HF Gain: {0:0.00}", HFGain).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("HF Gain", HFGain), "-16.0 dB -> 16.1 dB");
+			sb.Append(String.Format("HF Freq: {0:0.00}", HFFreq).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("HF Freq", HFFreq), "6.93 k -> 21.7 k");
+			sb.Append(String.Format("HF Bell: {0:0.00}", HFBell).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("HF Bell", HFBell), "Shelf -> Bell");
+			sb.Append(String.Format("EQ In: {0:0.00}", EQIn).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("EQ In", EQIn), "Out -> In");
+			sb.Append(String.Format("EQ Dyn SC: {0:0.00}", EQDynSC).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("EQ Dyn SC", EQDynSC), "Off -> On");
+			sb.Append(String.Format("Pre Dyn: {0:0.00}", PreDyn).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("Pre Dyn", PreDyn), "Off -> On");
+			sb.Append(String.Format("Output: {0:0.00}", Output).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("Output", Output), "-20.0 dB -> 20.0 dB");
+			sb.Append(String.Format("EQ Type: {0:0.00}", EQType).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("EQ Type", EQType), "Black -> Brown");
+			sb.Append(String.Format("Power: {0:0.00}", Power).PadRight(20)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("Power", Power), "Off -> On");
+			return sb.ToString();
+		}
 	}
 }
