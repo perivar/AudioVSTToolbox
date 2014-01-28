@@ -42,7 +42,9 @@ namespace InvestigatePresetFileDump
 			tw.Write(PresetFooter());
 			
 			// dump value tables
-			DumpValueTables(@"..\..\UAD-SSLChannel-output.xml", @"..\..", false, tw);
+			DumpParameterValueTables(@"..\..\UAD-SSLChannel-output.xml",
+			                         @"..\..\UADSSLChannelParametersMap.xml",
+			                         false, @"..\..", tw);
 			
 			// close the stream
 			tw.Close();
@@ -844,16 +846,17 @@ namespace InvestigatePresetFileDump
 		#endregion
 		
 		/// <summary>
-		/// Dump ParameterMap.xml, i.e. a file that is used to lookup values when mapping a parameter value to a display text and vice versa.
+		/// Dump Parameter Value Tables, e.g. a xml file that is used to lookup values when mapping a parameter value to a display text and vice versa.
 		/// </summary>
-		/// <param name="xmlfilename">xml file to read (TrackedPresetFileChanges). Generate this by using "Auto" method in SynthAnalysisStudio</param>
-		/// <param name="folderName">folder to put output mapping file</param>
+		/// <param name="xmlInputFilePath">xml file to read (TrackedPresetFileChanges). Generate this by using "Auto" method in SynthAnalysisStudio</param>
+		/// <param name="xmlOutputFilePath">xml file to write (E.g. ParameterMap.xml).</param>
 		/// <param name="doOutputCSV">whether to output csv as well</param>
+		/// <param name="csvFolderPath">folder to put csv files in</param>
 		/// <param name="sw">a text writer</param>
 		/// <returns>true if successful</returns>
-		private static bool DumpValueTables(string xmlfilename, string folderName, bool doOutputCSV, TextWriter textWriter) {
+		private static bool DumpParameterValueTables(string xmlInputFilePath, string xmlOutputFilePath, bool doOutputCSV, string csvFolderPath, TextWriter textWriter) {
 			
-			XDocument xmlDoc = XDocument.Load(xmlfilename);
+			XDocument xmlDoc = XDocument.Load(xmlInputFilePath);
 
 			// sort and "distinct" the query by using multiple group by's
 			var sortedParameters = (from row in xmlDoc.Descendants("Row")
@@ -884,9 +887,8 @@ namespace InvestigatePresetFileDump
 			XmlWriterSettings settings = new XmlWriterSettings();
 			settings.Indent = true;
 			settings.IndentChars = "\t";
-			string outputFile = folderName + Path.DirectorySeparatorChar + "ParametersMap.xml";
 
-			using (XmlWriter xmlWriter = XmlWriter.Create(outputFile, settings))
+			using (XmlWriter xmlWriter = XmlWriter.Create(xmlOutputFilePath, settings))
 			{
 				xmlWriter.WriteStartDocument();
 				xmlWriter.WriteStartElement("ParametersMap");
@@ -900,7 +902,7 @@ namespace InvestigatePresetFileDump
 					// write to csv file
 					TextWriter csvWriter = null;
 					if (doOutputCSV) {
-						string outputfilename = folderName + Path.DirectorySeparatorChar + CleanInput(parameter.Key) + ".csv";
+						string outputfilename = csvFolderPath + Path.DirectorySeparatorChar + CleanInput(parameter.Key) + ".csv";
 						csvWriter = new StreamWriter(outputfilename);
 						csvWriter.WriteLine("ParameterValue;ParameterDisplayNumber;ParameterDisplay");
 					}
@@ -1297,7 +1299,8 @@ namespace InvestigatePresetFileDump
 				}
 
 				// sb.Append(String.Format("Input: \t{0:0.00}", Input).PadRight(20)).AppendFormat(" = {0} \t({1})\n", FindClosestDisplayText("Input", Input), "-20.0 dB -> 20.0 dB");
-				toStringMethod.AppendLine(string.Format("\tsb.Append(String.Format(\"{0}: {{0:0.00}}\", {1}).PadRight(20)).AppendFormat(\"= {{0}} ({{1}})\\n\", FindClosestDisplayText(\"{0}\", {1}), \"{2}\");", name, variableName, valueRange));
+				//toStringMethod.AppendLine(string.Format("\tsb.Append(String.Format(\"{0}: {{0:0.00}}\", {1}).PadRight(20)).AppendFormat(\"= {{0}} ({{1}})\\n\", FindClosestDisplayText(\"{0}\", {1}), \"{2}\");", name, variableName, valueRange));
+				toStringMethod.AppendLine(string.Format("\tsb.Append(\"{0}:\".PadRight(15)).AppendFormat(String.Format(\"{{0:0.00}}\", {1}).PadRight(5)).AppendFormat(\"= {{0}} ({{1}})\\n\", FindClosestDisplayText(\"{0}\", {1}), \"{2}\");", name, variableName, valueRange));
 				
 				prevIndex = lastIndex;
 				prevSkipSeek = skipSeek;
