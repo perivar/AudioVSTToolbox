@@ -44,7 +44,7 @@ namespace InvestigatePresetFileDump
 			// dump value tables
 			DumpParameterValueTables(@"..\..\UAD-SSLChannel-output.xml",
 			                         @"..\..\UADSSLChannelParametersMap.xml",
-			                         false, @"..\..", tw);
+			                         false, @"..\..", null);
 			
 			// close the stream
 			tw.Close();
@@ -852,7 +852,7 @@ namespace InvestigatePresetFileDump
 		/// <param name="xmlOutputFilePath">xml file to write (E.g. ParameterMap.xml).</param>
 		/// <param name="doOutputCSV">whether to output csv as well</param>
 		/// <param name="csvFolderPath">folder to put csv files in</param>
-		/// <param name="sw">a text writer</param>
+		/// <param name="sw">a text writer to write a textual dump to (can be Null)</param>
 		/// <returns>true if successful</returns>
 		private static bool DumpParameterValueTables(string xmlInputFilePath, string xmlOutputFilePath, bool doOutputCSV, string csvFolderPath, TextWriter textWriter) {
 			
@@ -875,12 +875,13 @@ namespace InvestigatePresetFileDump
 			                        	}
 			                        });
 
-			textWriter.WriteLine();
-			textWriter.WriteLine();
-			textWriter.WriteLine("// -----------------------------------------------");
-			textWriter.WriteLine("// Parameter Dump");
-			textWriter.WriteLine("// -----------------------------------------------");
-			
+			if (textWriter != null) {
+				textWriter.WriteLine();
+				textWriter.WriteLine();
+				textWriter.WriteLine("// -----------------------------------------------");
+				textWriter.WriteLine("// Parameter Dump");
+				textWriter.WriteLine("// -----------------------------------------------");
+			}
 			
 			// store to xml file
 			//set formatting options
@@ -913,10 +914,12 @@ namespace InvestigatePresetFileDump
 					xmlWriter.WriteAttributeString("name-formatted", CleanInput(parameter.Key));
 					xmlWriter.WriteAttributeString("unique-displaytext", res.ToString());
 					
-					// output to passed text writer
-					textWriter.WriteLine();
-					textWriter.WriteLine("// Parameter: {0} (Unique Parameters: {1})", parameter.Key, res);
-					textWriter.WriteLine("// Value\tDisplayNumber\tDisplay");
+					if (textWriter != null) {
+						// output to passed text writer
+						textWriter.WriteLine();
+						textWriter.WriteLine("// Parameter: {0} (Unique Parameters: {1})", parameter.Key, res);
+						textWriter.WriteLine("// Value\tDisplayNumber\tDisplay");
+					}
 					
 					// boolean ?
 					if (res == 2) {
@@ -929,9 +932,11 @@ namespace InvestigatePresetFileDump
 						if (doOutputCSV) csvWriter.WriteLine("{0:0.00};{1}", firstValue, firstDisplay);
 						if (doOutputCSV) csvWriter.WriteLine("{0:0.00};{1}", lastValue, lastDisplay);
 
-						// output to passed text writer
-						textWriter.WriteLine("// {0:0.00}\t\t{1}", firstValue, firstDisplay);
-						textWriter.WriteLine("// {0:0.00}\t\t{1}", lastValue, lastDisplay);
+						if (textWriter != null) {
+							// output to passed text writer
+							textWriter.WriteLine("// {0:0.00}\t\t{1}", firstValue, firstDisplay);
+							textWriter.WriteLine("// {0:0.00}\t\t{1}", lastValue, lastDisplay);
+						}
 						
 						// write boolean to xml
 						xmlWriter.WriteStartElement("Entry");
@@ -956,9 +961,11 @@ namespace InvestigatePresetFileDump
 							// write to csv file
 							if (doOutputCSV) csvWriter.WriteLine("{0:0.00};{1};{2}", parameterValue, displayNumber, displayText);
 							
-							// output to passed text writer
-							textWriter.WriteLine("// {0:0.00}\t\t{1}\t\t\t{2}", parameterValue, displayNumber, displayText);
-
+							if (textWriter != null) {
+								// output to passed text writer
+								textWriter.WriteLine("// {0:0.00}\t\t{1}\t\t\t{2}", parameterValue, displayNumber, displayText);
+							}
+							
 							// write to xml
 							xmlWriter.WriteElementString("DisplayText", displayText);
 							xmlWriter.WriteElementString("DisplayNumber", displayNumber);
