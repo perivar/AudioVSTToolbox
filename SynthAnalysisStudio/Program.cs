@@ -100,13 +100,14 @@ namespace SynthAnalysisStudio
 		[STAThread]
 		static void Main(string[] args)
 		{
-			WavesSSLChannel wavesSSLChannel = new WavesSSLChannel();
-			wavesSSLChannel.ReadXps(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000", null);
-
-			WavesSSLChannelToUADSSLChannelAdapter sslChannelAdapter = new WavesSSLChannelToUADSSLChannelAdapter(wavesSSLChannel);
-			UADSSLChannel uadSSLChannel = sslChannelAdapter.DoConvert();
-			uadSSLChannel.Write(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\" + uadSSLChannel.PresetName + ".fxp");
-			Console.Out.WriteLine(uadSSLChannel);
+			List<WavesSSLChannel> presetList = WavesPreset.ReadXps<WavesSSLChannel>(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000");
+			foreach(var wavesSSLChannel in presetList) {
+				WavesSSLChannelToUADSSLChannelAdapter sslChannelAdapter = new WavesSSLChannelToUADSSLChannelAdapter(wavesSSLChannel);
+				UADSSLChannel uadSSLChannel = sslChannelAdapter.DoConvert();
+				uadSSLChannel.Write(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\" + uadSSLChannel.PresetName + ".fxp");
+				Console.Out.WriteLine(uadSSLChannel);
+				Console.ReadKey();
+			}
 			return;
 			
 			/*

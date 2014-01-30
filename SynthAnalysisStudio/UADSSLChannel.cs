@@ -68,7 +68,7 @@ namespace SynthAnalysisStudio
 		
 		public UADSSLChannel()
 		{
-			InitializeMappingTables(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\InvestigatePresetFileDump\ParametersMap.xml");
+			InitializeMappingTables("UADSSLChannelParametersMap.xml");
 		}
 		
 		#region FindClosest Example Methods

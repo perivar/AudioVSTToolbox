@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
@@ -47,7 +48,7 @@ namespace SynthAnalysisStudio
 			}
 			return false;
 		}
-
+		
 		/// <summary>
 		/// Read Waves XPst files
 		/// E.g.
@@ -56,14 +57,36 @@ namespace SynthAnalysisStudio
 		/// C:\Users\Public\Waves Audio\Plug-In Settings\*.xps files
 		/// </summary>
 		/// <param name="filePath">file to xps file (e.g. with the filename '1000' or *.xps)</param>
-		/// <param name="writer">TextWriter e.g. Console.Out or TextWriter tw = new StreamWriter()</param>
-		/// <returns>true if succesful</returns>
-		public bool ReadXps(string filePath, TextWriter tw)
-		{
+		/// <remarks>Using generics to allow us to specify which preset type we are processing</remarks>
+		/// <returns>a list of the WavesPreset type</returns>
+		public static List<T> ReadXps<T>(string filePath) where T : WavesPreset, new() {
 			string xmlString = File.ReadAllText(filePath);
-			return ParseXml(xmlString, tw);
+			
+			return ParseXml<T>(xmlString);
 		}
+		
+		// Using generics to allow us to specify which preset type we are processing
+		private static List<T> ParseXml<T>(string xmlString) where T : WavesPreset, new() {
 
+			List<T> presetList = new List<T>();
+			
+			XmlDocument xml = new XmlDocument();
+			try {
+				if (xmlString != null) xml.LoadXml(xmlString);
+				
+				// foreach Preset node that has a Name attribude
+				XmlNodeList presetNodeList = xml.SelectNodes("//Preset[@Name]");
+				foreach (XmlNode presetNode in presetNodeList) {
+					T preset = new T();
+					preset.ParsePresetNode(presetNode);
+					presetList.Add(preset);
+				}
+			} catch (XmlException) {
+				return null;
+			}
+			return presetList;
+		}
+		
 		/// <summary>
 		/// Parse out the xml string from the passed chunk data byte array
 		/// </summary>
@@ -128,7 +151,7 @@ namespace SynthAnalysisStudio
 				return null;
 			}
 		}
-		
+
 		private bool ParseXml(string xmlString, TextWriter tw) {
 
 			XmlDocument xml = new XmlDocument();
@@ -207,7 +230,6 @@ namespace SynthAnalysisStudio
 				
 				ReadRealWorldParameters();
 			}
-
 		}
 		
 		protected abstract void ReadRealWorldParameters();
