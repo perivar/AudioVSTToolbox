@@ -33,6 +33,7 @@ namespace SynthAnalysisStudio
 			}
 			uadSSLChannel.EXPAttack = Convert.ToSingle(wavesSSLChannel.ExpFastAttack);
 			uadSSLChannel.EXPRelease = uadSSLChannel.FindClosestValue("EXP Release", wavesSSLChannel.ExpRelease);
+			uadSSLChannel.ExpIn = 1.0f;
 			
 			uadSSLChannel.CompIn = Convert.ToSingle(!wavesSSLChannel.DynToByPass);
 			uadSSLChannel.DYNIn = Convert.ToSingle(!wavesSSLChannel.DynToByPass);
@@ -71,6 +72,8 @@ namespace SynthAnalysisStudio
 			uadSSLChannel.Phase = Convert.ToSingle(wavesSSLChannel.PhaseReverse);
 			uadSSLChannel.Input = uadSSLChannel.FindClosestValue("Input", wavesSSLChannel.InputTrim);
 			
+			uadSSLChannel.EQType = 0.0f; // Black EQ Type
+			uadSSLChannel.StereoLink = 1.0f;
 			uadSSLChannel.Power = 1.0f;
 			
 			return uadSSLChannel;

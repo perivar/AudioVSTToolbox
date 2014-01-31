@@ -39,7 +39,7 @@ namespace SynthAnalysisStudio
 		{
 		}
 		
-		protected override void ReadRealWorldParameters()
+		protected override bool ReadRealWorldParameters()
 		{
 			if (PluginName == "SSLComp") {
 				
@@ -120,6 +120,10 @@ namespace SynthAnalysisStudio
 
 				//Analog
 				Analog = (splittedPhrase[9] == "1");
+				
+				return true;
+			} else {
+				return false;
 			}
 		}
 

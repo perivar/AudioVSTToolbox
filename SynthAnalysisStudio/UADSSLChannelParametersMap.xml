@@ -7206,105 +7206,105 @@
 			<Value>1,00</Value>
 		</Entry>
 	</Parameter>
-	<Parameter name="LMF Q" name-formatted="LMF_Q" unique-displaytext="1">
+	<Parameter name="LMF Q" name-formatted="LMF_Q" unique-displaytext="101">
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>4.00</DisplayText>
+			<DisplayNumber>4,00</DisplayNumber>
 			<Value>0,00</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>3.93</DisplayText>
+			<DisplayNumber>3,93</DisplayNumber>
 			<Value>0,01</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>3.85</DisplayText>
+			<DisplayNumber>3,85</DisplayNumber>
 			<Value>0,02</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>3.78</DisplayText>
+			<DisplayNumber>3,78</DisplayNumber>
 			<Value>0,03</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>3.70</DisplayText>
+			<DisplayNumber>3,70</DisplayNumber>
 			<Value>0,04</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>3.63</DisplayText>
+			<DisplayNumber>3,63</DisplayNumber>
 			<Value>0,05</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>3.55</DisplayText>
+			<DisplayNumber>3,55</DisplayNumber>
 			<Value>0,06</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>3.48</DisplayText>
+			<DisplayNumber>3,48</DisplayNumber>
 			<Value>0,07</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>3.40</DisplayText>
+			<DisplayNumber>3,40</DisplayNumber>
 			<Value>0,08</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>3.33</DisplayText>
+			<DisplayNumber>3,33</DisplayNumber>
 			<Value>0,09</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>3.25</DisplayText>
+			<DisplayNumber>3,25</DisplayNumber>
 			<Value>0,10</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>3.18</DisplayText>
+			<DisplayNumber>3,18</DisplayNumber>
 			<Value>0,11</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>3.10</DisplayText>
+			<DisplayNumber>3,10</DisplayNumber>
 			<Value>0,12</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>3.03</DisplayText>
+			<DisplayNumber>3,03</DisplayNumber>
 			<Value>0,13</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.95</DisplayText>
+			<DisplayNumber>2,95</DisplayNumber>
 			<Value>0,14</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.88</DisplayText>
+			<DisplayNumber>2,88</DisplayNumber>
 			<Value>0,15</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.80</DisplayText>
+			<DisplayNumber>2,80</DisplayNumber>
 			<Value>0,16</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.73</DisplayText>
+			<DisplayNumber>2,73</DisplayNumber>
 			<Value>0,17</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.65</DisplayText>
+			<DisplayNumber>2,65</DisplayNumber>
 			<Value>0,18</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.58</DisplayText>
+			<DisplayNumber>2,58</DisplayNumber>
 			<Value>0,19</Value>
 		</Entry>
 		<Entry>
@@ -7313,403 +7313,403 @@
 			<Value>0,20</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.47</DisplayText>
+			<DisplayNumber>2,47</DisplayNumber>
 			<Value>0,21</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.43</DisplayText>
+			<DisplayNumber>2,43</DisplayNumber>
 			<Value>0,22</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.40</DisplayText>
+			<DisplayNumber>2,40</DisplayNumber>
 			<Value>0,23</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.37</DisplayText>
+			<DisplayNumber>2,37</DisplayNumber>
 			<Value>0,24</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.33</DisplayText>
+			<DisplayNumber>2,33</DisplayNumber>
 			<Value>0,25</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.30</DisplayText>
+			<DisplayNumber>2,30</DisplayNumber>
 			<Value>0,26</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.27</DisplayText>
+			<DisplayNumber>2,27</DisplayNumber>
 			<Value>0,27</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.23</DisplayText>
+			<DisplayNumber>2,23</DisplayNumber>
 			<Value>0,28</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.20</DisplayText>
+			<DisplayNumber>2,20</DisplayNumber>
 			<Value>0,29</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.17</DisplayText>
+			<DisplayNumber>2,17</DisplayNumber>
 			<Value>0,30</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.13</DisplayText>
+			<DisplayNumber>2,13</DisplayNumber>
 			<Value>0,31</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.10</DisplayText>
+			<DisplayNumber>2,10</DisplayNumber>
 			<Value>0,32</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.07</DisplayText>
+			<DisplayNumber>2,07</DisplayNumber>
 			<Value>0,33</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.03</DisplayText>
+			<DisplayNumber>2,03</DisplayNumber>
 			<Value>0,34</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>2.00</DisplayText>
+			<DisplayNumber>2,00</DisplayNumber>
 			<Value>0,35</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.97</DisplayText>
+			<DisplayNumber>1,97</DisplayNumber>
 			<Value>0,36</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.93</DisplayText>
+			<DisplayNumber>1,93</DisplayNumber>
 			<Value>0,37</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.90</DisplayText>
+			<DisplayNumber>1,90</DisplayNumber>
 			<Value>0,38</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.87</DisplayText>
+			<DisplayNumber>1,87</DisplayNumber>
 			<Value>0,39</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.83</DisplayText>
+			<DisplayNumber>1,83</DisplayNumber>
 			<Value>0,40</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.80</DisplayText>
+			<DisplayNumber>1,80</DisplayNumber>
 			<Value>0,41</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.77</DisplayText>
+			<DisplayNumber>1,77</DisplayNumber>
 			<Value>0,42</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.73</DisplayText>
+			<DisplayNumber>1,73</DisplayNumber>
 			<Value>0,43</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.70</DisplayText>
+			<DisplayNumber>1,70</DisplayNumber>
 			<Value>0,44</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.67</DisplayText>
+			<DisplayNumber>1,67</DisplayNumber>
 			<Value>0,45</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.63</DisplayText>
+			<DisplayNumber>1,63</DisplayNumber>
 			<Value>0,46</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.60</DisplayText>
+			<DisplayNumber>1,60</DisplayNumber>
 			<Value>0,47</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.57</DisplayText>
+			<DisplayNumber>1,57</DisplayNumber>
 			<Value>0,48</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.53</DisplayText>
+			<DisplayNumber>1,53</DisplayNumber>
 			<Value>0,49</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.50</DisplayText>
+			<DisplayNumber>1,50</DisplayNumber>
 			<Value>0,50</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.47</DisplayText>
+			<DisplayNumber>1,47</DisplayNumber>
 			<Value>0,51</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.44</DisplayText>
+			<DisplayNumber>1,44</DisplayNumber>
 			<Value>0,52</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.41</DisplayText>
+			<DisplayNumber>1,41</DisplayNumber>
 			<Value>0,53</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.38</DisplayText>
+			<DisplayNumber>1,38</DisplayNumber>
 			<Value>0,54</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.35</DisplayText>
+			<DisplayNumber>1,35</DisplayNumber>
 			<Value>0,55</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.32</DisplayText>
+			<DisplayNumber>1,32</DisplayNumber>
 			<Value>0,56</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.29</DisplayText>
+			<DisplayNumber>1,29</DisplayNumber>
 			<Value>0,57</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.26</DisplayText>
+			<DisplayNumber>1,26</DisplayNumber>
 			<Value>0,58</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.23</DisplayText>
+			<DisplayNumber>1,23</DisplayNumber>
 			<Value>0,59</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.20</DisplayText>
+			<DisplayNumber>1,20</DisplayNumber>
 			<Value>0,60</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.17</DisplayText>
+			<DisplayNumber>1,17</DisplayNumber>
 			<Value>0,61</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.14</DisplayText>
+			<DisplayNumber>1,14</DisplayNumber>
 			<Value>0,62</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.11</DisplayText>
+			<DisplayNumber>1,11</DisplayNumber>
 			<Value>0,63</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.08</DisplayText>
+			<DisplayNumber>1,08</DisplayNumber>
 			<Value>0,64</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.05</DisplayText>
+			<DisplayNumber>1,05</DisplayNumber>
 			<Value>0,65</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>1.02</DisplayText>
+			<DisplayNumber>1,02</DisplayNumber>
 			<Value>0,66</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.99</DisplayText>
+			<DisplayNumber>0,99</DisplayNumber>
 			<Value>0,67</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.96</DisplayText>
+			<DisplayNumber>0,96</DisplayNumber>
 			<Value>0,68</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.93</DisplayText>
+			<DisplayNumber>0,93</DisplayNumber>
 			<Value>0,69</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.90</DisplayText>
+			<DisplayNumber>0,90</DisplayNumber>
 			<Value>0,70</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.87</DisplayText>
+			<DisplayNumber>0,87</DisplayNumber>
 			<Value>0,71</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.84</DisplayText>
+			<DisplayNumber>0,84</DisplayNumber>
 			<Value>0,72</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.81</DisplayText>
+			<DisplayNumber>0,81</DisplayNumber>
 			<Value>0,73</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.78</DisplayText>
+			<DisplayNumber>0,78</DisplayNumber>
 			<Value>0,74</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.75</DisplayText>
+			<DisplayNumber>0,75</DisplayNumber>
 			<Value>0,75</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.72</DisplayText>
+			<DisplayNumber>0,72</DisplayNumber>
 			<Value>0,76</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.69</DisplayText>
+			<DisplayNumber>0,69</DisplayNumber>
 			<Value>0,77</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.66</DisplayText>
+			<DisplayNumber>0,66</DisplayNumber>
 			<Value>0,78</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.63</DisplayText>
+			<DisplayNumber>0,63</DisplayNumber>
 			<Value>0,79</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.60</DisplayText>
+			<DisplayNumber>0,60</DisplayNumber>
 			<Value>0,80</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.59</DisplayText>
+			<DisplayNumber>0,59</DisplayNumber>
 			<Value>0,81</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.58</DisplayText>
+			<DisplayNumber>0,58</DisplayNumber>
 			<Value>0,82</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.57</DisplayText>
+			<DisplayNumber>0,57</DisplayNumber>
 			<Value>0,83</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.56</DisplayText>
+			<DisplayNumber>0,56</DisplayNumber>
 			<Value>0,84</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.55</DisplayText>
+			<DisplayNumber>0,55</DisplayNumber>
 			<Value>0,85</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.54</DisplayText>
+			<DisplayNumber>0,54</DisplayNumber>
 			<Value>0,86</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.53</DisplayText>
+			<DisplayNumber>0,53</DisplayNumber>
 			<Value>0,87</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.52</DisplayText>
+			<DisplayNumber>0,52</DisplayNumber>
 			<Value>0,88</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.51</DisplayText>
+			<DisplayNumber>0,51</DisplayNumber>
 			<Value>0,89</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.50</DisplayText>
+			<DisplayNumber>0,50</DisplayNumber>
 			<Value>0,90</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.49</DisplayText>
+			<DisplayNumber>0,49</DisplayNumber>
 			<Value>0,91</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.48</DisplayText>
+			<DisplayNumber>0,48</DisplayNumber>
 			<Value>0,92</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.47</DisplayText>
+			<DisplayNumber>0,47</DisplayNumber>
 			<Value>0,93</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.46</DisplayText>
+			<DisplayNumber>0,46</DisplayNumber>
 			<Value>0,94</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.45</DisplayText>
+			<DisplayNumber>0,45</DisplayNumber>
 			<Value>0,95</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.44</DisplayText>
+			<DisplayNumber>0,44</DisplayNumber>
 			<Value>0,96</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.43</DisplayText>
+			<DisplayNumber>0,43</DisplayNumber>
 			<Value>0,97</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.42</DisplayText>
+			<DisplayNumber>0,42</DisplayNumber>
 			<Value>0,98</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.41</DisplayText>
+			<DisplayNumber>0,41</DisplayNumber>
 			<Value>0,99</Value>
 		</Entry>
 		<Entry>
-			<DisplayText>2.50</DisplayText>
-			<DisplayNumber>2,50</DisplayNumber>
+			<DisplayText>0.40</DisplayText>
+			<DisplayNumber>0,40</DisplayNumber>
 			<Value>1,00</Value>
 		</Entry>
 	</Parameter>

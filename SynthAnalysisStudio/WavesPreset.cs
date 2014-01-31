@@ -80,8 +80,9 @@ namespace SynthAnalysisStudio
 				XmlNodeList presetNodeList = xml.SelectNodes("//Preset[@Name]");
 				foreach (XmlNode presetNode in presetNodeList) {
 					T preset = new T();
-					preset.ParsePresetNode(presetNode);
-					presetList.Add(preset);
+					if (preset.ParsePresetNode(presetNode)) {
+						presetList.Add(preset);
+					}
 				}
 			} catch (XmlException) {
 				return null;
@@ -184,20 +185,29 @@ namespace SynthAnalysisStudio
 				// foreach Preset node that has a Name attribude
 				XmlNodeList presetNodeList = xml.SelectNodes("//Preset[@Name]");
 				foreach (XmlNode presetNode in presetNodeList) {
-					ParsePresetNode(presetNode);
-					if (tw != null) {
-						tw.WriteLine(ToString());
-						tw.WriteLine();
-						tw.WriteLine("-------------------------------------------------------");
+					if (ParsePresetNode(presetNode)) {
+						if (tw != null) {
+							tw.WriteLine(ToString());
+							tw.WriteLine();
+							tw.WriteLine("-------------------------------------------------------");
+						}
+						return true;
+					} else {
+						return false;
 					}
 				}
-				return true;
 			} catch (XmlException) {
 				return false;
 			}
+			return false;
 		}
 		
-		private void ParsePresetNode(XmlNode presetNode) {
+		/// <summary>
+		/// Parse a Waves Preset Node and extract parameters
+		/// </summary>
+		/// <param name="presetNode">XmlNode</param>
+		/// <returns>true if parsing was successful</returns>
+		private bool ParsePresetNode(XmlNode presetNode) {
 			
 			// Get the preset node's attributes
 			XmlAttribute nameAtt = presetNode.Attributes["Name"];
@@ -214,7 +224,7 @@ namespace SynthAnalysisStudio
 			} else {
 				PluginName = "";
 			}
-
+			
 			XmlNode pluginVersionNode = presetNode.SelectSingleNode("PresetHeader/PluginVersion");
 			if (pluginVersionNode != null && pluginVersionNode.InnerText != null) {
 				PluginVersion = pluginVersionNode.InnerText;
@@ -251,11 +261,13 @@ namespace SynthAnalysisStudio
 					RealWorldParameters = StringUtils.TrimMultiLine(parametersNode.InnerText);
 				}
 				
-				ReadRealWorldParameters();
+				return ReadRealWorldParameters();
 			}
+			
+			return true;
 		}
 		
-		protected abstract void ReadRealWorldParameters();
+		protected abstract bool ReadRealWorldParameters();
 		
 	}
 }

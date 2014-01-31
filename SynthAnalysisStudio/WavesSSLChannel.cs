@@ -59,7 +59,7 @@ namespace SynthAnalysisStudio
 		{
 		}
 		
-		protected override void ReadRealWorldParameters()
+		protected override bool ReadRealWorldParameters()
 		{
 			if (PluginName == "SSLChannel") {
 				
@@ -125,6 +125,10 @@ namespace SynthAnalysisStudio
 				
 				PhaseReverse = (splittedPhrase[39] == "1");
 				InputTrim = float.Parse(splittedPhrase[40], CultureInfo.InvariantCulture); // dB
+				
+				return true;
+			} else {
+				return false;
 			}
 		}
 
