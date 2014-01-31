@@ -57,11 +57,13 @@ namespace SynthAnalysisStudio
 		/// C:\Users\Public\Waves Audio\Plug-In Settings\*.xps files
 		/// </summary>
 		/// <param name="filePath">file to xps file (e.g. with the filename '1000' or *.xps)</param>
-		/// <remarks>Using generics to allow us to specify which preset type we are processing</remarks>
+		/// <example>
+		/// List<WavesSSLChannel> presetList = WavesPreset.ReadXps<WavesSSLChannel>(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000");
+		/// </example>
+		/// <remarks>This method is using generics to allow us to specify which preset type we are processing</remarks>
 		/// <returns>a list of the WavesPreset type</returns>
 		public static List<T> ReadXps<T>(string filePath) where T : WavesPreset, new() {
 			string xmlString = File.ReadAllText(filePath);
-			
 			return ParseXml<T>(xmlString);
 		}
 		
@@ -85,6 +87,27 @@ namespace SynthAnalysisStudio
 				return null;
 			}
 			return presetList;
+		}
+
+		/// <summary>
+		/// Read Waves XPst files
+		/// E.g.
+		/// C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000
+		/// or
+		/// C:\Users\Public\Waves Audio\Plug-In Settings\*.xps files
+		/// </summary>
+		/// <param name="filePath">file to xps file (e.g. with the filename '1000' or *.xps)</param>
+		/// <example>
+		/// 	WavesSSLChannel ssl = new WavesSSLChannel();
+		/// 	TextWriter tw1 = new StreamWriter("sslchannel-output.txt");
+		/// 	ssl.ReadXps(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000", tw1);
+		/// 	ssl.ReadXps(@"C:\Users\Public\Waves Audio\Plug-In Settings\SSLChannel Settings.xps", tw1);
+		/// 	tw1.Close();
+		/// </example>
+		/// <returns>true if successful</returns>
+		public bool ReadXps(string filePath, TextWriter tw) {
+			string xmlString = File.ReadAllText(filePath);
+			return ParseXml(xmlString, tw);
 		}
 		
 		/// <summary>

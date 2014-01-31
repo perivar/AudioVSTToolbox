@@ -11,9 +11,9 @@ namespace SynthAnalysisStudio
 		
 		public WavesSSLChannelToUADSSLChannelAdapter(WavesSSLChannel wavesSSLChannel)
 		{
-			this.wavesSSLChannel = wavesSSLChannel;			
+			this.wavesSSLChannel = wavesSSLChannel;
 		}
-				
+		
 		public UADSSLChannel DoConvert() {
 			
 			UADSSLChannel uadSSLChannel = new UADSSLChannel();
@@ -58,7 +58,11 @@ namespace SynthAnalysisStudio
 			uadSSLChannel.EQDynSC = Convert.ToSingle(wavesSSLChannel.EQToDynSC);
 			
 			uadSSLChannel.HPFreq = uadSSLChannel.FindClosestValue("HP Freq", wavesSSLChannel.HPFrq);
-			uadSSLChannel.LPFreq = uadSSLChannel.FindClosestValue("LP Freq", wavesSSLChannel.LPFrq*1000);
+			if (wavesSSLChannel.LPFrq == 30) {
+				uadSSLChannel.LPFreq = 0;
+			} else {
+				uadSSLChannel.LPFreq = uadSSLChannel.FindClosestValue("LP Freq", wavesSSLChannel.LPFrq*1000);
+			}
 			//wavesSSLChannel.FilterSplit;
 			
 			uadSSLChannel.Output = uadSSLChannel.FindClosestValue("Output", wavesSSLChannel.Gain);
@@ -66,6 +70,8 @@ namespace SynthAnalysisStudio
 			//wavesSSLChannel.VUShowOutput;
 			uadSSLChannel.Phase = Convert.ToSingle(wavesSSLChannel.PhaseReverse);
 			uadSSLChannel.Input = uadSSLChannel.FindClosestValue("Input", wavesSSLChannel.InputTrim);
+			
+			uadSSLChannel.Power = 1.0f;
 			
 			return uadSSLChannel;
 		}

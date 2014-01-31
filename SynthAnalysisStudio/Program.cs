@@ -100,20 +100,24 @@ namespace SynthAnalysisStudio
 		[STAThread]
 		static void Main(string[] args)
 		{
+			#region Convert Waves SSLChannel to UADSSLChannel
 			List<WavesSSLChannel> presetList = WavesPreset.ReadXps<WavesSSLChannel>(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000");
 			foreach(var wavesSSLChannel in presetList) {
 				WavesSSLChannelToUADSSLChannelAdapter sslChannelAdapter = new WavesSSLChannelToUADSSLChannelAdapter(wavesSSLChannel);
 				UADSSLChannel uadSSLChannel = sslChannelAdapter.DoConvert();
-				uadSSLChannel.Write(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\" + uadSSLChannel.PresetName + ".fxp");
+				uadSSLChannel.Write(uadSSLChannel.PresetName + ".fxp");
 				Console.Out.WriteLine(uadSSLChannel);
-				Console.ReadKey();
+				//Console.ReadKey();
 			}
+			#endregion
+
 			return;
 			
 			/*
+
 			#region Waves SSLChannel preset conversion
 			WavesSSLChannel ssl = new WavesSSLChannel();
-			TextWriter tw1 = new StreamWriter(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslchannel-output.txt");
+			TextWriter tw1 = new StreamWriter(@"sslchannel-output.txt");
 			ssl.ReadXps(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000", tw1);
 			ssl.ReadXps(@"C:\Users\Public\Waves Audio\Plug-In Settings\SSLChannel Settings.xps", tw1);
 			tw1.Close();
@@ -121,7 +125,7 @@ namespace SynthAnalysisStudio
 
 			#region Waves SSLComp preset conversion
 			WavesSSLComp sslcomp = new WavesSSLComp();
-			TextWriter tw2 = new StreamWriter(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\SynthAnalysisStudio\bin\Debug\sslcomp-output.txt");
+			TextWriter tw2 = new StreamWriter(@"sslcomp-output.txt");
 			sslcomp.ReadXps(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLComp.bundle\Contents\Resources\XPst\1000", tw2);
 			sslcomp.ReadXps(@"C:\Users\Public\Waves Audio\Plug-In Settings\SSLComp Settings.xps", tw2);
 			tw2.Close();
