@@ -299,6 +299,11 @@ namespace CommonUtils.GUI
 					newstartZoomSamplePosition = (int) (startZoomSamplePosition + (delta * hitpointFraction));
 					newendZoomSamplePosition = (int) (endZoomSamplePosition - (delta * (1.0 - hitpointFraction)));
 					
+					// only allow zooming if samples are more than 15
+					int samplesSelected = newendZoomSamplePosition - newstartZoomSamplePosition;
+					if (samplesSelected <= 15) {
+						return;
+					}
 				}
 				else
 				{
@@ -383,7 +388,11 @@ namespace CommonUtils.GUI
 				startZoomSamplePosition = Math.Max((int)(previousStartZoomSamplePosition + samplesPerPixel * startSelectXPosition), 0);
 				endZoomSamplePosition = Math.Min((int)(previousStartZoomSamplePosition + samplesPerPixel * endSelectXPosition), soundPlayer.WaveformData.Length);
 				
-				Zoom(startZoomSamplePosition, endZoomSamplePosition);
+				// only allow zooming if samples are more than 15
+				int samplesSelected = endZoomSamplePosition - startZoomSamplePosition;
+				if (samplesSelected > 15) {
+					Zoom(startZoomSamplePosition, endZoomSamplePosition);
+				}
 				return;
 			}
 
@@ -454,10 +463,8 @@ namespace CommonUtils.GUI
 				if (amplitude < 1) amplitude = 1;
 				UpdateWaveform();
 			} else if (e.KeyCode == Keys.Right) {
-				//MessageBox.Show("KeyDown: " + e.KeyCode);
 				ScrollTime(true);
 			} else if (e.KeyCode == Keys.Left) {
-				//MessageBox.Show("KeyDown: " + e.KeyCode);
 				ScrollTime(false);
 			} else if (e.KeyCode == Keys.Oemcomma || e.KeyCode == Keys.Home) {
 				soundPlayer.ChannelPosition = 0;

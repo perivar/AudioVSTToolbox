@@ -911,68 +911,64 @@ namespace CommonUtils.FFT
 		/// <param name="endZoomSamplePosition">Last Sample to Zoom in on</param>
 		/// <param name="sampleRate">Samplerate of the audio data (to calculate time)</param>
 		/// <param name="drawRaw">Whether to draw only the raw image (no margins)</param>
+		/// <returns>A bitmap of the waveform</returns>
+		public static Bitmap DrawWaveform(float[] audioData, Size imageSize, int amplitude, int startZoomSamplePosition, int endZoomSamplePosition, double sampleRate, bool drawRaw=false) {
+			DrawingProperties prop = DrawingProperties.Blue;
+			prop.DrawRaw = true;
+			
+			return DrawWaveform(audioData, imageSize, amplitude, startZoomSamplePosition, endZoomSamplePosition, sampleRate, prop);
+		}
+
+		/// <summary>
+		/// Draw a waveform using start and end zoom sample position
+		/// </summary>
+		/// <param name="audioData">The audio data (mono)</param>
+		/// <param name="imageSize">Size of the image</param>
+		/// <param name="amplitude">Amplitude (1 is default)</param>
+		/// <param name="startZoomSamplePosition">First Sample to Zoom in on</param>
+		/// <param name="endZoomSamplePosition">Last Sample to Zoom in on</param>
+		/// <param name="sampleRate">Samplerate of the audio data (to calculate time)</param>
+		/// <param name="drawRaw">Whether to draw only the raw image (no margins)</param>
+		/// <param name="properties">DrawingProperties properties, like colors and margins</param>
 		/// <seealso cref="https://github.com/aalin/canvas_waveform"></seealso>
 		/// <seealso cref="http://www.hisschemoller.com/2010/mp3-wave-display/"></seealso>
 		/// <seealso cref="http://www.marinbezhanov.com/web-development/14/actionscript-3-sound-extract-demystified-or-how-to-draw-a-waveform-in-flash/"></seealso>
 		/// <seealso cref="http://stackoverflow.com/questions/1215326/open-source-c-sharp-code-to-present-wave-form"></seealso>
 		/// <returns>A bitmap of the waveform</returns>
-		public static Bitmap DrawWaveform(float[] audioData, Size imageSize, int amplitude, int startZoomSamplePosition, int endZoomSamplePosition, double sampleRate, bool drawRaw=false) {
+		public static Bitmap DrawWaveform(float[] audioData, Size imageSize, int amplitude, int startZoomSamplePosition, int endZoomSamplePosition, double sampleRate, DrawingProperties prop) {
 
-			// Basic constants
+			#region Define Basic Variables and Properties
 			int TOTAL_HEIGHT = imageSize.Height;    // Height of graph
 			int TOTAL_WIDTH = imageSize.Width;      // Width of graph
 
-			int TOP = 5;                     		// Top of graph
-			int LEFT = 5;                    		// Left edge of graph
-			if (drawRaw) {
+			int TOP = prop.Margin;               	// Top of graph
+			int LEFT = prop.Margin;                 // Left edge of graph
+			if (prop.DrawRaw) {
 				TOP = 0;                     		// Top of graph
 				LEFT = 0;                    		// Left edge of graph
 			}
 			int HEIGHT = imageSize.Height-2*TOP;	// Height of graph
 			int WIDTH = imageSize.Width-2*LEFT;     // Width of graph
 			
-			// limit amplitude
+			// make sure amplitude doesn't exceed a sensible treshold
 			if (amplitude > 5000) {
 				amplitude = 5000;
 			}
 			float MIN_AMPLITUDE = -1.0f / amplitude;
 			float MAX_AMPLITUDE = 1.0f / amplitude;
-			float AMPLITUDE_STEP = MAX_AMPLITUDE / 5;
-			
-			string LABEL_X = "Time"; 					// Label for X axis
-			string LABEL_Y = "Amplitude";             	// Label for Y axis
-			
-			bool drawLabels = false;
-			bool drawRoundedRectangles = true;
-			bool displayInformationBox = true;
-			bool displayTime = true;
-			bool useAverages = false; // averages draws a "filled" waveform
-
-			if (drawRaw) {
-				drawLabels = false;
-				drawRoundedRectangles = false;
-				displayInformationBox = false;
-				displayTime = false;
-			}
-			
-			// Colors
-			Color lineColor = ColorTranslator.FromHtml("#C7834C");
-			Color middleLineColor = ColorTranslator.FromHtml("#EFAB74");
-			Color textColor = ColorTranslator.FromHtml("#A9652E");
-			Color sampleColor = ColorTranslator.FromHtml("#4C2F1A");
-			Color fillOuterColor = ColorTranslator.FromHtml("#FFFFFF");
-			Color fillColor = ColorTranslator.FromHtml("#F9C998");
-			Color textInfoBoxColor = ColorTranslator.FromHtml("#4C2F1A");
-			Color textInfoBoxBgColor = ColorTranslator.FromHtml("#F7DECA");
+			float AMPLITUDE_STEP = MAX_AMPLITUDE / 2;
 			
 			// Derived constants
 			int CENTER = TOTAL_HEIGHT / 2;
 			int RIGHT = WIDTH;
-			int BOTTOM = TOTAL_HEIGHT-TOP;                   		// Bottom of graph
+			int BOTTOM = TOTAL_HEIGHT-TOP; // Bottom of graph
+			#endregion
 			
 			int totalNumberOfSamples = 0;
 			float[] data = null;
 			float samplesPerPixel = 0;
+			
+			#region Setup data array taking zoom into account
 			if (audioData != null && audioData.Length > 0) {
 
 				totalNumberOfSamples = audioData.Length;
@@ -992,7 +988,9 @@ namespace CommonUtils.FFT
 					samplesPerPixel = (float) totalNumberOfSamples / (float) WIDTH;
 				}
 			}
+			#endregion
 			
+			#region Calculate time variables
 			double totalDurationMs = totalNumberOfSamples / sampleRate * 1000;
 			
 			float MAX_TIME = (float) (endZoomSamplePosition / sampleRate * 1000);
@@ -1001,85 +999,93 @@ namespace CommonUtils.FFT
 				MIN_TIME = (float) (startZoomSamplePosition / sampleRate * 1000);
 			}
 			
-			float TIME_STEP = (float) MathUtils.GetNicerNumber((MAX_TIME-MIN_TIME) / 10);
+			float TIME_STEP = (float) MathUtils.GetNicerNumber((MAX_TIME-MIN_TIME) / 5);
 			float AMPLITUDETOPIXEL = (float) HEIGHT/(MAX_AMPLITUDE-MIN_AMPLITUDE); 	// Pixels/tick
 			float TIMETOPIXEL = (float) WIDTH/(MAX_TIME-MIN_TIME); 					// Pixels/second
+			#endregion
 			
 			// Set up for drawing
 			Bitmap png = new Bitmap( TOTAL_WIDTH, TOTAL_HEIGHT, PixelFormat.Format32bppArgb );
 			Graphics g = Graphics.FromImage(png);
+			g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality; // Set pixeloffsetmode to high quality to make sure we can draw small filled circles
 			ExtendedGraphics eg = new ExtendedGraphics(g);
 			
-			Pen linePen = new Pen(lineColor, 0.5f);
-			Pen middleLinePen = new Pen(middleLineColor, 0.5f);
-			Pen textPen = new Pen(textColor, 1.0f);
-			Pen samplePen = new Pen(sampleColor, 1.0f);
-			Pen infoBoxPen = new Pen(textInfoBoxColor, 1.0f);
+			#region Define Pens and Brushes
+			Pen centreLinePen = new Pen(prop.CenterLineColor, 1.0f);
+			Pen linePen = new Pen(prop.LineColor, 0.5f);
+			Pen middleLinePen = new Pen(prop.MiddleLineColor, 0.5f);
+			Pen textPen = new Pen(prop.TextColor, 1.0f);
+			Pen samplePen = new Pen(prop.SampleColor, 1.0f);
+			Pen infoBoxPen = new Pen(prop.DebugBoxTextColor, 1.0f);
 
-			// Draw a rectangular box marking the boundaries of the graph
+			Brush sampleDotBrush = new SolidBrush(prop.SampleColor);
+			Brush fillBrushOuter = new SolidBrush(prop.FillOuterColor);
+			Brush fillBrush = new SolidBrush(prop.FillColor);
+			Brush drawLabelBrush = new SolidBrush(textPen.Color);
+			Brush drawBrush = new SolidBrush(textPen.Color);
+			#endregion
+
+			#region Draw a Rectangular Box marking the boundaries of the graph
+			
 			// Create outer rectangle.
 			Rectangle rectOuter = new Rectangle(0, 0, TOTAL_WIDTH, TOTAL_HEIGHT);
-			Brush fillBrushOuter = new SolidBrush(fillOuterColor);
 			g.FillRectangle(fillBrushOuter, rectOuter);
 			
 			// Create rectangle.
 			Rectangle rect = new Rectangle(LEFT, TOP, WIDTH, HEIGHT);
-			Brush fillBrush = new SolidBrush(fillColor);
-			if (drawRoundedRectangles) {
+			if (prop.DrawRoundedRectangles) {
 				eg.FillRoundRectangle(fillBrush, rect.X, rect.Y, rect.Width, rect.Height, 10);
 				eg.DrawRoundRectangle(linePen, rect.X, rect.Y, rect.Width, rect.Height, 10);
 			} else {
 				g.FillRectangle(fillBrush, rect);
 				g.DrawRectangle(linePen, rect);
 			}
+			#endregion
+			
+			#region Draw Grid with Labels and Ticks
 			
 			// Label for horizontal axis
 			Font drawLabelFont = new Font("Arial", 8);
-			SolidBrush drawLabelBrush = new SolidBrush(textPen.Color);
-			if (drawLabels) {
-				SizeF drawLabelTextSize = g.MeasureString(LABEL_X, drawLabelFont);
-				g.DrawString(LABEL_X, drawLabelFont, drawLabelBrush, (TOTAL_WIDTH/2) - (drawLabelTextSize.Width/2), TOTAL_HEIGHT - drawLabelFont.GetHeight(g) -3);
+			if (prop.DrawLabels) {
+				SizeF drawLabelTextSize = g.MeasureString(prop.LabelXaxis, drawLabelFont);
+				g.DrawString(prop.LabelXaxis, drawLabelFont, drawLabelBrush, (TOTAL_WIDTH/2) - (drawLabelTextSize.Width/2), TOTAL_HEIGHT - drawLabelFont.GetHeight(g) -3);
 			}
-			
-			
+
 			float y = 0;
 			float yMiddle = 0;
 			float x = 0;
 			float xMiddle = 0;
 			for ( float amplitudeTick = MIN_AMPLITUDE; amplitudeTick <= MAX_AMPLITUDE; amplitudeTick += AMPLITUDE_STEP )
 			{
-				// draw horozontal main line
+				// draw horizontal main line
 				y = BOTTOM - AMPLITUDETOPIXEL*(amplitudeTick-MIN_AMPLITUDE);
 				if (y < BOTTOM && y > TOP+1) {
 					g.DrawLine(linePen, LEFT, y, LEFT+WIDTH, y);
 				}
 
-				// draw horozontal middle line (between the main lines)
+				// draw horizontal middle line (between the main lines)
 				yMiddle = y-(AMPLITUDETOPIXEL*AMPLITUDE_STEP)/2;
 				if (yMiddle > 0) {
 					g.DrawLine(middleLinePen, LEFT, yMiddle, LEFT+WIDTH, yMiddle);
 				}
 
-				if ( amplitudeTick != MAX_AMPLITUDE )
-				{
+				if ( amplitudeTick != MAX_AMPLITUDE ) {
 					// Numbers on the tick marks
-					Font drawFont = new Font("Arial", 8);
-					SolidBrush drawBrush = new SolidBrush(textPen.Color);
-					//g.DrawString("" + amplitudeTick, drawFont, drawBrush, LEFT+5, y - drawFont.GetHeight(g) -2);
+					Font drawFont = new Font("Arial", 7);
 					g.DrawString(amplitudeTick.ToString("0.000000"), drawFont, drawBrush, LEFT+5, y - drawFont.GetHeight(g) -2);
 				}
 			}
 			
-			if (drawLabels) {
+			if (prop.DrawLabels) {
 				// Label for vertical axis
-				g.DrawString(LABEL_Y, drawLabelFont, drawLabelBrush, 1, TOP + HEIGHT/2 - drawLabelFont.GetHeight(g)/2);
+				g.DrawString(prop.LabelYaxis, drawLabelFont, drawLabelBrush, 1, TOP + HEIGHT/2 - drawLabelFont.GetHeight(g)/2);
 			}
 			
 			// Tick marks on the horizontal axis
-			for ( float timeTick = MIN_TIME; timeTick <= MAX_TIME; timeTick += TIME_STEP )
+			for ( double timeTick = MIN_TIME; timeTick <= MAX_TIME; timeTick += TIME_STEP )
 			{
 				// draw vertical main line
-				x = LEFT + TIMETOPIXEL*(timeTick-MIN_TIME);
+				x = (float) (LEFT + TIMETOPIXEL*(timeTick-MIN_TIME));
 				if (x > LEFT  && x < WIDTH) {
 					g.DrawLine(linePen, x, BOTTOM, x, TOP);
 				}
@@ -1093,29 +1099,29 @@ namespace CommonUtils.FFT
 				if ( timeTick != MIN_TIME && timeTick != MAX_TIME )
 				{
 					// Numbers on the tick marks
-					Font drawFont = new Font("Arial", 8);
-					SolidBrush drawBrush = new SolidBrush(textPen.Color);
+					Font drawFont = new Font("Arial", 7);
 					TimeSpan time = TimeSpan.FromMilliseconds(timeTick);
-					//g.DrawString("" + timeTick + " ms", drawFont, drawBrush, x, TOP +2);
 					g.DrawString(time.ToString(@"hh\:mm\:ss\.FFFFFFF"), drawFont, drawBrush, x, TOP +2);
 				}
 			}
 
-			if (displayTime) {
+			if (prop.DisplayTime) {
 				string displayTimeString = String.Format("Duration: {0} samples @ {1:0.0000} ms", totalNumberOfSamples, totalDurationMs);
 				SizeF displayTimeStringTextSize = g.MeasureString(displayTimeString, drawLabelFont);
 				g.DrawString(displayTimeString, drawLabelFont, drawLabelBrush, TOTAL_WIDTH - displayTimeStringTextSize.Width - 10, TOTAL_HEIGHT - drawLabelFont.GetHeight(g) - 10);
 			}
 			
-			// draw middle line
-			g.DrawLine(middleLinePen, LEFT, CENTER, WIDTH, CENTER);
+			// draw centre line
+			g.DrawLine(centreLinePen, LEFT, CENTER, WIDTH, CENTER);
+			#endregion
 			
-			
-			// Draw waveform
+			#region Draw waveform
 			if (data != null && data.Length > 0) {
 				if (samplesPerPixel >= 1) {
-					// the number of samples are greater than the available drawing space (i.e. greater than the number of pixles in the X-Axis)
+					// the number of samples are greater than the available drawing space
+					// (i.e. greater than the number of pixles in the X-Axis)
 
+					#region Draw When More Samples than Width
 					float xPrev = 0;
 					float yPrev = 0;
 					float yAxis = 0;
@@ -1134,82 +1140,68 @@ namespace CommonUtils.FFT
 						// reset the min and max values
 						yMax = 0;
 						yMin = 0;
-						if (useAverages) {
-							// determine the average min and max values within this specific range
-							float posAvg = 0, negAvg = 0;
-							MathUtils.Averages(data, start, end, out posAvg, out negAvg);
-
-							yMax = TOP + HEIGHT - (int)((posAvg * amplitude + 1) * 0.5 * HEIGHT);
-							yMin = TOP + HEIGHT - (int)((negAvg * amplitude + 1) * 0.5 * HEIGHT);
-							
-							g.DrawLine(samplePen, xAxis + LEFT, yMin, xAxis + LEFT, yMax);
-						} else {
-							// determine the min and max values within this specific range
-							float min = float.MaxValue;
-							float max = float.MinValue;
-							for (int i = start; i <= end; i++)
-							{
-								if (i < data.Length) {
-									float val = data[i];
-									min = val < min ? val : min;
-									max = val > max ? val : max;
-								}
-							}
-							
-							yMax = TOP + HEIGHT - (int)((max * amplitude + 1) * 0.5 * HEIGHT);
-							yMin = TOP + HEIGHT - (int)((min * amplitude + 1) * 0.5 * HEIGHT);
-
-							// limit within the drawing space
-							if (yMax < 0) yMax = 0;
-							if (yMin > HEIGHT) yMin = HEIGHT;
-							
-							// make sure that we always draw something
-							if (yMin == yMax) {
-								yMin += 1;
-							}
-							yAxis = yMax;
-
-							// draw waveform
-							// If it's the first point
-							if ( firstPoint )
-							{
-								// Move to the point
-								xPrev = xAxis;
-								yPrev = yAxis;
-								
-								yMaxPrev = yMax;
-								yMinPrev = yMin;
-								
-								firstPoint = false;
-							}
-							else
-							{
-								if (TIMETOPIXEL > 10) {
-									// For smaller resolution, Draw line from the previous point
-									g.DrawLine(samplePen, xPrev + LEFT, yPrev, xAxis + LEFT, yAxis);
-									
-									// Try to smooth the lines by using the previous max value
-									//g.DrawLine(samplePen, xPrev + LEFT, yMaxPrev, xAxis + LEFT, yMin);
-								} else {
-									// use yMax and yMin
-									// original from example: http://stackoverflow.com/questions/1215326/open-source-c-sharp-code-to-present-wave-form
-									// basically don't care about previous x or y, but draw vertical lines
-									// from y min to y max value
-									g.DrawLine(samplePen, xAxis + LEFT, yMin, xAxis + LEFT, yMax);
-								}
-
-								// store values to next iteration
-								xPrev = xAxis;
-								yPrev = yAxis;
-								
-								yMaxPrev = yMax;
-								yMinPrev = yMin;
+						
+						// determine the min and max values within this specific range
+						float min = float.MaxValue;
+						float max = float.MinValue;
+						for (int i = start; i <= end; i++)
+						{
+							if (i < data.Length) {
+								float val = data[i];
+								min = val < min ? val : min;
+								max = val > max ? val : max;
 							}
 						}
+						
+						yMax = TOP + HEIGHT - (int)((max * amplitude + 1) * 0.5 * HEIGHT);
+						yMin = TOP + HEIGHT - (int)((min * amplitude + 1) * 0.5 * HEIGHT);
+
+						// limit within the drawing space
+						if (yMax < 0) yMax = 0;
+						if (yMin > HEIGHT) yMin = HEIGHT;
+						
+						// make sure that we always draw something
+						if (yMin == yMax) {
+							yMin += 1;
+						}
+						yAxis = yMax;
+
+						// draw waveform
+						// If it's the first point
+						if ( firstPoint )
+						{
+							// Move to the point
+							xPrev = xAxis;
+							yPrev = yAxis;
+							
+							yMaxPrev = yMax;
+							yMinPrev = yMin;
+							
+							firstPoint = false;
+						}
+						else
+						{
+							// use yMax and yMin
+							// original from example: http://stackoverflow.com/questions/1215326/open-source-c-sharp-code-to-present-wave-form
+							// basically don't care about previous x or y, but draw vertical lines
+							// from y min to y max value
+							g.DrawLine(samplePen, xAxis + LEFT, yMin, xAxis + LEFT, yMax);
+
+							// store values to next iteration
+							xPrev = xAxis;
+							yPrev = yAxis;
+							
+							yMaxPrev = yMax;
+							yMinPrev = yMin;
+						}
 					}
+					#endregion
+					
 				} else {
 					// the number of samples are less than the available drawing space
 					// (i.e. less than the number of pixles in the X-Axis)
+					
+					#region Draw When Less Samples than Width
 					int samples = data.Length;
 					if (samples > 1) {
 						// at least two samples
@@ -1227,20 +1219,31 @@ namespace CommonUtils.FFT
 						if (ps.Count > 0)
 						{
 							g.DrawLines(samplePen, ps.ToArray());
+
+							// draw small dots for each sample
+							// each dot needs 5 pixels width
+							if ( ps.Count < (float) (WIDTH / 5)) {
+								foreach(Point p in ps) {
+									g.FillEllipse(sampleDotBrush, p.X-2, p.Y-2, 3, 3);
+								}
+							}
 						}
+						
 					} else {
 						// we have only one sample, draw a flat line
 						g.DrawLine(linePen, 0, 0.5f * HEIGHT, WIDTH, 0.5f * HEIGHT);
 					}
+					#endregion
 				}
 			}
+			#endregion
 			
-			// draw right upper box
-			if (displayInformationBox) {
+			#region Draw right upper debug box
+			if (prop.DisplayDebugBox) {
 				Font drawInfoBoxFont = new Font("Arial", 8);
 				SolidBrush drawInfoBoxBrush = new SolidBrush(infoBoxPen.Color);
 				
-				string infoBoxLine1Text = String.Format("SampleToPixel Orig: {0:0.000} => New: {1:0.000}", (float) totalNumberOfSamples / WIDTH, samplesPerPixel);
+				string infoBoxLine1Text = String.Format("SamplesPerPixel Orig: {0:0.000} => New: {1:0.000}", (float) totalNumberOfSamples / WIDTH, samplesPerPixel);
 				string infoBoxLine2Text = String.Format("Time (Min->Max): {0} -> {1}", MIN_TIME, MAX_TIME);
 				string infoBoxLine3Text = String.Format("Timestep: {0}, TimeToPixel: {1}", TIME_STEP, TIMETOPIXEL);
 
@@ -1262,7 +1265,7 @@ namespace CommonUtils.FFT
 				int infoBoxHeight = (int) (infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*4);
 				
 				Rectangle rectInfoBox = new Rectangle(WIDTH - infoBoxWidth - 20, 30, infoBoxWidth, infoBoxHeight);
-				Brush fillBrushInfoBox = new SolidBrush(textInfoBoxBgColor);
+				Brush fillBrushInfoBox = new SolidBrush(prop.DebugBoxBgColor);
 				g.FillRectangle(fillBrushInfoBox, rectInfoBox);
 				g.DrawRectangle(linePen, rectInfoBox);
 				
@@ -1270,6 +1273,7 @@ namespace CommonUtils.FFT
 				g.DrawString(infoBoxLine2Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin));
 				g.DrawString(infoBoxLine3Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*2);
 			}
+			#endregion
 			
 			return png;
 		}
@@ -1339,5 +1343,96 @@ namespace CommonUtils.FFT
 			return image;
 		}
 		#endregion
+	}
+	
+	public class DrawingProperties {
+		
+		public Color CenterLineColor  { get; set; } // for a waveform view this is the centre middle line (0 dB)
+		public Color LineColor  { get; set; }
+		public Color MiddleLineColor  { get; set; }
+		public Color TextColor  { get; set; }
+		public Color SampleColor { get; set; }
+		public Color FillOuterColor { get; set; }
+		public Color FillColor { get; set; }
+		public Color DebugBoxTextColor { get; set; }
+		public Color DebugBoxBgColor { get; set; }
+		
+		public string LabelXaxis { get; set; }
+		public string LabelYaxis { get; set; }
+		
+		public int Margin { get; set; }
+		
+		bool drawRaw;
+		public bool DrawRaw {
+			get {
+				return drawRaw;
+			}
+			set {
+				drawRaw = value;
+				if (drawRaw) {
+					DrawLabels = false;
+					DrawRoundedRectangles = false;
+					DisplayDebugBox = true;
+					DisplayTime = false;
+				} else {
+					DrawLabels = false;
+					DrawRoundedRectangles = true;
+					DisplayDebugBox = false;
+					DisplayTime = true;
+				}
+			}
+		}
+		public bool DrawLabels { get; set; }
+		public bool DrawRoundedRectangles { get; set; }
+		public bool DisplayDebugBox { get; set; }
+		public bool DisplayTime { get; set; }
+		
+		public DrawingProperties() {
+			
+			// Set some default values, setting DrawRaw also sets the default values for the other bool parameters
+			DrawRaw = false;
+			
+			Margin = 5; // 5 pixels margins if not drawing raw
+			
+			LabelXaxis = "Time"; 					// Label for X axis
+			LabelYaxis = "Amplitude";             	// Label for Y axis
+		}
+		
+		public static DrawingProperties Orange {
+			get {
+				DrawingProperties prop = new DrawingProperties();
+
+				prop.CenterLineColor = ColorTranslator.FromHtml("#C7834C");
+				prop.LineColor = ColorTranslator.FromHtml("#C7834C");
+				prop.MiddleLineColor = ColorTranslator.FromHtml("#EFAB74");
+				prop.TextColor = ColorTranslator.FromHtml("#A9652E");
+				prop.SampleColor = ColorTranslator.FromHtml("#4C2F1A");
+				prop.FillOuterColor = ColorTranslator.FromHtml("#FFFFFF");
+				prop.FillColor = ColorTranslator.FromHtml("#F9C998");
+				prop.DebugBoxTextColor = ColorTranslator.FromHtml("#4C2F1A");
+				prop.DebugBoxBgColor = ColorTranslator.FromHtml("#F7DECA");
+				
+				return prop;
+			}
+		}
+
+		public static DrawingProperties Blue {
+			get {
+				DrawingProperties prop = new DrawingProperties();
+
+				prop.CenterLineColor = ColorTranslator.FromHtml("#000032");
+				prop.LineColor = ColorTranslator.FromHtml("#C0C0C0");
+				prop.MiddleLineColor = ColorTranslator.FromHtml("#E2E2E2");
+				prop.TextColor = ColorTranslator.FromHtml("#000000");
+				prop.SampleColor = ColorTranslator.FromHtml("#000064");
+				prop.FillOuterColor = ColorTranslator.FromHtml("#FFFFFF");
+				prop.FillColor = ColorTranslator.FromHtml("#FFFFFF");
+				prop.DebugBoxTextColor = ColorTranslator.FromHtml("#4C2F1A");
+				prop.DebugBoxBgColor = ColorTranslator.FromHtml("#F7DECA");
+				
+				return prop;
+			}
+		}
+
 	}
 }
