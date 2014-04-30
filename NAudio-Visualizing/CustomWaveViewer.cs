@@ -299,9 +299,9 @@ namespace CommonUtils.GUI
 					newstartZoomSamplePosition = (int) (startZoomSamplePosition + (delta * hitpointFraction));
 					newendZoomSamplePosition = (int) (endZoomSamplePosition - (delta * (1.0 - hitpointFraction)));
 					
-					// only allow zooming if samples are more than 15
+					// only allow zooming if samples are more than 10
 					int samplesSelected = newendZoomSamplePosition - newstartZoomSamplePosition;
-					if (samplesSelected <= 15) {
+					if (samplesSelected <= 10) {
 						return;
 					}
 				}
@@ -388,9 +388,9 @@ namespace CommonUtils.GUI
 				startZoomSamplePosition = Math.Max((int)(previousStartZoomSamplePosition + samplesPerPixel * startSelectXPosition), 0);
 				endZoomSamplePosition = Math.Min((int)(previousStartZoomSamplePosition + samplesPerPixel * endSelectXPosition), soundPlayer.WaveformData.Length);
 				
-				// only allow zooming if samples are more than 15
+				// only allow zooming if samples are more than 10
 				int samplesSelected = endZoomSamplePosition - startZoomSamplePosition;
-				if (samplesSelected > 15) {
+				if (samplesSelected > 10) {
 					Zoom(startZoomSamplePosition, endZoomSamplePosition);
 				}
 				return;

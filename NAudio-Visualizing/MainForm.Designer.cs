@@ -108,8 +108,10 @@ namespace NAudio_Visualizing
 			// 
 			// customWaveViewer1
 			// 
-			this.customWaveViewer1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+			this.customWaveViewer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+									| System.Windows.Forms.AnchorStyles.Left) 
 									| System.Windows.Forms.AnchorStyles.Right)));
+			this.customWaveViewer1.AutoSize = true;
 			this.customWaveViewer1.Location = new System.Drawing.Point(12, 187);
 			this.customWaveViewer1.Name = "customWaveViewer1";
 			this.customWaveViewer1.Size = new System.Drawing.Size(757, 178);
@@ -117,9 +119,9 @@ namespace NAudio_Visualizing
 			// 
 			// customSpectrumAnalyzer1
 			// 
-			this.customSpectrumAnalyzer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Left) 
+			this.customSpectrumAnalyzer1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
 									| System.Windows.Forms.AnchorStyles.Right)));
+			this.customSpectrumAnalyzer1.AutoSize = true;
 			this.customSpectrumAnalyzer1.Location = new System.Drawing.Point(12, 40);
 			this.customSpectrumAnalyzer1.Name = "customSpectrumAnalyzer1";
 			this.customSpectrumAnalyzer1.Size = new System.Drawing.Size(757, 141);

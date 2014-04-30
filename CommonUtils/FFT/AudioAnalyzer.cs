@@ -1122,15 +1122,8 @@ namespace CommonUtils.FFT
 					// (i.e. greater than the number of pixles in the X-Axis)
 
 					#region Draw When More Samples than Width
-					float xPrev = 0;
-					float yPrev = 0;
-					float yAxis = 0;
-
 					int yMax = 0;
 					int yMin = 0;
-					int yMaxPrev = 0;
-					int yMinPrev = 0;
-					bool firstPoint = true;
 					for (int xAxis = 0; xAxis < WIDTH; xAxis++)
 					{
 						// determine start and end points within WAV (for this single pixel on the X axis)
@@ -1164,36 +1157,13 @@ namespace CommonUtils.FFT
 						if (yMin == yMax) {
 							yMin += 1;
 						}
-						yAxis = yMax;
 
 						// draw waveform
-						// If it's the first point
-						if ( firstPoint )
-						{
-							// Move to the point
-							xPrev = xAxis;
-							yPrev = yAxis;
-							
-							yMaxPrev = yMax;
-							yMinPrev = yMin;
-							
-							firstPoint = false;
-						}
-						else
-						{
-							// use yMax and yMin
-							// original from example: http://stackoverflow.com/questions/1215326/open-source-c-sharp-code-to-present-wave-form
-							// basically don't care about previous x or y, but draw vertical lines
-							// from y min to y max value
-							g.DrawLine(samplePen, xAxis + LEFT, yMin, xAxis + LEFT, yMax);
-
-							// store values to next iteration
-							xPrev = xAxis;
-							yPrev = yAxis;
-							
-							yMaxPrev = yMax;
-							yMinPrev = yMin;
-						}
+						// use yMax and yMin
+						// original from example: http://stackoverflow.com/questions/1215326/open-source-c-sharp-code-to-present-wave-form
+						// basically don't care about previous x or y, but draw vertical lines
+						// from y min to y max value
+						g.DrawLine(samplePen, xAxis + LEFT, yMin, xAxis + LEFT, yMax);
 					}
 					#endregion
 					
@@ -1204,27 +1174,26 @@ namespace CommonUtils.FFT
 					#region Draw When Less Samples than Width
 					int samples = data.Length;
 					if (samples > 1) {
+						
 						// at least two samples
 						float mult_x = (float) WIDTH / (endZoomSamplePosition-startZoomSamplePosition - 1);
 
 						List<Point> ps = new List<Point>();
-						for (int i = 0; i < data.Length; i++)
-						{
+						for (int i = 0; i < data.Length; i++) {
 							x = (i * mult_x) + LEFT;
 							y = TOP + HEIGHT - (int)((data[i] * amplitude + 1) * 0.5 * HEIGHT);
 							Point p = new Point((int)x, (int)y);
 							ps.Add(p);
 						}
 
-						if (ps.Count > 0)
-						{
+						if (ps.Count > 0) {
 							g.DrawLines(samplePen, ps.ToArray());
 
 							// draw small dots for each sample
-							// each dot needs 5 pixels width
+							// make sure we have at least space for a dot with 5 pixels width
 							if ( ps.Count < (float) (WIDTH / 5)) {
 								foreach(Point p in ps) {
-									g.FillEllipse(sampleDotBrush, p.X-2, p.Y-2, 3, 3);
+									g.FillEllipse(sampleDotBrush, p.X-2, p.Y-2, 4, 4);
 								}
 							}
 						}
@@ -1273,6 +1242,21 @@ namespace CommonUtils.FFT
 				g.DrawString(infoBoxLine2Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin));
 				g.DrawString(infoBoxLine3Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*2);
 			}
+			#endregion
+			
+			#region Clean Up variables
+			centreLinePen.Dispose();
+			linePen.Dispose();
+			middleLinePen.Dispose();
+			textPen.Dispose();
+			samplePen.Dispose();
+			infoBoxPen.Dispose();
+
+			sampleDotBrush.Dispose();
+			fillBrushOuter.Dispose();
+			fillBrush.Dispose();
+			drawLabelBrush.Dispose();
+			drawBrush.Dispose();
 			#endregion
 			
 			return png;
@@ -1372,7 +1356,7 @@ namespace CommonUtils.FFT
 				if (drawRaw) {
 					DrawLabels = false;
 					DrawRoundedRectangles = false;
-					DisplayDebugBox = true;
+					DisplayDebugBox = false;
 					DisplayTime = false;
 				} else {
 					DrawLabels = false;
@@ -1392,7 +1376,7 @@ namespace CommonUtils.FFT
 			// Set some default values, setting DrawRaw also sets the default values for the other bool parameters
 			DrawRaw = false;
 			
-			Margin = 5; // 5 pixels margins if not drawing raw
+			Margin = 5; // Use 5 pixels margins when not drawing raw
 			
 			LabelXaxis = "Time"; 					// Label for X axis
 			LabelYaxis = "Amplitude";             	// Label for Y axis
