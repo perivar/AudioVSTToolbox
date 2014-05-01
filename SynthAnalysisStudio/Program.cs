@@ -100,6 +100,7 @@ namespace SynthAnalysisStudio
 		[STAThread]
 		static void Main(string[] args)
 		{
+			
 			/*
 			#region Convert Waves SSLChannel to UADSSLChannel
 			TextWriter tw3 = new StreamWriter(@"uadsslchannel-output.txt");
@@ -112,20 +113,36 @@ namespace SynthAnalysisStudio
 				tw3.WriteLine();
 				tw3.WriteLine("-------------------------------------------------------");
 			}
-			List<WavesSSLChannel> presetList2 = WavesPreset.ReadXps<WavesSSLChannel>(@"C:\Users\Public\Waves Audio\Plug-In Settings\SSLChannel Settings.xps");
+			TextWriter tw1 = new StreamWriter(@"sslchannel-output.txt");
+
+			//List<WavesSSLChannel> presetList2 = WavesPreset.ReadXps<WavesSSLChannel>(@"C:\Users\Public\Waves Audio\Plug-In Settings\SSLChannel Settings.xps");
+			List<WavesSSLChannel> presetList2 = WavesPreset.ReadXps<WavesSSLChannel>(@"C:\Users\perivar.nerseth\Downloads\SSLChannel Settings.xps");
 			foreach(var wavesSSLChannel2 in presetList2) {
 				WavesSSLChannelToUADSSLChannelAdapter sslChannelAdapter2 = new WavesSSLChannelToUADSSLChannelAdapter(wavesSSLChannel2);
 				UADSSLChannel uadSSLChannel2 = sslChannelAdapter2.DoConvert();
 				uadSSLChannel2.Write(uadSSLChannel2.PresetName + ".fxp");
+				tw1.WriteLine(wavesSSLChannel2);
+				tw1.WriteLine();
+				tw1.WriteLine("-------------------------------------------------------");
+				
 				tw3.WriteLine(uadSSLChannel2);
 				tw3.WriteLine();
 				tw3.WriteLine("-------------------------------------------------------");
 			}
+			tw1.Close();
 			tw3.Close();
 			#endregion
 			return;
 			 */
+			
 			/*
+			#region Waves SSLChannel preset conversion
+			WavesSSLChannel ssl = new WavesSSLChannel();
+			TextWriter tw1 = new StreamWriter(@"sslchannel-output.txt");
+			ssl.ReadXps(@"C:\Program Files (x86)\Waves\Plug-Ins\SSLChannel.bundle\Contents\Resources\XPst\1000", tw1);
+			ssl.ReadXps(@"C:\Users\Public\Waves Audio\Plug-In Settings\SSLChannel Settings.xps", tw1);
+			tw1.Close();
+			#endregion
 
 			#region Waves SSLChannel preset conversion
 			WavesSSLChannel ssl = new WavesSSLChannel();
