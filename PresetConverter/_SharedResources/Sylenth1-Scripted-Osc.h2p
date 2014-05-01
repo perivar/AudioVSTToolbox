@@ -1,0 +1,129 @@
+// Scripted oscillators identical to the Sylenth1 Oscillators.
+// Per Ivar Nerseth, 2012
+
+#defaults=no
+#cm=OSC
+Wave=2
+<?
+float Wave[ 128 ];
+float out = 0.f;
+
+// sine
+float PI = 3.14159265;
+float phase = 0.f;
+float phaseInc = 1.0/127.0;
+float feedback = 0.f;
+float f_out = 0.f;
+out = 0.f;
+for ( int i = 0; i < 128; i++ )
+{
+      out = sin( (phase + f_out * feedback) * 2.0 * PI );
+      Wave[ i ] = out;
+      f_out = f_out * 0.9f + out * 0.1f;
+      phase += phaseInc;
+}
+Selected.WaveTable.set( 1, Wave );
+
+  
+// saw rising
+float saw = 1.0f;
+float saw_inc = -2.0f/127.0f;
+for ( int i = 0; i < 64; i++ )
+{
+	  out = 0.0f;
+	  out += saw;
+      Wave[ i ] = -out;
+      Wave[ 127 - i ] = out;
+      saw += saw_inc;
+}  
+Selected.WaveTable.set( 2, Wave );
+
+
+// saw falling
+saw = 1.0f;
+saw_inc = -2.0f/127.0f;
+for ( int i = 0; i < 64; i++ )
+{
+	  out = 0.0f;
+	  out += saw;
+      Wave[ i ] = out;
+      Wave[ 127 - i ] = -out;
+      saw += saw_inc;
+}  
+Selected.WaveTable.set( 3, Wave );
+
+
+// triangle
+out = 0.0f;   
+float triangle_inc = 2.0f/64.0f;
+for ( int i = 0; i < 32; i++ )
+{
+	  out += triangle_inc;
+      Wave[ i ] = out;
+      Wave[ 127 - i ] = -out;
+}  
+for ( int i = 32; i < 64; i++ )
+{
+	  out -= triangle_inc;
+      Wave[ i ] = out;
+      Wave[ 127 - i ] = -out;
+}  
+Selected.WaveTable.set( 4, Wave );
+
+
+// square high low
+for ( int i = 0; i < 64; i++ )
+{
+	out = 1.0f;   
+    Wave[ i ] = out;
+    Wave[ 127 - i ] = -out;
+}  
+Selected.WaveTable.set( 5, Wave );
+    
+
+// pulse high low I
+int cut = 96;
+for ( int i = 0; i < cut; i++ )
+{
+	out = 1.0f;   
+    Wave[ i ] = out;
+}  
+for ( int i = cut; i < 128; i++ )
+{
+	out = -1.0f;   
+    Wave[ i ] = out;
+}  
+Selected.WaveTable.set( 6, Wave );
+   
+   
+// pulse high low II
+cut = 111;
+for ( int i = 0; i < cut; i++ )
+{
+	out = 1.0f;   
+    Wave[ i ] = out;
+}  
+for ( int i = cut; i < 128; i++ )
+{
+	out = -1.0f;   
+    Wave[ i ] = out;
+}  
+Selected.WaveTable.set( 7, Wave );   
+
+
+// tri saw
+float tri_saw = 1.0f;
+float tri_saw_inc = -2.0f/127.0f;
+for ( int i = 0; i < 64; i++ )
+{
+	  out = 0.0f;
+	  out += tri_saw;
+      Wave[ i ] = out;
+      Wave[ 64 + i ] = -out;	  
+      tri_saw += tri_saw_inc;
+}  
+
+Selected.WaveTable.set( 8, Wave );   
+
+}
+?>
