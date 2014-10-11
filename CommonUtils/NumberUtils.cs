@@ -64,11 +64,5 @@ namespace CommonUtils
 			
 			return result;
 		}
-		
-		// use it like this: StatusEnum MyStatus = NumberUtils.ParseEnum<StatusEnum>("Active");
-		public static T ParseEnum<T>( string value )
-		{
-			return (T) Enum.Parse( typeof( T ), value, true );
-		}
 	}
 }

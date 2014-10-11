@@ -260,9 +260,9 @@ namespace CommonUtils
 		/// if(Enum.IsDefined(typeof(DaysOfWeek), "Katillsday"))
 		///   StringToEnum<DaysOfWeek>("Katillsday");
 		/// </example>
-		public static T StringToEnum<T>(string name)
+		public static T StringToEnum<T>(string name, bool ignoreCase = true)
 		{
-			return (T)Enum.Parse(typeof(T), name);
+			return (T) Enum.Parse( typeof( T ), name, ignoreCase );
 		}
 		
 		/// <summary>
@@ -461,6 +461,25 @@ namespace CommonUtils
 			}
 
 			return result;
+		}
+		
+		/// <summary>
+		/// Return everything in a string after a search word is found
+		/// </summary>
+		/// <param name="fullString">the full string</param>
+		/// <param name="searchfor">a word within the string</param>
+		/// <returns>everything in a string after a search word is found</returns>
+		public static string GetStringAfterSearchWord(string fullString, string searchfor) {
+			
+			// we could have used regexp but this method is faster and safer
+			string stringAfterSearchWord = "";
+			int ix = fullString.IndexOf(searchfor);
+
+			if (ix != -1) {
+				stringAfterSearchWord = fullString.Substring(ix + searchfor.Length);
+			}
+			
+			return stringAfterSearchWord;
 		}
 	}
 }
