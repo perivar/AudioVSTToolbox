@@ -46,7 +46,7 @@ namespace CommonUtils.Audio.NAudio
 		/// <returns>a TimeSpan of the total time</returns>
 		public static TimeSpan GetWaveFileTotalTime(string filePath) {
 			TimeSpan totalTime = TimeSpan.MinValue;
-			using (AudioFileReader reader = new AudioFileReader(filePath)) {
+			using (var reader = new AudioFileReader(filePath)) {
 				totalTime = reader.TotalTime;
 			}
 			return totalTime;
@@ -59,7 +59,7 @@ namespace CommonUtils.Audio.NAudio
 		/// <returns>the files WaveFormat</returns>
 		public static WaveFormat GetWaveFormat(string filePath) {
 			WaveFormat frmt = null;
-			using (AudioFileReader reader = new AudioFileReader(filePath)) {
+			using (var reader = new AudioFileReader(filePath)) {
 				frmt = reader.WaveFormat;
 			}
 			return frmt;
@@ -110,7 +110,7 @@ namespace CommonUtils.Audio.NAudio
 		/// <param name="fileName">the audio file to save</param>
 		/// <param name="waveFormat">waveformat</param>
 		public static void CreateWaveFile(Stream inputStream, string fileName, WaveFormat waveFormat) {
-			using (WaveFileWriter writer = new WaveFileWriter(fileName, waveFormat))
+			using (var writer = new WaveFileWriter(fileName, waveFormat))
 			{
 				byte[] buffer = new byte[16*1024];
 				for (; ;)
@@ -129,9 +129,22 @@ namespace CommonUtils.Audio.NAudio
 		/// <param name="fileName">the audio file to save</param>
 		/// <param name="waveFormat">waveformat</param>
 		public static void CreateWaveFile(float[] audioData, string fileName, WaveFormat waveFormat) {
-			using (WaveFileWriter writer = new WaveFileWriter(fileName, waveFormat))
+			using (var writer = new WaveFileWriter(fileName, waveFormat))
 			{
 				writer.WriteSamples(audioData, 0, audioData.Length);
+			}
+		}
+		
+		/// <summary>
+		/// Create a wavefile using audiodata
+		/// </summary>
+		/// <param name="audioData">the input audio data</param>
+		/// <param name="fileName">the audio file to save</param>
+		/// <param name="waveFormat">waveformat</param>
+		public static void CreateWaveFile(byte[] audioData, string fileName, WaveFormat waveFormat) {
+			using (var writer = new WaveFileWriter(fileName, waveFormat))
+			{
+				writer.Write(audioData, 0, audioData.Length);
 			}
 		}
 		#endregion
