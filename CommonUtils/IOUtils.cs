@@ -43,7 +43,7 @@ namespace CommonUtils
 		}
 
 		/// <summary>
-		/// Get Files using regexp array of extensions and executes in parallel
+		/// Get Files using array of extensions and executes in parallel
 		/// By using SearchOption.AllDirectories, you can make it recursive
 		/// </summary>
 		/// <param name="path">Directoy Path</param>
@@ -57,6 +57,16 @@ namespace CommonUtils
 		public static IEnumerable<string> GetFiles(string path, string[] searchPatterns, SearchOption searchOption = SearchOption.TopDirectoryOnly)
 		{
 			return searchPatterns.AsParallel().SelectMany(searchPattern => Directory.EnumerateFiles(path, searchPattern, searchOption));
+		}
+		
+		/// <summary>
+		/// Get Files recursively using a search pattern
+		/// </summary>
+		/// <param name="path">Directoy Path</param>
+		/// <param name="searchPatterns">Search patterns like: "*.mp3" or "one_specific_file.wav"</param>
+		/// <returns>IEnumerable array of filenames</returns>
+		public static IEnumerable<string> GetFilesRecursive(string path, string searchPattern) {
+			return Directory.GetFiles(path, searchPattern, SearchOption.AllDirectories);
 		}
 		
 		/// <summary>
