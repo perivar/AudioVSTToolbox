@@ -70,6 +70,28 @@ namespace CommonUtils
 		}
 		
 		/// <summary>
+		/// Backup a file to a filename.bak or filename.bak_number etc
+		/// </summary>
+		/// <param name="fileName">filename to backup</param>
+		public static void MakeBackupOfFile(string fileName) {
+			if (File.Exists(fileName)) {
+				
+				string destinationBackupFileName = fileName + ".bak";
+				
+				// make sure to create a new backup if the backup file already exist
+				int backupFileCount = -1;
+				do
+				{
+					backupFileCount++;
+				}
+				while (File.Exists(destinationBackupFileName + (backupFileCount > 0 ? "_" + backupFileCount.ToString() : "")));
+				
+				destinationBackupFileName = (destinationBackupFileName + (backupFileCount > 0 ? "_" + (backupFileCount).ToString() : ""));
+				File.Copy(fileName, destinationBackupFileName);
+			}
+		}
+		
+		/// <summary>
 		/// Determine wheter a path is a file or a directory
 		/// </summary>
 		/// <param name="fileOrDirectoryPath">path</param>

@@ -3,11 +3,36 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
+using System.IO;
+using System.Text;
 
 namespace CommonUtils
 {
 	public static class XmlUtils
 	{
+		
+		/// <summary>
+		/// Save XML and optionally disable the UTF-8 BOM bytes at the top of the Xml document (EF BB BF)
+		/// which is actually discouraged by the Unicode standard
+		/// </summary>
+		/// <param name="xdoc">XDocument</param>
+		/// <param name="fileName">filename</param>
+		/// <param name="disableUTF8BOM">whether to disable the UTF8 BOM bytes</param>
+		public static void SaveXDocument(XDocument xdoc, string fileName, bool disableUTF8BOMBytes = true) {
+
+			if (disableUTF8BOMBytes) {
+				// Save XML and disable the UTF-8 BOM bytes at the top of the Xml document (EF BB BF)
+				// which is actually discouraged by the Unicode standard:
+				using (TextWriter writer = new StreamWriter(fileName, false, new UTF8Encoding(false)))
+				{
+					xdoc.Save(writer, SaveOptions.DisableFormatting);
+				}
+				
+			} else {
+				xdoc.Save(fileName, SaveOptions.DisableFormatting);
+			}
+		}
+		
 		public static XElement GetXElement(this XmlNode node)
 		{
 			XDocument xDoc = new XDocument();
