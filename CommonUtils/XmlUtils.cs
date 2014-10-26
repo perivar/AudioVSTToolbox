@@ -17,19 +17,27 @@ namespace CommonUtils
 		/// </summary>
 		/// <param name="xdoc">XDocument</param>
 		/// <param name="fileName">filename</param>
-		/// <param name="disableUTF8BOM">whether to disable the UTF8 BOM bytes</param>
-		public static void SaveXDocument(XDocument xdoc, string fileName, bool disableUTF8BOMBytes = true) {
+		/// <param name="disableUTF8BOMBytes">whether to disable the UTF8 BOM bytes</param>
+		/// <param name="disableFormatting">whether to disable indentation when serializing</param>
+		public static void SaveXDocument(XDocument xdoc, string fileName, bool disableUTF8BOMBytes = true, bool disableFormatting = false) {
 
 			if (disableUTF8BOMBytes) {
 				// Save XML and disable the UTF-8 BOM bytes at the top of the Xml document (EF BB BF)
 				// which is actually discouraged by the Unicode standard:
 				using (TextWriter writer = new StreamWriter(fileName, false, new UTF8Encoding(false)))
 				{
-					xdoc.Save(writer, SaveOptions.DisableFormatting);
+					if (disableFormatting) {
+						xdoc.Save(writer, SaveOptions.DisableFormatting);
+					} else {
+						xdoc.Save(writer);
+					}
 				}
-				
 			} else {
-				xdoc.Save(fileName, SaveOptions.DisableFormatting);
+				if (disableFormatting) {
+					xdoc.Save(fileName, SaveOptions.DisableFormatting);
+				} else {
+					xdoc.Save(fileName);
+				}
 			}
 		}
 		
