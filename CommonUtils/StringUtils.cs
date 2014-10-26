@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 using System.IO;
 using System.Text;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 using System.Linq;
@@ -71,6 +72,36 @@ namespace CommonUtils
 		/// <returns>string</returns>
 		public static string ConvertFirstLetterLowerCase(string phrase) {
 			return Char.ToLowerInvariant(phrase[0]) + phrase.Substring(1);
+		}
+		
+		/// <summary>
+		/// Convert a hex string to uint (typically used for ARGB decimal representation)
+		/// </summary>
+		/// <param name="hexString">hex string (0x00... or just 00...)</param>
+		/// <returns>the uint number</returns>
+		public static uint HexStringToUint(string hexString) {
+			uint color;
+
+			if (hexString.StartsWith("0x", StringComparison.CurrentCultureIgnoreCase))
+			{
+				hexString = hexString.Substring(2);
+			}
+
+			bool parsedSuccessfully = uint.TryParse(hexString,
+			                                        NumberStyles.HexNumber,
+			                                        CultureInfo.CurrentCulture,
+			                                        out color);
+			return color;
+		}
+		
+		/// <summary>
+		/// Convert uint to hex string
+		/// </summary>
+		/// <param name="c">uint</param>
+		/// <returns>hex string on the format 0x00</returns>
+		public static string ToHexString(uint c) {
+			string s = String.Format("0x{0:X}", c);
+			return s;
 		}
 		
 		/// <summary>
