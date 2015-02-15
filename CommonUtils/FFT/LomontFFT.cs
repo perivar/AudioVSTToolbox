@@ -235,7 +235,7 @@ namespace Lomont
 		
 		/// <summary>
 		/// Determine how scaling works on the forward and inverse transforms.
-		/// For size N=2^n transforms, the forward transform gets divided by
+		/// size N=2^n transforms, the forward transform gets divided by
 		/// N^((1-a)/2) and the inverse gets divided by N^((1+a)/2). Common
 		/// values for (A,B) are
 		///     ( 0, 1)  - default
@@ -247,7 +247,7 @@ namespace Lomont
 		
 		/// <summary>
 		/// Determine how phase works on the forward and inverse transforms.
-		/// For size N=2^n transforms, the forward transform uses an
+		/// size N=2^n transforms, the forward transform uses an
 		/// exp(B*2*pi/N) term and the inverse uses an exp(-B*2*pi/N) term.
 		/// Common values for (A,B) are
 		///     ( 0, 1)  - default

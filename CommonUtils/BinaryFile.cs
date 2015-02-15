@@ -94,7 +94,7 @@ namespace CommonUtils
 		{
 			if (size <= 0) return new byte[0];
 			
-			byte[] bytes = new byte[size];
+			var bytes = new byte[size];
 			if (byteOrder == ByteOrder.LittleEndian) {
 				int numBytesRead = binaryReader.Read(bytes, offset, size);
 				return bytes;
@@ -109,7 +109,7 @@ namespace CommonUtils
 		{
 			if (size <= 0) return new byte[0];
 			
-			byte[] bytes = new byte[size];
+			var bytes = new byte[size];
 			if (byteOrder == ByteOrder.LittleEndian) {
 				int numBytesRead = binaryReader.Read(bytes, offset, size);
 				return bytes;
@@ -400,7 +400,7 @@ namespace CommonUtils
 
 		public static byte[] ReadBytes(BinaryReader reader, int fieldSize, ByteOrder byteOrder)
 		{
-			byte[] bytes = new byte[fieldSize];
+			var bytes = new byte[fieldSize];
 			if (byteOrder == ByteOrder.LittleEndian) {
 				return reader.ReadBytes(fieldSize);
 			} else {

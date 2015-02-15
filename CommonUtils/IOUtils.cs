@@ -38,7 +38,7 @@ namespace CommonUtils
 		/// <example>var files = IOUtils.GetFiles(path, "\\.mp3|\\.mp4\\.wav\\.ogg", SearchOption.AllDirectories);</example>
 		public static IEnumerable<string> GetFiles(string path, string searchPatternExpression = "", SearchOption searchOption = SearchOption.TopDirectoryOnly)
 		{
-			Regex reSearchPattern = new Regex(searchPatternExpression);
+			var reSearchPattern = new Regex(searchPatternExpression);
 			return Directory.EnumerateFiles(path, "*", searchOption).Where(file => reSearchPattern.IsMatch(Path.GetExtension(file).ToLower()));
 		}
 
@@ -63,7 +63,7 @@ namespace CommonUtils
 		/// Get Files recursively using a search pattern
 		/// </summary>
 		/// <param name="path">Directoy Path</param>
-		/// <param name="searchPatterns">Search patterns like: "*.mp3" or "one_specific_file.wav"</param>
+		/// <param name="searchPattern">Search pattern like: "*.mp3" or "one_specific_file.wav"</param>
 		/// <returns>IEnumerable array of filenames</returns>
 		public static IEnumerable<string> GetFilesRecursive(string path, string searchPattern) {
 			return Directory.GetFiles(path, searchPattern, SearchOption.AllDirectories);
@@ -120,12 +120,12 @@ namespace CommonUtils
 		public static void LogMessageToFile(FileInfo file, string msg)
 		{
 			// Make sure to support Multithreaded write access
-			using (FileStream fs = new FileStream(file.FullName, FileMode.Append, FileAccess.Write, FileShare.Write))
+			using (var fs = new FileStream(file.FullName, FileMode.Append, FileAccess.Write, FileShare.Write))
 			{
-				using (StreamWriter sw = new StreamWriter(fs))
+				using (var sw = new StreamWriter(fs))
 				{
-					string logLine = System.String.Format(
-						"{0:G}: {1}", System.DateTime.Now, msg);
+					string logLine = String.Format(
+						"{0:G}: {1}", DateTime.Now, msg);
 					sw.WriteLine(logLine);
 				}
 			}
@@ -160,6 +160,17 @@ namespace CommonUtils
 				return false;
 			}
 			return true;
+		}
+		
+		/// <summary>
+		/// Return a temporary file name
+		/// </summary>
+		/// <param name="extension">extension without the dot e.g. wav or csv</param>
+		/// <returns>filepath to the temporary file</returns>
+		public static string GetTempFilePathWithExtension(string extension) {
+			var path = Path.GetTempPath();
+			var fileName = Guid.NewGuid().ToString() + "." + extension;
+			return Path.Combine(path, fileName);
 		}
 
 	}

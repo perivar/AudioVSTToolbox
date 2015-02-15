@@ -8,7 +8,7 @@ namespace CommonUtils
 	/// <summary>
 	/// The ImageUtils Class holds utility methods that apply to Bitmaps and Images
 	/// </summary>
-	public class ImageUtils
+	public static class ImageUtils
 	{
 		/// <summary>
 		/// Store color gradient to file
@@ -18,23 +18,18 @@ namespace CommonUtils
 		/// <param name="useHSL">bool whether to use HSL or HSB</param>
 		public static void DrawColorGradient(string directory, string filename, bool useHSL) {
 			
-			string mode = "";
-			if (useHSL) {
-				mode = "HSL";
-			} else {
-				mode = "HSB";
-			}
+			string mode = useHSL ? "HSL" : "HSB";
 			String filenameToSave = String.Format("{0}/{1}_{2}.png", directory, System.IO.Path.GetFileNameWithoutExtension(filename), mode);
-			System.Console.Out.WriteLine("Writing " + filenameToSave);
+			Console.Out.WriteLine("Writing " + filenameToSave);
 			
-			int width = 360;
-			int height = 200;
+			const int width = 360;
+			const int height = 200;
 			
 			// Create the image for displaying the data.
-			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			var png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
 			Graphics g = Graphics.FromImage(png);
 
-			float saturation = 1.0f;
+			const float saturation = 1.0f;
 			
 			// http://en.wikipedia.org/wiki/HSL_and_HSV
 			for (int x = 0; x < width; x++) {
@@ -67,13 +62,12 @@ namespace CommonUtils
 		public static Bitmap MakeGrayscaleSlow(Bitmap original)
 		{
 			//make an empty bitmap the same size as original
-			Bitmap newBitmap = new Bitmap(original.Width, original.Height);
+			var newBitmap = new Bitmap(original.Width, original.Height);
 
 			for (int y = 0; y < original.Height; y++)
 			{
 				for (int x = 0; x < original.Width; x++)
 				{
-
 					//get the pixel from the original image
 					Color originalColor = original.GetPixel(x, y);
 
@@ -103,7 +97,7 @@ namespace CommonUtils
 			unsafe
 			{
 				//create an empty bitmap the same size as original
-				Bitmap newBitmap = new Bitmap(original.Width, original.Height);
+				var newBitmap = new Bitmap(original.Width, original.Height);
 
 				//lock the original bitmap in memory
 				BitmapData originalData = original.LockBits(
@@ -116,7 +110,7 @@ namespace CommonUtils
 					ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
 				
 				//set the number of bytes per pixel
-				int pixelSize = 3;
+				const int pixelSize = 3;
 
 				for (int y = 0; y < original.Height; y++)
 				{
@@ -158,13 +152,13 @@ namespace CommonUtils
 		public static Bitmap MakeGrayscaleFastest(Bitmap original)
 		{
 			//create a blank bitmap the same size as original
-			Bitmap newBitmap = new Bitmap(original.Width, original.Height);
+			var newBitmap = new Bitmap(original.Width, original.Height);
 			
 			//get a graphics object from the new image
 			Graphics g = Graphics.FromImage(newBitmap);
 
 			//create the grayscale ColorMatrix
-			ColorMatrix colorMatrix = new ColorMatrix(
+			var colorMatrix = new ColorMatrix(
 				new float[][]
 				{
 					new float[] {.3f, .3f, .3f, 0, 0},
@@ -175,7 +169,7 @@ namespace CommonUtils
 				});
 
 			//create some image attributes
-			ImageAttributes attributes = new ImageAttributes();
+			var attributes = new ImageAttributes();
 
 			//set the color matrix attribute
 			attributes.SetColorMatrix(colorMatrix);
@@ -208,7 +202,7 @@ namespace CommonUtils
 		/// <param name="height">new height</param>
 		/// <returns></returns>
 		public static Bitmap Resize(Image originalImage, int width, int height) {
-			Bitmap newImage = new Bitmap(width, height, PixelFormat.Format32bppRgb);
+			var newImage = new Bitmap(width, height, PixelFormat.Format32bppRgb);
 			using (Graphics canvas = Graphics.FromImage(newImage))
 			{
 				canvas.CompositingQuality = CompositingQuality.HighQuality;
@@ -223,7 +217,7 @@ namespace CommonUtils
 		/// <summary>
 		/// Resize an image using low quality scaling (no smoothing)
 		/// </summary>
-		/// <param name="image">image</param>
+		/// <param name="originalImage">image</param>
 		/// <param name="maxWidth">max width</param>
 		/// <param name="maxHeight">max height</param>
 		/// <param name="preserveRatio">bool whether to preserve ratio or force both width and height</param>
@@ -262,10 +256,10 @@ namespace CommonUtils
 		/// <returns>byte array</returns>
 		public static byte[] ImageToByteArray(Image imageIn)
 		{
-			Bitmap bmp = new Bitmap(imageIn);
+			var bmp = new Bitmap(imageIn);
 			
 			// Lock the bitmap's bits.
-			Rectangle rect = new Rectangle(Point.Empty, bmp.Size);
+			var rect = new Rectangle(Point.Empty, bmp.Size);
 			BitmapData bmpData =
 				bmp.LockBits(rect, ImageLockMode.ReadOnly,
 				             bmp.PixelFormat);
@@ -280,7 +274,7 @@ namespace CommonUtils
 			// int bytes = bmp.Width * bmp.Height * 3 ;
 			// therefore take into account the number of bits per pixel instead
 			int bytes = bmp.Width * bmp.Height * (colorDepthBitsPerPixel / 8);
-			byte[] rgbValues = new byte[bytes];
+			var rgbValues = new byte[bytes];
 			
 			// Copy the RGB values into the array.
 			System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
@@ -299,7 +293,7 @@ namespace CommonUtils
 		public static Image ByteArrayToImage(byte[] rgbValues, int width, int height, PixelFormat pixelFormat)
 		{
 			//Here create the Bitmap to the know height, width and format
-			Bitmap bmp = new Bitmap(width, height, pixelFormat);
+			var bmp = new Bitmap(width, height, pixelFormat);
 
 			//Create a BitmapData and Lock all pixels to be written
 			BitmapData bmpData = bmp.LockBits(
@@ -325,7 +319,7 @@ namespace CommonUtils
 		public static Image ByteArray8BitGrayscaleToImage(byte[] grayscaleByteArray, int width, int height)
 		{
 			//Here create the Bitmap to the know height, width and format
-			Bitmap newBitmap = new Bitmap(width, height, PixelFormat.Format32bppRgb);
+			var newBitmap = new Bitmap(width, height, PixelFormat.Format32bppRgb);
 
 			// Declare an array to hold the bytes of the bitmap.
 			uint colorDepthBitsPerPixel = (uint)Image.GetPixelFormatSize(newBitmap.PixelFormat);
@@ -359,7 +353,7 @@ namespace CommonUtils
 		public static Image ByteArrayGrayscaleToImage(byte[] grayscaleByteArray, int width, int height)
 		{
 			//Here create the Bitmap to the know height, width and format
-			Bitmap newBitmap = new Bitmap(width, height, PixelFormat.Format32bppRgb);
+			var newBitmap = new Bitmap(width, height, PixelFormat.Format32bppRgb);
 
 			// Declare an array to hold the bytes of the bitmap.
 			for (int x = 0; x < newBitmap.Width; x++)
@@ -391,7 +385,7 @@ namespace CommonUtils
 			uint divisionFactor = colorDepthBitsPerPixel / 8;
 			
 			averageValue = 0;
-			byte[] grayscaleByteArray = new byte[bmp.Width * bmp.Height];
+			var grayscaleByteArray = new byte[bmp.Width * bmp.Height];
 			for (int y = 0; y < bmp.Height; y++)
 			{
 				for (int x = 0; x < bmp.Width; x++)
@@ -432,7 +426,7 @@ namespace CommonUtils
 			int width = rawImage[0].Length;
 			int height = rawImage.Length;
 
-			Bitmap Image = new Bitmap(width, height);
+			var Image = new Bitmap(width, height);
 			BitmapData bitmapData = Image.LockBits(
 				new Rectangle(0, 0, width, height),
 				ImageLockMode.ReadWrite,

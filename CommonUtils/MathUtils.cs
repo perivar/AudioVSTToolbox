@@ -9,7 +9,7 @@ namespace CommonUtils
 	/// </summary>
 	public static class MathUtils
 	{
-		// For use in calculating log base 10. A log times this is a log base 10.
+		// use in calculating log base 10. A log times this is a log base 10.
 		private static double LOG10SCALE = 1 / Math.Log(10);
 		
 		// handy static methods

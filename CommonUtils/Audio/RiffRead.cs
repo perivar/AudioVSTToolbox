@@ -11,48 +11,43 @@ namespace CommonUtils
 	
 	public class RiffRead {
 
-		//static int WAVE_FORMAT_UNKNOWN           =  0x0000; // Microsoft Corporation
-		static int WAVE_FORMAT_PCM               =  0x0001; // Microsoft Corporation
-		//static int WAVE_FORMAT_ADPCM             =  0x0002; // Microsoft Corporation
-		static int WAVE_FORMAT_IEEE_FLOAT        =  0x0003; // Microsoft Corporation
-		/*
-		static int WAVE_FORMAT_ALAW              =  0x0006; // Microsoft Corporation
-		static int WAVE_FORMAT_MULAW             =  0x0007; // Microsoft Corporation
-		static int WAVE_FORMAT_DTS_MS            =  0x0008; // Microsoft Corporation
-		static int WAVE_FORMAT_WMAS              =  0x000a; // WMA 9 Speech
-		static int WAVE_FORMAT_IMA_ADPCM         =  0x0011; // Intel Corporation
-		static int WAVE_FORMAT_TRUESPEECH        =  0x0022; // TrueSpeech
-		static int WAVE_FORMAT_GSM610            =  0x0031; // Microsoft Corporation
-		static int WAVE_FORMAT_MSNAUDIO          =  0x0032; // Microsoft Corporation
-		static int WAVE_FORMAT_G726              =  0x0045; // ITU-T standard
-		static int WAVE_FORMAT_MPEG              =  0x0050; // Microsoft Corporation
-		 */
-		static int WAVE_FORMAT_MPEGLAYER3        =  0x0055; // ISO/MPEG Layer3 Format Tag
-		/*
-		static int WAVE_FORMAT_DOLBY_AC3_SPDIF   =  0x0092; // Sonic Foundry
-		static int WAVE_FORMAT_A52               =  0x2000;
-		static int WAVE_FORMAT_DTS               =  0x2001;
-		static int WAVE_FORMAT_WMA1              =  0x0160; // WMA version 1
-		static int WAVE_FORMAT_WMA2              =  0x0161; // WMA (v2) 7, 8, 9 Series
-		static int WAVE_FORMAT_WMAP              =  0x0162; // WMA 9 Professional
-		static int WAVE_FORMAT_WMAL              =  0x0163; // WMA 9 Lossless
-		static int WAVE_FORMAT_DIVIO_AAC         =  0x4143;
-		static int WAVE_FORMAT_AAC               =  0x00FF;
-		static int WAVE_FORMAT_FFMPEG_AAC        =  0x706D;
+		const int WAVE_FORMAT_UNKNOWN           =  0x0000; // Microsoft Corporation
+		const int WAVE_FORMAT_PCM               =  0x0001; // Microsoft Corporation
+		const int WAVE_FORMAT_ADPCM             =  0x0002; // Microsoft Corporation
+		const int WAVE_FORMAT_IEEE_FLOAT        =  0x0003; // Microsoft Corporation
+		const int WAVE_FORMAT_ALAW              =  0x0006; // Microsoft Corporation
+		const int WAVE_FORMAT_MULAW             =  0x0007; // Microsoft Corporation
+		const int WAVE_FORMAT_DTS_MS            =  0x0008; // Microsoft Corporation
+		const int WAVE_FORMAT_WMAS              =  0x000a; // WMA 9 Speech
+		const int WAVE_FORMAT_IMA_ADPCM         =  0x0011; // Intel Corporation
+		const int WAVE_FORMAT_TRUESPEECH        =  0x0022; // TrueSpeech
+		const int WAVE_FORMAT_GSM610            =  0x0031; // Microsoft Corporation
+		const int WAVE_FORMAT_MSNAUDIO          =  0x0032; // Microsoft Corporation
+		const int WAVE_FORMAT_G726              =  0x0045; // ITU-T standard
+		const int WAVE_FORMAT_MPEG              =  0x0050; // Microsoft Corporation
+		const int WAVE_FORMAT_MPEGLAYER3        =  0x0055; // ISO/MPEG Layer3 Format Tag
+		const int WAVE_FORMAT_DOLBY_AC3_SPDIF   =  0x0092; // Sonic Foundry
+		const int WAVE_FORMAT_A52               =  0x2000;
+		const int WAVE_FORMAT_DTS               =  0x2001;
+		const int WAVE_FORMAT_WMA1              =  0x0160; // WMA version 1
+		const int WAVE_FORMAT_WMA2              =  0x0161; // WMA (v2) 7, 8, 9 Series
+		const int WAVE_FORMAT_WMAP              =  0x0162; // WMA 9 Professional
+		const int WAVE_FORMAT_WMAL              =  0x0163; // WMA 9 Lossless
+		const int WAVE_FORMAT_DIVIO_AAC         =  0x4143;
+		const int WAVE_FORMAT_AAC               =  0x00FF;
+		const int WAVE_FORMAT_FFMPEG_AAC        =  0x706D;
 
-		static int WAVE_FORMAT_DK3               =  0x0061;
-		static int WAVE_FORMAT_DK4               =  0x0062;
-		static int WAVE_FORMAT_VORBIS            =  0x566f;
-		static int WAVE_FORMAT_VORB_1            =  0x674f;
-		static int WAVE_FORMAT_VORB_2            =  0x6750;
-		static int WAVE_FORMAT_VORB_3            =  0x6751;
-		static int WAVE_FORMAT_VORB_1PLUS        =  0x676f;
-		static int WAVE_FORMAT_VORB_2PLUS        =  0x6770;
-		static int WAVE_FORMAT_VORB_3PLUS        =  0x6771;
-		static int WAVE_FORMAT_SPEEX             =  0xa109; // Speex audio
-		 */
-
-		static int WAVE_FORMAT_EXTENSIBLE        =  0xFFFE; // Microsoft
+		const int WAVE_FORMAT_DK3               =  0x0061;
+		const int WAVE_FORMAT_DK4               =  0x0062;
+		const int WAVE_FORMAT_VORBIS            =  0x566f;
+		const int WAVE_FORMAT_VORB_1            =  0x674f;
+		const int WAVE_FORMAT_VORB_2            =  0x6750;
+		const int WAVE_FORMAT_VORB_3            =  0x6751;
+		const int WAVE_FORMAT_VORB_1PLUS        =  0x676f;
+		const int WAVE_FORMAT_VORB_2PLUS        =  0x6770;
+		const int WAVE_FORMAT_VORB_3PLUS        =  0x6771;
+		const int WAVE_FORMAT_SPEEX             =  0xa109; // Speex audio
+		const int WAVE_FORMAT_EXTENSIBLE        =  0xFFFE; // Microsoft
 
 		static string[] infotype = { "IARL", "IART", "ICMS", "ICMT", "ICOP",
 			"ICRD", "ICRP", "IDIM", "IDPI", "IENG", "IGNR", "IKEY",
@@ -105,14 +100,14 @@ namespace CommonUtils
 			int byteread = 0;
 			bool isPCM = false;
 
-			Dictionary <string,string>listinfo = new Dictionary<string,string>();
+			var listinfo = new Dictionary<string,string>();
 			for (int i=0; i<infotype.Length; i++) {
 				listinfo.Add(infotype[i], infodesc[i]);
 			}
 
-			BinaryFile bf = new BinaryFile(selectedFile);
+			var bf = new BinaryFile(selectedFile);
 			try {
-				FileInfo fileInfo = new FileInfo(selectedFile);
+				var fileInfo = new FileInfo(selectedFile);
 				fileLength = fileInfo.Length;
 
 				int chunkSize=0, infochunksize=0, bytecount=0, listbytecount=0;
@@ -192,29 +187,29 @@ namespace CommonUtils
 
 						// Read compression code, 2 bytes
 						wFormatTag = bf.ReadInt16();
-						if (wFormatTag == WAVE_FORMAT_PCM || wFormatTag == WAVE_FORMAT_EXTENSIBLE || wFormatTag == WAVE_FORMAT_IEEE_FLOAT) {
-							isPCM = true;
+						switch (wFormatTag) {
+							case WAVE_FORMAT_PCM:
+							case WAVE_FORMAT_EXTENSIBLE:
+							case WAVE_FORMAT_IEEE_FLOAT:
+								isPCM = true;
+								break;
 						}
-						if (wFormatTag == WAVE_FORMAT_PCM) {
-							#if DEBUG
-							Console.WriteLine("\twFormatTag:  WAVE_FORMAT_PCM") ;
-							#endif
-						} else if (wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
-							#if DEBUG
-							Console.WriteLine("\twFormatTag:  WAVE_FORMAT_EXTENSIBLE") ;
-							#endif
-						} else if (wFormatTag == WAVE_FORMAT_IEEE_FLOAT) {
-							#if DEBUG
-							Console.WriteLine("\twFormatTag:  WAVE_FORMAT_IEEE_FLOAT") ;
-							#endif
-						} else if (wFormatTag == WAVE_FORMAT_MPEGLAYER3) {
-							#if DEBUG
-							Console.WriteLine("\twFormatTag:  WAVE_FORMAT_MPEGLAYER3") ;
-							#endif
-						} else {
-							#if DEBUG
-							Console.WriteLine("\twFormatTag:  non-PCM format {0}", wFormatTag) ;
-							#endif
+						switch (wFormatTag) {
+							case WAVE_FORMAT_PCM:
+								Console.WriteLine("\twFormatTag:  WAVE_FORMAT_PCM");
+								break;
+							case WAVE_FORMAT_EXTENSIBLE:
+								Console.WriteLine("\twFormatTag:  WAVE_FORMAT_EXTENSIBLE");
+								break;
+							case WAVE_FORMAT_IEEE_FLOAT:
+								Console.WriteLine("\twFormatTag:  WAVE_FORMAT_IEEE_FLOAT");
+								break;
+							case WAVE_FORMAT_MPEGLAYER3:
+								Console.WriteLine("\twFormatTag:  WAVE_FORMAT_MPEGLAYER3");
+								break;
+							default:
+								Console.WriteLine("\twFormatTag:  non-PCM format {0}", wFormatTag);
+								break;
 						}
 
 						// Read number of channels, 2 bytes
@@ -405,8 +400,8 @@ namespace CommonUtils
 
 		public static void Read8Bit(BinaryFile wavfile, float[][] sound, Int32 samplecount, Int32 channels)
 		{
-			Int32 i = new Int32();
-			Int32 ic = new Int32();
+			var i = new Int32();
+			var ic = new Int32();
 			byte @byte = new byte();
 
 			#if DEBUG
@@ -424,8 +419,8 @@ namespace CommonUtils
 
 		public static void Read16Bit(BinaryFile wavfile, float[][] sound, Int32 samplecount, Int32 channels)
 		{
-			Int32 i = new Int32();
-			Int32 ic = new Int32();
+			var i = new Int32();
+			var ic = new Int32();
 
 			#if DEBUG
 			Console.Write("Read16Bit...\n");
@@ -442,8 +437,8 @@ namespace CommonUtils
 
 		public static void Read32Bit(BinaryFile wavfile, float[][] sound, Int32 samplecount, Int32 channels)
 		{
-			Int32 i = new Int32();
-			Int32 ic = new Int32();
+			var i = new Int32();
+			var ic = new Int32();
 
 			#if DEBUG
 			Console.Write("Read32Bit...\n");
@@ -461,8 +456,8 @@ namespace CommonUtils
 
 		public static void Read32BitFloat(BinaryFile wavfile, float[][] sound, Int32 samplecount, Int32 channels)
 		{
-			Int32 i = new Int32();
-			Int32 ic = new Int32();
+			var i = new Int32();
+			var ic = new Int32();
 
 			#if DEBUG
 			Console.Write("Read32BitFloat...\n");
