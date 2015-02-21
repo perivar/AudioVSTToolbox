@@ -48,6 +48,8 @@ namespace CommonUtils.FFT
 		/// <param name = "logBins">Number of logarithmically spaced bins</param>
 		/// <param name = "fftSize">FFT Size</param>
 		/// <param name = "logBase">Log base of the logarithm to be spaced</param>
+		/// <param name = "indexes">output parameter to return the indexes</param>
+		/// <param name = "frequencies">output parameter to return the frequencies</param>
 		/// <returns>Gets an array of indexes</returns>
 		public static void GetLogFrequenciesIndex(double sampleRate, double minFreq, double maxFreq, int logBins, int fftSize, double logBase, out int[] indexes, out float[] frequencies)
 		{
@@ -62,7 +64,9 @@ namespace CommonUtils.FFT
 		/// <param name = "maxFreq">Max frequency</param>
 		/// <param name = "logBins">Number of logarithmically spaced bins</param>
 		/// <param name = "fftSize">FFT Size</param>
-		/// <param name = "logarithmicBase">Logarithm base</param>
+		/// <param name = "logarithmicBase">Logarithmic base</param>
+		/// <param name = "indexes">output parameter to return the indices</param>
+		/// <param name = "frequencies">output parameter to return the frequencies</param>
 		private static void GenerateLogFrequencies(double sampleRate, double minFreq, double maxFreq, int logBins, int fftSize, double logarithmicBase, out int[] indexes, out float[] frequencies)
 		{
 			double logMin = Math.Log(minFreq, logarithmicBase);
@@ -91,16 +95,7 @@ namespace CommonUtils.FFT
 		/// <returns>Logarithmically spaced signal</returns>
 		private static float[] ExtractLogBins(double[] complexSignal, int logBins, int[] logFrequenciesIndex)
 		{
-			#if SAFE
-			if (complexSignal == null)
-				throw new ArgumentNullException("complexSignal");
-			if (MinFrequency >= MaxFrequency)
-				throw new ArgumentException("Minimal frequency cannot be bigger or equal to Maximum frequency");
-			if (SampleRate <= 0)
-				throw new ArgumentException("sampleRate cannot be less or equal to zero");
-			#endif
-
-			float[] sumFreq = new float[logBins]; /*32*/
+			var sumFreq = new float[logBins]; /*32*/
 			for (int i = 0; i < logBins; i++)
 			{
 				int lowBound = logFrequenciesIndex[i];
@@ -131,7 +126,7 @@ namespace CommonUtils.FFT
 		/// <returns>log spectrogram jagged array</returns>
 		public static float[][] CreateLogSpectrogramLomont(float[] samples, int fftWindowsSize, int fftOverlap, int logBins, int[] logFrequenciesIndex, float[] logFrequencies)
 		{
-			LomontFFT fft = new LomontFFT();
+			var fft = new LomontFFT();
 			
 			int numberOfSamples = samples.Length;
 
@@ -141,10 +136,10 @@ namespace CommonUtils.FFT
 			
 			// width of the segment - e.g. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
 			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap;
-			float[][] frames = new float[numberOfSegments][];
+			var frames = new float[numberOfSegments][];
 			
 			// even - Re, odd - Img
-			double[] complexSignal = new double[2*fftWindowsSize];
+			var complexSignal = new double[2*fftWindowsSize];
 			for (int i = 0; i < numberOfSegments; i++)
 			{
 				// apply Hanning Window
@@ -176,7 +171,7 @@ namespace CommonUtils.FFT
 		/// <returns>spectrogram jagged array</returns>
 		public static float[][] CreateSpectrogramLomont(float[] samples, int fftWindowsSize, int fftOverlap)
 		{
-			LomontFFT fft = new LomontFFT();
+			var fft = new LomontFFT();
 			
 			int numberOfSamples = samples.Length;
 
@@ -186,10 +181,10 @@ namespace CommonUtils.FFT
 			
 			// width of the segment - e.g. split the file into 78 time slots (numberOfSegments) and do analysis on each slot
 			int numberOfSegments = (numberOfSamples - fftWindowsSize)/fftOverlap;
-			float[][] frames = new float[numberOfSegments][];
+			var frames = new float[numberOfSegments][];
 			
 			// even - Re, odd - Img
-			double[] complexSignal = new double[2*fftWindowsSize];
+			var complexSignal = new double[2*fftWindowsSize];
 			for (int i = 0; i < numberOfSegments; i++)
 			{
 				// apply Hanning Window
@@ -206,7 +201,7 @@ namespace CommonUtils.FFT
 				fft.FFT(complexSignal, true);
 
 				// get the ABS of the complex signal
-				float[] band = new float[fftWindowsSize/2];
+				var band = new float[fftWindowsSize/2];
 				for (int j = 0; j < fftWindowsSize/2; j++)
 				{
 					double re = complexSignal[2*j];
@@ -226,11 +221,10 @@ namespace CommonUtils.FFT
 		/// </summary>
 		/// <param name="samples">audio data</param>
 		/// <param name="fftWindowsSize">fft window size</param>
-		/// <param name="fftOverlap">overlap</param>
 		/// <returns>spectrum graph array</returns>
 		public static float[] CreateSpectrumAnalysisLomont(float[] samples, int fftWindowsSize)
 		{
-			LomontFFT fft = new LomontFFT();
+			var fft = new LomontFFT();
 
 			int numberOfSamples = samples.Length;
 			
@@ -239,7 +233,7 @@ namespace CommonUtils.FFT
 			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
 
 			// even - Re, odd - Img
-			double[] complexSignal = new double[2*fftWindowsSize];
+			var complexSignal = new double[2*fftWindowsSize];
 
 			// apply Hanning Window
 			// e.g. take 371 ms each 11.6 ms (2048 samples each 64 samples)
@@ -255,7 +249,7 @@ namespace CommonUtils.FFT
 			// FFT transform for gathering the spectrum
 			fft.FFT(complexSignal, true);
 
-			float[] band = new float[fftWindowsSize/2];
+			var band = new float[fftWindowsSize/2];
 			double lengthSqrt = Math.Sqrt(fftWindowsSize);
 			for (int j = 0; j < fftWindowsSize/2; j++)
 			{
@@ -274,11 +268,13 @@ namespace CommonUtils.FFT
 		/// <summary>
 		/// Utility method to return a spectrum graph image based on audio data
 		/// </summary>
-		/// <param name="audioData"></param>
-		/// <param name="width"></param>
-		/// <param name="height"></param>
-		/// <param name="sampleRate"></param>
-		/// <param name="fftWindowsSize"></param>
+		/// <param name="audioData">The audio data (mono)</param>
+		/// <param name="width">Width of the image</param>
+		/// <param name="height">Height of the image</param>
+		/// <param name="sampleRate">sample rate</param>
+		/// <param name="fftWindowsSize">fft windows size</param>
+		/// <param name="minFrequency">minimum frequency to show</param>
+		/// <param name="maxFrequency">maximum frequency to show</param>
 		/// <returns>Spectrum graph image</returns>
 		public static Bitmap GetSpectrumImage(float[] audioData, int width, int height, double sampleRate, int fftWindowsSize, float minFrequency, float maxFrequency) {
 
@@ -297,7 +293,6 @@ namespace CommonUtils.FFT
 		/// <param name="spectrumData">spectrum data</param>
 		/// <param name="sampleRate">sample rate</param>
 		/// <param name="fftWindowsSize">fft windows size</param>
-		/// <param name="fftOverlap">fft overlap</param>
 		/// <param name="m_mag">output the magnitude array as decibel</param>
 		/// <param name="m_freq">output the frequency array as herz</param>
 		/// <param name="foundMaxFrequency">output the max frequency found</param>
@@ -370,10 +365,10 @@ namespace CommonUtils.FFT
 			float MIN_DB = -100.0f; //-60       // Minimum dB magnitude on vertical axis.
 			float DB_STEP = 20;                	// Interval between ticks (dB) on vertical axis.
 
-			int TOP = 5;                     	// Top of graph
-			int LEFT = 5;                    	// Left edge of graph
-			int HEIGHT = imageSize.Height-2*TOP;	// Height of graph
-			int WIDTH = imageSize.Width-2*LEFT;     // Width of graph
+			int TOP_MARGIN = 5;                     	// Top of graph
+			int LEFT_MARGIN = 5;                    	// Left edge of graph
+			int HEIGHT = imageSize.Height-2*TOP_MARGIN;	// Height of graph
+			int WIDTH = imageSize.Width-2*LEFT_MARGIN;     // Width of graph
 			string LABEL_X = "Frequency (Hz)"; 	// Label for X axis
 			string LABEL_Y = "dB";             	// Label for Y axis
 			bool drawLabels = false;
@@ -393,32 +388,32 @@ namespace CommonUtils.FFT
 			Color fillColor = ColorTranslator.FromHtml("#F9C998");
 			
 			// Derived constants
-			int BOTTOM = TOTAL_HEIGHT-TOP;                   		// Bottom of graph
+			int BOTTOM = TOTAL_HEIGHT-TOP_MARGIN;                   		// Bottom of graph
 			float DBTOPIXEL = (float) HEIGHT/(MAX_DB-MIN_DB);    	// Pixels/tick
 			float FREQTOPIXEL = (float) WIDTH/(MAX_FREQ-MIN_FREQ);	// Pixels/Hz
 			
 			try {
-				Bitmap png = new Bitmap( TOTAL_WIDTH, TOTAL_HEIGHT, PixelFormat.Format32bppArgb );
+				var png = new Bitmap( TOTAL_WIDTH, TOTAL_HEIGHT, PixelFormat.Format32bppArgb );
 				Graphics g = Graphics.FromImage(png);
-				ExtendedGraphics eg = new ExtendedGraphics(g);
+				var eg = new ExtendedGraphics(g);
 				
 				int numPoints = mag.Length;
 				if ( mag.Length != freq.Length )
 					System.Diagnostics.Debug.WriteLine( "mag.length != freq.length" );
 				
-				Pen linePen = new Pen(lineColor, 0.5f);
-				Pen middleLinePen = new Pen(middleLineColor, 0.5f);
-				Pen textPen = new Pen(textColor, 1);
-				Pen samplePen = new Pen(sampleColor, 1);
+				var linePen = new Pen(lineColor, 0.5f);
+				var middleLinePen = new Pen(middleLineColor, 0.5f);
+				var textPen = new Pen(textColor, 1);
+				var samplePen = new Pen(sampleColor, 1);
 
 				// Draw a rectangular box marking the boundaries of the graph
 				// Create outer rectangle.
-				Rectangle rectOuter = new Rectangle(0, 0, TOTAL_WIDTH, TOTAL_HEIGHT);
+				var rectOuter = new Rectangle(0, 0, TOTAL_WIDTH, TOTAL_HEIGHT);
 				Brush fillBrushOuter = new SolidBrush(fillOuterColor);
 				g.FillRectangle(fillBrushOuter, rectOuter);
 				
 				// Create rectangle.
-				Rectangle rect = new Rectangle(LEFT, TOP, WIDTH, HEIGHT);
+				var rect = new Rectangle(LEFT_MARGIN, TOP_MARGIN, WIDTH, HEIGHT);
 				Brush fillBrush = new SolidBrush(fillColor);
 				if (drawRoundedRectangles) {
 					eg.FillRoundRectangle(fillBrush, rect.X, rect.Y, rect.Width, rect.Height, 10);
@@ -429,8 +424,8 @@ namespace CommonUtils.FFT
 				}
 				
 				// Label for horizontal axis
-				Font drawLabelFont = new Font("Arial", 8);
-				SolidBrush drawLabelBrush = new SolidBrush(textPen.Color);
+				var drawLabelFont = new Font("Arial", 8);
+				var drawLabelBrush = new SolidBrush(textPen.Color);
 				if (drawLabels) {
 					SizeF drawLabelTextSize = g.MeasureString(LABEL_X, drawLabelFont);
 					g.DrawString(LABEL_X, drawLabelFont, drawLabelBrush, (TOTAL_WIDTH/2) - (drawLabelTextSize.Width/2), TOTAL_HEIGHT - drawLabelFont.GetHeight(g) -3);
@@ -444,51 +439,51 @@ namespace CommonUtils.FFT
 				{
 					// draw horozontal main line
 					y = BOTTOM - DBTOPIXEL*(dBTick-MIN_DB);
-					if (y < BOTTOM && y > TOP+1) {
-						g.DrawLine(linePen, LEFT, y, LEFT+WIDTH, y);
+					if (y < BOTTOM && y > TOP_MARGIN+1) {
+						g.DrawLine(linePen, LEFT_MARGIN, y, LEFT_MARGIN+WIDTH, y);
 					}
 
 					// draw horozontal middle line (between the main lines)
 					yMiddle = y-(DBTOPIXEL*DB_STEP)/2;
 					if (yMiddle > 0) {
-						g.DrawLine(middleLinePen, LEFT, yMiddle, LEFT+WIDTH, yMiddle);
+						g.DrawLine(middleLinePen, LEFT_MARGIN, yMiddle, LEFT_MARGIN+WIDTH, yMiddle);
 					}
 
 					if ( dBTick != MAX_DB )
 					{
 						// Numbers on the tick marks
-						Font drawFont = new Font("Arial", 8);
-						SolidBrush drawBrush = new SolidBrush(textPen.Color);
-						g.DrawString("" + dBTick + " dB", drawFont, drawBrush, LEFT+5, y - drawFont.GetHeight(g) -2);
+						var drawFont = new Font("Arial", 8);
+						var drawBrush = new SolidBrush(textPen.Color);
+						g.DrawString("" + dBTick + " dB", drawFont, drawBrush, LEFT_MARGIN+5, y - drawFont.GetHeight(g) -2);
 					}
 				}
 				
 				if (drawLabels) {
 					// Label for vertical axis
-					g.DrawString(LABEL_Y, drawLabelFont, drawLabelBrush, 1, TOP + HEIGHT/2 - drawLabelFont.GetHeight(g)/2);
+					g.DrawString(LABEL_Y, drawLabelFont, drawLabelBrush, 1, TOP_MARGIN + HEIGHT/2 - drawLabelFont.GetHeight(g)/2);
 				}
 				
 				// Tick marks on the horizontal axis
 				for ( float f = MIN_FREQ; f <= MAX_FREQ; f += FREQ_STEP )
 				{
 					// draw vertical main line
-					x = LEFT + FREQTOPIXEL*(f-MIN_FREQ);
-					if (x > LEFT  && x < WIDTH) {
-						g.DrawLine(linePen, x, BOTTOM, x, TOP);
+					x = LEFT_MARGIN + FREQTOPIXEL*(f-MIN_FREQ);
+					if (x > LEFT_MARGIN  && x < WIDTH) {
+						g.DrawLine(linePen, x, BOTTOM, x, TOP_MARGIN);
 					}
 
 					// draw vertical middle line (between the main lines)
 					xMiddle = x + FREQTOPIXEL*FREQ_STEP/2;
 					if (xMiddle < TOTAL_WIDTH) {
-						g.DrawLine(middleLinePen, xMiddle, BOTTOM, xMiddle, TOP);
+						g.DrawLine(middleLinePen, xMiddle, BOTTOM, xMiddle, TOP_MARGIN);
 					}
 
 					if ( f != MIN_FREQ && f != MAX_FREQ )
 					{
 						// Numbers on the tick marks
-						Font drawFont = new Font("Arial", 8);
-						SolidBrush drawBrush = new SolidBrush(textPen.Color);
-						g.DrawString("" + f + " Hz", drawFont, drawBrush, x, TOP +2);
+						var drawFont = new Font("Arial", 8);
+						var drawBrush = new SolidBrush(textPen.Color);
+						g.DrawString("" + f + " Hz", drawFont, drawBrush, x, TOP_MARGIN +2);
 					}
 				}
 				
@@ -515,19 +510,19 @@ namespace CommonUtils.FFT
 				
 				// For all remaining points within range of x-axis
 				float oldX = 0;
-				float oldY = TOP;
+				float oldY = TOP_MARGIN;
 				bool firstPoint = true;
 				for ( ; i < numPoints && freq[i] <= MAX_FREQ; i++ )
 				{
 					// Compute horizontal position
-					x = LEFT + FREQTOPIXEL*(freq[i]-MIN_FREQ);
+					x = LEFT_MARGIN + FREQTOPIXEL*(freq[i]-MIN_FREQ);
 					
 					// Compute vertical position of point
 					// and clip at top/bottom.
 					y = BOTTOM - DBTOPIXEL*(mag[i]-MIN_DB);
 					
-					if ( y < TOP )
-						y = TOP;
+					if ( y < TOP_MARGIN )
+						y = TOP_MARGIN;
 					else if ( y > BOTTOM )
 						y = BOTTOM;
 					
@@ -558,14 +553,14 @@ namespace CommonUtils.FFT
 		/// <summary>
 		/// Utility method to return spectrogram image using audio data
 		/// </summary>
-		/// <param name="audioData"></param>
-		/// <param name="width"></param>
-		/// <param name="height"></param>
-		/// <param name="sampleRate"></param>
-		/// <param name="fftWindowsSize"></param>
-		/// <param name="fftOverlap"></param>
-		/// <param name="colorPalette"></param>
-		/// <param name="doLogScale"></param>
+		/// <param name="audioData">The audio data (mono)</param>
+		/// <param name="width">Width of the image</param>
+		/// <param name="height">Height of the image</param>
+		/// <param name="sampleRate">sample rate</param>
+		/// <param name="fftWindowsSize">fft windows size</param>
+		/// <param name="fftOverlap">fft overlap</param>
+		/// <param name="colorPalette">color palette to use, typ ColorUtils.ColorPaletteType</param>
+		/// <param name="doLogScale">whether to use log scale on the freq axis</param>
 		/// <returns>Spectrogram image</returns>
 		public static Bitmap GetSpectrogramImage(float[] audioData, int width, int height, double sampleRate, int fftWindowsSize, int fftOverlap, ColorUtils.ColorPaletteType colorPalette, bool doLogScale)
 		{
@@ -573,8 +568,8 @@ namespace CommonUtils.FFT
 			double minFrequency = 27.5;
 			double maxFrequency = sampleRate / 2;
 			int logBins = height - 2*40; // the margins used
-			int[] logFrequenciesIndex = new int[1];
-			float[] logFrequencies = new float[1];
+			var logFrequenciesIndex = new int[1];
+			var logFrequencies = new float[1];
 
 			// find the time
 			int numberOfSamples = audioData.Length;
@@ -615,7 +610,7 @@ namespace CommonUtils.FFT
 			if (height < 0)
 				throw new ArgumentException("height should be bigger than 0");
 			#endif
-			Bitmap image = new Bitmap(width, height);
+			var image = new Bitmap(width, height);
 			Graphics graphics = Graphics.FromImage(image);
 			
 			// Fill Back color
@@ -677,10 +672,10 @@ namespace CommonUtils.FFT
 			int TOTAL_HEIGHT = height;    // Height of graph
 			int TOTAL_WIDTH = width;      // Width of graph
 
-			int TOP = 40;                    // Top of graph
-			int LEFT = 60;                   // Left edge of graph
-			int HEIGHT = height-2*TOP;		// Height of graph
-			int WIDTH = width-2*LEFT;     	// Width of graph
+			int TOP_MARGIN = 40;                    // Top of graph
+			int LEFT_MARGIN = 60;                   // Left edge of graph
+			int HEIGHT = height-2*TOP_MARGIN;		// Height of graph
+			int WIDTH = width-2*LEFT_MARGIN;     	// Width of graph
 			string LABEL_X = "Time (ms)"; 		// Label for X axis
 			string LABEL_Y = "Frequency (Hz)";  // Label for Y axis
 			
@@ -694,7 +689,7 @@ namespace CommonUtils.FFT
 			}
 			
 			// Derived constants
-			int BOTTOM = TOTAL_HEIGHT-TOP;                   			// Bottom of graph
+			int BOTTOM = TOTAL_HEIGHT-TOP_MARGIN;                   			// Bottom of graph
 			float FREQTOPIXEL = (float) HEIGHT/(MAX_FREQ-MIN_FREQ);    	// Pixels/Hz
 			
 			float MIN_TIME = 0.0f;
@@ -714,28 +709,28 @@ namespace CommonUtils.FFT
 			Color fillOuterColor = ColorTranslator.FromHtml("#000000");
 			Color fillColor = ColorTranslator.FromHtml("#000000");
 			
-			Bitmap fullImage = new Bitmap(TOTAL_WIDTH, TOTAL_HEIGHT);
+			var fullImage = new Bitmap(TOTAL_WIDTH, TOTAL_HEIGHT);
 			Graphics g = Graphics.FromImage(fullImage);
 			
-			Pen linePen = new Pen(lineColor, 0.5f);
-			Pen middleLinePen = new Pen(middleLineColor, 0.5f);
-			Pen labelPen = new Pen(labelColor, 1);
-			Pen tickPen = new Pen(tickColor, 1);
+			var linePen = new Pen(lineColor, 0.5f);
+			var middleLinePen = new Pen(middleLineColor, 0.5f);
+			var labelPen = new Pen(labelColor, 1);
+			var tickPen = new Pen(tickColor, 1);
 
 			// Draw a rectangular box marking the boundaries of the graph
-			Rectangle rectOuter = new Rectangle(0, 0, TOTAL_WIDTH, TOTAL_HEIGHT);
+			var rectOuter = new Rectangle(0, 0, TOTAL_WIDTH, TOTAL_HEIGHT);
 			Brush fillBrushOuter = new SolidBrush(fillOuterColor);
 			g.FillRectangle(fillBrushOuter, rectOuter);
 			
 			// Create rectangle.
-			Rectangle rect = new Rectangle(LEFT, TOP, WIDTH, HEIGHT);
+			var rect = new Rectangle(LEFT_MARGIN, TOP_MARGIN, WIDTH, HEIGHT);
 			Brush fillBrush = new SolidBrush(fillColor);
 			g.FillRectangle(fillBrush, rect);
 			g.DrawRectangle(linePen, rect);
 			
 			// Label for horizontal axis
-			Font drawLabelFont = new Font("Arial", 8);
-			SolidBrush drawLabelBrush = new SolidBrush(labelPen.Color);
+			var drawLabelFont = new Font("Arial", 8);
+			var drawLabelBrush = new SolidBrush(labelPen.Color);
 			if (drawLabels) {
 				SizeF drawLabelTextSize = g.MeasureString(LABEL_X, drawLabelFont);
 				g.DrawString(LABEL_X, drawLabelFont, drawLabelBrush, (TOTAL_WIDTH/2) - (drawLabelTextSize.Width/2), TOTAL_HEIGHT - drawLabelFont.GetHeight(g) - 5);
@@ -754,27 +749,27 @@ namespace CommonUtils.FFT
 				{
 					// draw horozontal main line
 					y = BOTTOM - FREQTOPIXEL*(freqTick-MIN_FREQ);
-					if (y < BOTTOM && y > TOP+1) {
-						g.DrawLine(linePen, LEFT-2, y, LEFT+WIDTH+2, y);
+					if (y < BOTTOM && y > TOP_MARGIN+1) {
+						g.DrawLine(linePen, LEFT_MARGIN-2, y, LEFT_MARGIN+WIDTH+2, y);
 					}
 
 					// draw horozontal middle line (between the main lines)
 					yMiddle = y-(FREQTOPIXEL*FREQ_STEP)/2;
-					if (yMiddle > TOP && yMiddle < HEIGHT+TOP) {
-						g.DrawLine(middleLinePen, LEFT, yMiddle, LEFT+WIDTH, yMiddle);
+					if (yMiddle > TOP_MARGIN && yMiddle < HEIGHT+TOP_MARGIN) {
+						g.DrawLine(middleLinePen, LEFT_MARGIN, yMiddle, LEFT_MARGIN+WIDTH, yMiddle);
 					}
 
 					if ( freqTick != MAX_FREQ )
 					{
 						// Numbers on the tick marks
-						Font drawFont = new Font("Arial", 8);
-						SolidBrush drawBrush = new SolidBrush(tickPen.Color);
+						var drawFont = new Font("Arial", 8);
+						var drawBrush = new SolidBrush(tickPen.Color);
 						
 						// left
-						g.DrawString(MathUtils.FormatNumber((int) freqTick), drawFont, drawBrush, LEFT - 33, y - drawFont.GetHeight(g)/2);
+						g.DrawString(MathUtils.FormatNumber((int) freqTick), drawFont, drawBrush, LEFT_MARGIN - 33, y - drawFont.GetHeight(g)/2);
 
 						// right
-						g.DrawString(MathUtils.FormatNumber((int) freqTick), drawFont, drawBrush, WIDTH + LEFT + 4, y - drawFont.GetHeight(g)/2);
+						g.DrawString(MathUtils.FormatNumber((int) freqTick), drawFont, drawBrush, WIDTH + LEFT_MARGIN + 4, y - drawFont.GetHeight(g)/2);
 					}
 				}
 			} else {
@@ -785,19 +780,19 @@ namespace CommonUtils.FFT
 					y = BOTTOM - i;
 
 					// draw horozontal main line
-					if (y < BOTTOM && y > TOP+1) {
-						g.DrawLine(linePen, LEFT-2, y, LEFT+WIDTH+2, y);
+					if (y < BOTTOM && y > TOP_MARGIN+1) {
+						g.DrawLine(linePen, LEFT_MARGIN-2, y, LEFT_MARGIN+WIDTH+2, y);
 					}
 					
 					// Numbers on the tick marks
-					Font drawFont = new Font("Arial", 8);
-					SolidBrush drawBrush = new SolidBrush(tickPen.Color);
+					var drawFont = new Font("Arial", 8);
+					var drawBrush = new SolidBrush(tickPen.Color);
 					
 					// left
-					g.DrawString(MathUtils.FormatNumber((int) freqTick), drawFont, drawBrush, LEFT - 33, y - drawFont.GetHeight(g)/2);
+					g.DrawString(MathUtils.FormatNumber((int) freqTick), drawFont, drawBrush, LEFT_MARGIN - 33, y - drawFont.GetHeight(g)/2);
 
 					// right
-					g.DrawString(MathUtils.FormatNumber((int) freqTick), drawFont, drawBrush, WIDTH + LEFT + 4, y - drawFont.GetHeight(g)/2);
+					g.DrawString(MathUtils.FormatNumber((int) freqTick), drawFont, drawBrush, WIDTH + LEFT_MARGIN + 4, y - drawFont.GetHeight(g)/2);
 				}
 			}
 			
@@ -816,26 +811,26 @@ namespace CommonUtils.FFT
 			for ( float timeTick = MIN_TIME; timeTick <= MAX_TIME; timeTick += TIME_STEP )
 			{
 				// draw vertical main line
-				x = LEFT + TIMETOPIXEL*(timeTick-MIN_TIME);
-				if (x > LEFT  && x < WIDTH) {
-					g.DrawLine(linePen, x, BOTTOM+2, x, TOP-2);
+				x = LEFT_MARGIN + TIMETOPIXEL*(timeTick-MIN_TIME);
+				if (x > LEFT_MARGIN  && x < WIDTH) {
+					g.DrawLine(linePen, x, BOTTOM+2, x, TOP_MARGIN-2);
 				}
 
 				// draw vertical middle line (between the main lines)
 				xMiddle = x + TIMETOPIXEL*TIME_STEP/2;
-				if (xMiddle < WIDTH+LEFT) {
-					g.DrawLine(middleLinePen, xMiddle, BOTTOM, xMiddle, TOP);
+				if (xMiddle < WIDTH+LEFT_MARGIN) {
+					g.DrawLine(middleLinePen, xMiddle, BOTTOM, xMiddle, TOP_MARGIN);
 				}
 
 				if ( timeTick != MIN_TIME && timeTick != MAX_TIME )
 				{
 					// Numbers on the tick marks
-					Font drawFont = new Font("Arial", 8);
-					SolidBrush drawBrush = new SolidBrush(tickPen.Color);
+					var drawFont = new Font("Arial", 8);
+					var drawBrush = new SolidBrush(tickPen.Color);
 					SizeF drawTimeTickTextSize = g.MeasureString("" + timeTick, drawFont);
 
 					// top
-					g.DrawString("" + timeTick, drawFont, drawBrush, x-(drawTimeTickTextSize.Width/2), TOP - 15);
+					g.DrawString("" + timeTick, drawFont, drawBrush, x-(drawTimeTickTextSize.Width/2), TOP_MARGIN - 15);
 
 					// bottom
 					g.DrawString("" + timeTick, drawFont, drawBrush, x-(drawTimeTickTextSize.Width/2), BOTTOM + 2);
@@ -843,7 +838,7 @@ namespace CommonUtils.FFT
 			}
 			
 			// draw spectrogram
-			Bitmap spectrogramImage = new Bitmap(WIDTH, HEIGHT);
+			var spectrogramImage = new Bitmap(WIDTH, HEIGHT);
 			
 			// calculate min and max
 			double max = spectrogram.Max((b) => b.Max((v) => Math.Abs(v)));
@@ -884,7 +879,7 @@ namespace CommonUtils.FFT
 			}
 			
 			// add the spectrogram to the full image
-			g.DrawImage(spectrogramImage, LEFT, TOP);
+			g.DrawImage(spectrogramImage, LEFT_MARGIN, TOP_MARGIN);
 			
 			return fullImage;
 		}
@@ -928,27 +923,26 @@ namespace CommonUtils.FFT
 		/// <param name="startZoomSamplePosition">First Sample to Zoom in on</param>
 		/// <param name="endZoomSamplePosition">Last Sample to Zoom in on</param>
 		/// <param name="sampleRate">Samplerate of the audio data (to calculate time)</param>
-		/// <param name="drawRaw">Whether to draw only the raw image (no margins)</param>
 		/// <param name="properties">DrawingProperties properties, like colors and margins</param>
 		/// <seealso cref="https://github.com/aalin/canvas_waveform"></seealso>
 		/// <seealso cref="http://www.hisschemoller.com/2010/mp3-wave-display/"></seealso>
 		/// <seealso cref="http://www.marinbezhanov.com/web-development/14/actionscript-3-sound-extract-demystified-or-how-to-draw-a-waveform-in-flash/"></seealso>
 		/// <seealso cref="http://stackoverflow.com/questions/1215326/open-source-c-sharp-code-to-present-wave-form"></seealso>
 		/// <returns>A bitmap of the waveform</returns>
-		public static Bitmap DrawWaveform(float[] audioData, Size imageSize, int amplitude, int startZoomSamplePosition, int endZoomSamplePosition, double sampleRate, DrawingProperties prop) {
+		public static Bitmap DrawWaveform(float[] audioData, Size imageSize, int amplitude, int startZoomSamplePosition, int endZoomSamplePosition, double sampleRate, DrawingProperties properties) {
 
 			#region Define Basic Variables and Properties
 			int TOTAL_HEIGHT = imageSize.Height;    // Height of graph
 			int TOTAL_WIDTH = imageSize.Width;      // Width of graph
 
-			int TOP = prop.Margin;               	// Top of graph
-			int LEFT = prop.Margin;                 // Left edge of graph
-			if (prop.DrawRaw) {
-				TOP = 0;                     		// Top of graph
-				LEFT = 0;                    		// Left edge of graph
+			int TOP_MARGIN = properties.Margin;               	// Top of graph
+			int LEFT_MARGIN = properties.Margin;                 	// Left edge of graph
+			if (properties.DrawRaw) {
+				TOP_MARGIN = 0;                     		// Top of graph
+				LEFT_MARGIN = 0;                    		// Left edge of graph
 			}
-			int HEIGHT = imageSize.Height-2*TOP;	// Height of graph
-			int WIDTH = imageSize.Width-2*LEFT;     // Width of graph
+			int HEIGHT = imageSize.Height-2*TOP_MARGIN;		// Height of graph
+			int WIDTH = imageSize.Width-2*LEFT_MARGIN;     	// Width of graph
 			
 			// make sure amplitude doesn't exceed a sensible treshold
 			if (amplitude > 5000) {
@@ -961,7 +955,7 @@ namespace CommonUtils.FFT
 			// Derived constants
 			int CENTER = TOTAL_HEIGHT / 2;
 			int RIGHT = WIDTH;
-			int BOTTOM = TOTAL_HEIGHT-TOP; // Bottom of graph
+			int BOTTOM = TOTAL_HEIGHT-TOP_MARGIN; // Bottom of graph
 			#endregion
 			
 			int totalNumberOfSamples = 0;
@@ -1005,22 +999,22 @@ namespace CommonUtils.FFT
 			#endregion
 			
 			// Set up for drawing
-			Bitmap png = new Bitmap( TOTAL_WIDTH, TOTAL_HEIGHT, PixelFormat.Format32bppArgb );
+			var png = new Bitmap( TOTAL_WIDTH, TOTAL_HEIGHT, PixelFormat.Format32bppArgb );
 			Graphics g = Graphics.FromImage(png);
 			g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality; // Set pixeloffsetmode to high quality to make sure we can draw small filled circles
-			ExtendedGraphics eg = new ExtendedGraphics(g);
+			var eg = new ExtendedGraphics(g);
 			
 			#region Define Pens and Brushes
-			Pen centreLinePen = new Pen(prop.CenterLineColor, 1.0f);
-			Pen linePen = new Pen(prop.LineColor, 0.5f);
-			Pen middleLinePen = new Pen(prop.MiddleLineColor, 0.5f);
-			Pen textPen = new Pen(prop.TextColor, 1.0f);
-			Pen samplePen = new Pen(prop.SampleColor, 1.0f);
-			Pen infoBoxPen = new Pen(prop.DebugBoxTextColor, 1.0f);
+			var centreLinePen = new Pen(properties.CenterLineColor, 1.0f);
+			var linePen = new Pen(properties.LineColor, 0.5f);
+			var middleLinePen = new Pen(properties.MiddleLineColor, 0.5f);
+			var textPen = new Pen(properties.TextColor, 1.0f);
+			var samplePen = new Pen(properties.SampleColor, 1.0f);
+			var infoBoxPen = new Pen(properties.DebugBoxTextColor, 1.0f);
 
-			Brush sampleDotBrush = new SolidBrush(prop.SampleColor);
-			Brush fillBrushOuter = new SolidBrush(prop.FillOuterColor);
-			Brush fillBrush = new SolidBrush(prop.FillColor);
+			Brush sampleDotBrush = new SolidBrush(properties.SampleColor);
+			Brush fillBrushOuter = new SolidBrush(properties.FillOuterColor);
+			Brush fillBrush = new SolidBrush(properties.FillColor);
 			Brush drawLabelBrush = new SolidBrush(textPen.Color);
 			Brush drawBrush = new SolidBrush(textPen.Color);
 			#endregion
@@ -1028,12 +1022,12 @@ namespace CommonUtils.FFT
 			#region Draw a Rectangular Box marking the boundaries of the graph
 			
 			// Create outer rectangle.
-			Rectangle rectOuter = new Rectangle(0, 0, TOTAL_WIDTH, TOTAL_HEIGHT);
+			var rectOuter = new Rectangle(0, 0, TOTAL_WIDTH, TOTAL_HEIGHT);
 			g.FillRectangle(fillBrushOuter, rectOuter);
 			
 			// Create rectangle.
-			Rectangle rect = new Rectangle(LEFT, TOP, WIDTH, HEIGHT);
-			if (prop.DrawRoundedRectangles) {
+			var rect = new Rectangle(LEFT_MARGIN, TOP_MARGIN, WIDTH, HEIGHT);
+			if (properties.DrawRoundedRectangles) {
 				eg.FillRoundRectangle(fillBrush, rect.X, rect.Y, rect.Width, rect.Height, 10);
 				eg.DrawRoundRectangle(linePen, rect.X, rect.Y, rect.Width, rect.Height, 10);
 			} else {
@@ -1045,10 +1039,10 @@ namespace CommonUtils.FFT
 			#region Draw Grid with Labels and Ticks
 			
 			// Label for horizontal axis
-			Font drawLabelFont = new Font("Arial", 8);
-			if (prop.DrawLabels) {
-				SizeF drawLabelTextSize = g.MeasureString(prop.LabelXaxis, drawLabelFont);
-				g.DrawString(prop.LabelXaxis, drawLabelFont, drawLabelBrush, (TOTAL_WIDTH/2) - (drawLabelTextSize.Width/2), TOTAL_HEIGHT - drawLabelFont.GetHeight(g) -3);
+			var drawLabelFont = new Font("Arial", 8);
+			if (properties.DrawLabels) {
+				SizeF drawLabelTextSize = g.MeasureString(properties.LabelXaxis, drawLabelFont);
+				g.DrawString(properties.LabelXaxis, drawLabelFont, drawLabelBrush, (TOTAL_WIDTH/2) - (drawLabelTextSize.Width/2), TOTAL_HEIGHT - drawLabelFont.GetHeight(g) -3);
 			}
 
 			float y = 0;
@@ -1059,60 +1053,60 @@ namespace CommonUtils.FFT
 			{
 				// draw horizontal main line
 				y = BOTTOM - AMPLITUDETOPIXEL*(amplitudeTick-MIN_AMPLITUDE);
-				if (y < BOTTOM && y > TOP+1) {
-					g.DrawLine(linePen, LEFT, y, LEFT+WIDTH, y);
+				if (y < BOTTOM && y > TOP_MARGIN+1) {
+					g.DrawLine(linePen, LEFT_MARGIN, y, LEFT_MARGIN+WIDTH, y);
 				}
 
 				// draw horizontal middle line (between the main lines)
 				yMiddle = y-(AMPLITUDETOPIXEL*AMPLITUDE_STEP)/2;
 				if (yMiddle > 0) {
-					g.DrawLine(middleLinePen, LEFT, yMiddle, LEFT+WIDTH, yMiddle);
+					g.DrawLine(middleLinePen, LEFT_MARGIN, yMiddle, LEFT_MARGIN+WIDTH, yMiddle);
 				}
 
 				if ( amplitudeTick != MAX_AMPLITUDE ) {
 					// Numbers on the tick marks
-					Font drawFont = new Font("Arial", 7);
-					g.DrawString(amplitudeTick.ToString("0.000000"), drawFont, drawBrush, LEFT+5, y - drawFont.GetHeight(g) -2);
+					var drawFont = new Font("Arial", 7);
+					g.DrawString(amplitudeTick.ToString("0.000000"), drawFont, drawBrush, LEFT_MARGIN+5, y - drawFont.GetHeight(g) -2);
 				}
 			}
 			
-			if (prop.DrawLabels) {
+			if (properties.DrawLabels) {
 				// Label for vertical axis
-				g.DrawString(prop.LabelYaxis, drawLabelFont, drawLabelBrush, 1, TOP + HEIGHT/2 - drawLabelFont.GetHeight(g)/2);
+				g.DrawString(properties.LabelYaxis, drawLabelFont, drawLabelBrush, 1, TOP_MARGIN + HEIGHT/2 - drawLabelFont.GetHeight(g)/2);
 			}
 			
 			// Tick marks on the horizontal axis
 			for ( double timeTick = MIN_TIME; timeTick <= MAX_TIME; timeTick += TIME_STEP )
 			{
 				// draw vertical main line
-				x = (float) (LEFT + TIMETOPIXEL*(timeTick-MIN_TIME));
-				if (x > LEFT  && x < WIDTH) {
-					g.DrawLine(linePen, x, BOTTOM, x, TOP);
+				x = (float) (LEFT_MARGIN + TIMETOPIXEL*(timeTick-MIN_TIME));
+				if (x > LEFT_MARGIN  && x < WIDTH) {
+					g.DrawLine(linePen, x, BOTTOM, x, TOP_MARGIN);
 				}
 
 				// draw vertical middle line (between the main lines)
 				xMiddle = x + TIMETOPIXEL*TIME_STEP/2;
 				if (xMiddle < TOTAL_WIDTH) {
-					g.DrawLine(middleLinePen, xMiddle, BOTTOM, xMiddle, TOP);
+					g.DrawLine(middleLinePen, xMiddle, BOTTOM, xMiddle, TOP_MARGIN);
 				}
 
 				if ( timeTick != MIN_TIME && timeTick != MAX_TIME )
 				{
 					// Numbers on the tick marks
-					Font drawFont = new Font("Arial", 7);
+					var drawFont = new Font("Arial", 7);
 					TimeSpan time = TimeSpan.FromMilliseconds(timeTick);
-					g.DrawString(time.ToString(@"hh\:mm\:ss\.FFFFFFF"), drawFont, drawBrush, x, TOP +2);
+					g.DrawString(time.ToString(@"hh\:mm\:ss\.FFFFFFF"), drawFont, drawBrush, x, TOP_MARGIN +2);
 				}
 			}
 
-			if (prop.DisplayTime) {
+			if (properties.DisplayTime) {
 				string displayTimeString = String.Format("Duration: {0} samples @ {1:0.0000} ms", totalNumberOfSamples, totalDurationMs);
 				SizeF displayTimeStringTextSize = g.MeasureString(displayTimeString, drawLabelFont);
 				g.DrawString(displayTimeString, drawLabelFont, drawLabelBrush, TOTAL_WIDTH - displayTimeStringTextSize.Width - 10, TOTAL_HEIGHT - drawLabelFont.GetHeight(g) - 10);
 			}
 			
 			// draw centre line
-			g.DrawLine(centreLinePen, LEFT, CENTER, WIDTH, CENTER);
+			g.DrawLine(centreLinePen, LEFT_MARGIN, CENTER, WIDTH, CENTER);
 			#endregion
 			
 			#region Draw waveform
@@ -1146,8 +1140,8 @@ namespace CommonUtils.FFT
 							}
 						}
 						
-						yMax = TOP + HEIGHT - (int)((max * amplitude + 1) * 0.5 * HEIGHT);
-						yMin = TOP + HEIGHT - (int)((min * amplitude + 1) * 0.5 * HEIGHT);
+						yMax = TOP_MARGIN + HEIGHT - (int)((max * amplitude + 1) * 0.5 * HEIGHT);
+						yMin = TOP_MARGIN + HEIGHT - (int)((min * amplitude + 1) * 0.5 * HEIGHT);
 
 						// limit within the drawing space
 						if (yMax < 0) yMax = 0;
@@ -1163,7 +1157,7 @@ namespace CommonUtils.FFT
 						// original from example: http://stackoverflow.com/questions/1215326/open-source-c-sharp-code-to-present-wave-form
 						// basically don't care about previous x or y, but draw vertical lines
 						// from y min to y max value
-						g.DrawLine(samplePen, xAxis + LEFT, yMin, xAxis + LEFT, yMax);
+						g.DrawLine(samplePen, xAxis + LEFT_MARGIN, yMin, xAxis + LEFT_MARGIN, yMax);
 					}
 					#endregion
 					
@@ -1178,11 +1172,11 @@ namespace CommonUtils.FFT
 						// at least two samples
 						float mult_x = (float) WIDTH / (endZoomSamplePosition-startZoomSamplePosition - 1);
 
-						List<Point> ps = new List<Point>();
+						var ps = new List<Point>();
 						for (int i = 0; i < data.Length; i++) {
-							x = (i * mult_x) + LEFT;
-							y = TOP + HEIGHT - (int)((data[i] * amplitude + 1) * 0.5 * HEIGHT);
-							Point p = new Point((int)x, (int)y);
+							x = (i * mult_x) + LEFT_MARGIN;
+							y = TOP_MARGIN + HEIGHT - (int)((data[i] * amplitude + 1) * 0.5 * HEIGHT);
+							var p = new Point((int)x, (int)y);
 							ps.Add(p);
 						}
 
@@ -1208,17 +1202,17 @@ namespace CommonUtils.FFT
 			#endregion
 			
 			#region Draw right upper debug box
-			if (prop.DisplayDebugBox) {
-				Font drawInfoBoxFont = new Font("Arial", 8);
-				SolidBrush drawInfoBoxBrush = new SolidBrush(infoBoxPen.Color);
+			if (properties.DisplayDebugBox) {
+				var drawInfoBoxFont = new Font("Arial", 8);
+				var drawInfoBoxBrush = new SolidBrush(infoBoxPen.Color);
 				
 				string infoBoxLine1Text = String.Format("SamplesPerPixel Orig: {0:0.000} => New: {1:0.000}", (float) totalNumberOfSamples / WIDTH, samplesPerPixel);
 				string infoBoxLine2Text = String.Format("Time (Min->Max): {0} -> {1}", MIN_TIME, MAX_TIME);
 				string infoBoxLine3Text = String.Format("Timestep: {0}, TimeToPixel: {1}", TIME_STEP, TIMETOPIXEL);
 
 				// get box width
-				int infoBoxMargin = 5;
-				List<float> textLineSizes = new List<float>();
+				const int infoBoxMargin = 5;
+				var textLineSizes = new List<float>();
 				textLineSizes.Add(g.MeasureString(infoBoxLine1Text, drawInfoBoxFont).Width + infoBoxMargin*2);
 				textLineSizes.Add(g.MeasureString(infoBoxLine2Text, drawInfoBoxFont).Width + infoBoxMargin*2);
 				textLineSizes.Add(g.MeasureString(infoBoxLine3Text, drawInfoBoxFont).Width + infoBoxMargin*2);
@@ -1233,8 +1227,8 @@ namespace CommonUtils.FFT
 				float infoBoxLineTextHeight = drawInfoBoxFont.GetHeight(g);
 				int infoBoxHeight = (int) (infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*4);
 				
-				Rectangle rectInfoBox = new Rectangle(WIDTH - infoBoxWidth - 20, 30, infoBoxWidth, infoBoxHeight);
-				Brush fillBrushInfoBox = new SolidBrush(prop.DebugBoxBgColor);
+				var rectInfoBox = new Rectangle(WIDTH - infoBoxWidth - 20, 30, infoBoxWidth, infoBoxHeight);
+				Brush fillBrushInfoBox = new SolidBrush(properties.DebugBoxBgColor);
 				g.FillRectangle(fillBrushInfoBox, rectInfoBox);
 				g.DrawRectangle(linePen, rectInfoBox);
 				
@@ -1284,7 +1278,8 @@ namespace CommonUtils.FFT
 			if (height < 0)
 				throw new ArgumentException("height should be bigger than 0");
 			#endif
-			Bitmap image = new Bitmap(width, height);
+			
+			var image = new Bitmap(width, height);
 			Graphics graphics = Graphics.FromImage(image);
 			/*Fill Back color*/
 			using (Brush brush = new SolidBrush(Color.Black))
@@ -1293,7 +1288,7 @@ namespace CommonUtils.FFT
 			}
 			const int gridline = 50; /*Every 50 pixels draw gridline*/
 			/*Draw gridlines*/
-			using (Pen pen = new Pen(Color.Red, 1))
+			using (var pen = new Pen(Color.Red, 1))
 			{
 				/*Draw horizontal gridlines*/
 				for (int i = 1; i < height/gridline; i++)
@@ -1309,7 +1304,7 @@ namespace CommonUtils.FFT
 			}
 			int center = height/2;
 			/*Draw lines*/
-			using (Pen pen = new Pen(Color.MediumSpringGreen, 1))
+			using (var pen = new Pen(Color.MediumSpringGreen, 1))
 			{
 				/*Find delta X, by which the lines will be drawn*/
 				double deltaX = (double) width/data.Length;
@@ -1319,7 +1314,7 @@ namespace CommonUtils.FFT
 					graphics.DrawLine(pen, (float) (i*deltaX), center, (float) (i*deltaX), (float) (center - (data[i]/normalizeFactor)));
 				}
 			}
-			using (Pen pen = new Pen(Color.DarkGreen, 1))
+			using (var pen = new Pen(Color.DarkGreen, 1))
 			{
 				/*Draw center line*/
 				graphics.DrawLine(pen, 0, center, width, center);
@@ -1384,7 +1379,7 @@ namespace CommonUtils.FFT
 		
 		public static DrawingProperties Orange {
 			get {
-				DrawingProperties prop = new DrawingProperties();
+				var prop = new DrawingProperties();
 
 				prop.CenterLineColor = ColorTranslator.FromHtml("#C7834C");
 				prop.LineColor = ColorTranslator.FromHtml("#C7834C");
@@ -1402,7 +1397,7 @@ namespace CommonUtils.FFT
 
 		public static DrawingProperties Blue {
 			get {
-				DrawingProperties prop = new DrawingProperties();
+				var prop = new DrawingProperties();
 
 				prop.CenterLineColor = ColorTranslator.FromHtml("#000032");
 				prop.LineColor = ColorTranslator.FromHtml("#C0C0C0");

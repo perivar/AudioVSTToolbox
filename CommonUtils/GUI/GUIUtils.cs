@@ -4,7 +4,7 @@ using System.Windows.Forms;
 namespace CommonUtils.GUI
 {
 	/// <summary>
-	/// Description of GUIUtils.
+	/// Assorted GUI related Utils
 	/// </summary>
 	public static class GUIUtils
 	{
@@ -16,14 +16,14 @@ namespace CommonUtils.GUI
 		/// <returns></returns>
 		public static string PromptForPath(string selectedPath, string description) {
 
-			FolderBrowserDialog dlg = new FolderBrowserDialog();
-			if (null != selectedPath && "" != selectedPath) {
+			var dlg = new FolderBrowserDialog();
+			if (!string.IsNullOrEmpty(selectedPath)) {
 				dlg.SelectedPath = selectedPath;
 			} else {
 				dlg.SelectedPath = @"C:\";
 			}
 
-			if (null != description && "" != description) {
+			if (!string.IsNullOrEmpty(description)) {
 				dlg.Description = description;
 			} else {
 				dlg.Description = "Select a folder";
@@ -47,20 +47,20 @@ namespace CommonUtils.GUI
 		/// <returns></returns>
 		public static string PromptForFile(string initialDirectory, string title, string filter) {
 
-			OpenFileDialog dlg = new OpenFileDialog();
-			if (null != initialDirectory && "" != initialDirectory) {
+			var dlg = new OpenFileDialog();
+			if (!string.IsNullOrEmpty(initialDirectory)) {
 				dlg.InitialDirectory = initialDirectory;
 			} else {
 				dlg.InitialDirectory = @"C:\";
 			}
 
-			if (null != title && "" != title) {
+			if (!string.IsNullOrEmpty(title)) {
 				dlg.Title = title;
 			} else {
 				dlg.Title = "Select a file";
 			}
 
-			if (null != filter && "" != filter) {
+			if (!string.IsNullOrEmpty(filter)) {
 				dlg.Filter = filter;
 			}
 
