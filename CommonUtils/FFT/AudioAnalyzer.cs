@@ -1946,14 +1946,20 @@ namespace CommonUtils.FFT
 							
 							// if selection or position change colors
 							// check also public virtual void OnDraw(CDC pDC) in WaveShopView.cs
-							if (start >= startSelectSamplePosition && end <= endSelectSamplePosition) {
+							if (samplePosition >= start && samplePosition < end) {
+								// we are drawing the "right now" playhead position/cursor
+								
 								// draw vertical line full height
+								g.DrawLine(Pens.Blue, xAxis + LEFT_MARGIN, TOP_MARGIN + HEIGHT/channels + (c*HEIGHT/channels), xAxis + LEFT_MARGIN, TOP_MARGIN + (c*HEIGHT/channels));
+							} else if (start >= startSelectSamplePosition && end <= endSelectSamplePosition) {
+								
+								// draw vertical line full height with background selection color
 								g.DrawLine(Pens.Black, xAxis + LEFT_MARGIN, TOP_MARGIN + HEIGHT/channels + (c*HEIGHT/channels), xAxis + LEFT_MARGIN, TOP_MARGIN + (c*HEIGHT/channels));
 								
-								// and normal wave
+								// and normal wave in selected color
 								g.DrawLine(Pens.Blue, xAxis + LEFT_MARGIN, yMin, xAxis + LEFT_MARGIN, yMax);
 							} else {
-								// draw normal wave
+								// draw normal wave in normal color
 								g.DrawLine(samplePen, xAxis + LEFT_MARGIN, yMin, xAxis + LEFT_MARGIN, yMax);
 							}
 						}
