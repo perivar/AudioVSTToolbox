@@ -1529,8 +1529,7 @@ namespace CommonUtils.FFT
 							for (int i = start; i < end; i++) // removed the i <= end
 							{
 								if (i < data.Length) {
-									int sampleNumber = channels*i+c;
-									float val = data[sampleNumber];
+									float val = data[channels*i+c];
 									min = val < min ? val : min;
 									max = val > max ? val : max;
 								}
@@ -1559,7 +1558,7 @@ namespace CommonUtils.FFT
 						// (i.e. less than the number of pixles in the X-Axis)
 						
 						#region Draw When Less Samples than Width
-						int samples = (int) ((float) audioData.Length / (float) channels);
+						int samples = (int) ((float) data.Length / (float) channels);
 						if (samples > 1) {
 							
 							// at least two samples
@@ -1568,7 +1567,8 @@ namespace CommonUtils.FFT
 							var ps = new List<Point>();
 							for (int i = 0; i < data.Length; i++) {
 								x = (i * mult_x) + LEFT_MARGIN;
-								y = TOP_MARGIN + HEIGHT - (int)((data[i] * amplitude + 1) * 0.5 * HEIGHT);
+								//y = TOP_MARGIN + HEIGHT - (int)((data[channels*i+c] * amplitude + 1) * 0.5 * HEIGHT);
+								y = Transform(data[channels*i+c], HEIGHT/channels, c, amplitude) + TOP_MARGIN;
 								var p = new Point((int)x, (int)y);
 								ps.Add(p);
 							}
