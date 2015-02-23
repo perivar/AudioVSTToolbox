@@ -1736,7 +1736,7 @@ namespace CommonUtils.FFT
 				if (startZoomSamplePosition < 0) {
 					startZoomSamplePosition = 0;
 				}
-				if (endZoomSamplePosition > maxChannelNumberOfSamples || endZoomSamplePosition < 0) {
+				if (endZoomSamplePosition > maxChannelNumberOfSamples || endZoomSamplePosition <= 0) {
 					endZoomSamplePosition = maxChannelNumberOfSamples;
 				}
 				if (endZoomSamplePosition != 0) {
