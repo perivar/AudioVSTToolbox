@@ -2066,11 +2066,6 @@ namespace CommonUtils.FFT
 			return png;
 		}
 		
-		// http://www.gamedev.net/topic/571798-how-to-draw-a-line-using-the-inverse-of-the-background-color-gdi-in-c/
-		private static void InvertSelectionRange() {
-			
-		}
-		
 		/// <summary>
 		/// Transforms a value in the range of -1.0 to +1.0
 		/// </summary>
