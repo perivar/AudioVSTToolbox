@@ -1665,8 +1665,7 @@ namespace CommonUtils.FFT
 		public static Bitmap DrawWaveform(float[] audioData, Size imageSize, int amplitude, int startZoomSamplePosition, int endZoomSamplePosition, int startSelectSamplePosition, int endSelectSamplePosition, int samplePosition, double sampleRate, int channels) {
 			DrawingProperties prop = DrawingProperties.Blue;
 			prop.DrawRaw = true;
-			prop.DisplayTime = true;
-			prop.TimeLineUnit = TimelineUnit.Time;
+			prop.DisplayDebugBox = true;
 			
 			return DrawWaveform(audioData, imageSize, amplitude, startZoomSamplePosition, endZoomSamplePosition, startSelectSamplePosition, endSelectSamplePosition, samplePosition, sampleRate, channels, prop);
 		}
@@ -1977,7 +1976,7 @@ namespace CommonUtils.FFT
 							float mult_x = (float) WIDTH / (endZoomSamplePosition-startZoomSamplePosition - 1);
 
 							var ps = new List<Point>();
-							for (int i = 0; i < data.Length; i++) {
+							for (int i = 0; i < samples; i++) {
 								x = (i * mult_x) + LEFT_MARGIN;
 								//y = TOP_MARGIN + HEIGHT - (int)((data[channels*i+c] * amplitude + 1) * 0.5 * HEIGHT);
 								y = Transform(data[channels*i+c], HEIGHT/channels, c, amplitude) + TOP_MARGIN;
@@ -2015,7 +2014,7 @@ namespace CommonUtils.FFT
 				var drawInfoBoxFont = new Font("Arial", 8);
 				var drawInfoBoxBrush = new SolidBrush(infoBoxPen.Color);
 				
-				string infoBoxLine1Text = String.Format("SamplesPerPixel Orig: {0:0.000} => New: {1:0.000}", (float) totalNumberOfSamples / WIDTH, samplesPerPixel);
+				string infoBoxLine1Text = String.Format("SamplesPerPixel Orig: {0:0.000} => New: {1:0.000}", (float) maxChannelNumberOfSamples / (float) WIDTH, samplesPerPixel);
 				string infoBoxLine2Text = String.Format("Time (Min->Max): {0} -> {1}", MIN_TIME, MAX_TIME);
 				string infoBoxLine3Text = String.Format("Timestep: {0}, TimeToPixel: {1}", TIME_STEP, TIMETOPIXEL);
 
