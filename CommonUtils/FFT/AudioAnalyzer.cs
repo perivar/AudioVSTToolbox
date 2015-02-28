@@ -1665,7 +1665,7 @@ namespace CommonUtils.FFT
 		public static Bitmap DrawWaveform(float[] audioData, Size imageSize, int amplitude, int startZoomSamplePosition, int endZoomSamplePosition, int startSelectSamplePosition, int endSelectSamplePosition, int samplePosition, double sampleRate, int channels) {
 			DrawingProperties prop = DrawingProperties.Blue;
 			prop.DrawRaw = true;
-			prop.DisplayDebugBox = false;
+			prop.DisplayDebugBox = true;
 			
 			return DrawWaveform(audioData, imageSize, amplitude, startZoomSamplePosition, endZoomSamplePosition, startSelectSamplePosition, endSelectSamplePosition, samplePosition, sampleRate, channels, prop);
 		}
@@ -1744,6 +1744,12 @@ namespace CommonUtils.FFT
 					endZoomSamplePosition = temp;
 				}
 				if (endZoomSamplePosition != 0) {
+					if (channels > 1) {
+						// clamp to sample divisible by channel number
+						// int rounded = (int) Math.Ceiling(Number / 5) * 5
+						startZoomSamplePosition = (int) Math.Ceiling((double)startZoomSamplePosition/ channels) * channels;
+						endZoomSamplePosition = (int) Math.Ceiling((double)endZoomSamplePosition/ channels) * channels;
+					}
 					data = new float[(endZoomSamplePosition-startZoomSamplePosition)*channels];
 					Array.Copy(audioData, startZoomSamplePosition, data, 0, (endZoomSamplePosition-startZoomSamplePosition)*channels);
 					samplesPerPixel = (float) (endZoomSamplePosition - startZoomSamplePosition) / (float) WIDTH;
@@ -1809,7 +1815,6 @@ namespace CommonUtils.FFT
 			#endregion
 			
 			#region Draw Grid with Labels and Ticks
-			
 			var drawLabelFont = new Font("Arial", 8);
 			if (properties.DrawLabels) {
 				// Label for horizontal axis
@@ -1873,7 +1878,7 @@ namespace CommonUtils.FFT
 			}
 			
 			#region Draw Waveform
-			for (int c = 0; c < channels; c++) {
+			for (int channelCounter = 0; channelCounter < channels; channelCounter++) {
 
 				// variables for new waveform drawing method (waveshop)
 				int curX = LEFT_MARGIN;
@@ -1888,11 +1893,12 @@ namespace CommonUtils.FFT
 				yMiddle = 0;
 				xMiddle = 0;
 
+				#region draw amplotude tick marks
 				var drawFont = new Font("Arial", 7);
 				for ( float amplitudeTick = MIN_AMPLITUDE; amplitudeTick <= MAX_AMPLITUDE; amplitudeTick += AMPLITUDE_STEP )
 				{
 					// calcuate y steps from the top and downwards
-					y = TOP_MARGIN + AMPLITUDETOPIXEL*(amplitudeTick-MIN_AMPLITUDE) + (c*HEIGHT/channels);
+					y = TOP_MARGIN + AMPLITUDETOPIXEL*(amplitudeTick-MIN_AMPLITUDE) + (channelCounter*HEIGHT/channels);
 					
 					// draw numbers on the tick marks
 					if (amplitudeTick != MAX_AMPLITUDE && amplitudeTick != MIN_AMPLITUDE && amplitudeTick != 0) {
@@ -1906,12 +1912,13 @@ namespace CommonUtils.FFT
 					} else if (amplitudeTick == MAX_AMPLITUDE) {
 						// draw separation line
 						if (properties.DrawSeparationLine) {
-							if (channels > 1 && c < channels-1) {
+							if (channels > 1 && channelCounter < channels-1) {
 								g.DrawLine(separationLinePen, LEFT_MARGIN, y, LEFT_MARGIN+WIDTH, y);
 							}
 						}
 					}
 				}
+				#endregion
 				
 				if (data != null && data.Length > 0) {
 					if (samplesPerPixel >= 1) {
@@ -1937,13 +1944,13 @@ namespace CommonUtils.FFT
 							for (int i = start; i < end; i++)
 							{
 								if (i < data.Length) {
-									float val = data[channels*i+c];
+									float val = data[channels*i+channelCounter];
 									min = val < min ? val : min;
 									max = val > max ? val : max;
 								}
 							}
 							
-							// This drawing method is taken from WaveShopView
+							#region new Waveform drawing methods from WaveShopView
 							if (min <= max) // if valid bucket
 							{
 								curX = xAxis + LEFT_MARGIN;
@@ -1951,8 +1958,8 @@ namespace CommonUtils.FFT
 								int spanY = 0;
 
 								// compute vertical span's endpoints in channel-relative y-coords
-								int spanY1 = Transform(max, HEIGHT/channels, c, amplitude) + TOP_MARGIN;
-								int spanY2 = Transform(min, HEIGHT/channels, c, amplitude) + TOP_MARGIN;
+								int spanY1 = Transform(max, HEIGHT/channels, channelCounter, amplitude) + TOP_MARGIN;
+								int spanY2 = Transform(min, HEIGHT/channels, channelCounter, amplitude) + TOP_MARGIN;
 								
 								// erase any background above vertical span
 								//g.FillRectangle(Brushes.Green, curX, curY, 1, spanY1);
@@ -1992,6 +1999,7 @@ namespace CommonUtils.FFT
 								prevSpanY1 = spanY1;
 								prevSpanY2 = spanY2;
 							}
+							#endregion
 							
 							#region Old waveform drawing
 							/*
@@ -2047,7 +2055,7 @@ namespace CommonUtils.FFT
 							var ps = new List<Point>();
 							for (int i = 0; i < samples; i++) {
 								x = (i * mult_x) + LEFT_MARGIN;
-								y = Transform(data[channels*i+c], HEIGHT/channels, c, amplitude) + TOP_MARGIN;
+								y = Transform(data[channels*i+channelCounter], HEIGHT/channels, channelCounter, amplitude) + TOP_MARGIN;
 								var p = new Point((int)x, (int)y);
 								ps.Add(p);
 							}
@@ -2074,9 +2082,6 @@ namespace CommonUtils.FFT
 			}
 			#endregion
 			
-			// invert selection range
-			
-			
 			#region Draw right upper debug box
 			if (properties.DisplayDebugBox) {
 				var drawInfoBoxFont = new Font("Arial", 8);
@@ -2085,10 +2090,11 @@ namespace CommonUtils.FFT
 				string infoBoxLine1Text = String.Format("SamplesPerPixel Orig: {0:0.000} => New: {1:0.000}", (float) maxChannelNumberOfSamples / (float) WIDTH, samplesPerPixel);
 				string infoBoxLine2Text = String.Format("Time (Min->Max): {0} -> {1}", MIN_TIME, MAX_TIME);
 				string infoBoxLine3Text = String.Format("Timestep: {0}, TimeToPixel: {1}", TIME_STEP, TIMETOPIXEL);
-				string infoBoxLine4Text = String.Format("StartZoomSamplePos: {0}, EndZoomSamplePos: {1}", startZoomSamplePosition, endZoomSamplePosition);
-				string infoBoxLine5Text = String.Format("StartSelectSamplePos: {0}, EndSelectSamplePos: {1}", startSelectSamplePosition, endSelectSamplePosition);
-				string infoBoxLine6Text = String.Format("Sample Pos: {0}", samplePosition);
-				string infoBoxLine7Text = String.Format("Graph Width: {0}, Graph Height: {1}", WIDTH, HEIGHT);
+				string infoBoxLine4Text = String.Format("TotalNumSamples: {0}, ChannelNumSamples: {1}", totalNumberOfSamples, maxChannelNumberOfSamples);
+				string infoBoxLine5Text = String.Format("StartZoomSamplePos: {0}, EndZoomSamplePos: {1}", startZoomSamplePosition, endZoomSamplePosition);
+				string infoBoxLine6Text = String.Format("StartSelectSamplePos: {0}, EndSelectSamplePos: {1}", startSelectSamplePosition, endSelectSamplePosition);
+				string infoBoxLine7Text = String.Format("Sample Pos: {0}", samplePosition);
+				string infoBoxLine8Text = String.Format("Graph Width: {0}, Graph Height: {1}", WIDTH, HEIGHT);
 				
 				// get box width
 				const int infoBoxMargin = 5;
@@ -2100,6 +2106,7 @@ namespace CommonUtils.FFT
 				textLineSizes.Add(g.MeasureString(infoBoxLine5Text, drawInfoBoxFont).Width + infoBoxMargin*2);
 				textLineSizes.Add(g.MeasureString(infoBoxLine6Text, drawInfoBoxFont).Width + infoBoxMargin*2);
 				textLineSizes.Add(g.MeasureString(infoBoxLine7Text, drawInfoBoxFont).Width + infoBoxMargin*2);
+				textLineSizes.Add(g.MeasureString(infoBoxLine8Text, drawInfoBoxFont).Width + infoBoxMargin*2);
 				textLineSizes.Add(150.0f); // info box minimum width
 				
 				float infoBoxLineTextWidth = 0.0f;
@@ -2109,7 +2116,7 @@ namespace CommonUtils.FFT
 				int infoBoxWidth = (int) infoBoxLineTextWidth;
 				
 				float infoBoxLineTextHeight = drawInfoBoxFont.GetHeight(g);
-				int infoBoxHeight = (int) (infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*7);
+				int infoBoxHeight = (int) (infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*8);
 				
 				var rectInfoBox = new Rectangle(WIDTH - infoBoxWidth - 20, 30, infoBoxWidth, infoBoxHeight);
 				Brush fillBrushInfoBox = new SolidBrush(properties.DebugBoxBgColor);
@@ -2123,6 +2130,7 @@ namespace CommonUtils.FFT
 				g.DrawString(infoBoxLine5Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*4);
 				g.DrawString(infoBoxLine6Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*5);
 				g.DrawString(infoBoxLine7Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*6);
+				g.DrawString(infoBoxLine7Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*7);
 			}
 			#endregion
 			
