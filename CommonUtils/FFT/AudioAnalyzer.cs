@@ -1665,7 +1665,7 @@ namespace CommonUtils.FFT
 		public static Bitmap DrawWaveform(float[] audioData, Size imageSize, int amplitude, int startZoomSamplePosition, int endZoomSamplePosition, int startSelectSamplePosition, int endSelectSamplePosition, int samplePosition, double sampleRate, int channels) {
 			DrawingProperties prop = DrawingProperties.Blue;
 			prop.DrawRaw = true;
-			prop.DisplayDebugBox = true;
+			prop.DisplayDebugBox = false;
 			
 			return DrawWaveform(audioData, imageSize, amplitude, startZoomSamplePosition, endZoomSamplePosition, startSelectSamplePosition, endSelectSamplePosition, samplePosition, sampleRate, channels, prop);
 		}
