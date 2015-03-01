@@ -1749,6 +1749,10 @@ namespace CommonUtils.FFT
 						// int rounded = (int) Math.Ceiling(Number / 5) * 5
 						startZoomSamplePosition = (int) Math.Ceiling((double)startZoomSamplePosition/ channels) * channels;
 						endZoomSamplePosition = (int) Math.Ceiling((double)endZoomSamplePosition/ channels) * channels;
+						
+						if (endZoomSamplePosition > maxChannelNumberOfSamples || endZoomSamplePosition <= 0) {
+							endZoomSamplePosition = maxChannelNumberOfSamples;
+						}
 					}
 					data = new float[(endZoomSamplePosition-startZoomSamplePosition)*channels];
 					Array.Copy(audioData, startZoomSamplePosition, data, 0, (endZoomSamplePosition-startZoomSamplePosition)*channels);
