@@ -1715,7 +1715,6 @@ namespace CommonUtils.FFT
 			float AMPLITUDE_STEP = MAX_AMPLITUDE / 4;
 			
 			// Derived constants
-			//int CENTER = TOTAL_HEIGHT / 2;
 			int RIGHT = WIDTH;
 			int BOTTOM = TOTAL_HEIGHT-TOP_MARGIN; // Bottom of graph
 			#endregion
@@ -1738,24 +1737,22 @@ namespace CommonUtils.FFT
 				if (endZoomSamplePosition > maxChannelNumberOfSamples || endZoomSamplePosition <= 0) {
 					endZoomSamplePosition = maxChannelNumberOfSamples;
 				}
+				// swap start and end zoom if they are wrong
 				if (startZoomSamplePosition > endZoomSamplePosition) {
 					int temp = startZoomSamplePosition;
 					startZoomSamplePosition = endZoomSamplePosition;
 					endZoomSamplePosition = temp;
 				}
 				if (endZoomSamplePosition != 0) {
-					if (channels > 1) {
-						// clamp to sample divisible by channel number
-						// int rounded = (int) Math.Ceiling(Number / 5) * 5
-						startZoomSamplePosition = (int) Math.Ceiling((double)startZoomSamplePosition/ channels) * channels;
-						endZoomSamplePosition = (int) Math.Ceiling((double)endZoomSamplePosition/ channels) * channels;
-						
-						if (endZoomSamplePosition > maxChannelNumberOfSamples || endZoomSamplePosition <= 0) {
-							endZoomSamplePosition = maxChannelNumberOfSamples;
-						}
+					// set start zoom index
+					int startZoomIndex = startZoomSamplePosition;
+					if (startZoomSamplePosition > 0) {
+						startZoomIndex = ((startZoomSamplePosition - 1) * channels);
 					}
-					data = new float[(endZoomSamplePosition-startZoomSamplePosition)*channels];
-					Array.Copy(audioData, startZoomSamplePosition, data, 0, (endZoomSamplePosition-startZoomSamplePosition)*channels);
+					
+					int rangeLength = (endZoomSamplePosition-startZoomSamplePosition)*channels;
+					data = new float[rangeLength];
+					Array.Copy(audioData, startZoomIndex, data, 0, rangeLength);
 					samplesPerPixel = (float) (endZoomSamplePosition - startZoomSamplePosition) / (float) WIDTH;
 				} else {
 					data = audioData;
@@ -2008,8 +2005,8 @@ namespace CommonUtils.FFT
 							#region Old waveform drawing
 							/*
 							// start drawing the topmost wave
-							yMax = Transform(max, HEIGHT/channels, c, amplitude) + TOP_MARGIN;
-							yMin = Transform(min, HEIGHT/channels, c, amplitude) + TOP_MARGIN;
+							yMax = Transform(max, HEIGHT/channels, channelCounter, amplitude) + TOP_MARGIN;
+							yMin = Transform(min, HEIGHT/channels, channelCounter, amplitude) + TOP_MARGIN;
 							
 							// make sure that we always draw something
 							if (yMin == yMax) {
@@ -2028,11 +2025,11 @@ namespace CommonUtils.FFT
 								// we are drawing the "right now" playhead position/cursor
 								
 								// draw vertical line full height
-								g.DrawLine(Pens.Blue, xAxis + LEFT_MARGIN, TOP_MARGIN + HEIGHT/channels + (c*HEIGHT/channels), xAxis + LEFT_MARGIN, TOP_MARGIN + (c*HEIGHT/channels));
+								g.DrawLine(Pens.Blue, xAxis + LEFT_MARGIN, TOP_MARGIN + HEIGHT/channels + (channelCounter*HEIGHT/channels), xAxis + LEFT_MARGIN, TOP_MARGIN + (channelCounter*HEIGHT/channels));
 							} else if (start >= startSelectSamplePosition && end <= endSelectSamplePosition) {
 								
 								// draw vertical line full height with background selection color
-								g.DrawLine(Pens.Black, xAxis + LEFT_MARGIN, TOP_MARGIN + HEIGHT/channels + (c*HEIGHT/channels), xAxis + LEFT_MARGIN, TOP_MARGIN + (c*HEIGHT/channels));
+								g.DrawLine(Pens.Black, xAxis + LEFT_MARGIN, TOP_MARGIN + HEIGHT/channels + (channelCounter*HEIGHT/channels), xAxis + LEFT_MARGIN, TOP_MARGIN + (channelCounter*HEIGHT/channels));
 								
 								// and normal wave in selected color
 								g.DrawLine(Pens.Blue, xAxis + LEFT_MARGIN, yMin, xAxis + LEFT_MARGIN, yMax);
