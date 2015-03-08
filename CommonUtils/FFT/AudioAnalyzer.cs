@@ -1284,8 +1284,8 @@ namespace CommonUtils.FFT
 		/// <param name = "audioData">The audio data (interleaved 32-bit floating-point sample data)</param>
 		/// <param name = "imageSize">Size of the image</param>
 		/// <param name = "amplitude">Amplitude (1 is default)</param>
-		/// <param name = "startZoomSamplePosition">First Sample to Zoom in on</param>
-		/// <param name = "endZoomSamplePosition">Last Sample to Zoom in on</param>
+		/// <param name = "startZoomSamplePosition">First Sample to Zoom in on (0-index based)</param>
+		/// <param name = "endZoomSamplePosition">Last Sample to Zoom in on (0-index based. I.e. the last possible sample to zoom in on is Sample Length - 1)</param>
 		/// <param name = "startSelectSamplePosition">What sample to start selection at</param>
 		/// <param name = "endSelectSamplePosition">What sample to end selection at</param>
 		/// <param name = "samplePosition">What sample position the cursor/playhead is at</param>
@@ -1335,15 +1335,16 @@ namespace CommonUtils.FFT
 			#region Setup data array taking zoom into account
 			if (audioData != null && audioData.Length > 0) {
 
-				maxChannelNumberOfSamples = (int) ((float) audioData.Length / (float) channels);
+				maxChannelNumberOfSamples = (int) ((double) audioData.Length / (double) channels);
 				totalNumberOfSamples = audioData.Length;
 				
 				// make sure the zoom start and zoom end is correct
 				if (startZoomSamplePosition < 0) {
 					startZoomSamplePosition = 0;
 				}
-				if (endZoomSamplePosition > maxChannelNumberOfSamples || endZoomSamplePosition <= 0) {
-					endZoomSamplePosition = maxChannelNumberOfSamples;
+				// Ensure that endZoomSamplePosition is 0-index based, e.g. the last index is max length - 1
+				if (endZoomSamplePosition >= maxChannelNumberOfSamples || endZoomSamplePosition <= 0) {
+					endZoomSamplePosition = maxChannelNumberOfSamples - 1;
 				}
 				// swap start and end zoom if they are wrong
 				if (startZoomSamplePosition > endZoomSamplePosition) {
@@ -1352,15 +1353,14 @@ namespace CommonUtils.FFT
 					endZoomSamplePosition = temp;
 				}
 				if (endZoomSamplePosition != 0) {
-					// set start zoom index
-					int startZoomIndex = startZoomSamplePosition;
-					if (startZoomSamplePosition > 0) {
-						startZoomIndex = ((startZoomSamplePosition) * channels);
-					}
+					// ensure the start zoom index takes the channels into account
+					int startZoomIndex = startZoomSamplePosition * channels;
 					
-					int rangeLength = (endZoomSamplePosition-startZoomSamplePosition)*channels;
+					// add 1 since the zoom sample positions are 0-index based
+					int rangeLength = (endZoomSamplePosition - startZoomSamplePosition + 1)*channels;
 					data = new float[rangeLength];
 					Array.Copy(audioData, startZoomIndex, data, 0, rangeLength);
+					// don't add 1 since we want x number of samples to cover the whole screen
 					samplesPerPixel = (double) (endZoomSamplePosition - startZoomSamplePosition) / (double) WIDTH;
 				} else {
 					data = audioData;
@@ -1615,7 +1615,8 @@ namespace CommonUtils.FFT
 						if (samples > 1) {
 							
 							// at least two samples
-							double mult_x = (double) WIDTH / (double) (endZoomSamplePosition-startZoomSamplePosition);
+							// TODO: Ensure that the endZoomSamplePosition is 0-index based, meaning startZoom starts at 0
+							double mult_x = (double) WIDTH / (double) (endZoomSamplePosition - startZoomSamplePosition);
 
 							var ps = new List<Point>();
 							for (int i = 0; i < samples; i++) {
@@ -1652,7 +1653,7 @@ namespace CommonUtils.FFT
 				var drawInfoBoxFont = new Font("Arial", 8);
 				var drawInfoBoxBrush = new SolidBrush(infoBoxPen.Color);
 				
-				string infoBoxLine1Text = String.Format("SamplesPerPixel Orig: {0:0.000} => New: {1:0.000}", (float) maxChannelNumberOfSamples / (float) WIDTH, samplesPerPixel);
+				string infoBoxLine1Text = String.Format("SamplesPerPixel: Full: {0:0.000}, Zoom: {1:0.000}", (double) maxChannelNumberOfSamples / (double) WIDTH, samplesPerPixel);
 				string infoBoxLine2Text = String.Format("Time (Min->Max): {0} -> {1}", MIN_TIME, MAX_TIME);
 				string infoBoxLine3Text = String.Format("Timestep: {0}, TimeToPixel: {1}", TIME_STEP, TIMETOPIXEL);
 				string infoBoxLine4Text = String.Format("TotalNumSamples: {0}, ChannelNumSamples: {1}", totalNumberOfSamples, maxChannelNumberOfSamples);
@@ -1695,7 +1696,7 @@ namespace CommonUtils.FFT
 				g.DrawString(infoBoxLine5Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*4);
 				g.DrawString(infoBoxLine6Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*5);
 				g.DrawString(infoBoxLine7Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*6);
-				g.DrawString(infoBoxLine7Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*7);
+				g.DrawString(infoBoxLine8Text, drawInfoBoxFont, drawInfoBoxBrush, WIDTH - infoBoxWidth - 20 + infoBoxMargin, 30 + infoBoxMargin + (infoBoxLineTextHeight + infoBoxMargin)*7);
 			}
 			#endregion
 			
