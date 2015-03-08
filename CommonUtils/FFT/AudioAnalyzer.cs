@@ -1355,7 +1355,7 @@ namespace CommonUtils.FFT
 					// set start zoom index
 					int startZoomIndex = startZoomSamplePosition;
 					if (startZoomSamplePosition > 0) {
-						startZoomIndex = ((startZoomSamplePosition - 1) * channels);
+						startZoomIndex = ((startZoomSamplePosition) * channels);
 					}
 					
 					int rangeLength = (endZoomSamplePosition-startZoomSamplePosition)*channels;
