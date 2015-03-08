@@ -1378,7 +1378,8 @@ namespace CommonUtils.FFT
 				MIN_TIME = (startZoomSamplePosition / sampleRate * 1000);
 			}
 			
-			double TIME_STEP = MathUtils.GetNicerNumber((MAX_TIME-MIN_TIME) / 10);
+			// add 1 to ensure this is correct in terms of sample view
+			double TIME_STEP = MathUtils.GetNicerNumber((MAX_TIME-MIN_TIME + 1) / 10);
 			double AMPLITUDETOPIXEL = (HEIGHT/channels)/(MAX_AMPLITUDE-MIN_AMPLITUDE);	// Pixels/tick
 			double TIMETOPIXEL = WIDTH/(MAX_TIME-MIN_TIME); 							// Pixels/second
 			#endregion
