@@ -1346,11 +1346,14 @@ namespace CommonUtils.FFT
 				if (endZoomSamplePosition >= maxChannelNumberOfSamples || endZoomSamplePosition <= 0) {
 					endZoomSamplePosition = maxChannelNumberOfSamples - 1;
 				}
-				// swap start and end zoom if they are wrong
-				if (startZoomSamplePosition > endZoomSamplePosition) {
-					int temp = startZoomSamplePosition;
-					startZoomSamplePosition = endZoomSamplePosition;
-					endZoomSamplePosition = temp;
+				// Ensure that startZoomSamplePosition is not to large
+				if (startZoomSamplePosition >= maxChannelNumberOfSamples || startZoomSamplePosition > endZoomSamplePosition) {
+					// TODO: This situation is very wrong, maybe return null?
+					int oneSecond = (int ) (sampleRate);
+					startZoomSamplePosition = endZoomSamplePosition - oneSecond;
+					if (startZoomSamplePosition < 0) {
+						startZoomSamplePosition = 0;
+					}
 				}
 				if (endZoomSamplePosition != 0) {
 					// ensure the start zoom index takes the channels into account
