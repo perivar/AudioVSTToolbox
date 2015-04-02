@@ -1227,5 +1227,35 @@ namespace CommonUtils
 			}
 		}
 		
+		/// <summary>
+		/// Return smalles non negative number
+		/// (almost like Math.Min just doesn't return negative numbers)
+		/// </summary>
+		/// <param name="a">The first of two integers to compare.</param>
+		/// <param name="b">The first of two integers to compare.</param>
+		/// <returns>Parameter val1 or val2, whichever is smaller and non-negative.</returns>
+		public static int GetSmallestNonNegative(int a, int b)
+		{
+			if (a >= 0 && b >= 0) {
+				return Math.Min(a,b);
+			} else if (a >= 0 && b < 0) {
+				return a;
+			} else if (a < 0 && b >= 0) {
+				return b;
+			} else {
+				return 0;
+			}
+		}
+		
+		/// <summary>
+		/// Return smalles non negative number
+		/// (almost like Math.Min just doesn't return negative numbers)
+		/// </summary>
+		/// <param name="a">The first of two integers to compare.</param>
+		/// <param name="b">The first of two integers to compare.</param>
+		/// <returns>Parameter val1 or val2, whichever is smaller and non-negative.</returns>
+		public static int MinNonNegative(int a, int b) {
+			return GetSmallestNonNegative(a, b);
+		}
 	}
 }
