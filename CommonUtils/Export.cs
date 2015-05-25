@@ -5,17 +5,17 @@ namespace CommonUtils
 	/// <summary>
 	/// Description of Export.
 	/// </summary>
-	public class Export
+	public static class Export
 	{
 		
 		#region exportCSV
-		public static void exportCSV(string filenameToSave, Array data, int length=0) {
+		public static void ExportCSV(string filenameToSave, Array data, int length=0) {
 			
 			if (length == 0) {
 				length = data.Length;
 			}
 			
-			object[][] arr = new object[length][];
+			var arr = new object[length][];
 			
 			int count = 1;
 			for (int i = 0; i < length; i++)
@@ -27,12 +27,12 @@ namespace CommonUtils
 				count++;
 			};
 			
-			CSVWriter csv = new CSVWriter(filenameToSave);
+			var csv = new CSVWriter(filenameToSave);
 			csv.Write(arr);
 		}
 		
-		public static void exportCSV(string filenameToSave, float[][] data) {
-			object[][] arr = new object[data.Length][];
+		public static void ExportCSV(string filenameToSave, float[][] data) {
+			var arr = new object[data.Length][];
 
 			for (int i = 0; i < data.Length; i++)
 			{
@@ -43,12 +43,12 @@ namespace CommonUtils
 				}
 			};
 			
-			CSVWriter csv = new CSVWriter(filenameToSave);
+			var csv = new CSVWriter(filenameToSave);
 			csv.Write(arr);
 		}
 
-		public static void exportCSV(string filenameToSave, double[][] data) {
-			object[][] arr = new object[data.Length][];
+		public static void ExportCSV(string filenameToSave, double[][] data) {
+			var arr = new object[data.Length][];
 
 			for (int i = 0; i < data.Length; i++)
 			{
@@ -59,14 +59,14 @@ namespace CommonUtils
 				}
 			};
 			
-			CSVWriter csv = new CSVWriter(filenameToSave);
+			var csv = new CSVWriter(filenameToSave);
 			csv.Write(arr);
 		}
 
-		public static void exportCSV(string filenameToSave, Array column1, Array column2) {
+		public static void ExportCSV(string filenameToSave, Array column1, Array column2) {
 			if (column1.Length != column2.Length) return;
 			
-			object[][] arr = new object[column1.Length][];
+			var arr = new object[column1.Length][];
 
 			int count = 1;
 			for (int i = 0; i < column1.Length; i++)
@@ -79,14 +79,14 @@ namespace CommonUtils
 				count++;
 			};
 			
-			CSVWriter csv = new CSVWriter(filenameToSave);
+			var csv = new CSVWriter(filenameToSave);
 			csv.Write(arr);
 		}
 
-		public static void exportCSV(string filenameToSave, Array column1, Array column2, Array column3) {
+		public static void ExportCSV(string filenameToSave, Array column1, Array column2, Array column3) {
 			if (column1.Length != column2.Length || column1.Length != column3.Length) return;
 			
-			object[][] arr = new object[column1.Length][];
+			var arr = new object[column1.Length][];
 
 			int count = 1;
 			for (int i = 0; i < column1.Length; i++)
@@ -100,16 +100,16 @@ namespace CommonUtils
 				count++;
 			};
 			
-			CSVWriter csv = new CSVWriter(filenameToSave);
+			var csv = new CSVWriter(filenameToSave);
 			csv.Write(arr);
 		}
 
-		public static void exportCSV(string filenameToSave, Array column1, Array column2, Array column3, Array column4) {
+		public static void ExportCSV(string filenameToSave, Array column1, Array column2, Array column3, Array column4) {
 			if (column1.Length != column2.Length
 			    || column1.Length != column3.Length
 			    || column1.Length != column4.Length) return;
 			
-			object[][] arr = new object[column1.Length][];
+			var arr = new object[column1.Length][];
 
 			int count = 1;
 			for (int i = 0; i < column1.Length; i++)
@@ -124,17 +124,17 @@ namespace CommonUtils
 				count++;
 			};
 			
-			CSVWriter csv = new CSVWriter(filenameToSave);
+			var csv = new CSVWriter(filenameToSave);
 			csv.Write(arr);
 		}
 
-		public static void exportCSV(string filenameToSave, Array column1, Array column2, Array column3, Array column4, Array column5) {
+		public static void ExportCSV(string filenameToSave, Array column1, Array column2, Array column3, Array column4, Array column5) {
 			if (column1.Length != column2.Length
 			    || column1.Length != column3.Length
 			    || column1.Length != column4.Length
 			    || column1.Length != column5.Length) return;
 			
-			object[][] arr = new object[column1.Length][];
+			var arr = new object[column1.Length][];
 
 			int count = 1;
 			for (int i = 0; i < column1.Length; i++)
@@ -150,18 +150,18 @@ namespace CommonUtils
 				count++;
 			};
 			
-			CSVWriter csv = new CSVWriter(filenameToSave);
+			var csv = new CSVWriter(filenameToSave);
 			csv.Write(arr);
 		}
 
-		public static void exportCSV(string filenameToSave, Array column1, Array column2, Array column3, Array column4, Array column5, Array column6) {
+		public static void ExportCSV(string filenameToSave, Array column1, Array column2, Array column3, Array column4, Array column5, Array column6) {
 			if (column1.Length != column2.Length
 			    || column1.Length != column3.Length
 			    || column1.Length != column4.Length
 			    || column1.Length != column5.Length
 			    || column1.Length != column6.Length) return;
 			
-			object[][] arr = new object[column1.Length][];
+			var arr = new object[column1.Length][];
 
 			int count = 1;
 			for (int i = 0; i < column1.Length; i++)
@@ -178,11 +178,11 @@ namespace CommonUtils
 				count++;
 			};
 			
-			CSVWriter csv = new CSVWriter(filenameToSave);
+			var csv = new CSVWriter(filenameToSave);
 			csv.Write(arr);
 		}
 
-		public static void exportCSV(string filenameToSave, Array column1, Array column2, Array column3, Array column4, Array column5, Array column6, Array column7) {
+		public static void ExportCSV(string filenameToSave, Array column1, Array column2, Array column3, Array column4, Array column5, Array column6, Array column7) {
 			if (column1.Length != column2.Length
 			    || column1.Length != column3.Length
 			    || column1.Length != column4.Length
@@ -190,7 +190,7 @@ namespace CommonUtils
 			    || column1.Length != column6.Length
 			    || column1.Length != column7.Length) return;
 			
-			object[][] arr = new object[column1.Length][];
+			var arr = new object[column1.Length][];
 
 			int count = 1;
 			for (int i = 0; i < column1.Length; i++)
@@ -208,7 +208,7 @@ namespace CommonUtils
 				count++;
 			};
 			
-			CSVWriter csv = new CSVWriter(filenameToSave);
+			var csv = new CSVWriter(filenameToSave);
 			csv.Write(arr);
 		}
 		#endregion

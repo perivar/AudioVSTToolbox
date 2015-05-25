@@ -1,0 +1,20 @@
+How to downsample to 128 samples using Wavosaur
+
+Example files:
+C:\Users\perivar.nerseth\OneDrive\Audio\Soundfonts and other samples\Singe Cycle Waveforms\wavetables\analogwaveforms\minimoog
+
+Process -> Resample: 
+current samplerate (hz): 22050
+change to (hz): 692 (i.e. the new sample rate)
+
+Example:
+minimoogtri.wav
+
+change to sample rate 	= dest length * current samplerate / original length
+						= 128 * 22050 / 4096
+						= 689.0625 hz
+
+						(strangely this always gives one sample to little)
+						
+						
+						

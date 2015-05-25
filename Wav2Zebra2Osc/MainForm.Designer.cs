@@ -59,33 +59,34 @@ namespace Wav2Zebra2Osc
 			// menuStrip
 			// 
 			this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.fileToolStripMenuItem,
-									this.preferencesToolStripMenuItem,
-									this.helpToolStripMenuItem});
+			this.fileToolStripMenuItem,
+			this.preferencesToolStripMenuItem,
+			this.helpToolStripMenuItem});
 			this.menuStrip.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip.Name = "menuStrip";
-			this.menuStrip.Size = new System.Drawing.Size(602, 28);
+			this.menuStrip.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
+			this.menuStrip.Size = new System.Drawing.Size(483, 24);
 			this.menuStrip.TabIndex = 0;
 			this.menuStrip.Text = "menuStrip";
 			// 
 			// fileToolStripMenuItem
 			// 
 			this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.exportToZebra2MenuItem,
-									this.loadCellToolStripMenuItem,
-									this.clearAllCellsToolStripMenuItem,
-									this.toolStripSeparator1,
-									this.quitToolStripMenuItem});
+			this.exportToZebra2MenuItem,
+			this.loadCellToolStripMenuItem,
+			this.clearAllCellsToolStripMenuItem,
+			this.toolStripSeparator1,
+			this.quitToolStripMenuItem});
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
 			this.fileToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F)));
-			this.fileToolStripMenuItem.Size = new System.Drawing.Size(44, 24);
+			this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
 			this.fileToolStripMenuItem.Text = "File";
 			// 
 			// exportToZebra2MenuItem
 			// 
 			this.exportToZebra2MenuItem.Name = "exportToZebra2MenuItem";
 			this.exportToZebra2MenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
-			this.exportToZebra2MenuItem.Size = new System.Drawing.Size(240, 24);
+			this.exportToZebra2MenuItem.Size = new System.Drawing.Size(200, 22);
 			this.exportToZebra2MenuItem.Text = "Export to Zebra2";
 			this.exportToZebra2MenuItem.Click += new System.EventHandler(this.ExportToZebra2MenuItemClick);
 			// 
@@ -93,7 +94,7 @@ namespace Wav2Zebra2Osc
 			// 
 			this.loadCellToolStripMenuItem.Name = "loadCellToolStripMenuItem";
 			this.loadCellToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
-			this.loadCellToolStripMenuItem.Size = new System.Drawing.Size(240, 24);
+			this.loadCellToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
 			this.loadCellToolStripMenuItem.Text = "Load cell(s)";
 			this.loadCellToolStripMenuItem.Click += new System.EventHandler(this.LoadCellToolStripMenuItemClick);
 			// 
@@ -101,113 +102,116 @@ namespace Wav2Zebra2Osc
 			// 
 			this.clearAllCellsToolStripMenuItem.Name = "clearAllCellsToolStripMenuItem";
 			this.clearAllCellsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
-			this.clearAllCellsToolStripMenuItem.Size = new System.Drawing.Size(240, 24);
+			this.clearAllCellsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
 			this.clearAllCellsToolStripMenuItem.Text = "Clear all cells";
 			this.clearAllCellsToolStripMenuItem.Click += new System.EventHandler(this.ClearAllCellsToolStripMenuItemClick);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(237, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(197, 6);
 			// 
 			// quitToolStripMenuItem
 			// 
 			this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
 			this.quitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Q)));
-			this.quitToolStripMenuItem.Size = new System.Drawing.Size(240, 24);
+			this.quitToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
 			this.quitToolStripMenuItem.Text = "Quit";
 			this.quitToolStripMenuItem.Click += new System.EventHandler(this.QuitToolStripMenuItemClick);
 			// 
 			// preferencesToolStripMenuItem
 			// 
 			this.preferencesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.setExportPathToolStripMenuItem});
+			this.setExportPathToolStripMenuItem});
 			this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
 			this.preferencesToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.S)));
-			this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(97, 24);
+			this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(80, 20);
 			this.preferencesToolStripMenuItem.Text = "Preferences";
 			// 
 			// setExportPathToolStripMenuItem
 			// 
 			this.setExportPathToolStripMenuItem.Name = "setExportPathToolStripMenuItem";
-			this.setExportPathToolStripMenuItem.Size = new System.Drawing.Size(180, 24);
+			this.setExportPathToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
 			this.setExportPathToolStripMenuItem.Text = "Set export path";
 			this.setExportPathToolStripMenuItem.Click += new System.EventHandler(this.SetExportPathToolStripMenuItemClick);
 			// 
 			// helpToolStripMenuItem
 			// 
 			this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.helpToolStripMenuItem1});
+			this.helpToolStripMenuItem1});
 			this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
 			this.helpToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.H)));
-			this.helpToolStripMenuItem.Size = new System.Drawing.Size(53, 24);
+			this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
 			this.helpToolStripMenuItem.Text = "Help";
 			// 
 			// helpToolStripMenuItem1
 			// 
 			this.helpToolStripMenuItem1.Name = "helpToolStripMenuItem1";
 			this.helpToolStripMenuItem1.ShortcutKeys = System.Windows.Forms.Keys.F1;
-			this.helpToolStripMenuItem1.Size = new System.Drawing.Size(152, 24);
+			this.helpToolStripMenuItem1.Size = new System.Drawing.Size(118, 22);
 			this.helpToolStripMenuItem1.Text = "Help";
 			this.helpToolStripMenuItem1.Click += new System.EventHandler(this.HelpToolStripMenuItem1Click);
 			// 
 			// statusStrip
 			// 
 			this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.outputField});
-			this.statusStrip.Location = new System.Drawing.Point(0, 550);
+			this.outputField});
+			this.statusStrip.Location = new System.Drawing.Point(0, 450);
 			this.statusStrip.Name = "statusStrip";
-			this.statusStrip.Size = new System.Drawing.Size(602, 25);
+			this.statusStrip.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
+			this.statusStrip.Size = new System.Drawing.Size(483, 22);
 			this.statusStrip.TabIndex = 1;
 			this.statusStrip.Text = "statusStrip1";
 			// 
 			// outputField
 			// 
 			this.outputField.Name = "outputField";
-			this.outputField.Size = new System.Drawing.Size(103, 20);
+			this.outputField.Size = new System.Drawing.Size(81, 17);
 			this.outputField.Text = "Export path is:";
 			// 
 			// tableLayoutPanel
 			// 
 			this.tableLayoutPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left) 
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.tableLayoutPanel.AutoSize = true;
 			this.tableLayoutPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.tableLayoutPanel.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
+			this.tableLayoutPanel.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.tableLayoutPanel.ColumnCount = 4;
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-			this.tableLayoutPanel.Location = new System.Drawing.Point(0, 68);
+			this.tableLayoutPanel.Location = new System.Drawing.Point(0, 51);
 			this.tableLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
-			this.tableLayoutPanel.MinimumSize = new System.Drawing.Size(600, 480);
+			this.tableLayoutPanel.MinimumSize = new System.Drawing.Size(450, 390);
 			this.tableLayoutPanel.Name = "tableLayoutPanel";
 			this.tableLayoutPanel.RowCount = 4;
 			this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-			this.tableLayoutPanel.Size = new System.Drawing.Size(600, 480);
+			this.tableLayoutPanel.Size = new System.Drawing.Size(480, 390);
 			this.tableLayoutPanel.TabIndex = 3;
 			// 
 			// exportDFTWavesCheckBox
 			// 
-			this.exportDFTWavesCheckBox.Checked = true;
-			this.exportDFTWavesCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.exportDFTWavesCheckBox.Location = new System.Drawing.Point(306, 35);
+			this.exportDFTWavesCheckBox.Location = new System.Drawing.Point(253, 29);
+			this.exportDFTWavesCheckBox.Margin = new System.Windows.Forms.Padding(2);
 			this.exportDFTWavesCheckBox.Name = "exportDFTWavesCheckBox";
-			this.exportDFTWavesCheckBox.Size = new System.Drawing.Size(153, 24);
+			this.exportDFTWavesCheckBox.Size = new System.Drawing.Size(115, 20);
 			this.exportDFTWavesCheckBox.TabIndex = 5;
 			this.exportDFTWavesCheckBox.Text = "Export DFT waves";
 			this.exportDFTWavesCheckBox.UseVisualStyleBackColor = true;
 			// 
 			// exportRAWWavesCheckBox
 			// 
-			this.exportRAWWavesCheckBox.Location = new System.Drawing.Point(452, 35);
+			this.exportRAWWavesCheckBox.Checked = true;
+			this.exportRAWWavesCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.exportRAWWavesCheckBox.Location = new System.Drawing.Point(362, 29);
+			this.exportRAWWavesCheckBox.Margin = new System.Windows.Forms.Padding(2);
 			this.exportRAWWavesCheckBox.Name = "exportRAWWavesCheckBox";
-			this.exportRAWWavesCheckBox.Size = new System.Drawing.Size(150, 24);
+			this.exportRAWWavesCheckBox.Size = new System.Drawing.Size(112, 20);
 			this.exportRAWWavesCheckBox.TabIndex = 6;
 			this.exportRAWWavesCheckBox.Text = "Export RAW waves";
 			this.exportRAWWavesCheckBox.UseVisualStyleBackColor = true;
@@ -216,52 +220,57 @@ namespace Wav2Zebra2Osc
 			// 
 			this.radioButtonPanel.Controls.Add(this.showDFTRadioButton);
 			this.radioButtonPanel.Controls.Add(this.showRAWRadioButton);
-			this.radioButtonPanel.Location = new System.Drawing.Point(295, 0);
+			this.radioButtonPanel.Location = new System.Drawing.Point(251, 0);
+			this.radioButtonPanel.Margin = new System.Windows.Forms.Padding(2);
 			this.radioButtonPanel.Name = "radioButtonPanel";
-			this.radioButtonPanel.Size = new System.Drawing.Size(305, 29);
+			this.radioButtonPanel.Size = new System.Drawing.Size(229, 24);
 			this.radioButtonPanel.TabIndex = 7;
 			// 
 			// showDFTRadioButton
 			// 
-			this.showDFTRadioButton.Checked = true;
-			this.showDFTRadioButton.Location = new System.Drawing.Point(154, 2);
+			this.showDFTRadioButton.Location = new System.Drawing.Point(116, 2);
+			this.showDFTRadioButton.Margin = new System.Windows.Forms.Padding(2);
 			this.showDFTRadioButton.Name = "showDFTRadioButton";
-			this.showDFTRadioButton.Size = new System.Drawing.Size(140, 24);
+			this.showDFTRadioButton.Size = new System.Drawing.Size(105, 20);
 			this.showDFTRadioButton.TabIndex = 1;
-			this.showDFTRadioButton.TabStop = true;
 			this.showDFTRadioButton.Text = "Show DFT waves";
 			this.showDFTRadioButton.UseVisualStyleBackColor = true;
 			this.showDFTRadioButton.CheckedChanged += new System.EventHandler(this.ShowDFTRadioButtonCheckedChanged);
 			// 
 			// showRAWRadioButton
 			// 
-			this.showRAWRadioButton.Location = new System.Drawing.Point(3, 3);
+			this.showRAWRadioButton.Checked = true;
+			this.showRAWRadioButton.Location = new System.Drawing.Point(2, 2);
+			this.showRAWRadioButton.Margin = new System.Windows.Forms.Padding(2);
 			this.showRAWRadioButton.Name = "showRAWRadioButton";
-			this.showRAWRadioButton.Size = new System.Drawing.Size(145, 24);
+			this.showRAWRadioButton.Size = new System.Drawing.Size(109, 20);
 			this.showRAWRadioButton.TabIndex = 0;
+			this.showRAWRadioButton.TabStop = true;
 			this.showRAWRadioButton.Text = "Show RAW waves";
 			this.showRAWRadioButton.UseVisualStyleBackColor = true;
 			// 
 			// exportFileName
 			// 
-			this.exportFileName.Location = new System.Drawing.Point(97, 35);
+			this.exportFileName.Location = new System.Drawing.Point(79, 28);
+			this.exportFileName.Margin = new System.Windows.Forms.Padding(2);
 			this.exportFileName.Name = "exportFileName";
-			this.exportFileName.Size = new System.Drawing.Size(203, 22);
+			this.exportFileName.Size = new System.Drawing.Size(170, 20);
 			this.exportFileName.TabIndex = 9;
 			// 
 			// labelFileName
 			// 
-			this.labelFileName.Location = new System.Drawing.Point(4, 36);
+			this.labelFileName.Location = new System.Drawing.Point(3, 29);
+			this.labelFileName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.labelFileName.Name = "labelFileName";
-			this.labelFileName.Size = new System.Drawing.Size(96, 23);
+			this.labelFileName.Size = new System.Drawing.Size(72, 19);
 			this.labelFileName.TabIndex = 10;
 			this.labelFileName.Text = "Export file as:";
 			// 
 			// MainForm
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(602, 575);
+			this.ClientSize = new System.Drawing.Size(483, 472);
 			this.Controls.Add(this.labelFileName);
 			this.Controls.Add(this.exportFileName);
 			this.Controls.Add(this.radioButtonPanel);
@@ -271,7 +280,8 @@ namespace Wav2Zebra2Osc
 			this.Controls.Add(this.statusStrip);
 			this.Controls.Add(this.menuStrip);
 			this.MainMenuStrip = this.menuStrip;
-			this.MinimumSize = new System.Drawing.Size(620, 620);
+			this.Margin = new System.Windows.Forms.Padding(2);
+			this.MinimumSize = new System.Drawing.Size(469, 511);
 			this.Name = "MainForm";
 			this.Text = "Wav2Zebra2Osc";
 			this.Resize += new System.EventHandler(this.MainFormResize);
@@ -282,6 +292,7 @@ namespace Wav2Zebra2Osc
 			this.radioButtonPanel.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
 		}
 		private System.Windows.Forms.TextBox exportFileName;
 		private System.Windows.Forms.Label labelFileName;

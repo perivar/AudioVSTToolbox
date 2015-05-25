@@ -1,9 +1,10 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
 using CommonUtils;
+
+using CommonUtils.FFT;
 
 namespace Wav2Zebra2Osc
 {
@@ -12,16 +13,12 @@ namespace Wav2Zebra2Osc
 	/// </summary>
 	public partial class WaveDisplayUserControl : UserControl
 	{
-		
 		private const long serialVersionUID = 1L;
 		private float[] waveData;
 		private float[] dftData;
 		private float[] harmonicsData;
-		private float[] interpolatedData;
 		private float[] emptyData;
-		private bool selected;
-		private bool loaded;
-		private string fileName;
+		
 		private MainForm parentForm;
 
 		public WaveDisplayUserControl(MainForm parentForm)
@@ -30,50 +27,43 @@ namespace Wav2Zebra2Osc
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-						
+			
+			// Ensure the paint methods are called if resized
+			ResizeRedraw = true;
+			
 			//
 			// Constructor code after the InitializeComponent() call.
 			//
-			this.parentForm = parentForm;			
+			this.parentForm = parentForm;
+			
 			this.waveData = new float[128];
 			this.harmonicsData = new float[128];
 			this.emptyData = new float[128];
 			this.dftData = new float[128];
-			this.fileName = "";
 			for (int i = 0; i < 128; i++)
 			{
 				this.waveData[i] = 0.0F;
 				this.harmonicsData[i] = 0.0F;
 				this.emptyData[i] = 0.0F;
-				this.dftData[i] = 0.0F;	
+				this.dftData[i] = 0.0F;
 			}
-			
-			this.selected = false;
-			this.loaded = false;			
 		}
 		
-		public virtual string FileName
-		{
-			set
-			{
-				this.fileName = value;
-			}			 
-			get
-			{
-				return this.fileName;		
-			}
+		public virtual string FileName {
+			set;
+			get;
 		}
 		
 		public virtual float[] WaveData
 		{
 			set
 			{
-				Array.Copy(value, 0, this.waveData, 0, 128);		
+				Array.Copy(value, 0, this.waveData, 0, 128);
 			}
 			get
 			{
-				return this.waveData;	
-			}			
+				return this.waveData;
+			}
 		}
 		
 		public virtual float[] DftData
@@ -84,8 +74,8 @@ namespace Wav2Zebra2Osc
 			}
 			get
 			{
-				return this.dftData;	
-			}			
+				return this.dftData;
+			}
 		}
 		
 		public virtual float[] HarmonicsData
@@ -93,101 +83,102 @@ namespace Wav2Zebra2Osc
 			set
 			{
 				int length = value.Length;
-				for (int i = 0; i < length; i++)			
-				{				 
+				for (int i = 0; i < length; i++)
+				{
 					this.harmonicsData[i] = value[i];
 				}
 			}
 			get
 			{
-				return this.harmonicsData;	
-			}			
-		}
-
-		public virtual float[] InterpolatedData
-		{
-			get
-			{
-				return this.interpolatedData;	
-			}			
+				return this.harmonicsData;
+			}
 		}
 		
 		public virtual void ClearWaveData()
 		{
-			Array.Copy(this.emptyData, 0, this.waveData, 0, 128);	
-			this.loaded = false;
-		}			 
+			Array.Copy(this.emptyData, 0, this.waveData, 0, 128);
+			this.Loaded = false;
+		}
 		
 		public virtual void ClearDftData()
 		{
 			Array.Copy(this.emptyData, 0, this.dftData, 0, 128);
-		}			 
+		}
 		
 		public virtual void ClearHarmonics()
 		{
 			Array.Copy(this.emptyData, 0, this.harmonicsData, 0, 128);
-			this.loaded = false;
+			this.Loaded = false;
 		}
 		
-		public virtual bool Selected
-		{
-			set
-			{
-				this.selected = value;		
-			}
-			get
-			{
-				return this.selected;	
-			}
+		public virtual bool Selected {
+			set;
+			get;
 		}
 		
-		public virtual bool Loaded
-		{
-			set
-			{
-				this.loaded = value;		
-			}			 
-			get
-			{
-				return this.loaded;	
-			}
-		}	
+		public virtual bool Loaded {
+			set;
+			get;
+		}
 
-	    private void WaveDisplayUserControl_Paint(object sender, System.Windows.Forms.PaintEventArgs e) {
-	        Graphics g = e.Graphics;
-	        
+		private void WaveDisplayUserControl_Paint(object sender, PaintEventArgs e) {
+			Graphics g = e.Graphics;
+			
 			int height = Height;
 			int width = Width;
 			
-			// set black background
-			g.Clear(Color.Black);
+			// set white background
+			//g.Clear(Color.White);
 
 			// if selected, highlight
+			// TODO: fix highligting selected
 			if (this.Selected)
 			{
-				g.Clear(Color.Gray);
+				//g.Clear(Color.Black);
 			}
 
+			float[] interpolatedData;
 			if (this.parentForm.DoShowRAWWaves)
 			{
-				this.interpolatedData = MathUtils.ReSampleToArbitrary(this.waveData, width);
-			}			   
+				interpolatedData = this.waveData;
+			}
 			else
 			{
-				this.interpolatedData = MathUtils.ReSampleToArbitrary(this.dftData, width);	
-			}			   
-		
-			for (int x = 0; x < width; x++)	
-			{				 
-				float heightScaling = height * (height - 4.0F) / height / 2.0F;
-				int y = (int)(height / 2 + this.interpolatedData[x] * heightScaling);
-				g.FillRectangle(Brushes.LightYellow, x, y, 1, 1);
+				interpolatedData = this.dftData;
 			}
 			
-			Font f = new Font(FontFamily.GenericSansSerif, 9.0f, FontStyle.Regular);
-			g.DrawString(System.IO.Path.GetFileName(this.fileName), f, Brushes.Yellow, 1, 1);
-	    }		
-		
+			DrawingProperties properties = DrawingProperties.Blue;
+			properties.Margin = 0;
+			properties.NumberOfHorizontalLines = 2;
+			properties.DrawRoundedRectangles = false;
+			properties.DrawHorizontalTickMarks = false;
+			properties.DrawVerticalTickMarks = false;
+			properties.DrawLabels = false;
+			properties.DisplayTime = false;
+			properties.TimeLineUnit = TimelineUnit.Samples;
+			
+			Bitmap _offlineBitmap = AudioAnalyzer.DrawWaveform(interpolatedData,
+			                                                   new Size(this.Width, this.Height),
+			                                                   1,
+			                                                   -1, -1,
+			                                                   -1, -1,
+			                                                   -1,
+			                                                   44100,
+			                                                   1,
+			                                                   properties);
+
+			if (_offlineBitmap != null) {
+
+				// draw the offline bitmap
+				g.DrawImage(_offlineBitmap, 0, 0);
+			}
+			
+			var drawFileNameFont = new Font("Arial", 9);
+			string fileName = System.IO.Path.GetFileNameWithoutExtension(this.FileName);
+			SizeF drawFileNameTextSize = g.MeasureString(fileName, drawFileNameFont);
+			g.DrawString(fileName, drawFileNameFont, Brushes.Black, Width - drawFileNameTextSize.Width - 2, 1);
+		}
+
 		void WaveDisplayUserControlDoubleClick(object sender, System.EventArgs e)
 		{
 			this.parentForm.LoadCell();
@@ -205,6 +196,6 @@ namespace Wav2Zebra2Osc
 			}
 			this.Selected = true;
 			this.Refresh();
-		}		
+		}
 	}
 }

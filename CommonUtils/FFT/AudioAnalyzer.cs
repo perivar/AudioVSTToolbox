@@ -1320,7 +1320,7 @@ namespace CommonUtils.FFT
 			}
 			double MIN_AMPLITUDE = -1.0f / amplitude;
 			double MAX_AMPLITUDE = 1.0f / amplitude;
-			double AMPLITUDE_STEP = MAX_AMPLITUDE / 4;
+			double AMPLITUDE_STEP = MAX_AMPLITUDE / properties.NumberOfHorizontalLines;
 			
 			// Derived constants
 			int RIGHT = WIDTH;
@@ -1402,11 +1402,16 @@ namespace CommonUtils.FFT
 			var samplePen = new Pen(properties.SampleColor, 1.0f);
 			var infoBoxPen = new Pen(properties.DebugBoxTextColor, 1.0f);
 
-			Brush sampleDotBrush = new SolidBrush(properties.SampleColor);
-			Brush fillBrushOuter = new SolidBrush(properties.FillOuterColor);
-			Brush fillBrush = new SolidBrush(properties.FillColor);
-			Brush drawLabelBrush = new SolidBrush(textPen.Color);
-			Brush drawBrush = new SolidBrush(textPen.Color);
+			var sampleDotBrush = new SolidBrush(properties.SampleColor);
+			var fillBrushOuter = new SolidBrush(properties.FillOuterColor);
+			var fillBrush = new SolidBrush(properties.FillColor);
+			var drawLabelBrush = new SolidBrush(textPen.Color);
+			var drawBrush = new SolidBrush(textPen.Color);
+			var drawInfoBoxBrush = new SolidBrush(infoBoxPen.Color);
+			
+			var drawTickFont = new Font("Arial", 7);
+			var drawLabelFont = new Font("Arial", 8);
+			var drawInfoBoxFont = new Font("Arial", 8);
 			#endregion
 
 			#region Draw a Rectangular Box marking the boundaries of the graph
@@ -1428,7 +1433,6 @@ namespace CommonUtils.FFT
 			#endregion
 			
 			#region Draw Grid with Labels and Ticks
-			var drawLabelFont = new Font("Arial", 8);
 			if (properties.DrawLabels) {
 				// Label for horizontal axis
 				SizeF drawLabelTextSize = g.MeasureString(properties.LabelXaxis, drawLabelFont);
@@ -1443,43 +1447,44 @@ namespace CommonUtils.FFT
 			int y = 0;
 			int yMiddle = 0;
 			int xMiddle = 0;
-			for ( double timeTick = MIN_TIME; timeTick <= MAX_TIME; timeTick += TIME_STEP )
-			{
-				// draw vertical main line
-				x = (int) (LEFT_MARGIN + TIMETOPIXEL*(timeTick-MIN_TIME));
-				if (x > LEFT_MARGIN  && x < WIDTH) {
-					g.DrawLine(linePen, x, BOTTOM, x, TOP_MARGIN);
-				}
-
-				// draw vertical middle line (between the main lines)
-				xMiddle = (int) (x + TIMETOPIXEL*TIME_STEP/2);
-				if (xMiddle < TOTAL_WIDTH) {
-					g.DrawLine(middleLinePen, xMiddle, BOTTOM, xMiddle, TOP_MARGIN);
-				}
-
-				if ( timeTick != MIN_TIME && timeTick != MAX_TIME )
+			if (properties.DrawVerticalTickMarks) {
+				for ( double timeTick = MIN_TIME; timeTick <= MAX_TIME; timeTick += TIME_STEP )
 				{
-					// draw numbers on the tick marks
-					var drawFont = new Font("Arial", 7);
-					string displayTimeTickString = "";
-					TimeSpan time;
-
-					switch (properties.TimeLineUnit) {
-						case TimelineUnit.Time:
-							time = TimeSpan.FromMilliseconds(timeTick);
-							displayTimeTickString = time.ToString(@"hh\:mm\:ss\.fff");
-							break;
-						case TimelineUnit.Samples:
-							int samples = (int)(timeTick * sampleRate / 1000);
-							displayTimeTickString = samples.ToString("0");
-							break;
-						case TimelineUnit.Seconds:
-							time = TimeSpan.FromMilliseconds(timeTick);
-							displayTimeTickString = time.ToString(@"s\.fff");
-							break;
+					// draw vertical main line
+					x = (int) (LEFT_MARGIN + TIMETOPIXEL*(timeTick-MIN_TIME));
+					if (x > LEFT_MARGIN  && x < WIDTH) {
+						g.DrawLine(linePen, x, BOTTOM, x, TOP_MARGIN);
 					}
-					SizeF displayTimeTickStringSize = g.MeasureString(displayTimeTickString, drawFont);
-					g.DrawString(displayTimeTickString, drawFont, drawBrush, x - displayTimeTickStringSize.Width/2, 2);
+
+					// draw vertical middle line (between the main lines)
+					xMiddle = (int) (x + TIMETOPIXEL*TIME_STEP/2);
+					if (xMiddle < TOTAL_WIDTH) {
+						g.DrawLine(middleLinePen, xMiddle, BOTTOM, xMiddle, TOP_MARGIN);
+					}
+
+					if ( timeTick != MIN_TIME && timeTick != MAX_TIME )
+					{
+						// draw numbers on the tick marks
+						string displayTimeTickString = "";
+						TimeSpan time;
+
+						switch (properties.TimeLineUnit) {
+							case TimelineUnit.Time:
+								time = TimeSpan.FromMilliseconds(timeTick);
+								displayTimeTickString = time.ToString(@"hh\:mm\:ss\.fff");
+								break;
+							case TimelineUnit.Samples:
+								int samples = (int)(timeTick * sampleRate / 1000);
+								displayTimeTickString = samples.ToString("0");
+								break;
+							case TimelineUnit.Seconds:
+								time = TimeSpan.FromMilliseconds(timeTick);
+								displayTimeTickString = time.ToString(@"s\.fff");
+								break;
+						}
+						SizeF displayTimeTickStringSize = g.MeasureString(displayTimeTickString, drawTickFont);
+						g.DrawString(displayTimeTickString, drawTickFont, drawBrush, x - displayTimeTickStringSize.Width/2, 2);
+					}
 				}
 			}
 			#endregion
@@ -1507,7 +1512,6 @@ namespace CommonUtils.FFT
 				xMiddle = 0;
 
 				#region draw amplitude tick marks
-				var drawFont = new Font("Arial", 7);
 				for ( double amplitudeTick = MIN_AMPLITUDE; amplitudeTick <= MAX_AMPLITUDE; amplitudeTick += AMPLITUDE_STEP )
 				{
 					// calcuate y steps from the top and downwards
@@ -1517,11 +1521,11 @@ namespace CommonUtils.FFT
 					if (amplitudeTick != MAX_AMPLITUDE && amplitudeTick != MIN_AMPLITUDE && amplitudeTick != 0) {
 						// draw horizontal main line
 						g.DrawLine(linePen, LEFT_MARGIN, y, LEFT_MARGIN+WIDTH, y);
-						g.DrawString(MathUtils.AmplitudeToDecibel((float) Math.Abs(amplitudeTick)).ToString("0.0"), drawFont, drawBrush, 4, y - drawFont.GetHeight(g)/2);
+						if (properties.DrawHorizontalTickMarks) g.DrawString(MathUtils.AmplitudeToDecibel((float) Math.Abs(amplitudeTick)).ToString("0.0"), drawTickFont, drawBrush, 4, y - drawTickFont.GetHeight(g)/2);
 					} else if (amplitudeTick == 0) {
 						// draw horizontal main line (the center of the waveform)
 						g.DrawLine(centreLinePen, LEFT_MARGIN, y, LEFT_MARGIN+WIDTH, y);
-						g.DrawString("-dB", drawFont, drawBrush, 4, y - drawFont.GetHeight(g)/2);
+						if (properties.DrawHorizontalTickMarks) g.DrawString("-dB", drawTickFont, drawBrush, 4, y - drawTickFont.GetHeight(g)/2);
 					} else if (amplitudeTick == MAX_AMPLITUDE) {
 						// draw separation line
 						if (properties.DrawSeparationLine) {
@@ -1594,7 +1598,6 @@ namespace CommonUtils.FFT
 										prevSpanY = (int) (curY + prevSpanY1); // to previous span's sy1
 									}
 									
-									//printf("line (%d,%d)(%d,%d)\n", x, y, psx, py);
 									// draw from current to previous point
 									// so that previous point is excluded
 									g.DrawLine(samplePen, curX, spanY, prevSpanX, prevSpanY);
@@ -1654,9 +1657,6 @@ namespace CommonUtils.FFT
 			
 			#region Draw right upper debug box
 			if (properties.DisplayDebugBox) {
-				var drawInfoBoxFont = new Font("Arial", 8);
-				var drawInfoBoxBrush = new SolidBrush(infoBoxPen.Color);
-				
 				string infoBoxLine1Text = String.Format("SamplesPerPixel: Full: {0:0.000}, Zoom: {1:0.000}", (double) maxChannelNumberOfSamples / (double) WIDTH, samplesPerPixel);
 				string infoBoxLine2Text = String.Format("Time (Min->Max): {0} -> {1}", MIN_TIME, MAX_TIME);
 				string infoBoxLine3Text = String.Format("Timestep: {0}, TimeToPixel: {1}", TIME_STEP, TIMETOPIXEL);
@@ -1718,6 +1718,11 @@ namespace CommonUtils.FFT
 			fillBrush.Dispose();
 			drawLabelBrush.Dispose();
 			drawBrush.Dispose();
+			drawInfoBoxBrush.Dispose();
+			
+			drawTickFont.Dispose();
+			drawLabelFont.Dispose();
+			drawInfoBoxFont.Dispose();
 			#endregion
 			
 			return png;
@@ -1872,6 +1877,10 @@ namespace CommonUtils.FFT
 			}
 		}
 		
+		public bool DrawHorizontalTickMarks { get; set; }
+		public bool DrawVerticalTickMarks { get; set; }
+		public int NumberOfHorizontalLines { get; set; }
+		
 		/// <summary>
 		/// Determine whether to draw labels on the axis
 		/// </summary>
@@ -1901,11 +1910,15 @@ namespace CommonUtils.FFT
 			
 			// Set some default values, setting DrawRaw also sets the default values for the other bool parameters
 			DrawRaw = false;
+			DrawHorizontalTickMarks = true;
+			DrawVerticalTickMarks = true;
 			
 			// always separate the waveforms
 			DrawSeparationLine = true;
 			
 			Margin = 5; // Use 5 pixels margins when not drawing raw
+			
+			NumberOfHorizontalLines = 4; // default number of lines (4 above and below the center line)
 			
 			TimeLineUnit = TimelineUnit.Time;
 			

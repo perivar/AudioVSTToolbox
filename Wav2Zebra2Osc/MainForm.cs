@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
-using System.Text;
 
-using AudioSystem;
 using CommonUtils;
+using CommonUtils.Audio;
 
 namespace Wav2Zebra2Osc
 {
@@ -16,16 +12,12 @@ namespace Wav2Zebra2Osc
 	/// </summary>
 	public partial class MainForm : Form
 	{
-		private OpenFileDialog fileDialog;
-		private FolderBrowserDialog folderDialog;		
 		private float[][] harmonicsData;
 		private float[][] soundData;
 		private float[][] dftData;
 		private float[] emptyData;
 		private float[] sineData;
 		private string rawExportName;
-		
-		private BassProxy bassProxy;
 		
 		public Wav2Zebra2Osc.WaveDisplayUserControl[] waveDisplays;
 		
@@ -35,11 +27,12 @@ namespace Wav2Zebra2Osc
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-
-			ResizeRedraw = true;
 			
-			// audio proxy used in reading the file
-			bassProxy = new BassProxy();
+			// Initialize Bass
+			BassProxy instance = BassProxy.Instance;
+
+			// Ensure the paint methods are called if resized
+			ResizeRedraw = true;
 			
 			// Initialize the wave display cells
 			waveDisplays = new Wav2Zebra2Osc.WaveDisplayUserControl[16];
@@ -161,17 +154,82 @@ namespace Wav2Zebra2Osc
 				return selected;
 			}
 		}
+		
+		// http://stackoverflow.com/questions/7995470/how-can-i-resample-wav-file
+		public static float[] ReSampleToArbitrary(float[] input, int size) {
 			
+			//int fromSampleRate = 44100;
+			//int toSampleRate = 692;
+			int quality = 10;
+			
+			int srcLength = input.Length;
+			//int destLength = (int) ((double) input.Length * (double) toSampleRate / (double) fromSampleRate);
+			int destLength = size;
+			double dx = (double) srcLength / (double) destLength;
+
+			//var samples = new List<float>();
+			var samples = new float[destLength];
+			
+			// fmax : Nyqist half of destination sampleRate
+			// fmax / fsr = 0.5;
+			const double fmaxDivSR = 0.5;
+			const double r_g = 2 * fmaxDivSR;
+
+			// Quality is half the window width
+			int wndWidth2 = quality;
+			int wndWidth = quality * 2;
+
+			double x = 0;
+			int i, j = 0;
+			double r_y;
+			int tau;
+			double r_w;
+			double r_a;
+			double r_snc;
+			
+			for (i=0; i < destLength; ++i)
+			{
+				r_y = 0.0;
+				for (tau=-wndWidth2; tau < wndWidth2; ++tau)
+				{
+					// input sample index
+					j = (int)(x+tau);
+
+					// Hann Window. Scale and calculate sinc
+					r_w = 0.5 - 0.5 * Math.Cos(2 * Math.PI * (0.5 + (j - x) / wndWidth));
+					r_a = 2 * Math.PI * (j-x) * fmaxDivSR;
+					r_snc = 1.0;
+					if (r_a != 0)
+						r_snc = Math.Sin(r_a)/r_a;
+
+					if ((j >= 0) && (j < srcLength))
+					{
+						r_y += r_g * r_w * r_snc * input[j];
+					}
+				}
+				samples[i] = (float) r_y;
+				x += dx;
+			}
+			
+			return samples;
+		}
+		
 		public virtual void SetImportSound(FileInfo file, int selected)
 		{
-			float[] tempAudioBuffer = bassProxy.ReadMonoFromFile(file.FullName, 5512);
+			float[] tempAudioBuffer = BassProxy.ReadMonoFromFile(file.FullName);
 			float[] tempAudioBuffer2 = MathUtils.ReSampleToArbitrary(tempAudioBuffer, 128);
+			//float[] tempAudioBuffer2 = ReSampleToArbitrary(tempAudioBuffer, 128);
+			
+			#if DEBUG
+			Export.ExportCSV(file.Name + ".csv", tempAudioBuffer2);
+			#endif
+			
 			Array.Copy(tempAudioBuffer2, 0, this.soundData[selected], 0, 128);
 			
 			// TODO: use lomont instead
 			this.harmonicsData[selected] = Conversions.DFT(this.soundData[selected]);
 			//this.harmonicsData[selected] = Fourier.DFTTransformer.AbsFFT(this.soundData[selected]);
-			this.dftData[selected] = Conversions.iDFT(this.harmonicsData[selected]);			
+			this.dftData[selected] = Conversions.iDFT(this.harmonicsData[selected]);
 			//this.dftData[selected] = Fourier.DFTTransformer.IFFT(this.harmonicsData[selected], false, false);
 			
 			this.waveDisplays[selected].HarmonicsData = this.harmonicsData[selected];
@@ -206,7 +264,6 @@ namespace Wav2Zebra2Osc
 				if (dft) {
 					exportName = pathName + Path.DirectorySeparatorChar + this.exportFileName.Text;
 					exportName = FixExportNames(exportName, true);
-					exportName = CheckH2pSuffix(exportName);
 					exportName = RenameIfFileExists(exportName);
 					
 					try
@@ -245,7 +302,6 @@ namespace Wav2Zebra2Osc
 				{
 					exportName = pathName + Path.DirectorySeparatorChar + this.exportFileName.Text;
 					exportName = FixExportNames(exportName, false);
-					exportName = CheckH2pSuffix(exportName);
 					exportName = RenameIfFileExists(exportName);
 					
 					try
@@ -288,14 +344,14 @@ namespace Wav2Zebra2Osc
 		
 		public virtual void SetExportPath()
 		{
-			this.folderDialog = new FolderBrowserDialog();
+			var folderDialog = new FolderBrowserDialog();
 			folderDialog.Description = "Set export path";
 			
 			DialogResult retval = folderDialog.ShowDialog();
 			if (retval == DialogResult.OK)
 			{
-				string pathName = folderDialog.SelectedPath;				
-				String initFileName = "Wav2Zebra2.ini";
+				string pathName = folderDialog.SelectedPath;
+				const String initFileName = "Wav2Zebra2.ini";
 				try
 				{
 					StreamWriter writer = File.CreateText(initFileName);
@@ -311,8 +367,8 @@ namespace Wav2Zebra2Osc
 		
 		public virtual void LoadCell()
 		{
-			this.fileDialog = new OpenFileDialog();
-			this.fileDialog.Multiselect = true;
+			var fileDialog = new OpenFileDialog();
+			fileDialog.Multiselect = true;
 			//fileDialog.Filter = "MP3|*.mp3|WAV|*.wav|All files (*.*)|*.*";
 			//fileDialog.InitialDirectory = initialDirectory;
 			fileDialog.Title = "Select an audio file";
@@ -321,10 +377,10 @@ namespace Wav2Zebra2Osc
 			int selected = this.SelectedWaveDisplay;
 			if (selected > -1)
 			{
-				DialogResult retval = this.fileDialog.ShowDialog();
+				DialogResult retval = fileDialog.ShowDialog();
 				if (retval == DialogResult.OK)
 				{
-					string[] files = this.fileDialog.FileNames;
+					string[] files = fileDialog.FileNames;
 					int count = files.Length;
 					for (int i = 0; (i < count) && (i + selected < 16); i++)
 					{
@@ -357,7 +413,7 @@ namespace Wav2Zebra2Osc
 				for (int i = 0; i < 16; i++)
 				{
 					string temp = this.waveDisplays[i].FileName;
-					if ((beginning == "Default") && (temp != ""))
+					if ((beginning == "Default") && !string.IsNullOrEmpty(temp))
 					{
 						beginning = Path.GetFileName(this.waveDisplays[i].FileName);
 					}
@@ -366,7 +422,7 @@ namespace Wav2Zebra2Osc
 				for (int i = 15; i >= 0; i--)
 				{
 					string temp = this.waveDisplays[i].FileName;
-					if ((end == "Default") && (temp != ""))
+					if ((end == "Default") && !string.IsNullOrEmpty(temp))
 					{
 						end = Path.GetFileName(this.waveDisplays[i].FileName);
 					}
@@ -383,7 +439,7 @@ namespace Wav2Zebra2Osc
 		
 		private string RenameIfFileExists(string checkName)
 		{
-			FileInfo fileInfo = new FileInfo(checkName);
+			var fileInfo = new FileInfo(checkName);
 			DirectoryInfo folder = fileInfo.Directory;
 			string folderName = folder.FullName;
 			int version = 0;
@@ -405,9 +461,9 @@ namespace Wav2Zebra2Osc
 			return checkName;
 		}
 		
-		private string FixExportNames(string a, bool dft)
+		private string FixExportNames(string fullFilePath, bool dft)
 		{
-			string temp = a;
+			string temp = fullFilePath;
 			temp = RemoveFileSuffix(temp);
 			if (dft)
 			{
@@ -421,26 +477,23 @@ namespace Wav2Zebra2Osc
 			return temp;
 		}
 		
-		private string RemoveFileSuffix(string a)
+		private string RemoveFileSuffix(string fullPath)
 		{
-			// THIS DOES NOT WORK CAUSE OF PATH -> return Path.GetFileNameWithoutExtension(a);
-			string[] temp = StringHelperClass.StringSplit(a, "[.]", true);
-			return temp[0];
+			return Path.Combine(Path.GetDirectoryName(fullPath), Path.GetFileNameWithoutExtension(fullPath));
 		}
 		
 		private string RemoveWhiteSpace(string a)
 		{
-			//string temp = a.replaceAll(" ", "");
-			//return temp;
 			return a.Replace(" ", "");
 		}
 		
 		private string CheckH2pSuffix(string a)
 		{
-			string[] temp = StringHelperClass.StringSplit(a, "[.]h2p", true);
-			string tempus = temp[0];
-			tempus = tempus + ".h2p";
-			return tempus;
+			if (!a.EndsWith(".h2p", StringComparison.Ordinal)) {
+				return a + ".h2p";
+			} else {
+				return a;
+			}
 		}
 		
 		private void CalculateGhosts()
@@ -470,7 +523,7 @@ namespace Wav2Zebra2Osc
 				// TODO: change inverse transform to Lomont
 				this.dftData[j] = Conversions.iDFT(this.harmonicsData[j]);
 				//this.dftData[j] = Fourier.DFTTransformer.IFFT(this.harmonicsData[j], false, false);
-					
+				
 				this.waveDisplays[j].DftData = this.dftData[j];
 				this.waveDisplays[j].HarmonicsData = this.harmonicsData[j];
 				this.waveDisplays[j].Refresh();
@@ -544,47 +597,11 @@ internal static partial class RectangularArrays
 {
 	internal static float[][] ReturnRectangularFloatArray(int Size1, int Size2)
 	{
-		float[][] Array = new float[Size1][];
+		var Array = new float[Size1][];
 		for (int Array1 = 0; Array1 < Size1; Array1++)
 		{
 			Array[Array1] = new float[Size2];
 		}
 		return Array;
-	}
-}
-
-//----------------------------------------------------------------------------------------
-//	Copyright © 2007 - 2011 Tangible Software Solutions Inc.
-//	This class can be used by anyone provided that the copyright notice remains intact.
-//
-//	This class is used to replace most calls to the Java String.split method.
-//----------------------------------------------------------------------------------------
-internal static class StringHelperClass
-{
-	//------------------------------------------------------------------------------------
-	//	This method is used to replace most calls to the Java String.split method.
-	//------------------------------------------------------------------------------------
-	internal static string[] StringSplit(string source, string regexDelimiter, bool trimTrailingEmptyStrings)
-	{
-		string[] splitArray = System.Text.RegularExpressions.Regex.Split(source, regexDelimiter);
-
-		if (trimTrailingEmptyStrings)
-		{
-			if (splitArray.Length > 1)
-			{
-				for (int i = splitArray.Length; i > 0; i--)
-				{
-					if (splitArray[i - 1].Length > 0)
-					{
-						if (i < splitArray.Length)
-							System.Array.Resize(ref splitArray, i);
-
-						break;
-					}
-				}
-			}
-		}
-
-		return splitArray;
 	}
 }

@@ -1,11 +1,4 @@
-﻿// Sound Fingerprinting framework
-// https://code.google.com/p/soundfingerprinting/
-// Code license: GNU General Public License v2
-// ciumac.sergiu@gmail.com
-
-using System.Diagnostics;
-using System.IO;
-using System.Security.Permissions;
+﻿using System.IO;
 using System.Text;
 
 namespace CommonUtils
@@ -13,13 +6,12 @@ namespace CommonUtils
 	/// <summary>
 	///   Class for writing any object values in comma separated file
 	/// </summary>
-	[DebuggerDisplay("Path={_pathToFile}")]
 	public class CSVWriter
 	{
 		/// <summary>
 		///   Separator used while writing to CVS
 		/// </summary>
-		private const char SEPARATOR = ';';
+		private const char SEPARATOR = ',';
 
 		/// <summary>
 		///   Carriage return line feed
@@ -77,13 +69,12 @@ namespace CommonUtils
 		///   Write the data into CSV
 		/// </summary>
 		/// <param name = "data">Data to be written</param>
-		[FileIOPermission(SecurityAction.Demand)]
 		public void Write(object[][] data)
 		{
 			using (_writer = new StreamWriter(_pathToFile, false, _encoding))
 			{
 				int cols = data[0].Length;
-				StringBuilder builder = new StringBuilder();
+				var builder = new StringBuilder();
 				for (int i = 0, n = data.GetLength(0); i < n; i++)
 				{
 					for (int j = 0; j < cols; j++)
