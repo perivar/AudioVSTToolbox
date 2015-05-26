@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-# SharpDevelop 4.1.0.8000
+# SharpDevelop 5.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wav2Zebra2Osc", "Wav2Zebra2Osc.csproj", "{3EFE09A6-9364-4DB1-8089-8E7FF773F108}"
 EndProject
 Global
@@ -10,9 +10,9 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3EFE09A6-9364-4DB1-8089-8E7FF773F108}.Debug|x86.Build.0 = Debug|x86
 		{3EFE09A6-9364-4DB1-8089-8E7FF773F108}.Debug|x86.ActiveCfg = Debug|x86
-		{3EFE09A6-9364-4DB1-8089-8E7FF773F108}.Release|x86.Build.0 = Release|x86
+		{3EFE09A6-9364-4DB1-8089-8E7FF773F108}.Debug|x86.Build.0 = Debug|x86
 		{3EFE09A6-9364-4DB1-8089-8E7FF773F108}.Release|x86.ActiveCfg = Release|x86
+		{3EFE09A6-9364-4DB1-8089-8E7FF773F108}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 EndGlobal

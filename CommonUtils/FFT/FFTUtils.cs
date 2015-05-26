@@ -4,8 +4,8 @@ using Lomont;
 namespace CommonUtils.FFT
 {
 	/// <summary>
-	/// FFTUtils is a class utilising the Lomont FFT class for FFT transforms 
-	/// as well as having utility classes for converting from real arrays to complex arrays 
+	/// FFTUtils is a class utilising the Lomont FFT class for FFT transforms
+	/// as well as having utility classes for converting from real arrays to complex arrays
 	/// as used by the exocortex FFT and Lomont FFT
 	/// http://www.exocortex.org/dsp/
 	/// http://www.lomont.org
@@ -14,89 +14,96 @@ namespace CommonUtils.FFT
 	/// </summary>
 	public static class FFTUtils
 	{
-		/* This method duplicates exactly the function
-		 * abs(fft(input)) in MATLAB
-		 * The MATLAB abs() is equal to sqrt(real(X).^2 + imag(X).^2)
-		 * Input is e.g. an audio signal
-		 * Returns a an array with frequency information.
-		 * */
+		#region fft and ifft methods
+		/// <summary>
+		/// This method duplicates exactly the function
+		/// abs(fft(input)) in MATLAB
+		/// The MATLAB abs() is equal to sqrt(real(X).^2 + imag(X).^2)
+		/// </summary>
+		/// <param name="input">e.g. an audio signal</param>
+		/// <returns>an array with frequency information (power spectrum or magnitude)</returns>
 		public static double[] AbsFFT(double[] input) {
 			double[] fftArray = FFT(input);
 			return Abs(fftArray);
 		}
 		
-		/* This method duplicates exactly the function
-		 * abs(fft(input)) in MATLAB
-		 * The MATLAB abs() is equal to sqrt(real(X).^2 + imag(X).^2)
-		 * Input is e.g. an audio signal
-		 * Returns a an array with frequency information.
-		 * */
+		/// <summary>
+		/// This method duplicates exactly the function
+		/// abs(fft(input)) in MATLAB
+		/// The MATLAB abs() is equal to sqrt(real(X).^2 + imag(X).^2)
+		/// </summary>
+		/// <param name="floatArray">e.g. an audio signal</param>
+		/// <returns>an array with frequency information (power spectrum or magnitude)</returns>
 		public static float[] AbsFFT(float[] floatArray) {
 			double[] doubleArray = MathUtils.FloatToDouble(floatArray);
 			double[] doubleArray2 = AbsFFT(doubleArray);
 			return MathUtils.DoubleToFloat(doubleArray2);
 		}
 		
-		/* This method duplicates exactly the function
-		 * fft(input) in MATLAB
-		 * Input is e.g. an audio signal
-		 * Return a complex return arrray.
-		 * i.e. the array alternates between a real and an imaginary value
-		 * */
+		/// <summary>
+		/// This method duplicates exactly the function
+		/// fft(input) in MATLAB
+		/// </summary>
+		/// <param name="floatArray">e.g. an audio signal</param>
+		/// <returns>a complex array (the array alternates between a real and an imaginary value)</returns>
 		public static double[] FFT(float[] floatArray) {
 			double[] doubleArray = MathUtils.FloatToDouble(floatArray);
 			return FFT(doubleArray);
 		}
-		
-		/* This method duplicates exactly the function
-		 * fft(input) in MATLAB
-		 * Input is e.g. an audio signal
-		 * Return a complex return arrray.
-		 * i.e. the array alternates between a real and an imaginary value
-		 * */
+
+		/// <summary>
+		/// This method duplicates exactly the function
+		/// fft(input) in MATLAB
+		/// </summary>
+		/// <param name="input">e.g. an audio signal</param>
+		/// <returns>a complex array (the array alternates between a real and an imaginary value)</returns>
 		public static double[] FFT(double[] input) {
-			Lomont.LomontFFT fft = new Lomont.LomontFFT();
-			double[] complexSignal = DoubleToComplexDouble(input);
+			var fft = new Lomont.LomontFFT();
+			var complexSignal = DoubleToComplexDouble(input);
 			fft.FFT(complexSignal, true);
 			return complexSignal;
 		}
 
-		/* This method duplicates exactly the function
-		 * ifft(input) in MATLAB
-		 * Requires a complex input number to be able to exactly
-		 * transform back to an orginal signal
-		 * i.e. x = ifft(fft(x))
-		 * Parameter: inputComplex
-		 * If true, the input array is a complex arrray.
-		 * i.e. the array alternates between a real and an imaginary value
-		 * If false, the array contains only real values
-		 * Parameter: returnComplex
-		 * If true, return a complex return arrray.
-		 * i.e. the array alternates between a real and an imaginary value
-		 * If false, return only the positive real value
-		 * */
+		/// <summary>
+		/// This method duplicates exactly the function
+		/// ifft(input) in MATLAB
+		/// Requires a complex input number to be able to exactly
+		/// transform back to an orginal signal
+		/// i.e. x = ifft(fft(x))
+		/// </summary>
+		/// <param name="floatArray"></param>
+		/// <param name="inputComplex">If true, the input array is a complex arrray.
+		/// i.e. the array alternates between a real and an imaginary value.
+		/// If false, the array contains only real values</param>
+		/// <param name="returnComplex">If true, return a complex return arrray.
+		/// i.e. the array alternates between a real and an imaginary value.
+		/// If false, return only the positive real value
+		/// </param>
+		/// <returns>signal (complex or only positive real values)</returns>
 		public static float[] IFFT(float[] floatArray, bool inputComplex=true, bool returnComplex=true) {
 			double[] doubleArray = MathUtils.FloatToDouble(floatArray);
 			double[] doubleArray2 = IFFT(doubleArray, inputComplex, returnComplex);
 			return MathUtils.DoubleToFloat(doubleArray2);
 		}
-
-		/* This method duplicates exactly the function
-		 * ifft(input) in MATLAB
-		 * Requires a complex input number to be able to exactly
-		 * transform back to an orginal signal
-		 * i.e. x = ifft(fft(x))
-		 * Parameter: inputComplex
-		 * If true, the input array is a complex arrray.
-		 * i.e. the array alternates between a real and an imaginary value
-		 * If false, the array contains only real values
-		 * Parameter: returnComplex
-		 * If true, return a complex return arrray.
-		 * i.e. the array alternates between a real and an imaginary value
-		 * If false, return only the positive real value
-		 * */
+		
+		/// <summary>
+		/// This method duplicates exactly the function
+		/// ifft(input) in MATLAB
+		/// Requires a complex input number to be able to exactly
+		/// transform back to an orginal signal
+		/// i.e. x = ifft(fft(x))
+		/// </summary>
+		/// <param name="input"></param>
+		/// <param name="inputComplex">If true, the input array is a complex arrray.
+		/// i.e. the array alternates between a real and an imaginary value.
+		/// If false, the array contains only real values</param>
+		/// <param name="returnComplex">If true, return a complex return arrray.
+		/// i.e. the array alternates between a real and an imaginary value.
+		/// If false, return only the positive real value
+		/// </param>
+		/// <returns>signal (complex or only positive real values)</returns>
 		public static double[] IFFT(double[] input, bool inputComplex=true, bool returnComplex=true) {
-			Lomont.LomontFFT fft = new Lomont.LomontFFT();
+			var fft = new Lomont.LomontFFT();
 			
 			double[] complexSignal;
 			if (inputComplex) {
@@ -113,16 +120,22 @@ namespace CommonUtils.FFT
 				return Real(complexSignal);
 			}
 		}
+		#endregion
 		
-		/* This method duplicates the function
-		 * abs(input) in MATLAB for a complex signal array
-		 * i.e. the array alternates between a real and an imaginary value
-		 * The MATLAB abs() is equal to sqrt(real(X).^2 + imag(X).^2)
-		 * */
+		#region Abs, Real and Imag Methods
+		/// <summary>
+		/// This method duplicates the function
+		/// abs(input) in MATLAB for a complex signal array
+		/// i.e. the array alternates between a real and an imaginary value
+		/// The MATLAB abs() is equal to sqrt(real(X).^2 + imag(X).^2)
+		/// </summary>
+		/// <param name="complexSignal">a complex array (the array alternates between a real and an imaginary value)</param>
+		/// <param name="scale">scaling factor (1 is no scaling)</param>
+		/// <returns>new signal (also called the power spectrum or magnitude)</returns>
 		public static double[] Abs(double[] complexSignal, double scale=1) {
 			int N = complexSignal.Length / 2;
 			
-			double[] abs = new double[N];
+			var abs = new double[N];
 			for (int j = 0; j < N; j++) {
 				double re = complexSignal[2*j];
 				double img = complexSignal[2*j + 1];
@@ -131,15 +144,19 @@ namespace CommonUtils.FFT
 			return abs;
 		}
 		
-		/* This method duplicates the function
-		 * abs(input) in MATLAB for a complex signal array
-		 * i.e. the array alternates between a real and an imaginary value
-		 * The MATLAB abs() is equal to sqrt(real(X).^2 + imag(X).^2)
-		 * */
+		/// <summary>
+		/// This method duplicates the function
+		/// abs(input) in MATLAB for a complex signal array
+		/// i.e. the array alternates between a real and an imaginary value
+		/// The MATLAB abs() is equal to sqrt(real(X).^2 + imag(X).^2)
+		/// </summary>
+		/// <param name="complexSignal">a complex array (the array alternates between a real and an imaginary value)</param>
+		/// <param name="scale">scaling factor (1 is no scaling)</param>
+		/// <returns>new signal (also called the power spectrum or magnitude)</returns>
 		public static float[] Abs(float[] complexSignal, float scale=1) {
 			int N = complexSignal.Length / 2;
 			
-			float[] abs = new float[N];
+			var abs = new float[N];
 			for (int j = 0; j < N; j++) {
 				float re = complexSignal[2*j];
 				float img = complexSignal[2*j + 1];
@@ -148,14 +165,18 @@ namespace CommonUtils.FFT
 			return abs;
 		}
 		
-		/* This method duplicates exactly the function
-		 * real(input) in MATLAB
-		 * Requires a complex input number array
-		 * */
+		/// <summary>
+		/// This method duplicates exactly the function
+		/// real(input) in MATLAB
+		/// Requires a complex input number array
+		/// </summary>
+		/// <param name="complexSignal">a complex array (the array alternates between a real and an imaginary value)</param>
+		/// <param name="scale"></param>
+		/// <returns>the real portion of the signal</returns>
 		public static double[] Real(double[] complexSignal, double scale=1) {
 			int N = complexSignal.Length / 2;
 			
-			double[] returnArray = new double[N];
+			var returnArray = new double[N];
 			for (int j = 0; j < N; j++) {
 				double re = complexSignal[2*j] * scale;
 				double img = complexSignal[2*j + 1] * scale;
@@ -164,14 +185,18 @@ namespace CommonUtils.FFT
 			return returnArray;
 		}
 		
-		/* This method duplicates exactly the function
-		 * real(input) in MATLAB
-		 * Requires a complex input number array
-		 * */
+		/// <summary>
+		/// This method duplicates exactly the function
+		/// real(input) in MATLAB
+		/// Requires a complex input number array
+		/// </summary>
+		/// <param name="complexSignal">a complex array (the array alternates between a real and an imaginary value)</param>
+		/// <param name="scale"></param>
+		/// <returns>the real portion of the signal</returns>
 		public static float[] Real(float[] complexSignal, float scale=1) {
 			int N = complexSignal.Length / 2;
 			
-			float[] returnArray = new float[N];
+			var returnArray = new float[N];
 			for (int j = 0; j < N; j++) {
 				float re = complexSignal[2*j] * scale;
 				float img = complexSignal[2*j + 1] * scale;
@@ -180,14 +205,18 @@ namespace CommonUtils.FFT
 			return returnArray;
 		}
 		
-		/* This method duplicates exactly the function
-		 * imag(input) in MATLAB
-		 * Requires a complex input number array
-		 * */
+		/// <summary>
+		/// This method duplicates exactly the function
+		/// imag(input) in MATLAB
+		/// Requires a complex input number array
+		/// </summary>
+		/// <param name="complexSignal">a complex array (the array alternates between a real and an imaginary value)</param>
+		/// <param name="scale"></param>
+		/// <returns>the imaginary portion of the signal</returns>
 		public static double[] Imag(double[] complexSignal, double scale=1) {
 			int N = complexSignal.Length / 2;
 			
-			double[] returnArray = new double[N];
+			var returnArray = new double[N];
 			for (int j = 0; j < N; j++) {
 				double re = complexSignal[2*j] * scale;
 				double img = complexSignal[2*j + 1] * scale;
@@ -196,14 +225,18 @@ namespace CommonUtils.FFT
 			return returnArray;
 		}
 		
-		/* This method duplicates exactly the function
-		 * imag(input) in MATLAB
-		 * Requires a complex input number array
-		 * */
+		/// <summary>
+		/// This method duplicates exactly the function
+		/// imag(input) in MATLAB
+		/// Requires a complex input number array
+		/// </summary>
+		/// <param name="complexSignal">a complex array (the array alternates between a real and an imaginary value)</param>
+		/// <param name="scale"></param>
+		/// <returns>the imaginary portion of the signal</returns>
 		public static float[] Imag(float[] complexSignal, float scale=1) {
 			int N = complexSignal.Length / 2;
 			
-			float[] returnArray = new float[N];
+			var returnArray = new float[N];
 			for (int j = 0; j < N; j++) {
 				float re = complexSignal[2*j] * scale;
 				float img = complexSignal[2*j + 1] * scale;
@@ -211,13 +244,21 @@ namespace CommonUtils.FFT
 			}
 			return returnArray;
 		}
+		#endregion
 		
+		#region Convert Signal to Complex Signal Types
+		/// <summary>
+		/// Convert a real signal to a signal of a complex type
+		/// i.e. the array alternates between a real and an imaginary value
+		/// </summary>
+		/// <param name="input">real signal</param>
+		/// <returns>complex signal</returns>
 		public static double[] DoubleToComplexDouble(double[] input) {
 			// LomontFFT and ExocortexDSP requires a complex signal to work
 			// i.e. the array alternates between a real and an imaginary value
 			// even - Re, odd - Img
 			int N = input.Length;
-			double[] complexSignal = new double[2 * N];
+			var complexSignal = new double[2 * N];
 			for (int j = 0; j < N; j++) {
 				complexSignal[2*j] = (double) input[j];
 				complexSignal[2*j + 1] = 0;  // need to clear out as fft modifies buffer (phase)
@@ -225,12 +266,18 @@ namespace CommonUtils.FFT
 			return complexSignal;
 		}
 		
+		/// <summary>
+		/// Convert a real signal to a signal of a complex type
+		/// i.e. the array alternates between a real and an imaginary value
+		/// </summary>
+		/// <param name="input">real signal</param>
+		/// <returns>complex signal</returns>
 		public static float[] FloatToComplexFloat(float[] input) {
 			// LomontFFT and ExocortexDSP requires a complex signal to work
 			// i.e. the array alternates between a real and an imaginary value
 			// even - Re, odd - Img
 			int N = input.Length;
-			float[] complexSignal =  new float[2 * N];
+			var complexSignal = new float[2 * N];
 			for (int j = 0; j < N; j++)
 			{
 				complexSignal[2*j] = (float) input[j];
@@ -239,24 +286,36 @@ namespace CommonUtils.FFT
 			return complexSignal;
 		}
 
+		/// <summary>
+		/// Convert a real signal to a signal of a complex type
+		/// i.e. the array alternates between a real and an imaginary value
+		/// </summary>
+		/// <param name="input">real signal</param>
+		/// <returns>complex signal</returns>
 		public static Complex[] DoubleToComplex(double[] input) {
 			// LomontFFT and ExocortexDSP requires a complex signal to work
 			// i.e. the array alternates between a real and an imaginary value
 			// even - Re, odd - Img
 			int N = input.Length;
-			Complex[] complexSignal = new Complex[N];
+			var complexSignal = new Complex[N];
 			for (int j = 0; j < N; j++) {
 				complexSignal[j] = new Complex(input[j], 0);
 			}
 			return complexSignal;
 		}
 		
+		/// <summary>
+		/// Convert a real signal to a signal of a complex type
+		/// i.e. the array alternates between a real and an imaginary value
+		/// </summary>
+		/// <param name="input">real signal</param>
+		/// <returns>complex signal</returns>
 		public static ComplexF[] FloatToComplex(float[] input) {
 			// LomontFFT and ExocortexDSP requires a complex signal to work
 			// i.e. the array alternates between a real and an imaginary value
 			// even - Re, odd - Img
 			int N = input.Length;
-			ComplexF[] complexSignal =  new ComplexF[N];
+			var complexSignal =  new ComplexF[N];
 			for (int j = 0; j < N; j++)
 			{
 				complexSignal[j] = new ComplexF(input[j], 0);
@@ -279,7 +338,7 @@ namespace CommonUtils.FFT
 		public static double[] HC2C(double[] halfcomplex_coefficient) {
 			
 			int n = halfcomplex_coefficient.Length;
-			double[] complex_coefficient = new double[2 * n];
+			var complex_coefficient = new double[2 * n];
 			
 			complex_coefficient[0] = halfcomplex_coefficient[0];
 			complex_coefficient[1] = 0.0;
@@ -306,7 +365,7 @@ namespace CommonUtils.FFT
 			
 			return complex_coefficient;
 		}
-		
+		#endregion
 	}
 }
 

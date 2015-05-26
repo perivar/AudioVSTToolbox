@@ -193,15 +193,24 @@ namespace CommonUtils
 		#endregion
 		
 		#region Resample
-		public static float[] ReSampleToArbitrary(float[] input, int size)
+		/// <summary>
+		/// Resample a signal to a specific length
+		/// </summary>
+		/// <param name="input"></param>
+		/// <param name="destLength"></param>
+		/// <returns></returns>
+		/// <remarks>This method is originally a part of Wav2Zebra2Java developed by
+		/// jupiter8 from Gothenburg Sweden</remarks>
+		/// <seealso cref="https://sites.google.com/site/wav2zebra2/"/>
+		public static float[] ResampleToArbitrary(float[] input, int destLength)
 		{
-			float[] returnArray = new float[size];
+			var returnArray = new float[destLength];
 			int length = input.Length;
-			float phaseInc = (float) length / size;
+			float phaseInc = (float) length / destLength;
 			float phase = 0.0F;
 			float phaseMant = 0.0F;
 			
-			for (int i = 0; i < size; i++)
+			for (int i = 0; i < destLength; i++)
 			{
 				int intPhase = (int) phase;
 				int intPhasePlusOne = intPhase + 1;
@@ -215,11 +224,84 @@ namespace CommonUtils
 			}
 			return returnArray;
 		}
+		
+		/// <summary>
+		/// Resample a signal to a specific sample rate
+		/// </summary>
+		/// <param name="input">original signal array</param>
+		/// <param name="fromSampleRate">original sample rate</param>
+		/// <param name="toSampleRate">new sample rate</param>
+		/// <param name="quality">quality is half the window width</param>
+		/// <returns>the resampled signal</returns>
+		public static float[] Resample(float[] input, int fromSampleRate, int toSampleRate, int quality = 10) {
+
+			int destLength = (int) ((double) input.Length * (double) toSampleRate / (double) fromSampleRate);
+			return Resample(input, destLength, quality);
+		}
+		
+		/// <summary>
+		/// Resample a signal to a specific length
+		/// </summary>
+		/// <param name="input">original signal array</param>
+		/// <param name="destLength">length of resampled signal</param>
+		/// <param name="quality">quality is half the window width</param>
+		/// <returns>the resampled signal</returns>
+		/// <see cref="http://stackoverflow.com/questions/7995470/how-can-i-resample-wav-file"/>
+		public static float[] Resample(float[] input, int destLength, int quality = 10) {
+			
+			int srcLength = input.Length;
+			double dx = (double) srcLength / (double) destLength;
+
+			var samples = new float[destLength];
+			
+			// fmax : Nyqist half of destination sampleRate
+			// fmax / fsr = 0.5;
+			const double fmaxDivSR = 0.5;
+			const double r_g = 2 * fmaxDivSR;
+
+			// quality is half the window width
+			int wndWidth2 = quality;
+			int wndWidth = quality * 2;
+
+			double x = 0;
+			int i, j = 0;
+			double r_y;
+			int tau;
+			double r_w;
+			double r_a;
+			double r_snc;
+			
+			for (i=0; i < destLength; ++i)
+			{
+				r_y = 0.0;
+				for (tau=-wndWidth2; tau < wndWidth2; ++tau)
+				{
+					// input sample index
+					j = (int)(x+tau);
+
+					// Hann Window. Scale and calculate sinc
+					r_w = 0.5 - 0.5 * Math.Cos(2 * Math.PI * (0.5 + (j - x) / wndWidth));
+					r_a = 2 * Math.PI * (j-x) * fmaxDivSR;
+					r_snc = 1.0;
+					if (r_a != 0)
+						r_snc = Math.Sin(r_a)/r_a;
+
+					if ((j >= 0) && (j < srcLength))
+					{
+						r_y += r_g * r_w * r_snc * input[j];
+					}
+				}
+				samples[i] = (float) r_y;
+				x += dx;
+			}
+			
+			return samples;
+		}
 		#endregion
 		
 		#region ConvertRangeAndMaintainRatio
 		public static float[] ConvertRangeAndMainainRatio(float[] oldValueArray, float oldMin, float oldMax, float newMin, float newMax) {
-			float[] newValueArray = new float[oldValueArray.Length];
+			var newValueArray = new float[oldValueArray.Length];
 			float oldRange = (oldMax - oldMin);
 			float newRange = (newMax - newMin);
 			
@@ -233,7 +315,7 @@ namespace CommonUtils
 		}
 		
 		public static float[] ConvertRangeAndMainainRatioLog(float[] oldValueArray, float oldMin, float oldMax, float newMin, float newMax) {
-			float[] newValueArray = new float[oldValueArray.Length];
+			var newValueArray = new float[oldValueArray.Length];
 			
 			// TODO: Addition of Epsilon prevents log from returning minus infinity if value is zero
 			float newRange = (newMax - newMin);
@@ -254,7 +336,7 @@ namespace CommonUtils
 		}
 		
 		public static double[] ConvertRangeAndMainainRatio(double[] oldValueArray, double oldMin, double oldMax, double newMin, double newMax) {
-			double[] newValueArray = new double[oldValueArray.Length];
+			var newValueArray = new double[oldValueArray.Length];
 			double oldRange = (oldMax - oldMin);
 			double newRange = (newMax - newMin);
 			
@@ -913,7 +995,7 @@ namespace CommonUtils
 		/// <summary>
 		/// Perform a Math.Abs on a full array
 		/// </summary>
-		/// <param name="doubleArray">array of floats</param>
+		/// <param name="floatArray">array of floats</param>
 		/// <returns>array after Math.Abs</returns>
 		public static float[] Abs(float[] floatArray) {
 
@@ -922,14 +1004,6 @@ namespace CommonUtils
 			// use LINQ
 			float[] absArray = floatArray.Select(i => Math.Abs(i)).ToArray();
 			
-			// use old method
-			/*
-			float[] absArray = new float[floatArray.Length];
-			for (int i = 0; i < floatArray.Length; i++) {
-				float absValue = Math.Abs(floatArray[i]);
-				absArray[i] = absValue;
-			}
-			 */
 			return absArray;
 		}
 
@@ -945,14 +1019,6 @@ namespace CommonUtils
 			// use LINQ
 			double[] absArray = doubleArray.Select(i => Math.Abs(i)).ToArray();
 			
-			// use old method
-			/*
-			float[] absArray = new float[doubleArray.Length];
-			for (int i = 0; i < doubleArray.Length; i++) {
-				float absValue = Math.Abs(doubleArray[i]);
-				absArray[i] = absValue;
-			}
-			 */
 			return absArray;
 		}
 		
@@ -1085,11 +1151,11 @@ namespace CommonUtils
 		/// <param name="preEmphasisAlpha">Pre-Emphasis Alpha (Set to 0 if no pre-emphasis should be performed)</param>
 		/// <returns>processed audio</returns>
 		public static float[] PreEmphase(float[] samples, float preEmphasisAlpha){
-			float[] EmphasedSamples = new float[samples.Length];
+			var emphasedSamples = new float[samples.Length];
 			for (int i = 1; i < samples.Length; i++){
-				EmphasedSamples[i] = (float) samples[i] - preEmphasisAlpha * samples[i - 1];
+				emphasedSamples[i] = (float) samples[i] - preEmphasisAlpha * samples[i - 1];
 			}
-			return EmphasedSamples;
+			return emphasedSamples;
 		}
 		
 		/// <summary>
@@ -1102,7 +1168,7 @@ namespace CommonUtils
 		/// <param name="samples">Audio data to preemphase</param>
 		/// <returns>processed audio</returns>
 		public static float[] PreEmphase(float[] samples) {
-			float PREEMPHASISALPHA = 0.95f;
+			const float PREEMPHASISALPHA = 0.95f;
 			return PreEmphase(samples, PREEMPHASISALPHA);
 		}
 		
@@ -1179,7 +1245,7 @@ namespace CommonUtils
 		/// <param name="length">new length</param>
 		/// <returns>padded array</returns>
 		public static double[] PadZeros(double[] data, int length) {
-			double[] returnArray = new double[length];
+			var returnArray = new double[length];
 			
 			if (length < data.Length) {
 				// shorten?

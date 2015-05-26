@@ -83,8 +83,14 @@
     <Compile Include="..\CommonUtils\FFT\AudioAnalyzer.cs">
       <Link>Audio\AudioAnalyzer.cs</Link>
     </Compile>
-    <Compile Include="..\CommonUtils\FFT\DFT.cs">
-      <Link>DFT.cs</Link>
+    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Complex.cs">
+      <Link>CommonUtils\Complex.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\ComplexF.cs">
+      <Link>CommonUtils\ComplexF.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\FFT\FFTUtils.cs">
+      <Link>CommonUtils\FFTUtils.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\FFT\FFTWindows.cs">
       <Link>Audio\FFTWindows.cs</Link>
@@ -97,6 +103,7 @@
     </Compile>
     <Compile Include="..\CommonUtils\MidiUtils.cs">
       <Link>Audio\MidiUtils.cs</Link>
+      <DependentUpon>Export.cs</DependentUpon>
     </Compile>
     <Compile Include="CheckBoxToolStripMenuItem.cs" />
     <Compile Include="Help.cs" />

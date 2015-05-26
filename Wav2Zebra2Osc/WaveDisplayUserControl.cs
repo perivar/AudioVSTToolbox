@@ -13,13 +13,14 @@ namespace Wav2Zebra2Osc
 	/// </summary>
 	public partial class WaveDisplayUserControl : UserControl
 	{
-		private const long serialVersionUID = 1L;
-		private float[] waveData;
-		private float[] dftData;
-		private float[] harmonicsData;
-		private float[] emptyData;
+		const long serialVersionUID = 1L;
 		
-		private MainForm parentForm;
+		float[] waveData;
+		float[] dftData;
+		float[] harmonicsData;
+		
+		MainForm parentForm;
+		DrawingProperties drawingProperties;
 
 		public WaveDisplayUserControl(MainForm parentForm)
 		{
@@ -36,19 +37,24 @@ namespace Wav2Zebra2Osc
 			//
 			this.parentForm = parentForm;
 			
+			// initialize the data arrays
 			this.waveData = new float[128];
 			this.harmonicsData = new float[128];
-			this.emptyData = new float[128];
 			this.dftData = new float[128];
-			for (int i = 0; i < 128; i++)
-			{
-				this.waveData[i] = 0.0F;
-				this.harmonicsData[i] = 0.0F;
-				this.emptyData[i] = 0.0F;
-				this.dftData[i] = 0.0F;
-			}
+
+			// define the drawing properties for the waveform
+			drawingProperties = DrawingProperties.Blue;
+			drawingProperties.Margin = 0;
+			drawingProperties.NumberOfHorizontalLines = 2;
+			drawingProperties.DrawRoundedRectangles = false;
+			drawingProperties.DrawHorizontalTickMarks = false;
+			drawingProperties.DrawVerticalTickMarks = false;
+			drawingProperties.DrawLabels = false;
+			drawingProperties.DisplayTime = false;
+			drawingProperties.TimeLineUnit = TimelineUnit.Samples;
 		}
 		
+		#region Set and Get Properties
 		public virtual string FileName {
 			set;
 			get;
@@ -82,35 +88,14 @@ namespace Wav2Zebra2Osc
 		{
 			set
 			{
-				int length = value.Length;
-				for (int i = 0; i < length; i++)
-				{
-					this.harmonicsData[i] = value[i];
-				}
+				Array.Copy(value, 0, this.harmonicsData, 0, 128);
 			}
 			get
 			{
 				return this.harmonicsData;
 			}
 		}
-		
-		public virtual void ClearWaveData()
-		{
-			Array.Copy(this.emptyData, 0, this.waveData, 0, 128);
-			this.Loaded = false;
-		}
-		
-		public virtual void ClearDftData()
-		{
-			Array.Copy(this.emptyData, 0, this.dftData, 0, 128);
-		}
-		
-		public virtual void ClearHarmonics()
-		{
-			Array.Copy(this.emptyData, 0, this.harmonicsData, 0, 128);
-			this.Loaded = false;
-		}
-		
+
 		public virtual bool Selected {
 			set;
 			get;
@@ -120,7 +105,27 @@ namespace Wav2Zebra2Osc
 			set;
 			get;
 		}
-
+		#endregion
+		
+		#region Clear the arrays
+		public virtual void ClearWaveData()
+		{
+			Array.Clear(this.waveData, 0, this.waveData.Length);
+			this.Loaded = false;
+		}
+		
+		public virtual void ClearDftData()
+		{
+			Array.Clear(this.dftData, 0, this.dftData.Length);
+		}
+		
+		public virtual void ClearHarmonics()
+		{
+			Array.Clear(this.harmonicsData, 0, this.harmonicsData.Length);
+			this.Loaded = false;
+		}
+		#endregion
+		
 		private void WaveDisplayUserControl_Paint(object sender, PaintEventArgs e) {
 			Graphics g = e.Graphics;
 			
@@ -145,18 +150,10 @@ namespace Wav2Zebra2Osc
 			else
 			{
 				interpolatedData = this.dftData;
+				//interpolatedData = this.harmonicsData;
 			}
 			
-			DrawingProperties properties = DrawingProperties.Blue;
-			properties.Margin = 0;
-			properties.NumberOfHorizontalLines = 2;
-			properties.DrawRoundedRectangles = false;
-			properties.DrawHorizontalTickMarks = false;
-			properties.DrawVerticalTickMarks = false;
-			properties.DrawLabels = false;
-			properties.DisplayTime = false;
-			properties.TimeLineUnit = TimelineUnit.Samples;
-			
+			// get the waveform
 			Bitmap _offlineBitmap = AudioAnalyzer.DrawWaveform(interpolatedData,
 			                                                   new Size(this.Width, this.Height),
 			                                                   1,
@@ -165,7 +162,7 @@ namespace Wav2Zebra2Osc
 			                                                   -1,
 			                                                   44100,
 			                                                   1,
-			                                                   properties);
+			                                                   drawingProperties);
 
 			if (_offlineBitmap != null) {
 
@@ -186,6 +183,7 @@ namespace Wav2Zebra2Osc
 		
 		void WaveDisplayUserControlClick(object sender, System.EventArgs e)
 		{
+			// deselect all other wave displays
 			for (int i = 0; i < 16; i++)
 			{
 				if (this != this.parentForm.waveDisplays[i])
@@ -194,6 +192,7 @@ namespace Wav2Zebra2Osc
 					this.parentForm.waveDisplays[i].Refresh();
 				}
 			}
+			// and select this one
 			this.Selected = true;
 			this.Refresh();
 		}

@@ -4,6 +4,7 @@ using System.IO;
 
 using CommonUtils;
 using CommonUtils.Audio;
+using CommonUtils.FFT;
 
 namespace Wav2Zebra2Osc
 {
@@ -12,12 +13,15 @@ namespace Wav2Zebra2Osc
 	/// </summary>
 	public partial class MainForm : Form
 	{
-		private float[][] harmonicsData;
-		private float[][] soundData;
-		private float[][] dftData;
-		private float[] emptyData;
-		private float[] sineData;
-		private string rawExportName;
+		const string iniFileName = "Wav2Zebra2.ini";
+
+		float[][] harmonicsData;
+		float[][] soundData;
+		float[][] dftData;
+		float[] sineData;
+		
+		string rawExportName;
+		BassProxy audioSystem;
 		
 		public Wav2Zebra2Osc.WaveDisplayUserControl[] waveDisplays;
 		
@@ -29,7 +33,7 @@ namespace Wav2Zebra2Osc
 			InitializeComponent();
 			
 			// Initialize Bass
-			BassProxy instance = BassProxy.Instance;
+			audioSystem = BassProxy.Instance;
 
 			// Ensure the paint methods are called if resized
 			ResizeRedraw = true;
@@ -48,32 +52,24 @@ namespace Wav2Zebra2Osc
 			}
 			this.waveDisplays[0].Selected = true;
 
-			// Initalize the data arrays
+			// Initalize the jagged data arrays
 			this.harmonicsData = RectangularArrays.ReturnRectangularFloatArray(16, 128);
 			this.soundData = RectangularArrays.ReturnRectangularFloatArray(16, 128);
 			this.dftData = RectangularArrays.ReturnRectangularFloatArray(16, 128);
-			this.emptyData = new float[128];
+			
+			// generate the sine data
 			this.sineData = new float[128];
-
 			for (int j = 0; j < 128; j++)
 			{
-				this.emptyData[j] = 0.0F;
 				this.sineData[j] = (float) Math.Sin(j * Conversions.TWO_PI / 128.0F);
 			}
 			
-			// clear data
-			for (int i = 0; i < 16; i++)
-			{
-				Array.Copy(this.harmonicsData[i], 0, this.emptyData, 0, 128);
-				Array.Copy(this.soundData[i], 0, this.emptyData, 0, 128);
-				Array.Copy(this.dftData[i], 0, this.emptyData, 0, 128);
-			}
+			// set sine data to first and last element
+			Array.Copy(this.sineData, 0, this.dftData[0], 0, 128);
+			Array.Copy(this.sineData, 0, this.dftData[15], 0, 128);
 			
-			Array.Copy(this.dftData[0], 0, this.sineData, 0, 128);
-			Array.Copy(this.dftData[15], 0, this.sineData, 0, 128);
 			this.harmonicsData[0][0] = 1.0F;
 			this.harmonicsData[15][0] = 1.0F;
-
 			this.waveDisplays[0].Loaded = true;
 			this.waveDisplays[15].Loaded = true;
 			this.waveDisplays[0].DftData = this.dftData[0];
@@ -81,20 +77,38 @@ namespace Wav2Zebra2Osc
 			this.waveDisplays[0].Refresh();
 			this.waveDisplays[15].Refresh();
 			
-			String fileName = "Wav2Zebra2.ini";
+			string pathName = ReadExportPathName();
+			this.OutputText = "Export path is: " + pathName;
+		}
+
+		#region Read and Write Export Path
+		private string ReadExportPathName() {
 			string pathName = "";
-			if (File.Exists(fileName)) {
+			if (File.Exists(iniFileName)) {
 				try {
-					StreamReader reader = File.OpenText(fileName);
+					StreamReader reader = File.OpenText(iniFileName);
 					pathName = reader.ReadLine();
 					reader.Close();
 				} catch (Exception e) {
 					System.Diagnostics.Debug.WriteLine(e);
 				}
 			}
-			this.OutputText = "Export path is: " + pathName;
+			return pathName;
 		}
-
+		
+		private void WriteExportPathName(string pathName) {
+			try
+			{
+				StreamWriter writer = File.CreateText(iniFileName);
+				writer.WriteLine(pathName);
+				writer.Close();
+			} catch (IOException e) {
+				System.Diagnostics.Debug.WriteLine(e);
+			}
+		}
+		#endregion
+		
+		#region DoShow methods
 		public virtual bool DoShowRAWWaves
 		{
 			get
@@ -126,7 +140,9 @@ namespace Wav2Zebra2Osc
 				return this.exportRAWWavesCheckBox.Checked;
 			}
 		}
+		#endregion
 
+		#region Properties
 		public virtual string OutputText
 		{
 			set
@@ -155,70 +171,49 @@ namespace Wav2Zebra2Osc
 			}
 		}
 		
-		// http://stackoverflow.com/questions/7995470/how-can-i-resample-wav-file
-		public static float[] ReSampleToArbitrary(float[] input, int size) {
-			
-			//int fromSampleRate = 44100;
-			//int toSampleRate = 692;
-			int quality = 10;
-			
-			int srcLength = input.Length;
-			//int destLength = (int) ((double) input.Length * (double) toSampleRate / (double) fromSampleRate);
-			int destLength = size;
-			double dx = (double) srcLength / (double) destLength;
-
-			//var samples = new List<float>();
-			var samples = new float[destLength];
-			
-			// fmax : Nyqist half of destination sampleRate
-			// fmax / fsr = 0.5;
-			const double fmaxDivSR = 0.5;
-			const double r_g = 2 * fmaxDivSR;
-
-			// Quality is half the window width
-			int wndWidth2 = quality;
-			int wndWidth = quality * 2;
-
-			double x = 0;
-			int i, j = 0;
-			double r_y;
-			int tau;
-			double r_w;
-			double r_a;
-			double r_snc;
-			
-			for (i=0; i < destLength; ++i)
+		/// <summary>
+		/// check that at least one file are loaded and set the rawExportName property
+		/// </summary>
+		private bool HasExportFileNames
+		{
+			get
 			{
-				r_y = 0.0;
-				for (tau=-wndWidth2; tau < wndWidth2; ++tau)
+				string beginning = "Default";
+				string end = "Default";
+				for (int i = 0; i < 16; i++)
 				{
-					// input sample index
-					j = (int)(x+tau);
-
-					// Hann Window. Scale and calculate sinc
-					r_w = 0.5 - 0.5 * Math.Cos(2 * Math.PI * (0.5 + (j - x) / wndWidth));
-					r_a = 2 * Math.PI * (j-x) * fmaxDivSR;
-					r_snc = 1.0;
-					if (r_a != 0)
-						r_snc = Math.Sin(r_a)/r_a;
-
-					if ((j >= 0) && (j < srcLength))
+					string temp = this.waveDisplays[i].FileName;
+					if ((beginning == "Default") && !string.IsNullOrEmpty(temp))
 					{
-						r_y += r_g * r_w * r_snc * input[j];
+						beginning = Path.GetFileName(this.waveDisplays[i].FileName);
 					}
 				}
-				samples[i] = (float) r_y;
-				x += dx;
+				
+				for (int i = 15; i >= 0; i--)
+				{
+					string temp = this.waveDisplays[i].FileName;
+					if ((end == "Default") && !string.IsNullOrEmpty(temp))
+					{
+						end = Path.GetFileName(this.waveDisplays[i].FileName);
+					}
+				}
+				
+				beginning = RemoveFileSuffix(beginning);
+				end = RemoveFileSuffix(end);
+				beginning = RemoveWhiteSpace(beginning);
+				end = RemoveWhiteSpace(end);
+				
+				this.rawExportName = (beginning + "To" + end);
+				
+				return (end != "Default") || (beginning != "Default");
 			}
-			
-			return samples;
 		}
+		#endregion
 		
 		public virtual void SetImportSound(FileInfo file, int selected)
 		{
 			float[] tempAudioBuffer = BassProxy.ReadMonoFromFile(file.FullName);
-			float[] tempAudioBuffer2 = MathUtils.ReSampleToArbitrary(tempAudioBuffer, 128);
-			//float[] tempAudioBuffer2 = ReSampleToArbitrary(tempAudioBuffer, 128);
+			float[] tempAudioBuffer2 = MathUtils.Resample(tempAudioBuffer, 128);
 			
 			#if DEBUG
 			Export.ExportCSV(file.Name + ".csv", tempAudioBuffer2);
@@ -226,11 +221,28 @@ namespace Wav2Zebra2Osc
 			
 			Array.Copy(tempAudioBuffer2, 0, this.soundData[selected], 0, 128);
 			
-			// TODO: use lomont instead
-			this.harmonicsData[selected] = Conversions.DFT(this.soundData[selected]);
-			//this.harmonicsData[selected] = Fourier.DFTTransformer.AbsFFT(this.soundData[selected]);
-			this.dftData[selected] = Conversions.iDFT(this.harmonicsData[selected]);
-			//this.dftData[selected] = Fourier.DFTTransformer.IFFT(this.harmonicsData[selected], false, false);
+			// TODO: use DFT ?
+			//this.harmonicsData[selected] = FFTUtils.AbsFFT(this.soundData[selected]);
+			//this.dftData[selected] = FFTUtils.IFFT(this.harmonicsData[selected], false, false);
+			//this.harmonicsData[selected] = Conversions.DFT(this.soundData[selected]);
+			//this.dftData[selected] = Conversions.iDFT(this.harmonicsData[selected]);
+
+			// ignore using DFT/iDFT and interpolate using the raw waves instead
+			this.harmonicsData[selected] = this.soundData[selected];
+			this.dftData[selected] = this.harmonicsData[selected];
+			
+			/*
+			double[] doubleArray = MathUtils.FloatToDouble(this.soundData[selected]);
+			double[] fftArray = FFTUtils.FFT(doubleArray);
+			double scaling = 1.0 / 64;
+			double[] absArray = FFTUtils.Abs(fftArray, scaling);
+			double[] realArray = FFTUtils.Real(fftArray);
+			this.harmonicsData[selected] = MathUtils.DoubleToFloat(absArray);
+			
+			double[] ifftArray = FFTUtils.IFFT(fftArray, true, false);
+			float[] floatArray = MathUtils.DoubleToFloat(ifftArray);
+			this.dftData[selected] = floatArray;
+			 */
 			
 			this.waveDisplays[selected].HarmonicsData = this.harmonicsData[selected];
 			this.waveDisplays[selected].WaveData = this.soundData[selected];
@@ -238,29 +250,25 @@ namespace Wav2Zebra2Osc
 			this.waveDisplays[selected].Refresh();
 		}
 		
+		#region Export Method
 		public virtual void ExportToZebra2(bool dft, bool raw)
 		{
-			String fileName = "Wav2Zebra2.ini";
-			while (!File.Exists(fileName)) {
+			// keep on asking for file path until it is succesfully stored
+			// in the ini file
+			while (!File.Exists(iniFileName)) {
 				this.OutputText = "Export path is not set";
 				SetExportPath();
 				this.OutputText = "";
 			}
 			
-			string pathName = "";
-			try {
-				StreamReader reader = File.OpenText(fileName);
-				pathName = reader.ReadLine();
-				reader.Close();
-			} catch (IOException e) {
-				System.Diagnostics.Debug.WriteLine(e);
-			}
+			string pathName = ReadExportPathName();
 			
-			if (!HasExportFileNames)
-			{
+			if (!HasExportFileNames) {
 				this.OutputText = "There's nothing to export.";
 			} else {
 				string exportName = "";
+				
+				#region DFT
 				if (dft) {
 					exportName = pathName + Path.DirectorySeparatorChar + this.exportFileName.Text;
 					exportName = FixExportNames(exportName, true);
@@ -297,7 +305,9 @@ namespace Wav2Zebra2Osc
 						System.Diagnostics.Debug.WriteLine(e);
 					}
 				}
+				#endregion
 				
+				#region RAW
 				if (raw)
 				{
 					exportName = pathName + Path.DirectorySeparatorChar + this.exportFileName.Text;
@@ -338,9 +348,12 @@ namespace Wav2Zebra2Osc
 						System.Diagnostics.Debug.WriteLine(e);
 					}
 				}
+				#endregion
+
 				this.outputField.Text = "File exported as: " + exportName;
 			}
 		}
+		#endregion
 		
 		public virtual void SetExportPath()
 		{
@@ -351,16 +364,7 @@ namespace Wav2Zebra2Osc
 			if (retval == DialogResult.OK)
 			{
 				string pathName = folderDialog.SelectedPath;
-				const String initFileName = "Wav2Zebra2.ini";
-				try
-				{
-					StreamWriter writer = File.CreateText(initFileName);
-					writer.WriteLine(pathName);
-					writer.Close();
-				} catch (IOException e) {
-					System.Diagnostics.Debug.WriteLine(e);
-				}
-				
+				WriteExportPathName(pathName);
 				this.OutputText = "Export path is: " + pathName;
 			}
 		}
@@ -369,8 +373,11 @@ namespace Wav2Zebra2Osc
 		{
 			var fileDialog = new OpenFileDialog();
 			fileDialog.Multiselect = true;
+			
 			//fileDialog.Filter = "MP3|*.mp3|WAV|*.wav|All files (*.*)|*.*";
 			//fileDialog.InitialDirectory = initialDirectory;
+			fileDialog.Filter = audioSystem.FileFilter;
+
 			fileDialog.Title = "Select an audio file";
 
 			this.OutputText = "";
@@ -403,41 +410,101 @@ namespace Wav2Zebra2Osc
 			this.waveDisplays[selected].Loaded = true;
 			CalculateGhosts();
 		}
-		
-		private bool HasExportFileNames
+
+		private void CalculateGhosts()
 		{
-			get
+			int fromPos = 0;
+			int toPos = 0;
+			while (toPos < 16)
 			{
-				string beginning = "Default";
-				string end = "Default";
-				for (int i = 0; i < 16; i++)
+				while ((toPos < 16) && (this.waveDisplays[toPos].Loaded))
 				{
-					string temp = this.waveDisplays[i].FileName;
-					if ((beginning == "Default") && !string.IsNullOrEmpty(temp))
-					{
-						beginning = Path.GetFileName(this.waveDisplays[i].FileName);
-					}
+					toPos++;
 				}
-				
-				for (int i = 15; i >= 0; i--)
+				fromPos = toPos - 1;
+				while ((toPos < 16) && (!this.waveDisplays[toPos].Loaded))
 				{
-					string temp = this.waveDisplays[i].FileName;
-					if ((end == "Default") && !string.IsNullOrEmpty(temp))
-					{
-						end = Path.GetFileName(this.waveDisplays[i].FileName);
-					}
+					toPos++;
 				}
+				if ((toPos < 16) && (fromPos >= 0))
+				{
+					System.Diagnostics.Debug.WriteLineIf((fromPos < toPos), String.Format("Warning: from value ({0}) is less than to value ({1})", fromPos, toPos));
+					ReCalculateHarmonics(fromPos, toPos);
+				}
+			}
+			
+			for (int j = 0; j < 16; j++)
+			{
+				// TODO: use DFT ?
+				//this.dftData[j] = Conversions.iDFT(this.harmonicsData[j]);
+				//this.dftData[j] = FFTUtils.IFFT(this.harmonicsData[j], false, false);
+
+				// ignore using DFT/iDFT and interpolate using the raw waves instead
+				this.dftData[j] = this.harmonicsData[j];
 				
-				beginning = RemoveFileSuffix(beginning);
-				end = RemoveFileSuffix(end);
-				beginning = RemoveWhiteSpace(beginning);
-				end = RemoveWhiteSpace(end);
-				this.rawExportName = (beginning + "To" + end);
-				return (end != "Default") || (beginning != "Default");
+				this.waveDisplays[j].DftData = this.dftData[j];
+				this.waveDisplays[j].HarmonicsData = this.harmonicsData[j];
+				this.waveDisplays[j].Refresh();
 			}
 		}
 		
-		private string RenameIfFileExists(string checkName)
+		public virtual void ReCalculateHarmonics(int fromPos, int toPos)
+		{
+			float[] harmFrom = this.harmonicsData[fromPos];
+			float[] harmTo = this.harmonicsData[toPos];
+			
+			var tempHarm = new float[128];
+			
+			int steps = toPos - fromPos - 1;
+			float stepSize = 1.0F / (steps + 1.0F);
+			float stepHelper = 0.0F;
+			for (int i = 0; i < steps; i++)
+			{
+				for (int j = 0; j < 128; j++)
+				{
+					stepHelper = stepSize * (i + 1);
+					tempHarm[j] = (harmFrom[j] * (1.0F - stepHelper) + harmTo[j] * stepHelper);
+				}
+				int sanityCheck = fromPos + i + 1;
+				Array.Copy(tempHarm, 0, this.harmonicsData[sanityCheck], 0, 128);
+			}
+		}
+		
+		public virtual void ClearAllCells()
+		{
+			// clear data
+			for (int i = 0; i < 16; i++)
+			{
+				Array.Clear(this.harmonicsData[i], 0, this.harmonicsData[i].Length);
+				Array.Clear(this.soundData[i], 0, this.soundData[i].Length);
+				Array.Clear(this.dftData[i], 0, this.dftData[i].Length);
+				
+				this.waveDisplays[i].Loaded = false;
+				this.waveDisplays[i].FileName = "";
+				this.waveDisplays[i].ClearHarmonics();
+				this.waveDisplays[i].ClearWaveData();
+				this.waveDisplays[i].ClearDftData();
+				this.waveDisplays[i].Refresh();
+			}
+			
+			// set sine data to first and last element
+			Array.Copy(this.sineData, 0, this.dftData[0], 0, 128);
+			Array.Copy(this.sineData, 0, this.dftData[15], 0, 128);
+			
+			this.harmonicsData[0][0] = 1.0F;
+			this.harmonicsData[15][0] = 1.0F;
+			this.waveDisplays[0].Loaded = true;
+			this.waveDisplays[15].Loaded = true;
+			this.waveDisplays[0].DftData = this.dftData[0];
+			this.waveDisplays[15].DftData = this.dftData[15];
+			this.waveDisplays[0].Refresh();
+			this.waveDisplays[15].Refresh();
+			
+			this.exportFileName.Text = "";
+		}
+		
+		#region Static File Utility Methods
+		private static string RenameIfFileExists(string checkName)
 		{
 			var fileInfo = new FileInfo(checkName);
 			DirectoryInfo folder = fileInfo.Directory;
@@ -461,7 +528,7 @@ namespace Wav2Zebra2Osc
 			return checkName;
 		}
 		
-		private string FixExportNames(string fullFilePath, bool dft)
+		private static string FixExportNames(string fullFilePath, bool dft)
 		{
 			string temp = fullFilePath;
 			temp = RemoveFileSuffix(temp);
@@ -477,17 +544,17 @@ namespace Wav2Zebra2Osc
 			return temp;
 		}
 		
-		private string RemoveFileSuffix(string fullPath)
+		private static string RemoveFileSuffix(string fullPath)
 		{
 			return Path.Combine(Path.GetDirectoryName(fullPath), Path.GetFileNameWithoutExtension(fullPath));
 		}
 		
-		private string RemoveWhiteSpace(string a)
+		private static string RemoveWhiteSpace(string a)
 		{
 			return a.Replace(" ", "");
 		}
 		
-		private string CheckH2pSuffix(string a)
+		private static string CheckH2pSuffix(string a)
 		{
 			if (!a.EndsWith(".h2p", StringComparison.Ordinal)) {
 				return a + ".h2p";
@@ -495,88 +562,7 @@ namespace Wav2Zebra2Osc
 				return a;
 			}
 		}
-		
-		private void CalculateGhosts()
-		{
-			int from = 0;
-			int to = 0;
-			while (to < 16)
-			{
-				while ((to < 16) && (this.waveDisplays[to].Loaded))
-				{
-					to++;
-				}
-				from = to - 1;
-				while ((to < 16) && (!this.waveDisplays[to].Loaded))
-				{
-					to++;
-				}
-				if ((to < 16) && (from >= 0))
-				{
-					System.Diagnostics.Debug.WriteLineIf((from < to), String.Format("Warning: from value ({0}) is less than to value ({1})", from, to));
-					ReCalculateHarmonics(from, to);
-				}
-			}
-			
-			for (int j = 0; j < 16; j++)
-			{
-				// TODO: change inverse transform to Lomont
-				this.dftData[j] = Conversions.iDFT(this.harmonicsData[j]);
-				//this.dftData[j] = Fourier.DFTTransformer.IFFT(this.harmonicsData[j], false, false);
-				
-				this.waveDisplays[j].DftData = this.dftData[j];
-				this.waveDisplays[j].HarmonicsData = this.harmonicsData[j];
-				this.waveDisplays[j].Refresh();
-			}
-		}
-		
-		public virtual void ReCalculateHarmonics(int from, int to)
-		{
-			float[] harmFrom = this.harmonicsData[from];
-			float[] harmTo = this.harmonicsData[to];
-			float[] tempHarm = new float[128];
-			
-			int steps = to - from - 1;
-			float stepSize = 1.0F / (steps + 1.0F);
-			float stepHelper = 0.0F;
-			for (int i = 0; i < steps; i++)
-			{
-				for (int j = 0; j < 128; j++)
-				{
-					stepHelper = stepSize * (i + 1);
-					tempHarm[j] = (harmFrom[j] * (1.0F - stepHelper) + harmTo[j] * stepHelper);
-				}
-				int sanityCheck = from + i + 1;
-				Array.Copy(tempHarm, 0, this.harmonicsData[sanityCheck], 0, 128);
-			}
-		}
-		
-		public virtual void ClearAllCells()
-		{
-			for (int i = 0; i < 16; i++)
-			{
-				Array.Copy(this.emptyData, 0, this.harmonicsData[i], 0, 128);
-				Array.Copy(this.emptyData, 0, this.soundData[i], 0, 128);
-				Array.Copy(this.emptyData, 0, this.dftData[i], 0, 128);
-				this.waveDisplays[0].Loaded = false;
-				this.waveDisplays[i].FileName = "";
-				this.waveDisplays[i].ClearHarmonics();
-				this.waveDisplays[i].ClearWaveData();
-				this.waveDisplays[i].ClearDftData();
-				this.waveDisplays[i].Refresh();
-			}
-			
-			Array.Copy(this.sineData, 0, this.dftData[0], 0, 128);
-			Array.Copy(this.sineData, 0, this.dftData[15], 0, 128);
-			this.harmonicsData[0][0] = 1.0F;
-			this.harmonicsData[15][0] = 1.0F;
-			this.waveDisplays[0].Loaded = true;
-			this.waveDisplays[15].Loaded = true;
-			this.waveDisplays[0].Refresh();
-			this.waveDisplays[15].Refresh();
-			
-			this.exportFileName.Text = "";
-		}
+		#endregion
 		
 		void HelpToolStripMenuItem1Click(object sender, EventArgs e)
 		{
