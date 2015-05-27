@@ -4,7 +4,7 @@ namespace CommonUtils
 {
 	/// <summary>
 	/// Description of MidiUtils.
-	/// Alot of the midi methods as copied from
+	/// Alot of the midi methods are copied from
 	/// http://pitchtracker.codeplex.com/
 	/// </summary>
 	public static class MidiUtils

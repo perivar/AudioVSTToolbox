@@ -1,14 +1,13 @@
-﻿/*
- * Copied from Audacity - FFT
- */
-using System;
+﻿using System;
+using System.Reflection;
 
 namespace CommonUtils.FFT
 {
 	/// <summary>
-	/// Description of AudacityFFT.
+	/// FFT Window Function
+	/// Originally from Audacity - FFT
 	/// </summary>
-	public class FFTWindowFunctions
+	public static class FFTWindowFunctions
 	{
 		public const int RECTANGULAR = 0;
 		public const int BARTLETT = 1;
@@ -22,13 +21,24 @@ namespace CommonUtils.FFT
 		public const int GAUSSIAN_4_5 = 9;
 		
 		/// <summary>
-		///   Gets the corresponding window function
+		/// Gets the corresponding window function.
+		/// 0: Rectangular (no window)
+		/// 1: Bartlett    (triangular)
+		/// 2: Hamming
+		/// 3: Hanning
+		/// 4: Blackman
+		/// 5: Blackman-Harris
+		/// 6: Welch
+		/// 7: Gaussian(a=2.5)
+		/// 8: Gaussian(a=3.5)
+		/// 9: Gaussian(a=4.5)
 		/// </summary>
-		/// <param name = "fftWindowsSize">Length of the window</param>
+		/// <param name="whichFunction">What FFT function to use</param>
+		/// <param name="fftWindowsSize">Length of the window</param>
 		/// <returns>Window function</returns>
 		public static double[] GetWindowFunction(int whichFunction, int fftWindowsSize)
 		{
-			double[] array = new double[fftWindowsSize];
+			var array = new double[fftWindowsSize];
 			
 			// initialize to 1's
 			for (int i = 0; i < fftWindowsSize; i++) {
@@ -38,25 +48,22 @@ namespace CommonUtils.FFT
 			return array;
 		}
 		
-		/*
-		 * Applies a windowing function to the data in place
-		 *
-		 * 0: Rectangular (no window)
-		 * 1: Bartlett    (triangular)
-		 * 2: Hamming
-		 * 3: Hanning
-		 * 4: Blackman
-		 * 5: Blackman-Harris
-		 * 6: Welch
-		 * 7: Gaussian(a=2.5)
-		 * 8: Gaussian(a=3.5)
-		 * 9: Gaussian(a=4.5)
-		 */
 		/// <summary>
-		///   Applies the corresponding window function
+		/// Applies a windowing function to the data in place.
+		/// 0: Rectangular (no window)
+		/// 1: Bartlett    (triangular)
+		/// 2: Hamming
+		/// 3: Hanning
+		/// 4: Blackman
+		/// 5: Blackman-Harris
+		/// 6: Welch
+		/// 7: Gaussian(a=2.5)
+		/// 8: Gaussian(a=3.5)
+		/// 9: Gaussian(a=4.5)
 		/// </summary>
-		/// <param name = "fftWindowsSize">Length of the window</param>
-		/// <returns>Window function</returns>
+		/// <param name="whichFunction">What FFT function to use</param>
+		/// <param name="fftWindowsSize">Length of the window</param>
+		/// <param name="dataArray">Data array to modify</param>
 		public static void ApplyWindowFunction(int whichFunction, int fftWindowsSize, double[] dataArray)
 		{
 			int i;
@@ -139,14 +146,15 @@ namespace CommonUtils.FFT
 					}
 					break;
 				default:
-					//fprintf(stderr,"FFT::WindowFunc - Invalid window function: %d\n",whichFunction);
-					break;
+					throw new ArgumentException("FFTWindows - Invalid window function", "whichFunction");
 			}
 		}
 
-		/*
-		 * Returns the name of the windowing function (for UI display)
-		 */
+		/// <summary>
+		/// Returns the name of the windowing function (for UI display)
+		/// </summary>
+		/// <param name="whichFunction"></param>
+		/// <returns></returns>
 		public static String FFTWindowFunctionName(int whichFunction)
 		{
 			switch (whichFunction)
@@ -175,14 +183,14 @@ namespace CommonUtils.FFT
 			}
 		}
 
-		/*
-		 * Returns the number of windowing functions supported
-		 */
+		/// <summary>
+		/// Returns the number of windowing functions supported
+		/// </summary>
+		/// <returns></returns>
 		public static int NumberOfWindowFunctions()
 		{
 			return 10;
 		}
-		
 	}
 }
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using System.Globalization;
 using System.Runtime.InteropServices; // GCHandle
 using System.IO; // Stream
 using System.Text; // Encoding

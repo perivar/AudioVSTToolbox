@@ -58,10 +58,11 @@ namespace Wav2Zebra2Osc
 			this.dftData = RectangularArrays.ReturnRectangularFloatArray(16, 128);
 			
 			// generate the sine data
+			const double TWO_PI = 2 * Math.PI;
 			this.sineData = new float[128];
 			for (int j = 0; j < 128; j++)
 			{
-				this.sineData[j] = (float) Math.Sin(j * Conversions.TWO_PI / 128.0F);
+				this.sineData[j] = (float) Math.Sin(j * TWO_PI / 128.0F);
 			}
 			
 			// set sine data to first and last element

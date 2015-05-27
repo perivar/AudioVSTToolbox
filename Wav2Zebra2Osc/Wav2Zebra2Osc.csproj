@@ -57,19 +57,16 @@
       <Link>CommonUtils\BassProxy.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\Audio\ISoundPlayer.cs">
-      <Link>Audio\ISoundPlayer.cs</Link>
+      <Link>CommonUtils\ISoundPlayer.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\Audio\ISpectrumPlayer.cs">
-      <Link>Audio\ISpectrumPlayer.cs</Link>
+      <Link>CommonUtils\ISpectrumPlayer.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\Audio\IWaveformPlayer.cs">
-      <Link>Audio\IWaveformPlayer.cs</Link>
+      <Link>CommonUtils\IWaveformPlayer.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\ColorUtils.cs">
-      <Link>Audio\ColorUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Conversions.cs">
-      <Link>Conversions.cs</Link>
+      <Link>CommonUtils\ColorUtils.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\CSVWriter.cs">
       <Link>CommonUtils\CSVWriter.cs</Link>
@@ -78,10 +75,10 @@
       <Link>CommonUtils\Export.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\ExtendedGraphics.cs">
-      <Link>Audio\ExtendedGraphics.cs</Link>
+      <Link>CommonUtils\ExtendedGraphics.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\FFT\AudioAnalyzer.cs">
-      <Link>Audio\AudioAnalyzer.cs</Link>
+      <Link>CommonUtils\AudioAnalyzer.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Complex.cs">
       <Link>CommonUtils\Complex.cs</Link>
@@ -93,7 +90,7 @@
       <Link>CommonUtils\FFTUtils.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\FFT\FFTWindows.cs">
-      <Link>Audio\FFTWindows.cs</Link>
+      <Link>CommonUtils\FFTWindows.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\FFT\LomontFFT.cs">
       <Link>LomontFFT.cs</Link>
@@ -102,8 +99,7 @@
       <Link>MathUtils.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\MidiUtils.cs">
-      <Link>Audio\MidiUtils.cs</Link>
-      <DependentUpon>Export.cs</DependentUpon>
+      <Link>CommonUtils\MidiUtils.cs</Link>
     </Compile>
     <Compile Include="CheckBoxToolStripMenuItem.cs" />
     <Compile Include="Help.cs" />
