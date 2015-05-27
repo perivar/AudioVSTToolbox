@@ -2,8 +2,6 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-using CommonUtils;
-
 using CommonUtils.FFT;
 
 namespace Wav2Zebra2Osc
@@ -16,8 +14,7 @@ namespace Wav2Zebra2Osc
 		const long serialVersionUID = 1L;
 		
 		float[] waveData;
-		float[] dftData;
-		float[] harmonicsData;
+		float[] morphedData;
 		
 		MainForm parentForm;
 		DrawingProperties drawingProperties;
@@ -39,8 +36,7 @@ namespace Wav2Zebra2Osc
 			
 			// initialize the data arrays
 			this.waveData = new float[128];
-			this.harmonicsData = new float[128];
-			this.dftData = new float[128];
+			this.morphedData = new float[128];
 
 			// define the drawing properties for the waveform
 			drawingProperties = DrawingProperties.Blue;
@@ -72,30 +68,18 @@ namespace Wav2Zebra2Osc
 			}
 		}
 		
-		public virtual float[] DftData
+		public virtual float[] MorphedData
 		{
 			set
 			{
-				Array.Copy(value, 0, this.dftData, 0, 128);
+				Array.Copy(value, 0, this.morphedData, 0, 128);
 			}
 			get
 			{
-				return this.dftData;
+				return this.morphedData;
 			}
 		}
 		
-		public virtual float[] HarmonicsData
-		{
-			set
-			{
-				Array.Copy(value, 0, this.harmonicsData, 0, 128);
-			}
-			get
-			{
-				return this.harmonicsData;
-			}
-		}
-
 		public virtual bool Selected {
 			set;
 			get;
@@ -114,15 +98,9 @@ namespace Wav2Zebra2Osc
 			this.Loaded = false;
 		}
 		
-		public virtual void ClearDftData()
+		public virtual void ClearMorphedData()
 		{
-			Array.Clear(this.dftData, 0, this.dftData.Length);
-		}
-		
-		public virtual void ClearHarmonics()
-		{
-			Array.Clear(this.harmonicsData, 0, this.harmonicsData.Length);
-			this.Loaded = false;
+			Array.Clear(this.morphedData, 0, this.morphedData.Length);
 		}
 		#endregion
 		
@@ -131,30 +109,27 @@ namespace Wav2Zebra2Osc
 			
 			int height = Height;
 			int width = Width;
-			
-			// set white background
-			//g.Clear(Color.White);
 
 			// if selected, highlight
-			// TODO: fix highligting selected
 			if (this.Selected)
 			{
-				//g.Clear(Color.Black);
+				drawingProperties.FillColor = Color.Gray;
+			} else {
+				drawingProperties.FillColor = Color.White;
 			}
 
-			float[] interpolatedData;
+			float[] waveData;
 			if (this.parentForm.DoShowRAWWaves)
 			{
-				interpolatedData = this.waveData;
+				waveData = this.waveData;
 			}
 			else
 			{
-				interpolatedData = this.dftData;
-				//interpolatedData = this.harmonicsData;
+				waveData = this.morphedData;
 			}
 			
 			// get the waveform
-			Bitmap _offlineBitmap = AudioAnalyzer.DrawWaveform(interpolatedData,
+			Bitmap _offlineBitmap = AudioAnalyzer.DrawWaveform(waveData,
 			                                                   new Size(this.Width, this.Height),
 			                                                   1,
 			                                                   -1, -1,

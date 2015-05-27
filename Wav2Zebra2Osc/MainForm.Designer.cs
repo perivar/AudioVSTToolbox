@@ -44,10 +44,10 @@ namespace Wav2Zebra2Osc
 			this.statusStrip = new System.Windows.Forms.StatusStrip();
 			this.outputField = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-			this.exportDFTWavesCheckBox = new System.Windows.Forms.CheckBox();
+			this.exportMorphedWavesCheckBox = new System.Windows.Forms.CheckBox();
 			this.exportRAWWavesCheckBox = new System.Windows.Forms.CheckBox();
 			this.radioButtonPanel = new System.Windows.Forms.Panel();
-			this.showDFTRadioButton = new System.Windows.Forms.RadioButton();
+			this.showMorphedRadioButton = new System.Windows.Forms.RadioButton();
 			this.showRAWRadioButton = new System.Windows.Forms.RadioButton();
 			this.exportFileName = new System.Windows.Forms.TextBox();
 			this.labelFileName = new System.Windows.Forms.Label();
@@ -65,7 +65,7 @@ namespace Wav2Zebra2Osc
 			this.menuStrip.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip.Name = "menuStrip";
 			this.menuStrip.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
-			this.menuStrip.Size = new System.Drawing.Size(483, 24);
+			this.menuStrip.Size = new System.Drawing.Size(481, 24);
 			this.menuStrip.TabIndex = 0;
 			this.menuStrip.Text = "menuStrip";
 			// 
@@ -159,7 +159,7 @@ namespace Wav2Zebra2Osc
 			this.statusStrip.Location = new System.Drawing.Point(0, 450);
 			this.statusStrip.Name = "statusStrip";
 			this.statusStrip.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
-			this.statusStrip.Size = new System.Drawing.Size(483, 22);
+			this.statusStrip.Size = new System.Drawing.Size(481, 22);
 			this.statusStrip.TabIndex = 1;
 			this.statusStrip.Text = "statusStrip1";
 			// 
@@ -176,13 +176,13 @@ namespace Wav2Zebra2Osc
 			| System.Windows.Forms.AnchorStyles.Right)));
 			this.tableLayoutPanel.AutoSize = true;
 			this.tableLayoutPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.tableLayoutPanel.BackColor = System.Drawing.SystemColors.ControlLight;
+			this.tableLayoutPanel.BackColor = System.Drawing.SystemColors.Control;
 			this.tableLayoutPanel.ColumnCount = 4;
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-			this.tableLayoutPanel.Location = new System.Drawing.Point(0, 51);
+			this.tableLayoutPanel.Location = new System.Drawing.Point(3, 60);
 			this.tableLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
 			this.tableLayoutPanel.MinimumSize = new System.Drawing.Size(450, 390);
 			this.tableLayoutPanel.Name = "tableLayoutPanel";
@@ -191,21 +191,23 @@ namespace Wav2Zebra2Osc
 			this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-			this.tableLayoutPanel.Size = new System.Drawing.Size(480, 390);
+			this.tableLayoutPanel.Size = new System.Drawing.Size(472, 390);
 			this.tableLayoutPanel.TabIndex = 3;
 			// 
-			// exportDFTWavesCheckBox
+			// exportMorphedWavesCheckBox
 			// 
-			this.exportDFTWavesCheckBox.Location = new System.Drawing.Point(253, 29);
-			this.exportDFTWavesCheckBox.Margin = new System.Windows.Forms.Padding(2);
-			this.exportDFTWavesCheckBox.Name = "exportDFTWavesCheckBox";
-			this.exportDFTWavesCheckBox.Size = new System.Drawing.Size(115, 20);
-			this.exportDFTWavesCheckBox.TabIndex = 5;
-			this.exportDFTWavesCheckBox.Text = "Export DFT waves";
-			this.exportDFTWavesCheckBox.UseVisualStyleBackColor = true;
+			this.exportMorphedWavesCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.exportMorphedWavesCheckBox.Location = new System.Drawing.Point(253, 29);
+			this.exportMorphedWavesCheckBox.Margin = new System.Windows.Forms.Padding(2);
+			this.exportMorphedWavesCheckBox.Name = "exportMorphedWavesCheckBox";
+			this.exportMorphedWavesCheckBox.Size = new System.Drawing.Size(115, 20);
+			this.exportMorphedWavesCheckBox.TabIndex = 5;
+			this.exportMorphedWavesCheckBox.Text = "Export Morphed";
+			this.exportMorphedWavesCheckBox.UseVisualStyleBackColor = true;
 			// 
 			// exportRAWWavesCheckBox
 			// 
+			this.exportRAWWavesCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.exportRAWWavesCheckBox.Checked = true;
 			this.exportRAWWavesCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.exportRAWWavesCheckBox.Location = new System.Drawing.Point(362, 29);
@@ -213,12 +215,13 @@ namespace Wav2Zebra2Osc
 			this.exportRAWWavesCheckBox.Name = "exportRAWWavesCheckBox";
 			this.exportRAWWavesCheckBox.Size = new System.Drawing.Size(112, 20);
 			this.exportRAWWavesCheckBox.TabIndex = 6;
-			this.exportRAWWavesCheckBox.Text = "Export RAW waves";
+			this.exportRAWWavesCheckBox.Text = "Export Raw";
 			this.exportRAWWavesCheckBox.UseVisualStyleBackColor = true;
 			// 
 			// radioButtonPanel
 			// 
-			this.radioButtonPanel.Controls.Add(this.showDFTRadioButton);
+			this.radioButtonPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.radioButtonPanel.Controls.Add(this.showMorphedRadioButton);
 			this.radioButtonPanel.Controls.Add(this.showRAWRadioButton);
 			this.radioButtonPanel.Location = new System.Drawing.Point(251, 0);
 			this.radioButtonPanel.Margin = new System.Windows.Forms.Padding(2);
@@ -226,16 +229,16 @@ namespace Wav2Zebra2Osc
 			this.radioButtonPanel.Size = new System.Drawing.Size(229, 24);
 			this.radioButtonPanel.TabIndex = 7;
 			// 
-			// showDFTRadioButton
+			// showMorphedRadioButton
 			// 
-			this.showDFTRadioButton.Location = new System.Drawing.Point(116, 2);
-			this.showDFTRadioButton.Margin = new System.Windows.Forms.Padding(2);
-			this.showDFTRadioButton.Name = "showDFTRadioButton";
-			this.showDFTRadioButton.Size = new System.Drawing.Size(105, 20);
-			this.showDFTRadioButton.TabIndex = 1;
-			this.showDFTRadioButton.Text = "Show DFT waves";
-			this.showDFTRadioButton.UseVisualStyleBackColor = true;
-			this.showDFTRadioButton.CheckedChanged += new System.EventHandler(this.ShowDFTRadioButtonCheckedChanged);
+			this.showMorphedRadioButton.Location = new System.Drawing.Point(116, 2);
+			this.showMorphedRadioButton.Margin = new System.Windows.Forms.Padding(2);
+			this.showMorphedRadioButton.Name = "showMorphedRadioButton";
+			this.showMorphedRadioButton.Size = new System.Drawing.Size(105, 20);
+			this.showMorphedRadioButton.TabIndex = 1;
+			this.showMorphedRadioButton.Text = "Show Morphed";
+			this.showMorphedRadioButton.UseVisualStyleBackColor = true;
+			this.showMorphedRadioButton.CheckedChanged += new System.EventHandler(this.ShowMorphedRadioButtonCheckedChanged);
 			// 
 			// showRAWRadioButton
 			// 
@@ -246,7 +249,7 @@ namespace Wav2Zebra2Osc
 			this.showRAWRadioButton.Size = new System.Drawing.Size(109, 20);
 			this.showRAWRadioButton.TabIndex = 0;
 			this.showRAWRadioButton.TabStop = true;
-			this.showRAWRadioButton.Text = "Show RAW waves";
+			this.showRAWRadioButton.Text = "Show Raw";
 			this.showRAWRadioButton.UseVisualStyleBackColor = true;
 			// 
 			// exportFileName
@@ -270,18 +273,18 @@ namespace Wav2Zebra2Osc
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(483, 472);
+			this.ClientSize = new System.Drawing.Size(481, 472);
 			this.Controls.Add(this.labelFileName);
 			this.Controls.Add(this.exportFileName);
 			this.Controls.Add(this.radioButtonPanel);
 			this.Controls.Add(this.exportRAWWavesCheckBox);
-			this.Controls.Add(this.exportDFTWavesCheckBox);
+			this.Controls.Add(this.exportMorphedWavesCheckBox);
 			this.Controls.Add(this.tableLayoutPanel);
 			this.Controls.Add(this.statusStrip);
 			this.Controls.Add(this.menuStrip);
 			this.MainMenuStrip = this.menuStrip;
 			this.Margin = new System.Windows.Forms.Padding(2);
-			this.MinimumSize = new System.Drawing.Size(469, 511);
+			this.MinimumSize = new System.Drawing.Size(497, 511);
 			this.Name = "MainForm";
 			this.Text = "Wav2Zebra2Osc";
 			this.Resize += new System.EventHandler(this.MainFormResize);
@@ -298,9 +301,9 @@ namespace Wav2Zebra2Osc
 		private System.Windows.Forms.Label labelFileName;
 		private System.Windows.Forms.Panel radioButtonPanel;
 		private System.Windows.Forms.RadioButton showRAWRadioButton;
-		private System.Windows.Forms.RadioButton showDFTRadioButton;
+		private System.Windows.Forms.RadioButton showMorphedRadioButton;
 		private System.Windows.Forms.CheckBox exportRAWWavesCheckBox;
-		private System.Windows.Forms.CheckBox exportDFTWavesCheckBox;
+		private System.Windows.Forms.CheckBox exportMorphedWavesCheckBox;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
 		private System.Windows.Forms.StatusStrip statusStrip;
 		private System.Windows.Forms.ToolStripStatusLabel outputField;
@@ -315,67 +318,5 @@ namespace Wav2Zebra2Osc
 		private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem preferencesToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-		
-		void ExportToZebra2MenuItemClick(object sender, System.EventArgs e)
-		{
-			ExportToZebra2(DoExportDFTWaves, DoExportRAWWaves);
-		}
-		
-		void ShowDFTRadioButtonCheckedChanged(object sender, System.EventArgs e)
-		{
-			for (int i = 0; i < 16; i++)
-			{
-				this.waveDisplays[i].Refresh();				
-			}				 
-			
-			if (DoShowRAWWaves)
-			{
-				this.outputField.Text = "Raw View";
-			}				 
-			else
-			{
-				this.outputField.Text = "Dft View";
-			}			
-		}
-		
-		void QuitToolStripMenuItemClick(object sender, System.EventArgs e)
-		{
-			Application.Exit();
-		}
-		
-		void SetExportPathToolStripMenuItemClick(object sender, System.EventArgs e)
-		{
-			SetExportPath();	
-		}
-		
-		void ClearAllCellsToolStripMenuItemClick(object sender, System.EventArgs e)
-		{
-			ClearAllCells();	
-		}
-		
-		void LoadCellToolStripMenuItemClick(object sender, System.EventArgs e)
-		{
-			LoadCell();
-		}
-		
-		void MainFormResize(object sender, System.EventArgs e)
-		{
-			if (this.WindowState == FormWindowState.Maximized)
-			{
-			    // Do your stuff
-			}
-			if (this.waveDisplays != null && this.waveDisplays[0] != null) {
-				int margins = this.waveDisplays[0].Margin.All;
-				int newCellWidth = this.tableLayoutPanel.Width / 4 - (margins * 2);
-				int newCellHeight = this.tableLayoutPanel.Height / 4 - (margins * 2);
-				
-				for (int i = 0; i < 16; i++)
-				{
-					this.waveDisplays[i].Size = new System.Drawing.Size(newCellWidth, newCellHeight);			
-					this.waveDisplays[i].ResumeLayout(false);
-					this.waveDisplays[i].PerformLayout();					
-				}
-			}
-		}
 	}
 }

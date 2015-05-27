@@ -1628,7 +1628,7 @@ namespace CommonUtils.FFT
 							var ps = new List<Point>();
 							for (int i = 0; i < samples; i++) {
 								x = (int) ((i * mult_x) + LEFT_MARGIN);
-								y = Transform(data[channels*i+channelCounter], HEIGHT/channels, channelCounter, amplitude) + TOP_MARGIN;
+								y = Transform(data[channels*i+channelCounter], HEIGHT/channels, channelCounter, amplitude) + TOP_MARGIN + 1;
 								var p = new Point(x, y);
 								ps.Add(p);
 							}
