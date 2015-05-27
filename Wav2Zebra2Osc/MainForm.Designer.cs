@@ -30,6 +30,7 @@ namespace Wav2Zebra2Osc
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.menuStrip = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exportToZebra2MenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -44,6 +45,15 @@ namespace Wav2Zebra2Osc
 			this.statusStrip = new System.Windows.Forms.StatusStrip();
 			this.outputField = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.sineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.sawRisingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.sawFallingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.triangleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.squareHighLowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.pulseHighLowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.pulseHighLowIIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.triangleSawToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exportMorphedWavesCheckBox = new System.Windows.Forms.CheckBox();
 			this.exportRAWWavesCheckBox = new System.Windows.Forms.CheckBox();
 			this.radioButtonPanel = new System.Windows.Forms.Panel();
@@ -53,6 +63,7 @@ namespace Wav2Zebra2Osc
 			this.labelFileName = new System.Windows.Forms.Label();
 			this.menuStrip.SuspendLayout();
 			this.statusStrip.SuspendLayout();
+			this.contextMenuStrip1.SuspendLayout();
 			this.radioButtonPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -182,6 +193,7 @@ namespace Wav2Zebra2Osc
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+			this.tableLayoutPanel.ContextMenuStrip = this.contextMenuStrip1;
 			this.tableLayoutPanel.Location = new System.Drawing.Point(3, 60);
 			this.tableLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
 			this.tableLayoutPanel.MinimumSize = new System.Drawing.Size(450, 390);
@@ -193,6 +205,77 @@ namespace Wav2Zebra2Osc
 			this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.Size = new System.Drawing.Size(472, 390);
 			this.tableLayoutPanel.TabIndex = 3;
+			// 
+			// contextMenuStrip1
+			// 
+			this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.sineToolStripMenuItem,
+			this.sawRisingToolStripMenuItem,
+			this.sawFallingToolStripMenuItem,
+			this.triangleToolStripMenuItem,
+			this.squareHighLowToolStripMenuItem,
+			this.pulseHighLowToolStripMenuItem,
+			this.pulseHighLowIIToolStripMenuItem,
+			this.triangleSawToolStripMenuItem});
+			this.contextMenuStrip1.Name = "contextMenuStrip1";
+			this.contextMenuStrip1.Size = new System.Drawing.Size(161, 202);
+			this.contextMenuStrip1.Text = "Square high low";
+			// 
+			// sineToolStripMenuItem
+			// 
+			this.sineToolStripMenuItem.Name = "sineToolStripMenuItem";
+			this.sineToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.sineToolStripMenuItem.Text = "Sine";
+			this.sineToolStripMenuItem.Click += new System.EventHandler(this.SineToolStripMenuItemClick);
+			// 
+			// sawRisingToolStripMenuItem
+			// 
+			this.sawRisingToolStripMenuItem.Name = "sawRisingToolStripMenuItem";
+			this.sawRisingToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.sawRisingToolStripMenuItem.Text = "Saw Rising";
+			this.sawRisingToolStripMenuItem.Click += new System.EventHandler(this.SawRisingToolStripMenuItemClick);
+			// 
+			// sawFallingToolStripMenuItem
+			// 
+			this.sawFallingToolStripMenuItem.Name = "sawFallingToolStripMenuItem";
+			this.sawFallingToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.sawFallingToolStripMenuItem.Text = "Saw Falling";
+			this.sawFallingToolStripMenuItem.Click += new System.EventHandler(this.SawFallingToolStripMenuItemClick);
+			// 
+			// triangleToolStripMenuItem
+			// 
+			this.triangleToolStripMenuItem.Name = "triangleToolStripMenuItem";
+			this.triangleToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.triangleToolStripMenuItem.Text = "Triangle";
+			this.triangleToolStripMenuItem.Click += new System.EventHandler(this.TriangleToolStripMenuItemClick);
+			// 
+			// squareHighLowToolStripMenuItem
+			// 
+			this.squareHighLowToolStripMenuItem.Name = "squareHighLowToolStripMenuItem";
+			this.squareHighLowToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.squareHighLowToolStripMenuItem.Text = "Square high low";
+			this.squareHighLowToolStripMenuItem.Click += new System.EventHandler(this.SquareHighLowToolStripMenuItemClick);
+			// 
+			// pulseHighLowToolStripMenuItem
+			// 
+			this.pulseHighLowToolStripMenuItem.Name = "pulseHighLowToolStripMenuItem";
+			this.pulseHighLowToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.pulseHighLowToolStripMenuItem.Text = "Pulse high low I";
+			this.pulseHighLowToolStripMenuItem.Click += new System.EventHandler(this.PulseHighLowToolStripMenuItemClick);
+			// 
+			// pulseHighLowIIToolStripMenuItem
+			// 
+			this.pulseHighLowIIToolStripMenuItem.Name = "pulseHighLowIIToolStripMenuItem";
+			this.pulseHighLowIIToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.pulseHighLowIIToolStripMenuItem.Text = "Pulse high low II";
+			this.pulseHighLowIIToolStripMenuItem.Click += new System.EventHandler(this.PulseHighLowIIToolStripMenuItemClick);
+			// 
+			// triangleSawToolStripMenuItem
+			// 
+			this.triangleSawToolStripMenuItem.Name = "triangleSawToolStripMenuItem";
+			this.triangleSawToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.triangleSawToolStripMenuItem.Text = "Triangle Saw";
+			this.triangleSawToolStripMenuItem.Click += new System.EventHandler(this.TriangleSawToolStripMenuItemClick);
 			// 
 			// exportMorphedWavesCheckBox
 			// 
@@ -292,6 +375,7 @@ namespace Wav2Zebra2Osc
 			this.menuStrip.PerformLayout();
 			this.statusStrip.ResumeLayout(false);
 			this.statusStrip.PerformLayout();
+			this.contextMenuStrip1.ResumeLayout(false);
 			this.radioButtonPanel.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -318,5 +402,14 @@ namespace Wav2Zebra2Osc
 		private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem preferencesToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+		private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+		private System.Windows.Forms.ToolStripMenuItem sineToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem sawRisingToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem sawFallingToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem triangleToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem squareHighLowToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem pulseHighLowToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem pulseHighLowIIToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem triangleSawToolStripMenuItem;
 	}
 }

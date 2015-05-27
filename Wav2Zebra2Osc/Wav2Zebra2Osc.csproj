@@ -65,6 +65,9 @@
     <Compile Include="..\CommonUtils\Audio\IWaveformPlayer.cs">
       <Link>CommonUtils\IWaveformPlayer.cs</Link>
     </Compile>
+    <Compile Include="..\CommonUtils\Audio\OscillatorGenerator.cs">
+      <Link>CommonUtils\OscillatorGenerator.cs</Link>
+    </Compile>
     <Compile Include="..\CommonUtils\ColorUtils.cs">
       <Link>CommonUtils\ColorUtils.cs</Link>
     </Compile>

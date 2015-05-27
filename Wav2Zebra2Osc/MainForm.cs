@@ -56,12 +56,7 @@ namespace Wav2Zebra2Osc
 			this.morphedData = RectangularArrays.ReturnRectangularFloatArray(16, 128);
 			
 			// generate the sine data
-			const double TWO_PI = 2 * Math.PI;
-			this.sineData = new float[128];
-			for (int j = 0; j < 128; j++)
-			{
-				this.sineData[j] = (float) Math.Sin(j * TWO_PI / 128.0F);
-			}
+			this.sineData = OscillatorGenerator.Sine();
 			
 			// set sine data to first and last element
 			Array.Copy(this.sineData, 0, this.morphedData[0], 0, 128);
@@ -583,6 +578,55 @@ namespace Wav2Zebra2Osc
 		void HelpToolStripMenuItem1Click(object sender, EventArgs e)
 		{
 			new Help().Show();
+		}
+		#endregion
+		
+		#region Generate wave forms events
+		void SetOscillator(float[] waveform) {
+			int selected = this.SelectedWaveDisplay;
+			if (selected > -1) {
+				this.soundData[selected] = waveform;
+				this.morphedData[selected] = this.soundData[selected];
+				
+				this.waveDisplays[selected].WaveData = this.soundData[selected];
+				this.waveDisplays[selected].MorphedData = this.morphedData[selected];
+				this.waveDisplays[selected].Refresh();
+				this.waveDisplays[selected].Loaded = true;
+				CalculateGhosts();
+			}
+		}
+		
+		void SineToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			SetOscillator(OscillatorGenerator.Sine());
+		}
+		void SawRisingToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			SetOscillator(OscillatorGenerator.SawRising());
+		}
+		void SawFallingToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			SetOscillator(OscillatorGenerator.SawFalling());
+		}
+		void TriangleToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			SetOscillator(OscillatorGenerator.Triangle());
+		}
+		void SquareHighLowToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			SetOscillator(OscillatorGenerator.SquareHighLow());
+		}
+		void PulseHighLowToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			SetOscillator(OscillatorGenerator.PulseHighLowI());
+		}
+		void PulseHighLowIIToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			SetOscillator(OscillatorGenerator.PulseHighLowII());
+		}
+		void TriangleSawToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			SetOscillator(OscillatorGenerator.TriangleSaw());
 		}
 		#endregion
 		
