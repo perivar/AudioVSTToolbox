@@ -1270,6 +1270,45 @@ namespace CommonUtils.Audio
 		#endregion
 
 		#region Public Open and Save method
+		public void OpenWaveSample(float[] data) {
+			
+			// continue playing if we were playing when this methods was called
+			bool isCurrentlyPlaying = IsPlaying;
+			
+			Stop();
+
+			if (_playingStream != 0)
+			{
+				ClearLoopRange();
+				ChannelSamplePosition = 0;
+				Bass.BASS_StreamFree(_playingStream);
+			}
+			
+			// set default values
+			_sampleRate = 44100;
+			_bitsPerSample = 32;
+			_channels = 1;
+			
+			// create the sample
+			const int oscSamplerate = 440; // 440 hz
+			int bufferLength = data.Length;
+			int lengthInBytes = bufferLength * 4; // float is 4 bytes
+			
+			// Create a 440Hz wave, 32-bit, mono
+			int sample = Bass.BASS_SampleCreate(lengthInBytes, oscSamplerate*bufferLength, _channels, 1,
+			                                    BASSFlag.BASS_SAMPLE_LOOP | BASSFlag.BASS_SAMPLE_OVER_POS | BASSFlag.BASS_SAMPLE_FLOAT);
+			// set the sample's data
+			Bass.BASS_SampleSetData(sample, data);
+			
+			// get a sample channel
+			_playingStream = Bass.BASS_SampleGetChannel(sample, false);
+
+			if (_playingStream != 0) {
+				CanPlay = true;
+				if (isCurrentlyPlaying) Play();
+			}
+		}
+		
 		public void OpenFile(string path, bool doPlayFromMemory = false) {
 			
 			if (doPlayFromMemory) {

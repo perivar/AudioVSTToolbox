@@ -169,7 +169,38 @@ namespace Wav2Zebra2Osc
 			}
 			// and select this one
 			this.Selected = true;
+			this.parentForm.LoadSelectedCellIntoAudioSystem();
 			this.Refresh();
 		}
+		
+		#region Key Events
+		/// <summary>Keys which can generate OnKeyDown event.</summary>
+		private static readonly Keys[] InputKeys = new []
+		{ Keys.Left, Keys.Up, Keys.Right, Keys.Down, Keys.Oemcomma, Keys.Home, Keys.OemPeriod, Keys.End, Keys.Decimal };
+
+		protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
+		{
+			if(Array.IndexOf<Keys>(InputKeys, e.KeyCode) != -1)
+			{
+				e.IsInputKey = true;
+			}
+			base.OnPreviewKeyDown(e);
+		}
+
+		protected override void OnKeyDown(KeyEventArgs e)
+		{
+			base.OnKeyDown(e);
+			
+			if (e.KeyCode == Keys.Up) {
+				this.parentForm.MoveUp();
+			} else if (e.KeyCode == Keys.Down) {
+				this.parentForm.MoveDown();
+			} else if (e.KeyCode == Keys.Right) {
+				this.parentForm.MoveRight();
+			} else if (e.KeyCode == Keys.Left) {
+				this.parentForm.MoveLeft();
+			}
+		}
+		#endregion
 	}
 }

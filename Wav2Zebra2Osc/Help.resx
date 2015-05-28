@@ -127,6 +127,8 @@ You load waveforms into one or more cells (16 in total) either by doubleclicking
 You can either see the "raw" (i.e. not-processed) waveform or you can see the waveform after it has been morphed.
 (The imported audio files will always be downsampled to 128 bit). Choose where you would want to save the sampled waveform and click "Export to Zebra 2". 
 Once the file is in the right place you start Zebra2 and on the oscillators there's a small tab on the lower left that probably says default. Click that and a browser for oscillator presets comes up. Locate the exported file and click on it.  Voila you have a sampled waveform in Zebra2.
+You can also generate a waveshape by rightclicking on a cell and select a waveshape you like, e.g. "Saw Rising" or "Triangle".
+In addition you can play the waveshape and navigate using your arrow keys.
 
 All credits go to jupiter8. 
 http://sites.google.com/site/wav2zebra2/Home

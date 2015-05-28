@@ -157,6 +157,7 @@ namespace Wav2Zebra2Osc
 					if (this.waveDisplays[i].Selected)
 					{
 						selected = i;
+						break;
 					}
 				}
 				return selected;
@@ -336,6 +337,28 @@ namespace Wav2Zebra2Osc
 			this.waveDisplays[selected].Refresh();
 		}
 		
+		public void LoadSelectedCellIntoAudioSystem() {
+			int selected = this.SelectedWaveDisplay;
+			if (selected > -1)
+			{
+				if (DoShowRAWWaves) {
+					LoadOscIntoAudioSystem(this.waveDisplays[selected].WaveData);
+				}
+				if (DoShowMorphedWaves) {
+					LoadOscIntoAudioSystem(this.waveDisplays[selected].MorphedData);
+				}
+			}
+		}
+		
+		private void LoadOscIntoAudioSystem(float[] data) {
+			
+			// ensure this is playing at a sensible volume
+			var data2 = MathUtils.ConvertRangeAndMainainRatio(data, -1.0f, 1.0f, -0.25f, 0.25f);
+			
+			// and load the sample into the audio system
+			audioSystem.OpenWaveSample(data2);
+		}
+		
 		public void LoadCell()
 		{
 			var fileDialog = new OpenFileDialog();
@@ -371,7 +394,10 @@ namespace Wav2Zebra2Osc
 			bool unused = HasExportFileNames;
 			this.exportFileName.Text = this.rawExportName;
 			this.waveDisplays[selected].Loaded = true;
+			
 			CalculateGhosts();
+			
+			LoadSelectedCellIntoAudioSystem();
 		}
 
 		private void CalculateGhosts()
@@ -428,6 +454,8 @@ namespace Wav2Zebra2Osc
 		
 		public void ClearAllCells()
 		{
+			audioSystem.Pause();
+			
 			// clear data
 			for (int i = 0; i < 16; i++)
 			{
@@ -537,6 +565,8 @@ namespace Wav2Zebra2Osc
 			{
 				this.outputField.Text = "Morphed View";
 			}
+			
+			LoadSelectedCellIntoAudioSystem();
 		}
 		
 		void QuitToolStripMenuItemClick(object sender, System.EventArgs e)
@@ -579,6 +609,15 @@ namespace Wav2Zebra2Osc
 		{
 			new Help().Show();
 		}
+
+		void BtnPlayClick(object sender, EventArgs e)
+		{
+			audioSystem.Play();
+		}
+		void BtnStopClick(object sender, EventArgs e)
+		{
+			audioSystem.Pause();
+		}
 		#endregion
 		
 		#region Generate wave forms events
@@ -594,6 +633,7 @@ namespace Wav2Zebra2Osc
 				this.waveDisplays[selected].Loaded = true;
 				CalculateGhosts();
 			}
+			LoadSelectedCellIntoAudioSystem();
 		}
 		
 		void SineToolStripMenuItemClick(object sender, EventArgs e)
@@ -629,7 +669,69 @@ namespace Wav2Zebra2Osc
 			SetOscillator(OscillatorGenerator.TriangleSaw());
 		}
 		#endregion
+
+		#region Move Methods
+		public void MoveUp() {
+			int selected = this.SelectedWaveDisplay;
+			if (selected > 3 && selected < 16)
+			{
+				int newPosition = selected - 4;
+				this.waveDisplays[selected].Selected = false;
+				this.waveDisplays[selected].Refresh();
+
+				this.waveDisplays[newPosition].Selected = true;
+				this.waveDisplays[newPosition].Refresh();
+				LoadSelectedCellIntoAudioSystem();
+			}
+		}
+
+		public void MoveDown() {
+			int selected = this.SelectedWaveDisplay;
+			if (selected > -1 && selected < 12)
+			{
+				int newPosition = selected + 4;
+				this.waveDisplays[selected].Selected = false;
+				this.waveDisplays[selected].Refresh();
+
+				this.waveDisplays[newPosition].Selected = true;
+				this.waveDisplays[newPosition].Refresh();
+				LoadSelectedCellIntoAudioSystem();
+			}
+		}
+
+		public void MoveRight() {
+			int selected = this.SelectedWaveDisplay;
+			if (selected > -1 && selected < 15)
+			{
+				int newPosition = selected + 1;
+				this.waveDisplays[selected].Selected = false;
+				this.waveDisplays[selected].Refresh();
+
+				this.waveDisplays[newPosition].Selected = true;
+				this.waveDisplays[newPosition].Refresh();
+				LoadSelectedCellIntoAudioSystem();
+			}
+		}
+
+		public void MoveLeft() {
+			int selected = this.SelectedWaveDisplay;
+			if (selected > 0 && selected < 16)
+			{
+				int newPosition = selected - 1;
+				this.waveDisplays[selected].Selected = false;
+				this.waveDisplays[selected].Refresh();
+
+				this.waveDisplays[newPosition].Selected = true;
+				this.waveDisplays[newPosition].Refresh();
+				LoadSelectedCellIntoAudioSystem();
+			}
+		}
+		#endregion
 		
+		void ConvertMassiveOscsToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			
+		}
 	}
 }
 

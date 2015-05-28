@@ -42,6 +42,8 @@ namespace Wav2Zebra2Osc
 			this.setExportPathToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.helpToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.convertMassiveOscsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip = new System.Windows.Forms.StatusStrip();
 			this.outputField = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -61,6 +63,8 @@ namespace Wav2Zebra2Osc
 			this.showRAWRadioButton = new System.Windows.Forms.RadioButton();
 			this.exportFileName = new System.Windows.Forms.TextBox();
 			this.labelFileName = new System.Windows.Forms.Label();
+			this.btnPlay = new System.Windows.Forms.Button();
+			this.btnStop = new System.Windows.Forms.Button();
 			this.menuStrip.SuspendLayout();
 			this.statusStrip.SuspendLayout();
 			this.contextMenuStrip1.SuspendLayout();
@@ -72,6 +76,7 @@ namespace Wav2Zebra2Osc
 			this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.fileToolStripMenuItem,
 			this.preferencesToolStripMenuItem,
+			this.toolsToolStripMenuItem,
 			this.helpToolStripMenuItem});
 			this.menuStrip.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip.Name = "menuStrip";
@@ -163,6 +168,22 @@ namespace Wav2Zebra2Osc
 			this.helpToolStripMenuItem1.Text = "Help";
 			this.helpToolStripMenuItem1.Click += new System.EventHandler(this.HelpToolStripMenuItem1Click);
 			// 
+			// toolsToolStripMenuItem
+			// 
+			this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.convertMassiveOscsToolStripMenuItem});
+			this.toolsToolStripMenuItem.Enabled = false;
+			this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+			this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+			this.toolsToolStripMenuItem.Text = "Tools";
+			// 
+			// convertMassiveOscsToolStripMenuItem
+			// 
+			this.convertMassiveOscsToolStripMenuItem.Name = "convertMassiveOscsToolStripMenuItem";
+			this.convertMassiveOscsToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+			this.convertMassiveOscsToolStripMenuItem.Text = "Convert Massive Oscs";
+			this.convertMassiveOscsToolStripMenuItem.Click += new System.EventHandler(this.ConvertMassiveOscsToolStripMenuItemClick);
+			// 
 			// statusStrip
 			// 
 			this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -194,16 +215,16 @@ namespace Wav2Zebra2Osc
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.ContextMenuStrip = this.contextMenuStrip1;
-			this.tableLayoutPanel.Location = new System.Drawing.Point(3, 60);
+			this.tableLayoutPanel.Location = new System.Drawing.Point(2, 74);
 			this.tableLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
-			this.tableLayoutPanel.MinimumSize = new System.Drawing.Size(450, 390);
+			this.tableLayoutPanel.MinimumSize = new System.Drawing.Size(472, 372);
 			this.tableLayoutPanel.Name = "tableLayoutPanel";
 			this.tableLayoutPanel.RowCount = 4;
 			this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-			this.tableLayoutPanel.Size = new System.Drawing.Size(472, 390);
+			this.tableLayoutPanel.Size = new System.Drawing.Size(472, 372);
 			this.tableLayoutPanel.TabIndex = 3;
 			// 
 			// contextMenuStrip1
@@ -218,7 +239,7 @@ namespace Wav2Zebra2Osc
 			this.pulseHighLowIIToolStripMenuItem,
 			this.triangleSawToolStripMenuItem});
 			this.contextMenuStrip1.Name = "contextMenuStrip1";
-			this.contextMenuStrip1.Size = new System.Drawing.Size(161, 202);
+			this.contextMenuStrip1.Size = new System.Drawing.Size(161, 180);
 			this.contextMenuStrip1.Text = "Square high low";
 			// 
 			// sineToolStripMenuItem
@@ -352,11 +373,35 @@ namespace Wav2Zebra2Osc
 			this.labelFileName.TabIndex = 10;
 			this.labelFileName.Text = "Export file as:";
 			// 
+			// btnPlay
+			// 
+			this.btnPlay.Location = new System.Drawing.Point(6, 51);
+			this.btnPlay.Name = "btnPlay";
+			this.btnPlay.Size = new System.Drawing.Size(45, 20);
+			this.btnPlay.TabIndex = 11;
+			this.btnPlay.TabStop = false;
+			this.btnPlay.Text = "Play";
+			this.btnPlay.UseVisualStyleBackColor = true;
+			this.btnPlay.Click += new System.EventHandler(this.BtnPlayClick);
+			// 
+			// btnStop
+			// 
+			this.btnStop.Location = new System.Drawing.Point(57, 51);
+			this.btnStop.Name = "btnStop";
+			this.btnStop.Size = new System.Drawing.Size(45, 20);
+			this.btnStop.TabIndex = 12;
+			this.btnStop.TabStop = false;
+			this.btnStop.Text = "Stop";
+			this.btnStop.UseVisualStyleBackColor = true;
+			this.btnStop.Click += new System.EventHandler(this.BtnStopClick);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(481, 472);
+			this.Controls.Add(this.btnStop);
+			this.Controls.Add(this.btnPlay);
 			this.Controls.Add(this.labelFileName);
 			this.Controls.Add(this.exportFileName);
 			this.Controls.Add(this.radioButtonPanel);
@@ -411,5 +456,9 @@ namespace Wav2Zebra2Osc
 		private System.Windows.Forms.ToolStripMenuItem pulseHighLowToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem pulseHighLowIIToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem triangleSawToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem convertMassiveOscsToolStripMenuItem;
+		private System.Windows.Forms.Button btnPlay;
+		private System.Windows.Forms.Button btnStop;
 	}
 }
