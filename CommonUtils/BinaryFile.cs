@@ -125,6 +125,16 @@ namespace CommonUtils
 			}
 		}
 
+		/// <summary>
+		/// Read boolean (1 byte)
+		/// </summary>
+		/// <returns>boolean byte value</returns>
+		public bool ReadBoolean()
+		{
+			byte booleanByte = ReadByte();
+			return Convert.ToBoolean(booleanByte);
+		}
+		
 		public UInt16 ReadUInt16()
 		{
 			return ReadUInt16(byteOrder);
@@ -392,6 +402,12 @@ namespace CommonUtils
 			binaryWriter.Write(value);
 			return true;
 		}
+		
+		public bool Write(bool value) {
+			byte b = Convert.ToByte(value);
+			binaryWriter.Write(b);
+			return true;
+		}
 		#endregion
 
 		#region Close Method
@@ -567,7 +583,7 @@ namespace CommonUtils
 			}
 			else // Big-Endian
 			{
-				byte [] bClone = (byte[])b.Clone();
+				var bClone = (byte[])b.Clone();
 				Array.Reverse(bClone);
 				return BitConverter.ToSingle(bClone, 0);
 			}
@@ -588,7 +604,7 @@ namespace CommonUtils
 			}
 			else // Big-Endian
 			{
-				byte [] bClone = (byte[])b.Clone();
+				var bClone = (byte[])b.Clone();
 				Array.Reverse(bClone);
 				return BitConverter.ToDouble(bClone, 0);
 			}
@@ -609,7 +625,7 @@ namespace CommonUtils
 			}
 			else // Big-Endian
 			{
-				byte [] bClone = (byte[])b.Clone();
+				var bClone = (byte[])b.Clone();
 				Array.Reverse(bClone);
 				return BitConverter.ToInt16(bClone, 0);
 			}
@@ -630,7 +646,7 @@ namespace CommonUtils
 			}
 			else // Big-Endian
 			{
-				byte [] bClone = (byte[])b.Clone();
+				var bClone = (byte[])b.Clone();
 				Array.Reverse(bClone);
 				return BitConverter.ToInt32(bClone, 0);
 			}
@@ -651,7 +667,7 @@ namespace CommonUtils
 			}
 			else // Big-Endian
 			{
-				byte [] bClone = (byte[])b.Clone();
+				var bClone = (byte[])b.Clone();
 				Array.Reverse(bClone);
 				return BitConverter.ToInt64(bClone, 0);
 			}
@@ -672,7 +688,7 @@ namespace CommonUtils
 			}
 			else // Big-Endian
 			{
-				byte [] bClone = (byte[])b.Clone();
+				var bClone = (byte[])b.Clone();
 				Array.Reverse(bClone);
 				return BitConverter.ToUInt16(bClone, 0);
 			}
@@ -693,7 +709,7 @@ namespace CommonUtils
 			}
 			else // Big-Endian
 			{
-				byte [] bClone = (byte[])b.Clone();
+				var bClone = (byte[])b.Clone();
 				Array.Reverse(bClone);
 				return BitConverter.ToUInt32(bClone, 0);
 			}
@@ -714,7 +730,7 @@ namespace CommonUtils
 			}
 			else // Big-Endian
 			{
-				byte [] bClone = (byte[])b.Clone();
+				var bClone = (byte[])b.Clone();
 				Array.Reverse(bClone);
 				return BitConverter.ToUInt64(bClone, 0);
 			}
@@ -723,7 +739,7 @@ namespace CommonUtils
 		/// <summary>
 		/// Convert a hext string into an int
 		/// </summary>
-		/// <param name="sHexString">hex string</param>
+		/// <param name="hexString">hex string</param>
 		/// <returns>int</returns>
 		public static int HexToInt(string hexString) {
 			return Convert.ToInt32(hexString, 16);
@@ -748,7 +764,7 @@ namespace CommonUtils
 		public static byte[] StringToByteArray(string str, int length)
 		{
 			char[] charArray = str.ToCharArray();
-			byte[] byteArray = new byte[length];
+			var byteArray = new byte[length];
 			for (int i = 0; i < length; i++)
 			{
 				if (i < charArray.Length) byteArray[i] = Convert.ToByte(charArray[i]);
@@ -784,10 +800,20 @@ namespace CommonUtils
 		/// <returns>the appended byte arrays</returns>
 		public static byte[] AppendArrays(byte[] a, byte[] b)
 		{
-			byte[] c = new byte[a.Length + b.Length]; // just one array allocation
+			var c = new byte[a.Length + b.Length]; // just one array allocation
 			Buffer.BlockCopy(a, 0, c, 0, a.Length);
 			Buffer.BlockCopy(b, 0, c, a.Length, b.Length);
 			return c;
+		}
+		
+		/// <summary>
+		/// Function to save byte array to a file
+		/// </summary>
+		/// <param name="fileName">File name to save byte array</param>
+		/// <param name="byteArray">Byte array to save to external file</param>
+		/// <returns>Return true if byte array save successfully, if not return false</returns>
+		public static bool Write(string fileName, byte[] byteArray) {
+			return ByteArrayToFile(fileName, byteArray);
 		}
 		
 		/// <summary>
@@ -800,15 +826,7 @@ namespace CommonUtils
 		{
 			try
 			{
-				// Open file for reading
-				FileStream fileStream = new System.IO.FileStream(fileName, System.IO.FileMode.Create, System.IO.FileAccess.Write);
-
-				// Writes a block of bytes to this stream using data from a byte array.
-				fileStream.Write(byteArray, 0, byteArray.Length);
-
-				// close file stream
-				fileStream.Close();
-
+				File.WriteAllBytes(fileName, byteArray);
 				return true;
 			}
 			catch (Exception _Exception)
@@ -838,7 +856,7 @@ namespace CommonUtils
 		/// <returns>float array</returns>
 		public static float[] FloatArrayFromByteArray(byte[] byteArray)
 		{
-			float[] floatArray = new float[byteArray.Length / 4];
+			var floatArray = new float[byteArray.Length / 4];
 			Buffer.BlockCopy(byteArray, 0, floatArray, 0, byteArray.Length);
 			return floatArray;
 		}
@@ -889,7 +907,7 @@ namespace CommonUtils
 		/// <example>
 		/// var pcm16Samples = new short[waveformData.Length];
 		/// Accord.Audio.SampleConverter.Convert(waveformData, pcm16Samples);
-		/// byte[] byteArray = CommonUtils.BinaryFile.ByteArrayFromShortArray(pcm16Samples);
+		/// var byteArray = CommonUtils.BinaryFile.ByteArrayFromShortArray(pcm16Samples);
 		/// </example>
 		public static byte[] ByteArrayFromShortArray(short[] shortArray) {
 			
