@@ -60,13 +60,39 @@ namespace CommonUtils
 		}
 		
 		/// <summary>
-		/// Get Files recursively using a search pattern
+		/// Get files recursively using a search pattern
 		/// </summary>
 		/// <param name="path">Directoy Path</param>
 		/// <param name="searchPattern">Search pattern like: "*.mp3" or "one_specific_file.wav"</param>
 		/// <returns>IEnumerable array of filenames</returns>
 		public static IEnumerable<string> GetFilesRecursive(string path, string searchPattern) {
 			return Directory.GetFiles(path, searchPattern, SearchOption.AllDirectories);
+		}
+		
+		/// <summary>
+		/// Get files recursively using an array of extensions
+		/// </summary>
+		/// <param name="path">Directoy Path</param>
+		/// <param name="extensions">Array of extensions like: string[] extensions = { ".mp3", ".wav", ".ogg" };</param>
+		/// <returns>IEnumerable array of filenames</returns>
+		/// <example>
+		/// string[] extensions = { ".mp3", ".wma", ".mp4", ".wav", ".ogg" };
+		/// var files = IOUtils.GetFilesRecursive(path, extensions);
+		/// </example>
+		public static IEnumerable<string> GetFilesRecursive(string path, string[] extensions) {
+			IEnumerable<string> filesAll =
+				Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories)
+				.Where(f => extensions.Contains(Path.GetExtension(f).ToLower()));
+			return filesAll;
+		}
+
+		/// <summary>
+		/// Get all files recursively
+		/// </summary>
+		/// <param name="path">Directoy Path</param>
+		/// <returns>IEnumerable array of filenames</returns>
+		public static IEnumerable<string> GetFilesRecursive(string path) {
+			return Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories);
 		}
 		
 		/// <summary>
@@ -96,20 +122,9 @@ namespace CommonUtils
 		/// </summary>
 		/// <param name="fileOrDirectoryPath">path</param>
 		/// <returns>bool if the path is a directory</returns>
-		public static bool IsDirectory(string fileOrDirectoryPath) {
-			
+		public static bool IsDirectory(string fileOrDirectoryPath)
+		{
 			return Directory.Exists(fileOrDirectoryPath);
-			/*
-			// get the file attributes for file or directory
-			FileAttributes attr = File.GetAttributes(fileOrDirectoryPath);
-
-			//detect whether its a directory or file
-			if((attr & FileAttributes.Directory) == FileAttributes.Directory) {
-				return true;
-			} else {
-				return false;
-			}
-			 */
 		}
 		
 		/// <summary>
@@ -148,14 +163,7 @@ namespace CommonUtils
 		/// <returns>true if successful</returns>
 		public static bool WriteTextToFile(string filePath, string text) {
 			try {
-				// create a writer and open the file
-				TextWriter tw = new StreamWriter(filePath);
-				
-				// write the text
-				tw.Write(text);
-				
-				// close the stream
-				tw.Close();
+				File.WriteAllText(filePath, text);
 			} catch (Exception) {
 				return false;
 			}

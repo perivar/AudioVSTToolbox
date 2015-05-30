@@ -17,7 +17,9 @@ using System.ComponentModel;
 
 using CommonUtils.Audio; // IWaveformPlayer
 
-using System.Windows.Forms; // Timer
+// Timer not using in console applications, but the only one that works properly in windows forms apps?
+//using System.Windows.Forms;
+using System.Timers;
 
 namespace CommonUtils.Audio
 {
@@ -180,15 +182,21 @@ namespace CommonUtils.Audio
 			if (Bass.BASS_Init(-1, DEFAULT_SAMPLE_RATE, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero))
 			{
 				// Load the plugins
-				LoadPlugin("bassflac.dll");
-				LoadPlugin("bass_aac.dll");
-				LoadPlugin("bass_mpc.dll");
-				LoadPlugin("bass_ac3.dll");
-				LoadPlugin("basswma.dll");
-				LoadPlugin("bass_ape.dll");
-				LoadPlugin("bass_alac.dll");
-				LoadPlugin("bass_tta.dll");
-				LoadPlugin("basswv.dll");
+				try {
+					LoadPlugin("bassflac.dll");
+					LoadPlugin("bass_aac.dll");
+					LoadPlugin("bass_mpc.dll");
+					LoadPlugin("bass_ac3.dll");
+					LoadPlugin("basswma.dll");
+					LoadPlugin("bass_ape.dll");
+					LoadPlugin("bass_alac.dll");
+					LoadPlugin("bass_tta.dll");
+					LoadPlugin("basswv.dll");
+				} catch (FileNotFoundException fe) {
+					#if DEBUG
+					Debug.WriteLine(string.Format("Some issues loading Bass plugins {0} ...", fe.Message));
+					#endif
+				}
 				
 				#if DEBUG
 				var info = new BASS_INFO();
@@ -207,7 +215,10 @@ namespace CommonUtils.Audio
 			
 			// Set filter for anti aliasing
 			if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_MIXER_FILTER, 50)) {
-				throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+				//throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+				#if DEBUG
+				Debug.WriteLine(string.Format("Some issues setting anti aliasing {0} ...", Bass.BASS_ErrorGetCode().ToString()));
+				#endif
 			}
 			
 			// Set floating parameters to be passed
@@ -252,7 +263,8 @@ namespace CommonUtils.Audio
 			
 			// Define the timer that checks the position while playing
 			_positionTimer.Interval = 50; // 50 ms
-			_positionTimer.Tick += OnTimedEvent;
+			//_positionTimer.Tick += OnTimedEvent;
+			_positionTimer.Elapsed+=new ElapsedEventHandler(OnTimedEvent);
 			
 			// The Timer is enabled/disabled in the IsPlaying method
 			IsPlaying = false;
@@ -753,8 +765,24 @@ namespace CommonUtils.Audio
 
 			int sampleRate = -1;
 			int bitsPerSample = -1;
-			int channels = -1;
 			long byteLength = -1;
+			
+			return ReadMonoFromFile(fileName, out sampleRate, out bitsPerSample, out byteLength, monoType);
+		}
+		
+		/// <summary>
+		/// Read an audio file into a float array as a Mono file (32-bit floating-point sample data)
+		/// </summary>
+		/// <param name="fileName">Fully referenced path and file name of the Wave file to create.</param>
+		/// <param name="sampleRate">Sample rate of the wave file (e.g. 8000, 11025, 22050, 44100, 48000, 96000) in Hz.</param>
+		/// <param name="bitsPerSample">Bits per sample of the wave file (must be either 8, 16, 24 or 32).</param>
+		/// <param name="byteLength">Length of file in bytes</param>
+		/// <param name="monoType">Define how converting to mono should happen (mix, left or right)</param>
+		/// <returns>Array with multi channel data</returns>
+		/// <exception cref="Exception">Thrown when an error occurs in the BASS Audio system</exception>
+		public static float[] ReadMonoFromFile(string fileName, out int sampleRate, out int bitsPerSample, out long byteLength, MonoSummingType monoType) {
+
+			int channels = -1;
 			int channelSampleLength = -1;
 			
 			float[] audioSamples = ReadFromFile(fileName, out sampleRate, out bitsPerSample, out channels, out byteLength, out channelSampleLength);
@@ -801,7 +829,7 @@ namespace CommonUtils.Audio
 				return null;
 			}
 		}
-
+		
 		/// <summary>
 		/// Read the spectrum from file
 		/// </summary>
