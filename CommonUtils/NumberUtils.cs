@@ -24,6 +24,14 @@ namespace CommonUtils
 			return result;
 		}
 
+		public static int IntTryParse(String input, int defaultValue) {
+			int result;
+			if (!int.TryParse(input, out result)) {
+				result = defaultValue;
+			}
+			return result;
+		}
+		
 		public static Boolean BooleanTryParseOrZero(String str)
 		{
 			return BooleanTryParse(str, false);

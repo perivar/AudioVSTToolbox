@@ -173,6 +173,24 @@ namespace CommonUtils
 			return Path.Combine(path, fileName);
 		}
 
+		/// <summary>
+		/// Return the right part of the path after a given base path if found
+		/// </summary>
+		/// <param name="path">long path</param>
+		/// <param name="startAfterPart">base path</param>
+		/// <returns></returns>
+		public static string GetRightPartOfPath(string path, string startAfterPart)
+		{
+			int startAfter = path.LastIndexOf(startAfterPart);
+
+			if (startAfter == -1)
+			{
+				// path path not found
+				return null;
+			}
+
+			return path.Substring(startAfterPart.Length);
+		}
 	}
 }
 
