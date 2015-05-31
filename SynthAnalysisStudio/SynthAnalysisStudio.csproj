@@ -105,8 +105,14 @@
     <Compile Include="..\CommonUtils\Audio\Bass\BassProxy.cs">
       <Link>Audio\BassProxy.cs</Link>
     </Compile>
-    <Compile Include="..\CommonUtils\Audio\IAudio.cs">
-      <Link>Audio\IAudio.cs</Link>
+    <Compile Include="..\CommonUtils\Audio\ISoundPlayer.cs">
+      <Link>Audio\ISoundPlayer.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\Audio\ISpectrumPlayer.cs">
+      <Link>Audio\ISpectrumPlayer.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\Audio\IWaveformPlayer.cs">
+      <Link>Audio\IWaveformPlayer.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\Audio\NAudio\AudioUtilsNAudio.cs">
       <Link>Audio\AudioUtilsNAudio.cs</Link>

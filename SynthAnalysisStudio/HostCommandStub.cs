@@ -353,6 +353,7 @@ namespace SynthAnalysisStudio
 					int chunkLength = chunkData.Length;
 					
 					// TODO: DELETE THIS
+					/*
 					string wavesPluginName = WavesPreset.GetPluginName(chunkData);
 					if (wavesPluginName != null) {
 						switch (wavesPluginName) {
@@ -370,6 +371,7 @@ namespace SynthAnalysisStudio
 								break;
 						}
 					}
+					 */
 					
 					// binary comparison to find out where the chunk has changed
 					if (previousChunkData != null && previousChunkData.Length > 0) {
