@@ -11,6 +11,8 @@ namespace CommonUtils
 	/// </summary>
 	public static class IOUtils
 	{
+		
+		#region Get/ Search for Files
 		/// <summary>
 		/// Return all files by their extension in ONE Directory (not recursive)
 		/// </summary>
@@ -94,6 +96,7 @@ namespace CommonUtils
 		public static IEnumerable<string> GetFilesRecursive(string path) {
 			return Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories);
 		}
+		#endregion
 		
 		/// <summary>
 		/// Backup a file to a filename.bak or filename.bak_number etc
@@ -117,6 +120,36 @@ namespace CommonUtils
 			}
 		}
 		
+		/// <summary>
+		/// Get Next Available Filename using passed filepath
+		/// E.g. _001.ext, 002_ext unt so weiter
+		/// </summary>
+		/// <param name="filePath">file path to check</param>
+		/// <returns>a unique filepath</returns>
+		public static string NextAvailableFilename(string filePath)
+		{
+			// Short-cut if already available
+			if (!File.Exists(filePath))
+				return filePath;
+			
+			// build up filename
+			var fileInfo = new FileInfo(filePath);
+			string extension = fileInfo.Extension;
+			DirectoryInfo folder = fileInfo.Directory;
+			string folderName = folder.FullName;
+			string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileInfo.Name);
+
+			int version = 0;
+			do {
+				version++;
+			}
+			while (File.Exists(
+				string.Format("{0}{1}{2}_{3:000}.h2p", folderName, Path.DirectorySeparatorChar, fileNameWithoutExtension, version)
+			));
+			
+			return string.Format("{0}{1}{2}_{3:000}.h2p", folderName, Path.DirectorySeparatorChar, fileNameWithoutExtension, version);
+		}
+
 		/// <summary>
 		/// Determine wheter a path is a file or a directory
 		/// </summary>
@@ -152,7 +185,13 @@ namespace CommonUtils
 		/// <param name="filePath">file</param>
 		/// <returns>string</returns>
 		public static string ReadTextFromFile(string filePath) {
-			return File.ReadAllText(filePath);
+			string text = "";
+			try {
+				text = File.ReadAllText(filePath);
+			} catch (Exception e) {
+				System.Diagnostics.Debug.WriteLine(e);
+			}
+			return text;
 		}
 		
 		/// <summary>
@@ -164,7 +203,8 @@ namespace CommonUtils
 		public static bool WriteTextToFile(string filePath, string text) {
 			try {
 				File.WriteAllText(filePath, text);
-			} catch (Exception) {
+			} catch (Exception e) {
+				System.Diagnostics.Debug.WriteLine(e);
 				return false;
 			}
 			return true;
@@ -189,15 +229,57 @@ namespace CommonUtils
 		/// <returns></returns>
 		public static string GetRightPartOfPath(string path, string startAfterPart)
 		{
-			int startAfter = path.LastIndexOf(startAfterPart);
+			int startAfter = path.LastIndexOf(startAfterPart, StringComparison.Ordinal);
 
-			if (startAfter == -1)
-			{
+			if (startAfter == -1) {
 				// path path not found
 				return null;
 			}
 
 			return path.Substring(startAfterPart.Length);
+		}
+		
+		/// <summary>
+		/// Return the full file path without the extension
+		/// </summary>
+		/// <param name="fullPath">full path with extension</param>
+		/// <returns>full path without extension</returns>
+		public static String GetFullPathWithoutExtension(String fullPath)
+		{
+			return Path.Combine(Path.GetDirectoryName(fullPath), Path.GetFileNameWithoutExtension(fullPath));
+		}
+		
+		/// <summary>
+		/// Make sure the file path has a given extension
+		/// </summary>
+		/// <param name="fullPath">full path with our without extension</param>
+		/// <param name="extension">extension in the format .ext e.g. '.png', '.wav'</param>
+		/// <returns></returns>
+		public static String EnsureExtension(string fullPath, string extension) {
+			if (!fullPath.EndsWith(extension, StringComparison.Ordinal)) {
+				return fullPath + extension;
+			} else {
+				return fullPath;
+			}
+		}
+		
+		/// <summary>
+		/// Remove the unsupported files from the passed file array
+		/// </summary>
+		/// <param name="files">all files</param>
+		/// <param name="supportedExtensions">supported extensions</param>
+		/// <returns>an array of supported files</returns>
+		public static string[] FilterOutUnsupportedFiles(string[] files, string[] supportedExtensions) {
+			
+			var correctFiles = new List<string>();
+			foreach (string inputFilePath in files) {
+				string fileExtension = Path.GetExtension(inputFilePath);
+				int pos = Array.IndexOf(supportedExtensions, fileExtension);
+				if (pos >- 1) {
+					correctFiles.Add(inputFilePath);
+				}
+			}
+			return correctFiles.ToArray();
 		}
 	}
 }

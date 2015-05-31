@@ -40,10 +40,10 @@ namespace Wav2Zebra2Osc
 			this.quitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.preferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.setExportPathToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.helpToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.convertMassiveOscsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.helpToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip = new System.Windows.Forms.StatusStrip();
 			this.outputField = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -151,6 +151,22 @@ namespace Wav2Zebra2Osc
 			this.setExportPathToolStripMenuItem.Text = "Set export path";
 			this.setExportPathToolStripMenuItem.Click += new System.EventHandler(this.SetExportPathToolStripMenuItemClick);
 			// 
+			// toolsToolStripMenuItem
+			// 
+			this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.convertMassiveOscsToolStripMenuItem});
+			this.toolsToolStripMenuItem.Enabled = false;
+			this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+			this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+			this.toolsToolStripMenuItem.Text = "Tools";
+			// 
+			// convertMassiveOscsToolStripMenuItem
+			// 
+			this.convertMassiveOscsToolStripMenuItem.Name = "convertMassiveOscsToolStripMenuItem";
+			this.convertMassiveOscsToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+			this.convertMassiveOscsToolStripMenuItem.Text = "Convert Massive Oscs";
+			this.convertMassiveOscsToolStripMenuItem.Click += new System.EventHandler(this.ConvertMassiveOscsToolStripMenuItemClick);
+			// 
 			// helpToolStripMenuItem
 			// 
 			this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -168,22 +184,6 @@ namespace Wav2Zebra2Osc
 			this.helpToolStripMenuItem1.Text = "Help";
 			this.helpToolStripMenuItem1.Click += new System.EventHandler(this.HelpToolStripMenuItem1Click);
 			// 
-			// toolsToolStripMenuItem
-			// 
-			this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.convertMassiveOscsToolStripMenuItem});
-			this.toolsToolStripMenuItem.Enabled = false;
-			this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-			this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
-			this.toolsToolStripMenuItem.Text = "Tools";
-			// 
-			// convertMassiveOscsToolStripMenuItem
-			// 
-			this.convertMassiveOscsToolStripMenuItem.Name = "convertMassiveOscsToolStripMenuItem";
-			this.convertMassiveOscsToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-			this.convertMassiveOscsToolStripMenuItem.Text = "Convert Massive Oscs";
-			this.convertMassiveOscsToolStripMenuItem.Click += new System.EventHandler(this.ConvertMassiveOscsToolStripMenuItemClick);
-			// 
 			// statusStrip
 			// 
 			this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -197,12 +197,14 @@ namespace Wav2Zebra2Osc
 			// 
 			// outputField
 			// 
+			this.outputField.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
 			this.outputField.Name = "outputField";
-			this.outputField.Size = new System.Drawing.Size(81, 17);
+			this.outputField.Size = new System.Drawing.Size(81, 18);
 			this.outputField.Text = "Export path is:";
 			// 
 			// tableLayoutPanel
 			// 
+			this.tableLayoutPanel.AllowDrop = true;
 			this.tableLayoutPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
 			| System.Windows.Forms.AnchorStyles.Left) 
 			| System.Windows.Forms.AnchorStyles.Right)));
@@ -226,6 +228,8 @@ namespace Wav2Zebra2Osc
 			this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel.Size = new System.Drawing.Size(472, 372);
 			this.tableLayoutPanel.TabIndex = 3;
+			this.tableLayoutPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.TableLayoutPanelDragDrop);
+			this.tableLayoutPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.TableLayoutPanelDragEnter);
 			// 
 			// contextMenuStrip1
 			// 

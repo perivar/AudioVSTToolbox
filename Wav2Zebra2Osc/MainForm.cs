@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.IO;
+using System.Drawing;
+using System.Collections.Generic;
 
 using CommonUtils;
 using CommonUtils.Audio;
@@ -13,8 +15,13 @@ namespace Wav2Zebra2Osc
 	/// </summary>
 	public partial class MainForm : Form
 	{
+		public static string VERSION = "0.3";
+		
 		const string iniFileName = "Wav2Zebra2.ini";
-
+		
+		// supported files
+		string[] EXTENSIONS = { ".wav", ".ogg", ".mp1", ".m1a", ".mp2", ".m2a", ".mpa", ".mus", ".mp3", ".mpg", ".mpeg", ".mp3pro", ".aif", ".aiff", ".bwf", ".wma", ".wmv", ".aac", ".adts", ".mp4", ".m4a", ".m4b", ".mod", ".mdz", ".mo3", ".s3m", ".s3z", ".xm", ".xmz", ".it", ".itz", ".umx", ".mtm", ".flac", ".fla", ".oga", ".ogg", ".aac", ".m4a", ".m4b", ".mp4", ".mpc", ".mp+", ".mpp", ".ac3", ".wma", ".ape", ".mac" };
+		
 		float[][] soundData;
 		float[][] morphedData;
 		float[] sineData;
@@ -30,6 +37,9 @@ namespace Wav2Zebra2Osc
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
+			
+			// set title
+			this.Text = "Wav2Zebra2Osc Version " + VERSION;
 			
 			// Initialize Bass
 			audioSystem = BassProxy.Instance;
@@ -52,8 +62,8 @@ namespace Wav2Zebra2Osc
 			this.waveDisplays[0].Selected = true;
 
 			// Initalize the jagged data arrays
-			this.soundData = RectangularArrays.ReturnRectangularFloatArray(16, 128);
-			this.morphedData = RectangularArrays.ReturnRectangularFloatArray(16, 128);
+			this.soundData = MathUtils.CreateJaggedArray<float[][]>(16, 128);
+			this.morphedData = MathUtils.CreateJaggedArray<float[][]>(16, 128);
 			
 			// generate the sine data
 			this.sineData = OscillatorGenerator.Sine();
@@ -70,33 +80,16 @@ namespace Wav2Zebra2Osc
 			this.waveDisplays[15].Refresh();
 			
 			string pathName = ReadExportPathName();
-			this.OutputText = "Export path is: " + pathName;
+			this.OutputText = "Export path: " + pathName;
 		}
 
 		#region Read and Write Export Path
-		private string ReadExportPathName() {
-			string pathName = "";
-			if (File.Exists(iniFileName)) {
-				try {
-					StreamReader reader = File.OpenText(iniFileName);
-					pathName = reader.ReadLine();
-					reader.Close();
-				} catch (Exception e) {
-					System.Diagnostics.Debug.WriteLine(e);
-				}
-			}
-			return pathName;
+		string ReadExportPathName() {
+			return IOUtils.ReadTextFromFile(iniFileName).Trim();
 		}
 		
-		private void WriteExportPathName(string pathName) {
-			try
-			{
-				StreamWriter writer = File.CreateText(iniFileName);
-				writer.WriteLine(pathName);
-				writer.Close();
-			} catch (IOException e) {
-				System.Diagnostics.Debug.WriteLine(e);
-			}
+		void WriteExportPathName(string pathName) {
+			IOUtils.WriteTextToFile(iniFileName, pathName);
 		}
 		#endregion
 		
@@ -191,8 +184,8 @@ namespace Wav2Zebra2Osc
 					}
 				}
 				
-				beginning = RemoveFileSuffix(beginning);
-				end = RemoveFileSuffix(end);
+				beginning = IOUtils.GetFullPathWithoutExtension(beginning);
+				end = IOUtils.GetFullPathWithoutExtension(end);
 				beginning = RemoveWhiteSpace(beginning);
 				end = RemoveWhiteSpace(end);
 				
@@ -204,13 +197,13 @@ namespace Wav2Zebra2Osc
 		#endregion
 		
 		#region Export Method
-		public void ExportToZebra2(bool doExportMorphed, bool doExportRaw)
+		void ExportToZebra2(bool doExportMorphed, bool doExportRaw)
 		{
 			// keep on asking for file path until it is succesfully stored
 			// in the ini file
 			while (!File.Exists(iniFileName)) {
 				this.OutputText = "Export path is not set";
-				SetExportPath();
+				MakeUserSetExportPath();
 				this.OutputText = "";
 			}
 			
@@ -219,96 +212,47 @@ namespace Wav2Zebra2Osc
 			if (!HasExportFileNames) {
 				this.OutputText = "There's nothing to export.";
 			} else {
-				string exportName = "";
+				string filePath = "";
 				
 				#region Morphed
 				if (doExportMorphed) {
-					exportName = pathName + Path.DirectorySeparatorChar + this.exportFileName.Text;
-					exportName = FixExportNames(exportName, true);
-					exportName = RenameIfFileExists(exportName);
+					filePath = pathName + Path.DirectorySeparatorChar + this.exportFileName.Text;
+					filePath = FixExportNames(filePath, true);
+					filePath = IOUtils.NextAvailableFilename(filePath);
 					
-					try
-					{
-						StreamWriter writer = File.CreateText(exportName);
-						string temp1 = "";
-						temp1 = temp1 + "#defaults=no \n";
-						temp1 = temp1 + "#cm=OSC \n";
-						temp1 = temp1 + "Wave=2 \n";
-						temp1 = temp1 + "<? \n\n";
-						temp1 = temp1 + "float Wave[ 128 ]; \n";
-						
-						for (int j = 0; j < 16; j++)
-						{
-							for (int i = 0; i < 128; i++)
-							{
-								string sampleValue = "" + this.morphedData[j][i];
-								if ((this.morphedData[j][i] < 0.001F) && (this.morphedData[j][i] > -0.001F))
-								{
-									sampleValue = "0.0";
-								}
-								temp1 = temp1 + "Wave[" + i + "] = " + sampleValue + "; \n";
-							}
-							temp1 = temp1 + "Selected.WaveTable.set( " + (j + 1) + " , Wave ); \n\n";
-						}
-						
-						temp1 = temp1 + "?> \n";
-						writer.Write(temp1);
-						writer.Close();
-					} catch (IOException e) {
-						System.Diagnostics.Debug.WriteLine(e);
+					// set morph enabled slots
+					var enabledSounds = new bool[16];
+					for (int j = 0; j < 16; j++) {
+						enabledSounds[j] = true;
 					}
+					Zebra2OSCPreset.Write(this.morphedData, enabledSounds, filePath);
 				}
 				#endregion
 				
 				#region RAW
 				if (doExportRaw)
 				{
-					exportName = pathName + Path.DirectorySeparatorChar + this.exportFileName.Text;
-					exportName = FixExportNames(exportName, false);
-					exportName = RenameIfFileExists(exportName);
+					filePath = pathName + Path.DirectorySeparatorChar + this.exportFileName.Text;
+					filePath = FixExportNames(filePath, false);
+					filePath = IOUtils.NextAvailableFilename(filePath);
 					
-					try
-					{
-						StreamWriter writer = File.CreateText(exportName);
-						string temp1 = "";
-						temp1 = temp1 + "#defaults=no \n";
-						temp1 = temp1 + "#cm=OSC \n";
-						temp1 = temp1 + "Wave=2 \n";
-						temp1 = temp1 + "<? \n\n";
-						temp1 = temp1 + "float Wave[ 128 ]; \n";
-						
-						for (int j = 0; j < 16; j++)
-						{
-							if (this.waveDisplays[j].FileName != "")
-							{
-								for (int i = 0; i < 128; i++)
-								{
-									string sampleValue = "" + this.soundData[j][i];
-									if ((this.soundData[j][i] < 0.001F) && (this.soundData[j][i] > -0.001F))
-									{
-										sampleValue = "0.0";
-									}
-									temp1 = temp1 + "Wave[" + i + "] = " + sampleValue + "; \n";
-								}
-								temp1 = temp1 + "Selected.WaveTable.set( " + (j + 1) + " , Wave ); \n\n";
-							}
+					// set wav enabled slots
+					var enabledSounds = new bool[16];
+					for (int j = 0; j < 16; j++) {
+						if (!string.IsNullOrEmpty(this.waveDisplays[j].FileName)) {
+							enabledSounds[j] = true;
 						}
-						
-						temp1 = temp1 + "?> \n";
-						writer.Write(temp1);
-						writer.Close();
-					} catch (IOException e) {
-						System.Diagnostics.Debug.WriteLine(e);
 					}
+					Zebra2OSCPreset.Write(this.soundData, enabledSounds, filePath);
 				}
 				#endregion
 
-				this.outputField.Text = "File exported as: " + exportName;
+				this.outputField.Text = "File exported as: " + Path.GetFileName(filePath);
 			}
 		}
 		#endregion
 		
-		public void SetExportPath()
+		void MakeUserSetExportPath()
 		{
 			var folderDialog = new FolderBrowserDialog();
 			folderDialog.Description = "Set export path";
@@ -321,45 +265,80 @@ namespace Wav2Zebra2Osc
 				this.OutputText = "Export path is: " + pathName;
 			}
 		}
-
-		public void SetImportSound(FileInfo file, int selected)
+		
+		/// <summary>
+		/// Load a set into the cell grid starting from startCell
+		/// </summary>
+		/// <param name="files">an array of files</param>
+		/// <param name="startCell">cell index to start from</param>
+		/// <returns>the last cell added</returns>
+		int LoadFilesIntoCells(string[] files, int startCell) {
+			int count = files.Length;
+			int cellPosition = startCell;
+			for (int i = 0; (i < count) && (i + startCell < 16); i++) {
+				cellPosition = startCell + i;
+				try {
+					LoadFileIntoCell(new FileInfo(files[i]), cellPosition);
+					this.waveDisplays[(cellPosition)].FileName = files[i];
+				} catch (Exception e) {
+					this.OutputText = "Not an audiofile";
+					System.Diagnostics.Debug.WriteLine(e);
+				}
+			}
+			return cellPosition;
+		}
+		
+		/// <summary>
+		/// Load one file into a specific cell
+		/// </summary>
+		/// <param name="file">file info</param>
+		/// <param name="selectedCell">selected cell</param>
+		void LoadFileIntoCell(FileInfo file, int selectedCell)
 		{
 			float[] tempAudioBuffer = BassProxy.ReadMonoFromFile(file.FullName);
 			float[] tempAudioBuffer2 = MathUtils.Resample(tempAudioBuffer, 128);
 			
-			Array.Copy(tempAudioBuffer2, 0, this.soundData[selected], 0, 128);
+			Array.Copy(tempAudioBuffer2, 0, this.soundData[selectedCell], 0, 128);
 			
 			// Interpolate using the raw waves
-			this.morphedData[selected] = this.soundData[selected];
+			this.morphedData[selectedCell] = this.soundData[selectedCell];
 			
-			this.waveDisplays[selected].WaveData = this.soundData[selected];
-			this.waveDisplays[selected].MorphedData = this.morphedData[selected];
-			this.waveDisplays[selected].Refresh();
+			this.waveDisplays[selectedCell].WaveData = this.soundData[selectedCell];
+			this.waveDisplays[selectedCell].MorphedData = this.morphedData[selectedCell];
+			this.waveDisplays[selectedCell].Loaded = true;
+			this.waveDisplays[selectedCell].Refresh();
 		}
 		
+		/// <summary>
+		/// Load the audio cell that is currently selected into the audio system so that it can be played
+		/// </summary>
 		public void LoadSelectedCellIntoAudioSystem() {
-			int selected = this.SelectedWaveDisplay;
-			if (selected > -1)
+			int selectedCell = this.SelectedWaveDisplay;
+			if (selectedCell > -1)
 			{
 				if (DoShowRAWWaves) {
-					LoadOscIntoAudioSystem(this.waveDisplays[selected].WaveData);
+					LoadOscIntoAudioSystem(this.waveDisplays[selectedCell].WaveData);
 				}
 				if (DoShowMorphedWaves) {
-					LoadOscIntoAudioSystem(this.waveDisplays[selected].MorphedData);
+					LoadOscIntoAudioSystem(this.waveDisplays[selectedCell].MorphedData);
 				}
 			}
 		}
 		
-		private void LoadOscIntoAudioSystem(float[] data) {
+		/// <summary>
+		/// Load generated oscillator data into the audio system so that it can be played
+		/// </summary>
+		/// <param name="data">oscillator sound data</param>
+		void LoadOscIntoAudioSystem(float[] data) {
 			
 			// ensure this is playing at a sensible volume
-			var data2 = MathUtils.ConvertRangeAndMainainRatio(data, -1.0f, 1.0f, -0.25f, 0.25f);
+			var data2 = MathUtils.ConvertRangeAndMainainRatio(data, -1.0f, 1.0f, -0.15f, 0.15f);
 			
 			// and load the sample into the audio system
 			audioSystem.OpenWaveSample(data2);
 		}
-		
-		public void LoadCell()
+
+		public void MakeUserLoadCell()
 		{
 			var fileDialog = new OpenFileDialog();
 			fileDialog.Multiselect = true;
@@ -374,33 +353,35 @@ namespace Wav2Zebra2Osc
 				if (retval == DialogResult.OK)
 				{
 					string[] files = fileDialog.FileNames;
-					int count = files.Length;
-					for (int i = 0; (i < count) && (i + selected < 16); i++)
-					{
-						try
-						{
-							SetImportSound(new FileInfo(files[i]), selected + i);
-							this.waveDisplays[(selected + i)].FileName = files[i];
-						} catch (Exception e) {
-							this.OutputText = "Not an audiofile";
-							System.Diagnostics.Debug.WriteLine(e);
-						}
-					}
+					LoadFilesIntoCells(files, selected);
 				}
 			} else {
 				this.OutputText = "No slot selected. Click on one to select slot.";
 			}
 			
+			// initialise the raw export name field
 			bool unused = HasExportFileNames;
 			this.exportFileName.Text = this.rawExportName;
-			this.waveDisplays[selected].Loaded = true;
 			
 			CalculateGhosts();
-			
 			LoadSelectedCellIntoAudioSystem();
 		}
 
-		private void CalculateGhosts()
+		public void SelectCell(int selectedCell) {
+			
+			// ensure all other cells are deselected
+			for (int i = 0; i < 16; i++) {
+				if (i == selectedCell) {
+					this.waveDisplays[i].Selected = true;
+					this.waveDisplays[i].Refresh();
+				} else {
+					this.waveDisplays[i].Selected = false;
+					this.waveDisplays[i].Refresh();
+				}
+			}
+		}
+		
+		void CalculateGhosts()
 		{
 			int fromPos = 0;
 			int toPos = 0;
@@ -430,7 +411,7 @@ namespace Wav2Zebra2Osc
 			}
 		}
 
-		private void ReCalculateMorphed(int fromPos, int toPos)
+		void ReCalculateMorphed(int fromPos, int toPos)
 		{
 			float[] harmFrom = this.morphedData[fromPos];
 			float[] harmTo = this.morphedData[toPos];
@@ -452,7 +433,7 @@ namespace Wav2Zebra2Osc
 			}
 		}
 		
-		public void ClearAllCells()
+		void ClearAllCells()
 		{
 			audioSystem.Pause();
 			
@@ -484,63 +465,19 @@ namespace Wav2Zebra2Osc
 		}
 		
 		#region Static File Utility Methods
-		private static string RenameIfFileExists(string checkName)
+		static string FixExportNames(string fullFilePath, bool isMorphed)
 		{
-			var fileInfo = new FileInfo(checkName);
-			DirectoryInfo folder = fileInfo.Directory;
-			string folderName = folder.FullName;
-			int version = 0;
-			string fileName = fileInfo.FullName;
-			
-			while (fileInfo.Exists)
-			{
-				version++;
-				fileName = RemoveFileSuffix(fileName);
-				string tmp = "" + version;
-				while (tmp.Length < 3)
-				{
-					tmp = "0" + tmp;
-				}
-				checkName = folderName + Path.DirectorySeparatorChar + fileName + tmp + ".h2p";
-				fileInfo = new FileInfo(checkName);
+			string tempPath = IOUtils.GetFullPathWithoutExtension(fullFilePath);
+			if (isMorphed) {
+				tempPath += "_Morph";
 			}
-			
-			return checkName;
+			tempPath = IOUtils.EnsureExtension(tempPath, ".h2p");
+			return tempPath;
 		}
 		
-		private static string FixExportNames(string fullFilePath, bool isMorphed)
-		{
-			string temp = fullFilePath;
-			temp = RemoveFileSuffix(temp);
-			if (isMorphed)
-			{
-				temp = temp + "Morphed";
-			}
-			else
-			{
-				temp = temp + "";
-			}
-			temp = CheckH2pSuffix(temp);
-			return temp;
-		}
-		
-		private static string RemoveFileSuffix(string fullPath)
-		{
-			return Path.Combine(Path.GetDirectoryName(fullPath), Path.GetFileNameWithoutExtension(fullPath));
-		}
-		
-		private static string RemoveWhiteSpace(string a)
+		static string RemoveWhiteSpace(string a)
 		{
 			return a.Replace(" ", "");
-		}
-		
-		private static string CheckH2pSuffix(string a)
-		{
-			if (!a.EndsWith(".h2p", StringComparison.Ordinal)) {
-				return a + ".h2p";
-			} else {
-				return a;
-			}
 		}
 		#endregion
 		
@@ -576,7 +513,7 @@ namespace Wav2Zebra2Osc
 		
 		void SetExportPathToolStripMenuItemClick(object sender, System.EventArgs e)
 		{
-			SetExportPath();
+			MakeUserSetExportPath();
 		}
 		
 		void ClearAllCellsToolStripMenuItemClick(object sender, System.EventArgs e)
@@ -586,7 +523,7 @@ namespace Wav2Zebra2Osc
 		
 		void LoadCellToolStripMenuItemClick(object sender, System.EventArgs e)
 		{
-			LoadCell();
+			MakeUserLoadCell();
 		}
 		
 		void MainFormResize(object sender, System.EventArgs e)
@@ -732,25 +669,84 @@ namespace Wav2Zebra2Osc
 		{
 			
 		}
-	}
-}
-
-//----------------------------------------------------------------------------------------
-//	Copyright © 2007 - 2011 Tangible Software Solutions Inc.
-//	This class can be used by anyone provided that the copyright notice remains intact.
-//
-//	This class provides the logic to simulate Java rectangular arrays, which are jagged
-//	arrays with inner arrays of the same length.
-//----------------------------------------------------------------------------------------
-internal static partial class RectangularArrays
-{
-	internal static float[][] ReturnRectangularFloatArray(int Size1, int Size2)
-	{
-		var Array = new float[Size1][];
-		for (int Array1 = 0; Array1 < Size1; Array1++)
+		
+		#region Drag and Drop
+		void TableLayoutPanelDragEnter(object sender, DragEventArgs e)
 		{
-			Array[Array1] = new float[Size2];
+			if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
+				e.Effect = DragDropEffects.Copy;
+			}
 		}
-		return Array;
+		
+		void TableLayoutPanelDragDrop(object sender, DragEventArgs e)
+		{
+			// Supported files
+			string[] extensions = { ".wav", ".ogg", ".mp1", ".m1a", ".mp2", ".m2a", ".mpa", ".mus", ".mp3", ".mpg", ".mpeg", ".mp3pro", ".aif", ".aiff", ".bwf", ".wma", ".wmv", ".aac", ".adts", ".mp4", ".m4a", ".m4b", ".mod", ".mdz", ".mo3", ".s3m", ".s3z", ".xm", ".xmz", ".it", ".itz", ".umx", ".mtm", ".flac", ".fla", ".oga", ".ogg", ".aac", ".m4a", ".m4b", ".mp4", ".mpc", ".mp+", ".mpp", ".ac3", ".wma", ".ape", ".mac" };
+			
+			// find out what table layout cell we are dragging over
+			var cellPos = GetRowColIndex(
+				tableLayoutPanel,
+				tableLayoutPanel.PointToClient(Cursor.Position));
+			
+			int startCell = PointToIndex(cellPos);
+			
+			if (startCell > -1) {
+				if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
+					var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+					
+					// remove unsupported files
+					var filesFixed = IOUtils.FilterOutUnsupportedFiles(files, EXTENSIONS);
+					
+					if (filesFixed.Length > 0) {
+						// and load
+						int lastCell = LoadFilesIntoCells(filesFixed, startCell);
+						SelectCell(lastCell);
+						
+						// initialise the raw export name field
+						bool unused = HasExportFileNames;
+						this.exportFileName.Text = this.rawExportName;
+						
+						CalculateGhosts();
+						LoadSelectedCellIntoAudioSystem();
+					} else {
+						this.OutputText = "No valid files selected.";
+					}
+				}
+			}
+		}
+		
+		public int PointToIndex(Point? point) {
+			if (point != null) {
+				int index = point.Value.X + 4 * point.Value.Y;
+				return index;
+			} else {
+				return -1;
+			}
+		}
+		
+		Point? GetRowColIndex(TableLayoutPanel tlp, Point point)
+		{
+			if (point.X > tlp.Width || point.Y > tlp.Height)
+				return null;
+
+			int w = tlp.Width;
+			int h = tlp.Height;
+			int[] widths = tlp.GetColumnWidths();
+
+			int i;
+			for (i = widths.Length - 1; i >= 0 && point.X < w; i--)
+				w -= widths[i];
+			int col = i + 1;
+
+			int[] heights = tlp.GetRowHeights();
+			for (i = heights.Length - 1; i >= 0 && point.Y < h; i--)
+				h -= heights[i];
+
+			int row = i + 1;
+
+			return new Point(col, row);
+		}
+		#endregion
+		
 	}
 }

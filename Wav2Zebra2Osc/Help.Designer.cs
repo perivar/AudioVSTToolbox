@@ -41,7 +41,7 @@
 			this.helpTextBox.Multiline = true;
 			this.helpTextBox.Name = "helpTextBox";
 			this.helpTextBox.ReadOnly = true;
-			this.helpTextBox.Size = new System.Drawing.Size(514, 330);
+			this.helpTextBox.Size = new System.Drawing.Size(579, 344);
 			this.helpTextBox.TabIndex = 1;
 			this.helpTextBox.Text = resources.GetString("helpTextBox.Text");
 			// 
@@ -49,10 +49,10 @@
 			// 
 			this.Closebutton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
 			| System.Windows.Forms.AnchorStyles.Right)));
-			this.Closebutton.Location = new System.Drawing.Point(237, 343);
+			this.Closebutton.Location = new System.Drawing.Point(237, 367);
 			this.Closebutton.Margin = new System.Windows.Forms.Padding(2);
 			this.Closebutton.Name = "Closebutton";
-			this.Closebutton.Size = new System.Drawing.Size(56, 30);
+			this.Closebutton.Size = new System.Drawing.Size(121, 30);
 			this.Closebutton.TabIndex = 2;
 			this.Closebutton.Text = "Close";
 			this.Closebutton.UseVisualStyleBackColor = true;
@@ -62,7 +62,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(534, 384);
+			this.ClientSize = new System.Drawing.Size(599, 408);
 			this.Controls.Add(this.Closebutton);
 			this.Controls.Add(this.helpTextBox);
 			this.Margin = new System.Windows.Forms.Padding(2);

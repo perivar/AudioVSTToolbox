@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -146,14 +147,14 @@ namespace Wav2Zebra2Osc
 			}
 			
 			var drawFileNameFont = new Font("Arial", 9);
-			string fileName = System.IO.Path.GetFileNameWithoutExtension(this.FileName);
+			string fileName = Path.GetFileNameWithoutExtension(this.FileName);
 			SizeF drawFileNameTextSize = g.MeasureString(fileName, drawFileNameFont);
 			g.DrawString(fileName, drawFileNameFont, Brushes.Black, Width - drawFileNameTextSize.Width - 2, 1);
 		}
 
 		void WaveDisplayUserControlDoubleClick(object sender, System.EventArgs e)
 		{
-			this.parentForm.LoadCell();
+			this.parentForm.MakeUserLoadCell();
 		}
 		
 		void WaveDisplayUserControlClick(object sender, System.EventArgs e)
@@ -202,5 +203,11 @@ namespace Wav2Zebra2Osc
 			}
 		}
 		#endregion
+		
+		public override string ToString()
+		{
+			return string.Format("Filename: '{0}', Loaded: {1}, Selected: {2}", FileName, Loaded, Selected);
+		}
+		
 	}
 }
