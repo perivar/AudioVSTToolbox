@@ -1628,7 +1628,7 @@ namespace CommonUtils.FFT
 							var ps = new List<Point>();
 							for (int i = 0; i < samples; i++) {
 								x = (int) ((i * mult_x) + LEFT_MARGIN);
-								y = Transform(data[channels*i+channelCounter], HEIGHT/channels, channelCounter, amplitude) + TOP_MARGIN + 1;
+								y = Transform(data[channels*i+channelCounter], HEIGHT/channels, channelCounter, amplitude) + TOP_MARGIN;
 								var p = new Point(x, y);
 								ps.Add(p);
 							}
@@ -1640,7 +1640,7 @@ namespace CommonUtils.FFT
 								// make sure we have at least space for a square with 3 pixels width
 								if ( ps.Count < (float) (WIDTH / 5)) {
 									foreach(Point p in ps) {
-										g.FillRectangle(sampleDotBrush, p.X-1, p.Y-1, 3, 3);
+										g.FillRectangle(sampleDotBrush, p.X-2, p.Y-2, 3, 3);
 									}
 								}
 							}

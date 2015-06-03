@@ -187,7 +187,9 @@ namespace CommonUtils
 		public static string ReadTextFromFile(string filePath) {
 			string text = "";
 			try {
-				text = File.ReadAllText(filePath);
+				if (File.Exists(filePath)) {
+					text = File.ReadAllText(filePath);
+				}
 			} catch (Exception e) {
 				System.Diagnostics.Debug.WriteLine(e);
 			}

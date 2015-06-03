@@ -2,7 +2,6 @@
 using System.Windows.Forms;
 using System.IO;
 using System.Drawing;
-using System.Collections.Generic;
 
 using CommonUtils;
 using CommonUtils.Audio;
@@ -15,12 +14,12 @@ namespace Wav2Zebra2Osc
 	/// </summary>
 	public partial class MainForm : Form
 	{
-		public static string VERSION = "0.3";
+		public static string VERSION = "0.4";
 		
 		const string iniFileName = "Wav2Zebra2.ini";
 		
 		// supported files
-		string[] EXTENSIONS = { ".wav", ".ogg", ".mp1", ".m1a", ".mp2", ".m2a", ".mpa", ".mus", ".mp3", ".mpg", ".mpeg", ".mp3pro", ".aif", ".aiff", ".bwf", ".wma", ".wmv", ".aac", ".adts", ".mp4", ".m4a", ".m4b", ".mod", ".mdz", ".mo3", ".s3m", ".s3z", ".xm", ".xmz", ".it", ".itz", ".umx", ".mtm", ".flac", ".fla", ".oga", ".ogg", ".aac", ".m4a", ".m4b", ".mp4", ".mpc", ".mp+", ".mpp", ".ac3", ".wma", ".ape", ".mac" };
+		string[] EXTENSIONS = { ".h2p", ".wav", ".ogg", ".mp1", ".m1a", ".mp2", ".m2a", ".mpa", ".mus", ".mp3", ".mpg", ".mpeg", ".mp3pro", ".aif", ".aiff", ".bwf", ".wma", ".wmv", ".aac", ".adts", ".mp4", ".m4a", ".m4b", ".mod", ".mdz", ".mo3", ".s3m", ".s3z", ".xm", ".xmz", ".it", ".itz", ".umx", ".mtm", ".flac", ".fla", ".oga", ".ogg", ".aac", ".m4a", ".m4b", ".mp4", ".mpc", ".mp+", ".mpp", ".ac3", ".wma", ".ape", ".mac" };
 		
 		float[][] soundData;
 		float[][] morphedData;
@@ -295,18 +294,44 @@ namespace Wav2Zebra2Osc
 		/// <param name="selectedCell">selected cell</param>
 		void LoadFileIntoCell(FileInfo file, int selectedCell)
 		{
-			float[] tempAudioBuffer = BassProxy.ReadMonoFromFile(file.FullName);
-			float[] tempAudioBuffer2 = MathUtils.Resample(tempAudioBuffer, 128);
-			
-			Array.Copy(tempAudioBuffer2, 0, this.soundData[selectedCell], 0, 128);
-			
-			// Interpolate using the raw waves
-			this.morphedData[selectedCell] = this.soundData[selectedCell];
-			
-			this.waveDisplays[selectedCell].WaveData = this.soundData[selectedCell];
-			this.waveDisplays[selectedCell].MorphedData = this.morphedData[selectedCell];
-			this.waveDisplays[selectedCell].Loaded = true;
-			this.waveDisplays[selectedCell].Refresh();
+			if (file.Extension.Equals(".h2p")) {
+				var wavetable = Zebra2OSCPreset.Read(file.FullName);
+				if (wavetable != null) {
+
+					// set the data
+					for (int i = 0; i < wavetable.Length; i++)
+					{
+						Array.Copy(wavetable[i], 0, this.soundData[i], 0, 128);
+
+						// TODO: use loaded instead of filename to determine that
+						// these are also loaded
+						this.waveDisplays[i].FileName = file.FullName;
+						
+						// Interpolate using the raw waves
+						this.morphedData[i] = this.soundData[i];
+						
+						this.waveDisplays[i].WaveData = this.soundData[i];
+						this.waveDisplays[i].MorphedData = this.morphedData[i];
+						this.waveDisplays[i].Loaded = true;
+						this.waveDisplays[i].Refresh();
+					}
+				} else {
+					throw new FileLoadException("Could not read the u-he Zebra 2 Oscillator preset file.", file.FullName);
+				}
+			} else {
+				float[] tempAudioBuffer = BassProxy.ReadMonoFromFile(file.FullName);
+				float[] tempAudioBuffer2 = MathUtils.Resample(tempAudioBuffer, 128);
+				
+				Array.Copy(tempAudioBuffer2, 0, this.soundData[selectedCell], 0, 128);
+
+				// Interpolate using the raw waves
+				this.morphedData[selectedCell] = this.soundData[selectedCell];
+				
+				this.waveDisplays[selectedCell].WaveData = this.soundData[selectedCell];
+				this.waveDisplays[selectedCell].MorphedData = this.morphedData[selectedCell];
+				this.waveDisplays[selectedCell].Loaded = true;
+				this.waveDisplays[selectedCell].Refresh();
+			}
 		}
 		
 		/// <summary>
@@ -318,8 +343,7 @@ namespace Wav2Zebra2Osc
 			{
 				if (DoShowRAWWaves) {
 					LoadOscIntoAudioSystem(this.waveDisplays[selectedCell].WaveData);
-				}
-				if (DoShowMorphedWaves) {
+				} else if (DoShowMorphedWaves) {
 					LoadOscIntoAudioSystem(this.waveDisplays[selectedCell].MorphedData);
 				}
 			}
@@ -342,7 +366,7 @@ namespace Wav2Zebra2Osc
 		{
 			var fileDialog = new OpenFileDialog();
 			fileDialog.Multiselect = true;
-			fileDialog.Filter = audioSystem.FileFilter;
+			fileDialog.Filter = "All Supported Files|*.h2p;*.wav;*.ogg;*.mp1;*.m1a;*.mp2;*.m2a;*.mpa;*.mus;*.mp3;*.mpg;*.mpeg;*.mp3pro;*.aif;*.aiff;*.bwf;*.wma;*.wmv;*.aac;*.adts;*.mp4;*.m4a;*.m4b;*.mod;*.mdz;*.mo3;*.s3m;*.s3z;*.xm;*.xmz;*.it;*.itz;*.umx;*.mtm;*.flac;*.fla;*.oga;*.ogg;*.aac;*.m4a;*.m4b;*.mp4;*.mpc;*.mp+;*.mpp;*.ac3;*.wma;*.ape;*.mac;*.m4a;*.tta;*.wv|WAVE Audio|*.wav|Ogg Vorbis|*.ogg|MPEG Layer 1|*.mp1;*.m1a|MPEG Layer 2|*.mp2;*.m2a;*.mpa;*.mus|MPEG Layer 3|*.mp3;*.mpg;*.mpeg;*.mp3pro|Audio IFF|*.aif;*.aiff|Broadcast Wave|*.bwf|Windows Media Audio|*.wma;*.wmv|Advanced Audio Codec|*.aac;*.adts|MPEG 4 Audio|*.mp4;*.m4a;*.m4b|MOD Music|*.mod;*.mdz|MO3 Music|*.mo3|S3M Music|*.s3m;*.s3z|XM Music|*.xm;*.xmz|IT Music|*.it;*.itz;*.umx|MTM Music|*.mtm|Free Lossless Audio Codec|*.flac;*.fla|Free Lossless Audio Codec (Ogg)|*.oga;*.ogg|Advanced Audio Coding|*.aac|Advanced Audio Coding MPEG-4|*.m4a;*.m4b;*.mp4|Musepack|*.mpc;*.mp+;*.mpp|Dolby Digital AC-3|*.ac3|Windows Media Audio|*.wma|Monkey's Audio|*.ape;*.mac|Apple Lossless Audio Codec|*.m4a|The True Audio|*.tta|WavPack|*.wv|u-he Zebra 2 Osc Preset|*.h2p";
 			fileDialog.Title = "Select an audio file";
 
 			this.OutputText = "";
@@ -399,7 +423,7 @@ namespace Wav2Zebra2Osc
 				if ((toPos < 16) && (fromPos >= 0))
 				{
 					System.Diagnostics.Debug.WriteLineIf((fromPos < toPos), String.Format("Warning: from value ({0}) is less than to value ({1})", fromPos, toPos));
-					ReCalculateMorphed(fromPos, toPos);
+					MathUtils.Morph(ref this.morphedData, fromPos, toPos);
 				}
 			}
 			
@@ -411,27 +435,6 @@ namespace Wav2Zebra2Osc
 			}
 		}
 
-		void ReCalculateMorphed(int fromPos, int toPos)
-		{
-			float[] harmFrom = this.morphedData[fromPos];
-			float[] harmTo = this.morphedData[toPos];
-			
-			var tempHarm = new float[128];
-			
-			int steps = toPos - fromPos - 1;
-			float stepSize = 1.0F / (steps + 1.0F);
-			float stepHelper = 0.0F;
-			for (int i = 0; i < steps; i++)
-			{
-				for (int j = 0; j < 128; j++)
-				{
-					stepHelper = stepSize * (i + 1);
-					tempHarm[j] = (harmFrom[j] * (1.0F - stepHelper) + harmTo[j] * stepHelper);
-				}
-				int sanityCheck = fromPos + i + 1;
-				Array.Copy(tempHarm, 0, this.morphedData[sanityCheck], 0, 128);
-			}
-		}
 		
 		void ClearAllCells()
 		{
@@ -572,7 +575,6 @@ namespace Wav2Zebra2Osc
 			}
 			LoadSelectedCellIntoAudioSystem();
 		}
-		
 		void SineToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			SetOscillator(OscillatorGenerator.Sine());
@@ -607,6 +609,28 @@ namespace Wav2Zebra2Osc
 		}
 		#endregion
 
+		#region other menu item events
+		void ClearToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			SetOscillator(new float[128]);
+		}
+
+		void LargeWaveformToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			int selectedCell = this.SelectedWaveDisplay;
+			if (selectedCell > -1)
+			{
+				float[] tempSoundData = null;
+				if (DoShowRAWWaves) {
+					tempSoundData = this.waveDisplays[selectedCell].WaveData;
+				} else if (DoShowMorphedWaves) {
+					tempSoundData = this.waveDisplays[selectedCell].MorphedData;
+				}
+				new WaveFormView(tempSoundData).ShowDialog();
+			}
+		}
+		#endregion
+		
 		#region Move Methods
 		public void MoveUp() {
 			int selected = this.SelectedWaveDisplay;
@@ -746,6 +770,7 @@ namespace Wav2Zebra2Osc
 
 			return new Point(col, row);
 		}
+		
 		#endregion
 		
 	}

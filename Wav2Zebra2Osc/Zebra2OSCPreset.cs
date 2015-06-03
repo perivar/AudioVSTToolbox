@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Globalization;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Wav2Zebra2Osc
 {
@@ -10,9 +12,49 @@ namespace Wav2Zebra2Osc
 	/// </summary>
 	public static class Zebra2OSCPreset
 	{
-		const string VERSION = "0.3";
+		const string VERSION = "0.4";
 		
 		public static float[][] Read(string zebraPresetFilePath) {
+			
+			// search for
+			// w1[0]=0.992;
+			// or
+			// Wave[ 0 ] = 1.000;
+			// or
+			// Wave[0] = -0.015853882;
+			// or
+			// oXw2[0]=0.467;
+			
+			// and for each 128 of them, add to slot
+
+			if (File.Exists(zebraPresetFilePath)) {
+				var soundData = new List<float[]>();
+
+				string fileContent = File.ReadAllText(zebraPresetFilePath);
+				
+				// find all float values
+				var floatValueOccurences = new Regex(@"\[\s*([0-9]+)\s*\]\s*=\s*([-+]?[0-9]*\.?[0-9]+)\s*;", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+				var floatValueMatches = floatValueOccurences.Matches(fileContent);
+				
+				int slot = 0;
+				var waveform = new float[128];
+				foreach (Match match in floatValueMatches)
+				{
+					//System.Diagnostics.Debug.WriteLine("{0}={1} '{2}'", match.Groups[1], match.Groups[2], match.Groups[0]);
+					int index = int.Parse(match.Groups[1].Value);
+					float value = float.Parse(match.Groups[2].Value);
+					
+					waveform[index] = value;
+					
+					if (index == 127) {
+						soundData.Add(waveform);
+						waveform = new float[128];
+						slot++;
+					}
+				}
+				return soundData.ToArray();
+			}
+			
 			return null;
 		}
 		
@@ -44,7 +86,7 @@ namespace Wav2Zebra2Osc
 								    && (soundData[j][i] > -0.001f)) {
 									sampleValue = 0;
 								}
-								writer.WriteLine(String.Format(CultureInfo.InvariantCulture, "Wave[ {0} ] = {1:0.000};", i, sampleValue));
+								writer.WriteLine(String.Format(CultureInfo.InvariantCulture, "Wave[ {0} ] = {1:0.0000};", i, sampleValue));
 							}
 							writer.WriteLine("Selected.WaveTable.set( {0} , Wave );", j + 1);
 							writer.WriteLine();

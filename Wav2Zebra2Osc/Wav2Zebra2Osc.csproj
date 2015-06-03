@@ -122,6 +122,10 @@
     <Compile Include="WaveDisplayUserControl.Designer.cs">
       <DependentUpon>WaveDisplayUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="WaveFormView.cs" />
+    <Compile Include="WaveFormView.Designer.cs">
+      <DependentUpon>WaveFormView.cs</DependentUpon>
+    </Compile>
     <Compile Include="Zebra2OSCPreset.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -133,6 +137,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="WaveDisplayUserControl.resx">
       <DependentUpon>WaveDisplayUserControl.Designer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WaveFormView.resx">
+      <DependentUpon>WaveFormView.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

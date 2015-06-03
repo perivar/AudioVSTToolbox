@@ -192,6 +192,39 @@ namespace CommonUtils
 		}
 		#endregion
 		
+		#region Morph
+		/// <summary>
+		/// Morph between the arrays specified by the from and to index
+		/// </summary>
+		/// <param name="data">data array</param>
+		/// <param name="fromIndex">first array to morph from</param>
+		/// <param name="toIndex">last array to morph from</param>
+		public static void Morph(ref float[][] data, int fromIndex, int toIndex)
+		{
+			float[] harmFrom = data[fromIndex];
+			float[] harmTo = data[toIndex];
+			
+			int numArrays = data.Length; // 16
+			int numSamples = data[0].Length; // 128
+			
+			var tempHarm = new float[numSamples];
+			
+			int steps = toIndex - fromIndex - 1;
+			float stepSize = 1.0F / (steps + 1.0F);
+			float stepHelper = 0.0F;
+			for (int i = 0; i < steps; i++)
+			{
+				for (int j = 0; j < numSamples; j++)
+				{
+					stepHelper = stepSize * (i + 1);
+					tempHarm[j] = (harmFrom[j] * (1.0F - stepHelper) + harmTo[j] * stepHelper);
+				}
+				int sanityCheck = fromIndex + i + 1;
+				Array.Copy(tempHarm, 0, data[sanityCheck], 0, numSamples);
+			}
+		}
+		#endregion
+		
 		#region Resample
 		/// <summary>
 		/// Resample a signal to a specific length
@@ -300,6 +333,16 @@ namespace CommonUtils
 		#endregion
 		
 		#region ConvertRangeAndMaintainRatio
+		
+		/// <summary>
+		/// Modify an array with new min and max values and return the modified array
+		/// </summary>
+		/// <param name="oldValueArray">original array</param>
+		/// <param name="oldMin">original minimum value</param>
+		/// <param name="oldMax">original maxiumum value</param>
+		/// <param name="newMin">new minimum value</param>
+		/// <param name="newMax">new maxiumum value</param>
+		/// <returns>the modified array</returns>
 		public static float[] ConvertRangeAndMainainRatio(float[] oldValueArray, float oldMin, float oldMax, float newMin, float newMax) {
 			var newValueArray = new float[oldValueArray.Length];
 			float oldRange = (oldMax - oldMin);
@@ -314,6 +357,15 @@ namespace CommonUtils
 			return newValueArray;
 		}
 		
+		/// <summary>
+		/// Modify an array with new min and max values and return the modified array using LOG values
+		/// </summary>
+		/// <param name="oldValueArray">original array</param>
+		/// <param name="oldMin">original minimum value</param>
+		/// <param name="oldMax">original maxiumum value</param>
+		/// <param name="newMin">new minimum value</param>
+		/// <param name="newMax">new maxiumum value</param>
+		/// <returns>the modified array</returns>
 		public static float[] ConvertRangeAndMainainRatioLog(float[] oldValueArray, float oldMin, float oldMax, float newMin, float newMax) {
 			var newValueArray = new float[oldValueArray.Length];
 			
@@ -335,6 +387,15 @@ namespace CommonUtils
 			return newValueArray;
 		}
 		
+		/// <summary>
+		/// Modify an array with new min and max values and return the modified array
+		/// </summary>
+		/// <param name="oldValueArray">original array</param>
+		/// <param name="oldMin">original minimum value</param>
+		/// <param name="oldMax">original maxiumum value</param>
+		/// <param name="newMin">new minimum value</param>
+		/// <param name="newMax">new maxiumum value</param>
+		/// <returns>the modified array</returns>
 		public static double[] ConvertRangeAndMainainRatio(double[] oldValueArray, double oldMin, double oldMax, double newMin, double newMax) {
 			var newValueArray = new double[oldValueArray.Length];
 			double oldRange = (oldMax - oldMin);
@@ -351,6 +412,15 @@ namespace CommonUtils
 		#endregion
 		
 		#region ConvertAndMaintainRatio and Scale methods
+		/// <summary>
+		/// Change a value with new min and max values
+		/// </summary>
+		/// <param name="oldValue"></param>
+		/// <param name="oldMin">original minimum value</param>
+		/// <param name="oldMax">original maxiumum value</param>
+		/// <param name="newMin">new minimum value</param>
+		/// <param name="newMax">new maxiumum value</param>
+		/// <returns>the modified value</returns>
 		public static double ConvertAndMainainRatio(double oldValue, double oldMin, double oldMax, double newMin, double newMax) {
 			double oldRange = (oldMax - oldMin);
 			double newRange = (newMax - newMin);
@@ -358,15 +428,35 @@ namespace CommonUtils
 			return newValue;
 		}
 
+		/// <summary>
+		/// Change a value with new min and max values
+		/// </summary>
+		/// <param name="oldValue"></param>
+		/// <param name="oldMin">original minimum value</param>
+		/// <param name="oldMax">original maxiumum value</param>
+		/// <param name="newMin">new minimum value</param>
+		/// <param name="newMax">new maxiumum value</param>
+		/// <returns>the modified value</returns>
 		public static float ConvertAndMainainRatio(float oldValue, float oldMin, float oldMax, float newMin, float newMax) {
 			float oldRange = (oldMax - oldMin);
 			float newRange = (newMax - newMin);
 			float newValue = (((oldValue - oldMin) * newRange) / oldRange) + newMin;
 			return newValue;
 		}
-
-		// TODO: Does not seem to work if oldMin is a minus value and oldValue also is minus
+		
+		/// <summary>
+		/// Change a value with new min and max values using LOG scale
+		/// Does not seem to work if oldMin is a minus value and oldValue also is minus
+		/// </summary>
+		/// <param name="oldValue"></param>
+		/// <param name="oldMin">original minimum value</param>
+		/// <param name="oldMax">original maxiumum value</param>
+		/// <param name="newMin">new minimum value</param>
+		/// <param name="newMax">new maxiumum value</param>
+		/// <returns>the modified value</returns>
 		public static double ConvertAndMainainRatioLog(double oldValue, double oldMin, double oldMax, double newMin, double newMax) {
+			// // TODO: Does not seem to work if oldMin is a minus value and oldValue also is minus
+			
 			// Addition of Epsilon prevents log from returning minus infinity if value is zero
 			double oldRange = (oldMax - oldMin);
 			double newRange = (newMax - newMin);
@@ -379,6 +469,15 @@ namespace CommonUtils
 			return newValue;
 		}
 
+		/// <summary>
+		/// Change a value with new min and max values using LOG scale
+		/// </summary>
+		/// <param name="oldValue"></param>
+		/// <param name="oldMin">original minimum value</param>
+		/// <param name="oldMax">original maxiumum value</param>
+		/// <param name="newMin">new minimum value</param>
+		/// <param name="newMax">new maxiumum value</param>
+		/// <returns>the modified value</returns>
 		public static float ConvertAndMainainRatioLog(float oldValue, float oldMin, float oldMax, float newMin, float newMax) {
 			// Addition of Epsilon prevents log from returning minus infinity if value is zero
 			float oldRange = (oldMax - oldMin);
@@ -464,25 +563,53 @@ namespace CommonUtils
 		#endregion
 		
 		#region Round
+		/// <summary>
+		/// Round a number to nearest double value
+		/// </summary>
+		/// <param name="number">original value</param>
+		/// <param name="nearest">value to get near to</param>
+		/// <returns>rounded number</returns>
 		public static double RoundToNearest(double number, double nearest) {
 			double rounded = Math.Round(number * (1 / nearest), MidpointRounding.AwayFromZero) / (1 / nearest);
 			return rounded;
 		}
 		
+		/// <summary>
+		/// Round a number to nearest integer value
+		/// </summary>
+		/// <param name="number">original value</param>
+		/// <param name="nearest">value to get near to</param>
+		/// <returns>rounded number</returns>
 		public static int RoundToNearestInteger(int number, int nearest) {
 			int rounded = (int) Math.Round( (double) number / nearest, MidpointRounding.AwayFromZero) * nearest;
 			return rounded;
 		}
 
+		/// <summary>
+		/// Round a number down with specific number of decimal places
+		/// </summary>
+		/// <param name="number">original value</param>
+		/// <param name="decimalPlaces">number of decimal places</param>
+		/// <returns>rounded number</returns>
 		public static double RoundDown(double number, int decimalPlaces)
 		{
 			return Math.Floor(number * Math.Pow(10, decimalPlaces)) / Math.Pow(10, decimalPlaces);
 		}
 		
+		/// <summary>
+		/// Round a number down
+		/// </summary>
+		/// <param name="number">original value</param>
+		/// <returns>rounded number</returns>
 		public static double RoundDown(double number) {
 			return Math.Floor(number);
 		}
 
+		/// <summary>
+		/// Round a number up
+		/// </summary>
+		/// <param name="number">original value</param>
+		/// <returns>rounded number</returns>
 		public static double RoundUp(double number) {
 			return Math.Ceiling(number);
 		}
@@ -490,6 +617,12 @@ namespace CommonUtils
 		#endregion
 		
 		#region ComputeMinAndMax
+		/// <summary>
+		/// Find min and max values from array
+		/// </summary>
+		/// <param name="data">array</param>
+		/// <param name="min">outputted min value</param>
+		/// <param name="max">outputted max value</param>
 		public static void ComputeMinAndMax(double[,] data, out double min, out double max) {
 			// prepare the data:
 			double maxVal = double.MinValue;
@@ -509,6 +642,12 @@ namespace CommonUtils
 			max = maxVal;
 		}
 
+		/// <summary>
+		/// Find min and max values from array
+		/// </summary>
+		/// <param name="data">array</param>
+		/// <param name="min">outputted min value</param>
+		/// <param name="max">outputted max value</param>
 		public static void ComputeMinAndMax(double[] data, out double min, out double max) {
 			// prepare the data:
 			double maxVal = double.MinValue;
@@ -525,6 +664,12 @@ namespace CommonUtils
 			max = maxVal;
 		}
 		
+		/// <summary>
+		/// Find min and max values from array
+		/// </summary>
+		/// <param name="data">array</param>
+		/// <param name="min">outputted min value</param>
+		/// <param name="max">outputted max value</param>
 		public static void ComputeMinAndMax(double[][] data, out double min, out double max) {
 			// prepare the data:
 			double maxVal = double.MinValue;
@@ -544,6 +689,12 @@ namespace CommonUtils
 			max = maxVal;
 		}
 
+		/// <summary>
+		/// Find min and max values from array
+		/// </summary>
+		/// <param name="data">array</param>
+		/// <param name="min">outputted min value</param>
+		/// <param name="max">outputted max value</param>
 		public static void ComputeMinAndMax(float[] data, out float min, out float max) {
 			// prepare the data:
 			float maxVal = float.MinValue;
@@ -560,6 +711,12 @@ namespace CommonUtils
 			max = maxVal;
 		}
 		
+		/// <summary>
+		/// Find min and max values from array
+		/// </summary>
+		/// <param name="data">array</param>
+		/// <param name="min">outputted min value</param>
+		/// <param name="max">outputted max value</param>
 		public static void ComputeMinAndMax(float[][] data, out float min, out float max) {
 			// prepare the data:
 			float maxVal = float.MinValue;
@@ -616,7 +773,7 @@ namespace CommonUtils
 			// float result = Math.Log(x) * (20.0 / Math.Log(10));
 			
 			// Addition of smallestNumber prevents log from returning minus infinity if mag is zero
-			float smallestNumber = float.Epsilon;
+			const float smallestNumber = float.Epsilon;
 			float db = 20 * (float) Math.Log10( (float) (amplitude + smallestNumber) );
 			return (float) db;
 		}
@@ -719,11 +876,21 @@ namespace CommonUtils
 		#endregion
 		
 		#region Float, Int And Double Conversions
+		/// <summary>
+		/// Convert float array to int array
+		/// </summary>
+		/// <param name="floatArray">original array</param>
+		/// <returns>converted array</returns>
 		public static int[] FloatToInt(float[] floatArray) {
 			int[] intArray = Array.ConvertAll(floatArray, x => (int)(float)x);
 			return intArray;
 		}
 
+		/// <summary>
+		/// Convert double array to int array
+		/// </summary>
+		/// <param name="doubleArray">original array</param>
+		/// <returns>converted array</returns>
 		public static int[] DoubleToInt(double[] doubleArray) {
 			// http://stackoverflow.com/questions/2103944/json-to-c-sharp-convert-an-arraylist-of-doubles-to-an-array-of-ints
 			int[] intArray = Array.ConvertAll(doubleArray, x => (int)(double)x);
@@ -732,32 +899,62 @@ namespace CommonUtils
 			return intArray;
 		}
 
+		/// <summary>
+		/// Convert int array to float array
+		/// </summary>
+		/// <param name="intArray">original array</param>
+		/// <returns>converted array</returns>
 		public static float[] IntToFloat(int[] intArray) {
 			float[] floatArray = Array.ConvertAll(intArray, x => (float)x);
 			return floatArray;
 		}
 
+		/// <summary>
+		/// Convert int array to double array
+		/// </summary>
+		/// <param name="intArray">original array</param>
+		/// <returns>converted array</returns>
 		public static double[] IntToDouble(int[] intArray) {
 			double[] doubleArray = Array.ConvertAll(intArray, x => (double)x);
 			return doubleArray;
 		}
 		
+		/// <summary>
+		/// Convert float array to double array
+		/// </summary>
+		/// <param name="floatArray">original array</param>
+		/// <returns>converted array</returns>
 		public static double[] FloatToDouble(float[] floatArray) {
 			double[] doubleArray = Array.ConvertAll(floatArray, x => (double)x);
 			return doubleArray;
 		}
 
+		/// <summary>
+		/// Convert float array to double array
+		/// </summary>
+		/// <param name="jaggedFloatArray">original array</param>
+		/// <returns>converted array</returns>
 		public static double[][] FloatToDouble(float[][] jaggedFloatArray) {
 			// http://stackoverflow.com/questions/3867961/c-altering-values-for-every-item-in-an-array
 			double[][] jaggedDoubleArray = jaggedFloatArray.Select(i => i.Select(j => (double)j).ToArray()).ToArray();
 			return jaggedDoubleArray;
 		}
 		
+		/// <summary>
+		/// Convert double array to float array
+		/// </summary>
+		/// <param name="doubleArray">original array</param>
+		/// <returns>converted array</returns>
 		public static float[] DoubleToFloat(double[] doubleArray) {
 			float[] floatArray = Array.ConvertAll(doubleArray, x => (float)x);
 			return floatArray;
 		}
 		
+		/// <summary>
+		/// Convert double array to float array
+		/// </summary>
+		/// <param name="jaggedDoubleArray">original array</param>
+		/// <returns>converted array</returns>
 		public static float[][] DoubleToFloat(double[][] jaggedDoubleArray) {
 			// http://stackoverflow.com/questions/3867961/c-altering-values-for-every-item-in-an-array
 			float[][] jaggedFloatArray = jaggedDoubleArray.Select(i => i.Select(j => (float)j).ToArray()).ToArray();
@@ -933,6 +1130,7 @@ namespace CommonUtils
 		/// Multiply signal with factor
 		/// </summary>
 		/// <param name="data">Signal to be processed</param>
+		/// <param name="factor">factor to multiply with</param>
 		public static void Multiply(ref double[] data, double factor)
 		{
 			// multiply by factor and return
@@ -943,6 +1141,7 @@ namespace CommonUtils
 		/// Multiply signal with factor
 		/// </summary>
 		/// <param name="data">Signal to be processed</param>
+		/// <param name="factor">factor to multiply with</param>
 		public static void Multiply(ref float[] data, float factor)
 		{
 			// multiply by factor and return
@@ -953,6 +1152,7 @@ namespace CommonUtils
 		/// Divide signal with factor
 		/// </summary>
 		/// <param name="data">Signal to be processed</param>
+		/// <param name="factor">factor to divide with</param>
 		public static void Divide(ref double[] data, double factor)
 		{
 			// divide by factor and return
@@ -963,6 +1163,7 @@ namespace CommonUtils
 		/// Divide signal with factor
 		/// </summary>
 		/// <param name="data">Signal to be processed</param>
+		/// <param name="factor">factor to divide with</param>
 		public static void Divide(ref float[] data, float factor)
 		{
 			// divide by factor and return
@@ -1066,7 +1267,13 @@ namespace CommonUtils
 				index++;
 			}
 		}
-		
+
+		/// <summary>
+		/// Extension method to return rows for linq queries
+		/// </summary>
+		/// <param name="array">array</param>
+		/// <param name="row">row</param>
+		/// <returns>Enumeration</returns>
 		public static IEnumerable<T> Row<T>(this T[,] array, int row)
 		{
 			for (int i = 0; i < array.GetLength(1); i++)
@@ -1074,6 +1281,13 @@ namespace CommonUtils
 				yield return array[row, i];
 			}
 		}
+
+		/// <summary>
+		/// Extension method to return columns for linq queries
+		/// </summary>
+		/// <param name="array">array</param>
+		/// <param name="column">column</param>
+		/// <returns>Enumeration</returns>
 		public static IEnumerable<T> Column<T>(this T[,] array, int column)
 		{
 			for (int i = 0; i < array.GetLength(0); i++)
@@ -1081,6 +1295,13 @@ namespace CommonUtils
 				yield return array[i, column];
 			}
 		}
+
+		/// <summary>
+		/// Extension method to return rows for linq queries
+		/// </summary>
+		/// <param name="array">array</param>
+		/// <param name="row">row</param>
+		/// <returns>Enumeration</returns>
 		public static IEnumerable<T> Row<T>(this T[][] array, int row)
 		{
 			for (int i = 0; i < array.Length; i++)
@@ -1088,12 +1309,24 @@ namespace CommonUtils
 				yield return array[row][i];
 			}
 		}
+
+		/// <summary>
+		/// Extension method to return columns for linq queries
+		/// </summary>
+		/// <param name="array">array</param>
+		/// <param name="column">column</param>
+		/// <returns>Enumeration</returns>
 		public static IEnumerable<T> Column<T>(this T[][] array, int column)
 		{
 			var col = array.Select(row => row[column]);
 			return col;
 		}
 		
+		/// <summary>
+		/// Extension method to copy an array to another array
+		/// </summary>
+		/// <param name="array">array</param>
+		/// <returns>a copy of the array</returns>
 		public static T[][] DeepCopy<T>(this T[][] array)
 		{
 			return array.Select(a => a.ToArray()).ToArray();
@@ -1323,5 +1556,151 @@ namespace CommonUtils
 		public static int MinNonNegative(int a, int b) {
 			return GetSmallestNonNegative(a, b);
 		}
+		
+		#region Distribute items in columns evenly
+		/// <summary>
+		/// Return an even distribution of items spread out over a number of columns.
+		/// When having less items than available columns this method prefers edges,
+		/// i.e. 3 items spread out on 7 columns will return array [1,0,0,1,0,0,1]
+		/// </summary>
+		/// <param name="items">number of items to spread</param>
+		/// <param name="columns">number of columns to spread into</param>
+		/// <returns>an array of length 'columns' of the evenly distributed items</returns>
+		public static int[] GetEvenDistributionPreferEdges(int items, int columns)
+		{
+			var result = new int[columns];
+
+			if (items == 0) {
+				// do nothing
+			} else if (items == 1) {
+				result[0] = 1;
+			} else if (items > 1 && items <= columns) {
+				// http://stackoverflow.com/questions/2451298/evenly-select-n-elems-from-array
+				
+				// set step size
+				double step = (double) (columns-1)/(items-1);
+
+				for (int i=0; i < items; i++) {
+					// push each element of a position which is a
+					// multiple of step to R
+					int index = (int) Math.Round(step*i);
+					result[index] = 1;
+				}
+			} else {
+				// use another algorithm
+				result = GetEvenDistribution(items, columns);
+			}
+			
+			return result;
+		}
+		
+		// http://stackoverflow.com/questions/23161009/how-to-evenly-distribute-array-members
+		
+		/// <summary>
+		/// Return an even distribution of items spread out over a number of columns.
+		/// </summary>
+		/// <param name="items">number of items to spread</param>
+		/// <param name="columns">number of columns to spread into</param>
+		/// <returns>an array of length 'columns' of the evenly distributed items</returns>
+		public static int[] GetEvenDistribution(int items, int columns) {
+			var result = new int[columns];
+
+			double itemsPerColumns = (double) (items) / (columns);
+			
+			int index = 0;
+			int numItemsInColumn = 0;
+			double currentItems = 0;
+			int oldItems = 0;
+			while (index < columns) {
+				currentItems += itemsPerColumns;
+				numItemsInColumn = (int) Math.Round(currentItems - oldItems);
+				
+				oldItems += numItemsInColumn;
+				result[index++] = numItemsInColumn;
+			}
+			
+			return result;
+		}
+		
+		/// <summary>
+		/// This seem to do the same as GetEvenDistribution()
+		/// </summary>
+		/// <param name="items">number of items to spread</param>
+		/// <param name="columns">number of columns to spread into</param>
+		/// <returns>an array of length 'columns' of the evenly distributed items</returns>
+		public static int[] GetEvenDistribution2(int items, int columns) {
+			var result = new int[columns];
+			for (int t = 0; t < columns; t++) {
+				int numItemsInColumn = ((t+1)*items+columns/2)/columns - (t*items+columns/2)/columns;
+				result[t] = numItemsInColumn;
+			}
+			return result;
+		}
+		
+		#endregion
+
+		#region Find indices matching a search criteria
+		
+		/// <summary>
+		/// Return all indices that match a given value
+		/// </summary>
+		/// <param name="array">array to search</param>
+		/// <param name="searchFor">value to search for</param>
+		/// <returns>an array of indices found</returns>
+		public static int[] IndexOf(int[] array, int searchFor) {
+			var indices = array.Select((value, index) => new { value, index })
+				.Where(x => x.value == searchFor)
+				.Select(x => x.index)
+				.ToArray();
+			
+			return indices;
+		}
+
+		/// <summary>
+		/// Return all indices that match a given value
+		/// </summary>
+		/// <param name="array">array to search</param>
+		/// <param name="searchFor">value to search for</param>
+		/// <returns>an array of indices found</returns>
+		public static int[] IndexOf(float[] array, float searchFor) {
+			var indices = array.Select((value, index) => new { value, index })
+				.Where(x => x.value == searchFor)
+				.Select(x => x.index)
+				.ToArray();
+			
+			return indices;
+		}
+
+		/// <summary>
+		/// Return all indices that match a given value
+		/// </summary>
+		/// <param name="array">array to search</param>
+		/// <param name="searchFor">value to search for</param>
+		/// <returns>an array of indices found</returns>
+		public static int[] IndexOf(double[] array, double searchFor) {
+			var indices = array.Select((value, index) => new { value, index })
+				.Where(x => x.value == searchFor)
+				.Select(x => x.index)
+				.ToArray();
+			
+			return indices;
+		}
+
+		/// <summary>
+		/// Return all indices that match a given value
+		/// </summary>
+		/// <param name="array">array to search</param>
+		/// <param name="searchFor">value to search for</param>
+		/// <returns>an array of indices found</returns>
+		public static int[] IndexOf(string[] array, string searchFor) {
+			var indices = array.Select((value, index) => new { value, index })
+				.Where(x => x.value == searchFor)
+				.Select(x => x.index)
+				.ToArray();
+			
+			return indices;
+		}
+		#endregion
+		
 	}
 }
