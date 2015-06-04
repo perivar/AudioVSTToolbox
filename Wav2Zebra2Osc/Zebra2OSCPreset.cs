@@ -4,6 +4,8 @@ using System.Globalization;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+using CommonUtils; // for MathUtils
+
 namespace Wav2Zebra2Osc
 {
 	/// <summary>
@@ -102,5 +104,33 @@ namespace Wav2Zebra2Osc
 			
 			return false;
 		}
+		
+		#region Utility Methods for Morphing
+		
+		/// <summary>
+		/// Find all the segments and morph between them.
+		/// E.g. if cell 0, 7 and 15 are loaded, this will mean two morphs:
+		/// first between cell 0 and 7 and the second between cell 7 and 15
+		/// </summary>
+		public static void MorphAllSegments(bool[] enabledSlots, ref float[][] data)
+		{
+			int fromPos = 0;
+			int toPos = 0;
+			while (toPos < 16) {
+				while ((toPos < 16) && enabledSlots[toPos]) {
+					toPos++;
+				}
+				fromPos = toPos - 1;
+				while ((toPos < 16) && !enabledSlots[toPos]) {
+					toPos++;
+				}
+				if ((toPos < 16) && (fromPos >= 0)) {
+					System.Diagnostics.Debug.WriteLineIf((fromPos < toPos), String.Format("Warning: from value ({0}) is less than to value ({1})", fromPos, toPos));
+					MathUtils.Morph(ref data, fromPos, toPos);
+				}
+			}
+		}
+		
+		#endregion
 	}
 }

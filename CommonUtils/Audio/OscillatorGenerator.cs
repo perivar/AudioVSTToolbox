@@ -13,7 +13,7 @@ namespace CommonUtils.Audio
 		public static float[] Sine() {
 			
 			var data = new float[128];
-			for (int j = 0; j < 128; j++)
+			for ( int j = 0; j < 128; j++ )
 			{
 				data[j] = (float) Math.Sin(j * TWO_PI / 128.0F);
 			}
@@ -92,7 +92,7 @@ namespace CommonUtils.Audio
 
 		public static float[] PulseHighLowI() {
 			float var = 0.0f;
-			int cut = 96;
+			const int cut = 96;
 
 			var data = new float[128];
 			for ( int i = 0; i < cut; i++ )
@@ -110,7 +110,7 @@ namespace CommonUtils.Audio
 
 		public static float[] PulseHighLowII() {
 			float var = 0.0f;
-			int cut = 111;
+			const int cut = 111;
 
 			var data = new float[128];
 			for ( int i = 0; i < cut; i++ )
@@ -143,6 +143,6 @@ namespace CommonUtils.Audio
 			}
 			return data;
 		}
-		
+
 	}
 }

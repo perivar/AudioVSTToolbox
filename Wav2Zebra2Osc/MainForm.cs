@@ -78,8 +78,7 @@ namespace Wav2Zebra2Osc
 			this.waveDisplays[0].Refresh();
 			this.waveDisplays[15].Refresh();
 			
-			string pathName = ReadExportPathName();
-			this.OutputText = "Export path: " + pathName;
+			this.OutputText = "Export path: " + ReadExportPathName();
 		}
 
 		#region Read and Write Export Path
@@ -95,32 +94,28 @@ namespace Wav2Zebra2Osc
 		#region DoShow methods
 		public bool DoShowRAWWaves
 		{
-			get
-			{
+			get {
 				return this.showRAWRadioButton.Checked;
 			}
 		}
 
 		public bool DoShowMorphedWaves
 		{
-			get
-			{
+			get {
 				return this.showMorphedRadioButton.Checked;
 			}
 		}
 
 		public bool DoExportMorphedWaves
 		{
-			get
-			{
+			get {
 				return this.exportMorphedWavesCheckBox.Checked;
 			}
 		}
 
 		public bool DoExportRAWWaves
 		{
-			get
-			{
+			get {
 				return this.exportRAWWavesCheckBox.Checked;
 			}
 		}
@@ -129,68 +124,65 @@ namespace Wav2Zebra2Osc
 		#region Properties
 		public string OutputText
 		{
-			set
-			{
+			set {
 				this.outputField.Text = value;
 			}
-			get
-			{
+			get {
 				return this.outputField.Text;
 			}
 		}
 
 		public int SelectedWaveDisplay
 		{
-			get
-			{
-				int selected = -1;
-				for (int i = 0; i < 16; i++)
-				{
-					if (this.waveDisplays[i].Selected)
-					{
-						selected = i;
+			get {
+				int selectedCell = -1;
+				for (int i = 0; i < 16; i++) {
+					if (this.waveDisplays[i].Selected) {
+						selectedCell = i;
 						break;
 					}
 				}
-				return selected;
+				return selectedCell;
 			}
 		}
 		
 		/// <summary>
-		/// check that at least one file are loaded and set the rawExportName property
+		/// Calculate the rawExportName property
 		/// </summary>
-		private bool HasExportFileNames
+		private void CalculateRawExportName() {
+
+			string beginning = "Default";
+			string end = "Default";
+			for (int i = 0; i < 16; i++) {
+				string temp = this.waveDisplays[i].FileName;
+				if ((beginning == "Default") && !string.IsNullOrEmpty(temp)) {
+					beginning = Path.GetFileName(this.waveDisplays[i].FileName);
+				}
+			}
+			
+			for (int i = 15; i >= 0; i--) {
+				string temp = this.waveDisplays[i].FileName;
+				if ((end == "Default") && !string.IsNullOrEmpty(temp)) {
+					end = Path.GetFileName(this.waveDisplays[i].FileName);
+				}
+			}
+			
+			beginning = IOUtils.GetFullPathWithoutExtension(beginning);
+			end = IOUtils.GetFullPathWithoutExtension(end);
+			beginning = RemoveWhiteSpace(beginning);
+			end = RemoveWhiteSpace(end);
+			
+			// store the export name
+			this.rawExportName = (beginning + "To" + end);
+		}
+		
+		/// <summary>
+		/// check if the rawExportName is set
+		/// </summary>
+		private bool HasRawExportName
 		{
-			get
-			{
-				string beginning = "Default";
-				string end = "Default";
-				for (int i = 0; i < 16; i++)
-				{
-					string temp = this.waveDisplays[i].FileName;
-					if ((beginning == "Default") && !string.IsNullOrEmpty(temp))
-					{
-						beginning = Path.GetFileName(this.waveDisplays[i].FileName);
-					}
-				}
-				
-				for (int i = 15; i >= 0; i--)
-				{
-					string temp = this.waveDisplays[i].FileName;
-					if ((end == "Default") && !string.IsNullOrEmpty(temp))
-					{
-						end = Path.GetFileName(this.waveDisplays[i].FileName);
-					}
-				}
-				
-				beginning = IOUtils.GetFullPathWithoutExtension(beginning);
-				end = IOUtils.GetFullPathWithoutExtension(end);
-				beginning = RemoveWhiteSpace(beginning);
-				end = RemoveWhiteSpace(end);
-				
-				this.rawExportName = (beginning + "To" + end);
-				
-				return (end != "Default") || (beginning != "Default");
+			get {
+				return (this.rawExportName != "");
 			}
 		}
 		#endregion
@@ -208,7 +200,7 @@ namespace Wav2Zebra2Osc
 			
 			string pathName = ReadExportPathName();
 			
-			if (!HasExportFileNames) {
+			if (!HasRawExportName) {
 				this.OutputText = "There's nothing to export.";
 			} else {
 				string filePath = "";
@@ -219,30 +211,30 @@ namespace Wav2Zebra2Osc
 					filePath = FixExportNames(filePath, true);
 					filePath = IOUtils.NextAvailableFilename(filePath);
 					
-					// set morph enabled slots
-					var enabledSounds = new bool[16];
+					// always include all slots when morphing
+					var enabledSlots = new bool[16];
 					for (int j = 0; j < 16; j++) {
-						enabledSounds[j] = true;
+						enabledSlots[j] = true;
 					}
-					Zebra2OSCPreset.Write(this.morphedData, enabledSounds, filePath);
+					Zebra2OSCPreset.Write(this.morphedData, enabledSlots, filePath);
 				}
 				#endregion
 				
 				#region RAW
-				if (doExportRaw)
-				{
+				if (doExportRaw) {
 					filePath = pathName + Path.DirectorySeparatorChar + this.exportFileName.Text;
 					filePath = FixExportNames(filePath, false);
 					filePath = IOUtils.NextAvailableFilename(filePath);
 					
 					// set wav enabled slots
-					var enabledSounds = new bool[16];
+					// TODO: use loaded instead of filename to determine that these are also loaded
+					var enabledSlots = new bool[16];
 					for (int j = 0; j < 16; j++) {
 						if (!string.IsNullOrEmpty(this.waveDisplays[j].FileName)) {
-							enabledSounds[j] = true;
+							enabledSlots[j] = true;
 						}
 					}
-					Zebra2OSCPreset.Write(this.soundData, enabledSounds, filePath);
+					Zebra2OSCPreset.Write(this.soundData, enabledSlots, filePath);
 				}
 				#endregion
 
@@ -257,8 +249,7 @@ namespace Wav2Zebra2Osc
 			folderDialog.Description = "Set export path";
 			
 			DialogResult retval = folderDialog.ShowDialog();
-			if (retval == DialogResult.OK)
-			{
+			if (retval == DialogResult.OK) {
 				string pathName = folderDialog.SelectedPath;
 				WriteExportPathName(pathName);
 				this.OutputText = "Export path is: " + pathName;
@@ -278,7 +269,6 @@ namespace Wav2Zebra2Osc
 				cellPosition = startCell + i;
 				try {
 					LoadFileIntoCell(new FileInfo(files[i]), cellPosition);
-					this.waveDisplays[(cellPosition)].FileName = files[i];
 				} catch (Exception e) {
 					this.OutputText = "Not an audiofile";
 					System.Diagnostics.Debug.WriteLine(e);
@@ -291,27 +281,29 @@ namespace Wav2Zebra2Osc
 		/// Load one file into a specific cell
 		/// </summary>
 		/// <param name="file">file info</param>
-		/// <param name="selectedCell">selected cell</param>
+		/// <param name="selectedCell">selectedCell cell</param>
 		void LoadFileIntoCell(FileInfo file, int selectedCell)
 		{
 			if (file.Extension.Equals(".h2p")) {
 				var wavetable = Zebra2OSCPreset.Read(file.FullName);
 				if (wavetable != null) {
 
+					// clear first
+					ClearAllCells();
+					
 					// set the data
-					for (int i = 0; i < wavetable.Length; i++)
-					{
+					for (int i = 0; i < wavetable.Length; i++) {
 						Array.Copy(wavetable[i], 0, this.soundData[i], 0, 128);
-
-						// TODO: use loaded instead of filename to determine that
-						// these are also loaded
-						this.waveDisplays[i].FileName = file.FullName;
 						
-						// Interpolate using the raw waves
+						// store the raw waves into the morphed data as this is used to morph between
 						this.morphedData[i] = this.soundData[i];
 						
+						// update the wave displays as well
 						this.waveDisplays[i].WaveData = this.soundData[i];
 						this.waveDisplays[i].MorphedData = this.morphedData[i];
+
+						// TODO: use loaded instead of filename to determine that these are also loaded
+						this.waveDisplays[i].FileName = file.FullName;
 						this.waveDisplays[i].Loaded = true;
 						this.waveDisplays[i].Refresh();
 					}
@@ -324,23 +316,25 @@ namespace Wav2Zebra2Osc
 				
 				Array.Copy(tempAudioBuffer2, 0, this.soundData[selectedCell], 0, 128);
 
-				// Interpolate using the raw waves
+				// store the raw waves into the morphed data as this is used to morph between
 				this.morphedData[selectedCell] = this.soundData[selectedCell];
 				
+				// update the wave displays as well
 				this.waveDisplays[selectedCell].WaveData = this.soundData[selectedCell];
 				this.waveDisplays[selectedCell].MorphedData = this.morphedData[selectedCell];
+				
+				this.waveDisplays[selectedCell].FileName = file.FullName;
 				this.waveDisplays[selectedCell].Loaded = true;
 				this.waveDisplays[selectedCell].Refresh();
 			}
 		}
 		
 		/// <summary>
-		/// Load the audio cell that is currently selected into the audio system so that it can be played
+		/// Load the audio cell that is currently selectedCell into the audio system so that it can be played
 		/// </summary>
 		public void LoadSelectedCellIntoAudioSystem() {
 			int selectedCell = this.SelectedWaveDisplay;
-			if (selectedCell > -1)
-			{
+			if (selectedCell > -1) {
 				if (DoShowRAWWaves) {
 					LoadOscIntoAudioSystem(this.waveDisplays[selectedCell].WaveData);
 				} else if (DoShowMorphedWaves) {
@@ -370,21 +364,19 @@ namespace Wav2Zebra2Osc
 			fileDialog.Title = "Select an audio file";
 
 			this.OutputText = "";
-			int selected = this.SelectedWaveDisplay;
-			if (selected > -1)
-			{
+			int selectedCell = this.SelectedWaveDisplay;
+			if (selectedCell > -1) {
 				DialogResult retval = fileDialog.ShowDialog();
-				if (retval == DialogResult.OK)
-				{
+				if (retval == DialogResult.OK) {
 					string[] files = fileDialog.FileNames;
-					LoadFilesIntoCells(files, selected);
+					LoadFilesIntoCells(files, selectedCell);
 				}
 			} else {
-				this.OutputText = "No slot selected. Click on one to select slot.";
+				this.OutputText = "No slot selectedCell. Click on one to select slot.";
 			}
 			
 			// initialise the raw export name field
-			bool unused = HasExportFileNames;
+			CalculateRawExportName();
 			this.exportFileName.Text = this.rawExportName;
 			
 			CalculateGhosts();
@@ -393,7 +385,7 @@ namespace Wav2Zebra2Osc
 
 		public void SelectCell(int selectedCell) {
 			
-			// ensure all other cells are deselected
+			// ensure all other cells are deselectedCell
 			for (int i = 0; i < 16; i++) {
 				if (i == selectedCell) {
 					this.waveDisplays[i].Selected = true;
@@ -405,31 +397,24 @@ namespace Wav2Zebra2Osc
 			}
 		}
 		
+		/// <summary>
+		/// Find all the segments and morph between them.
+		/// E.g. if cell 0, 7 and 15 are loaded, this will mean two morphs:
+		/// first between cell 0 and 7 and the second between cell 7 and 15
+		/// </summary>
 		void CalculateGhosts()
 		{
-			int fromPos = 0;
-			int toPos = 0;
-			while (toPos < 16)
-			{
-				while ((toPos < 16) && (this.waveDisplays[toPos].Loaded))
-				{
-					toPos++;
-				}
-				fromPos = toPos - 1;
-				while ((toPos < 16) && (!this.waveDisplays[toPos].Loaded))
-				{
-					toPos++;
-				}
-				if ((toPos < 16) && (fromPos >= 0))
-				{
-					System.Diagnostics.Debug.WriteLineIf((fromPos < toPos), String.Format("Warning: from value ({0}) is less than to value ({1})", fromPos, toPos));
-					MathUtils.Morph(ref this.morphedData, fromPos, toPos);
-				}
+			// get loaded slots to include in the morph
+			var enabledSlots = new bool[16];
+			for (int i = 0; i < 16; i++) {
+				enabledSlots[i] = this.waveDisplays[i].Loaded;
 			}
 			
-			for (int j = 0; j < 16; j++)
-			{
-				// Set the morphed data
+			// and morph between all the segments
+			Zebra2OSCPreset.MorphAllSegments(enabledSlots, ref morphedData);
+			
+			// Set the morphed data
+			for (int j = 0; j < 16; j++) {
 				this.waveDisplays[j].MorphedData = this.morphedData[j];
 				this.waveDisplays[j].Refresh();
 			}
@@ -441,8 +426,7 @@ namespace Wav2Zebra2Osc
 			audioSystem.Pause();
 			
 			// clear data
-			for (int i = 0; i < 16; i++)
-			{
+			for (int i = 0; i < 16; i++) {
 				Array.Clear(this.soundData[i], 0, this.soundData[i].Length);
 				Array.Clear(this.morphedData[i], 0, this.morphedData[i].Length);
 				
@@ -492,17 +476,13 @@ namespace Wav2Zebra2Osc
 		
 		void ShowMorphedRadioButtonCheckedChanged(object sender, System.EventArgs e)
 		{
-			for (int i = 0; i < 16; i++)
-			{
+			for (int i = 0; i < 16; i++) {
 				this.waveDisplays[i].Refresh();
 			}
 			
-			if (DoShowRAWWaves)
-			{
+			if (DoShowRAWWaves) {
 				this.outputField.Text = "Raw View";
-			}
-			else
-			{
+			} else {
 				this.outputField.Text = "Morphed View";
 			}
 			
@@ -536,9 +516,8 @@ namespace Wav2Zebra2Osc
 				int newCellWidth = this.tableLayoutPanel.Width / 4 - (margins * 2);
 				int newCellHeight = this.tableLayoutPanel.Height / 4 - (margins * 2);
 				
-				for (int i = 0; i < 16; i++)
-				{
-					this.waveDisplays[i].Size = new System.Drawing.Size(newCellWidth, newCellHeight);
+				for (int i = 0; i < 16; i++) {
+					this.waveDisplays[i].Size = new Size(newCellWidth, newCellHeight);
 					this.waveDisplays[i].ResumeLayout(false);
 					this.waveDisplays[i].PerformLayout();
 				}
@@ -561,65 +540,69 @@ namespace Wav2Zebra2Osc
 		#endregion
 		
 		#region Generate wave forms events
-		void SetOscillator(float[] waveform) {
-			int selected = this.SelectedWaveDisplay;
-			if (selected > -1) {
-				this.soundData[selected] = waveform;
-				this.morphedData[selected] = this.soundData[selected];
+		void SetOscillator(float[] waveform, string name, bool loaded = true) {
+			int selectedCell = this.SelectedWaveDisplay;
+			if (selectedCell > -1) {
+				this.soundData[selectedCell] = waveform;
+				this.morphedData[selectedCell] = this.soundData[selectedCell];
 				
-				this.waveDisplays[selected].WaveData = this.soundData[selected];
-				this.waveDisplays[selected].MorphedData = this.morphedData[selected];
-				this.waveDisplays[selected].Refresh();
-				this.waveDisplays[selected].Loaded = true;
+				this.waveDisplays[selectedCell].WaveData = this.soundData[selectedCell];
+				this.waveDisplays[selectedCell].MorphedData = this.morphedData[selectedCell];
+				this.waveDisplays[selectedCell].Loaded = loaded;
+				this.waveDisplays[selectedCell].FileName = name;
+				
+				// initialise the raw export name field
+				CalculateRawExportName();
+				this.exportFileName.Text = this.rawExportName;
+
 				CalculateGhosts();
+				LoadSelectedCellIntoAudioSystem();
 			}
-			LoadSelectedCellIntoAudioSystem();
 		}
 		void SineToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			SetOscillator(OscillatorGenerator.Sine());
+			SetOscillator(OscillatorGenerator.Sine(), "Sine");
 		}
 		void SawRisingToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			SetOscillator(OscillatorGenerator.SawRising());
+			SetOscillator(OscillatorGenerator.SawRising(), "SawRising");
 		}
 		void SawFallingToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			SetOscillator(OscillatorGenerator.SawFalling());
+			SetOscillator(OscillatorGenerator.SawFalling(), "SawFalling");
 		}
 		void TriangleToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			SetOscillator(OscillatorGenerator.Triangle());
+			SetOscillator(OscillatorGenerator.Triangle(), "Triangle");
 		}
 		void SquareHighLowToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			SetOscillator(OscillatorGenerator.SquareHighLow());
+			SetOscillator(OscillatorGenerator.SquareHighLow(), "SquareHighLow");
 		}
 		void PulseHighLowToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			SetOscillator(OscillatorGenerator.PulseHighLowI());
+			SetOscillator(OscillatorGenerator.PulseHighLowI(), "PulseHighLowI");
 		}
 		void PulseHighLowIIToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			SetOscillator(OscillatorGenerator.PulseHighLowII());
+			SetOscillator(OscillatorGenerator.PulseHighLowII(), "PulseHighLowII");
 		}
 		void TriangleSawToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			SetOscillator(OscillatorGenerator.TriangleSaw());
+			SetOscillator(OscillatorGenerator.TriangleSaw(), "TriangleSaw");
 		}
 		#endregion
 
-		#region other menu item events
+		#region Other menu item events like Clear and Large Waveform view
 		void ClearToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			SetOscillator(new float[128]);
+			SetOscillator(new float[128], "", false);
 		}
 
 		void LargeWaveformToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			int selectedCell = this.SelectedWaveDisplay;
-			if (selectedCell > -1)
-			{
+			if (selectedCell > -1) {
 				float[] tempSoundData = null;
 				if (DoShowRAWWaves) {
 					tempSoundData = this.waveDisplays[selectedCell].WaveData;
@@ -633,12 +616,11 @@ namespace Wav2Zebra2Osc
 		
 		#region Move Methods
 		public void MoveUp() {
-			int selected = this.SelectedWaveDisplay;
-			if (selected > 3 && selected < 16)
-			{
-				int newPosition = selected - 4;
-				this.waveDisplays[selected].Selected = false;
-				this.waveDisplays[selected].Refresh();
+			int selectedCell = this.SelectedWaveDisplay;
+			if (selectedCell > 3 && selectedCell < 16) {
+				int newPosition = selectedCell - 4;
+				this.waveDisplays[selectedCell].Selected = false;
+				this.waveDisplays[selectedCell].Refresh();
 
 				this.waveDisplays[newPosition].Selected = true;
 				this.waveDisplays[newPosition].Refresh();
@@ -647,12 +629,11 @@ namespace Wav2Zebra2Osc
 		}
 
 		public void MoveDown() {
-			int selected = this.SelectedWaveDisplay;
-			if (selected > -1 && selected < 12)
-			{
-				int newPosition = selected + 4;
-				this.waveDisplays[selected].Selected = false;
-				this.waveDisplays[selected].Refresh();
+			int selectedCell = this.SelectedWaveDisplay;
+			if (selectedCell > -1 && selectedCell < 12) {
+				int newPosition = selectedCell + 4;
+				this.waveDisplays[selectedCell].Selected = false;
+				this.waveDisplays[selectedCell].Refresh();
 
 				this.waveDisplays[newPosition].Selected = true;
 				this.waveDisplays[newPosition].Refresh();
@@ -661,12 +642,11 @@ namespace Wav2Zebra2Osc
 		}
 
 		public void MoveRight() {
-			int selected = this.SelectedWaveDisplay;
-			if (selected > -1 && selected < 15)
-			{
-				int newPosition = selected + 1;
-				this.waveDisplays[selected].Selected = false;
-				this.waveDisplays[selected].Refresh();
+			int selectedCell = this.SelectedWaveDisplay;
+			if (selectedCell > -1 && selectedCell < 15) {
+				int newPosition = selectedCell + 1;
+				this.waveDisplays[selectedCell].Selected = false;
+				this.waveDisplays[selectedCell].Refresh();
 
 				this.waveDisplays[newPosition].Selected = true;
 				this.waveDisplays[newPosition].Refresh();
@@ -675,12 +655,11 @@ namespace Wav2Zebra2Osc
 		}
 
 		public void MoveLeft() {
-			int selected = this.SelectedWaveDisplay;
-			if (selected > 0 && selected < 16)
-			{
-				int newPosition = selected - 1;
-				this.waveDisplays[selected].Selected = false;
-				this.waveDisplays[selected].Refresh();
+			int selectedCell = this.SelectedWaveDisplay;
+			if (selectedCell > 0 && selectedCell < 16) {
+				int newPosition = selectedCell - 1;
+				this.waveDisplays[selectedCell].Selected = false;
+				this.waveDisplays[selectedCell].Refresh();
 
 				this.waveDisplays[newPosition].Selected = true;
 				this.waveDisplays[newPosition].Refresh();
@@ -727,13 +706,13 @@ namespace Wav2Zebra2Osc
 						SelectCell(lastCell);
 						
 						// initialise the raw export name field
-						bool unused = HasExportFileNames;
+						CalculateRawExportName();
 						this.exportFileName.Text = this.rawExportName;
 						
 						CalculateGhosts();
 						LoadSelectedCellIntoAudioSystem();
 					} else {
-						this.OutputText = "No valid files selected.";
+						this.OutputText = "No valid files selected cell.";
 					}
 				}
 			}
@@ -770,7 +749,6 @@ namespace Wav2Zebra2Osc
 
 			return new Point(col, row);
 		}
-		
 		#endregion
 		
 	}
