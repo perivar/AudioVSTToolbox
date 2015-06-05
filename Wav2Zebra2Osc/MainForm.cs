@@ -14,7 +14,7 @@ namespace Wav2Zebra2Osc
 	/// </summary>
 	public partial class MainForm : Form
 	{
-		public static string VERSION = "0.4";
+		public static string VERSION = "0.5";
 		
 		const string iniFileName = "Wav2Zebra2.ini";
 		

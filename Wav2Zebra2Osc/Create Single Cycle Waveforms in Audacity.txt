@@ -1,0 +1,10 @@
+Audacity: 
+http://groovesizer.com/make-your-own-single-cycle-waveforms/
+
+Channels: Mono
+Bitdepth: 16
+Samplerate: 44100
+Number of samples: 2048
+One Cycle = 44100 / 2048 = 21,533203125
+OR (properly)
+One Cycle = 44100 / 2047 = 21,54372252076209

@@ -31,6 +31,7 @@ namespace Wav2Zebra2Osc
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.menuStrip = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exportToZebra2MenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -50,6 +51,7 @@ namespace Wav2Zebra2Osc
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.generateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.sineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.sawRisingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.sawFallingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.triangleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,7 +59,6 @@ namespace Wav2Zebra2Osc
 			this.pulseHighLowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pulseHighLowIIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.triangleSawToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.sineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.largeWaveformToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exportMorphedWavesCheckBox = new System.Windows.Forms.CheckBox();
 			this.exportRAWWavesCheckBox = new System.Windows.Forms.CheckBox();
@@ -191,7 +192,7 @@ namespace Wav2Zebra2Osc
 			// 
 			this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.outputField});
-			this.statusStrip.Location = new System.Drawing.Point(0, 450);
+			this.statusStrip.Location = new System.Drawing.Point(0, 451);
 			this.statusStrip.Name = "statusStrip";
 			this.statusStrip.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
 			this.statusStrip.Size = new System.Drawing.Size(481, 22);
@@ -241,7 +242,7 @@ namespace Wav2Zebra2Osc
 			this.generateToolStripMenuItem,
 			this.largeWaveformToolStripMenuItem});
 			this.contextMenuStrip1.Name = "contextMenuStrip1";
-			this.contextMenuStrip1.Size = new System.Drawing.Size(162, 92);
+			this.contextMenuStrip1.Size = new System.Drawing.Size(162, 70);
 			this.contextMenuStrip1.Text = "Square high low";
 			// 
 			// clearToolStripMenuItem
@@ -265,6 +266,13 @@ namespace Wav2Zebra2Osc
 			this.generateToolStripMenuItem.Name = "generateToolStripMenuItem";
 			this.generateToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
 			this.generateToolStripMenuItem.Text = "Generate";
+			// 
+			// sineToolStripMenuItem
+			// 
+			this.sineToolStripMenuItem.Name = "sineToolStripMenuItem";
+			this.sineToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.sineToolStripMenuItem.Text = "Sine";
+			this.sineToolStripMenuItem.Click += new System.EventHandler(this.SineToolStripMenuItemClick);
 			// 
 			// sawRisingToolStripMenuItem
 			// 
@@ -314,13 +322,6 @@ namespace Wav2Zebra2Osc
 			this.triangleSawToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
 			this.triangleSawToolStripMenuItem.Text = "Triangle Saw";
 			this.triangleSawToolStripMenuItem.Click += new System.EventHandler(this.TriangleSawToolStripMenuItemClick);
-			// 
-			// sineToolStripMenuItem
-			// 
-			this.sineToolStripMenuItem.Name = "sineToolStripMenuItem";
-			this.sineToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
-			this.sineToolStripMenuItem.Text = "Sine";
-			this.sineToolStripMenuItem.Click += new System.EventHandler(this.SineToolStripMenuItemClick);
 			// 
 			// largeWaveformToolStripMenuItem
 			// 
@@ -430,7 +431,7 @@ namespace Wav2Zebra2Osc
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(481, 472);
+			this.ClientSize = new System.Drawing.Size(481, 473);
 			this.Controls.Add(this.btnStop);
 			this.Controls.Add(this.btnPlay);
 			this.Controls.Add(this.labelFileName);
@@ -441,6 +442,7 @@ namespace Wav2Zebra2Osc
 			this.Controls.Add(this.tableLayoutPanel);
 			this.Controls.Add(this.statusStrip);
 			this.Controls.Add(this.menuStrip);
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MainMenuStrip = this.menuStrip;
 			this.Margin = new System.Windows.Forms.Padding(2);
 			this.MinimumSize = new System.Drawing.Size(497, 511);

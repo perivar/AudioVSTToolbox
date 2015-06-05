@@ -14,7 +14,7 @@ namespace Wav2Zebra2Osc
 	/// </summary>
 	public static class Zebra2OSCPreset
 	{
-		const string VERSION = "0.4";
+		const string VERSION = "0.5";
 		
 		public static float[][] Read(string zebraPresetFilePath) {
 			
@@ -44,7 +44,7 @@ namespace Wav2Zebra2Osc
 				{
 					//System.Diagnostics.Debug.WriteLine("{0}={1} '{2}'", match.Groups[1], match.Groups[2], match.Groups[0]);
 					int index = int.Parse(match.Groups[1].Value);
-					float value = float.Parse(match.Groups[2].Value);
+					float value = float.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
 					
 					waveform[index] = value;
 					
