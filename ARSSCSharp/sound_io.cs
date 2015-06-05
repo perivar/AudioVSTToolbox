@@ -196,12 +196,12 @@ public static class GlobalMembersSoundIO
 
 	public static double[][] ReadWaveFile(String wavfile, ref int channels, ref int samplecount, ref int samplerate)
 	{
-		RiffRead riffRead = new RiffRead(wavfile);
+		var riffRead = new RiffRead(wavfile);
 		riffRead.Process();
 		channels = riffRead.Channels;
 		samplecount = riffRead.SampleCount;
 		samplerate = riffRead.SampleRate;
-		return riffRead.SoundData;
+		return MathUtils.FloatToDouble(riffRead.SoundData);
 	}
 
 	public static double[][] ReadWaveFile(BinaryFile wavfile, ref int channels, ref int samplecount, ref int samplerate)
