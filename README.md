@@ -1,6 +1,6 @@
 # AudioVSTToolbox
 
-**The Audio VST Toolbox repository contains several sub-projects: **
+**The Audio VST Toolbox repository contains several sub-projects:**
 
 1. A Command line VST Plugin Processor - **ProcessVSTPlugin2**
 2. A Preset file Converter (from Sylenth to Zebra2) - **PresetConverter**
