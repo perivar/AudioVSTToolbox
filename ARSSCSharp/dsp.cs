@@ -14,9 +14,9 @@ using fftwlib;
 // http://articles.ircam.fr/textes/Schwarz98a/index.pdf
 
 // Pitch Shifting Using The Fourier Transform
-// http://www.dspdimension.com/admin/pitch-shifting-using-the-ft/	
+// http://www.dspdimension.com/admin/pitch-shifting-using-the-ft/
 
-public static class GlobalMembersDsp
+public static class DSP
 {
 	public static double PI;
 	public static double LOGBASE; // Base for log() operations. Anything other than 2 isn't really supported
@@ -40,8 +40,8 @@ public static class GlobalMembersDsp
 	/// <param name="method">FFT Method (DFT, IDFT, DHT)</param>
 	public static void FFT(ref double[] @in, ref double[] @out, int N, FFTMethod method)
 	{
-		fftw_complexarray complexInput = new fftw_complexarray(@in);
-		fftw_complexarray complexOutput = new fftw_complexarray(@out);
+		var complexInput = new fftw_complexarray(@in);
+		var complexOutput = new fftw_complexarray(@out);
 		
 		switch(method) {
 			case FFTMethod.DFT:
@@ -174,7 +174,7 @@ public static class GlobalMembersDsp
 	public static double[] FrequencyArray(double basefreq, int bands, double bandsperoctave)
 	{
 		int i = 0;
-		double[] freq = new double[bands];
+		var freq = new double[bands];
 		double maxfreq;
 
 		if (LOGBASE == 1.0) {
@@ -184,10 +184,10 @@ public static class GlobalMembersDsp
 		}
 
 		for (i = 0;i<bands;i++) {
-			freq[i] = GlobalMembersDsp.LogPositionToFrequency((double) i/(double)(bands-1), basefreq, maxfreq); //band's central freq
+			freq[i] = DSP.LogPositionToFrequency((double) i/(double)(bands-1), basefreq, maxfreq); //band's central freq
 		}
 		
-		if (GlobalMembersDsp.LogPositionToFrequency((double) bands / (double)(bands-1), basefreq, maxfreq)>0.5) {
+		if (DSP.LogPositionToFrequency((double) bands / (double)(bands-1), basefreq, maxfreq)>0.5) {
 			// TODO change sampling rate instead
 			Console.Write("Warning: Upper frequency limit above Nyquist frequency\n");
 		}
@@ -207,7 +207,7 @@ public static class GlobalMembersDsp
 		int i = 0; 		// general purpose iterators
 		int j = 0;
 
-		double[] @out = new double[Mo];
+		var @out = new double[Mo];
 
 		double pos_in; 				// position in the original signal
 		double x; 					// position of the iterator in the blackman(x) formula
@@ -229,7 +229,7 @@ public static class GlobalMembersDsp
 
 			coef_sum = 0;
 
-			for (j = GlobalMembersUtil.RoundUp(pos_in - ratio); j<=pos_in + ratio; j++)
+			for (j = Util.RoundUp(pos_in - ratio); j<=pos_in + ratio; j++)
 			{
 				if (j>=0 && j<Mi) // if the read sample is within bounds
 				{
@@ -258,23 +258,23 @@ public static class GlobalMembersDsp
 		double bar = PI * (3.0 / (double) size) * (1.0/1.5);
 		double foo;
 
-		double f1 = -0.6595044010905501; // Blackman Square coefficients
-		double f2 = 0.1601741366715479;
-		double f4 = -0.0010709178680006;
-		double f5 = 0.0001450093579222;
-		double f7 = 0.0001008528049040;
-		double f8 = 0.0000653092892874;
-		double f10 = 0.0000293385615146;
-		double f11 = 0.0000205351559060;
-		double f13 = 0.0000108567682890;
-		double f14 = 0.0000081549460136;
-		double f16 = 0.0000048519309366;
-		double f17 = 0.0000038284344102;
-		double f19 = 0.0000024753630724;
+		const double f1 = -0.6595044010905501; // Blackman Square coefficients
+		const double f2 = 0.1601741366715479;
+		const double f4 = -0.0010709178680006;
+		const double f5 = 0.0001450093579222;
+		const double f7 = 0.0001008528049040;
+		const double f8 = 0.0000653092892874;
+		const double f10 = 0.0000293385615146;
+		const double f11 = 0.0000205351559060;
+		const double f13 = 0.0000108567682890;
+		const double f14 = 0.0000081549460136;
+		const double f16 = 0.0000048519309366;
+		const double f17 = 0.0000038284344102;
+		const double f19 = 0.0000024753630724;
 
 		size++; // allows to read value 3.0
 
-		double[] lut = new double[size];
+		var lut = new double[size];
 		
 		for (i = 0; i<size; i++) {
 			foo = (double) i * bar;
@@ -357,7 +357,7 @@ public static class GlobalMembersDsp
 				pos_lut = x * foo;
 				pos_luti = (int) pos_lut;
 
-				mod_pos = GlobalMembersUtil.FMod(pos_lut, 1.0); // modulo of the index
+				mod_pos = Util.FMod(pos_lut, 1.0); // modulo of the index
 
 				if (pos_luti + 1 < lut.Length) {
 					y0 = lut[pos_luti]; // interpolate linearly between the two closest values
@@ -402,7 +402,7 @@ public static class GlobalMembersDsp
 		double Li;			// Li is the iterative frequency between La and Ld defined logarithmically
 		double maxfreq;		// maxfreq is the central frequency of the last band
 
-		freq = GlobalMembersDsp.FrequencyArray(basefreq, bands, bpo);
+		freq = DSP.FrequencyArray(basefreq, bands, bpo);
 
 		if (LOGBASE == 1.0) {
 			maxfreq = bpo; // in linear mode we use bpo to store the maxfreq since we couldn't deduce maxfreq otherwise
@@ -412,7 +412,7 @@ public static class GlobalMembersDsp
 		
 		Xsize = (int) (samplecount * pixpersec);
 
-		if (GlobalMembersUtil.FMod((double) samplecount * pixpersec, 1.0) != 0.0) {
+		if (Util.FMod((double) samplecount * pixpersec, 1.0) != 0.0) {
 			// round-up
 			Xsize++;
 		}
@@ -420,14 +420,14 @@ public static class GlobalMembersDsp
 		
 		@out = new double[bands][];
 		
-		clockA = GlobalMembersUtil.GetTime();
+		clockA = Util.GetTime();
 
 		//********ZEROPADDING********	Note : Don't do it in Circular mode
 		// Mb is the length of the original signal once zero-padded (always even)
 		if (LOGBASE == 1.0) {
-			Mb = samplecount - 1 + (int) GlobalMembersUtil.RoundOff(5.0/ freq[1]-freq[0]); // linear mode
+			Mb = samplecount - 1 + (int) Util.RoundOff(5.0/ freq[1]-freq[0]); // linear mode
 		} else {
-			Mb = samplecount - 1 + (int) GlobalMembersUtil.RoundOff(2.0 *5.0/((freq[0] * Math.Pow(LOGBASE, -1.0/(bpo))) * (1.0 - Math.Pow(LOGBASE, -1.0 / bpo))));
+			Mb = samplecount - 1 + (int) Util.RoundOff(2.0 *5.0/((freq[0] * Math.Pow(LOGBASE, -1.0/(bpo))) * (1.0 - Math.Pow(LOGBASE, -1.0 / bpo))));
 		}
 
 		if (Mb % 2 == 1)  { // if Mb is odd
@@ -437,10 +437,10 @@ public static class GlobalMembersDsp
 		Mc = 0;
 		Md = 0;
 
-		Mb = (int) GlobalMembersUtil.RoundOff((double) GlobalMembersUtil.NextPrime((int) GlobalMembersUtil.RoundOff(Mb * pixpersec)) / pixpersec);
+		Mb = (int) Util.RoundOff((double) Util.NextPrime((int) Util.RoundOff(Mb * pixpersec)) / pixpersec);
 
 		// Md is the length of the envelopes once downsampled (constant)
-		Md = (int) GlobalMembersUtil.RoundOff(Mb * pixpersec);
+		Md = (int) Util.RoundOff(Mb * pixpersec);
 
 		// realloc to the zeropadded size
 		Array.Resize<double>(ref s, Mb);
@@ -452,15 +452,15 @@ public static class GlobalMembersDsp
 		//--------ZEROPADDING--------
 		
 		//Export.exportCSV(String.Format("samples_before_fft.csv"), s, 256);
-		GlobalMembersDsp.FFT(ref s, ref s, Mb, FFTMethod.DFT); // In-place FFT of the original zero-padded signal
+		DSP.FFT(ref s, ref s, Mb, FFTMethod.DFT); // In-place FFT of the original zero-padded signal
 		//Export.exportCSV(String.Format("samples_after_fft.csv"), s, 256);
 
 		for (ib = 0; ib<bands; ib++) {
 			//********Filtering********
-			Fa = (int) GlobalMembersUtil.RoundOff(GlobalMembersDsp.LogPositionToFrequency((double)(ib-1)/(double)(bands-1), basefreq, maxfreq) * Mb);
-			Fd = (int) GlobalMembersUtil.RoundOff(GlobalMembersDsp.LogPositionToFrequency((double)(ib+1)/(double)(bands-1), basefreq, maxfreq) * Mb);
-			La = GlobalMembersDsp.FrequencyToLogPosition((double) Fa / (double) Mb, basefreq, maxfreq);
-			Ld = GlobalMembersDsp.FrequencyToLogPosition((double) Fd / (double) Mb, basefreq, maxfreq);
+			Fa = (int) Util.RoundOff(DSP.LogPositionToFrequency((double)(ib-1)/(double)(bands-1), basefreq, maxfreq) * Mb);
+			Fd = (int) Util.RoundOff(DSP.LogPositionToFrequency((double)(ib+1)/(double)(bands-1), basefreq, maxfreq) * Mb);
+			La = DSP.FrequencyToLogPosition((double) Fa / (double) Mb, basefreq, maxfreq);
+			Ld = DSP.FrequencyToLogPosition((double) Fd / (double) Mb, basefreq, maxfreq);
 
 			if (Fd > Mb/2)
 				Fd = Mb/2; // stop reading if reaching the Nyquist frequency
@@ -479,7 +479,7 @@ public static class GlobalMembersDsp
 			}
 
 			if (Md < Mc) { // round the larger bands up to the next integer made of 2^n * 3^m
-				Mc = GlobalMembersUtil.NextPrime(Mc);
+				Mc = Util.NextPrime(Mc);
 			}
 
 			Console.Write("{0,4:D}/{1:D} (FFT size: {2,6:D})   {3:f2} Hz - {4:f2} Hz\r", ib+1, bands, Mc, (double) Fa *samplerate/Mb, (double) Fd *samplerate/Mb);
@@ -487,7 +487,7 @@ public static class GlobalMembersDsp
 			@out[bands-ib-1] = new double[Mc+1];
 
 			for (i = 0; i<Fd-Fa; i++) {
-				Li = GlobalMembersDsp.FrequencyToLogPosition((double)(i+Fa) / (double) Mb, basefreq, maxfreq); // calculation of the logarithmic position
+				Li = DSP.FrequencyToLogPosition((double)(i+Fa) / (double) Mb, basefreq, maxfreq); // calculation of the logarithmic position
 				Li = (Li-La)/(Ld-La);
 				coef = 0.5 - 0.5 * Math.Cos(2.0 *PI * Li); // Hann function
 				
@@ -511,8 +511,8 @@ public static class GlobalMembersDsp
 			//********Envelope detection********
 			//Export.exportCSV(String.Format("test/band_{0}_rotated.csv", bands-ib-1), @out[bands-ib-1]);
 
-			GlobalMembersDsp.FFT(ref @out[bands-ib-1], ref @out[bands-ib-1], Mc, FFTMethod.IDFT); 	// In-place IFFT of the filtered band signal
-			GlobalMembersDsp.FFT(ref h, ref h, Mc, FFTMethod.IDFT); 								// In-place IFFT of the filtered band signal rotated by 90°
+			DSP.FFT(ref @out[bands-ib-1], ref @out[bands-ib-1], Mc, FFTMethod.IDFT); 	// In-place IFFT of the filtered band signal
+			DSP.FFT(ref h, ref h, Mc, FFTMethod.IDFT); 								// In-place IFFT of the filtered band signal rotated by 90°
 
 			//Export.exportCSV(String.Format("test/band_{0}_before.csv", bands-ib-1), @out[bands-ib-1]);
 
@@ -538,7 +538,7 @@ public static class GlobalMembersDsp
 			
 			if (Mc > Md) { // If the band *has* to be downsampled
 				t = @out[bands-ib-1];
-				@out[bands-ib-1] = GlobalMembersDsp.BlackmanDownsampling(@out[bands-ib-1], Mc, Md); // Blackman downsampling
+				@out[bands-ib-1] = DSP.BlackmanDownsampling(@out[bands-ib-1], Mc, Md); // Blackman downsampling
 
 				Array.Clear(t, 0, t.Length);
 			}
@@ -551,7 +551,7 @@ public static class GlobalMembersDsp
 
 		Console.Write("\n");
 
-		GlobalMembersDsp.Normalize(ref @out, ref Xsize, ref bands, 1.0);
+		DSP.Normalize(ref @out, ref Xsize, ref bands, 1.0);
 		
 		//Export.exportCSV(String.Format("out.csv"), @out);
 		return @out;
@@ -563,7 +563,7 @@ public static class GlobalMembersDsp
 	/// <param name="length">Length</param>
 	/// <param name="bw">Bandwidth</param>
 	/// <returns></returns>
-	public static double[] WindowedSinc_max(int length, double bw)
+	public static double[] WindowedSincMax(int length, double bw)
 	{
 		// http://www.dspguide.com/ch16/1.htm
 		
@@ -575,7 +575,7 @@ public static class GlobalMembersDsp
 		double coef; // coefficient obtained from the function
 
 		tbw = bw * (double)(length-1);
-		bwl = GlobalMembersUtil.RoundUp(tbw);
+		bwl = Util.RoundUp(tbw);
 		
 		h = new double[length];
 
@@ -615,7 +615,7 @@ public static class GlobalMembersDsp
 		double[] sband;					// sband is the band's envelope upsampled and shifted up in frequency
 		int sbsize = 0;					// sbsize is the length of sband
 
-		double[] sine = new double[4];	// sine is the random sine look-up table
+		var sine = new double[4];		// sine is the random sine look-up table
 		double rphase;					// rphase is the band's sine's random phase
 		
 		int i = 0;						// i is a general purpose iterator
@@ -625,15 +625,15 @@ public static class GlobalMembersDsp
 		int Mh = 0;						// Mh is the length of the real or imaginary part of the envelope's FFT, DC element included and Nyquist element excluded
 		int Mn = 0;						// Mn is the length of the real or imaginary part of the sound's FFT, DC element included and Nyquist element excluded
 
-		freq = GlobalMembersDsp.FrequencyArray(basefreq, bands, bpo);
+		freq = DSP.FrequencyArray(basefreq, bands, bpo);
 
-		clockA = GlobalMembersUtil.GetTime();
+		clockA = Util.GetTime();
 
-		sbsize = GlobalMembersUtil.NextPrime(Xsize * 2); // In Circular mode keep it to sbsize = Xsize * 2;
+		sbsize = Util.NextPrime(Xsize * 2); // In Circular mode keep it to sbsize = Xsize * 2;
 
-		samplecount = (int) GlobalMembersUtil.RoundOff(Xsize/pixpersec);
+		samplecount = (int) Util.RoundOff(Xsize/pixpersec);
 		Console.Write("Sound duration : {0:f3} s\n", (double) samplecount/samplerate);
-		samplecount = (int) GlobalMembersUtil.RoundOff(0.5 *sbsize/pixpersec); // Do not change this value as it would stretch envelopes
+		samplecount = (int) Util.RoundOff(0.5 *sbsize/pixpersec); // Do not change this value as it would stretch envelopes
 
 		s = new double[samplecount];
 		
@@ -641,21 +641,21 @@ public static class GlobalMembersDsp
 		sband = new double[sbsize];
 
 		// Bc is the index of the band's centre in the frequency domain on sband (its imaginary match being sbsize-Bc)
-		Bc = (int) GlobalMembersUtil.RoundOff(0.25 * (double) sbsize);
+		Bc = (int) Util.RoundOff(0.25 * (double) sbsize);
 
 		// Mh is the length of the real or imaginary part of the envelope's FFT, DC element included and Nyquist element excluded
 		Mh = (sbsize + 1) >> 1;
 		// Mn is the length of the real or imaginary part of the sound's FFT, DC element included and Nyquist element excluded
 		Mn = (samplecount + 1) >> 1;
 
-		filter = GlobalMembersDsp.WindowedSinc_max(Mh, 1.0 / GlobalMembersArss.TRANSITION_BW_SYNT); // generation of the frequency-domain filter
+		filter = DSP.WindowedSincMax(Mh, 1.0 / Arss.TRANSITION_BW_SYNT); // generation of the frequency-domain filter
 
 		for (ib = 0; ib<bands; ib++) {
 			// reset sband
 			for (i=0; i<sbsize; i++) sband[i] = 0; // reset sband
 			
 			//********Frequency shifting********
-			rphase = GlobalMembersUtil.DoubleRandom() * PI; // random phase between -pi and +pi
+			rphase = Util.DoubleRandom() * PI; // random phase between -pi and +pi
 
 			for (i = 0; i<4; i++) {
 				// generating the random sine LUT
@@ -673,10 +673,10 @@ public static class GlobalMembersDsp
 			}
 			//--------Frequency shifting--------
 
-			GlobalMembersDsp.FFT(ref sband, ref sband, sbsize, FFTMethod.DFT); // FFT of the envelope
+			DSP.FFT(ref sband, ref sband, sbsize, FFTMethod.DFT); // FFT of the envelope
 			
 			// Fc is the index of the band's centre in the frequency domain on the new signal
-			Fc = (int) GlobalMembersUtil.RoundOff(freq[ib] * samplecount); // band's centre index (envelope's DC element)
+			Fc = (int) Util.RoundOff(freq[ib] * samplecount); // band's centre index (envelope's DC element)
 
 			Console.Write("{0,4:D}/{1:D}   {2:f2} Hz\r", ib+1, bands, (double) Fc *samplerate / samplecount);
 
@@ -692,10 +692,10 @@ public static class GlobalMembersDsp
 
 		Console.Write("\n");
 
-		GlobalMembersDsp.FFT(ref s, ref s, samplecount, FFTMethod.IDFT); // IFFT of the final sound
-		samplecount = (int) GlobalMembersUtil.RoundOff(Xsize/pixpersec); // chopping tails by ignoring them
+		DSP.FFT(ref s, ref s, samplecount, FFTMethod.IDFT); // IFFT of the final sound
+		samplecount = (int) Util.RoundOff(Xsize/pixpersec); // chopping tails by ignoring them
 
-		GlobalMembersDsp.Normalize(ref s, ref samplecount, 1.0);
+		DSP.Normalize(ref s, ref samplecount, 1.0);
 
 		return s;
 	}
@@ -741,16 +741,16 @@ public static class GlobalMembersDsp
 		double Ld; // Ld is the log2 of the frequency of Fd
 		double Li; // Li is the iterative frequency between La and Ld defined logarithmically
 
-		freq = GlobalMembersDsp.FrequencyArray(basefreq, bands, bpo);
+		freq = DSP.FrequencyArray(basefreq, bands, bpo);
 
 		if (LOGBASE == 1.0)
 			maxfreq = bpo; // in linear mode we use bpo to store the maxfreq since we couldn't deduce maxfreq otherwise
 		else
 			maxfreq = basefreq * Math.Pow(LOGBASE, ((double)(bands-1)/ bpo));
 
-		clockA = GlobalMembersUtil.GetTime();
+		clockA = Util.GetTime();
 
-		samplecount = (int) GlobalMembersUtil.RoundOff(Xsize/pixpersec); // calculation of the length of the final signal
+		samplecount = (int) Util.RoundOff(Xsize/pixpersec); // calculation of the length of the final signal
 		Console.Write("Sound duration : {0:f3} s\n", (double) samplecount/samplerate);
 
 		// allocation of the final signal
@@ -763,14 +763,14 @@ public static class GlobalMembersDsp
 		loop_size = (int) loop_size_sec * samplerate;
 
 		if (LOGBASE == 1.0)
-			loop_size_min = (int) GlobalMembersUtil.RoundOff(4.0 *5.0/ freq[1]-freq[0]); // linear mode
+			loop_size_min = (int) Util.RoundOff(4.0 *5.0/ freq[1]-freq[0]); // linear mode
 		else
-			loop_size_min = (int) GlobalMembersUtil.RoundOff(2.0 *5.0/((freq[0] * Math.Pow(2.0, -1.0/(bpo))) * (1.0 - Math.Pow(2.0, -1.0 / bpo)))); // this is the estimate of how many samples the longest FIR will take up in the time domain
+			loop_size_min = (int) Util.RoundOff(2.0 *5.0/((freq[0] * Math.Pow(2.0, -1.0/(bpo))) * (1.0 - Math.Pow(2.0, -1.0 / bpo)))); // this is the estimate of how many samples the longest FIR will take up in the time domain
 
 		if (loop_size_min > loop_size)
 			loop_size = loop_size_min;
 
-		loop_size = GlobalMembersUtil.NextPrime(loop_size); // enlarge the loop_size to the next multiple of short primes in order to make IFFTs faster
+		loop_size = Util.NextPrime(loop_size); // enlarge the loop_size to the next multiple of short primes in order to make IFFTs faster
 		//--------Loop size calculation--------
 
 		//********Pink noise generation********
@@ -779,7 +779,7 @@ public static class GlobalMembersDsp
 		for (i = 1; i<(loop_size+1)>>1; i++)
 		{
 			mag = Math.Pow((double) i, 0.5 - 0.5 *LOGBASE); // FIXME something's not necessarily right with that formula
-			phase = GlobalMembersUtil.DoubleRandom() * PI; // random phase between -pi and +pi
+			phase = Util.DoubleRandom() * PI; // random phase between -pi and +pi
 
 			pink_noise[i] = mag * Math.Cos(phase); // real part
 			pink_noise[loop_size-i] = mag * Math.Sin(phase); // imaginary part
@@ -789,7 +789,7 @@ public static class GlobalMembersDsp
 		// allocate noise
 		noise = new double[loop_size];
 		
-		lut = GlobalMembersDsp.BlackmanSquareLookupTable(ref BMSQ_LUT_SIZE); // Blackman Square look-up table initalisation
+		lut = DSP.BlackmanSquareLookupTable(ref BMSQ_LUT_SIZE); // Blackman Square look-up table initalisation
 
 		for (ib = 0; ib<bands; ib++)
 		{
@@ -799,10 +799,10 @@ public static class GlobalMembersDsp
 			for (i=0; i<loop_size; i++) noise[i] = 0; // reset sband
 
 			//********Filtering********
-			Fa = (int) GlobalMembersUtil.RoundOff(GlobalMembersDsp.LogPositionToFrequency((double)(ib-1)/(double)(bands-1), basefreq, maxfreq) * loop_size);
-			Fd = (int) GlobalMembersUtil.RoundOff(GlobalMembersDsp.LogPositionToFrequency((double)(ib+1)/(double)(bands-1), basefreq, maxfreq) * loop_size);
-			La = GlobalMembersDsp.FrequencyToLogPosition((double) Fa / (double) loop_size, basefreq, maxfreq);
-			Ld = GlobalMembersDsp.FrequencyToLogPosition((double) Fd / (double) loop_size, basefreq, maxfreq);
+			Fa = (int) Util.RoundOff(DSP.LogPositionToFrequency((double)(ib-1)/(double)(bands-1), basefreq, maxfreq) * loop_size);
+			Fd = (int) Util.RoundOff(DSP.LogPositionToFrequency((double)(ib+1)/(double)(bands-1), basefreq, maxfreq) * loop_size);
+			La = DSP.FrequencyToLogPosition((double) Fa / (double) loop_size, basefreq, maxfreq);
+			Ld = DSP.FrequencyToLogPosition((double) Fd / (double) loop_size, basefreq, maxfreq);
 
 			if (Fd > loop_size/2)
 				Fd = loop_size/2; // stop reading if reaching the Nyquist frequency
@@ -814,7 +814,7 @@ public static class GlobalMembersDsp
 
 			for (i = Fa; i<Fd; i++)
 			{
-				Li = GlobalMembersDsp.FrequencyToLogPosition((double) i / (double) loop_size, basefreq, maxfreq); // calculation of the logarithmic position
+				Li = DSP.FrequencyToLogPosition((double) i / (double) loop_size, basefreq, maxfreq); // calculation of the logarithmic position
 				Li = (Li-La)/(Ld-La);
 				coef = 0.5 - 0.5 *Math.Cos(2.0 *PI *Li); // Hann function
 				noise[i+1] = pink_noise[i+1] * coef;
@@ -822,11 +822,11 @@ public static class GlobalMembersDsp
 			}
 			//--------Filtering--------
 
-			GlobalMembersDsp.FFT(ref noise, ref noise, loop_size, FFTMethod.IDFT); // IFFT of the filtered noise
+			DSP.FFT(ref noise, ref noise, loop_size, FFTMethod.IDFT); // IFFT of the filtered noise
 
 			// blank the envelope
 			for (i=0; i<samplecount; i++) envelope[i] = 0; // reset sband
-			GlobalMembersDsp.BlackmanSquareInterpolation(ref d[bands-ib-1], ref envelope, ref Xsize, ref samplecount, ref lut, BMSQ_LUT_SIZE); // interpolation of the envelope
+			DSP.BlackmanSquareInterpolation(ref d[bands-ib-1], ref envelope, ref Xsize, ref samplecount, ref lut, BMSQ_LUT_SIZE); // interpolation of the envelope
 
 			il = 0;
 			for (i = 0; i< samplecount; i++)
@@ -840,7 +840,7 @@ public static class GlobalMembersDsp
 
 		Console.Write("\n");
 
-		GlobalMembersDsp.Normalize(ref s, ref samplecount, 1.0);
+		DSP.Normalize(ref s, ref samplecount, 1.0);
 
 		return s;
 	}

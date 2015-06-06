@@ -42,27 +42,27 @@ public class Pair<T, U> {
 	public U Second { get; set; }
 };
 
-public static class GlobalMembersSpectrogram
+public static class SpectrogramUtils
 {
-	public static double[] zeros(double[] signal, int length) {
+	public static double[] Zeros(double[] signal, int length) {
 		if (length > signal.Length) {
 			Array.Resize<double>(ref signal, length);
 		}
 		return signal;
 	}
 
-	public static Complex[] zeros(Complex[] signal, int length) {
+	public static Complex[] Zeros(Complex[] signal, int length) {
 		if (length > signal.Length) {
 			Array.Resize<Complex>(ref signal, length);
 		}
 		return signal;
 	}
 
-	public static double[] padded_IFFT(Complex[] complexSignal) {
+	public static double[] PaddedIFFT(Complex[] complexSignal) {
 		
 		int N = MathUtils.NextPowerOfTwo(complexSignal.Length);
 		if (N <= 4096) {
-			complexSignal = zeros(complexSignal, N);
+			complexSignal = Zeros(complexSignal, N);
 			Fourier.FFT(complexSignal, N, FourierDirection.Backward);
 		} else {
 			N = 4096;
@@ -71,44 +71,44 @@ public static class GlobalMembersSpectrogram
 		}
 		
 		// get the result
-		double[] fft_real = new double[N];
+		var fft_real = new double[N];
 		for (int j = 0; j < N; j++) {
 			fft_real[j] = complexSignal[j].Re;
 		}
 		return fft_real;
 	}
 	
-	public static double[] padded_IFFT(double[] signal) {
+	public static double[] PaddedIFFT(double[] signal) {
 		
 		int N = signal.Length;
 		Complex[] complexSignal = FFTUtils.DoubleToComplex(signal);
 		Fourier.FFT(complexSignal, N, FourierDirection.Backward);
 		
 		// get the result
-		double[] fft_real = new double[N];
+		var fft_real = new double[N];
 		for (int j = 0; j < N; j++) {
 			fft_real[j] = complexSignal[j].Re;
 		}
 		return fft_real;
 	}
 	
-	public static double[] padded_FFT(Complex[] complexSignal) {
+	public static double[] PaddedFFT(Complex[] complexSignal) {
 
 		int N = complexSignal.Length;
 		Fourier.FFT(complexSignal, N, FourierDirection.Forward);
 
 		// get the result
-		double[] fft_real = new double[N];
+		var fft_real = new double[N];
 		for (int j = 0; j < N; j++) {
 			fft_real[j] = complexSignal[j].Re;
 		}
 		return fft_real;
 	}
 	
-	public static Complex[] padded_FFT(double[] signal) {
+	public static Complex[] PaddedFFT(double[] signal) {
 		
 		int N = MathUtils.NextPowerOfTwo(signal.Length);
-		signal = zeros(signal, N);
+		signal = Zeros(signal, N);
 
 		double[] signal_fft = FFTUtils.FFT(signal);
 		Complex[] complexSignal = FFTUtils.DoubleToComplex(signal_fft);
@@ -116,46 +116,46 @@ public static class GlobalMembersSpectrogram
 		return complexSignal;
 	}
 	
-	public static double log10scale(double val)
+	public static double Log10Scale(double val)
 	{
 		Debug.Assert(val >= 0 && val <= 1);
 		return Math.Log10(1 + 9 * val);
 	}
 
-	public static double log10scale_inv(double val)
+	public static double Log10ScaleInverse(double val)
 	{
 		Debug.Assert(val >= 0 && val <= 1);
 		return (Math.Pow(10, val) -1) / 9;
 	}
 
 	// cent = octave/1200
-	public static double cent2freq(double cents)
+	public static double Cent2Freq(double cents)
 	{
 		return Math.Pow(2, cents / 1200);
 	}
 	
-	public static double freq2cent(double freq)
+	public static double Freq2Cent(double freq)
 	{
 		return Math.Log(freq) / Math.Log(2) * 1200;
 	}
 	
-	public static double cent2oct(double cents)
+	public static double Cent2Oct(double cents)
 	{
 		return cents / 1200;
 	}
 	
-	public static double oct2cent(double oct)
+	public static double Oct2Cent(double oct)
 	{
 		return oct * 1200;
 	}
 
-	public static void shift90deg(ref Complex x)
+	public static void Shift90Degrees(ref Complex x)
 	{
 		x = x.GetConjugate();
 		// x = std.conj(Complex(x.imag(), x.real()));
 	}
 
-	public static double[] resample(double[] @in, int len)
+	public static double[] Resample(double[] @in, int len)
 	{
 		Debug.Assert(len > 0);
 		Console.Out.WriteLine("resample(data size: {0}, len: {1}", @in.Length, len);
@@ -181,19 +181,19 @@ public static class GlobalMembersSpectrogram
 		 */
 	}
 
-	public static double[] get_envelope(ref Complex[] band)
+	public static double[] GetEnvelope(ref Complex[] band)
 	{
 		Debug.Assert(band.Length > 1);
 
 		// copy + phase shift
-		Complex[] shifted = new Complex[band.Length];
+		var shifted = new Complex[band.Length];
 		for (int i = 0; i < band.Length; i++) {
-			shift90deg(ref band[i]);
+			Shift90Degrees(ref band[i]);
 			shifted[i] = band[i];
 		}
 		
-		double[] envelope = padded_IFFT(band);
-		double[] shifted_signal = padded_IFFT(shifted);
+		double[] envelope = PaddedIFFT(band);
+		double[] shifted_signal = PaddedIFFT(shifted);
 
 		for (int i = 0; i < envelope.Length; ++i) {
 			envelope[i] = envelope[i]*envelope[i] + shifted_signal[i]*shifted_signal[i];
@@ -202,25 +202,25 @@ public static class GlobalMembersSpectrogram
 		return envelope;
 	}
 
-	public static double blackman_window(double x)
+	public static double BlackmanWindow(double x)
 	{
 		Debug.Assert(x >= 0 && x <= 1);
 		return Math.Max(0.42 - 0.5 * Math.Cos(2 * Math.PI * x) + 0.08 * Math.Cos(4 * Math.PI * x), 0.0);
 	}
 
-	public static double hann_window(double x)
+	public static double HannWindow(double x)
 	{
 		Debug.Assert(x >= 0 && x <= 1);
 		return 0.5 * (1 - Math.Cos(x * 2 * Math.PI));
 	}
 
-	public static double triangular_window(double x)
+	public static double TriangularWindow(double x)
 	{
 		Debug.Assert(x >= 0 && x <= 1);
 		return 1 - Math.Abs( 2 * (x - 0.5));
 	}
 
-	public static double window_coef(double x, Window window)
+	public static double WindowCoef(double x, Window window)
 	{
 		Debug.Assert(x >= 0 && x <= 1);
 		
@@ -228,11 +228,11 @@ public static class GlobalMembersSpectrogram
 			return 1.0;
 		switch (window) {
 			case Window.WINDOW_HANN:
-				return GlobalMembersSpectrogram.hann_window(x);
+				return SpectrogramUtils.HannWindow(x);
 			case Window.WINDOW_BLACKMAN:
-				return GlobalMembersSpectrogram.blackman_window(x);
+				return SpectrogramUtils.BlackmanWindow(x);
 			case Window.WINDOW_TRIANGULAR:
-				return GlobalMembersSpectrogram.triangular_window(x);
+				return SpectrogramUtils.TriangularWindow(x);
 			default:
 				Debug.Assert(false);
 				break;
@@ -240,12 +240,12 @@ public static class GlobalMembersSpectrogram
 		return 0.0;
 	}
 
-	public static double calc_intensity(double val, AxisScale intensity_axis)
+	public static double CalcIntensity(double val, AxisScale intensity_axis)
 	{
 		Debug.Assert(val >= 0 && val <= 1);
 		switch (intensity_axis) {
 			case AxisScale.SCALE_LOGARITHMIC:
-				return GlobalMembersSpectrogram.log10scale(val);
+				return SpectrogramUtils.Log10Scale(val);
 			case AxisScale.SCALE_LINEAR:
 				return val;
 			default:
@@ -255,12 +255,12 @@ public static class GlobalMembersSpectrogram
 		return 0.0;
 	}
 
-	public static double calc_intensity_inv(double val, AxisScale intensity_axis)
+	public static double CalcIntensityInv(double val, AxisScale intensity_axis)
 	{
 		Debug.Assert(val >= 0 && val <= 1);
 		switch (intensity_axis) {
 			case AxisScale.SCALE_LOGARITHMIC:
-				return GlobalMembersSpectrogram.log10scale_inv(val);
+				return SpectrogramUtils.Log10ScaleInverse(val);
 			case AxisScale.SCALE_LINEAR:
 				return val;
 			default:
@@ -271,7 +271,7 @@ public static class GlobalMembersSpectrogram
 	}
 
 	// to <0,1> (cutoff negative)
-	public static void normalize_image_cutoff_negative(ref List<double[]> data)
+	public static void NormalizeImageCutoffNegative(ref List<double[]> data)
 	{
 		// Find maximum number when all numbers are made positive.
 		double max = data.Max((b) => b.Max((v) => Math.Abs(v)));
@@ -285,7 +285,7 @@ public static class GlobalMembersSpectrogram
 	}
 
 	// to <-1,1>
-	public static void normalize_signal(ref double[] data)
+	public static void NormalizeSignal(ref double[] data)
 	{
 		// Find maximum number when all numbers are made positive.
 		double max = data.Max((b) => Math.Abs(b));
@@ -299,12 +299,12 @@ public static class GlobalMembersSpectrogram
 	}
 
 	// random number from <0,1>
-	public static double random_double()
+	public static double RandomDouble()
 	{
 		return RandomNumbers.NextNumber();
 	}
 
-	public static double brightness_correction(double intensity, BrightCorrection correction)
+	public static double BrightnessCorrection(double intensity, BrightCorrection correction)
 	{
 		switch (correction) {
 			case BrightCorrection.BRIGHT_NONE:
@@ -317,14 +317,14 @@ public static class GlobalMembersSpectrogram
 		return 0.0;
 	}
 
-	public static Complex[] get_pink_noise(int size)
+	public static Complex[] GetPinkNoise(int size)
 	{
-		Complex[] res = new Complex[size];
+		var res = new Complex[size];
 		for (int i = 0; i < (size+1)/2; ++i)
 		{
 			double mag = Math.Pow((double) i, -0.5f);
-			double phase = (2 *GlobalMembersSpectrogram.random_double()-1) * Math.PI; //+-pi random phase
-			Complex complex = new Complex(mag * Math.Cos(phase), mag * Math.Sin(phase));
+			double phase = (2 *SpectrogramUtils.RandomDouble()-1) * Math.PI; //+-pi random phase
+			var complex = new Complex(mag * Math.Cos(phase), mag * Math.Sin(phase));
 			res[i] = complex;
 		}
 		return res;
@@ -362,7 +362,7 @@ public class Spectrogram
 	{
 		Console.Out.WriteLine("Transforming input");
 		
-		Complex[] spectrum = GlobalMembersSpectrogram.padded_FFT(signal);
+		Complex[] spectrum = SpectrogramUtils.PaddedFFT(signal);
 
 		//const size_t width = (spectrum.size()-1)*2*pixpersec/samplerate;
 		double w1 = spectrum.Length - 1;
@@ -375,8 +375,8 @@ public class Spectrogram
 		double filterscale = ((double)spectrum.Length*2) / samplerate;
 		Console.Out.WriteLine("filterscale: {0}", filterscale);
 
-		Filterbank filterbank = Filterbank.get_filterbank(frequency_axis, filterscale, basefreq, bandwidth, overlap);
-		int bands = (int) filterbank.num_bands_est(maxfreq);
+		Filterbank filterbank = Filterbank.GetFilterbank(frequency_axis, filterscale, basefreq, bandwidth, overlap);
+		int bands = (int) filterbank.NumBandsEst(maxfreq);
 		int top_index = (int) (maxfreq * filterscale);
 		
 		// maxfreq has to be at most nyquist
@@ -389,7 +389,7 @@ public class Spectrogram
 			band_progress(bandidx, bands);
 
 			// filtering
-			Pair<int,int> range = filterbank.get_band(bandidx);
+			Pair<int,int> range = filterbank.GetBand(bandidx);
 			
 			Console.Out.WriteLine("-----");
 			Console.Out.WriteLine("spectrum size: {0}", spectrum.Length);
@@ -425,12 +425,12 @@ public class Spectrogram
 			apply_window(ref filterband, range.First, filterscale);
 
 			// envelope detection + resampling
-			double[] envelope = GlobalMembersSpectrogram.resample(GlobalMembersSpectrogram.get_envelope(ref filterband), width);
+			double[] envelope = SpectrogramUtils.Resample(SpectrogramUtils.GetEnvelope(ref filterband), width);
 			
 			image_data.Add(envelope);
 		}
 
-		GlobalMembersSpectrogram.normalize_image_cutoff_negative(ref image_data);
+		SpectrogramUtils.NormalizeImageCutoffNegative(ref image_data);
 
 		return make_image(image_data);
 	}
@@ -455,9 +455,9 @@ public class Spectrogram
 			Debug.Assert(data[y].Length == width);
 			
 			for (int x = 0; x < width; ++x) {
-				double intensity = GlobalMembersSpectrogram.calc_intensity(data[y][x], intensity_axis);
-				intensity = GlobalMembersSpectrogram.brightness_correction(intensity, correction);
-				@out.SetPixel(x, (int)(height-1-y), palette.get_color(intensity));
+				double intensity = SpectrogramUtils.CalcIntensity(data[y][x], intensity_axis);
+				intensity = SpectrogramUtils.BrightnessCorrection(intensity, correction);
+				@out.SetPixel(x, (int)(height-1-y), palette.GetColor(intensity));
 			}
 		}
 		
@@ -470,15 +470,15 @@ public class Spectrogram
 		int highidx = lowidx + chunk.Length;
 		if (frequency_axis == AxisScale.SCALE_LINEAR) {
 			for (int i = 0; i < chunk.Length; ++i) {
-				chunk[i] *= GlobalMembersSpectrogram.window_coef((double)i/(chunk.Length-1), window);
+				chunk[i] *= SpectrogramUtils.WindowCoef((double)i/(chunk.Length-1), window);
 			}
 		} else {
-			double rloglow = GlobalMembersSpectrogram.freq2cent(lowidx/filterscale); // after rounding
-			double rloghigh = GlobalMembersSpectrogram.freq2cent((highidx-1)/filterscale);
+			double rloglow = SpectrogramUtils.Freq2Cent(lowidx/filterscale); // after rounding
+			double rloghigh = SpectrogramUtils.Freq2Cent((highidx-1)/filterscale);
 			for (int i = 0; i < chunk.Length; ++i) {
-				double logidx = GlobalMembersSpectrogram.freq2cent((lowidx+i)/filterscale);
+				double logidx = SpectrogramUtils.Freq2Cent((lowidx+i)/filterscale);
 				double winidx = (logidx - rloglow)/(rloghigh - rloglow);
-				chunk[i] *= GlobalMembersSpectrogram.window_coef(winidx, window);
+				chunk[i] *= SpectrogramUtils.WindowCoef(winidx, window);
 			}
 		}
 	}
@@ -502,7 +502,7 @@ public class Spectrogram
 
 		double filterscale = ((double)spectrum.Length*2)/samplerate;
 
-		Filterbank filterbank = Filterbank.get_filterbank(frequency_axis, filterscale, basefreq, bandwidth, overlap);
+		Filterbank filterbank = Filterbank.GetFilterbank(frequency_axis, filterscale, basefreq, bandwidth, overlap);
 
 		for (int bandidx = 0; bandidx < image.Height; ++bandidx) {
 			//if (cancelled())
@@ -512,7 +512,7 @@ public class Spectrogram
 			double[] envelope = envelope_from_spectrogram(image, bandidx);
 
 			// random phase between +-pi
-			double phase = (2 * GlobalMembersSpectrogram.random_double() - 1) * Math.PI;
+			double phase = (2 * SpectrogramUtils.RandomDouble() - 1) * Math.PI;
 
 			double[] bandsignal = new double[envelope.Length*2];
 			for (int j = 0; j < 4; ++j) {
@@ -521,7 +521,7 @@ public class Spectrogram
 					bandsignal[i] = envelope[i/2] * sine;
 			}
 			
-			Complex[] filterband = GlobalMembersSpectrogram.padded_FFT(bandsignal);
+			Complex[] filterband = SpectrogramUtils.PaddedFFT(bandsignal);
 
 			for (int i = 0; i < filterband.Length; ++i) {
 				double x = (double)i/filterband.Length;
@@ -531,9 +531,9 @@ public class Spectrogram
 			}
 
 			Console.Out.WriteLine("spectrum size: {0}", spectrum.Length);
-			//std::cout << bandidx << ". filterband size: " << filterband.Length << "; start: " << filterbank->get_band(bandidx).first <<"; end: " << filterbank->get_band(bandidx).second << "\n";
+			//std::cout << bandidx << ". filterband size: " << filterband.Length << "; start: " << filterbank->GetBand(bandidx).first <<"; end: " << filterbank->GetBand(bandidx).second << "\n";
 
-			double center = filterbank.get_center(bandidx);
+			double center = filterbank.GetCenter(bandidx);
 			double offset = Math.Max((uint)0, center - filterband.Length/2);
 			
 			Console.Out.WriteLine("offset: {0} = {1} hz", offset, offset/filterscale);
@@ -545,11 +545,11 @@ public class Spectrogram
 			}
 		}
 
-		double[] @out = GlobalMembersSpectrogram.padded_IFFT(spectrum);
+		double[] @out = SpectrogramUtils.PaddedIFFT(spectrum);
 		
 		Console.Out.WriteLine("samples: {0} -> {1}", @out.Length, samples);
 		
-		GlobalMembersSpectrogram.normalize_signal(ref @out);
+		SpectrogramUtils.NormalizeSignal(ref @out);
 		return @out;
 	}
 	
@@ -557,10 +557,10 @@ public class Spectrogram
 	{
 		int samples = (int) image.Width * samplerate/pixpersec;
 
-		Complex[] noise = GlobalMembersSpectrogram.get_pink_noise(samplerate *10); // 10 sec loop
+		Complex[] noise = SpectrogramUtils.GetPinkNoise(samplerate *10); // 10 sec loop
 
 		double filterscale = ((double)noise.Length*2)/samplerate;
-		Filterbank filterbank = Filterbank.get_filterbank(frequency_axis, filterscale, basefreq, bandwidth, overlap);
+		Filterbank filterbank = Filterbank.GetFilterbank(frequency_axis, filterscale, basefreq, bandwidth, overlap);
 
 		int top_index = (int) (maxfreq * filterscale);
 
@@ -572,7 +572,7 @@ public class Spectrogram
 			band_progress(bandidx, image.Height-1);
 
 			// filter noise
-			Pair<int,int> range = filterbank.get_band(bandidx);
+			Pair<int,int> range = filterbank.GetBand(bandidx);
 			//std::cout << bandidx << "/"<<image.height()<<"\n";
 			Console.Out.WriteLine("(noise) sample: {0}", range.Second-range.First);
 
@@ -580,17 +580,17 @@ public class Spectrogram
 			//std.copy(noise.begin()+range.first, noise.begin()+Math.Min(range.second, top_index), filtered_noise.begin()+range.first);
 			
 			// ifft noise
-			double[] noise_mod = GlobalMembersSpectrogram.padded_IFFT(filtered_noise);
+			double[] noise_mod = SpectrogramUtils.PaddedIFFT(filtered_noise);
 			
 			// resample spectrogram band
-			double[] envelope = GlobalMembersSpectrogram.resample(envelope_from_spectrogram(image, bandidx), samples);
+			double[] envelope = SpectrogramUtils.Resample(envelope_from_spectrogram(image, bandidx), samples);
 			
 			// modulate with looped noise
 			for (uint i = 0; i < samples; ++i)
 				@out[i] += envelope[i] * noise_mod[i % noise_mod.Length];
 		}
 		
-		GlobalMembersSpectrogram.normalize_signal(ref @out);
+		SpectrogramUtils.NormalizeSignal(ref @out);
 		return @out;
 	}
 	
@@ -603,8 +603,8 @@ public class Spectrogram
 	{
 		double[] envelope = new double[image.Width];
 		for (int x = 0; x < image.Width; ++x)
-			envelope[x] = GlobalMembersSpectrogram.calc_intensity_inv(
-				palette.get_intensity(image.GetPixel(x, image.Height-row-1)), intensity_axis);
+			envelope[x] = SpectrogramUtils.CalcIntensityInv(
+				palette.GetIntensity(image.GetPixel(x, image.Height-row-1)), intensity_axis);
 		return envelope;
 	}
 	
@@ -658,7 +658,7 @@ public class Palette
 			colors_.Add(Color.FromArgb(i, i, i));
 	}
 	
-	public Color get_color(double val)
+	public Color GetColor(double val)
 	{
 		Debug.Assert(val >= 0 && val <= 1);
 
@@ -666,12 +666,12 @@ public class Palette
 		return colors_[(int) ((colors_.Count-1) * val)];
 	}
 	
-	public bool has_color(Color color)
+	public bool HasColor(Color color)
 	{
 		return colors_.IndexOf(color) != -1;
 	}
 	
-	public double get_intensity(Color color)
+	public double GetIntensity(Color color)
 	{
 		int index = colors_.IndexOf(color);
 		if (index == -1) // shouldn't happen
@@ -679,23 +679,24 @@ public class Palette
 		return (double) index / (colors_.Count - 1);
 	}
 	
-	public Bitmap makeCanvas(int width, int height)
+	public Bitmap MakeCanvas(int width, int height)
 	{
-		Bitmap @out = new Bitmap( width, height, PixelFormat.Format32bppArgb );
+		var @out = new Bitmap( width, height, PixelFormat.Format32bppArgb );
 		Graphics g = Graphics.FromImage(@out);
 		g.FillRectangle(new SolidBrush(colors_[0]), 0, 0, width, height);
 		return @out;
 	}
 	
-	public int numColors()
+	public int NumColors()
 	{
 		return colors_.Count;
 	}
 }
 
+#region Filterbank
 public class Filterbank
 {
-	public static Filterbank get_filterbank(AxisScale type, double scale, double @base, double bandwidth, double overlap)
+	public static Filterbank GetFilterbank(AxisScale type, double scale, double @base, double bandwidth, double overlap)
 	{
 		Filterbank filterbank;
 		if (type == AxisScale.SCALE_LINEAR) {
@@ -706,11 +707,11 @@ public class Filterbank
 		return filterbank;
 	}
 	
-	public virtual double num_bands_est(double maxfreq) { return 0; }
+	public virtual double NumBandsEst(double maxfreq) { return 0; }
 	
-	public virtual double get_center(int i) { return 0; }
+	public virtual double GetCenter(int i) { return 0; }
 	
-	public virtual Pair<int,int> get_band(int i) { return null; }
+	public virtual Pair<int,int> GetBand(int i) { return null; }
 }
 
 public class LinearFilterbank : Filterbank
@@ -733,20 +734,20 @@ public class LinearFilterbank : Filterbank
 		Debug.Assert(step_ > 0);
 	}
 	
-	public override double num_bands_est(double maxfreq)
+	public override double NumBandsEst(double maxfreq)
 	{
 		return (maxfreq *scale_-startidx_) / step_;
 	}
 	
-	public override Pair<int,int> get_band(int i)
+	public override Pair<int,int> GetBand(int i)
 	{
-		Pair<int,int> @out = new Pair<int,int>();
+		var @out = new Pair<int,int>();
 		@out.First = (int) (startidx_ + i * step_);
 		@out.Second = (int) (@out.First + bandwidth_);
 		return @out;
 	}
 	
-	public override double get_center(int i)
+	public override double GetCenter(int i)
 	{
 		return startidx_ + i *step_ + bandwidth_ / 2.0;
 	}
@@ -754,7 +755,6 @@ public class LinearFilterbank : Filterbank
 
 public class LogFilterbank : Filterbank
 {
-
 	private double scale_;
 	private double centsperband_;
 	private double logstart_;
@@ -764,7 +764,7 @@ public class LogFilterbank : Filterbank
 	{
 		scale_ = scale;
 		centsperband_ = centsperband;
-		logstart_ = GlobalMembersSpectrogram.freq2cent(@base);
+		logstart_ = SpectrogramUtils.Freq2Cent(@base);
 		logstep_ = (1-overlap)*centsperband_;
 
 		Console.Out.WriteLine("centsperband_: {0}", centsperband_);
@@ -772,28 +772,29 @@ public class LogFilterbank : Filterbank
 		Debug.Assert(logstep_ > 0);
 	}
 	
-	public override double num_bands_est(double maxfreq)
+	public override double NumBandsEst(double maxfreq)
 	{
-		return (GlobalMembersSpectrogram.freq2cent(maxfreq)-logstart_) / logstep_ + 4;
+		return (SpectrogramUtils.Freq2Cent(maxfreq)-logstart_) / logstep_ + 4;
 	}
 	
-	public override double get_center(int i)
+	public override double GetCenter(int i)
 	{
 		double logcenter = logstart_ + i * logstep_;
-		return GlobalMembersSpectrogram.cent2freq(logcenter) * scale_;
+		return SpectrogramUtils.Cent2Freq(logcenter) * scale_;
 	}
 	
-	public override Pair<int,int> get_band(int i)
+	public override Pair<int,int> GetBand(int i)
 	{
 		double logcenter = logstart_ + i * logstep_;
 		double loglow = logcenter - centsperband_/ 2.0;
 		double loghigh = loglow + centsperband_;
-		Pair<int,int> @out = new Pair<int,int>();
-		@out.First = (int) (GlobalMembersSpectrogram.cent2freq(loglow) * scale_);
-		@out.Second = (int) (GlobalMembersSpectrogram.cent2freq(loghigh) * scale_);
+		var @out = new Pair<int,int>();
+		@out.First = (int) (SpectrogramUtils.Cent2Freq(loglow) * scale_);
+		@out.Second = (int) (SpectrogramUtils.Cent2Freq(loghigh) * scale_);
 		
-		Console.Out.WriteLine("centerfreq: {0}", GlobalMembersSpectrogram.cent2freq(logcenter));
-		Console.Out.WriteLine("lowfreq: {0}, highfreq: {1}", GlobalMembersSpectrogram.cent2freq(loglow), GlobalMembersSpectrogram.cent2freq(loghigh));
+		Console.Out.WriteLine("centerfreq: {0}", SpectrogramUtils.Cent2Freq(logcenter));
+		Console.Out.WriteLine("lowfreq: {0}, highfreq: {1}", SpectrogramUtils.Cent2Freq(loglow), SpectrogramUtils.Cent2Freq(loghigh));
 		return @out;
 	}
 }
+#endregion

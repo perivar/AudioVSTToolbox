@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using CommonUtils;
 
-public static class GlobalMembersImageIO
+public static class ImageIO
 {
 	public static double[][] BMPRead(BinaryFile bmpfile, ref int y, ref int x)
 	{
@@ -18,28 +18,28 @@ public static class GlobalMembersImageIO
 		Console.Write("BMPRead...\n");
 		#endif
 
-		if (GlobalMembersUtil.ReadUInt16(bmpfile) != 19778) // "BM" format tag check
+		if (Util.ReadUInt16(bmpfile) != 19778) // "BM" format tag check
 		{
 			Console.Error.WriteLine("This file is not in BMP format\n");
-			GlobalMembersUtil.WinReturn();
+			Util.ReadUserReturn();
 			Environment.Exit(1);
 		}
 
 		bmpfile.Seek(8, SeekOrigin.Current); // skipping useless tags
 		
-		offset = (int) GlobalMembersUtil.ReadUInt32(bmpfile) - 54; // header offset
+		offset = (int) Util.ReadUInt32(bmpfile) - 54; // header offset
 		
 		bmpfile.Seek(4, SeekOrigin.Current); // skipping useless tags
 		
-		x = (int) GlobalMembersUtil.ReadUInt32(bmpfile);
-		y = (int) GlobalMembersUtil.ReadUInt32(bmpfile);
+		x = (int) Util.ReadUInt32(bmpfile);
+		y = (int) Util.ReadUInt32(bmpfile);
 		
 		bmpfile.Seek(2, SeekOrigin.Current); // skipping useless tags
 
-		if (GlobalMembersUtil.ReadUInt16(bmpfile) != 24) // Only format supported
+		if (Util.ReadUInt16(bmpfile) != 24) // Only format supported
 		{
 			Console.Error.WriteLine("Wrong BMP format, BMP images must be in 24-bit colour\n");
-			GlobalMembersUtil.WinReturn();
+			Util.ReadUserReturn();
 			Environment.Exit(1);
 		}
 
@@ -98,21 +98,21 @@ public static class GlobalMembersImageIO
 		filesize = 56 + ((x *3)+zerobytes) * y;
 		imagesize = 2 + ((x *3)+zerobytes) * y;
 
-		GlobalMembersUtil.WriteUInt16(19778, bmpfile);
-		GlobalMembersUtil.WriteUInt32((UInt32)filesize, bmpfile);
-		GlobalMembersUtil.WriteUInt32(0, bmpfile);
-		GlobalMembersUtil.WriteUInt32(54, bmpfile);
-		GlobalMembersUtil.WriteUInt32(40, bmpfile);
-		GlobalMembersUtil.WriteUInt32((UInt32)x, bmpfile);
-		GlobalMembersUtil.WriteUInt32((UInt32)y, bmpfile);
-		GlobalMembersUtil.WriteUInt16(1, bmpfile);
-		GlobalMembersUtil.WriteUInt32(24, bmpfile);
-		GlobalMembersUtil.WriteUInt16(0, bmpfile);
-		GlobalMembersUtil.WriteUInt32((UInt32)imagesize, bmpfile);
-		GlobalMembersUtil.WriteUInt32(2834, bmpfile);
-		GlobalMembersUtil.WriteUInt32(2834, bmpfile);
-		GlobalMembersUtil.WriteUInt32(0, bmpfile);
-		GlobalMembersUtil.WriteUInt32(0, bmpfile);
+		Util.WriteUInt16(19778, bmpfile);
+		Util.WriteUInt32((uint)filesize, bmpfile);
+		Util.WriteUInt32(0, bmpfile);
+		Util.WriteUInt32(54, bmpfile);
+		Util.WriteUInt32(40, bmpfile);
+		Util.WriteUInt32((uint)x, bmpfile);
+		Util.WriteUInt32((uint)y, bmpfile);
+		Util.WriteUInt16(1, bmpfile);
+		Util.WriteUInt32(24, bmpfile);
+		Util.WriteUInt16(0, bmpfile);
+		Util.WriteUInt32((uint)imagesize, bmpfile);
+		Util.WriteUInt32(2834, bmpfile);
+		Util.WriteUInt32(2834, bmpfile);
+		Util.WriteUInt32(0, bmpfile);
+		Util.WriteUInt32(0, bmpfile);
 		//--------Tags--------
 
 		for (iy = y-1; iy!=-1; iy--) { // backwards writing
@@ -142,7 +142,7 @@ public static class GlobalMembersImageIO
 			}
 		}
 
-		GlobalMembersUtil.WriteUInt16(0, bmpfile);
+		Util.WriteUInt16(0, bmpfile);
 
 		bmpfile.Close();
 

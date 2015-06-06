@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 using CommonUtils;
 
-public static class GlobalMembersArss
+public static class Arss
 {
 	/* The Analysis & Resynthesis Sound Spectrograph
 	Copyright (C) 2005-2008 Michel Rouzic
@@ -85,7 +85,7 @@ public static class GlobalMembersArss
 
 		if (samplerate == 0) // if we're in synthesis mode and that no samplerate has been defined yet
 		{
-			if (GlobalMembersUtil.quiet)
+			if (Util.quiet)
 			{
 				Console.Error.WriteLine("Please provide a sample rate for your output sound.\nUse --sample-rate (-r).\nExiting with error.\n");
 				Environment.Exit(1);
@@ -93,7 +93,7 @@ public static class GlobalMembersArss
 			//********Output settings querying********
 
 			Console.Write("Sample rate [44100] : "); // Query for a samplerate
-			samplerate = (int) GlobalMembersUtil.GetFloat();
+			samplerate = (int) Util.ReadUserInputFloat();
 			if (samplerate == 0 || samplerate<-2147483647) // The -2147483647 check is used for the sake of compatibility with C90
 				samplerate = 44100; // Default value
 			//--------Output settings querying--------
@@ -172,13 +172,13 @@ public static class GlobalMembersArss
 
 		if (unset<3 && set_min == 0)
 		{
-			if (GlobalMembersUtil.quiet)
+			if (Util.quiet)
 			{
 				Console.Error.WriteLine("Please define a minimum frequency.\nUse --min-freq (-min).\nExiting with error.\n");
 				Environment.Exit(1);
 			}
 			Console.Write("Min. frequency (Hz) [{0:f3}]: ", basefreq);
-			gf = GlobalMembersUtil.GetFloat();
+			gf = Util.ReadUserInputFloat();
 			if (gf != 0)
 				basefreq = gf;
 			unset++;
@@ -188,13 +188,13 @@ public static class GlobalMembersArss
 
 		if (unset<3 && set_bpo == 0)
 		{
-			if (GlobalMembersUtil.quiet)
+			if (Util.quiet)
 			{
 				Console.Error.WriteLine("Please define a bands per octave setting.\nUse --bpo (-b).\nExiting with error.\n");
 				Environment.Exit(1);
 			}
 			Console.Write("Bands per octave [{0:f3}]: ", bandsperoctave);
-			gf = GlobalMembersUtil.GetFloat();
+			gf = Util.ReadUserInputFloat();
 			if (gf != 0)
 				bandsperoctave = gf;
 			unset++;
@@ -207,35 +207,35 @@ public static class GlobalMembersArss
 			do
 			{
 				i++;
-				f = basefreq * Math.Pow(GlobalMembersDsp.LOGBASE, (i / bandsperoctave));
+				f = basefreq * Math.Pow(DSP.LOGBASE, (i / bandsperoctave));
 			}
 			while (f<0.5);
 			
-			ma = basefreq * Math.Pow(GlobalMembersDsp.LOGBASE, ((i-2) / bandsperoctave)) * samplerate; // max allowed frequency
+			ma = basefreq * Math.Pow(DSP.LOGBASE, ((i-2) / bandsperoctave)) * samplerate; // max allowed frequency
 
 			if (maxfreq > ma)
-				if (GlobalMembersUtil.FMod(ma, 1.0) == 0.0)
+				if (Util.FMod(ma, 1.0) == 0.0)
 					maxfreq = ma; // replaces the "Upper frequency limit above Nyquist frequency" warning
 				else
-					maxfreq = ma - GlobalMembersUtil.FMod(ma, 1.0);
+					maxfreq = ma - Util.FMod(ma, 1.0);
 
 			if (mode == 0) // if we're in Analysis mode
 			{
-				if (GlobalMembersUtil.quiet)
+				if (Util.quiet)
 				{
 					Console.Error.WriteLine("Please define a maximum frequency.\nUse --max-freq (-max).\nExiting with error.\n");
 					Environment.Exit(1);
 				}
 				Console.Write("Max. frequency (Hz) (up to {0:f3}) [{1:f3}]: ", ma, maxfreq);
-				gf = GlobalMembersUtil.GetFloat();
+				gf = Util.ReadUserInputFloat();
 				if (gf != 0)
 					maxfreq = gf;
 
 				if (maxfreq > ma)
-					if (GlobalMembersUtil.FMod(ma, 1.0) == 0.0)
+					if (Util.FMod(ma, 1.0) == 0.0)
 						maxfreq = ma; // replaces the "Upper frequency limit above Nyquist frequency" warning
 					else
-						maxfreq = ma - GlobalMembersUtil.FMod(ma, 1.0);
+						maxfreq = ma - Util.FMod(ma, 1.0);
 			}
 
 			unset++;
@@ -244,29 +244,29 @@ public static class GlobalMembersArss
 
 		if (set_min == 0)
 		{
-			basefreq = Math.Pow(GlobalMembersDsp.LOGBASE, (bands-1) / bandsperoctave) * maxfreq; // calculate the lower frequency in Hz
+			basefreq = Math.Pow(DSP.LOGBASE, (bands-1) / bandsperoctave) * maxfreq; // calculate the lower frequency in Hz
 			Console.Write("Min. frequency : {0:f3} Hz\n", basefreq);
 			basefreq /= samplerate;
 		}
 
 		if (set_max == 0)
 		{
-			maxfreq = Math.Pow(GlobalMembersDsp.LOGBASE, (bands-1) / bandsperoctave) * (basefreq * samplerate); // calculate the upper frequency in Hz
+			maxfreq = Math.Pow(DSP.LOGBASE, (bands-1) / bandsperoctave) * (basefreq * samplerate); // calculate the upper frequency in Hz
 			Console.Write("Max. frequency : {0:f3} Hz\n", maxfreq);
 		}
 
 		if (set_y == 0)
 		{
-			bands = 1 + (int) GlobalMembersUtil.RoundOff(bandsperoctave * (GlobalMembersUtil.Log(maxfreq) - GlobalMembersUtil.Log(basefreq * samplerate)));
+			bands = 1 + (int) Util.RoundOff(bandsperoctave * (Util.Log(maxfreq) - Util.Log(basefreq * samplerate)));
 			Console.Write("Bands : {0:D}\n", bands);
 		}
 
 		if (set_bpo == 0)
 		{
-			if (GlobalMembersDsp.LOGBASE == 1.0)
+			if (DSP.LOGBASE == 1.0)
 				bandsperoctave = maxfreq / samplerate;
 			else
-				bandsperoctave = (bands-1) / (GlobalMembersUtil.Log(maxfreq) - GlobalMembersUtil.Log(basefreq * samplerate));
+				bandsperoctave = (bands-1) / (Util.Log(maxfreq) - Util.Log(basefreq * samplerate));
 			Console.Write("Bands per octave : {0:f3}\n", bandsperoctave);
 		}
 
@@ -278,13 +278,13 @@ public static class GlobalMembersArss
 
 		if ((mode == 0 && set_x == 0 && set_pps == 0) || (mode == 1 && set_pps == 0)) // If in Analysis mode none are set or pixpersec isn't set in Synthesis mode
 		{
-			if (GlobalMembersUtil.quiet)
+			if (Util.quiet)
 			{
 				Console.Error.WriteLine("Please define a pixels per second setting.\nUse --pps (-p).\nExiting with error.\n");
 				Environment.Exit(1);
 			}
 			Console.Write("Pixels per second [{0:f3}]: ", pixpersec);
-			gf = GlobalMembersUtil.GetFloat();
+			gf = Util.ReadUserInputFloat();
 			if (gf != 0)
 				pixpersec = gf;
 		}
@@ -403,15 +403,15 @@ public static class GlobalMembersArss
 		string out_name = null;
 
 		// initialisation of global using defaults defined in dsp.h
-		GlobalMembersDsp.PI 			= PI_D;
-		GlobalMembersDsp.LOGBASE 		= LOGBASE_D;
-		GlobalMembersDsp.LOOP_SIZE_SEC 	= LOOP_SIZE_SEC_D;
-		GlobalMembersDsp.BMSQ_LUT_SIZE 	= BMSQ_LUT_SIZE_D;
+		DSP.PI 			= PI_D;
+		DSP.LOGBASE 		= LOGBASE_D;
+		DSP.LOOP_SIZE_SEC 	= LOOP_SIZE_SEC_D;
+		DSP.BMSQ_LUT_SIZE 	= BMSQ_LUT_SIZE_D;
 		
 		#if QUIET
 		GlobalMembersUtil.quiet = true;
 		#else
-		GlobalMembersUtil.quiet = false;
+		Util.quiet = false;
 		#endif
 
 		Console.Write("The Analysis & Resynthesis Sound Spectrograph {0}\n", version);
@@ -451,10 +451,10 @@ public static class GlobalMembersArss
 					mode = 3;
 
 				if (string.Compare(args[i], "--quiet")==0 || string.Compare(args[i], "-q")==0)
-					GlobalMembersUtil.quiet = true;
+					Util.quiet = true;
 
 				if (string.Compare(args[i], "--linear")==0 || string.Compare(args[i], "-l")==0)
-					GlobalMembersDsp.LOGBASE = 1.0;
+					DSP.LOGBASE = 1.0;
 
 				if (string.Compare(args[i], "--sample-rate")==0 || string.Compare(args[i], "-r")==0)
 					if (StringUtils.IsNumeric(args[++i]))
@@ -525,7 +525,7 @@ public static class GlobalMembersArss
 
 				if (string.Compare(args[i], "--loop-size")==0)
 					if (StringUtils.IsNumeric(args[++i]))
-						GlobalMembersDsp.LOOP_SIZE_SEC = Convert.ToInt32(args[i]);
+						DSP.LOOP_SIZE_SEC = Convert.ToInt32(args[i]);
 					else
 				{
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
@@ -534,7 +534,7 @@ public static class GlobalMembersArss
 
 				if (string.Compare(args[i], "--log-base")==0)
 					if (StringUtils.IsNumeric(args[++i]))
-						GlobalMembersDsp.LOGBASE = Convert.ToDouble(args[i]);
+						DSP.LOGBASE = Convert.ToDouble(args[i]);
 					else
 				{
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
@@ -543,7 +543,7 @@ public static class GlobalMembersArss
 
 				if (string.Compare(args[i], "--bmsq-lut-size")==0)
 					if (StringUtils.IsNumeric(args[++i]))
-						GlobalMembersDsp.BMSQ_LUT_SIZE = Convert.ToInt32(args[i]);
+						DSP.BMSQ_LUT_SIZE = Convert.ToInt32(args[i]);
 					else
 				{
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
@@ -552,7 +552,7 @@ public static class GlobalMembersArss
 
 				if (string.Compare(args[i], "--pi")==0) // lol
 					if (StringUtils.IsNumeric(args[++i]))
-						GlobalMembersDsp.PI = Convert.ToDouble(args[i]);
+						DSP.PI = Convert.ToDouble(args[i]);
 					else
 				{
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
@@ -587,13 +587,13 @@ public static class GlobalMembersArss
 
 				if (doHelp || string.Compare(args[i], "--help")==0 || string.Compare(args[i], "-h")==0)
 				{
-					GlobalMembersArss.PrintHelp();
+					Arss.PrintHelp();
 					Environment.Exit(0);
 				}
 
 				if (string.Compare(args[i], "--adv-help")==0)
 				{
-					GlobalMembersArss.PrintAdvancedHelp();
+					Arss.PrintAdvancedHelp();
 					Environment.Exit(0);
 				}
 			}
@@ -611,7 +611,7 @@ public static class GlobalMembersArss
 		}
 		else
 		{
-			if (GlobalMembersUtil.quiet)
+			if (Util.quiet)
 			{
 				Console.Error.WriteLine("Please specify an input file.\nExiting with error.\n");
 				Environment.Exit(1);
@@ -623,12 +623,12 @@ public static class GlobalMembersArss
 			{
 				fin = null;
 				Console.Write("Input file : ");
-				in_name = GlobalMembersUtil.GetString();
+				in_name = Util.ReadUserInputString();
 
 				if (string.Compare(in_name, "help") == 0) // if 'help' has been typed
 				{
 					fin = null;
-					GlobalMembersArss.PrintHelp(); // print the help
+					Arss.PrintHelp(); // print the help
 				}
 				else {
 					if (File.Exists(in_name)) {
@@ -651,13 +651,13 @@ public static class GlobalMembersArss
 		}
 		else
 		{
-			if (GlobalMembersUtil.quiet)
+			if (Util.quiet)
 			{
 				Console.Error.WriteLine("Please specify an output file.\nExiting with error.\n");
 				Environment.Exit(1);
 			}
 			Console.Write("Output file : ");
-			out_name = GlobalMembersUtil.GetString();
+			out_name = Util.ReadUserInputString();
 
 			fout = null;
 			if (out_name != null && out_name != "") fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
@@ -665,7 +665,7 @@ public static class GlobalMembersArss
 			while (fout == null)
 			{
 				Console.Write("Output file : ");
-				out_name = GlobalMembersUtil.GetString();
+				out_name = Util.ReadUserInputString();
 
 				if (out_name != null && out_name != "") fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
 			}
@@ -688,13 +688,13 @@ public static class GlobalMembersArss
 
 		if (mode == 0) {
 			do {
-				if (GlobalMembersUtil.quiet)
+				if (Util.quiet)
 				{
 					Console.Error.WriteLine("Please specify an operation mode.\nUse either --analysis (-a), --sine (-s) or --noise (-n).\nExiting with error.\n");
 					Environment.Exit(1);
 				}
 				Console.Write("Choose the mode (Press 1, 2 or 3) :\n\t1. Analysis\n\t2. Sine synthesis\n\t3. Noise synthesis\n> ");
-				mode = (byte) GlobalMembersUtil.GetFloat();
+				mode = (byte) Util.ReadUserInputFloat();
 			}
 			while (mode!=1 && mode!=2 && mode!=3);
 		}
@@ -703,54 +703,54 @@ public static class GlobalMembersArss
 		if (mode == 1) {
 			//sound = GlobalMembersSound_io.wav_in(fin, ref channels, ref samplecount, ref samplerate); // Sound input
 			fin.Close();
-			sound = GlobalMembersSoundIO.ReadWaveFile(in_name, ref channels, ref samplecount, ref samplerate); // Sound input
+			sound = SoundIO.ReadWaveFile(in_name, ref channels, ref samplecount, ref samplerate); // Sound input
 
 			#if DEBUG
 			Console.Write("samplecount : {0:D}\nchannels : {1:D}\n", samplecount, channels);
 			#endif
 
-			GlobalMembersArss.SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 0); // User settings input
-			image = GlobalMembersDsp.Analyze(ref sound[0], ref samplecount, ref samplerate, ref Xsize, ref Ysize, ref bpo, ref pixpersec, ref basefreq); // Analysis
+			Arss.SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 0); // User settings input
+			image = DSP.Analyze(ref sound[0], ref samplecount, ref samplerate, ref Xsize, ref Ysize, ref bpo, ref pixpersec, ref basefreq); // Analysis
 			if (brightness != 1.0) {
-				GlobalMembersDsp.BrightnessControl(ref image, ref Ysize, ref Xsize, 1.0/brightness);
+				DSP.BrightnessControl(ref image, ref Ysize, ref Xsize, 1.0/brightness);
 			}
 			
-			GlobalMembersImageIO.BMPWrite(fout, image, Ysize, Xsize); // Image output
+			ImageIO.BMPWrite(fout, image, Ysize, Xsize); // Image output
 		}
 		
 		if (mode == 2 || mode == 3) {
 			sound = new double[1][];
 			
-			image = GlobalMembersImageIO.BMPRead(fin, ref Ysize, ref Xsize); // Image input
+			image = ImageIO.BMPRead(fin, ref Ysize, ref Xsize); // Image input
 
 			// if the output format parameter is undefined
 			if (format_param == 0) {
-				if (!GlobalMembersUtil.quiet) { // if prompting is allowed
-					format_param = GlobalMembersSoundIO.GetWaveOutParameters();
+				if (!Util.quiet) { // if prompting is allowed
+					format_param = SoundIO.GetWaveOutParameters();
 				} else {
 					format_param = 32; // default is 32
 				}
 			}
 
-			GlobalMembersArss.SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 1); // User settings input
+			Arss.SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 1); // User settings input
 
 			if (brightness!=1.0)
-				GlobalMembersDsp.BrightnessControl(ref image, ref Ysize, ref Xsize, brightness);
+				DSP.BrightnessControl(ref image, ref Ysize, ref Xsize, brightness);
 
 			if (mode == 2) {
-				sound[0] = GlobalMembersDsp.SynthesizeSine(ref image, ref Xsize, ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref pixpersec, ref bpo); // Sine synthesis
+				sound[0] = DSP.SynthesizeSine(ref image, ref Xsize, ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref pixpersec, ref bpo); // Sine synthesis
 			} else {
-				sound[0] = GlobalMembersDsp.SynthesizeNoise(ref image, ref Xsize, ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref pixpersec, ref bpo); // Noise synthesis
+				sound[0] = DSP.SynthesizeNoise(ref image, ref Xsize, ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref pixpersec, ref bpo); // Noise synthesis
 			}
 
-			GlobalMembersSoundIO.WriteWaveFile(fout, sound, 1, samplecount, samplerate, format_param);
+			SoundIO.WriteWaveFile(fout, sound, 1, samplecount, samplerate, format_param);
 		}
 
-		clockb = GlobalMembersUtil.GetTime();
-		TimeSpan duration = TimeSpan.FromTicks((clockb-GlobalMembersDsp.clockA));
+		clockb = Util.GetTime();
+		TimeSpan duration = TimeSpan.FromTicks((clockb-DSP.clockA));
 		Console.Write("Processing time : {0:D2} m  {1:D2} s  {1:D2} ms\n", duration.Minutes, duration.Seconds, duration.Milliseconds);
 
-		GlobalMembersUtil.WinReturn();
+		Util.ReadUserReturn();
 
 	}
 }

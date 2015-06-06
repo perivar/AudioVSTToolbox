@@ -13,6 +13,7 @@ internal static class RandomNumbers
 {
 	private static System.Random r;
 
+	// random number from <0,1>
 	internal static int NextNumber()
 	{
 		if (r == null)

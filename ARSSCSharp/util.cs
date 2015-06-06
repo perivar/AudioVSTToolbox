@@ -1,11 +1,11 @@
 using System;
 using CommonUtils;
 
-public static class GlobalMembersUtil
+public static class Util
 {
 	public static bool quiet = false;
 
-	public static void WinReturn()
+	public static void ReadUserReturn()
 	{
 		if (!quiet)
 		{
@@ -42,6 +42,7 @@ public static class GlobalMembersUtil
 		return remainder;
 	}
 	
+	// nearbyint() replacement, with the exception that the result contains a non-zero fractional part
 	public static double RoundOff(double x)
 	{
 		if (x > 0)
@@ -50,16 +51,16 @@ public static class GlobalMembersUtil
 			return x - 0.5;
 	}
 	
-	public static Int32 RoundUp(double x)
+	public static int RoundUp(double x)
 	{
-		if (GlobalMembersUtil.FMod(x, 1.0) == 0) {
-			return (Int32) x;
+		if (FMod(x, 1.0) == 0) {
+			return (int) x;
 		} else {
-			return (Int32) x + 1;
+			return (int) x + 1;
 		}
 	}
 	
-	public static float GetFloat()
+	public static float ReadUserInputFloat()
 	{
 		float x;
 		string a = new string(new char[32]);
@@ -72,12 +73,12 @@ public static class GlobalMembersUtil
 		}
 	}
 	
-	public static Int32 SmallPrimes(Int32 x)
+	// returns 1 if x is only made of these small primes
+	public static int SmallPrimes(int x)
 	{
-		Int32 i = new Int32();
-		Int32[] p = {2, 3};
+		int[] p = {2, 3};
 
-		for (i = 0; i<2; i++) {
+		for (int i = 0; i<2; i++) {
 			while (x%p[i] == 0) {
 				x/=p[i];
 			}
@@ -85,9 +86,9 @@ public static class GlobalMembersUtil
 		return x;
 	}
 	
-	public static Int32 NextPrime(Int32 x)
+	public static int NextPrime(int x)
 	{
-		while (GlobalMembersUtil.SmallPrimes(x)!=1) {
+		while (SmallPrimes(x) != 1) {
 			x++;
 		}
 
@@ -96,7 +97,7 @@ public static class GlobalMembersUtil
 	
 	public static double Log(double x)
 	{
-		if (GlobalMembersDsp.LOGBASE == 1.0) {
+		if (DSP.LOGBASE == 1.0) {
 			return x;
 		} else {
 			if (x == 0) {
@@ -105,29 +106,31 @@ public static class GlobalMembersUtil
 				#endif
 				return 0;
 			} else {
-				return Math.Log(x) / Math.Log(GlobalMembersDsp.LOGBASE);
+				return Math.Log(x) / Math.Log(DSP.LOGBASE);
 			}
 		}
 	}
 	
-	public static UInt32 Random()
+	public static uint Random()
 	{
 		return (uint) RandomNumbers.NextNumber();
 	}
 	
+	// range is +/- 1.0
+	// TODO: this looks wrong?!
 	public static double DoubleRandom()
 	{
-		return ((double) GlobalMembersUtil.Random() * (1.0 / 2147483648.0)) - 1.0;
+		return ((double) Util.Random() * (1.0 / 2147483648.0)) - 1.0;
 	}
 	
 	// read from file a 16-bit integer in little endian
-	public static UInt16 ReadUInt16(BinaryFile file)
+	public static ushort ReadUInt16(BinaryFile file)
 	{
 		return file.ReadUInt16();
 	}
 	
 	// write to file a 16-bit integer in little endian
-	public static void WriteUInt16(UInt16 s, BinaryFile file)
+	public static void WriteUInt16(ushort s, BinaryFile file)
 	{
 		file.Write(s);
 	}
@@ -139,18 +142,18 @@ public static class GlobalMembersUtil
 	}
 	
 	// read from file a 32-bit integer in little endian
-	public static UInt32 ReadUInt32(BinaryFile file)
+	public static uint ReadUInt32(BinaryFile file)
 	{
 		return file.ReadUInt32();
 	}
 	
 	// write to file a 32-bit integer in little endian
-	public static void WriteUInt32(UInt32 w, BinaryFile file)
+	public static void WriteUInt32(uint w, BinaryFile file)
 	{
 		file.Write(w);
 	}
 	
-	public static string GetString()
+	public static string ReadUserInputString()
 	{
 		return Console.ReadLine();
 	}

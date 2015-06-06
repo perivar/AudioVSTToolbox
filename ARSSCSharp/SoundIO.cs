@@ -1,7 +1,7 @@
 using System;
 using CommonUtils;
 
-public static class GlobalMembersSoundIO
+public static class SoundIO
 {
 	// compression code, 2 bytes
 	//static int WAVE_FORMAT_UNKNOWN           =  0x0000; /* Microsoft Corporation */
@@ -58,7 +58,7 @@ public static class GlobalMembersSoundIO
 		for (i = 0; i<samplecount; i++) {
 			for (ic = 0;ic<channels;ic++)
 			{
-				val = GlobalMembersUtil.RoundOff((sound[ic][i]+1.0)*128.0);
+				val = Util.RoundOff((sound[ic][i]+1.0)*128.0);
 				
 				if (val>255)
 					val = 255;
@@ -103,7 +103,7 @@ public static class GlobalMembersSoundIO
 		for (i = 0; i<samplecount; i++) {
 			for (ic = 0;ic<channels;ic++)
 			{
-				val = GlobalMembersUtil.RoundOff(sound[ic][i]*32768.0);
+				val = Util.RoundOff(sound[ic][i]*32768.0);
 				
 				if (val>32767.0)
 					val = 32767.0;
@@ -147,7 +147,7 @@ public static class GlobalMembersSoundIO
 		for (i = 0; i<samplecount; i++) {
 			for (ic = 0;ic<channels;ic++)
 			{
-				val = GlobalMembersUtil.RoundOff(sound[ic][i]*2147483648.0);
+				val = Util.RoundOff(sound[ic][i]*2147483648.0);
 				
 				if (val>2147483647.0)
 					val = 2147483647.0;
@@ -236,9 +236,9 @@ public static class GlobalMembersSoundIO
 			tag[i] = 0;
 
 			if ((i == 5) || (i == 6) || (i == 9) || (i == 10)) {
-				tag[i] = GlobalMembersUtil.ReadUInt16(wavfile);
+				tag[i] = Util.ReadUInt16(wavfile);
 			} else {
-				tag[i] = (int) GlobalMembersUtil.ReadUInt32(wavfile);
+				tag[i] = (int) Util.ReadUInt32(wavfile);
 			}
 		}
 
@@ -246,27 +246,27 @@ public static class GlobalMembersSoundIO
 		if (tag[0]!=1179011410 || tag[2]!=1163280727)
 		{
 			Console.Error.WriteLine("This file is not in WAVE format\n");
-			GlobalMembersUtil.WinReturn();
+			Util.ReadUserReturn();
 			Environment.Exit(1);
 		}
 
 		if (tag[3]!=544501094 || tag[4]!=16 || tag[11]!=1635017060) //
 		{
 			Console.Error.WriteLine("This WAVE file format is not currently supported\n");
-			GlobalMembersUtil.WinReturn();
+			Util.ReadUserReturn();
 			Environment.Exit(1);
 		}
 
 		if (tag[10]==24)
 		{
 			Console.Error.WriteLine("24 bit PCM WAVE files is not currently supported\n");
-			GlobalMembersUtil.WinReturn();
+			Util.ReadUserReturn();
 			Environment.Exit(1);
 		}
 		
 		if (tag[5] != WAVE_FORMAT_PCM) {
 			Console.Error.WriteLine("Non PCM WAVE files is not currently supported\n");
-			GlobalMembersUtil.WinReturn();
+			Util.ReadUserReturn();
 			Environment.Exit(1);
 		}
 		
@@ -332,9 +332,9 @@ public static class GlobalMembersSoundIO
 		// tag writing
 		for (i = 0; i<13; i++) {
 			if ((i == 5) || (i == 6) || (i == 9) || (i == 10)) {
-				GlobalMembersUtil.WriteUInt16((ushort)tag[i], wavfile);
+				Util.WriteUInt16((ushort)tag[i], wavfile);
 			} else {
-				GlobalMembersUtil.WriteUInt32((uint)tag[i], wavfile);
+				Util.WriteUInt32((uint)tag[i], wavfile);
 			}
 		}
 
@@ -355,7 +355,7 @@ public static class GlobalMembersSoundIO
 		do
 		{
 			Console.Write("Bits per sample (8/16/32) [16] : ");
-			bps = (int) GlobalMembersUtil.GetFloat();
+			bps = (int) Util.ReadUserInputFloat();
 			if (bps == 0) {
 				bps = 16;
 			}
