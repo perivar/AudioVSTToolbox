@@ -10,7 +10,7 @@ namespace CommonUtils
 		#region exportCSV
 		public static void ExportCSV(string filenameToSave, Array data, int length=0) {
 			
-			if (length == 0) {
+			if (length == 0 || length > data.Length) {
 				length = data.Length;
 			}
 			

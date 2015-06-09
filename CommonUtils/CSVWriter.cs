@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text;
+using System.Globalization;
 
 namespace CommonUtils
 {
@@ -66,7 +67,7 @@ namespace CommonUtils
 		}
 		
 		/// <summary>
-		///   Write the data into CSV
+		/// Write the data into CSV
 		/// </summary>
 		/// <param name = "data">Data to be written</param>
 		public void Write(object[][] data)
@@ -79,7 +80,15 @@ namespace CommonUtils
 				{
 					for (int j = 0; j < cols; j++)
 					{
-						builder.Append(data[i][j]);
+						object elem = data[i][j];
+						
+						// if the element is floating point, use 9 decimal places
+						if (elem is float || elem is double) {
+							builder.Append(string.Format(CultureInfo.InvariantCulture, "{0:0.000000000}", elem));
+						} else {
+							builder.Append(elem);
+						}
+						
 						if (j != cols - 1)
 							builder.Append(_separatorChar);
 					}

@@ -1,5 +1,5 @@
 using System;
-
+using CommonUtils;
 using fftwlib;
 
 // Papers:
@@ -400,6 +400,8 @@ public static class DSP
 
 		freq = DSP.FrequencyArray(basefreq, bands, bpo);
 
+		Export.ExportCSV(String.Format("freq.csv"), freq, 256);
+		
 		if (LOGBASE == 1.0) {
 			maxfreq = bpo; // in linear mode we use bpo to store the maxfreq since we couldn't deduce maxfreq otherwise
 		} else {
@@ -447,9 +449,9 @@ public static class DSP
 		}
 		//--------ZEROPADDING--------
 		
-		//Export.exportCSV(String.Format("samples_before_fft.csv"), s, 256);
+		Export.ExportCSV(String.Format("samples_before_fft.csv"), s, 256);
 		DSP.FFT(ref s, ref s, Mb, FFTMethod.DFT); // In-place FFT of the original zero-padded signal
-		//Export.exportCSV(String.Format("samples_after_fft.csv"), s, 256);
+		Export.ExportCSV(String.Format("samples_after_fft.csv"), s, 256);
 
 		for (ib = 0; ib<bands; ib++) {
 			//********Filtering********
@@ -507,8 +509,15 @@ public static class DSP
 			//********Envelope detection********
 			//Export.exportCSV(String.Format("test/band_{0}_rotated.csv", bands-ib-1), @out[bands-ib-1]);
 
-			DSP.FFT(ref @out[bands-ib-1], ref @out[bands-ib-1], Mc, FFTMethod.IDFT); 	// In-place IFFT of the filtered band signal
-			DSP.FFT(ref h, ref h, Mc, FFTMethod.IDFT); 								// In-place IFFT of the filtered band signal rotated by 90°
+			// In-place IFFT of the filtered band signal
+			Export.ExportCSV(String.Format("filteredbandsignal-before.csv"), @out[bands-ib-1], 256);
+			DSP.FFT(ref @out[bands-ib-1], ref @out[bands-ib-1], Mc, FFTMethod.IDFT);
+			Export.ExportCSV(String.Format("filteredbandsignal-after.csv"), s, 256);
+			
+			// In-place IFFT of the filtered band signal rotated by 90°
+			Export.ExportCSV(String.Format("filteredbandsignal90-before.csv"), h, 256);
+			DSP.FFT(ref h, ref h, Mc, FFTMethod.IDFT);
+			Export.ExportCSV(String.Format("filteredbandsignal90-after.csv"), h, 256);
 
 			//Export.exportCSV(String.Format("test/band_{0}_before.csv", bands-ib-1), @out[bands-ib-1]);
 

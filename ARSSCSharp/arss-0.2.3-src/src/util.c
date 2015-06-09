@@ -42,17 +42,23 @@ inline void test_fft() {
 inline void log_double_array(char *filename, double *array, int32_t len) {
 
 	FILE *file;
-	file = fopen(filename,"a+");
+	//file = fopen(filename,"a+");
+	file = fopen(filename,"w+");
 
 	int i;	
-	//int len = sizeof(array) / sizeof(double);
 	
-	len = 256;
+	// There's no way to know the size of an array if all you have is a pointer; 
+	// you must pass an array length into a function.
+	int orig_len = len;
+	len = 256;		
+	if (len > orig_len) {
+		len = orig_len;
+	}
 	log_int32_t("Saving file - array length", len);
 	
 	for (i=0;i<len;i++)
 	{
-		fprintf(file, "%.9f\n", array[i]); 
+		fprintf(file, "%d,%.9f\n", i+1, array[i]); 
 	}
 	fclose(file); 
 }

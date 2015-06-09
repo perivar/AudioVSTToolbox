@@ -403,8 +403,27 @@ double **anal(double *s, int32_t samplecount, int32_t samplerate, int32_t *Xsize
 
 		//********Envelope detection********
 
-		fft(out[bands-ib-1], out[bands-ib-1], Mc, 1);		// In-place IFFT of the filtered band signal
-		fft(h, h, Mc, 1);					// In-place IFFT of the filtered band signal rotated by 90°
+		#ifdef DEBUG
+		log_double_array("filteredbandsignal-before.csv", out[bands-ib-1], Mc);
+		#endif
+		
+		// In-place IFFT of the filtered band signal
+		fft(out[bands-ib-1], out[bands-ib-1], Mc, 1);		
+
+		#ifdef DEBUG
+		log_double_array("filteredbandsignal-after.csv", out[bands-ib-1], Mc);
+		#endif		
+		
+		#ifdef DEBUG
+		log_double_array("filteredbandsignal90-before.csv", h, Mc);
+		#endif
+
+		// In-place IFFT of the filtered band signal rotated by 90°
+		fft(h, h, Mc, 1);					
+
+		#ifdef DEBUG
+		log_double_array("filteredbandsignal90-after.csv", h, Mc);
+		#endif
 
 		for (i=0; i<Mc; i++)
 			out[bands-ib-1][i] = sqrt(out[bands-ib-1][i]*out[bands-ib-1][i] + h[i]*h[i]);	// Magnitude of the analytic signal
