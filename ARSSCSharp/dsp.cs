@@ -1,10 +1,6 @@
 using System;
-using CommonUtils;
-using CommonUtils.FFT;
 
-using System.Runtime.InteropServices;
 using fftwlib;
-
 
 // Papers:
 // Spectral Analysis, Editing, and Resynthesis: Methods and Applications
@@ -335,7 +331,7 @@ public static class DSP
 		 * Mo is the output signal's length
 		 */
 		ratio = (double) Mi/Mo;
-		ratio_i = 1.0/ratio;
+		ratio_i = 1.0 / ratio;
 
 		for (i = 0; i<Mo; i++) {
 			pos_in = (double) i * ratio;
@@ -427,7 +423,7 @@ public static class DSP
 		if (LOGBASE == 1.0) {
 			Mb = samplecount - 1 + (int) Util.RoundOff(5.0/ freq[1]-freq[0]); // linear mode
 		} else {
-			Mb = samplecount - 1 + (int) Util.RoundOff(2.0 *5.0/((freq[0] * Math.Pow(LOGBASE, -1.0/(bpo))) * (1.0 - Math.Pow(LOGBASE, -1.0 / bpo))));
+			Mb = samplecount - 1 + (int) Util.RoundOff(2.0 * 5.0/((freq[0] * Math.Pow(LOGBASE, -1.0/(bpo))) * (1.0 - Math.Pow(LOGBASE, -1.0 / bpo))));
 		}
 
 		if (Mb % 2 == 1)  { // if Mb is odd

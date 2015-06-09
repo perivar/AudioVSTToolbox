@@ -97,6 +97,25 @@ namespace CommonUtils
 		}
 		#endregion
 		
+		/// <summary>
+		/// Check if number is a prime number
+		/// </summary>
+		/// <param name="number">number</param>
+		/// <returns>true if number is a prime</returns>
+		/// <see cref="http://stackoverflow.com/questions/17579091/faster-way-to-check-if-a-number-is-a-prime"/>
+		/// <seealso cref="http://www.dotnetperls.com/prime"/>
+		public static bool IsPrime(int number)
+		{
+			if (number < 2) return false;
+			if (number % 2 == 0) return (number == 2);
+			int root = (int)Math.Sqrt((double)number);
+			for (int i = 3; i <= root; i += 2)
+			{
+				if (number % i == 0) return false;
+			}
+			return true;
+		}
+		
 		#region Normalize
 		// normalize power (volume) of an audio file.
 		// minimum and maximum rms to normalize from.

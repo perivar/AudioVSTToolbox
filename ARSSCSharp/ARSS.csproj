@@ -143,11 +143,13 @@
     </Compile>
     <Compile Include="Arss.cs" />
     <Compile Include="DSP.cs" />
+    <Compile Include="Filterbank.cs" />
     <Compile Include="ImageIO.cs" />
+    <Compile Include="Palette.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SoundIO.cs" />
     <Compile Include="Spectrogram.cs" />
-    <Compile Include="StringFunctions.cs" />
+    <Compile Include="SpectrogramUtils.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
