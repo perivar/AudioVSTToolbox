@@ -398,10 +398,10 @@ namespace CommonUtils
 			}
 		}
 
-		public static void Read8Bit(BinaryFile wavfile, float[][] sound, Int32 samplecount, Int32 channels)
+		public static void Read8Bit(BinaryFile wavfile, float[][] sound, int samplecount, int channels)
 		{
-			var i = new Int32();
-			var ic = new Int32();
+			var i = new int();
+			var ic = new int();
 			byte @byte = new byte();
 
 			#if DEBUG
@@ -417,10 +417,10 @@ namespace CommonUtils
 			}
 		}
 
-		public static void Read16Bit(BinaryFile wavfile, float[][] sound, Int32 samplecount, Int32 channels)
+		public static void Read16Bit(BinaryFile wavfile, float[][] sound, int samplecount, int channels)
 		{
-			var i = new Int32();
-			var ic = new Int32();
+			var i = new int();
+			var ic = new int();
 
 			#if DEBUG
 			Console.Write("Read16Bit...\n");
@@ -435,10 +435,10 @@ namespace CommonUtils
 			}
 		}
 
-		public static void Read32Bit(BinaryFile wavfile, float[][] sound, Int32 samplecount, Int32 channels)
+		public static void Read32Bit(BinaryFile wavfile, float[][] sound, int samplecount, int channels)
 		{
-			var i = new Int32();
-			var ic = new Int32();
+			var i = new int();
+			var ic = new int();
 
 			#if DEBUG
 			Console.Write("Read32Bit...\n");
@@ -454,10 +454,10 @@ namespace CommonUtils
 			}
 		}
 
-		public static void Read32BitFloat(BinaryFile wavfile, float[][] sound, Int32 samplecount, Int32 channels)
+		public static void Read32BitFloat(BinaryFile wavfile, float[][] sound, int samplecount, int channels)
 		{
-			var i = new Int32();
-			var ic = new Int32();
+			var i = new int();
+			var ic = new int();
 
 			#if DEBUG
 			Console.Write("Read32BitFloat...\n");

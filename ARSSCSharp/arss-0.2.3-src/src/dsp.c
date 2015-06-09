@@ -260,13 +260,17 @@ double **anal(double *s, int32_t samplecount, int32_t samplerate, int32_t *Xsize
 	 */
 	
 	freq = freqarray(basefreq, bands, bpo);
+	
+	#ifdef DEBUG	
 	log_double_array("freq.csv", freq, bands);
+	#endif
 
 	if (LOGBASE==1.0)
 		maxfreq = bpo;	// in linear mode we use bpo to store the maxfreq since we couldn't deduce maxfreq otherwise
 	else
 		maxfreq = basefreq * pow(LOGBASE, ((double) (bands-1)/ bpo));
 
+	#ifdef DEBUG	
 	log_double("Maxfreq", maxfreq);		
 	log_double("bpo", bpo);		
 	log_double("pixpersec", pixpersec);
@@ -274,9 +278,13 @@ double **anal(double *s, int32_t samplecount, int32_t samplerate, int32_t *Xsize
 	log_int32_t("bands", bands);
 	log_int32_t("samplecount", samplecount);
 	log_int32_t("samplerate", samplerate);
+	#endif
 	
 	*Xsize = samplecount * pixpersec;
+
+	#ifdef DEBUG	
 	log_int32_t("Xsize", *Xsize);
+	#endif
 	
 	if (myfmod((double) samplecount * pixpersec, 1.0) != 0.0)		// round-up
 		(*Xsize)++;
@@ -293,26 +301,42 @@ double **anal(double *s, int32_t samplecount, int32_t samplerate, int32_t *Xsize
 	else
 		Mb = samplecount - 1 + (int32_t) roundoff(2.0*5.0/((freq[0] * pow(LOGBASE, -1.0/(bpo))) * (1.0 - pow(LOGBASE, -1.0 / bpo))));
 
+	#ifdef DEBUG
 	log_int32_t("Mb", Mb);
-		
+	#endif
+	
 	if (Mb % 2 == 1)	// if Mb is odd
 		Mb++;		// make it even (for the sake of simplicity)
 
+	#ifdef DEBUG	
 	log_int32_t("Mb", Mb);
+	#endif
 		
 	Mb = roundoff((double) nextsprime((int32_t) roundoff(Mb * pixpersec)) / pixpersec);
+
+	#ifdef DEBUG	
 	log_int32_t("Mb", Mb);
+	#endif
 	
 	Md = roundoff(Mb * pixpersec);
+
+	#ifdef DEBUG	
 	log_int32_t("Md", Md);
+	#endif
 
 	s = realloc (s, Mb * sizeof(double));	// realloc to the zeropadded size
 	memset(&s[samplecount], 0, (Mb-samplecount) * sizeof(double));	// zero-out the padded area. Equivalent of : for (i=samplecount; i<Mb; i++) s[i] = 0;
 	//--------ZEROPADDING--------
 
+	#ifdef DEBUG
 	log_double_array("samples-before.csv", s, Mb * sizeof(double));
+	#endif
+	
 	fft(s, s, Mb, 0);			// In-place FFT of the original zero-padded signal
+
+	#ifdef DEBUG
 	log_double_array("samples-after.csv", s, Mb * sizeof(double));
+	#endif
 	
 	for (ib=0; ib<bands; ib++)
 	{
@@ -322,10 +346,12 @@ double **anal(double *s, int32_t samplecount, int32_t samplerate, int32_t *Xsize
 		La = log_pos_inv((double) Fa / (double) Mb, basefreq, maxfreq);
 		Ld = log_pos_inv((double) Fd / (double) Mb, basefreq, maxfreq);
 
+		#ifdef DEBUG
 		log_int32_t("Fa", Fa);
 		log_int32_t("Fd", Fd);
 		log_double("La", La);
 		log_double("Ld", Ld);		
+		#endif
 		
 		if (Fd > Mb/2)
 			Fd = Mb/2;	// stop reading if reaching the Nyquist frequency
@@ -334,7 +360,10 @@ double **anal(double *s, int32_t samplecount, int32_t samplerate, int32_t *Xsize
 			Fa=1;
 
 		Mc = (Fd-Fa)*2 + 1;	// '*2' because the filtering is on both real and imaginary parts, '+1' for the DC. No Nyquist component since the signal length is necessarily odd
+
+		#ifdef DEBUG
 		log_int32_t("Mc", Mc);
+		#endif
 
 		if (Md>Mc)					// if the band is going to be too narrow
 			Mc = Md;
@@ -342,7 +371,10 @@ double **anal(double *s, int32_t samplecount, int32_t samplerate, int32_t *Xsize
 		if (Md<Mc)					// round the larger bands up to the next integer made of 2^n * 3^m
 			Mc = nextsprime(Mc);
 
+		#ifdef DEBUG
 		log_int32_t("Mc", Mc);
+		#endif
+
 		printf("%4d/%d (FFT size: %6d)   %.2f Hz - %.2f Hz\r", ib+1, bands, Mc, (double) Fa*samplerate/Mb, (double) Fd*samplerate/Mb);
 
 		out[bands-ib-1] = calloc(Mc, sizeof(double));	// allocate new band
@@ -428,7 +460,6 @@ double *wsinc_max(int32_t length, double bw)
 		h[i+1] = coef;
 		h[length-1-i] = coef;
 	}
-
 
 	return h;
 }

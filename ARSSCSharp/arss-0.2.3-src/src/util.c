@@ -81,14 +81,18 @@ inline void log_int32_t(char *str, int32_t y)
 
 inline double myfmod(double x, double mod) 
 {
+	#ifdef DEBUG
 	char buff[50];
 	sprintf( buff, "myfmod in: [%.9f]", x );
 	log_file( buff );
+	#endif
 
 	double y = fmod(x, mod);
 
+	#ifdef DEBUG
 	sprintf( buff, "myfmod out: [%.9f]", y );
 	log_file( buff );
+	#endif
 	
 	return y;
 }
@@ -126,9 +130,11 @@ int32_t gettime()	// in milliseconds
 
 inline double roundoff(double x)	// nearbyint() replacement, with the exception that the result contains a non-zero fractional part
 {
+	#ifdef DEBUG
 	char buff[50];
 	sprintf( buff, "roundoff in: [%.9f]", x );
 	log_file( buff );
+	#endif
 
 	double y;
 	
@@ -137,17 +143,21 @@ inline double roundoff(double x)	// nearbyint() replacement, with the exception 
 	else
 		y = x - 0.5;
 
+	#ifdef DEBUG
 	sprintf( buff, "roundoff out: [%.9f]", y );
 	log_file( buff );
+	#endif
 		
 	return y;
 }
 
 inline int32_t roundup(double x)
 {
+	#ifdef DEBUG
 	char buff[50];
 	sprintf( buff, "roundup in: [%.9f]", x );
 	log_file( buff );
+	#endif
 
 	int32_t y;
 	
@@ -156,8 +166,10 @@ inline int32_t roundup(double x)
 	else
 		y = (int32_t) x + 1;
 
+	#ifdef DEBUG
 	sprintf( buff, "roundup out: [%d]", y );
 	log_file( buff );
+	#endif
 		
 	return y;
 }
@@ -189,24 +201,30 @@ inline int32_t smallprimes(int32_t x)	// returns 1 if x is only made of these sm
 
 inline int32_t nextsprime(int32_t x)	// returns the next integer only made of small primes
 {
+	#ifdef DEBUG
 	char buff[50];
 	sprintf( buff, "nextsprime in: [%d]", x );
 	log_file( buff );
+	#endif
 
 	while (smallprimes(x)!=1)
 		x++;
 
+	#ifdef DEBUG
 	sprintf( buff, "nextsprime out: [%d]", x );
 	log_file( buff );
+	#endif
 		
 	return x;
 }
 
 inline double log_b(double x)
 {
+	#ifdef DEBUG
 	char buff[50];
 	sprintf( buff, "log_b in: [%.9f]", x );
 	log_file( buff );
+	#endif
 
 	double y;
 	
@@ -221,8 +239,10 @@ inline double log_b(double x)
 		
 	y = log(x)/log(LOGBASE);
 	
+	#ifdef DEBUG
 	sprintf( buff, "log_b out: [%.9f]", y );
 	log_file( buff );
+	#endif
 	
 	return y;
 }

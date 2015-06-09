@@ -118,7 +118,7 @@ namespace CommonUtils.FFT
 			DHT = 2
 		}
 		
-		public static void FFTW_FFT_R2R(ref double[] @in, ref double[] @out, Int32 N, fftMethod method) {
+		public static void FFTW_FFT_R2R(ref double[] @in, ref double[] @out, int N, fftMethod method) {
 
 			var complexInput = new fftw_complexarray(@in);
 			var complexOutput = new fftw_complexarray(@out);

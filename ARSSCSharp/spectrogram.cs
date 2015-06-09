@@ -301,7 +301,7 @@ public static class SpectrogramUtils
 	// random number from <0,1>
 	public static double RandomDouble()
 	{
-		return RandomNumbers.NextNumber();
+		return RandomUtils.NextInt();
 	}
 
 	public static double BrightnessCorrection(double intensity, BrightCorrection correction)
@@ -386,7 +386,7 @@ public class Spectrogram
 		List<double[]> image_data = new List<double[]>();
 		
 		for (int bandidx = 0;; ++bandidx) {
-			band_progress(bandidx, bands);
+			BandProgress(bandidx, bands);
 
 			// filtering
 			Pair<int,int> range = filterbank.GetBand(bandidx);
@@ -507,7 +507,7 @@ public class Spectrogram
 		for (int bandidx = 0; bandidx < image.Height; ++bandidx) {
 			//if (cancelled())
 			//	return List<int>();
-			band_progress(bandidx, image.Height-1);
+			BandProgress(bandidx, image.Height-1);
 
 			double[] envelope = envelope_from_spectrogram(image, bandidx);
 
@@ -569,7 +569,7 @@ public class Spectrogram
 		for (int bandidx = 0; bandidx < image.Height; ++bandidx) {
 			//if (cancelled())
 			//	return List<int>();
-			band_progress(bandidx, image.Height-1);
+			BandProgress(bandidx, image.Height-1);
 
 			// filter noise
 			Pair<int,int> range = filterbank.GetBand(bandidx);
@@ -594,14 +594,14 @@ public class Spectrogram
 		return @out;
 	}
 	
-	public void band_progress(int x, int of)
+	public void BandProgress(int x, int of)
 	{
 		Console.Out.WriteLine("Processing band {0} of {1}", x, of);
 	}
 	
 	public double[] envelope_from_spectrogram(Bitmap image, int row)
 	{
-		double[] envelope = new double[image.Width];
+		var envelope = new double[image.Width];
 		for (int x = 0; x < image.Width; ++x)
 			envelope[x] = SpectrogramUtils.CalcIntensityInv(
 				palette.GetIntensity(image.GetPixel(x, image.Height-row-1)), intensity_axis);
@@ -624,7 +624,7 @@ public class Spectrogram
 		 */
 	}
 	
-	public String serialized()
+	public String Serialized()
 	{
 		/*
 		String @out = new String();

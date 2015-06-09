@@ -737,7 +737,7 @@ namespace CommonUtils
 		}
 		
 		/// <summary>
-		/// Convert a hext string into an int
+		/// Convert a hex string into an int
 		/// </summary>
 		/// <param name="hexString">hex string</param>
 		/// <returns>int</returns>
@@ -782,6 +782,19 @@ namespace CommonUtils
 			return Encoding.Default.GetBytes(str);
 		}
 
+		/// <summary>
+		/// Return a 4 character string as an Int32
+		/// </summary>
+		/// <param name="str">4 character string</param>
+		/// <param name="byteOrder">ByteOrder, Either LittleEndian or BigEndian</param>
+		/// <returns>Int32</returns>
+		public static Int32 StringToInt32(string str, ByteOrder byteOrder = ByteOrder.LittleEndian) {
+			if (str.Length > 4) {
+				throw new ArgumentException("Passed string has more than 4 characters.", str);
+			}
+			return ByteArrayToInt32(StringToByteArray(str), byteOrder);
+		}
+		
 		/// <summary>
 		/// Convert a byte array to string using the default encoding
 		/// </summary>

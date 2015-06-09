@@ -78,7 +78,7 @@ public static class Util
 	{
 		int[] p = {2, 3};
 
-		for (int i = 0; i<2; i++) {
+		for (int i = 0; i < 2; i++) {
 			while (x%p[i] == 0) {
 				x/=p[i];
 			}
@@ -111,16 +111,10 @@ public static class Util
 		}
 	}
 	
-	public static uint Random()
-	{
-		return (uint) RandomNumbers.NextNumber();
-	}
-	
 	// range is +/- 1.0
-	// TODO: this looks wrong?!
 	public static double DoubleRandom()
 	{
-		return ((double) Util.Random() * (1.0 / 2147483648.0)) - 1.0;
+		return RandomUtils.NextDoubleMinus1ToPlus1();
 	}
 	
 	// read from file a 16-bit integer in little endian
@@ -158,7 +152,8 @@ public static class Util
 		return Console.ReadLine();
 	}
 	
-	public static long GetTime() // in milliseconds
+	// in milliseconds
+	public static long GetTime()
 	{
 		return DateTime.Now.Ticks;
 	}

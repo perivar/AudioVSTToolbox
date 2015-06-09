@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 using System.IO;
@@ -122,14 +121,14 @@ namespace CommonUtils
 		/// <param name="invert">whether to invert the byte array</param>
 		/// <returns>string</returns>
 		public static string ToHexAndAsciiString(byte[] b, bool invert) {
-			StringBuilder strb = new StringBuilder();
-			StringBuilder text = new StringBuilder();
+			var strb = new StringBuilder();
+			var text = new StringBuilder();
 			if (b != null) {
-				byte [] bClone = (byte[])b.Clone();
+				var bClone = (byte[])b.Clone();
 				if (invert) {
 					Array.Reverse(bClone);
 				}
-				char [] ch = new char [1];
+				var ch = new char[1];
 				for (int x = 0; x < bClone.Length; x++)
 				{
 					ch[0] = (char) bClone[x];
@@ -236,7 +235,7 @@ namespace CommonUtils
 				return array;
 			} else {
 				// now array[i] is the last non-zero byte (if checking for zero)
-				byte[] fixedArray = new byte[i+1];
+				var fixedArray = new byte[i+1];
 				Array.Copy(array, fixedArray, i+1);
 				return fixedArray;
 			}
@@ -274,6 +273,7 @@ namespace CommonUtils
 		/// Convert string to Enum type
 		/// </summary>
 		/// <param name="name">enum string value</param>
+		/// <param name="ignoreCase">whether to ignore case</param>
 		/// <returns>Enum</returns>
 		/// <example>
 		/// DaysOfWeek d = StringToEnum<DaysOfWeek>("Monday");
@@ -316,7 +316,7 @@ namespace CommonUtils
 		/// </summary>
 		/// <param name="expression">object to be evaluated</param>
 		/// <returns>true if numeric</returns>
-		public static System.Boolean IsNumeric (System.Object expression)
+		public static System.Boolean IsNumeric(System.Object expression)
 		{
 			if(expression == null || expression is DateTime)
 				return false;
@@ -325,12 +325,13 @@ namespace CommonUtils
 				return true;
 			
 			try {
-				if(expression is string)
+				if (expression is string)
 					Double.Parse(expression as string);
 				else
 					Double.Parse(expression.ToString());
 				return true;
-			} catch {} // just dismiss errors but return false
+			} catch {
+			} // just dismiss errors but return false
 			return false;
 		}
 		
@@ -341,7 +342,7 @@ namespace CommonUtils
 		/// <returns>hexadecimal string representation</returns>
 		public static string BinaryStringToHexString(string binary)
 		{
-			StringBuilder result = new StringBuilder(binary.Length / 8 + 1);
+			var result = new StringBuilder(binary.Length / 8 + 1);
 
 			// TODO: check all 1's or 0's... Will throw otherwise
 
@@ -408,7 +409,7 @@ namespace CommonUtils
 		/// <returns>byte array</returns>
 		public static byte[] GetBytes(string str)
 		{
-			byte[] bytes = new byte[str.Length * sizeof(char)];
+			var bytes = new byte[str.Length * sizeof(char)];
 			System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
 			return bytes;
 		}
@@ -420,7 +421,7 @@ namespace CommonUtils
 		/// <returns>string</returns>
 		public static string GetString(byte[] bytes)
 		{
-			char[] chars = new char[bytes.Length / sizeof(char)];
+			var chars = new char[bytes.Length / sizeof(char)];
 			System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
 			return new string(chars);
 		}
@@ -504,7 +505,7 @@ namespace CommonUtils
 			
 			// we could have used regexp but this method is faster and safer
 			string stringAfterSearchWord = "";
-			int ix = fullString.IndexOf(searchfor);
+			int ix = fullString.IndexOf(searchfor, StringComparison.Ordinal);
 
 			if (ix != -1) {
 				stringAfterSearchWord = fullString.Substring(ix + searchfor.Length);

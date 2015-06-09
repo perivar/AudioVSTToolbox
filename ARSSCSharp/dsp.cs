@@ -659,7 +659,7 @@ public static class DSP
 
 			for (i = 0; i<4; i++) {
 				// generating the random sine LUT
-				sine[i] = Math.Cos(i *2.0 *PI *0.25 + rphase);
+				sine[i] = Math.Cos(i * 2.0 * PI * 0.25 + rphase);
 			}
 
 			for (i = 0; i<Xsize; i++) { // envelope sampling rate * 2 and frequency shifting by 0.25
@@ -678,7 +678,7 @@ public static class DSP
 			// Fc is the index of the band's centre in the frequency domain on the new signal
 			Fc = (int) Util.RoundOff(freq[ib] * samplecount); // band's centre index (envelope's DC element)
 
-			Console.Write("{0,4:D}/{1:D}   {2:f2} Hz\r", ib+1, bands, (double) Fc *samplerate / samplecount);
+			Console.Write("{0,4:D}/{1:D}   {2:f2} Hz\r", ib+1, bands, (double) Fc * samplerate / samplecount);
 
 			//********Write FFT********
 			for (i = 1; i<Mh; i++) {
@@ -763,9 +763,9 @@ public static class DSP
 		loop_size = (int) loop_size_sec * samplerate;
 
 		if (LOGBASE == 1.0)
-			loop_size_min = (int) Util.RoundOff(4.0 *5.0/ freq[1]-freq[0]); // linear mode
+			loop_size_min = (int) Util.RoundOff(4.0 * 5.0/ freq[1]-freq[0]); // linear mode
 		else
-			loop_size_min = (int) Util.RoundOff(2.0 *5.0/((freq[0] * Math.Pow(2.0, -1.0/(bpo))) * (1.0 - Math.Pow(2.0, -1.0 / bpo)))); // this is the estimate of how many samples the longest FIR will take up in the time domain
+			loop_size_min = (int) Util.RoundOff(2.0 * 5.0/((freq[0] * Math.Pow(2.0, -1.0/(bpo))) * (1.0 - Math.Pow(2.0, -1.0 / bpo)))); // this is the estimate of how many samples the longest FIR will take up in the time domain
 
 		if (loop_size_min > loop_size)
 			loop_size = loop_size_min;

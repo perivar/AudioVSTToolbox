@@ -209,7 +209,13 @@ public static class SoundIO
 		double[][] sound;
 		int i = 0;
 		int ic = 0;
-		int[] tag = new int[13];
+		var tag = new int[13];
+		
+		// integers
+		int RIFF = BinaryFile.StringToInt32("RIFF"); 	// 1179011410
+		int WAVE = BinaryFile.StringToInt32("WAVE");	// 1163280727
+		int FMT = BinaryFile.StringToInt32("fmt ");		// 544501094
+		int DATA = BinaryFile.StringToInt32("data");	// 1635017060
 		
 		//			Size  Description                  Value
 		// tag[0]	4	  RIFF Header				   RIFF (1179011410)
@@ -231,7 +237,7 @@ public static class SoundIO
 		Console.Write("ReadWaveFile...\n");
 		#endif
 
-		for (i = 0; i<13; i++) // tag reading
+		for (i = 0; i < 13; i++) // tag reading
 		{
 			tag[i] = 0;
 
@@ -243,21 +249,21 @@ public static class SoundIO
 		}
 
 		//********File format checking********
-		if (tag[0]!=1179011410 || tag[2]!=1163280727)
+		if (tag[0] != RIFF || tag[2] != WAVE)
 		{
 			Console.Error.WriteLine("This file is not in WAVE format\n");
 			Util.ReadUserReturn();
 			Environment.Exit(1);
 		}
 
-		if (tag[3]!=544501094 || tag[4]!=16 || tag[11]!=1635017060) //
+		if (tag[3] != FMT || tag[4] != 16 || tag[11] != DATA)
 		{
 			Console.Error.WriteLine("This WAVE file format is not currently supported\n");
 			Util.ReadUserReturn();
 			Environment.Exit(1);
 		}
 
-		if (tag[10]==24)
+		if (tag[10] == 24)
 		{
 			Console.Error.WriteLine("24 bit PCM WAVE files is not currently supported\n");
 			Util.ReadUserReturn();
@@ -273,8 +279,7 @@ public static class SoundIO
 		//--------File format checking--------
 
 		channels = tag[6];
-
-		samplecount = tag[12]/(tag[10]/8) / channels;
+		samplecount = tag[12] / (tag[10] / 8) / channels;
 		samplerate = tag[7];
 
 		sound = new double[channels][];
@@ -348,7 +353,7 @@ public static class SoundIO
 		wavfile.Close();
 	}
 	
-	public static int GetWaveOutParameters()
+	public static int ReadUserWaveOutParameters()
 	{
 		int bps = 0;
 

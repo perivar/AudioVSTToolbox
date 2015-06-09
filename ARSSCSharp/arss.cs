@@ -416,7 +416,8 @@ public static class Arss
 
 		Console.Write("The Analysis & Resynthesis Sound Spectrograph {0}\n", version);
 
-		RandomNumbers.Seed((int)DateTime.Now.Millisecond);
+		// initialize the random class
+		RandomUtils.Seed(Guid.NewGuid().GetHashCode());
 
 		bool doHelp = false;
 		for (i = 0; i<argc; i++)
@@ -625,7 +626,7 @@ public static class Arss
 				Console.Write("Input file : ");
 				in_name = Util.ReadUserInputString();
 
-				if (string.Compare(in_name, "help") == 0) // if 'help' has been typed
+				if (string.Compare(in_name, "help", StringComparison.Ordinal) == 0) // if 'help' has been typed
 				{
 					fin = null;
 					Arss.PrintHelp(); // print the help
@@ -660,14 +661,16 @@ public static class Arss
 			out_name = Util.ReadUserInputString();
 
 			fout = null;
-			if (out_name != null && out_name != "") fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
+			if (!string.IsNullOrEmpty(out_name))
+				fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
 
 			while (fout == null)
 			{
 				Console.Write("Output file : ");
 				out_name = Util.ReadUserInputString();
 
-				if (out_name != null && out_name != "") fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
+				if (!string.IsNullOrEmpty(out_name))
+					fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
 			}
 
 			// we will never get here cause BinaryFile does not return a null
@@ -701,9 +704,9 @@ public static class Arss
 
 
 		if (mode == 1) {
-			//sound = GlobalMembersSound_io.wav_in(fin, ref channels, ref samplecount, ref samplerate); // Sound input
+			sound = SoundIO.ReadWaveFile(fin, ref channels, ref samplecount, ref samplerate); // Sound input
 			fin.Close();
-			sound = SoundIO.ReadWaveFile(in_name, ref channels, ref samplecount, ref samplerate); // Sound input
+			//sound = SoundIO.ReadWaveFile(in_name, ref channels, ref samplecount, ref samplerate); // Sound input
 
 			#if DEBUG
 			Console.Write("samplecount : {0:D}\nchannels : {1:D}\n", samplecount, channels);
@@ -726,7 +729,7 @@ public static class Arss
 			// if the output format parameter is undefined
 			if (format_param == 0) {
 				if (!Util.quiet) { // if prompting is allowed
-					format_param = SoundIO.GetWaveOutParameters();
+					format_param = SoundIO.ReadUserWaveOutParameters();
 				} else {
 					format_param = 32; // default is 32
 				}
@@ -751,6 +754,5 @@ public static class Arss
 		Console.Write("Processing time : {0:D2} m  {1:D2} s  {1:D2} ms\n", duration.Minutes, duration.Seconds, duration.Milliseconds);
 
 		Util.ReadUserReturn();
-
 	}
 }
