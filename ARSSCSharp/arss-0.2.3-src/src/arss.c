@@ -49,8 +49,11 @@ void settingsinput(int32_t *bands, int32_t samplecount, int32_t *samplerate, dou
 	int32_t unset=0, set_min=0, set_max=0, set_bpo=0, set_y=0;			// count of unset interdependant settings
 	int32_t set_pps=0, set_x=0;
 	size_t filesize;		// boolean indicating if the configuration file's last expected byte is there (to verify the file's integrity)
+	
+	#ifndef WIN32 
 	char conf_path[FILENAME_MAX];	// Path to the configuration file (only used on non-Windows platforms)
-
+	#endif
+	
 	#ifdef DEBUG
 	printf("settingsinput...\n");
 	#endif
@@ -173,12 +176,13 @@ void settingsinput(int32_t *bands, int32_t samplecount, int32_t *samplerate, dou
 		ma=*basefreq * pow(LOGBASE, ((i-2) / *bandsperoctave)) * *samplerate;	// max allowed frequency
 		
 	
-		if (maxfreq > ma)
+		if (maxfreq > ma) {
 			if (myfmod(ma, 1.0) == 0.0)
 				maxfreq = ma;			// replaces the "Upper frequency limit above Nyquist frequency" warning
 			else
 				maxfreq = ma - myfmod(ma, 1.0);
-	
+		}
+		
 		if (mode==0)					// if we're in Analysis mode
 		{
 			if (quiet==1)
@@ -188,14 +192,16 @@ void settingsinput(int32_t *bands, int32_t samplecount, int32_t *samplerate, dou
 			}
 			printf("Max. frequency (Hz) (up to %.3f) [%.3f]: ", ma, maxfreq);
 			gf=getfloat();
-			if (gf != 0)
+			if (gf != 0) {
 				maxfreq=gf;
-		
-			if (maxfreq > ma)
+			}
+			
+			if (maxfreq > ma) {
 				if (myfmod(ma, 1.0) == 0.0)
 					maxfreq = ma;		// replaces the "Upper frequency limit above Nyquist frequency" warning
 				else
 					maxfreq = ma - myfmod(ma, 1.0);
+			}
 		}
 		
 		unset++;
@@ -364,31 +370,33 @@ int main(int argc, char *argv[])
 		}
 		else						// if the argument is a parameter
 		{
-			if (strcmp(argv[i], "--analysis")==0	|| strcmp(argv[i], "-a")==0)
+			if (strcmp(argv[i], "--analysis")==0 || strcmp(argv[i], "-a")==0)
 				mode=1;
 
-			if (strcmp(argv[i], "--sine")==0	|| strcmp(argv[i], "-s")==0)
+			if (strcmp(argv[i], "--sine")==0 || strcmp(argv[i], "-s")==0)
 				mode=2;
 
-			if (strcmp(argv[i], "--noise")==0	|| strcmp(argv[i], "-n")==0)
+			if (strcmp(argv[i], "--noise")==0 || strcmp(argv[i], "-n")==0)
 				mode=3;
 
-			if (strcmp(argv[i], "--quiet")==0	|| strcmp(argv[i], "-q")==0)
+			if (strcmp(argv[i], "--quiet")==0 || strcmp(argv[i], "-q")==0)
 				quiet=1;
 
-			if (strcmp(argv[i], "--linear")==0	|| strcmp(argv[i], "-l")==0)
+			if (strcmp(argv[i], "--linear")==0 || strcmp(argv[i], "-l")==0)
 				LOGBASE=1.0;
 
-			if (strcmp(argv[i], "--sample-rate")==0	|| strcmp(argv[i], "-r")==0)
-				if (str_isnumber(argv[++i]))
+			if (strcmp(argv[i], "--sample-rate")==0 || strcmp(argv[i], "-r")==0) {
+				if (str_isnumber(argv[++i])) {
 						samplerate = atoi(argv[i]);
+				}
 				else
 				{
 					fprintf(stderr, MSG_NUMBER_EXPECTED, argv[i-1]);
 					exit(EXIT_FAILURE);
 				}
+			}
 
-			if (strcmp(argv[i], "--min-freq")==0	|| strcmp(argv[i], "-min")==0)
+			if (strcmp(argv[i], "--min-freq")==0 || strcmp(argv[i], "-min")==0) {
 				if (str_isnumber(argv[++i]))
 				{
 					basefreq = atof(argv[i]);
@@ -400,8 +408,9 @@ int main(int argc, char *argv[])
 					fprintf(stderr, MSG_NUMBER_EXPECTED, argv[i-1]);
 					exit(EXIT_FAILURE);
 				}
-
-			if (strcmp(argv[i], "--max-freq")==0	|| strcmp(argv[i], "-max")==0)
+			}
+			
+			if (strcmp(argv[i], "--max-freq")==0 || strcmp(argv[i], "-max")==0) {
 				if (str_isnumber(argv[++i]))
 						maxfreq = atof(argv[i]);
 				else
@@ -409,8 +418,9 @@ int main(int argc, char *argv[])
 					fprintf(stderr, MSG_NUMBER_EXPECTED, argv[i-1]);
 					exit(EXIT_FAILURE);
 				}
+			}
 
-			if (strcmp(argv[i], "--bpo")==0		|| strcmp(argv[i], "-b")==0)
+			if (strcmp(argv[i], "--bpo")==0 || strcmp(argv[i], "-b")==0) {
 				if (str_isnumber(argv[++i]))
 						bpo = atof(argv[i]);
 				else
@@ -418,8 +428,9 @@ int main(int argc, char *argv[])
 					fprintf(stderr, MSG_NUMBER_EXPECTED, argv[i-1]);
 					exit(EXIT_FAILURE);
 				}
-
-			if (strcmp(argv[i], "--pps")==0		|| strcmp(argv[i], "-p")==0)
+			}
+			
+			if (strcmp(argv[i], "--pps")==0 || strcmp(argv[i], "-p")==0) {
 				if (str_isnumber(argv[++i]))
 						pixpersec = atof(argv[i]);
 				else
@@ -427,8 +438,9 @@ int main(int argc, char *argv[])
 					fprintf(stderr, MSG_NUMBER_EXPECTED, argv[i-1]);
 					exit(EXIT_FAILURE);
 				}
-
-			if (strcmp(argv[i], "--height")==0	|| strcmp(argv[i], "-y")==0)
+			}
+			
+			if (strcmp(argv[i], "--height")==0 || strcmp(argv[i], "-y")==0) {
 				if (str_isnumber(argv[++i]))
 						Ysize = atoi(argv[i]);
 				else
@@ -436,8 +448,9 @@ int main(int argc, char *argv[])
 					fprintf(stderr, MSG_NUMBER_EXPECTED, argv[i-1]);
 					exit(EXIT_FAILURE);
 				}
-
-			if (strcmp(argv[i], "--width")==0	|| strcmp(argv[i], "-x")==0)
+			}
+			
+			if (strcmp(argv[i], "--width")==0 || strcmp(argv[i], "-x")==0) {
 				if (str_isnumber(argv[++i]))
 						Xsize = atoi(argv[i]);
 				else
@@ -445,8 +458,9 @@ int main(int argc, char *argv[])
 					fprintf(stderr, MSG_NUMBER_EXPECTED, argv[i-1]);
 					exit(EXIT_FAILURE);
 				}
-
-			if (strcmp(argv[i], "--loop-size")==0)
+			}
+			
+			if (strcmp(argv[i], "--loop-size")==0) {
 				if (str_isnumber(argv[++i]))
 						LOOP_SIZE_SEC = atoi(argv[i]);
 				else
@@ -454,8 +468,9 @@ int main(int argc, char *argv[])
 					fprintf(stderr, MSG_NUMBER_EXPECTED, argv[i-1]);
 					exit(EXIT_FAILURE);
 				}
-
-			if (strcmp(argv[i], "--log-base")==0)
+			}
+			
+			if (strcmp(argv[i], "--log-base")==0) {
 				if (str_isnumber(argv[++i]))
 						LOGBASE = atof(argv[i]);
 				else
@@ -463,8 +478,9 @@ int main(int argc, char *argv[])
 					fprintf(stderr, MSG_NUMBER_EXPECTED, argv[i-1]);
 					exit(EXIT_FAILURE);
 				}
-
-			if (strcmp(argv[i], "--bmsq-lut-size")==0)
+			}
+			
+			if (strcmp(argv[i], "--bmsq-lut-size")==0) {
 				if (str_isnumber(argv[++i]))
 						BMSQ_LUT_SIZE = atoi(argv[i]);
 				else
@@ -472,8 +488,9 @@ int main(int argc, char *argv[])
 					fprintf(stderr, MSG_NUMBER_EXPECTED, argv[i-1]);
 					exit(EXIT_FAILURE);
 				}
-
-			if (strcmp(argv[i], "--pi")==0)					// lol
+			}
+			
+			if (strcmp(argv[i], "--pi")==0) {					// lol
 				if (str_isnumber(argv[++i]))
 						pi = atof(argv[i]);
 				else
@@ -481,8 +498,9 @@ int main(int argc, char *argv[])
 					fprintf(stderr, MSG_NUMBER_EXPECTED, argv[i-1]);
 					exit(EXIT_FAILURE);
 				}
-
-			if (strcmp(argv[i], "--format-param")==0	|| strcmp(argv[i], "-f")==0)
+			}
+			
+			if (strcmp(argv[i], "--format-param")==0 || strcmp(argv[i], "-f")==0) {
 				if (str_isnumber(argv[++i]))
 						format_param = atoi(argv[i]);
 				else
@@ -490,8 +508,9 @@ int main(int argc, char *argv[])
 					fprintf(stderr, MSG_NUMBER_EXPECTED, argv[i-1]);
 					exit(EXIT_FAILURE);
 				}
-
-			if (strcmp(argv[i], "--brightness")==0	|| strcmp(argv[i], "-g")==0)
+			}
+			
+			if (strcmp(argv[i], "--brightness")==0	|| strcmp(argv[i], "-g")==0) {
 				if (str_isnumber(argv[++i]))
 						brightness = atof(argv[i]);
 				else
@@ -499,10 +518,11 @@ int main(int argc, char *argv[])
 					fprintf(stderr, MSG_NUMBER_EXPECTED, argv[i-1]);
 					exit(EXIT_FAILURE);
 				}
-
+			}
+			
 			// TODO implement --duration, -d
 
-			if (strcmp(argv[i], "--version")==0	|| strcmp(argv[i], "-v")==0)
+			if (strcmp(argv[i], "--version")==0	|| strcmp(argv[i], "-v")==0) 
 			{
 				printf("Copyright (C) 2005-2008 Michel Rouzic\nProgram last modified by its author on %s\n", date);
 				exit(EXIT_SUCCESS);
@@ -519,9 +539,6 @@ int main(int argc, char *argv[])
 				print_adv_help();
 				exit(EXIT_SUCCESS);
 			}
-
-
-
 		}
 	}
 
@@ -630,12 +647,13 @@ int main(int argc, char *argv[])
 		sound = calloc (1, sizeof(double *));
 		image = bmp_in(fin, &Ysize, &Xsize);							// Image input
 
-		if (format_param==0)				// if the output format parameter is undefined
+		if (format_param==0) {			// if the output format parameter is undefined
 			if (quiet==0)				// if prompting is allowed
 				format_param = wav_out_param();
 			else
 				format_param = 32;		// default is 32
-
+		}
+		
 		settingsinput(&Ysize, samplecount, &samplerate, &basefreq, maxfreq, &pixpersec, &bpo, Xsize, 1);	// User settings input
 
 		if (brightness!=1.0) brightness_control(image, Ysize, Xsize, brightness);

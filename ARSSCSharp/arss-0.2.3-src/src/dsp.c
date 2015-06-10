@@ -187,7 +187,7 @@ void blackman_square_interpolation(double *in, double *out, int32_t Mi, int32_t 
 	double pos_in;		// position in the original signal
 	double x;		// position of the iterator in the blackman_square(x) formula
 	double ratio;		// scaling ratio (> 1.0)
-	double ratio_i;		// ratio^-1
+	//double ratio_i;		// ratio^-1
 	double coef;		// Blackman square final coefficient
 	double pos_lut;		// Index on the look-up table
 	int32_t pos_luti;	// Integer index on the look-up table
@@ -202,7 +202,7 @@ void blackman_square_interpolation(double *in, double *out, int32_t Mi, int32_t 
 	 */
 
 	ratio = (double) Mi/Mo;
-	ratio_i = 1.0/ratio;
+	//ratio_i = 1.0/ratio;
 
 	for (i=0; i<Mo; i++)
 	{
@@ -404,27 +404,27 @@ double **anal(double *s, int32_t samplecount, int32_t samplerate, int32_t *Xsize
 		//********Envelope detection********
 
 		#ifdef DEBUG
-		log_double_array("filteredbandsignal-before.csv", out[bands-ib-1], Mc);
+		log_double_array_placeholder("filteredbandsignal-before_%d.csv", ib, out[bands-ib-1], Mc);
 		#endif
 		
 		// In-place IFFT of the filtered band signal
 		fft(out[bands-ib-1], out[bands-ib-1], Mc, 1);		
 
 		#ifdef DEBUG
-		log_double_array("filteredbandsignal-after.csv", out[bands-ib-1], Mc);
+		log_double_array_placeholder("filteredbandsignal-after_%d.csv", ib, out[bands-ib-1], Mc);
 		#endif		
 		
 		#ifdef DEBUG
-		log_double_array("filteredbandsignal90-before.csv", h, Mc);
+		log_double_array_placeholder("filteredbandsignal90-before_%d.csv", ib, h, Mc);
 		#endif
 
 		// In-place IFFT of the filtered band signal rotated by 90°
 		fft(h, h, Mc, 1);					
 
 		#ifdef DEBUG
-		log_double_array("filteredbandsignal90-after.csv", h, Mc);
+		log_double_array_placeholder("filteredbandsignal90-after_%d.csv", ib, h, Mc);
 		#endif
-
+		
 		for (i=0; i<Mc; i++)
 			out[bands-ib-1][i] = sqrt(out[bands-ib-1][i]*out[bands-ib-1][i] + h[i]*h[i]);	// Magnitude of the analytic signal
 
@@ -452,6 +452,11 @@ double **anal(double *s, int32_t samplecount, int32_t samplerate, int32_t *Xsize
 	printf("\n");
 
 	normi(out, *Xsize, bands, 1.0);
+	
+	#ifdef DEBUG
+	log_double_array2D("out.csv", out, *Xsize, bands);
+	#endif		
+	
 	return out;
 }
 

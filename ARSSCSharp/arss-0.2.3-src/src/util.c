@@ -38,12 +38,29 @@ inline void test_fft() {
 	}
 	fclose(file); 
 }
+	
+inline void log_double_array2D(char *filename, double **s, int32_t xs, int32_t ys) {
+
+	FILE *file;
+	file = fopen(filename,"w+"); // clear file if exists
+
+	char buff[50];
+	sprintf( buff, "Saving 2D array to file. %d , %d", xs, ys );
+	log_file( buff );	
+
+	int32_t ix, iy;
+
+	for (iy=0; iy < ys; iy++)
+		for (ix=0; ix < xs; ix++)
+			fprintf(file, "[%d,%d] = %.9f\n", iy, ix, s[iy][ix]); 
+	
+	fclose(file); 
+}
 
 inline void log_double_array(char *filename, double *array, int32_t len) {
 
 	FILE *file;
-	//file = fopen(filename,"a+");
-	file = fopen(filename,"w+");
+	file = fopen(filename,"w+"); // clear file if exists
 
 	int i;	
 	
@@ -54,13 +71,22 @@ inline void log_double_array(char *filename, double *array, int32_t len) {
 	if (len > orig_len) {
 		len = orig_len;
 	}
-	log_int32_t("Saving file - array length", len);
+	log_int32_t("Saving array to file - array length", len);
 	
 	for (i=0;i<len;i++)
 	{
 		fprintf(file, "%d,%.9f\n", i+1, array[i]); 
 	}
 	fclose(file); 
+}
+
+inline void log_double_array_placeholder(char *filename_with_placeholder, int32_t filename_counter, double *array, int32_t len) {
+
+	char buff[50];
+	sprintf( buff, filename_with_placeholder, filename_counter );
+	log_file( buff );	
+	
+	log_double_array(buff, array, len);
 }
 
 inline void log_file(char *str)	
