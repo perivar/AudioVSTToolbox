@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace fftwlib
@@ -68,28 +67,28 @@ namespace fftwlib
 		//Complex<->Complex transforms
 		public static fftwf_plan dft_1d(int n, fftwf_complexarray input, fftwf_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.dft_1d(n, input.Handle, output.Handle, direction, flags);
 			return p;
 		}
 
 		public static fftwf_plan dft_2d(int nx, int ny, fftwf_complexarray input, fftwf_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.dft_2d(nx, ny, input.Handle, output.Handle, direction, flags);
 			return p;
 		}
 
 		public static fftwf_plan dft_3d(int nx, int ny, int nz, fftwf_complexarray input, fftwf_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.dft_3d(nx, ny, nz, input.Handle, output.Handle, direction, flags);
 			return p;
 		}
 
 		public static fftwf_plan dft(int rank, int[] n, fftwf_complexarray input, fftwf_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.dft(rank, n, input.Handle, output.Handle, direction, flags);
 			return p;
 		}
@@ -97,28 +96,28 @@ namespace fftwlib
 		//Real->Complex transforms
 		public static fftwf_plan dft_r2c_1d(int n, fftwf_complexarray input, fftwf_complexarray output, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.dft_r2c_1d(n, input.Handle, output.Handle, flags);
 			return p;
 		}
 
 		public static fftwf_plan dft_r2c_2d(int nx, int ny, fftwf_complexarray input, fftwf_complexarray output, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.dft_r2c_2d(nx, ny, input.Handle, output.Handle, flags);
 			return p;
 		}
 
 		public static fftwf_plan dft_r2c_3d(int nx, int ny, int nz, fftwf_complexarray input, fftwf_complexarray output, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.dft_r2c_3d(nx, ny, nz, input.Handle, output.Handle, flags);
 			return p;
 		}
 
 		public static fftwf_plan dft_r2c(int rank, int[] n, fftwf_complexarray input, fftwf_complexarray output, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.dft_r2c(rank, n, input.Handle, output.Handle, flags);
 			return p;
 		}
@@ -126,28 +125,28 @@ namespace fftwlib
 		//Complex->Real
 		public static fftwf_plan dft_c2r_1d(int n, fftwf_complexarray input, fftwf_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.dft_c2r_1d(n, input.Handle, output.Handle, flags);
 			return p;
 		}
 
 		public static fftwf_plan dft_c2r_2d(int nx, int ny, fftwf_complexarray input, fftwf_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.dft_c2r_2d(nx, ny, input.Handle, output.Handle, flags);
 			return p;
 		}
 
 		public static fftwf_plan dft_c2r_3d(int nx, int ny, int nz, fftwf_complexarray input, fftwf_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.dft_c2r_3d(nx, ny, nz, input.Handle, output.Handle, flags);
 			return p;
 		}
 
 		public static fftwf_plan dft_c2r(int rank, int[] n, fftwf_complexarray input, fftwf_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.dft_c2r(rank, n, input.Handle, output.Handle, flags);
 			return p;
 		}
@@ -155,14 +154,14 @@ namespace fftwlib
 		//Real<->Real
 		public static fftwf_plan r2r_1d(int n, fftwf_complexarray input, fftwf_complexarray output, fftw_kind kind, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.r2r_1d(n, input.Handle, output.Handle, kind, flags);
 			return p;
 		}
 
 		public static fftwf_plan r2r_2d(int nx, int ny, fftwf_complexarray input, fftwf_complexarray output, fftw_kind kindx, fftw_kind kindy, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.r2r_2d(nx, ny, input.Handle, output.Handle, kindx, kindy, flags);
 			return p;
 		}
@@ -170,7 +169,7 @@ namespace fftwlib
 		public static fftwf_plan r2r_3d(int nx, int ny, int nz, fftwf_complexarray input, fftwf_complexarray output,
 		                                fftw_kind kindx, fftw_kind kindy, fftw_kind kindz, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.r2r_3d(nx, ny, nz, input.Handle, output.Handle,
 			                        kindx, kindy, kindz, flags);
 			return p;
@@ -179,7 +178,7 @@ namespace fftwlib
 		public static fftwf_plan r2r(int rank, int[] n, fftwf_complexarray input, fftwf_complexarray output,
 		                             fftw_kind[] kind, fftw_flags flags)
 		{
-			fftwf_plan p = new fftwf_plan();
+			var p = new fftwf_plan();
 			p.handle = fftwf.r2r(rank, n, input.Handle, output.Handle,
 			                     kind, flags);
 			return p;
@@ -196,18 +195,22 @@ namespace fftwlib
 	{
 		private IntPtr handle;
 		public IntPtr Handle
-		{get {return handle;}}
+		{
+			get {return handle;}
+		}
 
 		private int length;
 		public int Length
-		{get {return length;}}
+		{
+			get {return length;}
+		}
 
 		/// <summary>
 		/// Return the values
 		/// </summary>
 		public double[] Values {
 			get {
-				double[] buffer = new double[Length * 2];
+				var buffer = new double[Length * 2];
 				Marshal.Copy(Handle, buffer, 0, Length * 2);
 				return buffer;
 			}
@@ -218,10 +221,10 @@ namespace fftwlib
 		/// </summary>
 		public double[] ValuesDividedByN {
 			get {
-				double[] buffer = new double[Length * 2];
+				var buffer = new double[Length * 2];
 				Marshal.Copy(Handle, buffer, 0, Length * 2);
 
-				double[] output = new double[Length * 2];
+				var output = new double[Length * 2];
 				for (int i = 0; i < Length * 2; i++)
 				{
 					output[i] = buffer[i] / (Length * 2);
@@ -235,10 +238,10 @@ namespace fftwlib
 		/// </summary>
 		public double[] Real {
 			get {
-				double[] buffer = new double[Length * 2];
+				var buffer = new double[Length * 2];
 				Marshal.Copy(Handle, buffer, 0, Length * 2);
 
-				double[] output = new double[Length];
+				var output = new double[Length];
 				for (int i = 0; i < Length; i++)
 				{
 					double re = buffer[2 * i];
@@ -254,10 +257,10 @@ namespace fftwlib
 		/// </summary>
 		public double[] RealDividedByN {
 			get {
-				double[] buffer = new double[Length * 2];
+				var buffer = new double[Length * 2];
 				Marshal.Copy(Handle, buffer, 0, Length * 2);
 
-				double[] output = new double[Length];
+				var output = new double[Length];
 				for (int i = 0; i < Length; i++)
 				{
 					double re = buffer[2 * i];
@@ -273,10 +276,10 @@ namespace fftwlib
 		/// </summary>
 		public double[] Imag {
 			get {
-				double[] buffer = new double[Length * 2];
+				var buffer = new double[Length * 2];
 				Marshal.Copy(Handle, buffer, 0, Length * 2);
 
-				double[] output = new double[Length];
+				var output = new double[Length];
 				for (int i = 0; i < Length; i++)
 				{
 					double re = buffer[2 * i];
@@ -292,10 +295,10 @@ namespace fftwlib
 		/// </summary>
 		public double[] ImagDividedByN {
 			get {
-				double[] buffer = new double[Length * 2];
+				var buffer = new double[Length * 2];
 				Marshal.Copy(Handle, buffer, 0, Length * 2);
 
-				double[] output = new double[Length];
+				var output = new double[Length];
 				for (int i = 0; i < Length; i++)
 				{
 					double re = buffer[2 * i];
@@ -313,10 +316,10 @@ namespace fftwlib
 		/// </summary>
 		public double[] Abs {
 			get {
-				double[] buffer = new double[Length * 2];
+				var buffer = new double[Length * 2];
 				Marshal.Copy(Handle, buffer, 0, Length * 2);
 
-				double[] output = new double[Length];
+				var output = new double[Length];
 				for (int i = 0; i < Length; i++)
 				{
 					double re = buffer[2 * i];
@@ -334,10 +337,10 @@ namespace fftwlib
 		/// </summary>
 		public double[] AbsDividedByN {
 			get {
-				double[] buffer = new double[Length * 2];
+				var buffer = new double[Length * 2];
 				Marshal.Copy(Handle, buffer, 0, Length * 2);
 
-				double[] output = new double[Length];
+				var output = new double[Length];
 				for (int i = 0; i < Length; i++)
 				{
 					double re = buffer[2 * i];
@@ -398,28 +401,28 @@ namespace fftwlib
 		//Complex<->Complex transforms
 		public static fftw_plan dft_1d(int n, fftw_complexarray input, fftw_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.dft_1d(n, input.Handle, output.Handle, direction, flags);
 			return p;
 		}
 
 		public static fftw_plan dft_2d(int nx, int ny, fftw_complexarray input, fftw_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.dft_2d(nx, ny, input.Handle, output.Handle, direction, flags);
 			return p;
 		}
 
 		public static fftw_plan dft_3d(int nx, int ny, int nz, fftw_complexarray input, fftw_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.dft_3d(nx, ny, nz, input.Handle, output.Handle, direction, flags);
 			return p;
 		}
 
 		public static fftw_plan dft(int rank, int[] n, fftw_complexarray input, fftw_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.dft(rank, n, input.Handle, output.Handle, direction, flags);
 			return p;
 		}
@@ -427,28 +430,28 @@ namespace fftwlib
 		//Real->Complex transforms
 		public static fftw_plan dft_r2c_1d(int n, fftw_complexarray input, fftw_complexarray output, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.dft_r2c_1d(n, input.Handle, output.Handle, flags);
 			return p;
 		}
 
 		public static fftw_plan dft_r2c_2d(int nx, int ny, fftw_complexarray input, fftw_complexarray output, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.dft_r2c_2d(nx, ny, input.Handle, output.Handle, flags);
 			return p;
 		}
 
 		public static fftw_plan dft_r2c_3d(int nx, int ny, int nz, fftw_complexarray input, fftw_complexarray output, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.dft_r2c_3d(nx, ny, nz, input.Handle, output.Handle, flags);
 			return p;
 		}
 
 		public static fftw_plan dft_r2c(int rank, int[] n, fftw_complexarray input, fftw_complexarray output, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.dft_r2c(rank, n, input.Handle, output.Handle, flags);
 			return p;
 		}
@@ -456,28 +459,28 @@ namespace fftwlib
 		//Complex->Real
 		public static fftw_plan dft_c2r_1d(int n, fftw_complexarray input, fftw_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.dft_c2r_1d(n, input.Handle, output.Handle, flags);
 			return p;
 		}
 
 		public static fftw_plan dft_c2r_2d(int nx, int ny, fftw_complexarray input, fftw_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.dft_c2r_2d(nx, ny, input.Handle, output.Handle, flags);
 			return p;
 		}
 
 		public static fftw_plan dft_c2r_3d(int nx, int ny, int nz, fftw_complexarray input, fftw_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.dft_c2r_3d(nx, ny, nz, input.Handle, output.Handle, flags);
 			return p;
 		}
 
 		public static fftw_plan dft_c2r(int rank, int[] n, fftw_complexarray input, fftw_complexarray output, fftw_direction direction, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.dft_c2r(rank, n, input.Handle, output.Handle, flags);
 			return p;
 		}
@@ -485,14 +488,14 @@ namespace fftwlib
 		//Real<->Real
 		public static fftw_plan r2r_1d(int n, fftw_complexarray input, fftw_complexarray output, fftw_kind kind, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.r2r_1d(n, input.Handle, output.Handle, kind, flags);
 			return p;
 		}
 
 		public static fftw_plan r2r_2d(int nx, int ny, fftw_complexarray input, fftw_complexarray output, fftw_kind kindx, fftw_kind kindy, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.r2r_2d(nx, ny, input.Handle, output.Handle, kindx, kindy, flags);
 			return p;
 		}
@@ -500,7 +503,7 @@ namespace fftwlib
 		public static fftw_plan r2r_3d(int nx, int ny, int nz, fftw_complexarray input, fftw_complexarray output,
 		                               fftw_kind kindx, fftw_kind kindy, fftw_kind kindz, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.r2r_3d(nx, ny, nz, input.Handle, output.Handle,
 			                       kindx, kindy, kindz, flags);
 			return p;
@@ -509,7 +512,7 @@ namespace fftwlib
 		public static fftw_plan r2r(int rank, int[] n, fftw_complexarray input, fftw_complexarray output,
 		                            fftw_kind[] kind, fftw_flags flags)
 		{
-			fftw_plan p = new fftw_plan();
+			var p = new fftw_plan();
 			p.handle = fftw.r2r(rank, n, input.Handle, output.Handle,
 			                    kind, flags);
 			return p;

@@ -8,6 +8,7 @@ void fft(double *in, double *out, int32_t N, uint8_t method)
 	 * 2 = DHT
 	 */
 
+	 // return out in halfcomplex format
 	fftw_plan p = fftw_plan_r2r_1d(N, in, out, method, FFTW_ESTIMATE);
 	fftw_execute(p);
 	fftw_destroy_plan(p);
@@ -262,7 +263,7 @@ double **anal(double *s, int32_t samplecount, int32_t samplerate, int32_t *Xsize
 	freq = freqarray(basefreq, bands, bpo);
 	
 	#ifdef DEBUG	
-	log_double_array("freq.csv", freq, bands);
+	//log_double_array("freq.csv", freq, bands);
 	#endif
 
 	if (LOGBASE==1.0)
@@ -329,16 +330,17 @@ double **anal(double *s, int32_t samplecount, int32_t samplerate, int32_t *Xsize
 	//--------ZEROPADDING--------
 
 	#ifdef DEBUG
-	log_double_array("samples-before.csv", s, Mb * sizeof(double));
+	//log_double_array("samples-before_fft.csv", s, Mb * sizeof(double));
 	#endif
 	
-	fft(s, s, Mb, 0);			// In-place FFT of the original zero-padded signal
+	fft(s, s, Mb, 0); // In-place FFT of the original zero-padded signal
 
 	#ifdef DEBUG
-	log_double_array("samples-after.csv", s, Mb * sizeof(double));
+	//log_double_array("samples-after_fft.csv", s, Mb * sizeof(double));
 	#endif
 	
 	for (ib=0; ib<bands; ib++)
+	//for (ib=0; ib<5; ib++)
 	{
 		//********Filtering********
 		Fa = roundoff(log_pos((double) (ib-1)/(double) (bands-1), basefreq, maxfreq) * Mb);
@@ -404,40 +406,43 @@ double **anal(double *s, int32_t samplecount, int32_t samplerate, int32_t *Xsize
 		//********Envelope detection********
 
 		#ifdef DEBUG
-		log_double_array_placeholder("filteredbandsignal-before_%d.csv", ib, out[bands-ib-1], Mc);
+		//log_double_array_placeholder("filteredbandsignal-before_%d.csv", ib, out[bands-ib-1], Mc);
 		#endif
 		
 		// In-place IFFT of the filtered band signal
 		fft(out[bands-ib-1], out[bands-ib-1], Mc, 1);		
 
 		#ifdef DEBUG
-		log_double_array_placeholder("filteredbandsignal-after_%d.csv", ib, out[bands-ib-1], Mc);
+		//log_double_array_placeholder("filteredbandsignal-after_%d.csv", ib, out[bands-ib-1], Mc);
 		#endif		
 		
 		#ifdef DEBUG
-		log_double_array_placeholder("filteredbandsignal90-before_%d.csv", ib, h, Mc);
+		//log_double_array_placeholder("filteredbandsignal90-before_%d.csv", ib, h, Mc);
 		#endif
 
 		// In-place IFFT of the filtered band signal rotated by 90°
 		fft(h, h, Mc, 1);					
 
 		#ifdef DEBUG
-		log_double_array_placeholder("filteredbandsignal90-after_%d.csv", ib, h, Mc);
+		//log_double_array_placeholder("filteredbandsignal90-after_%d.csv", ib, h, Mc);
 		#endif
 		
-		for (i=0; i<Mc; i++)
+		for (i=0; i<Mc; i++) {
 			out[bands-ib-1][i] = sqrt(out[bands-ib-1][i]*out[bands-ib-1][i] + h[i]*h[i]);	// Magnitude of the analytic signal
+		}
 
 		free(h);
 		//--------Envelope detection--------
 
 		//********Downsampling********
 
-		if (Mc < Md)									// if the band doesn't have to be resampled
+		// if the band doesn't have to be resampled
+		if (Mc < Md) {									
 			out[bands-ib-1] = realloc(out[bands-ib-1], Md * sizeof(double));	// simply ignore the end of it
+		}
 
-		if (Mc > Md)	// If the band *has* to be downsampled
-		{
+		// If the band *has* to be downsampled
+		if (Mc > Md) {
 			t = out[bands-ib-1];
 
 			out[bands-ib-1] = blackman_downsampling(out[bands-ib-1], Mc, Md);	// Blackman downsampling

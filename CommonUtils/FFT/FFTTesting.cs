@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Diagnostics;
 
 using CommonUtils;
@@ -15,16 +14,16 @@ namespace CommonUtils.FFT
 	/// <summary>
 	/// FFTTesting Class
 	/// 
-	/// Output of testing TimeAll(1000)
-	/// ==================================
-	/// FFTWTestUsingDouble: 					Time used: 1490,5693 ms
-	/// FFTWTestUsingDoubleFFTWLIB: 			Time used: 457,7713 ms
-	/// FFTWTestUsingDoubleFFTWLIBR2R_INPLACE: 	Time used: 2233,7726 ms
-	/// FFTWTestUsingDoubleFFTWLIBR2R: 			Time used: 2542,5376 ms
-	/// LomontFFTTestUsingDouble: 				Time used: 121,729 ms
-	/// ExocortexFFTTestUsingComplex: 			Time used: 2400,0494 ms
-	/// ExocortexFFTTestUsingComplexF: 			Time used: 1524,2402 ms
-	/// ExocortexFFTTestUsingFloats: 			Time used: 1255,6019 ms
+	/// Output of testing TimeAll(1000) on Release build
+	/// ================================================
+	/// FFTWTestUsingDouble: Time used: 43.9293 ms
+	/// FFTWTestUsingDoubleFFTWLIB: Time used: 4.3289 ms
+	/// FFTWTestUsingDoubleFFTWLIBR2R_INPLACE: Time used: 337.3322 ms
+	/// FFTWTestUsingDoubleFFTWLIBR2R: Time used: 64.8666 ms
+	/// LomontFFTTestUsingDouble: Time used: 8.0321 ms
+	/// ExocortexFFTTestUsingComplex: Time used: 872.2485 ms
+	/// ExocortexFFTTestUsingComplexF: Time used: 1141.2313 ms
+	/// ExocortexFFTTestUsingFloats: Time used: 1132.9304 ms
 	/// </summary>
 	public static class FFTTesting
 	{
@@ -112,43 +111,41 @@ namespace CommonUtils.FFT
 			}
 		}
 		
-		public enum fftMethod : int {
+		public enum FFTMethod : int {
 			DFT = 0,
 			IDFT = 1,
 			DHT = 2
 		}
 		
-		public static void FFTW_FFT_R2R(ref double[] @in, ref double[] @out, int N, fftMethod method) {
+		public static void FFTW_FFT_R2R(ref double[] @in, ref double[] @out, int N, FFTMethod method) {
 
 			var complexInput = new fftw_complexarray(@in);
 			var complexOutput = new fftw_complexarray(@out);
 			
-			fftw_kind kind = fftw_kind.R2HC;
 			switch(method) {
-				case fftMethod.DFT:
-					kind = fftw_kind.R2HC;
-					fftw_plan fft = fftw_plan.r2r_1d(N, complexInput, complexOutput, kind, fftw_flags.Estimate);
+				case FFTMethod.DFT:
+					// fftw_kind.R2HC: input is expected to be real while output is returned in the halfcomplex format
+					fftw_plan fft = fftw_plan.r2r_1d(N, complexInput, complexOutput, fftw_kind.R2HC, fftw_flags.Estimate);
 					fft.Execute();
 					@out = complexOutput.Values;
 					
 					// free up memory
 					fft = null;
 					break;
-				case fftMethod.IDFT:
-					kind = fftw_kind.HC2R;
-					fftw_plan ifft = fftw_plan.r2r_1d(N, complexInput, complexOutput, kind, fftw_flags.Estimate);
+				case FFTMethod.IDFT:
+					// fftw_kind.HC2R: input is expected to be halfcomplex format while output is returned as real 
+					fftw_plan ifft = fftw_plan.r2r_1d(N, complexInput, complexOutput, fftw_kind.HC2R, fftw_flags.Estimate);
 					ifft.Execute();
 					@out = complexOutput.ValuesDividedByN;
-					
+
 					// free up memory
 					ifft = null;
 					break;
-				case fftMethod.DHT:
-					kind = fftw_kind.DHT;
-					fftw_plan dht = fftw_plan.r2r_1d(N, complexInput, complexOutput, kind, fftw_flags.Estimate);
+				case FFTMethod.DHT:
+					fftw_plan dht = fftw_plan.r2r_1d(N, complexInput, complexOutput, fftw_kind.DHT, fftw_flags.Estimate);
 					dht.Execute();
 					@out = complexOutput.Values;
-					
+
 					// free up memory
 					dht = null;
 					break;
@@ -171,7 +168,7 @@ namespace CommonUtils.FFT
 			// loop if neccesary - e.g. for performance test purposes
 			for (int i = 0; i < testLoopCount; i++) {
 				// perform the FFT
-				FFTW_FFT_R2R(ref audio_data, ref audio_data, N, fftMethod.DFT);
+				FFTW_FFT_R2R(ref audio_data, ref audio_data, N, FFTMethod.DFT);
 			}
 			
 			// get the result
@@ -205,7 +202,7 @@ namespace CommonUtils.FFT
 			// loop if neccesary - e.g. for performance test purposes
 			for (int i = 0; i < testLoopCount; i++) {
 				// perform the FFT
-				FFTW_FFT_R2R(ref din, ref dout, N, fftMethod.DFT);
+				FFTW_FFT_R2R(ref din, ref dout, N, FFTMethod.DFT);
 			}
 			
 			// get the result
@@ -215,7 +212,7 @@ namespace CommonUtils.FFT
 			var spectrum_fft_abs = FFTUtils.Abs(complexDout);
 			
 			// perform the IFFT
-			FFTW_FFT_R2R(ref dout, ref dout2, N, fftMethod.IDFT);
+			FFTW_FFT_R2R(ref dout, ref dout2, N, FFTMethod.IDFT);
 			
 			// get the result
 			var spectrum_inverse_real = dout2;
@@ -317,7 +314,7 @@ namespace CommonUtils.FFT
 				double img = complexSignal[2*j + 1] * lengthSqrt;
 				
 				spectrum_fft_real[j] = re;
-				spectrum_fft_imag[j] = img;
+				spectrum_fft_imag[j] = -img; // inverse the returned imaginary part as this makes Lomont compatible with other FFT libraries (like fftw) 
 				spectrum_fft_abs[j] = Math.Sqrt(re*re + img*img);
 			}
 			
@@ -676,7 +673,7 @@ namespace CommonUtils.FFT
 				}
 
 				// perform the FFT
-				FFTW_FFT_R2R(ref signal, ref signal, fftWindowsSize, fftMethod.DFT);
+				FFTW_FFT_R2R(ref signal, ref signal, fftWindowsSize, FFTMethod.DFT);
 				
 				// get the result
 				double[] complexDout = FFTUtils.HC2C(signal);

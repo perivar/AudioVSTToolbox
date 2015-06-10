@@ -321,7 +321,7 @@ int main(int argc, char *argv[])
 	log_file("Starting arss ...");
 
 	#ifdef DEBUG
-	test_fft();
+	//test_fft();
 	#endif
 
 	FILE *fin;

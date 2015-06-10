@@ -41,6 +41,7 @@ public static class DSP
 		
 		switch(method) {
 			case FFTMethod.DFT:
+				// fftw_kind.R2HC: input is expected to be real while output is returned in the halfcomplex format
 				fftw_plan fft = fftw_plan.r2r_1d(N, complexInput, complexOutput, fftw_kind.R2HC, fftw_flags.Estimate);
 				fft.Execute();
 				@out = complexOutput.Values;
@@ -49,9 +50,11 @@ public static class DSP
 				fft = null;
 				break;
 			case FFTMethod.IDFT:
+				// fftw_kind.HC2R: input is expected to be halfcomplex format while output is returned as real
 				fftw_plan ifft = fftw_plan.r2r_1d(N, complexInput, complexOutput, fftw_kind.HC2R, fftw_flags.Estimate);
 				ifft.Execute();
-				@out = complexOutput.ValuesDividedByN;
+				//@out = complexOutput.ValuesDividedByN; // dividing by N gives the correct scale
+				@out = complexOutput.Values;
 
 				// free up memory
 				ifft = null;
@@ -99,7 +102,7 @@ public static class DSP
 		}
 
 		#if DEBUG
-		Console.Write("norm : {0:f3} (Y:{1:D} X:{2:D})\n", max, maxy, maxx);
+		//Console.Write("norm : {0:f3} (Y:{1:D} X:{2:D})\n", max, maxy, maxx);
 		#endif
 
 		if (max!=0.0) {
@@ -116,7 +119,7 @@ public static class DSP
 		}
 
 		#if DEBUG
-		Console.Write("ex : {0:f3}\n", s[0][0]);
+		//Console.Write("ex : {0:f3}\n", s[0][0]);
 		#endif
 	}
 	
@@ -400,7 +403,7 @@ public static class DSP
 
 		freq = DSP.FrequencyArray(basefreq, bands, bpo);
 
-		Export.ExportCSV(String.Format("freq.csv"), freq, 256);
+		//Export.ExportCSV(String.Format("freq.csv"), freq, 256);
 		
 		if (LOGBASE == 1.0) {
 			maxfreq = bpo; // in linear mode we use bpo to store the maxfreq since we couldn't deduce maxfreq otherwise
@@ -420,7 +423,7 @@ public static class DSP
 		
 		clockA = Util.GetTime();
 
-		//********ZEROPADDING********	Note : Don't do it in Circular mode
+		#region ZEROPADDING Note : Don't do it in Circular mode
 		// Mb is the length of the original signal once zero-padded (always even)
 		if (LOGBASE == 1.0) {
 			Mb = samplecount - 1 + (int) Util.RoundOff(5.0/ freq[1]-freq[0]); // linear mode
@@ -447,24 +450,26 @@ public static class DSP
 		for (i=samplecount; i<Mb; i++) {
 			s[i] = 0;
 		}
-		//--------ZEROPADDING--------
+		#endregion
 		
-		Export.ExportCSV(String.Format("samples_before_fft.csv"), s, 256);
+		//Export.ExportCSV(String.Format("samples_before_fft.csv"), s, 256);
 		DSP.FFT(ref s, ref s, Mb, FFTMethod.DFT); // In-place FFT of the original zero-padded signal
-		Export.ExportCSV(String.Format("samples_after_fft.csv"), s, 256);
+		//Export.ExportCSV(String.Format("samples_after_fft.csv"), s, 256);
 
 		for (ib = 0; ib<bands; ib++) {
-			//********Filtering********
+			#region Filtering
 			Fa = (int) Util.RoundOff(DSP.LogPositionToFrequency((double)(ib-1)/(double)(bands-1), basefreq, maxfreq) * Mb);
 			Fd = (int) Util.RoundOff(DSP.LogPositionToFrequency((double)(ib+1)/(double)(bands-1), basefreq, maxfreq) * Mb);
 			La = DSP.FrequencyToLogPosition((double) Fa / (double) Mb, basefreq, maxfreq);
 			Ld = DSP.FrequencyToLogPosition((double) Fd / (double) Mb, basefreq, maxfreq);
 
-			if (Fd > Mb/2)
+			if (Fd > Mb/2) {
 				Fd = Mb/2; // stop reading if reaching the Nyquist frequency
+			}
 
-			if (Fa < 1)
+			if (Fa < 1) {
 				Fa = 1;
+			}
 
 			// Mc is the length of the filtered signal
 			Mc = (Fd-Fa)*2 + 1;
@@ -487,15 +492,14 @@ public static class DSP
 			for (i = 0; i<Fd-Fa; i++) {
 				Li = DSP.FrequencyToLogPosition((double)(i+Fa) / (double) Mb, basefreq, maxfreq); // calculation of the logarithmic position
 				Li = (Li-La)/(Ld-La);
-				coef = 0.5 - 0.5 * Math.Cos(2.0 *PI * Li); // Hann function
+				coef = 0.5 - 0.5 * Math.Cos(2.0 * PI * Li); // Hann function
 				
 				@out[bands-ib-1][i+1] 		= s[i+1+Fa] * coef;
 				@out[bands-ib-1][Mc-1-i] 	= s[Mb-Fa-1-i] * coef;
 			}
-			//--------Filtering--------
-			//Export.exportCSV(String.Format("test/band_{0}_filtered.csv", bands-ib-1), @out[bands-ib-1]);
+			#endregion
 
-			//********90° rotation********
+			#region 90° rotation
 			h = new double[Mc+1];
 			
 			// Rotation : Re' = Im; Im' = -Re
@@ -504,27 +508,24 @@ public static class DSP
 				h[i+1] 		= @out[bands-ib-1][Mc-1-i]; // Re' = Im
 				h[Mc-1-i] 	= -@out[bands-ib-1][i+1]; 	// Im' = -Re
 			}
-			//--------90° rotation--------
+			#endregion
 
-			//********Envelope detection********
-			//Export.exportCSV(String.Format("test/band_{0}_rotated.csv", bands-ib-1), @out[bands-ib-1]);
+			#region Envelope detection
 
 			// In-place IFFT of the filtered band signal
-			Export.ExportCSV(String.Format("filteredbandsignal-before.csv"), @out[bands-ib-1], 256);
+			//Export.ExportCSV(String.Format("filteredbandsignal-before_{0}.csv", ib), @out[bands-ib-1], 256);
 			DSP.FFT(ref @out[bands-ib-1], ref @out[bands-ib-1], Mc, FFTMethod.IDFT);
-			Export.ExportCSV(String.Format("filteredbandsignal-after.csv"), s, 256);
+			//Export.ExportCSV(String.Format("filteredbandsignal-after_{0}.csv", ib), @out[bands-ib-1], 256);
 			
 			// In-place IFFT of the filtered band signal rotated by 90°
-			Export.ExportCSV(String.Format("filteredbandsignal90-before.csv"), h, 256);
+			//Export.ExportCSV(String.Format("filteredbandsignal90-before_{0}.csv", ib), h, 256);
 			DSP.FFT(ref h, ref h, Mc, FFTMethod.IDFT);
-			Export.ExportCSV(String.Format("filteredbandsignal90-after.csv"), h, 256);
+			//Export.ExportCSV(String.Format("filteredbandsignal90-after_{0}.csv", ib), h, 256);
 
-			//Export.exportCSV(String.Format("test/band_{0}_before.csv", bands-ib-1), @out[bands-ib-1]);
-
-			for (i = 0; i<Mc; i++) {
-				// TODO: why does the above crash?!
-				//for (i = 0; i < @out[bands-ib-1].Length; i++) {
+			for (i = 0; i < Mc; i++) {
 				// Magnitude of the analytic signal
+				// out[bands-ib-1][i] = sqrt(out[bands-ib-1][i]*out[bands-ib-1][i] + h[i]*h[i]);
+				
 				double x = @out[bands-ib-1][i];
 				double y = h[i];
 				double xSquared = x*x;
@@ -533,10 +534,10 @@ public static class DSP
 				@out[bands-ib-1][i] = mag;
 			}
 
-			Array.Clear(h, 0, h.Length);
-			//--------Envelope detection--------
+			Array.Clear(h, 0, h.Length); // free h
+			#endregion
 
-			//********Downsampling********
+			#region Downsampling
 			if (Mc < Md) { // if the band doesn't have to be resampled
 				Array.Resize<double>(ref @out[bands-ib-1], Md); // simply ignore the end of it
 			}
@@ -545,25 +546,24 @@ public static class DSP
 				t = @out[bands-ib-1];
 				@out[bands-ib-1] = DSP.BlackmanDownsampling(@out[bands-ib-1], Mc, Md); // Blackman downsampling
 
-				Array.Clear(t, 0, t.Length);
+				Array.Clear(t, 0, t.Length); // free t
 			}
-			//--------Downsampling--------
+			#endregion
 
-			Array.Resize<double>(ref @out[bands-ib-1], Xsize); // Tail chopping
-			
-			//Export.exportCSV(String.Format("test/band_{0}_after.csv", bands-ib-1), @out[bands-ib-1]);
+			// Tail chopping
+			Array.Resize<double>(ref @out[bands-ib-1], Xsize);
 		}
 
 		Console.Write("\n");
 
-		DSP.Normalize(ref @out, ref Xsize, ref bands, 1.0);
+		Normalize(ref @out, ref Xsize, ref bands, 1.0);
 		
-		//Export.exportCSV(String.Format("out.csv"), @out);
+		Export.ExportCSV(String.Format("out.csv"), @out);
 		return @out;
 	}
 
 	/// <summary>
-	/// Windowd Sinc method
+	/// Windowed Sinc method
 	/// </summary>
 	/// <param name="length">Length</param>
 	/// <param name="bw">Bandwidth</param>

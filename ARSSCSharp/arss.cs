@@ -345,7 +345,6 @@ public static class Arss
 	
 	public static void Main(string[] args)
 	{
-
 		/*
 		CommonUtils.FFT.FFTTesting.TimeSpectrograms();
 		Console.ReadKey();
