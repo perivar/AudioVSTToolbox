@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using CommonUtils;
 
 public static class Util
@@ -41,22 +42,41 @@ public static class Util
 		return remainder;
 	}
 	
-	// nearbyint() replacement, with the exception that the result contains a non-zero fractional part
+	
 	public static double RoundOff(double x)
 	{
-		if (x > 0)
+		return Math.Round(x);
+		
+		// nearbyint: The value of x rounded to a nearby integral (as a floating-point value).
+		// Rounding using to-nearest rounding:
+		// nearbyint (2.3) = 2.0
+		// nearbyint (3.8) = 4.0
+		// nearbyint (-2.3) = -2.0
+		// nearbyint (-3.8) = -4.0
+		
+		// nearbyint() replacement, with the exception that the result contains a non-zero fractional part
+		/*
+		if (x > 0) {
 			return x + 0.5;
-		else
+		} else {
 			return x - 0.5;
+		}
+		 */
 	}
 	
 	public static int RoundUp(double x)
 	{
+		int y = 0;
+		y = (int) MathUtils.RoundUp(x);
+
+		/*
 		if (FMod(x, 1.0) == 0) {
-			return (int) x;
+			y = (int) x;
 		} else {
-			return (int) x + 1;
+			y = (int) x + 1;;
 		}
+		 */
+		return y;
 	}
 	
 	public static float ReadUserInputFloat()
