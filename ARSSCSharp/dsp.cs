@@ -270,6 +270,7 @@ public static class DSP
 
 		size++; // allows to read value 3.0
 
+		// LUT = look up table
 		var lut = new double[size];
 		
 		for (i = 0; i<size; i++) {
@@ -666,7 +667,7 @@ public static class DSP
 			rphase = Util.DoubleRandom() * PI; // random phase between -pi and +pi
 
 			for (i = 0; i<4; i++) {
-				// generating the random sine LUT
+				// generating the random sine LUT (look up table)
 				sine[i] = Math.Cos(i * 2.0 * PI * 0.25 + rphase);
 			}
 
@@ -805,7 +806,8 @@ public static class DSP
 		// allocate noise
 		noise = new double[loop_size];
 		
-		lut = DSP.BlackmanSquareLookupTable(ref BMSQ_LUT_SIZE); // Blackman Square look-up table initalisation
+		// Blackman Square look-up table initalisation
+		lut = DSP.BlackmanSquareLookupTable(ref BMSQ_LUT_SIZE);
 
 		for (ib = 0; ib<bands; ib++) {
 			Console.Write("{0,4:D}/{1:D}\r", ib+1, bands);

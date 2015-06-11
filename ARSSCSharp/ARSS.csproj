@@ -36,7 +36,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <StartAction>Project</StartAction>
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
-    <StartArguments>"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\ARSSCSharp\Ariana Grande 32bit.wav" test.bmp</StartArguments>
+    <StartArguments>test.bmp test.wav</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>
