@@ -4,10 +4,10 @@ using CommonUtils;
 public static class SoundIO
 {
 	// compression code, 2 bytes
-	//static int WAVE_FORMAT_UNKNOWN           =  0x0000; /* Microsoft Corporation */
-	static int WAVE_FORMAT_PCM               =  0x0001; /* Microsoft Corporation */
-	//static int WAVE_FORMAT_ADPCM             =  0x0002; /* Microsoft Corporation */
-	static int WAVE_FORMAT_IEEE_FLOAT        =  0x0003; /* Microsoft Corporation */
+	const int WAVE_FORMAT_UNKNOWN           =  0x0000;
+	const int WAVE_FORMAT_PCM               =  0x0001;
+	const int WAVE_FORMAT_ADPCM             =  0x0002;
+	const int WAVE_FORMAT_IEEE_FLOAT        =  0x0003;
 	
 	/*
 	 * Native Formats
@@ -125,8 +125,7 @@ public static class SoundIO
 		#endif
 
 		for (i = 0;i<samplecount;i++) {
-			for (ic = 0;ic<channels;ic++)
-			{
+			for (ic = 0;ic<channels;ic++) {
 				double d = (double) wavfile.ReadInt32();
 				d = d / 2147483648.0;
 				sound[ic][i] = d;
@@ -145,8 +144,7 @@ public static class SoundIO
 		#endif
 
 		for (i = 0; i<samplecount; i++) {
-			for (ic = 0;ic<channels;ic++)
-			{
+			for (ic = 0;ic<channels;ic++) {
 				val = Util.RoundOff(sound[ic][i]*2147483648.0);
 				
 				if (val>2147483647.0)
@@ -169,8 +167,7 @@ public static class SoundIO
 		#endif
 
 		for (i = 0;i<samplecount;i++) {
-			for (ic = 0;ic<channels;ic++)
-			{
+			for (ic = 0;ic<channels;ic++) {
 				double d = (double) wavfile.ReadSingle();
 				sound[ic][i] = d;
 			}
@@ -187,21 +184,10 @@ public static class SoundIO
 		#endif
 
 		for (i = 0; i<samplecount; i++) {
-			for (ic = 0;ic<channels;ic++)
-			{
+			for (ic = 0;ic<channels;ic++) {
 				wavfile.Write((float)sound[ic][i]);
 			}
 		}
-	}
-
-	public static double[][] ReadWaveFile(String wavfile, ref int channels, ref int samplecount, ref int samplerate)
-	{
-		var riffRead = new RiffRead(wavfile);
-		riffRead.Process();
-		channels = riffRead.Channels;
-		samplecount = riffRead.SampleCount;
-		samplerate = riffRead.SampleRate;
-		return MathUtils.FloatToDouble(riffRead.SoundData);
 	}
 
 	public static double[][] ReadWaveFile(BinaryFile wavfile, ref int channels, ref int samplecount, ref int samplerate)
@@ -222,8 +208,8 @@ public static class SoundIO
 		// tag[1] 	4	  RIFF data size
 		// tag[2] 	4	  form-type (WAVE etc)			(1163280727)
 		// tag[3] 	4     Chunk ID                     "fmt " (0x666D7420) = 544501094
-		// tag[4]	4     Chunk Data Size              16 + extra format bytes
-		// tag[5]	2     Compression code             1 - 65,535
+		// tag[4]	4     Chunk Data Size              16 + extra format bytes 	// long chunkSize;
+		// tag[5]	2     Compression code             1 - 65,535	// short wFormatTag;
 		// tag[6]	2     Number of channels           1 - 65,535
 		// tag[7]	4     Sample rate                  1 - 0xFFFFFFFF
 		// tag[8]	4     Average bytes per second     1 - 0xFFFFFFFF
@@ -237,8 +223,8 @@ public static class SoundIO
 		Console.Write("ReadWaveFile...\n");
 		#endif
 
-		for (i = 0; i < 13; i++) // tag reading
-		{
+		// tag reading
+		for (i = 0; i < 13; i++) {
 			tag[i] = 0;
 
 			if ((i == 5) || (i == 6) || (i == 9) || (i == 10)) {
@@ -248,7 +234,7 @@ public static class SoundIO
 			}
 		}
 
-		//********File format checking********
+		#region File format checking
 		if (tag[0] != RIFF || tag[2] != WAVE)
 		{
 			Console.Error.WriteLine("This file is not in WAVE format\n");
@@ -256,6 +242,7 @@ public static class SoundIO
 			Environment.Exit(1);
 		}
 
+		// fmt tag, chunkSize and data tag
 		if (tag[3] != FMT || tag[4] != 16 || tag[11] != DATA)
 		{
 			Console.Error.WriteLine("This WAVE file format is not currently supported\n");
@@ -263,20 +250,21 @@ public static class SoundIO
 			Environment.Exit(1);
 		}
 
+		// bits per sample
 		if (tag[10] == 24)
 		{
-			Console.Error.WriteLine("24 bit PCM WAVE files is not currently supported\n");
+			Console.Error.WriteLine("24 bit PCM WAVE files are not currently supported\n");
 			Util.ReadUserReturn();
 			Environment.Exit(1);
 		}
 		
-		if (tag[5] != WAVE_FORMAT_PCM) {
-			Console.Error.WriteLine("Non PCM WAVE files is not currently supported\n");
+		// wFormatTag
+		if (tag[5] != WAVE_FORMAT_PCM && tag[5] != WAVE_FORMAT_IEEE_FLOAT) {
+			Console.Error.WriteLine("Non PCM WAVE files are not currently supported\n");
 			Util.ReadUserReturn();
 			Environment.Exit(1);
 		}
-		
-		//--------File format checking--------
+		#endregion File format checking
 
 		channels = tag[6];
 		samplecount = tag[12] / (tag[10] / 8) / channels;
@@ -288,7 +276,7 @@ public static class SoundIO
 			sound[ic] = new double[samplecount];
 		}
 
-		//********Data loading********
+		#region Data loading
 		if (tag[10] == 8) {
 			Read8Bit(wavfile, sound, samplecount, channels);
 		}
@@ -302,8 +290,7 @@ public static class SoundIO
 				Read32BitFloat(wavfile, sound, samplecount, channels);
 			}
 		}
-		
-		//--------Data loading--------
+		#endregion Data loading
 
 		wavfile.Close();
 		return sound;
@@ -312,14 +299,19 @@ public static class SoundIO
 	public static void WriteWaveFile(BinaryFile wavfile, double[][] sound, int channels, int samplecount, int samplerate, int format_param)
 	{
 		int i = 0;
+		
+		// "RIFF" = 1179011410
+		// "WAVE" = 1163280727
+		// "fmt " = 544501094
+		// "data" = 1635017060
+		
 		int[] tag = {1179011410, 0, 1163280727, 544501094, 16, 1, 1, 0, 0, 0, 0, 1635017060, 0, 0};
 
 		#if DEBUG
 		Console.Write("WriteWaveFile...\n");
 		#endif
 
-		//********WAV tags generation********
-
+		#region WAV tags generation
 		tag[12] = samplecount*(format_param/8)*channels;
 		tag[1] = tag[12]+36;
 		tag[7] = samplerate;
@@ -332,7 +324,7 @@ public static class SoundIO
 			tag[5] = 1;
 		if (format_param == 32)
 			tag[5] = 3;
-		//--------WAV tags generation--------
+		#endregion WAV tags generation
 
 		// tag writing
 		for (i = 0; i<13; i++) {

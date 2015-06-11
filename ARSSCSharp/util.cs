@@ -7,8 +7,7 @@ public static class Util
 
 	public static void ReadUserReturn()
 	{
-		if (!quiet)
-		{
+		if (!quiet) {
 			Console.Write("Press Return to quit\n");
 			Console.Read();
 		}
@@ -62,14 +61,11 @@ public static class Util
 	
 	public static float ReadUserInputFloat()
 	{
-		float x;
-		string a = new string(new char[32]);
-		a = Console.ReadLine();
-		if (a == null || a == "") {
+		string a = Console.ReadLine();
+		if (string.IsNullOrEmpty(a)) {
 			return 0.0f;
 		} else {
-			x = Convert.ToSingle(a);
-			return x;
+			return Convert.ToSingle(a);
 		}
 	}
 	
@@ -117,6 +113,7 @@ public static class Util
 		return RandomUtils.NextDoubleMinus1ToPlus1();
 	}
 	
+	#region Read and Write to BinaryFile
 	// read from file a 16-bit integer in little endian
 	public static ushort ReadUInt16(BinaryFile file)
 	{
@@ -146,14 +143,14 @@ public static class Util
 	{
 		file.Write(w);
 	}
+	#endregion
 	
 	public static string ReadUserInputString()
 	{
 		return Console.ReadLine();
 	}
 	
-	// in milliseconds
-	public static long GetTime()
+	public static long GetTimeTicks()
 	{
 		return DateTime.Now.Ticks;
 	}

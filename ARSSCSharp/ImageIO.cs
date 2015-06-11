@@ -57,7 +57,8 @@ public static class ImageIO
 			zerobytes = 0;
 		}
 
-		for (iy = y-1; iy!=-1; iy--) { // backwards reading
+		// backwards reading
+		for (iy = y-1; iy!=-1; iy--) {
 			for (ix = 0; ix< x; ix++) {
 				for (ic = 2;ic!=-1;ic--) {
 					val = bmpfile.ReadByte();
@@ -82,7 +83,7 @@ public static class ImageIO
 		int imagesize = 0;
 		byte zerobytes = new byte();
 		byte val = new byte();
-		byte zero = 0;
+		const byte zero = 0;
 		double vald;
 
 		#if DEBUG
@@ -94,7 +95,7 @@ public static class ImageIO
 			zerobytes = 0;
 		}
 
-		//********Tags********
+		#region Tags
 		filesize = 56 + ((x *3)+zerobytes) * y;
 		imagesize = 2 + ((x *3)+zerobytes) * y;
 
@@ -113,9 +114,10 @@ public static class ImageIO
 		Util.WriteUInt32(2834, bmpfile);
 		Util.WriteUInt32(0, bmpfile);
 		Util.WriteUInt32(0, bmpfile);
-		//--------Tags--------
+		#endregion Tags
 
-		for (iy = y-1; iy!=-1; iy--) { // backwards writing
+		// backwards writing
+		for (iy = y-1; iy!=-1; iy--) {
 			for (ix = 0; ix<x; ix++) {
 				
 				// define color

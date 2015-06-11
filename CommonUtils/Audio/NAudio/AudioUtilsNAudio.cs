@@ -273,7 +273,7 @@ namespace CommonUtils.Audio.NAudio
 			SampleChannel sampleChannel = ResampleToSampleChannel(wavInFilePath, waveFormat);
 			
 			int readCount = 0;
-			int bufferSize = 16*1024;
+			const int bufferSize = 16*1024;
 			var buffer = new float[bufferSize];
 			
 			// read until we have read the number of samples (measured in ms) we are supposed to do
@@ -403,7 +403,7 @@ namespace CommonUtils.Audio.NAudio
 				(int) ( (float)(startmillisecond + milliseconds) * samplerate / 1000);
 			if (start != 0 || end != sampleCount)
 			{
-				float[] temp = new float[end - start];
+				var temp = new float[end - start];
 				Array.Copy(data, start, temp, 0, end - start);
 				data = temp;
 			}
@@ -433,7 +433,7 @@ namespace CommonUtils.Audio.NAudio
 			
 			int sampleCount = 0;
 			int readCount = 0;
-			int bufferSize = 16*1024;
+			const int bufferSize = 16*1024;
 			var buffer = new float[bufferSize];
 			
 			// read until we have read the number of samples (measured in ms) we are supposed to do

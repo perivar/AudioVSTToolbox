@@ -419,218 +419,215 @@ public static class Arss
 		RandomUtils.Seed(Guid.NewGuid().GetHashCode());
 
 		bool doHelp = false;
-		for (i = 0; i<argc; i++)
-		{
-			if (string.Compare(args[i], "/?")==0) // DOS friendly help
-			{
+		for (i = 0; i<argc; i++) {
+			// DOS friendly help
+			if (string.Compare(args[i], "/?")==0) {
 				doHelp = true;
 			}
 
-			if (args[i][0] != '-') // if the argument is not a function
-			{
-				if (in_name == null) // if the input file name hasn't been filled in yet
+			// if the argument is not a function
+			if (args[i][0] != '-') {
+				if (in_name == null) {
+					// if the input file name hasn't been filled in yet
 					in_name = args[i];
-				else
-					if (out_name == null) // if the input name has been filled but not the output name yet
-						out_name = args[i];
-					else // if both names have already been filled in
-				{
+				} else if (out_name == null) {
+					// if the input name has been filled but not the output name yet
+					out_name = args[i];
+				} else {
+					// if both names have already been filled in
 					Console.Error.WriteLine("You can only have two file names as parameters.\nRemove parameter \"%s\".\nExiting with error.\n", args[i]);
 					Environment.Exit(1);
 				}
-			}
-			else // if the argument is a parameter
-			{
-				if (string.Compare(args[i], "--analysis")==0 || string.Compare(args[i], "-a")==0)
+			} else {
+				// if the argument is a parameter
+				
+				if (string.Compare(args[i], "--analysis")==0 || string.Compare(args[i], "-a")==0) {
 					mode = 1;
+				}
 
-				if (string.Compare(args[i], "--sine")==0 || string.Compare(args[i], "-s")==0)
+				if (string.Compare(args[i], "--sine")==0 || string.Compare(args[i], "-s")==0) {
 					mode = 2;
+				}
 
-				if (string.Compare(args[i], "--noise")==0 || string.Compare(args[i], "-n")==0)
+				if (string.Compare(args[i], "--noise")==0 || string.Compare(args[i], "-n")==0) {
 					mode = 3;
+				}
 
-				if (string.Compare(args[i], "--quiet")==0 || string.Compare(args[i], "-q")==0)
+				if (string.Compare(args[i], "--quiet")==0 || string.Compare(args[i], "-q")==0) {
 					Util.quiet = true;
+				}
 
-				if (string.Compare(args[i], "--linear")==0 || string.Compare(args[i], "-l")==0)
+				if (string.Compare(args[i], "--linear")==0 || string.Compare(args[i], "-l")==0) {
 					DSP.LOGBASE = 1.0;
+				}
 
-				if (string.Compare(args[i], "--sample-rate")==0 || string.Compare(args[i], "-r")==0)
-					if (StringUtils.IsNumeric(args[++i]))
+				if (string.Compare(args[i], "--sample-rate")==0 || string.Compare(args[i], "-r")==0) {
+					if (StringUtils.IsNumeric(args[++i])) {
 						samplerate = Convert.ToInt32(args[i]);
-					else
-				{
+					}
+				} else {
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
 					Environment.Exit(1);
 				}
 
-				if (string.Compare(args[i], "--min-freq")==0 || string.Compare(args[i], "-min")==0)
-					if (StringUtils.IsNumeric(args[++i]))
-				{
-					basefreq = Convert.ToDouble(args[i]);
-					if (basefreq == 0)
-						basefreq = Double.MinValue; // Set it to this extremely close-to-zero number so that it's considered set
-				}
-				else
-				{
+				if (string.Compare(args[i], "--min-freq")==0 || string.Compare(args[i], "-min")==0) {
+					if (StringUtils.IsNumeric(args[++i])) {
+						basefreq = Convert.ToDouble(args[i]);
+						if (basefreq == 0) {
+							// Set it to this extremely close-to-zero number so that it's considered set
+							basefreq = Double.MinValue;
+						}
+					}
+				} else {
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
 					Environment.Exit(1);
 				}
 
-				if (string.Compare(args[i], "--max-freq")==0 || string.Compare(args[i], "-max")==0)
-					if (StringUtils.IsNumeric(args[++i]))
+				if (string.Compare(args[i], "--max-freq")==0 || string.Compare(args[i], "-max")==0) {
+					if (StringUtils.IsNumeric(args[++i])) {
 						maxfreq = Convert.ToDouble(args[i]);
-					else
-				{
+					}
+				} else {
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
 					Environment.Exit(1);
 				}
 
-				if (string.Compare(args[i], "--bpo")==0 || string.Compare(args[i], "-b")==0)
-					if (StringUtils.IsNumeric(args[++i]))
+				if (string.Compare(args[i], "--bpo")==0 || string.Compare(args[i], "-b")==0) {
+					if (StringUtils.IsNumeric(args[++i])) {
 						bpo = Convert.ToDouble(args[i]);
-					else
-				{
+					}
+				} else {
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
 					Environment.Exit(1);
 				}
 
-				if (string.Compare(args[i], "--pps")==0 || string.Compare(args[i], "-p")==0)
-					if (StringUtils.IsNumeric(args[++i]))
+				if (string.Compare(args[i], "--pps")==0 || string.Compare(args[i], "-p")==0) {
+					if (StringUtils.IsNumeric(args[++i])) {
 						pixpersec = Convert.ToDouble(args[i]);
-					else
-				{
+					}
+				} else {
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
 					Environment.Exit(1);
 				}
 
-				if (string.Compare(args[i], "--height")==0 || string.Compare(args[i], "-y")==0)
-					if (StringUtils.IsNumeric(args[++i]))
+				if (string.Compare(args[i], "--height")==0 || string.Compare(args[i], "-y")==0) {
+					if (StringUtils.IsNumeric(args[++i])) {
 						Ysize = Convert.ToInt32(args[i]);
-					else
-				{
+					}
+				} else {
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
 					Environment.Exit(1);
 				}
 
-				if (string.Compare(args[i], "--width")==0 || string.Compare(args[i], "-x")==0)
-					if (StringUtils.IsNumeric(args[++i]))
+				if (string.Compare(args[i], "--width")==0 || string.Compare(args[i], "-x")==0) {
+					if (StringUtils.IsNumeric(args[++i])) {
 						Xsize = Convert.ToInt32(args[i]);
-					else
-				{
+					}
+				} else {
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
 					Environment.Exit(1);
 				}
 
-				if (string.Compare(args[i], "--loop-size")==0)
-					if (StringUtils.IsNumeric(args[++i]))
+				if (string.Compare(args[i], "--loop-size")==0) {
+					if (StringUtils.IsNumeric(args[++i])) {
 						DSP.LOOP_SIZE_SEC = Convert.ToInt32(args[i]);
-					else
-				{
+					}
+				} else {
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
 					Environment.Exit(1);
 				}
 
-				if (string.Compare(args[i], "--log-base")==0)
-					if (StringUtils.IsNumeric(args[++i]))
+				if (string.Compare(args[i], "--log-base")==0) {
+					if (StringUtils.IsNumeric(args[++i])) {
 						DSP.LOGBASE = Convert.ToDouble(args[i]);
-					else
-				{
+					}
+				} else {
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
 					Environment.Exit(1);
 				}
 
-				if (string.Compare(args[i], "--bmsq-lut-size")==0)
-					if (StringUtils.IsNumeric(args[++i]))
+				if (string.Compare(args[i], "--bmsq-lut-size")==0) {
+					if (StringUtils.IsNumeric(args[++i])) {
 						DSP.BMSQ_LUT_SIZE = Convert.ToInt32(args[i]);
-					else
-				{
+					}
+				} else {
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
 					Environment.Exit(1);
 				}
 
-				if (string.Compare(args[i], "--pi")==0) // lol
-					if (StringUtils.IsNumeric(args[++i]))
+				if (string.Compare(args[i], "--pi")==0) {
+					if (StringUtils.IsNumeric(args[++i])) {
 						DSP.PI = Convert.ToDouble(args[i]);
-					else
-				{
+					}
+				} else {
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
 					Environment.Exit(1);
 				}
 
-				if (string.Compare(args[i], "--format-param")==0 || string.Compare(args[i], "-f")==0)
-					if (StringUtils.IsNumeric(args[++i]))
+				if (string.Compare(args[i], "--format-param")==0 || string.Compare(args[i], "-f")==0) {
+					if (StringUtils.IsNumeric(args[++i])) {
 						format_param = Convert.ToInt32(args[i]);
-					else
-				{
+					}
+				} else {
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
 					Environment.Exit(1);
 				}
 
-				if (string.Compare(args[i], "--brightness")==0 || string.Compare(args[i], "-g")==0)
-					if (StringUtils.IsNumeric(args[++i]))
+				if (string.Compare(args[i], "--brightness")==0 || string.Compare(args[i], "-g")==0) {
+					if (StringUtils.IsNumeric(args[++i])) {
 						brightness = Convert.ToDouble(args[i]);
-					else
-				{
+					}
+				} else {
 					Console.Error.WriteLine(MSG_NUMBER_EXPECTED, args[i-1]);
 					Environment.Exit(1);
 				}
 
 				// TODO implement --duration, -d
 
-				if (string.Compare(args[i], "--version")==0 || string.Compare(args[i], "-v")==0)
-				{
+				if (string.Compare(args[i], "--version")==0 || string.Compare(args[i], "-v")==0) {
 					Console.Write("Copyright (C) 2005-2008 Michel Rouzic\nProgram last modified by its author on {0}\n", date);
 					Environment.Exit(0);
 				}
 
-				if (doHelp || string.Compare(args[i], "--help")==0 || string.Compare(args[i], "-h")==0)
-				{
+				if (doHelp || string.Compare(args[i], "--help")==0 || string.Compare(args[i], "-h")==0) {
 					Arss.PrintHelp();
 					Environment.Exit(0);
 				}
 
-				if (string.Compare(args[i], "--adv-help")==0)
-				{
+				if (string.Compare(args[i], "--adv-help")==0) {
 					Arss.PrintAdvancedHelp();
 					Environment.Exit(0);
 				}
 			}
 		}
 
-		if (in_name!=null) // if in_name has already been filled in
-		{
-			fin = new BinaryFile(in_name); // try to open it
-			if (fin == null)
-			{
+		// if in_name has already been filled in
+		if (in_name!=null) {
+			// try to open it
+			fin = new BinaryFile(in_name);
+			if (fin == null) {
 				Console.Error.WriteLine("The input file {0} could not be found\nExiting with error.\n", in_name);
 				Environment.Exit(1);
 			}
 			Console.Write("Input file : {0}\n", in_name);
-		}
-		else
-		{
-			if (Util.quiet)
-			{
+		} else {
+			if (Util.quiet) {
 				Console.Error.WriteLine("Please specify an input file.\nExiting with error.\n");
 				Environment.Exit(1);
 			}
 
 			Console.Write("Type 'help' to read the manual page\n");
 
-			do
-			{
+			do {
 				fin = null;
 				Console.Write("Input file : ");
 				in_name = Util.ReadUserInputString();
 
-				if (string.Compare(in_name, "help", StringComparison.Ordinal) == 0) // if 'help' has been typed
-				{
+				// if 'help' has been typed
+				if (string.Compare(in_name, "help", StringComparison.Ordinal) == 0) {
 					fin = null;
 					Arss.PrintHelp(); // print the help
-				}
-				else {
+				} else {
 					if (File.Exists(in_name)) {
 						fin = new BinaryFile(in_name);
 					}
@@ -639,20 +636,17 @@ public static class Arss
 			while (fin == null);
 		}
 
-		if (out_name != null) // if out_name has already been filled in
-		{
+		// if out_name has already been filled in
+		if (out_name != null) {
 			fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
-			if (fout == null)
-			{
+			if (fout == null) {
 				Console.Error.WriteLine("The output file {0} could not be opened.\nPlease make sure it isn't opened by any other program and press Return.\nExiting with error.\n", out_name);
 				Environment.Exit(1);
 			}
 			Console.Write("Output file : {0}\n", out_name);
 		}
-		else
-		{
-			if (Util.quiet)
-			{
+		else {
+			if (Util.quiet) {
 				Console.Error.WriteLine("Please specify an output file.\nExiting with error.\n");
 				Environment.Exit(1);
 			}
@@ -660,21 +654,21 @@ public static class Arss
 			out_name = Util.ReadUserInputString();
 
 			fout = null;
-			if (!string.IsNullOrEmpty(out_name))
+			if (!string.IsNullOrEmpty(out_name)) {
 				fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
+			}
 
-			while (fout == null)
-			{
+			while (fout == null) {
 				Console.Write("Output file : ");
 				out_name = Util.ReadUserInputString();
 
-				if (!string.IsNullOrEmpty(out_name))
+				if (!string.IsNullOrEmpty(out_name)) {
 					fout = new BinaryFile(out_name, BinaryFile.ByteOrder.LittleEndian, true);
+				}
 			}
 
 			// we will never get here cause BinaryFile does not return a null
-			while (fout == null)
-			{
+			while (fout == null) {
 				Console.Error.WriteLine("The output file {0} could not be opened.\nPlease make sure it isn't opened by any other program and press Return.\n", out_name);
 				Console.Read();
 				
@@ -690,8 +684,7 @@ public static class Arss
 
 		if (mode == 0) {
 			do {
-				if (Util.quiet)
-				{
+				if (Util.quiet) {
 					Console.Error.WriteLine("Please specify an operation mode.\nUse either --analysis (-a), --sine (-s) or --noise (-n).\nExiting with error.\n");
 					Environment.Exit(1);
 				}
@@ -705,7 +698,6 @@ public static class Arss
 		if (mode == 1) {
 			sound = SoundIO.ReadWaveFile(fin, ref channels, ref samplecount, ref samplerate); // Sound input
 			fin.Close();
-			//sound = SoundIO.ReadWaveFile(in_name, ref channels, ref samplecount, ref samplerate); // Sound input
 
 			#if DEBUG
 			Console.Write("samplecount : {0:D}\nchannels : {1:D}\n", samplecount, channels);
@@ -727,7 +719,8 @@ public static class Arss
 
 			// if the output format parameter is undefined
 			if (format_param == 0) {
-				if (!Util.quiet) { // if prompting is allowed
+				if (!Util.quiet) {
+					// if prompting is allowed
 					format_param = SoundIO.ReadUserWaveOutParameters();
 				} else {
 					format_param = 32; // default is 32
@@ -736,8 +729,9 @@ public static class Arss
 
 			Arss.SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 1); // User settings input
 
-			if (brightness!=1.0)
+			if (brightness!=1.0) {
 				DSP.BrightnessControl(ref image, ref Ysize, ref Xsize, brightness);
+			}
 
 			if (mode == 2) {
 				sound[0] = DSP.SynthesizeSine(ref image, ref Xsize, ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref pixpersec, ref bpo); // Sine synthesis
@@ -748,7 +742,7 @@ public static class Arss
 			SoundIO.WriteWaveFile(fout, sound, 1, samplecount, samplerate, format_param);
 		}
 
-		clockb = Util.GetTime();
+		clockb = Util.GetTimeTicks();
 		TimeSpan duration = TimeSpan.FromTicks((clockb-DSP.clockA));
 		Console.Write("Processing time : {0:D2} m  {1:D2} s  {1:D2} ms\n", duration.Minutes, duration.Seconds, duration.Milliseconds);
 
