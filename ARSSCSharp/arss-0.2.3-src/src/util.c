@@ -554,11 +554,13 @@ inline uint32_t rand_u32()
 inline double dblrand()	// range is +/- 1.0
 {
 	double y = ((double) rand_u32() * (1.0 / 2147483648.0)) - 1.0;
-	
+
+	#ifdef DEBUG
 	char buff[50];
 	sprintf( buff, "dblrand out: [%.9f]", y );
 	log_file( buff );
-	
+	#endif
+		
 	return y;
 }
 
