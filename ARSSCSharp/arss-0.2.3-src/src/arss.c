@@ -318,7 +318,9 @@ void print_adv_help()
 
 int main(int argc, char *argv[])
 {
+	#ifdef DEBUG
 	log_file("Starting arss ...");
+	#endif
 
 	#ifdef DEBUG
 	//test_fft();
@@ -630,8 +632,11 @@ int main(int argc, char *argv[])
 	if (mode==1)
 	{
 		sound=wav_in(fin, &channels, &samplecount, &samplerate);					// Sound input
-		log_file("Read sound...");
 		
+		#ifdef DEBUG
+		log_file("Read sound...");
+		#endif
+
 		#ifdef DEBUG
 		printf("samplecount : %i\nchannels : %i\n", samplecount, channels);
 		#endif
