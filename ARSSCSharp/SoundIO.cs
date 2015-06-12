@@ -27,45 +27,36 @@ public static class SoundIO
 	
 	public static void Read8Bit(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		int i = 0;
-		int ic = 0;
-		byte @byte = new byte();
-
 		#if DEBUG
 		Console.Write("Read8Bit...\n");
 		#endif
 
-		for (i = 0; i<samplecount; i++) {
-			for (ic = 0;ic<channels;ic++)
+		for (int i = 0; i < samplecount; i++) {
+			for (int ic = 0; ic < channels; ic++)
 			{
-				@byte = wavfile.ReadByte();
-				sound[ic][i] = (double) @byte/128.0 - 1.0;
+				byte @byte = wavfile.ReadByte();
+				sound[ic][i] = (double) @byte / 128.0 - 1.0;
 			}
 		}
 	}
 	
 	public static void Write8Bit(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		int i = 0;
-		int ic = 0;
-		double val;
-		byte @byte = new byte();
-
 		#if DEBUG
 		Console.Write("Write8Bit...\n");
 		#endif
 
-		for (i = 0; i<samplecount; i++) {
-			for (ic = 0;ic<channels;ic++)
+		for (int i = 0; i < samplecount; i++) {
+			for (int ic = 0; ic < channels; ic++)
 			{
-				val = Util.RoundOff((sound[ic][i]+1.0)*128.0);
+				int val = Util.RoundOff((sound[ic][i] + 1) * 128);
 				
-				if (val>255)
+				if (val > 255)
 					val = 255;
-				if (val<0)
+				if (val < 0)
 					val = 0;
 
-				@byte = (byte) val;
+				byte @byte = (byte) val;
 
 				wavfile.Write(@byte);
 			}
@@ -74,15 +65,12 @@ public static class SoundIO
 	
 	public static void Read16Bit(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		int i = 0;
-		int ic = 0;
-
 		#if DEBUG
 		Console.Write("Read16Bit...\n");
 		#endif
 
-		for (i = 0; i<samplecount; i++) {
-			for (ic = 0; ic<channels; ic++) {
+		for (int i = 0; i < samplecount; i++) {
+			for (int ic = 0; ic < channels; ic++) {
 				double d = (double) wavfile.ReadInt16();
 				d = d / 32768.0;
 				sound[ic][i] = d;
@@ -92,23 +80,19 @@ public static class SoundIO
 	
 	public static void Write16Bit(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		int i = 0;
-		int ic = 0;
-		double val;
-
 		#if DEBUG
 		Console.Write("Write16Bit...\n");
 		#endif
 
-		for (i = 0; i<samplecount; i++) {
-			for (ic = 0;ic<channels;ic++)
+		for (int i = 0; i<samplecount; i++) {
+			for (int ic = 0;ic<channels;ic++)
 			{
-				val = Util.RoundOff(sound[ic][i]*32768.0);
+				int val = Util.RoundOff(sound[ic][i] * 32768);
 				
-				if (val>32767.0)
-					val = 32767.0;
-				if (val<-32768.0)
-					val = -32768.0;
+				if (val > 32767)
+					val = 32767;
+				if (val < -32768)
+					val = -32768;
 
 				wavfile.Write((Int16) val);
 			}
@@ -117,15 +101,12 @@ public static class SoundIO
 	
 	public static void Read32Bit(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		int i = 0;
-		int ic = 0;
-
 		#if DEBUG
 		Console.Write("Read32Bit...\n");
 		#endif
 
-		for (i = 0;i<samplecount;i++) {
-			for (ic = 0;ic<channels;ic++) {
+		for (int i = 0; i < samplecount; i++) {
+			for (int ic = 0; ic < channels; ic++) {
 				double d = (double) wavfile.ReadInt32();
 				d = d / 2147483648.0;
 				sound[ic][i] = d;
@@ -135,22 +116,18 @@ public static class SoundIO
 	
 	public static void Write32Bit(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		int i = 0;
-		int ic = 0;
-		double val;
-
 		#if DEBUG
 		Console.Write("Write32Bit...\n");
 		#endif
 
-		for (i = 0; i<samplecount; i++) {
-			for (ic = 0;ic<channels;ic++) {
-				val = Util.RoundOff(sound[ic][i]*2147483648.0);
+		for (int i = 0; i < samplecount; i++) {
+			for (int ic = 0; ic < channels; ic++) {
+				int val = Util.RoundOff(sound[ic][i] * 2147483648);
 				
-				if (val>2147483647.0)
-					val = 2147483647.0;
-				if (val<-2147483648.0)
-					val = -2147483648.0;
+				if (val > 2147483647)
+					val = 2147483647;
+				if (val < -2147483648)
+					val = -2147483648;
 
 				wavfile.Write((int) val);
 			}
@@ -159,15 +136,12 @@ public static class SoundIO
 
 	public static void Read32BitFloat(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		int i = 0;
-		int ic = 0;
-
 		#if DEBUG
 		Console.Write("Read32BitFloat...\n");
 		#endif
 
-		for (i = 0;i<samplecount;i++) {
-			for (ic = 0;ic<channels;ic++) {
+		for (int i = 0; i < samplecount; i++) {
+			for (int ic = 0; ic < channels; ic++) {
 				double d = (double) wavfile.ReadSingle();
 				sound[ic][i] = d;
 			}
@@ -176,15 +150,12 @@ public static class SoundIO
 	
 	public static void Write32BitFloat(BinaryFile wavfile, double[][] sound, int samplecount, int channels)
 	{
-		int i = 0;
-		int ic = 0;
-
 		#if DEBUG
 		Console.Write("Write32BitFloat...\n");
 		#endif
 
-		for (i = 0; i<samplecount; i++) {
-			for (ic = 0;ic<channels;ic++) {
+		for (int i = 0; i < samplecount; i++) {
+			for (int ic = 0; ic < channels; ic++) {
 				wavfile.Write((float)sound[ic][i]);
 			}
 		}

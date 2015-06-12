@@ -1,12 +1,6 @@
-#define DEBUG
-
 using System;
 using System.IO;
-
-// TODO: FOR TESTING
 using System.Linq;
-using System.Drawing;
-using System.Diagnostics;
 
 using CommonUtils;
 
@@ -73,7 +67,7 @@ public static class Arss
 		int set_x = 0;
 
 		#if DEBUG
-		Console.Write("settingsinput...\n");
+		Console.Write("SettingsInput...\n");
 		#endif
 
 		// Path to the configuration file
@@ -83,50 +77,64 @@ public static class Arss
 			freqcfg = new StreamReader(configFileName);
 		}
 
-		if (samplerate == 0) // if we're in synthesis mode and that no samplerate has been defined yet
+		// if we're in synthesis mode and that no samplerate has been defined yet
+		if (samplerate == 0)
 		{
 			if (Util.quiet)
 			{
 				Console.Error.WriteLine("Please provide a sample rate for your output sound.\nUse --sample-rate (-r).\nExiting with error.\n");
 				Environment.Exit(1);
 			}
-			//********Output settings querying********
-
+			
+			#region Output settings querying
 			Console.Write("Sample rate [44100] : "); // Query for a samplerate
 			samplerate = (int) Util.ReadUserInputFloat();
-			if (samplerate == 0 || samplerate<-2147483647) // The -2147483647 check is used for the sake of compatibility with C90
+			
+			// The -2147483647 check is used for the sake of compatibility with C90
+			if (samplerate == 0 || samplerate < -2147483647) {
 				samplerate = 44100; // Default value
-			//--------Output settings querying--------
+			}
+			#endregion
 		}
 
-		if (basefreq !=0 ) // count unset interdependant frequency-domain settings
+		// count unset interdependant frequency-domain settings
+		if (basefreq !=0 ) {
 			set_min = 1;
+		}
 		
-		if (maxfreq !=0 )
+		if (maxfreq !=0 ) {
 			set_max = 1;
+		}
 		
-		if (bandsperoctave !=0 )
+		if (bandsperoctave !=0 ) {
 			set_bpo = 1;
+		}
 		
-		if (bands != 0)
+		if (bands != 0) {
 			set_y = 1;
+		}
 		
 		unset = set_min + set_max + set_bpo + set_y;
 
-		if (unset == 4) // if too many settings are set
+		// if too many settings are set
+		if (unset == 4)
 		{
-			if (mode == 0)
+			if (mode == 0) {
 				Console.Error.WriteLine("You have set one parameter too many.\nUnset either --min-freq (-min), --max-freq (-max), --bpo (-b)\nExiting with error.\n");
-			if (mode == 1)
+			}
+			if (mode == 1) {
 				Console.Error.WriteLine("You have set one parameter too many.\nUnset either --min-freq (-min), --max-freq (-max), --bpo (-b) or --height (-y)\nExiting with error.\n");
+			}
 			Environment.Exit(1);
 		}
 
-		if (pixpersec != 0)
+		if (pixpersec != 0) {
 			set_pps = 1;
+		}
 		
-		if (Xsize != 0)
+		if (Xsize != 0) {
 			set_x = 1;
+		}
 
 		if (set_x+set_pps == 2 && mode == 0)
 		{
@@ -136,39 +144,50 @@ public static class Arss
 
 		if (freqcfg != null) // load settings from file if it exists
 		{
-			if (basefreq == 0) // load values from it if they haven't been set yet
+			// load values from it if they haven't been set yet
+			if (basefreq == 0) {
 				basefreq = double.Parse(freqcfg.ReadLine());
-			else
+			} else{
 				trash = double.Parse(freqcfg.ReadLine());
+			}
 			
-			if (maxfreq == 0)
+			if (maxfreq == 0) {
 				maxfreq = double.Parse(freqcfg.ReadLine());
-			else
+			} else {
 				trash = double.Parse(freqcfg.ReadLine());
+			}
 			
-			if (bandsperoctave == 0)
+			if (bandsperoctave == 0) {
 				bandsperoctave = double.Parse(freqcfg.ReadLine());
-			else
+			} else {
 				trash = double.Parse(freqcfg.ReadLine());
+			}
 			
-			if (pixpersec == 0)
+			if (pixpersec == 0) {
 				pixpersec = double.Parse(freqcfg.ReadLine());
-			else
+			} else {
 				trash = double.Parse(freqcfg.ReadLine());
+			}
 		}
 		else
 		{
-			if (basefreq == 0) // otherwise load default values
+			// otherwise load default values
+			if (basefreq == 0) {
 				basefreq = 27.5;
-			if (maxfreq == 0)
+			}
+			if (maxfreq == 0) {
 				maxfreq = 20000;
-			if (bandsperoctave == 0)
+			}
+			if (bandsperoctave == 0) {
 				bandsperoctave = 12;
-			if (pixpersec == 0)
+			}
+			if (pixpersec == 0) {
 				pixpersec = 150;
+			}
 		}
-		if (freqcfg != null)
+		if (freqcfg != null) {
 			freqcfg.Close();
+		}
 
 		if (unset<3 && set_min == 0)
 		{
@@ -179,8 +198,9 @@ public static class Arss
 			}
 			Console.Write("Min. frequency (Hz) [{0:f3}]: ", basefreq);
 			gf = Util.ReadUserInputFloat();
-			if (gf != 0)
+			if (gf != 0) {
 				basefreq = gf;
+			}
 			unset++;
 			set_min = 1;
 		}
@@ -195,8 +215,9 @@ public static class Arss
 			}
 			Console.Write("Bands per octave [{0:f3}]: ", bandsperoctave);
 			gf = Util.ReadUserInputFloat();
-			if (gf != 0)
+			if (gf != 0) {
 				bandsperoctave = gf;
+			}
 			unset++;
 			set_bpo = 1;
 		}
@@ -213,11 +234,13 @@ public static class Arss
 			
 			ma = basefreq * Math.Pow(DSP.LOGBASE, ((i-2) / bandsperoctave)) * samplerate; // max allowed frequency
 
-			if (maxfreq > ma)
-				if (Util.FMod(ma, 1.0) == 0.0)
+			if (maxfreq > ma) {
+				if (Util.FMod(ma, 1.0) == 0.0) {
 					maxfreq = ma; // replaces the "Upper frequency limit above Nyquist frequency" warning
-				else
+				} else {
 					maxfreq = ma - Util.FMod(ma, 1.0);
+				}
+			}
 
 			if (mode == 0) // if we're in Analysis mode
 			{
@@ -228,14 +251,17 @@ public static class Arss
 				}
 				Console.Write("Max. frequency (Hz) (up to {0:f3}) [{1:f3}]: ", ma, maxfreq);
 				gf = Util.ReadUserInputFloat();
-				if (gf != 0)
+				if (gf != 0) {
 					maxfreq = gf;
+				}
 
-				if (maxfreq > ma)
-					if (Util.FMod(ma, 1.0) == 0.0)
+				if (maxfreq > ma) {
+					if (Util.FMod(ma, 1.0) == 0.0) {
 						maxfreq = ma; // replaces the "Upper frequency limit above Nyquist frequency" warning
-					else
+					} else {
 						maxfreq = ma - Util.FMod(ma, 1.0);
+					}
+				}
 			}
 
 			unset++;
@@ -257,16 +283,17 @@ public static class Arss
 
 		if (set_y == 0)
 		{
-			bands = 1 + (int) Util.RoundOff(bandsperoctave * (Util.Log(maxfreq) - Util.Log(basefreq * samplerate)));
+			bands = 1 + Util.RoundOff(bandsperoctave * (Util.Log(maxfreq) - Util.Log(basefreq * samplerate)));
 			Console.Write("Bands : {0:D}\n", bands);
 		}
 
 		if (set_bpo == 0)
 		{
-			if (DSP.LOGBASE == 1.0)
+			if (DSP.LOGBASE == 1.0) {
 				bandsperoctave = maxfreq / samplerate;
-			else
+			} else {
 				bandsperoctave = (bands-1) / (Util.Log(maxfreq) - Util.Log(basefreq * samplerate));
+			}
 			Console.Write("Bands per octave : {0:f3}\n", bandsperoctave);
 		}
 
@@ -285,8 +312,9 @@ public static class Arss
 			}
 			Console.Write("Pixels per second [{0:f3}]: ", pixpersec);
 			gf = Util.ReadUserInputFloat();
-			if (gf != 0)
+			if (gf != 0) {
 				pixpersec = gf;
+			}
 		}
 
 		basefreq *= samplerate; // turn back to Hz just for the sake of writing to the file
@@ -345,38 +373,6 @@ public static class Arss
 	
 	public static void Main(string[] args)
 	{
-		/*
-		CommonUtils.FFT.FFTTesting.TimeSpectrograms();
-		Console.ReadKey();
-		return;
-
-		int _channels = 0;
-		int _samplecount = 0;
-		int _samplerate = 0;
-		string _filenameIn = @"C:\Users\perivar.nerseth\Music\Sleep Away16.wav";
-		string _filenameOut = @"C:\Users\perivar.nerseth\Music\Sleep Away16-test2.png";
-		double[][] _sound = GlobalMembersSoundIO.ReadWaveFile(_filenameIn, ref _channels, ref _samplecount, ref _samplerate); // Sound input
-		double [] _s = _sound[0];
-		
-		Spectrogram spectrogram = new Spectrogram();
-		Bitmap bmp  = spectrogram.to_image(ref _s, _samplerate);
-		bmp.Save(_filenameOut);
-		Console.ReadKey();
-		return;
-		double[] out1 = new double[_samplecount];
-		double[] out2 = new double[_samplecount];
-		GlobalMembersDsp.FFT(ref _s, ref out1, _samplecount, GlobalMembersDsp.FFTMethod.DFT);
-		GlobalMembersDsp.FFT(ref out1, ref out2, _samplecount, GlobalMembersDsp.FFTMethod.IDFT);
-		
-		_sound[0] = out2;
-		
-		BinaryFile binOut = new BinaryFile(_filenameOut, BinaryFile.ByteOrder.LittleEndian, true);
-		GlobalMembersSoundIO.WriteWaveFile(binOut, _sound, 1, _samplecount, _samplerate, 16);
-		
-		Console.ReadKey();
-		return;
-		 */
-		
 		int argc = args.Length;
 		
 		BinaryFile fin;
@@ -401,14 +397,14 @@ public static class Arss
 		string in_name = null;
 		string out_name = null;
 
-		// initialisation of global using defaults defined in dsp.h
-		DSP.PI 			= PI_D;
+		// initialisation of global using defaults defined in Arss.cs
+		DSP.PI 				= PI_D;
 		DSP.LOGBASE 		= LOGBASE_D;
 		DSP.LOOP_SIZE_SEC 	= LOOP_SIZE_SEC_D;
 		DSP.BMSQ_LUT_SIZE 	= BMSQ_LUT_SIZE_D;
 		
 		#if QUIET
-		GlobalMembersUtil.quiet = true;
+		Util.quiet = true;
 		#else
 		Util.quiet = false;
 		#endif
@@ -420,6 +416,7 @@ public static class Arss
 
 		bool doHelp = false;
 		for (i = 0; i<argc; i++) {
+			
 			// DOS friendly help
 			if (string.Compare(args[i], "/?")==0) {
 				doHelp = true;
@@ -602,7 +599,7 @@ public static class Arss
 		}
 
 		// if in_name has already been filled in
-		if (in_name!=null) {
+		if (in_name != null) {
 			// try to open it
 			fin = new BinaryFile(in_name);
 			if (fin == null) {
@@ -700,7 +697,7 @@ public static class Arss
 			fin.Close();
 
 			#if DEBUG
-			Console.Write("samplecount : {0:D}\nchannels : {1:D}\n", samplecount, channels);
+			Console.Write("Samplecount : {0:D}\nChannels : {1:D}\n", samplecount, channels);
 			#endif
 
 			Arss.SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 0); // User settings input

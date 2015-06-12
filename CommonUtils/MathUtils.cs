@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections; // BitArray
 using System.Collections.Generic;
 using System.Linq;
 
@@ -97,6 +98,75 @@ namespace CommonUtils
 		}
 		#endregion
 		
+		#region Prime Number Methods
+		/// <summary>
+		/// This function is designed to look for the smallest integer that satisfies the
+		/// following conditions:
+		/// (i) it is greater than or equal to the argument 'number';
+		/// (ii) it is a product only of the numbers 2, 3, 5 and 7.
+		/// </summary>
+		/// <param name="number">number to check for low prime factorisation</param>
+		/// <param name="validSmallPrimes">an array of valid small primes to check for, e.g. int[] p = { 2, 3 }</param>
+		/// <returns>the next low prime factor that is equal or higher than the argument</returns>
+		/// <description>
+		/// For faster FFT processing you can use buildingblocks that are multiples off small primes
+		/// For example, the standard FFTW distribution works most efficiently for arrays
+		/// whose size can be factored into small primes (2, 3, 5, and 7).
+		/// I.e. the fftw transform works most efficiently on arrays which have dimensions
+		/// which are products of small primes.
+		///	</description>
+		public static int NextLowPrimeFactorization(int number, int[] validSmallPrimes = null)
+		{
+			while (IsLowPrimeFactors(number, validSmallPrimes) != 1) {
+				number++;
+			}
+			return number;
+		}
+
+		/// <summary>
+		/// Check if the passed number is a multiple of small primes
+		/// i.e. a product only of the numbers 2, 3, 5 and 7.
+		/// </summary>
+		/// <param name="number">number to check</param>
+		/// <param name="validSmallPrimes">an array of valid small primes to check for, e.g. int[] p = { 2, 3 }</param>
+		/// <returns>returns 1 if x is only made of these small primes</returns>
+		public static int IsLowPrimeFactors(int number, int[] validSmallPrimes = null)
+		{
+			if (number < 2) return 0;
+			
+			if (validSmallPrimes == null) {
+				validSmallPrimes = new int[] { 2, 3, 5, 7 }; // the small primes to check for
+			}
+
+			for (int i = 0; i < validSmallPrimes.Length; i++) {
+				while (number % validSmallPrimes[i] == 0) {
+					number /= validSmallPrimes[i];
+				}
+			}
+			return number;
+		}
+		
+		/// <summary>
+		/// Calculate the prime factorization for a given number
+		/// </summary>
+		/// <param name="numbers">the number to factor</param>
+		/// <returns>list of prime factors</returns>
+		/// <see cref="http://www.vogella.com/tutorials/JavaAlgorithmsPrimeFactorization/article.html"/>
+		public static List<int> PrimeFactors(int numbers) {
+			int n = numbers;
+			var factors = new List<int>();
+			for (int i = 2; i <= n / i; i++) {
+				while (n % i == 0) {
+					factors.Add(i);
+					n /= i;
+				}
+			}
+			if (n > 1) {
+				factors.Add(n);
+			}
+			return factors;
+		}
+		
 		/// <summary>
 		/// Check if number is a prime number
 		/// </summary>
@@ -115,6 +185,42 @@ namespace CommonUtils
 			}
 			return true;
 		}
+		
+		/// <summary>
+		/// Return a list of all primes up to and including the passed bound
+		/// using the Sieve of Erathostenes method
+		/// </summary>
+		/// <param name="bound">highest (inclusive) possible number to return</param>
+		/// <returns>a list of all primes up to the bound number</returns>
+		/// <description>Finding prime numbers up to int.MaxValue takes about 45 seconds (and uses +/- 130Mb of memory).
+		/// Using 1 million as bound will be lightning fast, though.
+		/// For larger numbers, you need more advanced techniques.
+		/// A popular one is the Miller-Rabin primality test.
+		/// </description>
+		public static IEnumerable<int> Primes(int bound)
+		{
+			if (bound < 2) yield break;
+			//The first prime number is 2
+			yield return 2;
+
+			var composite = new BitArray((bound - 1) / 2);
+			int limit = ((int)(Math.Sqrt(bound)) - 1) / 2;
+			for (int i = 0; i < limit; i++) {
+				if (composite[i]) continue;
+				//The first number not crossed out is prime
+				int prime = 2 * i + 3;
+				yield return prime;
+				//cross out all multiples of this prime, starting at the prime squared
+				for (int j = (prime * prime - 2) >> 1; j < composite.Count; j += prime) {
+					composite[j] = true;
+				}
+			}
+			//The remaining numbers not crossed out are also prime
+			for (int i = limit; i < composite.Count; i++) {
+				if (!composite[i]) yield return 2 * i + 3;
+			}
+		}
+		#endregion
 		
 		#region Normalize
 		// normalize power (volume) of an audio file.

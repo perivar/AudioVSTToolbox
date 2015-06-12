@@ -1,4 +1,5 @@
 using System;
+using CommonUtils; // for MathUtils
 using fftwlib;
 
 // Papers:
@@ -422,9 +423,9 @@ public static class DSP
 		#region ZEROPADDING Note : Don't do it in Circular mode
 		// Mb is the length of the original signal once zero-padded (always even)
 		if (LOGBASE == 1.0) {
-			Mb = samplecount - 1 + (int) Util.RoundOff(5.0/ freq[1]-freq[0]); // linear mode
+			Mb = samplecount - 1 + Util.RoundOff(5.0/ freq[1]-freq[0]); // linear mode
 		} else {
-			Mb = samplecount - 1 + (int) Util.RoundOff(2.0 * 5.0/((freq[0] * Math.Pow(LOGBASE, -1.0/(bpo))) * (1.0 - Math.Pow(LOGBASE, -1.0 / bpo))));
+			Mb = samplecount - 1 + Util.RoundOff(2.0 * 5.0/((freq[0] * Math.Pow(LOGBASE, -1.0/(bpo))) * (1.0 - Math.Pow(LOGBASE, -1.0 / bpo))));
 		}
 
 		if (Mb % 2 == 1)  { // if Mb is odd
@@ -434,10 +435,10 @@ public static class DSP
 		Mc = 0;
 		Md = 0;
 
-		Mb = (int) Util.RoundOff((double) Util.NextPrime((int) Util.RoundOff(Mb * pixpersec)) / pixpersec);
+		Mb = Util.RoundOff((double) Util.NextLowPrimes((int) Util.RoundOff(Mb * pixpersec)) / pixpersec);
 
 		// Md is the length of the envelopes once downsampled (constant)
-		Md = (int) Util.RoundOff(Mb * pixpersec);
+		Md = Util.RoundOff(Mb * pixpersec);
 
 		// realloc to the zeropadded size
 		Array.Resize<double>(ref s, Mb);
@@ -454,8 +455,8 @@ public static class DSP
 
 		for (ib = 0; ib<bands; ib++) {
 			#region Filtering
-			Fa = (int) Util.RoundOff(DSP.LogPositionToFrequency((double)(ib-1)/(double)(bands-1), basefreq, maxfreq) * Mb);
-			Fd = (int) Util.RoundOff(DSP.LogPositionToFrequency((double)(ib+1)/(double)(bands-1), basefreq, maxfreq) * Mb);
+			Fa = Util.RoundOff(DSP.LogPositionToFrequency((double)(ib-1)/(double)(bands-1), basefreq, maxfreq) * Mb);
+			Fd = Util.RoundOff(DSP.LogPositionToFrequency((double)(ib+1)/(double)(bands-1), basefreq, maxfreq) * Mb);
 			La = DSP.FrequencyToLogPosition((double) Fa / (double) Mb, basefreq, maxfreq);
 			Ld = DSP.FrequencyToLogPosition((double) Fd / (double) Mb, basefreq, maxfreq);
 
@@ -481,7 +482,7 @@ public static class DSP
 
 			// round the larger bands up to the next integer made of 2^n * 3^m
 			if (Md < Mc) {
-				Mc = Util.NextPrime(Mc);
+				Mc = Util.NextLowPrimes(Mc);
 			}
 
 			Console.Write("{0,4:D}/{1:D} (FFT size: {2,6:D})   {3:f2} Hz - {4:f2} Hz\r", ib+1, bands, Mc, (double) Fa *samplerate/Mb, (double) Fd *samplerate/Mb);
@@ -634,11 +635,11 @@ public static class DSP
 		clockA = Util.GetTimeTicks();
 
 		// In Circular mode keep it to sbsize = Xsize * 2;
-		sbsize = Util.NextPrime(Xsize * 2);
+		sbsize = Util.NextLowPrimes(Xsize * 2);
 
-		samplecount = (int) Util.RoundOff(Xsize/pixpersec);
+		samplecount = Util.RoundOff(Xsize/pixpersec);
 		Console.Write("Sound duration : {0:f3} s\n", (double) samplecount/samplerate);
-		samplecount = (int) Util.RoundOff(0.5 *sbsize/pixpersec); // Do not change this value as it would stretch envelopes
+		samplecount = Util.RoundOff(0.5 *sbsize/pixpersec); // Do not change this value as it would stretch envelopes
 
 		s = new double[samplecount];
 		
@@ -646,7 +647,7 @@ public static class DSP
 		sband = new double[sbsize];
 
 		// Bc is the index of the band's centre in the frequency domain on sband (its imaginary match being sbsize-Bc)
-		Bc = (int) Util.RoundOff(0.25 * (double) sbsize);
+		Bc = Util.RoundOff(0.25 * (double) sbsize);
 
 		// Mh is the length of the real or imaginary part of the envelope's FFT, DC element included and Nyquist element excluded
 		Mh = (sbsize + 1) >> 1;
@@ -686,7 +687,7 @@ public static class DSP
 			DSP.FFT(ref sband, ref sband, sbsize, FFTMethod.DFT);
 			
 			// Fc is the index of the band's centre in the frequency domain on the new signal
-			Fc = (int) Util.RoundOff(freq[ib] * samplecount); // band's centre index (envelope's DC element)
+			Fc = Util.RoundOff(freq[ib] * samplecount); // band's centre index (envelope's DC element)
 
 			Console.Write("{0,4:D}/{1:D}   {2:f2} Hz\r", ib+1, bands, (double) Fc * samplerate / samplecount);
 
@@ -704,7 +705,7 @@ public static class DSP
 		Console.Write("\n");
 
 		DSP.FFT(ref s, ref s, samplecount, FFTMethod.IDFT); // IFFT of the final sound
-		samplecount = (int) Util.RoundOff(Xsize/pixpersec); // chopping tails by ignoring them
+		samplecount = Util.RoundOff(Xsize/pixpersec); // chopping tails by ignoring them
 
 		DSP.Normalize(ref s, ref samplecount, 1.0);
 
@@ -762,7 +763,7 @@ public static class DSP
 
 		clockA = Util.GetTimeTicks();
 
-		samplecount = (int) Util.RoundOff(Xsize/pixpersec); // calculation of the length of the final signal
+		samplecount = Util.RoundOff(Xsize/pixpersec); // calculation of the length of the final signal
 		Console.Write("Sound duration : {0:f3} s\n", (double) samplecount/samplerate);
 
 		// allocation of the final signal
@@ -776,11 +777,11 @@ public static class DSP
 
 		if (LOGBASE == 1.0) {
 			// linear mode
-			loop_size_min = (int) Util.RoundOff(4.0 * 5.0/ freq[1]-freq[0]);
+			loop_size_min = Util.RoundOff(4.0 * 5.0/ freq[1]-freq[0]);
 		} else {
 			// this is the estimate of how many samples the longest FIR
 			// will take up in the time domain
-			loop_size_min = (int) Util.RoundOff(2.0 * 5.0/((freq[0] * Math.Pow(2.0, -1.0/(bpo))) * (1.0 - Math.Pow(2.0, -1.0 / bpo))));
+			loop_size_min = Util.RoundOff(2.0 * 5.0/((freq[0] * Math.Pow(2.0, -1.0/(bpo))) * (1.0 - Math.Pow(2.0, -1.0 / bpo))));
 		}
 
 		if (loop_size_min > loop_size) {
@@ -788,7 +789,7 @@ public static class DSP
 		}
 
 		// enlarge the loop_size to the next multiple of short primes in order to make IFFTs faster
-		loop_size = Util.NextPrime(loop_size);
+		loop_size = Util.NextLowPrimes(loop_size);
 		#endregion Loop size calculation
 
 		#region Pink noise generation
@@ -818,8 +819,8 @@ public static class DSP
 			}
 			
 			#region Filtering
-			Fa = (int) Util.RoundOff(DSP.LogPositionToFrequency((double)(ib-1)/(double)(bands-1), basefreq, maxfreq) * loop_size);
-			Fd = (int) Util.RoundOff(DSP.LogPositionToFrequency((double)(ib+1)/(double)(bands-1), basefreq, maxfreq) * loop_size);
+			Fa = Util.RoundOff(DSP.LogPositionToFrequency((double)(ib-1)/(double)(bands-1), basefreq, maxfreq) * loop_size);
+			Fd = Util.RoundOff(DSP.LogPositionToFrequency((double)(ib+1)/(double)(bands-1), basefreq, maxfreq) * loop_size);
 			La = DSP.FrequencyToLogPosition((double) Fa / (double) loop_size, basefreq, maxfreq);
 			Ld = DSP.FrequencyToLogPosition((double) Fd / (double) loop_size, basefreq, maxfreq);
 

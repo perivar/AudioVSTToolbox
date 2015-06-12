@@ -6,6 +6,22 @@ public static class Util
 {
 	public static bool quiet = false;
 
+	#region Read User Input Methods
+	public static string ReadUserInputString()
+	{
+		return Console.ReadLine();
+	}
+	
+	public static float ReadUserInputFloat()
+	{
+		string a = Console.ReadLine();
+		if (string.IsNullOrEmpty(a)) {
+			return 0.0f;
+		} else {
+			return Convert.ToSingle(a);
+		}
+	}
+	
 	public static void ReadUserReturn()
 	{
 		if (!quiet) {
@@ -13,6 +29,7 @@ public static class Util
 			Console.Read();
 		}
 	}
+	#endregion
 	
 	/// <summary>
 	/// Compute remainder of division
@@ -42,10 +59,11 @@ public static class Util
 		return remainder;
 	}
 	
-	
-	public static double RoundOff(double x)
+	#region Rounding
+	public static int RoundOff(double x)
 	{
-		return Math.Round(x);
+		int y = 0;
+		y = (int) Math.Round(x);
 		
 		// nearbyint: The value of x rounded to a nearby integral (as a floating-point value).
 		// Rounding using to-nearest rounding:
@@ -57,11 +75,12 @@ public static class Util
 		// nearbyint() replacement, with the exception that the result contains a non-zero fractional part
 		/*
 		if (x > 0) {
-			return x + 0.5;
+			y = (int) (x + 0.5);
 		} else {
-			return x - 0.5;
+			y = (int) (x - 0.5);
 		}
 		 */
+		return y;
 	}
 	
 	public static int RoundUp(double x)
@@ -78,37 +97,12 @@ public static class Util
 		 */
 		return y;
 	}
+	#endregion
 	
-	public static float ReadUserInputFloat()
-	{
-		string a = Console.ReadLine();
-		if (string.IsNullOrEmpty(a)) {
-			return 0.0f;
-		} else {
-			return Convert.ToSingle(a);
-		}
-	}
-	
-	// returns 1 if x is only made of these small primes
-	public static int SmallPrimes(int x)
-	{
-		int[] p = {2, 3};
-
-		for (int i = 0; i < 2; i++) {
-			while (x%p[i] == 0) {
-				x/=p[i];
-			}
-		}
-		return x;
-	}
-	
-	public static int NextPrime(int x)
-	{
-		while (SmallPrimes(x) != 1) {
-			x++;
-		}
-
-		return x;
+	public static int NextLowPrimes(int number) {
+		//int[] validPrimes = { 2, 3 }; // these are used in the original arss methods
+		//return MathUtils.NextLowPrimeFactorization(number, validPrimes);
+		return MathUtils.NextLowPrimeFactorization(number);
 	}
 	
 	public static double Log(double x)
@@ -127,7 +121,10 @@ public static class Util
 		}
 	}
 	
-	// range is +/- 1.0
+	/// <summary>
+	/// Return a random number between -1 and 1
+	/// </summary>
+	/// <returns>a random number between -1 and 1</returns>
 	public static double DoubleRandom()
 	{
 		return RandomUtils.NextDoubleMinus1ToPlus1();
@@ -164,11 +161,6 @@ public static class Util
 		file.Write(w);
 	}
 	#endregion
-	
-	public static string ReadUserInputString()
-	{
-		return Console.ReadLine();
-	}
 	
 	public static long GetTimeTicks()
 	{
