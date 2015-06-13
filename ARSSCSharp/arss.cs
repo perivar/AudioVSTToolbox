@@ -237,7 +237,7 @@ public static class Arss
 			if (maxfreq > ma) {
 				if (Util.FMod(ma, 1.0) == 0.0) {
 					// replaces the "Upper frequency limit above Nyquist frequency" warning
-					maxfreq = ma; 
+					maxfreq = ma;
 				} else {
 					maxfreq = ma - Util.FMod(ma, 1.0);
 				}
@@ -259,7 +259,7 @@ public static class Arss
 				if (maxfreq > ma) {
 					// replaces the "Upper frequency limit above Nyquist frequency" warning
 					if (Util.FMod(ma, 1.0) == 0.0) {
-						maxfreq = ma; 
+						maxfreq = ma;
 					} else {
 						maxfreq = ma - Util.FMod(ma, 1.0);
 					}
@@ -380,7 +380,6 @@ public static class Arss
 		BinaryFile fin;
 		BinaryFile fout;
 		
-		int i = 0;
 		double[][] sound;
 		double[][] image;
 		double basefreq = 0;
@@ -399,7 +398,7 @@ public static class Arss
 		string in_name = null;
 		string out_name = null;
 
-		// initialisation of global using defaults defined in Arss.cs
+		// initialisation of global using defaults defined in cs
 		DSP.PI 				= PI_D;
 		DSP.LOGBASE 		= LOGBASE_D;
 		DSP.LOOP_SIZE_SEC 	= LOOP_SIZE_SEC_D;
@@ -417,7 +416,7 @@ public static class Arss
 		RandomUtils.Seed(Guid.NewGuid().GetHashCode());
 
 		bool doHelp = false;
-		for (i = 0; i<argc; i++) {
+		for (int i = 0; i < argc; i++) {
 			
 			// DOS friendly help
 			if (string.Compare(args[i], "/?")==0) {
@@ -589,12 +588,12 @@ public static class Arss
 				}
 
 				if (doHelp || string.Compare(args[i], "--help")==0 || string.Compare(args[i], "-h")==0) {
-					Arss.PrintHelp();
+					PrintHelp();
 					Environment.Exit(0);
 				}
 
 				if (string.Compare(args[i], "--adv-help")==0) {
-					Arss.PrintAdvancedHelp();
+					PrintAdvancedHelp();
 					Environment.Exit(0);
 				}
 			}
@@ -625,7 +624,7 @@ public static class Arss
 				// if 'help' has been typed
 				if (string.Compare(in_name, "help", StringComparison.Ordinal) == 0) {
 					fin = null;
-					Arss.PrintHelp(); // print the help
+					PrintHelp(); // print the help
 				} else {
 					if (File.Exists(in_name)) {
 						fin = new BinaryFile(in_name);
@@ -702,7 +701,7 @@ public static class Arss
 			Console.Write("Samplecount : {0:D}\nChannels : {1:D}\n", samplecount, channels);
 			#endif
 
-			Arss.SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 0); // User settings input
+			SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 0); // User settings input
 			image = DSP.Analyze(ref sound[0], ref samplecount, ref samplerate, ref Xsize, ref Ysize, ref bpo, ref pixpersec, ref basefreq); // Analysis
 			if (brightness != 1.0) {
 				DSP.BrightnessControl(ref image, ref Ysize, ref Xsize, 1.0/brightness);
@@ -726,7 +725,7 @@ public static class Arss
 				}
 			}
 
-			Arss.SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 1); // User settings input
+			SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 1); // User settings input
 
 			if (brightness!=1.0) {
 				DSP.BrightnessControl(ref image, ref Ysize, ref Xsize, brightness);
