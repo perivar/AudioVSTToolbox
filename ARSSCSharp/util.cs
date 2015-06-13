@@ -60,7 +60,7 @@ public static class Util
 	}
 	
 	#region Rounding
-	public static int RoundOff(double x)
+	public static int RoundToClosestInt(double x)
 	{
 		int y = 0;
 		y = (int) Math.Round(x);
@@ -83,7 +83,7 @@ public static class Util
 		return y;
 	}
 	
-	public static int RoundUp(double x)
+	public static int RoundUpToClosestInt(double x)
 	{
 		int y = 0;
 		y = (int) MathUtils.RoundUp(x);
@@ -100,9 +100,9 @@ public static class Util
 	#endregion
 	
 	public static int NextLowPrimes(int number) {
-		//int[] validPrimes = { 2, 3 }; // these are used in the original arss methods
-		//return MathUtils.NextLowPrimeFactorization(number, validPrimes);
-		return MathUtils.NextLowPrimeFactorization(number);
+		int[] validPrimes = { 2, 3 }; // these are used in the original arss methods
+		return MathUtils.NextLowPrimeFactorization(number, validPrimes);
+		//return MathUtils.NextLowPrimeFactorization(number);
 	}
 	
 	public static double Log(double x)

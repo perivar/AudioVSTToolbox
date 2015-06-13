@@ -49,7 +49,7 @@ public static class SoundIO
 		for (int i = 0; i < samplecount; i++) {
 			for (int ic = 0; ic < channels; ic++)
 			{
-				int val = Util.RoundOff((sound[ic][i] + 1) * 128);
+				int val = Util.RoundToClosestInt((sound[ic][i] + 1) * 128);
 				
 				if (val > 255)
 					val = 255;
@@ -87,7 +87,7 @@ public static class SoundIO
 		for (int i = 0; i<samplecount; i++) {
 			for (int ic = 0;ic<channels;ic++)
 			{
-				int val = Util.RoundOff(sound[ic][i] * 32768);
+				int val = Util.RoundToClosestInt(sound[ic][i] * 32768);
 				
 				if (val > 32767)
 					val = 32767;
@@ -122,7 +122,7 @@ public static class SoundIO
 
 		for (int i = 0; i < samplecount; i++) {
 			for (int ic = 0; ic < channels; ic++) {
-				int val = Util.RoundOff(sound[ic][i] * 2147483648);
+				int val = Util.RoundToClosestInt(sound[ic][i] * 2147483648);
 				
 				if (val > 2147483647)
 					val = 2147483647;

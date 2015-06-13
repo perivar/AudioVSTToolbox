@@ -236,7 +236,8 @@ public static class Arss
 
 			if (maxfreq > ma) {
 				if (Util.FMod(ma, 1.0) == 0.0) {
-					maxfreq = ma; // replaces the "Upper frequency limit above Nyquist frequency" warning
+					// replaces the "Upper frequency limit above Nyquist frequency" warning
+					maxfreq = ma; 
 				} else {
 					maxfreq = ma - Util.FMod(ma, 1.0);
 				}
@@ -256,8 +257,9 @@ public static class Arss
 				}
 
 				if (maxfreq > ma) {
+					// replaces the "Upper frequency limit above Nyquist frequency" warning
 					if (Util.FMod(ma, 1.0) == 0.0) {
-						maxfreq = ma; // replaces the "Upper frequency limit above Nyquist frequency" warning
+						maxfreq = ma; 
 					} else {
 						maxfreq = ma - Util.FMod(ma, 1.0);
 					}
@@ -283,7 +285,7 @@ public static class Arss
 
 		if (set_y == 0)
 		{
-			bands = 1 + Util.RoundOff(bandsperoctave * (Util.Log(maxfreq) - Util.Log(basefreq * samplerate)));
+			bands = 1 + Util.RoundToClosestInt(bandsperoctave * (Util.Log(maxfreq) - Util.Log(basefreq * samplerate)));
 			Console.Write("Bands : {0:D}\n", bands);
 		}
 
