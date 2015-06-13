@@ -12,7 +12,7 @@ namespace CommonUtils
 	/// </summary>
 	public static class ColorUtils
 	{
-		private static List<Color> matlabGraphColorList = new List<Color>() {
+		private static readonly List<Color> matlabGraphColorList = new List<Color>() {
 			Color.FromArgb(191, 191, 0), // Orange'ish
 			Color.FromArgb(191, 0, 191), // Purple
 			Color.FromArgb(0, 191, 191), // Cyan'ish
@@ -254,8 +254,8 @@ namespace CommonUtils
 		/// Return H,S,L in range of 0-1
 		/// </summary>
 		/// <param name="rgb">Color object (RGB)</param>
-		/// <param name="hue">Hue (0 - 360)</param>
-		/// <param name="sl">Saturation (0 - 1)</param>
+		/// <param name="h">Hue (0 - 360)</param>
+		/// <param name="s">Saturation (0 - 1)</param>
 		/// <param name="l">Luminosity (0 - 1)</param>
 		public static void RgbToHsl(Color rgb, out double h, out double s, out double l)
 		{
@@ -273,7 +273,7 @@ namespace CommonUtils
 		/// <returns>a List of Colors</returns>
 		public static List<Color> RgbLinearInterpolate(Color start, Color end, int colorCount)
 		{
-			List<Color> ret = new List<Color>();
+			var ret = new List<Color>();
 
 			// linear interpolation lerp (r,a,b) = (1-r)*a + r*b = (1-r)*(ax,ay,az) + r*(bx,by,bz)
 			for (int n = 0; n < colorCount; n++)
@@ -300,7 +300,7 @@ namespace CommonUtils
 		public static List<Color> RgbLinearInterpolate(int steps, List<Color> colors) {
 			int parts = colors.Count - 1;
 			
-			List<Color> gradients = new List<Color>();
+			var gradients = new List<Color>();
 
 			double partSteps = Math.Floor((double)steps / parts);
 			double remainder = steps - (partSteps * parts);
@@ -338,7 +338,7 @@ namespace CommonUtils
 		public static List<Color> HsbLinearInterpolate(int steps, List<IColor> colors) {
 			int parts = colors.Count - 1;
 			
-			List<Color> gradients = new List<Color>();
+			var gradients = new List<Color>();
 			
 			double partSteps = Math.Floor((double)steps / parts);
 			double remainder = steps - (partSteps * parts);
@@ -382,7 +382,7 @@ namespace CommonUtils
 		public static List<Color> HslLinearInterpolate(int steps, List<IColor> colors) {
 			int parts = colors.Count - 1;
 			
-			List<Color> gradients = new List<Color>();
+			var gradients = new List<Color>();
 			
 			double partSteps = Math.Floor((double)steps / parts);
 			double remainder = steps - (partSteps * parts);
@@ -421,10 +421,11 @@ namespace CommonUtils
 		/// Return a list of gradients based on the REW color palette
 		/// </summary>
 		/// <param name="steps">number of gradients (colors) to create</param>
+		/// <param name="type">ColorPaletteType, sox, rew etc.</param>
 		/// <returns>a list of gradients</returns>
 		public static List<Color> GetHSBColorGradients(int steps, ColorPaletteType type) {
 			
-			List<IColor> colors = new List<IColor>();
+			var colors = new List<IColor>();
 
 			switch (type) {
 				case ColorPaletteType.REW:
@@ -479,10 +480,11 @@ namespace CommonUtils
 		/// Return a list of gradients based on the REW color palette
 		/// </summary>
 		/// <param name="steps">number of gradients (colors) to create</param>
+		/// <param name="type">ColorPaletteType (Photosounder, Rew or Sox)</param>
 		/// <returns>a list of gradients</returns>
 		public static List<Color> GetHSLColorGradients(int steps, ColorPaletteType type) {
 			
-			List<IColor> colors = new List<IColor>();
+			var colors = new List<IColor>();
 
 			switch (type) {
 				case ColorPaletteType.REW:
@@ -537,10 +539,11 @@ namespace CommonUtils
 		/// Return a list of gradients based on the REW color palette
 		/// </summary>
 		/// <param name="steps">number of gradients (colors) to create</param>
+		/// <param name="type">ColorPaletteType (Photosounder, Rew or Sox)</param>
 		/// <returns>a list of gradients</returns>
 		public static List<Color> GetRGBColorGradients(int steps, ColorPaletteType type) {
 			
-			List<Color> colors = new List<Color>();
+			var colors = new List<Color>();
 
 			switch (type) {
 				case ColorPaletteType.REW:
@@ -596,9 +599,9 @@ namespace CommonUtils
 		public static void SaveColorGradients(string imageToSave, List<Color> gradients, int width) {
 			int height = gradients.Count;
 			
-			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			var png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
 			Graphics g = Graphics.FromImage(png);
-			Pen pen = new Pen(Color.Black, 1.0f);
+			var pen = new Pen(Color.Black, 1.0f);
 			
 			for (int i = 0; i < height; i++) {
 				pen.Color = gradients[i];
@@ -620,15 +623,14 @@ namespace CommonUtils
 		public static Bitmap GetColorGradientsPalette(List<Color> gradients, int height = 0) {
 			int width = gradients.Count;
 			
-			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			var png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
 			Graphics g = Graphics.FromImage(png);
-			Pen pen = new Pen(Color.Black, 1.0f);
+			var pen = new Pen(Color.Black, 1.0f);
 			
 			for (int i = 0; i < width; i++) {
 				pen.Color = gradients[i];
 				g.DrawLine(pen, i, 0, i, height);
 			}
-			//png.Save(@"c:\colorgradient-palette.png");
 			return png;
 		}
 
@@ -642,11 +644,12 @@ namespace CommonUtils
 		/// </summary>
 		/// <param name="mask">Gray shaded image to be colorized</param>
 		/// <param name="alpha">0-255</param>
+		/// <param name="type">ColorPaletteType (Photosounder, Rew or Sox)</param>
 		/// <returns>a colorized bitmap</returns>
 		public static Bitmap Colorize(Image mask, byte alpha, ColorPaletteType type)
 		{
 			// Create new bitmap to act as a work surface for the colorization process
-			Bitmap output = new Bitmap(mask.Width, mask.Height, PixelFormat.Format32bppArgb);
+			var output = new Bitmap(mask.Width, mask.Height, PixelFormat.Format32bppArgb);
 
 			// Create a graphics object from our memory bitmap so we can draw on it and clear it's drawing surface
 			Graphics surface = Graphics.FromImage(output);
@@ -658,7 +661,7 @@ namespace CommonUtils
 
 			// Create new image attributes class to handle the color remappings
 			// Inject our color map array to instruct the image attributes class how to do the colorization
-			ImageAttributes remapper = new ImageAttributes();
+			var remapper = new ImageAttributes();
 			remapper.SetRemapTable(colors);
 
 			// Draw our mask onto our memory bitmap work surface using the new color mapping scheme
@@ -677,11 +680,8 @@ namespace CommonUtils
 		/// <returns>a ColorMap array</returns>
 		private static ColorMap[] CreatePaletteIndex(byte alpha, ColorPaletteType type)
 		{
-			ColorMap[] outputMap = new ColorMap[256];
+			var outputMap = new ColorMap[256];
 
-			// Change this path to wherever you saved the palette image.
-			//Bitmap palette = (Bitmap)Bitmap.FromFile(@"C:\Users\Dylan\Documents\Visual Studio 2005\Projects\HeatMapTest\palette.bmp");
-			
 			List<Color> gradients;
 			switch (type) {
 				case ColorPaletteType.PHOTOSOUNDER:
@@ -747,19 +747,7 @@ namespace CommonUtils
 			
 			int colorIndex = index % 7;
 			return matlabGraphColorList[colorIndex];
-
-			/*
-			List<Color> colorList = new List<Color>();
-			colorList.Add(Color.FromArgb(191, 191, 0)); // Orange'ish
-			colorList.Add(Color.FromArgb(191, 0, 191)); // Purple
-			colorList.Add(Color.FromArgb(0, 191, 191)); // Cyan'ish
-			colorList.Add(Color.FromArgb(255, 0, 0)); // Red
-			colorList.Add(Color.FromArgb(0, 127, 0)); // Green
-			colorList.Add(Color.FromArgb(0, 0, 255)); // Blue
-			colorList.Add(Color.FromArgb(63, 63, 63)); // Dark Gray
-			 */
 		}
-		
 	}
 	
 	public interface IColor {
@@ -794,9 +782,9 @@ namespace CommonUtils
 		/// <summary>
 		/// Create a HSLColor object
 		/// </summary>
-		/// <param name="H">Hue (0 - 1)</param>
-		/// <param name="S">Saturation (0 - 1)</param>
-		/// <param name="L">Luminosity (0 - 1)</param>
+		/// <param name="h">Hue (0 - 1)</param>
+		/// <param name="s">Saturation (0 - 1)</param>
+		/// <param name="l">Luminosity (0 - 1)</param>
 		public HSLColor(double h, double s, double l) {
 			this.Hue = h;
 			this.Saturation = s;
@@ -853,9 +841,9 @@ namespace CommonUtils
 		/// <summary>
 		/// Create a HSBColor object
 		/// </summary>
-		/// <param name="H">Hue (0 - 1)</param>
-		/// <param name="S">Saturation (0 - 1)</param>
-		/// <param name="B">Brightness (0 - 1)</param>
+		/// <param name="h">Hue (0 - 1)</param>
+		/// <param name="s">Saturation (0 - 1)</param>
+		/// <param name="b">Brightness (0 - 1)</param>
 		public HSBColor(double h, double s, double b) {
 			this.Hue = h;
 			this.Saturation = s;
