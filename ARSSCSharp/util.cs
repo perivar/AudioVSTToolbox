@@ -63,6 +63,7 @@ public static class Util
 	public static int RoundToClosestInt(double x)
 	{
 		int y = 0;
+		// use AwayFromZero since default rounding is "round to even", which would make 1.5 => 1
 		y = (int) Math.Round(x, MidpointRounding.AwayFromZero);
 		
 		// nearbyint: The value of x rounded to a nearby integral (as a floating-point value).
@@ -100,9 +101,9 @@ public static class Util
 	#endregion
 	
 	public static int NextLowPrimes(int number) {
-		int[] validPrimes = { 2, 3 }; // these are used in the original arss methods
-		return MathUtils.NextLowPrimeFactorization(number, validPrimes);
-		//return MathUtils.NextLowPrimeFactorization(number);
+		//int[] validPrimes = { 2, 3 }; // these are used in the original arss methods
+		//return MathUtils.NextLowPrimeFactorization(number, validPrimes);
+		return MathUtils.NextLowPrimeFactorization(number);
 	}
 	
 	public static double Log(double x)
