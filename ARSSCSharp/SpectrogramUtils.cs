@@ -6,6 +6,8 @@ using System.Linq;
 using CommonUtils;
 using CommonUtils.FFT;
 
+// Converted from C++ to C#
+// https://github.com/krajj7/spectrogram/blob/master/spectrogram.cpp
 public static class SpectrogramUtils
 {
 	public static double[] Zeros(double[] signal, int length) {

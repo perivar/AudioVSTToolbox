@@ -4,7 +4,6 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Drawing;
 
-using CommonUtils;
 using CommonUtils.FFT;
 
 public enum SynthesisType {
@@ -42,6 +41,8 @@ public class Pair<T, U> {
 	public U Second { get; set; }
 };
 
+// Converted from C++ to C#
+// https://github.com/krajj7/spectrogram/blob/master/spectrogram.cpp
 public class Spectrogram
 {
 	private int bandwidth;

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 
+// Converted from C++ to C#
+// https://github.com/krajj7/spectrogram/blob/master/spectrogram.cpp
 // see Spectrogram.cs for enums
 
 public class Palette
