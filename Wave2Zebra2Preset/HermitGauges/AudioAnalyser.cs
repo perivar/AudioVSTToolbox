@@ -16,9 +16,8 @@
 /// 
 
 using System;
-
 using Wave2Zebra2Preset.HermitGauges;
-using CommonUtils.Audio.Bass;
+using CommonUtils.Audio;
 using Lomont;
 
 namespace Wave2Zebra2Preset.HermitGauges
@@ -41,7 +40,7 @@ namespace Wave2Zebra2Preset.HermitGauges
 		///
 		public AudioAnalyser()
 		{
-			audioReader = new BassProxy();
+			audioReader = BassProxy.Instance;
 
 			spectrumAnalyser = new FFTTransformer(inputBlockSize, windowFunction);
 

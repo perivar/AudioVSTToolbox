@@ -13,7 +13,7 @@ using Wave2Zebra2Preset.DataAccess;
 using Wave2Zebra2Preset.Model;
 
 using CommonUtils;
-using CommonUtils.Audio.Bass;
+using CommonUtils.Audio;
 
 using Un4seen.Bass.AddOn.Tags;
 
@@ -132,7 +132,7 @@ namespace Wave2Zebra2Preset
 			_storage = new RamStorage(NUMBER_OF_HASH_TABLES); /*Number of LSH Tables, used for storage purposes*/
 			_permutations = new LocalPermutations(PATH_TO_PERMUTATIONS, SEPARATOR); /*Permutations*/
 			_repository = new Repository(_storage, _permutations);
-			_proxy = new BassProxy(); /*audio proxy used in reading the file*/
+			_proxy = BassProxy.Instance; /*audio proxy used in reading the file*/
 			_createStride = new IncrementalStaticStride(STRIDE_SIZE_INCREMENTAL, SAMPLES_IN_FINGERPRINT);
 			_queryStride = new IncrementalRandomStride(STRIDE_SIZE_INCREMENTAL, SAMPLES_IN_FINGERPRINT, SAMPLES_IN_FINGERPRINT);
 		}

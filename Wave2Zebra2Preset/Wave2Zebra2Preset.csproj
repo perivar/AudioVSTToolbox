@@ -76,14 +76,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\CommonUtils\Audio\Bass\AudioUtilsBass.cs">
-      <Link>AudioUtilsBass.cs</Link>
-    </Compile>
     <Compile Include="..\CommonUtils\Audio\Bass\BassProxy.cs">
       <Link>BassProxy.cs</Link>
     </Compile>
-    <Compile Include="..\CommonUtils\Audio\IAudio.cs">
-      <Link>IAudio.cs</Link>
+    <Compile Include="..\CommonUtils\Audio\ISoundPlayer.cs">
+      <Link>ISoundPlayer.cs</Link>
+    </Compile>
+    <Compile Include="..\CommonUtils\Audio\IWaveformPlayer.cs">
+      <Link>IWaveformPlayer.cs</Link>
     </Compile>
     <Compile Include="..\CommonUtils\Audio\NAudio\AudioUtilsNAudio.cs">
       <Link>AudioUtilsNAudio.cs</Link>

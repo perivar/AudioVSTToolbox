@@ -30,7 +30,7 @@ using Wave2Zebra2Preset.HermitGauges;
 using CommonUtils;
 using CommonUtils.FFT;
 using CommonUtils.Audio.NAudio;
-using CommonUtils.Audio.Bass;
+
 
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -147,18 +147,14 @@ namespace Wave2Zebra2Preset
 	
 	class Program
 	{
-		///   Music file filters
-		/// </summary>
-		private static readonly string[] _musicFileFilters = new[] {"*.mp3", "*.ogg", "*.flac", "*.wav"};
-		
 		public static void SaveColorbar(String filenameToSave) {
-			int width = 33;
-			int height = 305;
-			System.Console.Out.WriteLine("Writing " + filenameToSave);
+			const int width = 33;
+			const int height = 305;
+			Console.Out.WriteLine("Writing " + filenameToSave);
 
-			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			var png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
 			Graphics g = Graphics.FromImage(png);
-			Pen pen = new Pen(Color.Black, 1.0f);
+			var pen = new Pen(Color.Black, 1.0f);
 			
 			// start with red (0, 1, 1)
 			float h = 0;
@@ -195,15 +191,15 @@ namespace Wave2Zebra2Preset
 		}
 		
 		public static void ReadColorPaletteBar(String filenameToRead, String csvExport) {
-			Bitmap colorimage = new Bitmap(filenameToRead);
+			var colorimage = new Bitmap(filenameToRead);
 			
-			List<MyColorHSB> pixels = new List<MyColorHSB>();
+			var pixels = new List<MyColorHSB>();
 			for (int y = 0; y < colorimage.Height; y++)
 			{
 				Color pixel = colorimage.GetPixel(0, y);
 				pixels.Add(new MyColorHSB(pixel));
 			}
-			Export.exportCSV(csvExport, pixels.ToArray(), pixels.Count);
+			Export.ExportCSV(csvExport, pixels.ToArray(), pixels.Count);
 		}
 
 		/// <summary>
@@ -214,7 +210,7 @@ namespace Wave2Zebra2Preset
 		public static MyColorHSB GetREWColorPaletteValue(float value) {
 			
 			float h = 0;
-			float s = 1;
+			const float s = 1;
 			float l = 0;
 			
 			// determine h, s and l values
@@ -236,8 +232,8 @@ namespace Wave2Zebra2Preset
 			float hue = h * 60f;
 			if (hue < 0) hue += 360;
 			
-			HSBColor hslcolor = new HSBColor(hue/360, s, l);
-			MyColorHSB mycolor = new MyColorHSB(hslcolor);
+			var hslcolor = new HSBColor(hue/360, s, l);
+			var mycolor = new MyColorHSB(hslcolor);
 			return mycolor;
 		}
 		
@@ -246,12 +242,12 @@ namespace Wave2Zebra2Preset
 			int width = 40;
 			int height = 400;
 			
-			Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+			var png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
 			Graphics g = Graphics.FromImage(png);
-			Pen pen = new Pen(Color.Black, 1.0f);
+			var pen = new Pen(Color.Black, 1.0f);
 			
 			MyColorHSB mycolor;
-			List<MyColorHSB> pixels = new List<MyColorHSB>();
+			var pixels = new List<MyColorHSB>();
 			for (float i = 0; i < 100; i = i + 0.25f) {
 				mycolor = GetREWColorPaletteValue(i);
 				pixels.Add(mycolor);
@@ -259,7 +255,7 @@ namespace Wave2Zebra2Preset
 				g.DrawLine(pen, 0, i*4, width, i*4);
 			}
 			png.Save(imageToSave);
-			Export.exportCSV(csvToSave, pixels.ToArray(), pixels.Count);
+			Export.ExportCSV(csvToSave, pixels.ToArray(), pixels.Count);
 		}
 		
 		public static void Main(string[] args)
@@ -279,112 +275,54 @@ namespace Wave2Zebra2Preset
 			}
 			 */
 			
-			// http://www.music.mcgill.ca/~gary/307/week5/additive.html
-			//SaveColorPaletteBar("c:\\rew-colorbar-generated.png", "c:\\rew-colorbar-generated.csv", ColorPaletteType.REWColorPalette);
-			
 			/*
 			List<Color> rew_hsb_gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.REW);
-			ColorUtils.SaveColorGradients("c:\\rew-hsb-gradients.png", rew_hsb_gradients, 40);
+			ColorUtils.SaveColorGradients("rew-hsb-gradients.png", rew_hsb_gradients, 40);
 			List<Color> rew_hsl_gradients = ColorUtils.GetHSLColorGradients(256, ColorUtils.ColorPaletteType.REW);
-			ColorUtils.SaveColorGradients("c:\\rew-hsl-gradients.png", rew_hsl_gradients, 40);
+			ColorUtils.SaveColorGradients("rew-hsl-gradients.png", rew_hsl_gradients, 40);
 
 			List<Color> sox_hsb_gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.SOX);
-			ColorUtils.SaveColorGradients("c:\\sox-hsb-gradients.png", sox_hsb_gradients, 40);
+			ColorUtils.SaveColorGradients("sox-hsb-gradients.png", sox_hsb_gradients, 40);
 			List<Color> sox_hsl_gradients = ColorUtils.GetHSLColorGradients(256, ColorUtils.ColorPaletteType.SOX);
-			ColorUtils.SaveColorGradients("c:\\sox-hsl-gradients.png", sox_hsl_gradients, 40);
+			ColorUtils.SaveColorGradients("sox-hsl-gradients.png", sox_hsl_gradients, 40);
 			
 			List<Color> photosounder_hsb_gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
-			ColorUtils.SaveColorGradients("c:\\photosounder_hsb_gradients.png", photosounder_hsb_gradients, 40);
+			ColorUtils.SaveColorGradients("photosounder_hsb_gradients.png", photosounder_hsb_gradients, 40);
 			List<Color> photosounder_hsl_gradients = ColorUtils.GetHSLColorGradients(256, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
-			ColorUtils.SaveColorGradients("c:\\photosounder_hsl_gradients.png", photosounder_hsl_gradients, 40);
+			ColorUtils.SaveColorGradients("photosounder_hsl_gradients.png", photosounder_hsl_gradients, 40);
 			List<Color> photosounder_rgb_gradients = ColorUtils.GetRGBColorGradients(255, ColorUtils.ColorPaletteType.PHOTOSOUNDER);
-			ColorUtils.SaveColorGradients("c:\\photosounder_rgb_gradients.png", photosounder_rgb_gradients, 40);
+			ColorUtils.SaveColorGradients("photosounder_rgb_gradients.png", photosounder_rgb_gradients, 40);
 			
 			List<Color> grey_hsb_gradients = ColorUtils.GetHSBColorGradients(256, ColorUtils.ColorPaletteType.BLACK_AND_WHITE);
-			ColorUtils.SaveColorGradients("c:\\grey-hsb-gradients.png", grey_hsb_gradients, 40);
-			 */
-			
-			/*
-			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\SkyDrive\Temp\sox_colorbar.png", "c:\\sox_colorbar.csv");
-			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\SkyDrive\Temp\soundforge_colorbar.png", "c:\\soundforge_colorbar.csv");
-			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\SkyDrive\Temp\rew_colorbar.png", "c:\\rew_colorbar.csv");
-			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\SkyDrive\Temp\sox_colorbar.png", "c:\\sox_colorbar.csv");
-			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\SkyDrive\Temp\thermal_colorbar.png", "c:\\thermal_colorbar.csv");
-			ReadColorPaletteBar(@"C:\rew-gradients.png", "c:\\rew-gradients.csv");
-			 */
-			
-			//String fileName = @"C:\Users\perivar.nerseth\Music\Sleep Away.mp3";
-			//String fileName = @"C:\Users\perivar.nerseth\Music\Sleep Away32f.wav";
-			String fileName = @"C:\Users\perivar.nerseth\Music\Sleep Away16.wav";
-			//String fileName = @"C:\Users\perivar.nerseth\Music\Maid with the Flaxen Hair.mp3";
-			//String fileName = @"G:\Cubase and Nuendo Projects\Music To Copy Learn\Britney Spears - Hold It Against Me\02 Hold It Against Me (Instrumental) 1.mp3";
+			ColorUtils.SaveColorGradients("grey-hsb-gradients.png", grey_hsb_gradients, 40);
 
+			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\OneDrive\Temp\sox_colorbar.png", "sox_colorbar.csv");
+			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\OneDrive\Temp\soundforge_colorbar.png", "soundforge_colorbar.csv");
+			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\OneDrive\Temp\rew_colorbar.png", "rew_colorbar.csv");
+			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\OneDrive\Temp\sox_colorbar.png", "sox_colorbar.csv");
+			ReadColorPaletteBar(@"C:\Users\perivar.nerseth\OneDrive\Temp\thermal_colorbar.png", "thermal_colorbar.csv");
+			 */
+			
 			Console.WriteLine("Analyzer starting ...");
 			
-			RepositoryGateway repositoryGateway = new RepositoryGateway();
-			FingerprintManager manager = new FingerprintManager();
-
-			// VB6 FFT
-			double sampleRate = 44100;// 44100, default 5512
+			int sampleRate = 44100;// 44100, default 5512
 			int fftWindowsSize = 16384; //32768 16384 8192 4096 2048, default 256*8 (2048) to 256*128 (32768), reccomended: 256*64 = 16384
-			int secondsToSample = 25; //25, 15;
-			int fftOverlap = (int) (sampleRate * secondsToSample / 1280); // 32768:990, 16384:990, 8192:990, 4096:990
-			//float fftOverlapPercentage = 94.0f; // 99.0f number between 0 and 100
-			//float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 20*1000 );
-			//float[] wavDataVB6 = repositoryGateway._proxy.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 0);
-			//MathUtils.NormalizeInPlace(wavDataVB6);
-			//Export.exportCSV(@"c:\bass.csv", wavDataVB6);
+			int fftOverlap = fftWindowsSize / 2; // 32768:990, 16384:990, 8192:990, 4096:990
+			float fftOverlapPercentage = 94.0f; // 99.0f number between 0 and 100
 			
-			float[] wavDataNaudio = AudioUtilsNAudio.ReadMonoFromFile(fileName, (int) sampleRate, secondsToSample*1000, 0);
-			//float[] wavDataNaudio = AudioUtilsNAudio.ReadMonoFromFile(fileName, (int) sampleRate, 0, 0);
-			
-			/*
-			float[] wavDataNaudio = new float[(int) (sampleRate*secondsToSample)];
-			BasicOscillatorProvider basic = new BasicOscillatorProvider();
+			string fileName = @"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\ARSSCSharp\Ariana Grande 16bit.wav";
 
-			int length = (int)(sampleRate*3);
-			int offset = 0;
+			var bass = BassProxy.Instance;
+			float[] wavDataBass = BassProxy.ReadMonoFromFile(fileName, sampleRate);
 
-			basic.Amplitude = MathUtils.DecibelToAmplitude(-80);
-			basic.SetFrequency(220);
-			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SINE);
-			offset += basic.Read(wavDataNaudio, offset, length);
+			//MathUtils.NormalizeInPlace(wavDataBass);
+			//Export.ExportCSV(@"c:\BassAudio.csv", wavDataBass);
 			
-			basic.Amplitude = MathUtils.DecibelToAmplitude(-60);
-			basic.SetFrequency(440);
-			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SQUARE);
-			offset += basic.Read(wavDataNaudio, offset, length);
-			
-			basic.Amplitude = MathUtils.DecibelToAmplitude(-40);
-			basic.SetFrequency(880);
-			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.TRIANGLE);
-			offset += basic.Read(wavDataNaudio, offset, length);
-			
-			basic.Amplitude = MathUtils.DecibelToAmplitude(-20);
-			basic.SetFrequency(1760);
-			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SAW);
-			offset += basic.Read(wavDataNaudio, offset, length);
-
-			basic.Amplitude = MathUtils.DecibelToAmplitude(-10);
-			basic.SetFrequency(3520);
-			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SINE);
-			offset += basic.Read(wavDataNaudio, offset, length);
-			
-			basic.Amplitude = MathUtils.DecibelToAmplitude(0);
-			basic.SetFrequency(1760);
-			basic.SetOscWaveshape(BasicOscillatorProvider.WAVESHAPE.SAW);
-			offset += basic.Read(wavDataNaudio, offset, length);
-
-			AudioUtilsNAudio.WriteIEEE32WaveFileMono(@"c:\sines.wav", 44100, wavDataNaudio);
-			 */
-			
-			//MathUtils.NormalizeInPlace(wavDataNaudio);
-			//Export.exportCSV(@"c:\naudio.csv", wavDataNaudio);
-			
-			//VB6Spectrogram vb6Spect = new VB6Spectrogram();
+			// VB6
+			//var vb6Spect = new VB6Spectrogram();
 			//vb6Spect.ComputeColorPalette();
-			//float[][] vb6Spectrogram = vb6Spect.Compute(wavDataVB6, sampleRate, fftWindowsSize, fftOverlapPercentage);
-			//Export.exportCSV (@"c:\VB6Spectrogram-full.csv", vb6Spectrogram);
+			//float[][] vb6Spectrogram = vb6Spect.Compute(wavDataBass, sampleRate, fftWindowsSize, fftOverlapPercentage);
+			//Export.ExportCSV (@"VB6_spectrogram-full.csv", vb6Spectrogram);
 			
 			// Exocortex.DSP FFT
 			/*
@@ -421,16 +359,18 @@ namespace Wave2Zebra2Preset
 			//float[][] mfccFloats = MathUtils.DoubleToFloat(mfcc);
 			
 			// GENERATE SPECTROGRAM
-			//Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(wavDataNaudio, 1200, 600, sampleRate, fftWindowsSize, fftOverlap, ColorUtils.ColorPaletteType.PHOTOSOUNDER, true);
-			//spectro.Save(@"c:\spectrogram-rew.png");
+			Bitmap spectro = AudioAnalyzer.GetSpectrogramImage(wavDataBass, 1200, 600, sampleRate, fftWindowsSize, fftOverlap, ColorUtils.ColorPaletteType.PHOTOSOUNDER, true);
+			spectro.Save(@"spectrogram-log-photosounder.png");
 			
-			// The following lines replicate the BtnDrawSpectrumClick method
-			// from Soundfingerprinting.SoundTools.DrawningTool
-			fileName = @"C:\Users\perivar.nerseth\Music\Maid with the Flaxen Hair.mp3";
-			float[] wavDataBass = AudioUtilsBass.ReadMonoFromFile(fileName, 5512, 0, 0 );
-			float[][] data = AudioAnalyzer.CreateSpectrogramLomont(wavDataBass, 2048, 64);
-			Bitmap image = AudioAnalyzer.GetSpectrogramImage(data, 1000, 800);
-			image.Save(@"C:\Users\perivar.nerseth\Music\Maid with the Flaxen Hair_spectrum_2.jpg", ImageFormat.Jpeg);
+			Bitmap spectro2 = AudioAnalyzer.GetSpectrogramImage(wavDataBass, 1200, 600, sampleRate, fftWindowsSize, fftOverlap, ColorUtils.ColorPaletteType.REW, true);
+			spectro2.Save(@"spectrogram-log-rew.png");
+			
+			Bitmap spectro3 = AudioAnalyzer.GetSpectrogramImage(wavDataBass, 1200, 600, sampleRate, fftWindowsSize, fftOverlap, ColorUtils.ColorPaletteType.SOX, true);
+			spectro3.Save(@"spectrogram-log-sox.png");
+
+			//float[][] data = AudioAnalyzer.CreateSpectrogramLomont(wavDataBass, fftWindowsSize, fftOverlap);
+			//Bitmap image = AudioAnalyzer.GetSpectrogramImage(data, 1200, 600);
+			//image.Save(@"spectrogram.jpg", ImageFormat.Jpeg);
 			
 			//float[][] logSpectrogram = manager.CreateLogSpectrogram(repositoryGateway._proxy, fileName, secondsToSample*1000, 0);
 			//Bitmap logspectro = AudioAnalyzer.GetSpectrogramImage(logSpectrogram, 1200, 600, secondsToSample*1000, sampleRate, ColorUtils.ColorPaletteType.REW);
@@ -445,34 +385,7 @@ namespace Wave2Zebra2Preset
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
 		}
-		
-		public static void GetAudioInformation(string filename)
-		{
-			float lFrequency = 0;
-			float lVolume = 0;
-			float lPan = 0;
-			
-			int stream = Bass.BASS_StreamCreateFile(filename, 0L, 0L, BASSFlag.BASS_STREAM_DECODE);
-
-			// the info members will contain most of it...
-			BASS_CHANNELINFO info = Bass.BASS_ChannelGetInfo(stream);
-
-			if (Bass.BASS_ChannelGetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, ref lVolume))
-				System.Diagnostics.Debug.WriteLine("Volume: " + lVolume);
-			
-			if (Bass.BASS_ChannelGetAttribute(stream, BASSAttribute.BASS_ATTRIB_PAN, ref lPan))
-				System.Diagnostics.Debug.WriteLine("Pan: " + lPan);
-
-			if (Bass.BASS_ChannelGetAttribute(stream, BASSAttribute.BASS_ATTRIB_FREQ, ref lFrequency))
-				System.Diagnostics.Debug.WriteLine("Frequency: " + lFrequency);
-			
-			int nChannels = info.chans;
-			System.Diagnostics.Debug.WriteLine("Channels: " + nChannels);
-
-			int nSamplesPerSec = info.freq;
-			System.Diagnostics.Debug.WriteLine("SamplesPerSec: " + nSamplesPerSec);
-		}
-		
+				
 		public static int GetSampleForTime(int msecs, int nSamplesPerSec)
 		{
 			double t = 1.0 / nSamplesPerSec;

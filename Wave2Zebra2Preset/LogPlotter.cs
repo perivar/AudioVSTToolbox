@@ -398,7 +398,7 @@ namespace Wave2Zebra2Preset
 					pts[i].Y = Convert.ToInt32(y1 - (ydata[i] - YRangeStart) / (YRangeEnd - YRangeStart) * h0);
 					lastValidPt = pts[i];
 				}
-				catch (Exception ex)
+				catch (Exception)
 				{
 					pts[i] = lastValidPt; //redraw last valid point on error
 				}

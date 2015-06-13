@@ -195,7 +195,7 @@ namespace VIPSLib.Audio
 		{
 			//create return array
 			double[] centers = new double[numberFilters + 2];
-			double maxFreqMel, minFreqMel, deltaFreqMel, nextCenterMel, nextCenter;
+			double maxFreqMel, minFreqMel, deltaFreqMel, nextCenterMel;
 
 			//compute mel min./max. frequency
 			maxFreqMel = LinToMelFreq(maxFreq);

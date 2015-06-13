@@ -265,7 +265,7 @@ namespace VIPSLib.Maths
 						B[i-i0][j-j0] = A[i][j];
 					}
 				}
-			} catch(Exception e) {
+			} catch(Exception) {
 				throw new Exception("Submatrix indices");
 			}
 			return X;
@@ -286,7 +286,7 @@ namespace VIPSLib.Maths
 						B[i][j] = A[r[i]][c[j]];
 					}
 				}
-			} catch(Exception e) {
+			} catch(Exception) {
 				throw new Exception("Submatrix indices");
 			}
 			return X;
@@ -308,7 +308,7 @@ namespace VIPSLib.Maths
 						B[i-i0][j] = A[i][c[j]];
 					}
 				}
-			} catch(Exception e) {
+			} catch(Exception) {
 				throw new Exception("Submatrix indices");
 			}
 			return X;
@@ -330,7 +330,7 @@ namespace VIPSLib.Maths
 						B[i][j-j0] = A[r[i]][j];
 					}
 				}
-			} catch(Exception e) {
+			} catch(Exception) {
 				throw new Exception("Submatrix indices");
 			}
 			return X;
@@ -361,7 +361,7 @@ namespace VIPSLib.Maths
 						A[i][j] = X.Get(i-i0,j-j0);
 					}
 				}
-			} catch(Exception e) {
+			} catch(Exception) {
 				throw new Exception("Submatrix indices");
 			}
 		}
@@ -379,7 +379,7 @@ namespace VIPSLib.Maths
 						A[r[i]][c[j]] = X.Get(i,j);
 					}
 				}
-			} catch(Exception e) {
+			} catch(Exception) {
 				throw new Exception("Submatrix indices");
 			}
 		}
@@ -398,7 +398,7 @@ namespace VIPSLib.Maths
 						A[r[i]][j] = X.Get(i,j-j0);
 					}
 				}
-			} catch(Exception e) {
+			} catch(Exception) {
 				throw new Exception("Submatrix indices");
 			}
 		}
@@ -417,7 +417,7 @@ namespace VIPSLib.Maths
 						A[i][c[j]] = X.Get(i-i0,j);
 					}
 				}
-			} catch(Exception e) {
+			} catch(Exception) {
 				throw new Exception("Submatrix indices");
 			}
 		}
@@ -915,7 +915,6 @@ namespace VIPSLib.Maths
 					return result;
 				default:
 					throw new Exception("dim must be either 1 or 2, and not: " + dim);
-					return null;
 			}
 		}
 

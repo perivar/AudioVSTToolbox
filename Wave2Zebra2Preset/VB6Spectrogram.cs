@@ -10,9 +10,9 @@
 //* Sample application for DynaPlot3
 //*****************************************************************************
 using System;
+using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
-
 using System.Collections.Generic;
 
 using CommonUtils;
@@ -24,11 +24,10 @@ namespace Wave2Zebra2Preset
 	/// </summary>
 	public class VB6Spectrogram
 	{
-		private const int RangedB = 100; // used for color calculations, maps from -RangedB to 0 dB
-		private const int RangePaletteIndex = 256;
-		private static double Log10 = Math.Log(10); //2.30258509299405;
+		const int RangedB = 100; // used for color calculations, maps from -RangedB to 0 dB
+		const int RangePaletteIndex = 256;
+		static double Log10 = Math.Log(10); //2.30258509299405;
 
-		//public long[] LevelPalette = new long[RangePaletteIndex];
 		public Dictionary<long, Color> LevelPaletteDictionary = new Dictionary<long, Color>();
 		
 		// computes the color palette for the pseudocolor display
@@ -36,22 +35,21 @@ namespace Wave2Zebra2Preset
 		public void ComputeColorPalette()
 		{
 			long col = 0;
-			int imageHeight = 200;
-			byte[,] Legendpixelmatrix = new byte[imageHeight, RangePaletteIndex];
+			const int imageHeight = 200;
+			var Legendpixelmatrix = new byte[imageHeight, RangePaletteIndex];
 			
 			for (col = 0; col < RangePaletteIndex; col++)
 			{
-				//LevelPalette[col] = PaletteValue(col, RangePaletteIndex);
 				LevelPaletteDictionary.Add(col, PaletteValueColor(col, RangePaletteIndex));
 				for (int i = 0; i < imageHeight; i++) {
 					Legendpixelmatrix[i, col] = (byte) col;
 				}
 			}
 			
-			//SaveBitmap("VB6", "Colorpalette", Legendpixelmatrix, 8, LevelPaletteDictionary);
+			SaveBitmap("VB6", "Colorpalette", Legendpixelmatrix, 8, LevelPaletteDictionary);
 		}
 
-		// loads a wav-file and displays the recorded signal in chart #1
+		// Loads a wav-file and displays the recorded signal in chart #1
 		// computes the spectrogram of the signal
 		// converts the pixelarray to a bmp-file
 		// saves this file to disk and loads it into chart #2
@@ -73,18 +71,18 @@ namespace Wave2Zebra2Preset
 			// calculate the number of columns when each column which has the specified sample width
 			long NumCols = NumSamples / ColSampleWidth;
 
-			System.Console.Out.WriteLine(String.Format("Samples: {0}, Sample Rate {1}, Seconds: {2}.", NumSamples, sampleRate, NumSamples/sampleRate));
-			System.Console.Out.WriteLine(String.Format("NFFT (fftWindowsSize): {0}, Overlap percentage: {1}%, Overlap samples (NOverlap): {2:n2}.", fftWindowsSize, fftOverlapPercentage*100, fftOverlapSamples ));
-			System.Console.Out.WriteLine(String.Format("Dividing the samples into {0} columns with width {1}.", NumCols, ColSampleWidth));
+			Console.Out.WriteLine(String.Format("Samples: {0}, Sample Rate {1}, Seconds: {2}.", NumSamples, sampleRate, NumSamples/sampleRate));
+			Console.Out.WriteLine(String.Format("NFFT (fftWindowsSize): {0}, Overlap percentage: {1}%, Overlap samples (NOverlap): {2:n2}.", fftWindowsSize, fftOverlapPercentage*100, fftOverlapSamples ));
+			Console.Out.WriteLine(String.Format("Dividing the samples into {0} columns with width {1}.", NumCols, ColSampleWidth));
 
-			System.Console.Out.WriteLine(String.Format("Width: {0}.", NumCols));
-			System.Console.Out.WriteLine(String.Format("Height: {0}.", fftWindowsSize/2));
+			Console.Out.WriteLine(String.Format("Width: {0}.", NumCols));
+			Console.Out.WriteLine(String.Format("Height: {0}.", fftWindowsSize/2));
 			
-			double[] real = new double[fftWindowsSize];
-			double[] imag = new double[fftWindowsSize];
-			float[] magnitude = new float[fftWindowsSize / 2];
-			byte[,] Pixelmatrix = new byte[fftWindowsSize / 2, NumCols];
-			float[][] frames = new float[NumCols][];
+			var real = new double[fftWindowsSize];
+			var imag = new double[fftWindowsSize];
+			var magnitude = new float[fftWindowsSize / 2];
+			var Pixelmatrix = new byte[fftWindowsSize / 2, NumCols];
+			var frames = new float[NumCols][];
 
 			long sampleIndex = 0;
 			for (col = 0; col < NumCols; col++)
@@ -119,7 +117,7 @@ namespace Wave2Zebra2Preset
 
 			// the sampleRate / 2 (nyquistFreq) has a total of fftWindowsSize / 2 unique frequencies
 			double nyquistFreq = sampleRate / 2;
-			float[] F = new float[fftWindowsSize/2];
+			var F = new float[fftWindowsSize/2];
 			for (int i = 1; i < fftWindowsSize/2 + 1; i++) {
 				F[i-1] = (float) ((double)i / fftWindowsSize * sampleRate); // in hz
 			}
@@ -128,16 +126,16 @@ namespace Wave2Zebra2Preset
 			double TimeslotWidth = (fftWindowsSize / (double) sampleRate) * 1000;
 			double TimeslotIncrement = (ColSampleWidth / (double) sampleRate) * 1000;
 			double timeIncrement = (NumSamples/sampleRate*1000) / NumCols;
-			double[] T = new double[NumCols];
+			var T = new double[NumCols];
 			for (int i = 1; i < NumCols + 1; i++) {
 				T[i-1] = (double) i * timeIncrement; // in milliseconds
 			}
 			
-			//Export.exportCSV(@"c:\VB-magnitude-freq.csv", frames[0], F);
-			System.Console.Out.WriteLine(String.Format("TimeslotWidth: {0}, TimeslotIncrement: {1}.", TimeslotWidth, TimeslotIncrement));
+			//Export.ExportCSV(@"VB-magnitude-freq.csv", frames[0], F);
+			Console.Out.WriteLine(String.Format("TimeslotWidth: {0}, TimeslotIncrement: {1}.", TimeslotWidth, TimeslotIncrement));
 
-			// save the Pixelmatrix as a bitmap file to disk
-			SaveBitmap ("VB6", String.Format("C:\\Spectrogram-{0}x{1}", NumCols, fftWindowsSize / 2), Pixelmatrix, 8, LevelPaletteDictionary);
+			// Save the Pixelmatrix as a bitmap file to disk
+			SaveBitmap ("VB6", String.Format("VB-spectrogram-{0}x{1}", NumCols, fftWindowsSize / 2), Pixelmatrix, 8, LevelPaletteDictionary);
 			
 			return frames;
 		}
@@ -173,29 +171,7 @@ namespace Wave2Zebra2Preset
 		{
 			return -RangedB + Index / (double)Rangeindex * RangedB;
 		}
-		
-		// find the index in the pseudocolor palette which corresponds to the color of the pixel the
-		// cursor is currently on and compute the level in dB
-		// output this level together with the point's coordinates
-		/*
-		private void GetCursorText(long Cidx, long Curve, long Idx, double x, double Y, long Color, string Text)
-		{
-			double Level = 0;
-			long i = 0;
-
-			// brute force search, not the best of solutions, but it works
-			for (i = 0; i < RangePaletteIndex; i++)
-			{
-				if (LevelPalette[i] == Color)
-				{
-					Level = PixelIndexToLevel(i, RangedB, RangePaletteIndex);
-					Text = Text + "  z: " + Level.ToString("00.0 dB");
-					break;
-				}
-			}
-		}
-		 */
-		
+				
 		// return pseudo color value for a value x in range [0...range-1]
 		// colors go from black - blue - green - red - violet - blue
 		// this is just one of many possible palettes
@@ -378,12 +354,12 @@ namespace Wave2Zebra2Preset
 			}
 			
 			try {
-				String filenameToSave = String.Format("C:\\{0}-{1}.png", prefix, System.IO.Path.GetFileNameWithoutExtension(filename));
-				System.Console.Out.WriteLine("Writing " + filenameToSave);
+				String filenameToSave = String.Format("{0}-{1}.png", prefix, Path.GetFileNameWithoutExtension(filename));
+				Console.Out.WriteLine("Writing " + filenameToSave);
 
-				Bitmap png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
+				var png = new Bitmap(width, height, PixelFormat.Format32bppArgb );
 				Graphics g = Graphics.FromImage(png);
-				byte[] OneRow = new byte[(int)(4 * NumQuadsPerRow - 1) + 1];
+				var OneRow = new byte[(int)(4 * NumQuadsPerRow - 1) + 1];
 				
 				for(row = 0; row <= height - 1; row += 1)
 				{
@@ -397,7 +373,7 @@ namespace Wave2Zebra2Preset
 				
 				png.Save(filenameToSave);
 			} catch (Exception ex) {
-				System.Console.Out.WriteLine(ex);
+				Console.Out.WriteLine(ex);
 			}
 			
 		}

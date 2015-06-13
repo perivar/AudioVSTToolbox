@@ -65,7 +65,7 @@ namespace Mike.Rules
 		private static float[] gAnaMagn = new float[MAX_FRAME_LENGTH];
 		private static float[] gSynFreq = new float[MAX_FRAME_LENGTH];
 		private static float[] gSynMagn = new float[MAX_FRAME_LENGTH];
-		private static long gRover, gInit;
+		private static long gRover;
 		#endregion
 		
 		#region Public Static  Methods

@@ -237,11 +237,11 @@ namespace Wave2Zebra2Preset.Fingerprinting
 		/// <param name = "milliseconds">Milliseconds to process</param>
 		/// <param name = "startmilliseconds">Starting point of the processing</param>
 		/// <returns>Spectrogram</returns>
-		public float[][] CreateSpectrogram(IAudio proxy, string filename, int milliseconds, int startmilliseconds, bool doNormalise)
+		public float[][] CreateSpectrogram(IWaveformPlayer proxy, string filename, int milliseconds, int startmilliseconds, bool doNormalise)
 		{
 			
 			//read 5512 Hz, Mono, PCM, with a specific proxy
-			float[] samples = proxy.ReadMonoFromFile(filename, SampleRate, milliseconds, startmilliseconds);
+			float[] samples = BassProxy.ReadMonoFromFile(filename, SampleRate, milliseconds, startmilliseconds);
 			if (doNormalise) NormalizeInPlace(samples);
 			int overlap = Overlap;
 			int fftWindowsSize = WdftSize; // aka N = FFT Length
@@ -286,10 +286,10 @@ namespace Wave2Zebra2Preset.Fingerprinting
 		/// <param name = "milliseconds">Milliseconds to be analyzed</param>
 		/// <param name = "startmilliseconds">Starting point</param>
 		/// <returns>Logarithmically spaced bins within the power spectrum</returns>
-		public float[][] CreateLogSpectrogram(IAudio proxy, string filename, int milliseconds, int startmilliseconds)
+		public float[][] CreateLogSpectrogram(IWaveformPlayer proxy, string filename, int milliseconds, int startmilliseconds)
 		{
 			//read 5512 Hz, Mono, PCM, with a specific proxy
-			float[] samples = proxy.ReadMonoFromFile(filename, SampleRate, milliseconds, startmilliseconds);
+			float[] samples = BassProxy.ReadMonoFromFile(filename, SampleRate, milliseconds, startmilliseconds);
 			//NormalizeInPlace(samples);
 			int overlap = Overlap;
 			int fftWindowsSize = WdftSize;
@@ -325,7 +325,7 @@ namespace Wave2Zebra2Preset.Fingerprinting
 		/// <param name = "milliseconds">Milliseconds to analyze</param>
 		/// <param name = "startmilliseconds">Starting point of analysis</param>
 		/// <returns>Fingerprint signatures</returns>
-		public List<bool[]> CreateFingerprints(IAudio proxy, string filename, IStride stride, int milliseconds, int startmilliseconds)
+		public List<bool[]> CreateFingerprints(IWaveformPlayer proxy, string filename, IStride stride, int milliseconds, int startmilliseconds)
 		{
 			float[][] spectrum = CreateLogSpectrogram(proxy, filename, milliseconds, startmilliseconds);
 			int fingerprintLength = FingerprintLength;
@@ -389,7 +389,7 @@ namespace Wave2Zebra2Preset.Fingerprinting
 		/// <param name = "filename">Filename</param>
 		/// <param name = "stride">Stride used in fingerprint creation</param>
 		/// <returns>List of fingerprint signatures</returns>
-		public List<bool[]> CreateFingerprints(IAudio proxy, string filename, IStride stride)
+		public List<bool[]> CreateFingerprints(IWaveformPlayer proxy, string filename, IStride stride)
 		{
 			return CreateFingerprints(proxy, filename, stride, 0, 0);
 		}

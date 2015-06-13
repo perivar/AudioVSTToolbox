@@ -165,7 +165,6 @@ namespace CWT
 		private double signal_samplerate;
 		private double signal_length;
 		private double dt;
-		private double omega;
 		private double sigma;
 		private double upper_freq;
 		private double lower_freq;
@@ -763,7 +762,6 @@ namespace CWT
 			image_width = 512;
 			image_height = 256;
 			sigma = 4.0;
-			omega = 1.0;
 			upper_freq = 5000;//128.0;
 			lower_freq = 20;//4.0;
 			//signal_data = new Double[16384]; 
