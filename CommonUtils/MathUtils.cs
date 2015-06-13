@@ -694,8 +694,9 @@ namespace CommonUtils
 		/// <param name="number">original value</param>
 		/// <param name="nearest">value to get near to</param>
 		/// <returns>rounded number</returns>
+		/// <example>Round to nearest .5; value = MathUtils.RoundToNearest(input, 0.5f);</example>
 		public static double RoundToNearest(double number, double nearest) {
-			// use AwayFromZero since default rounding is "round to even", which would make 1.5 => 1 
+			// use AwayFromZero since default rounding is "round to even", which would make 1.5 => 1
 			double rounded = Math.Round(number * (1 / nearest), MidpointRounding.AwayFromZero) / (1 / nearest);
 			return rounded;
 		}
@@ -706,8 +707,9 @@ namespace CommonUtils
 		/// <param name="number">original value</param>
 		/// <param name="nearest">value to get near to</param>
 		/// <returns>rounded number</returns>
+		/// <example>Round to nearest 5; int timeInMs = MathUtils.RoundToNearestInteger( msValue, 5);</example>
 		public static int RoundToNearestInteger(int number, int nearest) {
-			// use AwayFromZero since default rounding is "round to even", which would make 1.5 => 1 
+			// use AwayFromZero since default rounding is "round to even", which would make 1.5 => 1
 			int rounded = (int) Math.Round( (double) number / nearest, MidpointRounding.AwayFromZero) * nearest;
 			return rounded;
 		}

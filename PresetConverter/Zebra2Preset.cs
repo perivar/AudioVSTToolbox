@@ -4245,7 +4245,7 @@ namespace PresetConverter
 			double value0_1s = (double) 50 / Math.Pow( (double) timeInMs/1000/0.8f, (double) 1/3);
 			value0_1s = MathUtils.RoundToNearestInteger((int)value0_1s, 2); // the Lfo value (Rate) has steps of two
 			// get the value
-			double value0_1s_ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, (int) value0_1s);
+			double value0_1s_ms = LFOSyncAndValueToMilliseconds(lfoSync, (int) value0_1s);
 			if (value0_1s > 200) {
 				value0_1s_ms = 0;
 			}
@@ -4255,7 +4255,7 @@ namespace PresetConverter
 			double value1s = (double) 50 / Math.Pow( (double) timeInMs/1000/8f, (double) 1/3);
 			value1s = MathUtils.RoundToNearestInteger((int)value1s, 2); // the Lfo value (Rate) has steps of two
 			// get the value
-			double value1s_ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, (int) value1s);
+			double value1s_ms = LFOSyncAndValueToMilliseconds(lfoSync, (int) value1s);
 			if (value1s > 200) {
 				value1s_ms = 0;
 			}
@@ -4265,7 +4265,7 @@ namespace PresetConverter
 			double value10s = (double) 50 / Math.Pow( (double) timeInMs/1000/80f, (double) 1/3);
 			value10s = MathUtils.RoundToNearestInteger((int)value10s, 2); // the Lfo value (Rate) has steps of two
 			// get the value
-			double value10s_ms = PresetConverter.Zebra2Preset.LFOSyncAndValueToMilliseconds(lfoSync, (int) value10s);
+			double value10s_ms = LFOSyncAndValueToMilliseconds(lfoSync, (int) value10s);
 			if (value10s > 200) {
 				value10s_ms = 0;
 			}
