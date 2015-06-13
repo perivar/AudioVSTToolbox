@@ -695,6 +695,7 @@ namespace CommonUtils
 		/// <param name="nearest">value to get near to</param>
 		/// <returns>rounded number</returns>
 		public static double RoundToNearest(double number, double nearest) {
+			// use AwayFromZero since default rounding is "round to even", which would make 1.5 => 1 
 			double rounded = Math.Round(number * (1 / nearest), MidpointRounding.AwayFromZero) / (1 / nearest);
 			return rounded;
 		}
@@ -706,6 +707,7 @@ namespace CommonUtils
 		/// <param name="nearest">value to get near to</param>
 		/// <returns>rounded number</returns>
 		public static int RoundToNearestInteger(int number, int nearest) {
+			// use AwayFromZero since default rounding is "round to even", which would make 1.5 => 1 
 			int rounded = (int) Math.Round( (double) number / nearest, MidpointRounding.AwayFromZero) * nearest;
 			return rounded;
 		}
@@ -722,23 +724,25 @@ namespace CommonUtils
 		}
 		
 		/// <summary>
-		/// Round a number down
+		/// Returns the largest integer less than or equal to the specified double-precision floating-point number.
 		/// </summary>
-		/// <param name="number">original value</param>
-		/// <returns>rounded number</returns>
+		/// <param name="number">A double-precision floating-point number.</param>
+		/// <returns>The largest integer less than or equal to 'number'.
+		/// If d is equal to NaN, NegativeInfinity, or PositiveInfinity, that value is returned.</returns>
 		public static double RoundDown(double number) {
 			return Math.Floor(number);
 		}
 
 		/// <summary>
-		/// Round a number up
+		/// Returns the smallest integral value that is greater than or equal to the specified double-precision floating-point number.
 		/// </summary>
-		/// <param name="number">original value</param>
-		/// <returns>rounded number</returns>
+		/// <param name="number">A double-precision floating-point number.</param>
+		/// <returns>The smallest integral value that is greater than or equal to 'number'.
+		/// If a is equal to NaN, NegativeInfinity, or PositiveInfinity, that value is returned.
+		/// Note that this method returns a Double instead of an integral type.</returns>
 		public static double RoundUp(double number) {
 			return Math.Ceiling(number);
 		}
-
 		#endregion
 		
 		#region ComputeMinAndMax

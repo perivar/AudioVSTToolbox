@@ -63,7 +63,7 @@ public static class Util
 	public static int RoundToClosestInt(double x)
 	{
 		int y = 0;
-		y = (int) Math.Round(x);
+		y = (int) Math.Round(x, MidpointRounding.AwayFromZero);
 		
 		// nearbyint: The value of x rounded to a nearby integral (as a floating-point value).
 		// Rounding using to-nearest rounding:
