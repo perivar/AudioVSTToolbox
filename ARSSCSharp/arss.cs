@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
-
+using System.Drawing.Imaging; // for bitmap save
 using CommonUtils;
 
 public static class Arss
@@ -701,6 +701,7 @@ public static class Arss
 			Console.Write("Samplecount : {0:D}\nChannels : {1:D}\n", samplecount, channels);
 			#endif
 
+			/*
 			SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 0); // User settings input
 			image = DSP.Analyze(ref sound[0], ref samplecount, ref samplerate, ref Xsize, ref Ysize, ref bpo, ref pixpersec, ref basefreq); // Analysis
 			if (brightness != 1.0) {
@@ -708,6 +709,11 @@ public static class Arss
 			}
 			
 			ImageIO.BMPWrite(fout, image, Ysize, Xsize); // Image output
+			 */
+			
+			var spectrogram = new Spectrogram();
+			var spectrogramImage = spectrogram.ToImage(ref sound[0], samplerate);
+			spectrogramImage.Save("test.jpg", ImageFormat.Jpeg);
 		}
 		
 		if (mode == 2 || mode == 3) {
@@ -742,7 +748,7 @@ public static class Arss
 
 		clockb = Util.GetTimeTicks();
 		TimeSpan duration = TimeSpan.FromTicks((clockb-DSP.clockA));
-		Console.Write("Processing time : {0:D2} m  {1:D2} s  {1:D2} ms\n", duration.Minutes, duration.Seconds, duration.Milliseconds);
+		Console.Write("Processing time : {0:D2} m  {1:D2} s  {2:D2} ms\n", duration.Minutes, duration.Seconds, duration.Milliseconds);
 
 		Util.ReadUserReturn();
 	}

@@ -77,7 +77,7 @@ public static class SpectrogramUtils
 		signal = Zeros(signal, N);
 
 		double[] signal_fft = FFTUtils.FFT(signal);
-		Complex[] complexSignal = FFTUtils.DoubleToComplex(signal_fft);
+		Complex[] complexSignal = FFTUtils.ComplexDoubleToComplex(signal_fft);
 		
 		return complexSignal;
 	}
@@ -123,7 +123,7 @@ public static class SpectrogramUtils
 	public static double[] Resample(double[] @in, int len)
 	{
 		Debug.Assert(len > 0);
-		Console.Out.WriteLine("resample(data size: {0}, len: {1}", @in.Length, len);
+		Console.Out.WriteLine("Resample(data size: {0}, len: {1}", @in.Length, len);
 		
 		if (@in.Length == len)
 			return @in;
@@ -138,8 +138,9 @@ public static class SpectrogramUtils
 		// copy + phase shift
 		var shifted = new Complex[band.Length];
 		for (int i = 0; i < band.Length; i++) {
-			Shift90Degrees(ref band[i]);
-			shifted[i] = band[i];
+			var compl = new Complex(band[i]);
+			Shift90Degrees(ref compl);
+			shifted[i] = compl;
 		}
 		
 		double[] envelope = PaddedIFFT(band);
@@ -251,7 +252,7 @@ public static class SpectrogramUtils
 	// random number from <0,1>
 	public static double RandomDouble()
 	{
-		return RandomUtils.NextInt();
+		return RandomUtils.NextDouble();
 	}
 
 	public static double BrightnessCorrection(double intensity, BrightCorrection correction)

@@ -39,8 +39,8 @@ public class LinearFilterbank : Filterbank
 		startidx_ = Math.Max(scale_ * @base-bandwidth_/ 2, 0.0);
 		step_ = (1-overlap)*bandwidth_;
 		
-		Console.Out.WriteLine("bandwidth: {0}", bandwidth_);
-		Console.Out.WriteLine("step_: {0}", step_);
+		Console.Out.WriteLine("Bandwidth: {0}", bandwidth_);
+		Console.Out.WriteLine("Step: {0}", step_);
 
 		Debug.Assert(step_ > 0);
 	}
@@ -78,8 +78,8 @@ public class LogFilterbank : Filterbank
 		logstart_ = SpectrogramUtils.Freq2Cent(@base);
 		logstep_ = (1-overlap)*centsperband_;
 
-		Console.Out.WriteLine("centsperband_: {0}", centsperband_);
-		Console.Out.WriteLine("logstep_: {0}", logstep_);
+		Console.Out.WriteLine("Cents per band: {0}", centsperband_);
+		Console.Out.WriteLine("Logstep: {0}", logstep_);
 		Debug.Assert(logstep_ > 0);
 	}
 	
@@ -103,8 +103,8 @@ public class LogFilterbank : Filterbank
 		@out.First = (int) (SpectrogramUtils.Cent2Freq(loglow) * scale_);
 		@out.Second = (int) (SpectrogramUtils.Cent2Freq(loghigh) * scale_);
 		
-		Console.Out.WriteLine("centerfreq: {0}", SpectrogramUtils.Cent2Freq(logcenter));
-		Console.Out.WriteLine("lowfreq: {0}, highfreq: {1}", SpectrogramUtils.Cent2Freq(loglow), SpectrogramUtils.Cent2Freq(loghigh));
+		//Console.Out.WriteLine("Center freq: {0}", SpectrogramUtils.Cent2Freq(logcenter));
+		//Console.Out.WriteLine("Low freq: {0}, Highfreq: {1}", SpectrogramUtils.Cent2Freq(loglow), SpectrogramUtils.Cent2Freq(loghigh));
 		return @out;
 	}
 }

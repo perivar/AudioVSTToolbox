@@ -58,11 +58,11 @@ public class Spectrogram
 
 	public Spectrogram()
 	{
-		bandwidth = 100;
+		bandwidth = 300; // 100
 		basefreq = 55;
 		maxfreq = 22050;
 		overlap = 0.8;
-		pixpersec = 100;
+		pixpersec = 150; // 100
 		window = Window.WINDOW_HANN;
 		intensity_axis = AxisScale.SCALE_LOGARITHMIC;
 		frequency_axis = AxisScale.SCALE_LOGARITHMIC;
@@ -77,19 +77,19 @@ public class Spectrogram
 		Complex[] spectrum = SpectrogramUtils.PaddedFFT(signal);
 
 		//const size_t width = (spectrum.size()-1)*2*pixpersec/samplerate;
-		double w1 = spectrum.Length - 1;
+		double w1 = spectrum.Length - 1; // last spectrum index
 		double w2 = (double) pixpersec/ (double) samplerate;
 		double w3 = w1 * 2 * w2;
 		int width = (int) w3;
 
 		// transformation of frequency in hz to index in spectrum
-		//const double filterscale = ((double)spectrum.size()*2)/samplerate;
 		double filterscale = ((double)spectrum.Length*2) / samplerate;
-		Console.Out.WriteLine("filterscale: {0}", filterscale);
+		Console.Out.WriteLine("Filterscale: {0}", filterscale);
 
 		Filterbank filterbank = Filterbank.GetFilterbank(frequency_axis, filterscale, basefreq, bandwidth, overlap);
 		int bands = (int) filterbank.NumBandsEst(maxfreq);
-		int top_index = (int) (maxfreq * filterscale);
+		int top_index = (int) ((double)maxfreq * filterscale);
+		// todo: use spectrum.length - 1
 		
 		// maxfreq has to be at most nyquist
 		Debug.Assert(top_index <= spectrum.Length);
@@ -98,11 +98,16 @@ public class Spectrogram
 		var image_data = new List<double[]>();
 		
 		for (int bandidx = 0;; ++bandidx) {
-			OutputBandProgress(bandidx, bands);
-
+			// TODO: support cancelling this process
+			
 			// filtering
 			Pair<int,int> range = filterbank.GetBand(bandidx);
 			
+			// Output progress
+			//OutputBandProgress(bandidx, bands);
+			Console.Out.WriteLine("Processing band {0} of {1} ({2:0.00}hz-{3:0.00}hz = {4:0.00}hz)", bandidx, bands, range.First / filterscale, range.Second/filterscale, (range.Second-range.First)/filterscale);
+
+			/*
 			Console.Out.WriteLine("-----");
 			Console.Out.WriteLine("spectrum size: {0}", spectrum.Length);
 			Console.Out.WriteLine("lowidx: {0:0.00} highidx: {1:0.00}", range.First, range.Second);
@@ -112,7 +117,9 @@ public class Spectrogram
 			Console.Out.WriteLine("crowd sample: {0:0.00}", (range.Second-range.First-1)*2);
 			Console.Out.WriteLine("theoretically staci: {0:0.00} hz samplerate", 2*(range.Second-range.First)/filterscale);
 			Console.Out.WriteLine("width: {0}", width);
+			 */
 			
+			// take the complex samples	specified by the range and copy into filterband
 			int filterbandLength = range.Second - range.First;
 			var filterband = new Complex[filterbandLength];
 			//std::copy(spectrum.begin()+range.first,
@@ -121,23 +128,32 @@ public class Spectrogram
 			int sourceIndexStart = range.First;
 			int sourceIndexEnd = Math.Min(range.Second, top_index);
 			int length = sourceIndexEnd - sourceIndexStart;
-			Array.Copy(spectrum, sourceIndexStart, filterband, 0, length);
+			if (sourceIndexStart < sourceIndexEnd) {
+				Array.Copy(spectrum, sourceIndexStart, filterband, 0, length);
+			} else {
+				int stopme = 1; // test
+			}
 			
+			// if the first range index is higher than the maximum index, we have reached the end
 			if (range.First > top_index) {
 				break;
 			}
+			// if the second range index is higher than the maximum index, we are at the last band
 			if (range.Second > top_index) {
-				int start = top_index-range.First;
 				//std::fill(filterband.begin()+top_index-range.first,
 				//          filterband.end(), Complex(0,0));
-				break; // TODO: fix above
+				// not neccesary as c# already defaults the rest of the array to a Complex(0,0)
 			}
 
 			// windowing
 			ApplyWindow(ref filterband, range.First, filterscale);
 
-			// envelope detection + resampling
-			double[] envelope = SpectrogramUtils.Resample(SpectrogramUtils.GetEnvelope(ref filterband), width);
+			// envelope detection
+			double[] envelope = SpectrogramUtils.GetEnvelope(ref filterband);
+			
+			// resampling
+			// todo: the widh cannot be right?
+			//envelope = SpectrogramUtils.Resample(envelope, width);
 			
 			image_data.Add(envelope);
 		}
@@ -154,7 +170,7 @@ public class Spectrogram
 		int height = data.Count;
 		int width = data[0].Length;
 		
-		Console.Write("image size: ");
+		Console.Write("Image size: ");
 		Console.Write(width);
 		Console.Write(" x ");
 		Console.Write(height);

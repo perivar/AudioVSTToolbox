@@ -30,6 +30,7 @@
  */
 
 using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 
 namespace CommonUtils.FFT
@@ -503,7 +504,7 @@ namespace CommonUtils.FFT
 		/// <returns></returns>
 		public override string ToString()
 		{
-			return String.Format("( {0}, {1}i )", Re, Im);
+			return String.Format(CultureInfo.InvariantCulture, "( {0:0.0000}, {1:0.0000}i )", Re, Im);
 		}
 
 		//-----------------------------------------------------------------------------------
