@@ -4,7 +4,7 @@ using CommonUtils;
 
 public static class Util
 {
-	public static bool quiet = false;
+	public static bool quiet = false; 
 
 	#region Read User Input Methods
 	public static string ReadUserInputString()
@@ -72,15 +72,6 @@ public static class Util
 		// nearbyint (3.8) = 4.0
 		// nearbyint (-2.3) = -2.0
 		// nearbyint (-3.8) = -4.0
-		
-		// nearbyint() replacement, with the exception that the result contains a non-zero fractional part
-		/*
-		if (x > 0) {
-			y = (int) (x + 0.5);
-		} else {
-			y = (int) (x - 0.5);
-		}
-		 */
 		return y;
 	}
 	
@@ -88,22 +79,14 @@ public static class Util
 	{
 		int y = 0;
 		y = (int) MathUtils.RoundUp(x);
-
-		/*
-		if (FMod(x, 1.0) == 0) {
-			y = (int) x;
-		} else {
-			y = (int) x + 1;;
-		}
-		 */
 		return y;
 	}
 	#endregion
 	
 	public static int NextLowPrimes(int number) {
-		//int[] validPrimes = { 2, 3 }; // these are used in the original arss methods
-		//return MathUtils.NextLowPrimeFactorization(number, validPrimes);
-		return MathUtils.NextLowPrimeFactorization(number);
+		int[] validPrimes = { 2, 3 }; // these are used in the original arss methods
+		return MathUtils.NextLowPrimeFactorization(number, validPrimes);
+		//return MathUtils.NextLowPrimeFactorization(number);
 	}
 	
 	public static double Log(double x)

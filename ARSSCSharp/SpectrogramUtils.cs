@@ -6,6 +6,8 @@ using System.Linq;
 using CommonUtils;
 using CommonUtils.FFT;
 
+using fftwlib;
+
 // Converted from C++ to C#
 // https://github.com/krajj7/spectrogram/blob/master/spectrogram.cpp
 public static class SpectrogramUtils
@@ -24,6 +26,7 @@ public static class SpectrogramUtils
 		return signal;
 	}
 
+	/*
 	public static double[] PaddedIFFT(Complex[] complexSignal) {
 		
 		int N = MathUtils.NextPowerOfTwo(complexSignal.Length);
@@ -48,6 +51,8 @@ public static class SpectrogramUtils
 		
 		int N = signal.Length;
 		Complex[] complexSignal = FFTUtils.DoubleToComplex(signal);
+		
+		// use Exocortex
 		Fourier.FFT(complexSignal, N, FourierDirection.Backward);
 		
 		// get the result
@@ -61,6 +66,8 @@ public static class SpectrogramUtils
 	public static double[] PaddedFFT(Complex[] complexSignal) {
 
 		int N = complexSignal.Length;
+
+		// use Exocortex
 		Fourier.FFT(complexSignal, N, FourierDirection.Forward);
 
 		// get the result
@@ -76,10 +83,79 @@ public static class SpectrogramUtils
 		int N = MathUtils.NextPowerOfTwo(signal.Length);
 		signal = Zeros(signal, N);
 
+		// use Lomont
 		double[] signal_fft = FFTUtils.FFT(signal);
 		Complex[] complexSignal = FFTUtils.ComplexDoubleToComplex(signal_fft);
 		
 		return complexSignal;
+	}
+	 */
+
+	public static Complex[] padded_FFT(ref double[] @in)
+	{
+		Debug.Assert(@in.Length > 0);
+		int n = @in.Length;
+		
+		int padded = n > 256 ? Util.NextLowPrimes(n) : n;
+		Array.Resize<double>(ref @in, padded);
+
+		// 4096 real numbers on input processed by FFTW dft_r2c_1d transform gives
+		// 4096/2+1 = 2049 complex numbers at output
+		int complexLength = (padded/2+1);
+		//var @out = new Complex[complexLength];
+		
+		var complexInput = new fftw_complexarray(@in);
+		var complexOutput = new fftw_complexarray(complexLength);
+		
+		fftw_plan fft = fftw_plan.dft_r2c_1d(padded, complexInput, complexOutput, fftw_flags.Estimate);
+		fft.Execute();
+		
+		Array.Resize<double>(ref @in, n);
+		
+		//var @out = new Complex[complexLength];
+		var complexDouble = complexOutput.Values;
+		var @out = FFTUtils.ComplexDoubleToComplex(complexDouble);
+
+		// free up memory
+		fft = null;
+		complexInput = null;
+		complexOutput = null;
+		GC.Collect();
+
+		return @out;
+	}
+
+	public static double[] padded_IFFT(ref Complex[] @in)
+	{
+		Debug.Assert(@in.Length > 1);
+		
+		int originalLength = @in.Length;
+		int n = (@in.Length-1)*2;
+		int padded = n > 256 ? Util.NextLowPrimes(n) : n;
+		int complexLength = (padded/2+1);
+		Array.Resize<Complex>(ref @in, complexLength);
+
+		//var @out = new double[padded];
+		var complexDouble = FFTUtils.ComplexToComplexDouble(@in);
+
+		// note: fftw3 destroys the input array for c2r transform
+		var complexInput = new fftw_complexarray(complexDouble);
+		var complexOutput = new fftw_complexarray(padded);
+		
+		fftw_plan fft = fftw_plan.dft_c2r_1d(padded, complexInput, complexOutput, fftw_direction.Forward, fftw_flags.Estimate);
+		fft.Execute();
+		
+		var @out = complexOutput.Values;
+		Array.Resize<Complex>(ref @in, originalLength);
+		Array.Resize<double>(ref @out, padded);
+
+		// free up memory
+		fft = null;
+		complexInput = null;
+		complexOutput = null;
+		GC.Collect();
+
+		return @out;
 	}
 	
 	public static double Log10Scale(double val)
@@ -123,12 +199,19 @@ public static class SpectrogramUtils
 	public static double[] Resample(double[] @in, int len)
 	{
 		Debug.Assert(len > 0);
-		Console.Out.WriteLine("Resample(data size: {0}, len: {1}", @in.Length, len);
+		//Console.Out.WriteLine("Resample(data size: {0}, len: {1}", @in.Length, len);
 		
 		if (@in.Length == len)
 			return @in;
 
-		return MathUtils.FloatToDouble(MathUtils.ResampleToArbitrary(MathUtils.DoubleToFloat(@in), len));
+		double ratio = (double)len / @in.Length;
+		if (ratio >= 256) {
+			return Resample(Resample(@in, @in.Length*50), len);
+		} else if (ratio <= 1.0/256) {
+			return Resample(Resample(@in, @in.Length/50), len);
+		}
+
+		return MathUtils.FloatToDouble(MathUtils.Resample(MathUtils.DoubleToFloat(@in), len));
 	}
 
 	public static double[] GetEnvelope(ref Complex[] band)
@@ -143,10 +226,11 @@ public static class SpectrogramUtils
 			shifted[i] = compl;
 		}
 		
-		double[] envelope = PaddedIFFT(band);
-		double[] shifted_signal = PaddedIFFT(shifted);
+		double[] envelope = padded_IFFT(ref band);
+		double[] shifted_signal = padded_IFFT(ref shifted);
 
 		for (int i = 0; i < envelope.Length; ++i) {
+			// todo: why not the magnitude
 			envelope[i] = envelope[i]*envelope[i] + shifted_signal[i]*shifted_signal[i];
 		}
 
@@ -255,6 +339,11 @@ public static class SpectrogramUtils
 		return RandomUtils.NextDouble();
 	}
 
+	public static double RandomDoubleMinus1ToPlus1()
+	{
+		return RandomUtils.NextDoubleMinus1ToPlus1();
+	}
+	
 	public static double BrightnessCorrection(double intensity, BrightCorrection correction)
 	{
 		switch (correction) {
@@ -274,7 +363,8 @@ public static class SpectrogramUtils
 		for (int i = 0; i < (size+1)/2; ++i)
 		{
 			double mag = Math.Pow((double) i, -0.5f);
-			double phase = (2 *SpectrogramUtils.RandomDouble()-1) * Math.PI; //+-pi random phase
+			//double phase = (2 * RandomDouble() -1) * Math.PI; //+-pi random phase
+			double phase = RandomDoubleMinus1ToPlus1() * Math.PI; // random phase between -pi and +pi
 			var complex = new Complex(mag * Math.Cos(phase), mag * Math.Sin(phase));
 			res[i] = complex;
 		}

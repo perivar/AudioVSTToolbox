@@ -24,16 +24,16 @@ public static class Arss
 	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 
 	public static string version = "0.2.3 - ported to C# by perivar@nerseth.com";
-	public static string date = "May 29th, 2008 - ported to C# - Nov. 12, 2012";
+	public static string date = "May 29th, 2008 - ported to C# - 2012-2015";
 	
-	public const int FILENAME_MAX = 260;
 	public const string MSG_NUMBER_EXPECTED = "A number is expected after {0}\nExiting with error.\n";
 	
-	public const double PI_D = Math.PI;
-	public const int LOGBASE_D = 2;
-	public const double LOOP_SIZE_SEC_D = 10.0;
-	public const int BMSQ_LUT_SIZE_D = 16000;
-	public const double TRANSITION_BW_SYNT = 16.0;
+	public enum Mode : int {
+		None = 0,
+		Analysis = 1,
+		Synthesis_Sine = 2,
+		Synthesis_Noise = 3
+	}
 	
 	/// <summary>
 	/// Get Settings from User Input or Config file
@@ -47,17 +47,11 @@ public static class Arss
 	/// <param name="bandsperoctave">Frequency resolution in Bands Per Octave</param>
 	/// <param name="Xsize">Specifies the desired width of the spectrogram</param>
 	/// <param name="mode">0 = Analysis mode, 1 = Synthesis mode</param>
-	public static void SettingsInput(ref int bands, ref int samplecount, ref int samplerate, ref double basefreq, ref double maxfreq, ref double pixpersec, ref double bandsperoctave, ref int Xsize, int mode)
+	public static void SettingsInput(ref int bands, ref int samplecount, ref int samplerate, ref double basefreq, ref double maxfreq, ref double pixpersec, ref double bandsperoctave, ref int Xsize, Mode mode)
 	{
-		/* mode :
-		 * 0 = Analysis mode
-		 * 1 = Synthesis mode
-		 */
-		int i = 0;
-		double gf;
-		double f;
-		double trash;
-		double ma; // maximum allowed frequency
+		double floatUserInput;
+		double trash; // used to ignore file read lines
+		double maxAllowedFreq; // maximum allowed frequency
 		int unset = 0; // count of unset interdependant settings
 		int set_min = 0;
 		int set_max = 0;
@@ -119,10 +113,10 @@ public static class Arss
 		// if too many settings are set
 		if (unset == 4)
 		{
-			if (mode == 0) {
+			if (mode == Mode.Analysis) {
 				Console.Error.WriteLine("You have set one parameter too many.\nUnset either --min-freq (-min), --max-freq (-max), --bpo (-b)\nExiting with error.\n");
 			}
-			if (mode == 1) {
+			if (mode == Mode.Synthesis_Sine || mode == Mode.Synthesis_Noise) {
 				Console.Error.WriteLine("You have set one parameter too many.\nUnset either --min-freq (-min), --max-freq (-max), --bpo (-b) or --height (-y)\nExiting with error.\n");
 			}
 			Environment.Exit(1);
@@ -136,7 +130,7 @@ public static class Arss
 			set_x = 1;
 		}
 
-		if (set_x+set_pps == 2 && mode == 0)
+		if (set_x+set_pps == 2 && mode == Mode.Analysis)
 		{
 			Console.Error.WriteLine("You cannot define both the image width and the horizontal resolution.\nUnset either --pps (-p) or --width (-x)\nExiting with error.\n");
 			Environment.Exit(1);
@@ -197,9 +191,9 @@ public static class Arss
 				Environment.Exit(1);
 			}
 			Console.Write("Min. frequency (Hz) [{0:f3}]: ", basefreq);
-			gf = Util.ReadUserInputFloat();
-			if (gf != 0) {
-				basefreq = gf;
+			floatUserInput = Util.ReadUserInputFloat();
+			if (floatUserInput != 0) {
+				basefreq = floatUserInput;
 			}
 			unset++;
 			set_min = 1;
@@ -214,9 +208,9 @@ public static class Arss
 				Environment.Exit(1);
 			}
 			Console.Write("Bands per octave [{0:f3}]: ", bandsperoctave);
-			gf = Util.ReadUserInputFloat();
-			if (gf != 0) {
-				bandsperoctave = gf;
+			floatUserInput = Util.ReadUserInputFloat();
+			if (floatUserInput != 0) {
+				bandsperoctave = floatUserInput;
 			}
 			unset++;
 			set_bpo = 1;
@@ -224,44 +218,45 @@ public static class Arss
 
 		if (unset<3 && set_max == 0)
 		{
-			i = 0;
+			double f = 0;
+			int i = 0;
 			do
 			{
 				i++;
 				f = basefreq * Math.Pow(DSP.LOGBASE, (i / bandsperoctave));
 			}
-			while (f<0.5);
+			while (f < 0.5);
 			
-			ma = basefreq * Math.Pow(DSP.LOGBASE, ((i-2) / bandsperoctave)) * samplerate; // max allowed frequency
+			maxAllowedFreq = basefreq * Math.Pow(DSP.LOGBASE, ((i-2) / bandsperoctave)) * samplerate; // max allowed frequency
 
-			if (maxfreq > ma) {
-				if (Util.FMod(ma, 1.0) == 0.0) {
+			if (maxfreq > maxAllowedFreq) {
+				if (Util.FMod(maxAllowedFreq, 1.0) == 0.0) {
 					// replaces the "Upper frequency limit above Nyquist frequency" warning
-					maxfreq = ma;
+					maxfreq = maxAllowedFreq;
 				} else {
-					maxfreq = ma - Util.FMod(ma, 1.0);
+					maxfreq = maxAllowedFreq - Util.FMod(maxAllowedFreq, 1.0);
 				}
 			}
 
-			if (mode == 0) // if we're in Analysis mode
+			if (mode == Mode.Analysis) // if we're in Analysis mode
 			{
 				if (Util.quiet)
 				{
 					Console.Error.WriteLine("Please define a maximum frequency.\nUse --max-freq (-max).\nExiting with error.\n");
 					Environment.Exit(1);
 				}
-				Console.Write("Max. frequency (Hz) (up to {0:f3}) [{1:f3}]: ", ma, maxfreq);
-				gf = Util.ReadUserInputFloat();
-				if (gf != 0) {
-					maxfreq = gf;
+				Console.Write("Max. frequency (Hz) (up to {0:f3}) [{1:f3}]: ", maxAllowedFreq, maxfreq);
+				floatUserInput = Util.ReadUserInputFloat();
+				if (floatUserInput != 0) {
+					maxfreq = floatUserInput;
 				}
 
-				if (maxfreq > ma) {
+				if (maxfreq > maxAllowedFreq) {
 					// replaces the "Upper frequency limit above Nyquist frequency" warning
-					if (Util.FMod(ma, 1.0) == 0.0) {
-						maxfreq = ma;
+					if (Util.FMod(maxAllowedFreq, 1.0) == 0.0) {
+						maxfreq = maxAllowedFreq;
 					} else {
-						maxfreq = ma - Util.FMod(ma, 1.0);
+						maxfreq = maxAllowedFreq - Util.FMod(maxAllowedFreq, 1.0);
 					}
 				}
 			}
@@ -299,13 +294,15 @@ public static class Arss
 			Console.Write("Bands per octave : {0:f3}\n", bandsperoctave);
 		}
 
-		if (set_x == 1 && mode == 0) // If we're in Analysis mode and that X is set (by the user)
+		if (set_x == 1 && mode == Mode.Analysis) // If we're in Analysis mode and that X is set (by the user)
 		{
 			pixpersec = (double) Xsize * (double) samplerate / (double) samplecount; // calculate pixpersec
 			Console.Write("Pixels per second : {0:f3}\n", pixpersec);
 		}
 
-		if ((mode == 0 && set_x == 0 && set_pps == 0) || (mode == 1 && set_pps == 0)) // If in Analysis mode none are set or pixpersec isn't set in Synthesis mode
+		// If in Analysis mode none are set or pixpersec isn't set in Synthesis mode
+		if ((mode == Mode.Analysis && set_x == 0 && set_pps == 0)
+		    || (set_pps == 0 && (mode == Mode.Synthesis_Sine || mode == Mode.Synthesis_Noise)))
 		{
 			if (Util.quiet)
 			{
@@ -313,9 +310,9 @@ public static class Arss
 				Environment.Exit(1);
 			}
 			Console.Write("Pixels per second [{0:f3}]: ", pixpersec);
-			gf = Util.ReadUserInputFloat();
-			if (gf != 0) {
-				pixpersec = gf;
+			floatUserInput = Util.ReadUserInputFloat();
+			if (floatUserInput != 0) {
+				pixpersec = floatUserInput;
 			}
 		}
 
@@ -338,6 +335,7 @@ public static class Arss
 		pixpersec /= samplerate; // pixpersec is now in fraction of the sampling rate instead of Hz
 	}
 
+	#region Print Help
 	public static void PrintHelp()
 	{
 		Console.Write("Usage: arss [options] input_file output_file [options]. Example:\n"
@@ -372,6 +370,7 @@ public static class Arss
 		              + "--bmsq-lut-size [integer]  Blackman Square kernel LUT size (default: 16000)\n"
 		              + "--pi [real]                pi (default: 3.1415926535897932)\n");
 	}
+	#endregion
 	
 	public static void Main(string[] args)
 	{
@@ -394,15 +393,9 @@ public static class Arss
 		int Ysize = 0;
 		int format_param = 0;
 		long clockb = 0;
-		byte mode = 0;
+		Mode mode = Mode.None;
 		string in_name = null;
 		string out_name = null;
-
-		// initialisation of global using defaults defined in cs
-		DSP.PI 				= PI_D;
-		DSP.LOGBASE 		= LOGBASE_D;
-		DSP.LOOP_SIZE_SEC 	= LOOP_SIZE_SEC_D;
-		DSP.BMSQ_LUT_SIZE 	= BMSQ_LUT_SIZE_D;
 		
 		#if QUIET
 		Util.quiet = true;
@@ -440,15 +433,15 @@ public static class Arss
 				// if the argument is a parameter
 				
 				if (string.Compare(args[i], "--analysis")==0 || string.Compare(args[i], "-a")==0) {
-					mode = 1;
+					mode = Mode.Analysis;
 				}
 
 				if (string.Compare(args[i], "--sine")==0 || string.Compare(args[i], "-s")==0) {
-					mode = 2;
+					mode = Mode.Synthesis_Sine;
 				}
 
 				if (string.Compare(args[i], "--noise")==0 || string.Compare(args[i], "-n")==0) {
-					mode = 3;
+					mode = Mode.Synthesis_Noise;
 				}
 
 				if (string.Compare(args[i], "--quiet")==0 || string.Compare(args[i], "-q")==0) {
@@ -676,24 +669,24 @@ public static class Arss
 
 		// make the string lowercase
 		in_name = in_name.ToLower();
-		if (mode == 0 && in_name.EndsWith(".wav")) {
-			mode = 1; // Automatic switch to the Analysis mode
+		if (in_name.EndsWith(".wav") &&
+		    (mode == Mode.None || mode == Mode.Synthesis_Sine || mode == Mode.Synthesis_Noise)) {
+			mode = Mode.Analysis; // Automatic switch to the Analysis mode
 		}
 
-		if (mode == 0) {
+		if (mode == Mode.None) {
 			do {
 				if (Util.quiet) {
 					Console.Error.WriteLine("Please specify an operation mode.\nUse either --analysis (-a), --sine (-s) or --noise (-n).\nExiting with error.\n");
 					Environment.Exit(1);
 				}
 				Console.Write("Choose the mode (Press 1, 2 or 3) :\n\t1. Analysis\n\t2. Sine synthesis\n\t3. Noise synthesis\n> ");
-				mode = (byte) Util.ReadUserInputFloat();
+				mode = (Mode) Util.ReadUserInputFloat();
 			}
-			while (mode!=1 && mode!=2 && mode!=3);
+			while (mode != Mode.Analysis && mode != Mode.Synthesis_Sine && mode != Mode.Synthesis_Noise);
 		}
 
-
-		if (mode == 1) {
+		if (mode == Mode.Analysis) {
 			sound = SoundIO.ReadWaveFile(fin, ref channels, ref samplecount, ref samplerate); // Sound input
 			fin.Close();
 
@@ -701,7 +694,6 @@ public static class Arss
 			Console.Write("Samplecount : {0:D}\nChannels : {1:D}\n", samplecount, channels);
 			#endif
 
-			/*
 			SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 0); // User settings input
 			image = DSP.Analyze(ref sound[0], ref samplecount, ref samplerate, ref Xsize, ref Ysize, ref bpo, ref pixpersec, ref basefreq); // Analysis
 			if (brightness != 1.0) {
@@ -709,14 +701,16 @@ public static class Arss
 			}
 			
 			ImageIO.BMPWrite(fout, image, Ysize, Xsize); // Image output
-			 */
 			
-			var spectrogram = new Spectrogram();
-			var spectrogramImage = spectrogram.ToImage(ref sound[0], samplerate);
-			spectrogramImage.Save("test.jpg", ImageFormat.Jpeg);
+			// testing spectrogram methods as well
+			//var spectrogram = new Spectrogram();
+			//var spectrogramImage = spectrogram.ToImage(ref sound[0], samplerate);
+			//spectrogramImage.Save("test2.bmp", ImageFormat.Bmp);
+			//double[] soundSynth = spectrogram.SynthetizeSine(new System.Drawing.Bitmap("test-orig.bmp"), samplerate);
+			//CommonUtils.Audio.NAudio.AudioUtilsNAudio.WriteIEEE32WaveFileMono("test2.wav", samplerate, MathUtils.DoubleToFloat(soundSynth));
 		}
 		
-		if (mode == 2 || mode == 3) {
+		if (mode == Mode.Synthesis_Sine || mode == Mode.Synthesis_Noise) {
 			sound = new double[1][];
 			
 			image = ImageIO.BMPRead(fin, ref Ysize, ref Xsize); // Image input
@@ -731,13 +725,13 @@ public static class Arss
 				}
 			}
 
-			SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 1); // User settings input
+			SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, Mode.Synthesis_Sine); // User settings input
 
 			if (brightness!=1.0) {
 				DSP.BrightnessControl(ref image, ref Ysize, ref Xsize, brightness);
 			}
 
-			if (mode == 2) {
+			if (mode == Mode.Synthesis_Sine) {
 				sound[0] = DSP.SynthesizeSine(ref image, ref Xsize, ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref pixpersec, ref bpo); // Sine synthesis
 			} else {
 				sound[0] = DSP.SynthesizeNoise(ref image, ref Xsize, ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref pixpersec, ref bpo); // Noise synthesis

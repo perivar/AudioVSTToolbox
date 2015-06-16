@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 using CommonUtils.FFT;
 
@@ -46,7 +47,7 @@ public class Pair<T, U> {
 public class Spectrogram
 {
 	private int bandwidth;
-	private int basefreq;
+	private double basefreq;
 	private int maxfreq;
 	private double overlap;
 	private int pixpersec;
@@ -58,9 +59,9 @@ public class Spectrogram
 
 	public Spectrogram()
 	{
-		bandwidth = 300; // 100
-		basefreq = 55;
-		maxfreq = 22050;
+		bandwidth = 392; // 100
+		basefreq = 27.5; // 55
+		maxfreq = 22050; // 22050; 19912
 		overlap = 0.8;
 		pixpersec = 150; // 100
 		window = Window.WINDOW_HANN;
@@ -72,15 +73,17 @@ public class Spectrogram
 	
 	public Bitmap ToImage(ref double[] signal, int samplerate)
 	{
-		Console.Out.WriteLine("Transforming input");
+		Console.Out.WriteLine("Transform Sound to Image");
+		DSP.clockA = Util.GetTimeTicks();
 		
-		Complex[] spectrum = SpectrogramUtils.PaddedFFT(signal);
+		Complex[] spectrum = SpectrogramUtils.padded_FFT(ref signal);
 
 		//const size_t width = (spectrum.size()-1)*2*pixpersec/samplerate;
-		double w1 = spectrum.Length - 1; // last spectrum index
-		double w2 = (double) pixpersec/ (double) samplerate;
-		double w3 = w1 * 2 * w2;
-		int width = (int) w3;
+		double lastSpectrumIndex = spectrum.Length - 1; // last spectrum index
+		double pixelsPerSample = (double) pixpersec/ (double) samplerate;
+		double widthDouble = lastSpectrumIndex * 2 * pixelsPerSample;
+		int width = (int) widthDouble;
+		//int testWidt = (int) (signal.Length * pixpersec);
 
 		// transformation of frequency in hz to index in spectrum
 		double filterscale = ((double)spectrum.Length*2) / samplerate;
@@ -89,7 +92,6 @@ public class Spectrogram
 		Filterbank filterbank = Filterbank.GetFilterbank(frequency_axis, filterscale, basefreq, bandwidth, overlap);
 		int bands = (int) filterbank.NumBandsEst(maxfreq);
 		int top_index = (int) ((double)maxfreq * filterscale);
-		// todo: use spectrum.length - 1
 		
 		// maxfreq has to be at most nyquist
 		Debug.Assert(top_index <= spectrum.Length);
@@ -105,8 +107,8 @@ public class Spectrogram
 			
 			// Output progress
 			//OutputBandProgress(bandidx, bands);
-			Console.Out.WriteLine("Processing band {0} of {1} ({2:0.00}hz-{3:0.00}hz = {4:0.00}hz)", bandidx, bands, range.First / filterscale, range.Second/filterscale, (range.Second-range.First)/filterscale);
-
+			Console.Write("Processing band {0} of {1} ({2:0.00} Hz - {3:0.00} Hz = {4:0.00} Hz)\r", bandidx, bands, range.First/filterscale, range.Second/filterscale, (range.Second-range.First)/filterscale);
+			
 			/*
 			Console.Out.WriteLine("-----");
 			Console.Out.WriteLine("spectrum size: {0}", spectrum.Length);
@@ -152,8 +154,7 @@ public class Spectrogram
 			double[] envelope = SpectrogramUtils.GetEnvelope(ref filterband);
 			
 			// resampling
-			// todo: the widh cannot be right?
-			//envelope = SpectrogramUtils.Resample(envelope, width);
+			envelope = SpectrogramUtils.Resample(envelope, width);
 			
 			image_data.Add(envelope);
 		}
@@ -176,6 +177,8 @@ public class Spectrogram
 		Console.Write(height);
 		Console.Write("\n");
 		
+		// using PixelFormat.Format24bppRgb makes setpixel horribly slow
+		//var @out = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 		var @out = new Bitmap(width, height);
 		
 		BrightCorrection correction = BrightCorrection.BRIGHT_NONE;
@@ -233,23 +236,27 @@ public class Spectrogram
 		Filterbank filterbank = Filterbank.GetFilterbank(frequency_axis, filterscale, basefreq, bandwidth, overlap);
 
 		for (int bandidx = 0; bandidx < image.Height; ++bandidx) {
-			//if (cancelled())
-			//	return List<int>();
-			OutputBandProgress(bandidx, image.Height-1);
+			// TODO: support cancelling this process
+
+			OutputBandProgress(bandidx, image.Height);
 
 			double[] envelope = EnvelopeFromSpectrogram(image, bandidx);
+			// Find maximum number when all numbers are made positive.
+			//double max = envelope.Max((b) => Math.Abs(b));
+			//Console.WriteLine(max);
 
 			// random phase between +-pi
-			double phase = (2 * SpectrogramUtils.RandomDouble() - 1) * Math.PI;
+			double phase = SpectrogramUtils.RandomDoubleMinus1ToPlus1() * Math.PI;
 
 			var bandsignal = new double[envelope.Length*2];
 			for (int j = 0; j < 4; ++j) {
 				double sine = Math.Cos(j * Math.PI/2 + phase);
-				for (int i = j; i < bandsignal.Length; i += 4)
+				for (int i = j; i < bandsignal.Length; i += 4) {
 					bandsignal[i] = envelope[i/2] * sine;
+				}
 			}
 			
-			var filterband = SpectrogramUtils.PaddedFFT(bandsignal);
+			var filterband = SpectrogramUtils.padded_FFT(ref bandsignal);
 
 			for (int i = 0; i < filterband.Length; ++i) {
 				double x = (double)i/filterband.Length;
@@ -258,24 +265,25 @@ public class Spectrogram
 				filterband[i] *= x - ((0.5/(2.0 * Math.PI)) * Math.Sin(2.0 * Math.PI *x) + (0.08/(4.0 * Math.PI)) * Math.Sin(4.0 * Math.PI *x) / 0.42);
 			}
 
-			Console.Out.WriteLine("spectrum size: {0}", spectrum.Length);
+			//Console.Out.WriteLine("Spectrum size: {0}", spectrum.Length);
 			//std::cout << bandidx << ". filterband size: " << filterband.Length << "; start: " << filterbank->GetBand(bandidx).first <<"; end: " << filterbank->GetBand(bandidx).second << "\n";
 
 			double center = filterbank.GetCenter(bandidx);
-			double offset = Math.Max((uint)0, center - filterband.Length/2);
+			double offset = Math.Max((double)0, center - filterband.Length/2);
 			
-			Console.Out.WriteLine("offset: {0} = {1} hz", offset, offset/filterscale);
+			//Console.Out.WriteLine("Offset: {0} = {1} hz", offset, offset/filterscale);
 			
-			for (uint i = 0; i < filterband.Length; ++i) {
-				if (offset+i > 0 && offset+i < spectrum.Length) {
-					spectrum[ (int) (offset+i) ] += filterband[i];
+			for (int i = 0; i < filterband.Length; ++i) {
+				int spectrumIndex = (int) (offset + i);
+				if (spectrumIndex > 0 && spectrumIndex < spectrum.Length) {
+					spectrum[spectrumIndex] += filterband[i];
 				}
 			}
 		}
 
-		double[] @out = SpectrogramUtils.PaddedIFFT(spectrum);
+		double[] @out = SpectrogramUtils.padded_IFFT(ref spectrum);
 		
-		Console.Out.WriteLine("samples: {0} -> {1}", @out.Length, samples);
+		Console.Out.WriteLine("Samples: {0} -> {1}", @out.Length, samples);
 		
 		SpectrogramUtils.NormalizeSignal(ref @out);
 		return @out;
@@ -285,7 +293,7 @@ public class Spectrogram
 	{
 		int samples = (int) image.Width * samplerate/pixpersec;
 
-		Complex[] noise = SpectrogramUtils.GetPinkNoise(samplerate *10); // 10 sec loop
+		Complex[] noise = SpectrogramUtils.GetPinkNoise(samplerate * 10); // 10 sec loop
 
 		double filterscale = ((double)noise.Length*2)/samplerate;
 		Filterbank filterbank = Filterbank.GetFilterbank(frequency_axis, filterscale, basefreq, bandwidth, overlap);
@@ -304,18 +312,22 @@ public class Spectrogram
 			//std::cout << bandidx << "/"<<image.height()<<"\n";
 			Console.Out.WriteLine("(noise) sample: {0}", range.Second-range.First);
 
-			var filtered_noise = new double[noise.Length];
+			var filtered_noise = new Complex[noise.Length];
+			// TODO: copy noise into filtered_noise array
 			//std.copy(noise.begin()+range.first, noise.begin()+Math.Min(range.second, top_index), filtered_noise.begin()+range.first);
 			
+			//apply_window(filtered_noise, range.first, filterscale);
+			
 			// ifft noise
-			double[] noise_mod = SpectrogramUtils.PaddedIFFT(filtered_noise);
+			double[] noise_mod = SpectrogramUtils.padded_IFFT(ref filtered_noise);
 			
 			// resample spectrogram band
 			double[] envelope = SpectrogramUtils.Resample(EnvelopeFromSpectrogram(image, bandidx), samples);
 			
 			// modulate with looped noise
-			for (uint i = 0; i < samples; ++i)
+			for (uint i = 0; i < samples; ++i) {
 				@out[i] += envelope[i] * noise_mod[i % noise_mod.Length];
+			}
 		}
 		
 		SpectrogramUtils.NormalizeSignal(ref @out);
@@ -324,15 +336,16 @@ public class Spectrogram
 	
 	public static void OutputBandProgress(int x, int of)
 	{
-		Console.Out.WriteLine("Processing band {0} of {1}", x, of);
+		Console.Write("Processing band {0} of {1}\r", x, of);
 	}
 	
 	public double[] EnvelopeFromSpectrogram(Bitmap image, int row)
 	{
 		var envelope = new double[image.Width];
-		for (int x = 0; x < image.Width; ++x)
+		for (int x = 0; x < image.Width; ++x) {
 			envelope[x] = SpectrogramUtils.CalcIntensityInv(
 				palette.GetIntensity(image.GetPixel(x, image.Height-row-1)), intensity_axis);
+		}
 		return envelope;
 	}
 	

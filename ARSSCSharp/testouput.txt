@@ -1,0 +1,106 @@
+Running Original ARSS Methods.
+
+The Analysis & Resynthesis Sound Spectrograph 0.2.3 - ported to C# by perivar@nerseth.com
+Input file : C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\ARSSCSharp\Ariana Grande 32bit.wav
+Output file : test.bmp
+Read32BitFloat...
+Samplecount : 9440449
+Channels : 2
+Min. frequency (Hz) [27.500]:
+Bands per octave [12.000]:
+Max. frequency (Hz) (up to 19912.127) [19912.000]:
+Bands : 115
+Pixels per second [150.000]: 150
+Samplerate: 44100
+(samplerate / samplecount = 44100 / 9440449 = 0.00467138798165214387578387426276)
+bpo: 12
+pixpersec: 0.00340136054421769
+basefreq: 0.000623582766439909
+maxfreq: 0.451522153247464
+Xsize: 32110 - rounded up to: 32111
+Image size : 32111x115
+
+Mb (orig): 9743160 // Mb is the length of the original signal once zero-padded (always even)
+(Mb * pixpersec = 33140)
+34992 / pixpersec = 10287648
+
+Md: 34992 // Md is the length of the envelopes once downsampled (constant)
+
+out Samples after FFT = 10287648 (frequency domain)
+
+First Band (ib = 0):
+Fa: 6055				// Fa is the index of the band's start in the __frequency domain__ (10287648 samples)
+Fd: 6797				// Fd is the index of the band's end in the __frequency domain__
+La: -0.744347571966987	// La is the log2 of the frequency of Fa  => FrequencyToLogPosition((double) Fa / (double) Mb, basefreq, maxfreq);
+Ld: -0.732179470771256	// Ld is the log2 of the frequency of Fd  => FrequencyToLogPosition((double) Fd / (double) Mb, basefreq, maxfreq);
+Mc: 1485 => if the band is going to be too narrow => Mc = Md = 34992 (FFT Size)
+samplerate / Mb = 44100 / 10287648 = 0.00428669410150891632373113854595
+
+
+1/115 (FFT size:  34992)   25.96 Hz - 29.14 Hz
+ib+1, bands, Mc, Fa * samplerate/Mb, Fd * samplerate/Mb
+
+@out[bands-ib-1] = new double[Mc+1];
+@out[114]		 = new double[34993];
+
+Li (orig): -0.744347571966987
+Li = (Li-La)/(Ld-La);
+Li = 0 / 0.012168101195731
+coef = 0
+
+Han filtering the band:
+
+@out[bands-ib-1][i+1] 		= s[i+1+Fa] * coef;
+@out[114][1] 				= s[6056] * 0
+
+@out[bands-ib-1][Mc-1-i] 	= s[Mb-Fa-1-i] * coef;
+@out[114][34991] 			= s[10287648 - 6055 - 1] * 0
+							= s[10281592]
+
+= Basically filling out from the bottom and upwards (latest band, latest sample)
+And then in-place IFFT of the filtered band signal:
+mc = 34992, N=34992 (but out length is 34993)
+complex length: 17496
+After the IFFT the length is 34992
+
+Same with the rotated signal:
+mc = 34992, N=34992 (but out length is 34993)
+complex length: 17496
+h = 34993 
+mc = 34992 (length = 34993) 
+
+Calc Magnitude of the analytic signal
+out[bands-ib-1][i] = sqrt(out[bands-ib-1][i]*out[bands-ib-1][i] + h[i]*h[i]);
+out[114][0] = magnitude
+	
+md = 34992
+xsize = 32111 (chop tails - from 34992 down to 32111)
+
+
+
+
+==========================
+width: 32537
+Filterscale: 216.914739229025
+Bands: 193
+top_index: 4319206
+Cents per band: 300
+Logstep: 60
+Processing band 0 of 193 (25.22 Hz - 29.99 Hz = 4.77 Hz)
+bandidx, bands, range.First/filterscale, range.Second/filterscale, (range.Second-range.First)/filterscale
+
+sourceIndexStart: 5470
+sourceIndexEnd:	6505
+filterband length: 1035
+
+( -655.2354, -51.2647i )
+( 53.0789, -123.9012i )
+
+IFFT
+orig length (complex): 1035
+n: 2068
+padded: 2187
+complexLength: 1094
+out: 4374
+
+out: last index with values: 2186, e.g. total 2187 values

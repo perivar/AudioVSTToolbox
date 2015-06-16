@@ -46,7 +46,7 @@
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
     <DefineConstants>TRACE</DefineConstants>
     <StartAction>Project</StartAction>
-    <StartArguments>"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\ARSSCSharp\Ariana Grande 32bit.wav" test.bmp</StartArguments>
+    <StartArguments>test.bmp test.wav</StartArguments>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NAudio">
