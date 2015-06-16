@@ -132,8 +132,6 @@ public class Spectrogram
 			int length = sourceIndexEnd - sourceIndexStart;
 			if (sourceIndexStart < sourceIndexEnd) {
 				Array.Copy(spectrum, sourceIndexStart, filterband, 0, length);
-			} else {
-				int stopme = 1; // test
 			}
 			
 			// if the first range index is higher than the maximum index, we have reached the end

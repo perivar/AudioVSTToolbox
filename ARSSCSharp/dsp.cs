@@ -80,59 +80,18 @@ public static class DSP
 	/// Normalises a signal to the +/-ratio range
 	/// </summary>
 	/// <param name="s">Samples</param>
-	/// <param name="xs">X size</param>
-	/// <param name="ys">Y size</param>
-	/// <param name="ratio"></param>
-	public static void Normalize(ref double[][] s, ref int xs, ref int ys, double ratio)
+	public static void Normalize(ref double[][] s)
 	{
-		double max = 0;
-		for (int iy = 0; iy < ys; iy++) {
-			for (int ix = 0; ix < xs; ix++) {
-				if (Math.Abs(s[iy][ix]) > max) {
-					max = Math.Abs(s[iy][ix]);
-				}
-			}
-		}
-
-		if (max != 0.0) {
-			max /= ratio;
-			max = 1.0 / max;
-		} else {
-			max = 0.0;
-		}
-
-		for (int iy = 0; iy < ys; iy++) {
-			for (int ix = 0; ix < xs; ix++) {
-				s[iy][ix] *= max;
-			}
-		}
+		MathUtils.Normalize(ref s);
 	}
 	
 	/// <summary>
 	/// Normalises a signal to the +/-ratio range
 	/// </summary>
 	/// <param name="s">Samples</param>
-	/// <param name="xs">X size</param>
-	/// <param name="ratio"></param>
-	public static void Normalize(ref double[] s, ref int xs, double ratio)
+	public static void Normalize(ref double[] s)
 	{
-		double max = 0;
-		for (int ix = 0; ix < xs; ix++) {
-			if (Math.Abs(s[ix]) > max) {
-				max = Math.Abs(s[ix]);
-			}
-		}
-
-		if (max != 0.0) {
-			max /= ratio;
-			max = 1.0/max;
-		} else {
-			max = 0.0;
-		}
-
-		for (int ix = 0; ix < xs; ix++) {
-			s[ix] *= max;
-		}
+		MathUtils.Normalize(ref s);
 	}
 	
 	/// <summary>
@@ -343,30 +302,27 @@ public static class DSP
 	/// <returns>Image</returns>
 	public static double[][] Analyze(ref double[] s, ref int samplecount, ref int samplerate, ref int Xsize, ref int bands, ref double bandsperoctave, ref double pixpersec, ref double basefreq)
 	{
-		int paddedLength = 0;			// Mb is the length of the original signal once zero-padded (always even)
-		int filteredLength = 0;			// Mc is the length of the filtered signal
+		int paddedLength = 0;				// Mb is the length of the original signal once zero-padded (always even)
+		int filteredLength = 0;				// Mc is the length of the filtered signal
 		int envelopeDownsampledLength = 0;	// Md is the length of the envelopes once downsampled (constant)
-		int bandIndexStart = 0;			// Fa is the index of the band's start in the frequency domain
-		int bandIndexEnd = 0;			// Fd is the index of the band's end in the frequency domain
+		int bandIndexStart = 0;				// Fa is the index of the band's start in the frequency domain
+		int bandIndexEnd = 0;				// Fd is the index of the band's end in the frequency domain
 
-		double[][] @out;		// @out is the output image
-		double[] h;
-		double[] freqCentral;	// freq is the band's central frequency
-		double[] t;				// t is temporary pointer to a new version of the signal being worked on
-		double coef;			// coef is a temporary modulation coefficient
-		double LogBandFreqStart;	// La is the log2 of the frequency of Fa
-		double LogBandFreqEnd;		// Ld is the log2 of the frequency of Fd
-		double LogFreqIterator;		// Li is the iterative frequency between La and Ld defined logarithmically
-		double maxfreq;				// maxfreq is the central frequency of the last band
+		double[][] @out;			// @out is the output image
+		double[] filterBandRotated;	// filtered band signal rotated by 90°
+		double[] freqCentral;		// freq is the band's central frequency
+		double coef;				// coef is a temporary modulation coefficient
+		double logBandFreqStart;	// La is the log2 of the frequency of Fa
+		double logBandFreqEnd;		// Ld is the log2 of the frequency of Fd
+		double logFreqIterator;		// Li is the iterative frequency between La and Ld defined logarithmically
+		double maxFreq;				// maxfreq is the central frequency of the last band
 
 		freqCentral = FrequencyArray(basefreq, bands, bandsperoctave);
-
-		//Export.ExportCSV(String.Format("freq.csv"), freq, 256);
 		
 		if (LOGBASE == 1.0) {
-			maxfreq = bandsperoctave; // in linear mode we use bpo to store the maxfreq since we couldn't deduce maxfreq otherwise
+			maxFreq = bandsperoctave; // in linear mode we use bpo to store the maxfreq since we couldn't deduce maxfreq otherwise
 		} else {
-			maxfreq = basefreq * Math.Pow(LOGBASE, ((double)(bands-1)/ bandsperoctave));
+			maxFreq = basefreq * Math.Pow(LOGBASE, ((double)(bands-1)/ bandsperoctave));
 		}
 		
 		Xsize = (int) (samplecount * pixpersec);
@@ -398,36 +354,41 @@ public static class DSP
 
 		paddedLength = Util.RoundToClosestInt((double) Util.NextLowPrimes((int) Util.RoundToClosestInt(paddedLength * pixpersec)) / pixpersec);
 
-		// Md is the length of the envelopes once downsampled (constant)
+		// Md is the length of the envelopes once downsampled
 		envelopeDownsampledLength = Util.RoundToClosestInt(paddedLength * pixpersec);
 
-		// realloc to the zeropadded size
+		// reallocate to the zeropadded size
 		Array.Resize<double>(ref s, paddedLength);
 		#endregion
 		
-		FFT(ref s, ref s, paddedLength, FFTMethod.DFT); // In-place FFT of the original zero-padded signal
+		// In-place FFT of the original zero-padded signal
+		FFT(ref s, ref s, paddedLength, FFTMethod.DFT);
 
-		for (int bandIndex = 0; bandIndex < bands; bandIndex++) {
+		for (int bandCounter = 0; bandCounter < bands; bandCounter++) {
 			#region Filtering
-			bandIndexStart = Util.RoundToClosestInt(LogPositionToFrequency((double)(bandIndex-1)/(double)(bands-1), basefreq, maxfreq) * paddedLength);
-			bandIndexEnd = Util.RoundToClosestInt(LogPositionToFrequency((double)(bandIndex+1)/(double)(bands-1), basefreq, maxfreq) * paddedLength);
-			LogBandFreqStart = FrequencyToLogPosition((double) bandIndexStart / (double) paddedLength, basefreq, maxfreq);
-			LogBandFreqEnd = FrequencyToLogPosition((double) bandIndexEnd / (double) paddedLength, basefreq, maxfreq);
+			bandIndexStart = Util.RoundToClosestInt(LogPositionToFrequency((double)(bandCounter-1)/(double)(bands-1), basefreq, maxFreq) * paddedLength);
+			bandIndexEnd = Util.RoundToClosestInt(LogPositionToFrequency((double)(bandCounter+1)/(double)(bands-1), basefreq, maxFreq) * paddedLength);
+			logBandFreqStart = FrequencyToLogPosition((double) bandIndexStart / (double) paddedLength, basefreq, maxFreq);
+			logBandFreqEnd = FrequencyToLogPosition((double) bandIndexEnd / (double) paddedLength, basefreq, maxFreq);
 
 			// stop reading if reaching the Nyquist frequency
 			if (bandIndexEnd > paddedLength/2) {
 				bandIndexEnd = paddedLength/2;
 			}
 
+			// ensure the band index is at least 1
 			if (bandIndexStart < 1) {
 				bandIndexStart = 1;
 			}
 
+			// the actual band length
+			int bandIndexLength = bandIndexEnd-bandIndexStart + 1;
+			
 			// Mc is the length of the filtered signal
-			filteredLength = (bandIndexEnd-bandIndexStart)*2 + 1;
 			// '*2' because the filtering is on both real and imaginary parts,
 			// '+1' for the DC.
 			// No Nyquist component since the signal length is necessarily odd
+			filteredLength = (bandIndexEnd-bandIndexStart)*2 + 1;
 
 			// if the band is going to be too narrow
 			if (envelopeDownsampledLength > filteredLength) {
@@ -439,67 +400,68 @@ public static class DSP
 				filteredLength = Util.NextLowPrimes(filteredLength);
 			}
 
-			Console.Write("{0,4:D}/{1:D} (FFT size: {2,6:D})   {3:f2} Hz - {4:f2} Hz\r", bandIndex+1, bands, filteredLength, (double) bandIndexStart *samplerate/paddedLength, (double) bandIndexEnd *samplerate/paddedLength);
+			Console.Write("{0,4:D}/{1:D} (FFT size: {2,6:D})   {3:f2} Hz - {4:f2} Hz\r", bandCounter+1, bands, filteredLength, (double) bandIndexStart*samplerate/paddedLength, (double) bandIndexEnd*samplerate/paddedLength);
 
-			@out[bands-bandIndex-1] = new double[filteredLength+1];
+			int currentBandIndex = bands-bandCounter-1;
+			
+			@out[currentBandIndex] = new double[filteredLength+1];
 
-			for (int i = 0; i < bandIndexEnd-bandIndexStart; i++) {
-				LogFreqIterator = FrequencyToLogPosition((double)(i+bandIndexStart) / (double) paddedLength, basefreq, maxfreq); // calculation of the logarithmic position
-				LogFreqIterator = (LogFreqIterator-LogBandFreqStart)/(LogBandFreqEnd-LogBandFreqStart);
-				coef = 0.5 - 0.5 * Math.Cos(2.0 * PI * LogFreqIterator); // Hann function
+			for (int i = 0; i < bandIndexLength-1; i++) {
+				logFreqIterator = FrequencyToLogPosition((double)(i+bandIndexStart) / (double) paddedLength, basefreq, maxFreq); // calculation of the logarithmic position
+				logFreqIterator = (logFreqIterator-logBandFreqStart)/(logBandFreqEnd-logBandFreqStart);
+				coef = 0.5 - 0.5 * Math.Cos(2.0 * PI * logFreqIterator); // Hann function
 				
-				@out[bands-bandIndex-1][i+1] = s[i+1+bandIndexStart] * coef;
-				@out[bands-bandIndex-1][filteredLength-1-i] = s[paddedLength-bandIndexStart-1-i] * coef;
+				@out[currentBandIndex][i+1] = s[i+1+bandIndexStart] * coef;
+				@out[currentBandIndex][filteredLength-1-i] = s[paddedLength-bandIndexStart-1-i] * coef;
 			}
 			#endregion
 
 			#region 90° rotation
-			h = new double[filteredLength+1];
+			filterBandRotated = new double[filteredLength+1];
 			
 			// Rotation : Re' = Im; Im' = -Re
-			for (int i = 0; i < bandIndexEnd-bandIndexStart; i++) {
-				h[i+1] = @out[bands-bandIndex-1][filteredLength-1-i]; // Re' = Im
-				h[filteredLength-1-i] = -@out[bands-bandIndex-1][i+1]; 	// Im' = -Re
+			for (int i = 0; i < bandIndexLength-1; i++) {
+				filterBandRotated[i+1] = @out[currentBandIndex][filteredLength-1-i]; // Re' = Im
+				filterBandRotated[filteredLength-1-i] = -@out[currentBandIndex][i+1]; 	// Im' = -Re
 			}
 			#endregion
 
 			#region Envelope detection
 
 			// In-place IFFT of the filtered band signal
-			FFT(ref @out[bands-bandIndex-1], ref @out[bands-bandIndex-1], filteredLength, FFTMethod.IDFT);
+			FFT(ref @out[currentBandIndex], ref @out[currentBandIndex], filteredLength, FFTMethod.IDFT);
 			
 			// In-place IFFT of the filtered band signal rotated by 90°
-			FFT(ref h, ref h, filteredLength, FFTMethod.IDFT);
+			FFT(ref filterBandRotated, ref filterBandRotated, filteredLength, FFTMethod.IDFT);
 
 			for (int i = 0; i < filteredLength; i++) {
 				// Magnitude of the analytic signal
 				// out[bands-ib-1][i] = sqrt(out[bands-ib-1][i]*out[bands-ib-1][i] + h[i]*h[i]);
-				double x = @out[bands-bandIndex-1][i];
-				double y = h[i];
+				double x = @out[currentBandIndex][i];
+				double y = filterBandRotated[i];
 				double mag = Math.Sqrt(x*x + y*y);
-				@out[bands-bandIndex-1][i] = mag;
+				@out[currentBandIndex][i] = mag;
 			}
 			#endregion
 
 			#region Downsampling
 			if (filteredLength < envelopeDownsampledLength) { // if the band doesn't have to be resampled
-				Array.Resize<double>(ref @out[bands-bandIndex-1], envelopeDownsampledLength); // simply ignore the end of it
+				Array.Resize<double>(ref @out[currentBandIndex], envelopeDownsampledLength); // simply ignore the end of it
 			}
 			
 			// If the band *has* to be downsampled
 			if (filteredLength > envelopeDownsampledLength) {
-				t = @out[bands-bandIndex-1];
-				@out[bands-bandIndex-1] = BlackmanDownsampling(@out[bands-bandIndex-1], filteredLength, envelopeDownsampledLength); // Blackman downsampling
+				@out[currentBandIndex] = BlackmanDownsampling(@out[currentBandIndex], filteredLength, envelopeDownsampledLength); // Blackman downsampling
 			}
 			#endregion
 
 			// Tail chopping
-			Array.Resize<double>(ref @out[bands-bandIndex-1], Xsize);
+			Array.Resize<double>(ref @out[currentBandIndex], Xsize);
 		}
 
 		Console.Write("\n");
 
-		Normalize(ref @out, ref Xsize, ref bands, 1.0);
+		Normalize(ref @out);
 		
 		return @out;
 	}
@@ -572,9 +534,11 @@ public static class DSP
 		// In Circular mode keep it to sbsize = Xsize * 2;
 		shiftedBandSize = Util.NextLowPrimes(Xsize * 2);
 
-		samplecount = Util.RoundToClosestInt(Xsize/pixpersec);
+		samplecount = Util.RoundToClosestInt((double) Xsize/pixpersec);
 		Console.Write("Sound duration : {0:f3} s\n", (double) samplecount/samplerate);
-		samplecount = Util.RoundToClosestInt(0.5 *shiftedBandSize/pixpersec); // Do not change this value as it would stretch envelopes
+		
+		// Do not change this value as it would stretch envelopes
+		samplecount = Util.RoundToClosestInt(0.5 * (double) shiftedBandSize/pixpersec);
 
 		// allocation of the final signal
 		s = new double[samplecount];
@@ -582,7 +546,7 @@ public static class DSP
 		// allocation of the shifted band
 		shiftedBand = new double[shiftedBandSize];
 
-		// Bc is the index of the band's centre in the frequency domain on sband (its imaginary match being sbsize-Bc)
+		// Bc is the index of the band's centre in the frequency domain on sband (its imaginary match being shiftedBandSize-shiftedBandCenterIndex)
 		shiftedBandCenterIndex = Util.RoundToClosestInt(0.25 * (double) shiftedBandSize);
 
 		// Mh is the length of the real or imaginary part of the envelope's FFT, DC element included and Nyquist element excluded
@@ -594,7 +558,7 @@ public static class DSP
 		// generation of the frequency-domain filter
 		filter = WindowedSincMax(envelopeFFTSize, 1.0 / TRANSITION_BW_SYNT);
 
-		for (int ib = 0; ib < bands; ib++) {
+		for (int bandCounter = 0; bandCounter < bands; bandCounter++) {
 			
 			// reset sband
 			Array.Clear(shiftedBand, 0, shiftedBand.Length);
@@ -607,13 +571,14 @@ public static class DSP
 				sine[i] = Math.Cos(i * 2.0 * PI * 0.25 + rphase);
 			}
 
+			int currentBandIndex = bands-bandCounter-1;
 			for (int i = 0; i < Xsize; i++) { // envelope sampling rate * 2 and frequency shifting by 0.25
 				if ((i & 1) == 0) {
-					shiftedBand[i<<1] = d[bands-ib-1][i] * sine[0];
-					shiftedBand[(i<<1) + 1] = d[bands-ib-1][i] * sine[1];
+					shiftedBand[i<<1] = d[currentBandIndex][i] * sine[0];
+					shiftedBand[(i<<1) + 1] = d[currentBandIndex][i] * sine[1];
 				} else {
-					shiftedBand[i<<1] = d[bands-ib-1][i] * sine[2];
-					shiftedBand[(i<<1) + 1] = d[bands-ib-1][i] * sine[3];
+					shiftedBand[i<<1] = d[currentBandIndex][i] * sine[2];
+					shiftedBand[(i<<1) + 1] = d[currentBandIndex][i] * sine[3];
 				}
 			}
 			#endregion Frequency shifting
@@ -622,16 +587,16 @@ public static class DSP
 			FFT(ref shiftedBand, ref shiftedBand, shiftedBandSize, FFTMethod.DFT);
 			
 			// Fc is the index of the band's centre in the frequency domain on the new signal
-			newSignalBandCenterIndex = Util.RoundToClosestInt(freq[ib] * samplecount); // band's centre index (envelope's DC element)
+			newSignalBandCenterIndex = Util.RoundToClosestInt(freq[bandCounter] * samplecount); // band's centre index (envelope's DC element)
 
-			Console.Write("{0,4:D}/{1:D}   {2:f2} Hz\r", ib+1, bands, (double) newSignalBandCenterIndex * samplerate / samplecount);
+			Console.Write("{0,4:D}/{1:D}   {2:f2} Hz\r", bandCounter+1, bands, (double) newSignalBandCenterIndex * samplerate / samplecount);
 
 			#region Write FFT
 			for (int i = 1; i < envelopeFFTSize; i++) {
-				// if we're between frequencies 0 and 0.5 of the new signal and that we're not at Fc
+				// if we're between frequencies 0 and 0.5 of the new signal and that we're not at Fc (newSignalBandCenterIndex)
 				if (newSignalBandCenterIndex-shiftedBandCenterIndex+i > 0 && newSignalBandCenterIndex-shiftedBandCenterIndex+i < soundFFTSize) {
-					s[i+newSignalBandCenterIndex-shiftedBandCenterIndex] += shiftedBand[i] * filter[i]; 						// Real part
-					s[samplecount-(i+newSignalBandCenterIndex-shiftedBandCenterIndex)] += shiftedBand[shiftedBandSize-i] * filter[i]; 	// Imaginary part
+					s[i+newSignalBandCenterIndex-shiftedBandCenterIndex] += shiftedBand[i] * filter[i]; // Real part
+					s[samplecount-(i+newSignalBandCenterIndex-shiftedBandCenterIndex)] += shiftedBand[shiftedBandSize-i] * filter[i]; // Imaginary part
 				}
 			}
 			#endregion Write FFT
@@ -640,9 +605,9 @@ public static class DSP
 		Console.Write("\n");
 
 		FFT(ref s, ref s, samplecount, FFTMethod.IDFT); // IFFT of the final sound
-		samplecount = Util.RoundToClosestInt(Xsize/pixpersec); // chopping tails by ignoring them
+		samplecount = Util.RoundToClosestInt((double)Xsize/pixpersec); // chopping tails by ignoring them
 
-		Normalize(ref s, ref samplecount, 1.0);
+		Normalize(ref s);
 
 		return s;
 	}
@@ -792,7 +757,7 @@ public static class DSP
 
 		Console.Write("\n");
 
-		Normalize(ref s, ref samplecount, 1.0);
+		Normalize(ref s);
 
 		return s;
 	}
