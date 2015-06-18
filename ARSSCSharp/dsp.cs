@@ -95,9 +95,10 @@ public static class DSP
 	}
 	
 	/// <summary>
-	/// Create Frequency Table
+	/// Create Frequency Table (table with doubles between 0 and 1)
+	/// To get Herz just multiply with the samplerate
 	/// </summary>
-	/// <param name="basefreq">Minimum frequency in Hertz</param>
+	/// <param name="basefreq">Minimum frequency (double between 0 and 1)</param>
 	/// <param name="bands">Number of frequency bands</param>
 	/// <param name="bandsperoctave">Frequency resolution in Bands Per Octave</param>
 	/// <returns>Frequency Array</returns>
@@ -298,9 +299,9 @@ public static class DSP
 	/// <param name="bands">Specifies the desired height of the spectrogram (bands is the total count of bands)</param>
 	/// <param name="bandsperoctave">Frequency resolution in Bands Per Octave</param>
 	/// <param name="pixpersec">Time resolution in Pixels Per Second</param>
-	/// <param name="basefreq">Minimum frequency in Hertz</param>
+	/// <param name="minFreq">Minimum frequency in Hertz</param>
 	/// <returns>Image</returns>
-	public static double[][] Analyze(ref double[] s, ref int samplecount, ref int samplerate, ref int Xsize, ref int bands, ref double bandsperoctave, ref double pixpersec, ref double basefreq)
+	public static double[][] Analyze(ref double[] s, ref int samplecount, ref int samplerate, ref int Xsize, ref int bands, ref double bandsperoctave, ref double pixpersec, ref double minFreq)
 	{
 		int paddedLength = 0;				// Mb is the length of the original signal once zero-padded (always even)
 		int filteredLength = 0;				// Mc is the length of the filtered signal
@@ -316,17 +317,23 @@ public static class DSP
 		double logBandFreqEnd;		// Ld is the log2 of the frequency of Fd
 		double logFreqIterator;		// Li is the iterative frequency between La and Ld defined logarithmically
 		double maxFreq;				// maxfreq is the central frequency of the last band
-
-		freqCentral = FrequencyArray(basefreq, bands, bandsperoctave);
 		
 		if (LOGBASE == 1.0) {
 			maxFreq = bandsperoctave; // in linear mode we use bpo to store the maxfreq since we couldn't deduce maxfreq otherwise
 		} else {
-			maxFreq = basefreq * Math.Pow(LOGBASE, ((double)(bands-1)/ bandsperoctave));
+			maxFreq = minFreq * Math.Pow(LOGBASE, ((double)(bands-1)/ bandsperoctave));
 		}
 		
 		Xsize = (int) (samplecount * pixpersec);
 
+		freqCentral = FrequencyArray(minFreq, bands, bandsperoctave);
+
+		//var logFrequenciesIndex = new int[1];
+		//var logFrequencies = new float[1];
+		//CommonUtils.FFT.AudioAnalyzer.GetLogFrequenciesIndex(samplerate, minFreq*samplerate, maxFreq*samplerate, bands-1, 1024, 2, out logFrequenciesIndex, out logFrequencies);
+		//MathUtils.Divide(ref logFrequencies, samplerate);
+		//freqCentral = MathUtils.FloatToDouble(logFrequencies);
+		
 		// round-up
 		if (Util.FMod((double) samplecount * pixpersec, 1.0) != 0.0) {
 			Xsize++;
@@ -342,7 +349,7 @@ public static class DSP
 		if (LOGBASE == 1.0) {
 			paddedLength = samplecount - 1 + Util.RoundToClosestInt(5.0/ freqCentral[1]-freqCentral[0]); // linear mode
 		} else {
-			paddedLength = samplecount - 1 + Util.RoundToClosestInt(2.0 * 5.0/((freqCentral[0] * Math.Pow(LOGBASE, -1.0/(bandsperoctave))) * (1.0 - Math.Pow(LOGBASE, -1.0 / bandsperoctave))));
+			paddedLength = samplecount - 1 + Util.RoundToClosestInt(2.0 * 5.0/((freqCentral[0] * Math.Pow(LOGBASE, -1.0/bandsperoctave)) * (1.0 - Math.Pow(LOGBASE, -1.0/bandsperoctave))));
 		}
 
 		if (paddedLength % 2 == 1)  { // if Mb is odd
@@ -366,10 +373,10 @@ public static class DSP
 
 		for (int bandCounter = 0; bandCounter < bands; bandCounter++) {
 			#region Filtering
-			bandIndexStart = Util.RoundToClosestInt(LogPositionToFrequency((double)(bandCounter-1)/(double)(bands-1), basefreq, maxFreq) * paddedLength);
-			bandIndexEnd = Util.RoundToClosestInt(LogPositionToFrequency((double)(bandCounter+1)/(double)(bands-1), basefreq, maxFreq) * paddedLength);
-			logBandFreqStart = FrequencyToLogPosition((double) bandIndexStart / (double) paddedLength, basefreq, maxFreq);
-			logBandFreqEnd = FrequencyToLogPosition((double) bandIndexEnd / (double) paddedLength, basefreq, maxFreq);
+			bandIndexStart = Util.RoundToClosestInt(LogPositionToFrequency((double)(bandCounter-1)/(double)(bands-1), minFreq, maxFreq) * paddedLength);
+			bandIndexEnd = Util.RoundToClosestInt(LogPositionToFrequency((double)(bandCounter+1)/(double)(bands-1), minFreq, maxFreq) * paddedLength);
+			logBandFreqStart = FrequencyToLogPosition((double) bandIndexStart / (double) paddedLength, minFreq, maxFreq);
+			logBandFreqEnd = FrequencyToLogPosition((double) bandIndexEnd / (double) paddedLength, minFreq, maxFreq);
 
 			// stop reading if reaching the Nyquist frequency
 			if (bandIndexEnd > paddedLength/2) {
@@ -407,7 +414,7 @@ public static class DSP
 			@out[currentBandIndex] = new double[filteredLength+1];
 
 			for (int i = 0; i < bandIndexLength-1; i++) {
-				logFreqIterator = FrequencyToLogPosition((double)(i+bandIndexStart) / (double) paddedLength, basefreq, maxFreq); // calculation of the logarithmic position
+				logFreqIterator = FrequencyToLogPosition((double)(i+bandIndexStart) / (double) paddedLength, minFreq, maxFreq); // calculation of the logarithmic position
 				logFreqIterator = (logFreqIterator-logBandFreqStart)/(logBandFreqEnd-logBandFreqStart);
 				coef = 0.5 - 0.5 * Math.Cos(2.0 * PI * logFreqIterator); // Hann function
 				
@@ -507,11 +514,11 @@ public static class DSP
 	/// <param name="bands">Specifies the desired height of the spectrogram (total count of bands)</param>
 	/// <param name="samplecount">Number of samples (samplecount is the output sound's length)</param>
 	/// <param name="samplerate">Sample rate</param>
-	/// <param name="basefreq">Minimum frequency in Hertz</param>
+	/// <param name="minFreq">Minimum frequency in Hertz</param>
 	/// <param name="pixpersec">Time resolution in Pixels Per Second</param>
 	/// <param name="bpo">Frequency resolution in Bands Per Octave</param>
 	/// <returns></returns>
-	public static double[] SynthesizeSine(ref double[][] d, ref int Xsize, ref int bands, ref int samplecount, ref int samplerate, ref double basefreq, ref double pixpersec, ref double bpo)
+	public static double[] SynthesizeSine(ref double[][] d, ref int Xsize, ref int bands, ref int samplecount, ref int samplerate, ref double minFreq, ref double pixpersec, ref double bpo)
 	{
 		double[] s; 					// s is the output sound
 		double[] freq;					// freq is the band's central frequency
@@ -527,7 +534,7 @@ public static class DSP
 		int envelopeFFTSize = 0;			// Mh is the length of the real or imaginary part of the envelope's FFT, DC element included and Nyquist element excluded
 		int soundFFTSize = 0;				// Mn is the length of the real or imaginary part of the sound's FFT, DC element included and Nyquist element excluded
 
-		freq = FrequencyArray(basefreq, bands, bpo);
+		freq = FrequencyArray(minFreq, bands, bpo);
 
 		clockA = Util.GetTimeTicks();
 
@@ -620,11 +627,11 @@ public static class DSP
 	/// <param name="bands">Specifies the desired height of the spectrogram (bands)</param>
 	/// <param name="samplecount">Number of samples</param>
 	/// <param name="samplerate">Sample rate</param>
-	/// <param name="basefreq">Base frequency in Hertz</param>
+	/// <param name="minFreq">Base frequency in Hertz</param>
 	/// <param name="pixpersec">Time resolution in Pixels Per Second</param>
 	/// <param name="bpo">Frequency resolution in Bands Per Octave</param>
 	/// <returns></returns>
-	public static double[] SynthesizeNoise(ref double[][] d, ref int Xsize, ref int bands, ref int samplecount, ref int samplerate, ref double basefreq, ref double pixpersec, ref double bpo)
+	public static double[] SynthesizeNoise(ref double[][] d, ref int Xsize, ref int bands, ref int samplecount, ref int samplerate, ref double minFreq, ref double pixpersec, ref double bpo)
 	{
 		double[] s; 							// final signal
 		double coef;
@@ -649,12 +656,12 @@ public static class DSP
 		double LogBandFreqEnd; 	 // Ld is the log2 of the frequency of Fd
 		double LogFreqIterator; // Li is the iterative frequency between La and Ld defined logarithmically
 
-		freq = FrequencyArray(basefreq, bands, bpo);
+		freq = FrequencyArray(minFreq, bands, bpo);
 
 		if (LOGBASE == 1.0) {
 			maxfreq = bpo; // in linear mode we use bpo to store the maxfreq since we couldn't deduce maxfreq otherwise
 		} else {
-			maxfreq = basefreq * Math.Pow(LOGBASE, ((double)(bands-1)/ bpo));
+			maxfreq = minFreq * Math.Pow(LOGBASE, ((double)(bands-1)/ bpo));
 		}
 
 		clockA = Util.GetTimeTicks();
@@ -671,7 +678,7 @@ public static class DSP
 		} else {
 			// this is the estimate of how many samples the longest FIR
 			// will take up in the time domain
-			loop_size_min = Util.RoundToClosestInt(2.0 * 5.0/((freq[0] * Math.Pow(2.0, -1.0/(bpo))) * (1.0 - Math.Pow(2.0, -1.0 / bpo))));
+			loop_size_min = Util.RoundToClosestInt(2.0 * 5.0/((freq[0] * Math.Pow(2.0, -1.0/bpo)) * (1.0 - Math.Pow(2.0, -1.0/bpo))));
 		}
 
 		if (loop_size_min > loop_size) {
@@ -708,10 +715,10 @@ public static class DSP
 			Array.Clear(noise, 0, noise.Length);
 			
 			#region Filtering
-			bandIndexStart = Util.RoundToClosestInt(LogPositionToFrequency((double)(ib-1)/(double)(bands-1), basefreq, maxfreq) * loop_size);
-			bandIndexEnd = Util.RoundToClosestInt(LogPositionToFrequency((double)(ib+1)/(double)(bands-1), basefreq, maxfreq) * loop_size);
-			LogBandFreqStart = FrequencyToLogPosition((double) bandIndexStart / (double) loop_size, basefreq, maxfreq);
-			LogBandFreqEnd = FrequencyToLogPosition((double) bandIndexEnd / (double) loop_size, basefreq, maxfreq);
+			bandIndexStart = Util.RoundToClosestInt(LogPositionToFrequency((double)(ib-1)/(double)(bands-1), minFreq, maxfreq) * loop_size);
+			bandIndexEnd = Util.RoundToClosestInt(LogPositionToFrequency((double)(ib+1)/(double)(bands-1), minFreq, maxfreq) * loop_size);
+			LogBandFreqStart = FrequencyToLogPosition((double) bandIndexStart / (double) loop_size, minFreq, maxfreq);
+			LogBandFreqEnd = FrequencyToLogPosition((double) bandIndexEnd / (double) loop_size, minFreq, maxfreq);
 
 			if (bandIndexEnd > loop_size/2) {
 				bandIndexEnd = loop_size/2; // stop reading if reaching the Nyquist frequency
@@ -724,7 +731,7 @@ public static class DSP
 			Console.Write("{0,4:D}/{1:D}   {2:f2} Hz - {3:f2} Hz\r", ib+1, bands, (double) bandIndexStart *samplerate/loop_size, (double) bandIndexEnd *samplerate/loop_size);
 
 			for (int i = bandIndexStart; i < bandIndexEnd; i++) {
-				LogFreqIterator = FrequencyToLogPosition((double) i / (double) loop_size, basefreq, maxfreq); // calculation of the logarithmic position
+				LogFreqIterator = FrequencyToLogPosition((double) i / (double) loop_size, minFreq, maxfreq); // calculation of the logarithmic position
 				LogFreqIterator = (LogFreqIterator-LogBandFreqStart)/(LogBandFreqEnd-LogBandFreqStart);
 				coef = 0.5 - 0.5 *Math.Cos(2.0 * PI * LogFreqIterator); // Hann function
 				noise[i+1] = pink_noise[i+1] * coef;
@@ -792,32 +799,41 @@ public static class DSP
 	/// <summary>
 	/// Turns a logarithmic position (i.e. band number/band count) to a frequency
 	/// </summary>
-	/// <param name="x">Log Position</param>
-	/// <param name="min">Minimum</param>
-	/// <param name="max">Maximum</param>
+	/// <param name="x">Log Position (double between 0 and 1)</param>
+	/// <param name="min">Minimum (double between 0 and 1)</param>
+	/// <param name="max">Maximum (double between 0 and 1)</param>
 	/// <returns></returns>
 	public static double LogPositionToFrequency(double x, double min, double max)
 	{
 		if (LOGBASE == 1.0) {
-			return x*(max-min) + min;
+			return x * (max - min) + min;
 		} else {
-			return (max-min) * (min * Math.Pow(LOGBASE, x * (Math.Log(max)-Math.Log(min))/Math.Log(2.0)) - min) / (min * Math.Pow(LOGBASE, (Math.Log(max)-Math.Log(min))/Math.Log(2.0)) - min) + min;
+			double logMin = Math.Log(min);
+			double logMax = Math.Log(max);
+			double delta = (logMax - logMin) / Math.Log(2.0);
+			
+			return (max - min) * (min * Math.Pow(LOGBASE, x * delta) - min) / (min * Math.Pow(LOGBASE, delta) - min) + min;
 		}
 	}
 
 	/// <summary>
 	/// Turns a frequency to a logarithmic position (i.e. band number/band count)
 	/// </summary>
-	/// <param name="x">Frequency</param>
-	/// <param name="min">Minimum</param>
-	/// <param name="max">Maximum</param>
+	/// <param name="x">Frequency (double between 0 and 1)</param>
+	/// <param name="min">Minimum (double between 0 and 1)</param>
+	/// <param name="max">Maximum (double between 0 and 1)</param>
 	/// <returns></returns>
 	public static double FrequencyToLogPosition(double x, double min, double max)
 	{
 		if (LOGBASE == 1.0) {
 			return (x - min)/(max-min);
 		} else {
-			return Math.Log(((x-min) * (min * Math.Pow(LOGBASE, (Math.Log(max) - Math.Log(min))/Math.Log(2.0)) - min) / (max-min) + min) / Math.Log(LOGBASE)) * Math.Log(2.0) / (Math.Log(max) - Math.Log(min));
+			double logMin = Math.Log(min);
+			double logMax = Math.Log(max);
+			double delta = (logMax - logMin);
+			double logDelta = delta / Math.Log(2.0);
+
+			return Math.Log(((x - min) * (min * Math.Pow(LOGBASE, logDelta) - min) / (max - min) + min) / Math.Log(LOGBASE)) * Math.Log(2.0) / delta;
 		}
 	}
 }

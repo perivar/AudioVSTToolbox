@@ -84,8 +84,7 @@ public static class Arss
 			Console.Write("Sample rate [44100] : "); // Query for a samplerate
 			samplerate = (int) Util.ReadUserInputFloat();
 			
-			// The -2147483647 check is used for the sake of compatibility with C90
-			if (samplerate == 0 || samplerate < -2147483647) {
+			if (samplerate == 0) {
 				samplerate = 44100; // Default value
 			}
 			#endregion
@@ -694,7 +693,7 @@ public static class Arss
 			Console.Write("Samplecount : {0:D}\nChannels : {1:D}\n", samplecount, channels);
 			#endif
 
-			SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, 0); // User settings input
+			SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, Mode.Analysis); // User settings input
 			image = DSP.Analyze(ref sound[0], ref samplecount, ref samplerate, ref Xsize, ref Ysize, ref bpo, ref pixpersec, ref basefreq); // Analysis
 			if (brightness != 1.0) {
 				DSP.BrightnessControl(ref image, ref Ysize, ref Xsize, 1.0/brightness);
