@@ -946,7 +946,7 @@ namespace CommonUtils
 		///	  5: ...
 		///		 ...
 		///	511: 511 * 44100 / 1024 = 22006.9 Hz
-		/// 512: 512 * 44100 / 1024 = 22050.0 Hz, the nyquist limit
+		/// 512: 512 * 44100 / 1024 = 22050.0 Hz, the Nyquist limit
 		///
 		/// Note that for a real input signal (imaginary parts all zero) the second half of the FFT (bins from N / 2 + 1 to N - 1)
 		/// contain no useful additional information (they have complex conjugate symmetry with the first N / 2 - 1 bins).

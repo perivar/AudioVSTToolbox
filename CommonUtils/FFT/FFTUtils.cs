@@ -306,10 +306,10 @@ namespace CommonUtils.FFT
 		
 		/// <summary>
 		/// Return a complex double array (alternating between real and imaginary values)
-		/// as a Complex array
+		/// as an array with Complex objects
 		/// </summary>
 		/// <param name="complexDouble">complex double array</param>
-		/// <returns>a array of Complex types</returns>
+		/// <returns>an array of Complex objects</returns>
 		public static Complex[] ComplexDoubleToComplex(double[] complexDouble) {
 			// LomontFFT returns a complex double array
 			// i.e. the array alternates between a real and an imaginary value
@@ -323,6 +323,23 @@ namespace CommonUtils.FFT
 			}
 			
 			return complexSignal;
+		}
+		
+		public static double[] ComplexToComplexDouble(Complex[] complexSignal) {
+			// LomontFFT returns a complex double array
+			// i.e. the array alternates between a real and an imaginary value
+			// even - Re, odd - Img
+			int N = complexSignal.Length;
+			var complexDouble = new double[N * 2];
+			
+			for (int j = 0; j < N; j++) {
+				double re = complexSignal[j].Re;
+				double img = complexSignal[j].Im;
+				complexDouble[2*j] = re;
+				complexDouble[2*j + 1] = img;
+			}
+			
+			return complexDouble;
 		}
 		
 		/// <summary>
