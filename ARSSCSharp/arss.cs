@@ -1,8 +1,11 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 using System.Drawing.Imaging; // for bitmap save
+
 using CommonUtils;
+using CommonUtils.CommonMath.FFT;
 
 public static class Arss
 {
@@ -693,6 +696,7 @@ public static class Arss
 			Console.Write("Samplecount : {0:D}\nChannels : {1:D}\n", samplecount, channels);
 			#endif
 
+			
 			SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, Mode.Analysis); // User settings input
 			image = DSP.Analyze(ref sound[0], ref samplecount, ref samplerate, ref Xsize, ref Ysize, ref bpo, ref pixpersec, ref basefreq); // Analysis
 			if (brightness != 1.0) {
@@ -701,12 +705,32 @@ public static class Arss
 			
 			ImageIO.BMPWrite(fout, image, Ysize, Xsize); // Image output
 			
-			// testing spectrogram methods as well
-			//var spectrogram = new Spectrogram();
-			//var spectrogramImage = spectrogram.ToImage(ref sound[0], samplerate);
-			//spectrogramImage.Save("test2.bmp", ImageFormat.Bmp);
-			//double[] soundSynth = spectrogram.SynthetizeSine(new System.Drawing.Bitmap("test-orig.bmp"), samplerate);
-			//CommonUtils.Audio.NAudio.AudioUtilsNAudio.WriteIEEE32WaveFileMono("test2.wav", samplerate, MathUtils.DoubleToFloat(soundSynth));
+			
+			/*
+			// Testing Forward and Backwards Padded FFT and IFFT
+			List<object> objects = IOUtils.ReadCSV(@"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\ARSSCSharp\spectrogram-src\fft_input.csv", false, CsvDoubleParser);
+			IOUtils.WriteCSV("arss_input.csv", objects, CvsDoubleFormatter);
+			
+			var doubles = objects.Cast<double>().ToArray();
+			Complex[] spectrum = SpectrogramUtils.padded_FFT(ref doubles);
+			
+			List<object> lines = spectrum.Cast<object>().ToList();
+			IOUtils.WriteCSV("arss_fft.csv", lines, Arss.CvsComplexFormatter);
+
+			var ifft = SpectrogramUtils.padded_IFFT(ref spectrum);
+			List<object> ifft_lines = ifft.Cast<object>().ToList();
+			IOUtils.WriteCSV("arss_ifft.csv", ifft_lines, CvsDoubleFormatter);
+			return;
+			 */
+
+			/*
+			// Testing using the Spectrogram methods to synthesize and resynthesize
+			var spectrogram = new Spectrogram();
+			var spectrogramImage = spectrogram.ToImage(ref sound[0], samplerate);
+			spectrogramImage.Save("test2.bmp", ImageFormat.Bmp);
+			double[] soundSynth = spectrogram.SynthetizeSine(new System.Drawing.Bitmap("test2.bmp"), samplerate);
+			CommonUtils.Audio.NAudio.AudioUtilsNAudio.WriteIEEE32WaveFileMono("test2.wav", samplerate, MathUtils.DoubleToFloat(soundSynth));
+			 */
 		}
 		
 		if (mode == Mode.Synthesis_Sine || mode == Mode.Synthesis_Noise) {
@@ -744,5 +768,34 @@ public static class Arss
 		Console.Write("Processing time : {0:D2} m  {1:D2} s  {2:D2} ms\n", duration.Minutes, duration.Seconds, duration.Milliseconds);
 
 		Util.ReadUserReturn();
+	}
+	
+	public static object CsvDoubleParser(string[] splittedLine)
+	{
+		// only store the second element (the first is a counter)
+		return double.Parse(splittedLine[1]);
+	}
+	
+	public static string CvsComplexFormatter(object line, int lineCounter, string columnSeparator)
+	{
+		var elements = new List<string>();
+		var complex = (CommonUtils.CommonMath.FFT.Complex) line;
+		
+		elements.Add(String.Format("{0,4}", lineCounter));
+		elements.Add(String.Format("{0,12:N6}", complex.Re));
+		elements.Add(String.Format("{0,12:N6}", complex.Im));
+		
+		return string.Join(columnSeparator, elements);
+	}
+
+	public static string CvsDoubleFormatter(object line, int lineCounter, string columnSeparator)
+	{
+		var elements = new List<string>();
+		var d = (double) line;
+		
+		elements.Add(String.Format("{0,4}", lineCounter));
+		elements.Add(String.Format("{0,12:N6}", d));
+		
+		return string.Join(columnSeparator, elements);
 	}
 }

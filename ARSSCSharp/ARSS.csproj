@@ -68,81 +68,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\BinaryFile.cs">
-      <Link>BinaryFile.cs</Link>
-    </Compile>
-    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\CSVWriter.cs">
-      <Link>CSVWriter.cs</Link>
-    </Compile>
-    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\Export.cs">
-      <Link>Export.cs</Link>
-    </Compile>
-    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\ExocortexDSP\Complex.cs">
-      <Link>FFT\Complex.cs</Link>
-    </Compile>
-    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\ExocortexDSP\ComplexF.cs">
-      <Link>FFT\ComplexF.cs</Link>
-    </Compile>
-    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\ExocortexDSP\ComplexMath.cs">
-      <Link>FFT\ComplexMath.cs</Link>
-    </Compile>
-    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\ExocortexDSP\Fourier.cs">
-      <Link>FFT\Fourier.cs</Link>
-    </Compile>
-    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\ExocortexDSP\FourierDirection.cs">
-      <Link>FFT\FourierDirection.cs</Link>
-    </Compile>
-    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\FFTTesting.cs">
-      <Link>FFT\FFTTesting.cs</Link>
-    </Compile>
-    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\FFTUtils.cs">
-      <Link>FFT\FFTUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\FFT\LomontFFT.cs">
-      <Link>FFT\LomontFFT.cs</Link>
-    </Compile>
-    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\IOUtils.cs">
-      <Link>IOUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\MathUtils.cs">
-      <Link>MathUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\..\AudioVSTToolbox\CommonUtils\StringUtils.cs">
-      <Link>StringUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Audio\NAudio\AudioUtilsNAudio.cs">
-      <Link>NAudio\AudioUtilsNAudio.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Audio\RiffRead.cs">
-      <Link>NAudio\RiffRead.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\ColorUtils.cs">
-      <Link>ColorUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\ExtendedGraphics.cs">
-      <Link>ExtendedGraphics.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\AudioAnalyzer.cs">
-      <Link>FFT\AudioAnalyzer.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\FFTWindows.cs">
-      <Link>FFT\FFTWindows.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\fftwlib\Interop.cs">
-      <Link>FFT\Interop.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\fftwlib\Managed.cs">
-      <Link>FFT\Managed.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\fftw\FFTW.cs">
-      <Link>FFT\FFTW.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\MidiUtils.cs">
-      <Link>MidiUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\RandomUtils.cs">
-      <Link>RandomUtils.cs</Link>
-    </Compile>
     <Compile Include="Arss.cs" />
     <Compile Include="DSP.cs" />
     <Compile Include="Filterbank.cs" />
@@ -155,11 +80,13 @@
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="FFT" />
-    <Folder Include="NAudio" />
+    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <ProjectReference Include="..\..\CommonUtils\Library\CommonUtils.csproj">
+      <Project>{F783796B-2189-4A3E-AE6E-3E50F68FEE5C}</Project>
+      <Name>CommonUtils</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>

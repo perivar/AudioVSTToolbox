@@ -4,6 +4,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # SharpDevelop 5.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ARSS", "ARSS.csproj", "{90A91B0D-3104-4262-93DF-AE312512E395}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonUtils", "..\..\CommonUtils\Library\CommonUtils.csproj", "{F783796B-2189-4A3E-AE6E-3E50F68FEE5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -14,5 +16,9 @@ Global
 		{90A91B0D-3104-4262-93DF-AE312512E395}.Debug|x86.Build.0 = Debug|x86
 		{90A91B0D-3104-4262-93DF-AE312512E395}.Release|x86.ActiveCfg = Release|x86
 		{90A91B0D-3104-4262-93DF-AE312512E395}.Release|x86.Build.0 = Release|x86
+		{F783796B-2189-4A3E-AE6E-3E50F68FEE5C}.Debug|x86.ActiveCfg = Debug|x86
+		{F783796B-2189-4A3E-AE6E-3E50F68FEE5C}.Debug|x86.Build.0 = Debug|x86
+		{F783796B-2189-4A3E-AE6E-3E50F68FEE5C}.Release|x86.ActiveCfg = Release|x86
+		{F783796B-2189-4A3E-AE6E-3E50F68FEE5C}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 EndGlobal

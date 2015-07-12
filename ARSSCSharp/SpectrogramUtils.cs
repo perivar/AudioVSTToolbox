@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using CommonUtils;
-using CommonUtils.FFT;
+using CommonUtils.CommonMath.FFT;
 
 using fftwlib;
 
@@ -25,72 +25,66 @@ public static class SpectrogramUtils
 		}
 		return signal;
 	}
+	
+	public static Complex[] padded_FFT(ref double[] @in)
+	{
+		Debug.Assert(@in.Length > 0);
+		int n = @in.Length;
+		
+		int padded = n > 256 ? Util.NextLowPrimes(n) : n;
+		Array.Resize<double>(ref @in, padded);
 
+		// 4096 real numbers on input processed by FFTW dft_r2c_1d transform gives
+		// 4096/2+1 = 2049 complex numbers at output
+		// prepare the input arrays
+		var fftwInput = new FFTW.DoubleArray(@in);
+		
+		int complexSize = (padded >> 1) + 1; // this is the same as (padded / 2 + 1);
+		var fftwOutput = new FFTW.ComplexArray(complexSize);
+		
+		FFTW.ForwardTransform(fftwInput, fftwOutput);
+		
+		Array.Resize<double>(ref @in, n);
+		
+		// free up memory
+		GC.Collect();
+		
+		return FFTUtils.ComplexDoubleToComplex(fftwOutput.ComplexValues);
+	}
+
+	public static double[] padded_IFFT(ref Complex[] @in)
+	{
+		Debug.Assert(@in.Length > 1);
+		
+		int originalLength = @in.Length;
+		int n = (@in.Length - 1) * 2;
+		
+		int padded = n > 256 ? Util.NextLowPrimes(n) : n;
+
+		Array.Resize<Complex>(ref @in, padded / 2 + 1);
+		
+		// prepare the input arrays
+		var complexDouble = FFTUtils.ComplexToComplexDouble(@in);
+		var fftwBackwardInput = new FFTW.ComplexArray(complexDouble);
+		var fftwBackwardOutput = new FFTW.DoubleArray(padded);
+		
+		// this method needs that the backwards transform uses the output.length as it's N
+		// i.e. FFTW.dft_c2r_1d(output.Length, input.Handle, output.Handle, Flags.Estimate);
+		FFTW.BackwardTransform(fftwBackwardInput, fftwBackwardOutput);
+		
+		// get the result (in the original method it wasn't scaled correctly (meaning ValuesDivedByN)
+		//var @out = fftwBackwardOutput.ValuesDivedByN;
+		var @out = fftwBackwardOutput.Values;
+		
+		Array.Resize<Complex>(ref @in, n / 2 + 1);
+		
+		// free up memory
+		GC.Collect();
+
+		return @out;
+	}
+	
 	/*
-	public static double[] PaddedIFFT(Complex[] complexSignal) {
-		
-		int N = MathUtils.NextPowerOfTwo(complexSignal.Length);
-		if (N <= 4096) {
-			complexSignal = Zeros(complexSignal, N);
-			Fourier.FFT(complexSignal, N, FourierDirection.Backward);
-		} else {
-			N = 4096;
-			Array.Resize(ref complexSignal, N);
-			Fourier.FFT(complexSignal, N, FourierDirection.Backward);
-		}
-		
-		// get the result
-		var fft_real = new double[N];
-		for (int j = 0; j < N; j++) {
-			fft_real[j] = complexSignal[j].Re;
-		}
-		return fft_real;
-	}
-	
-	public static double[] PaddedIFFT(double[] signal) {
-		
-		int N = signal.Length;
-		Complex[] complexSignal = FFTUtils.DoubleToComplex(signal);
-		
-		// use Exocortex
-		Fourier.FFT(complexSignal, N, FourierDirection.Backward);
-		
-		// get the result
-		var fft_real = new double[N];
-		for (int j = 0; j < N; j++) {
-			fft_real[j] = complexSignal[j].Re;
-		}
-		return fft_real;
-	}
-	
-	public static double[] PaddedFFT(Complex[] complexSignal) {
-
-		int N = complexSignal.Length;
-
-		// use Exocortex
-		Fourier.FFT(complexSignal, N, FourierDirection.Forward);
-
-		// get the result
-		var fft_real = new double[N];
-		for (int j = 0; j < N; j++) {
-			fft_real[j] = complexSignal[j].Re;
-		}
-		return fft_real;
-	}
-	
-	public static Complex[] PaddedFFT(double[] signal) {
-		
-		int N = MathUtils.NextPowerOfTwo(signal.Length);
-		signal = Zeros(signal, N);
-
-		// use Lomont
-		double[] signal_fft = FFTUtils.FFT(signal);
-		Complex[] complexSignal = FFTUtils.ComplexDoubleToComplex(signal_fft);
-		
-		return complexSignal;
-	}
-	 */
-
 	public static Complex[] padded_FFT(ref double[] @in)
 	{
 		Debug.Assert(@in.Length > 0);
@@ -157,6 +151,7 @@ public static class SpectrogramUtils
 
 		return @out;
 	}
+	 */
 	
 	public static double Log10Scale(double val)
 	{
@@ -230,7 +225,7 @@ public static class SpectrogramUtils
 		double[] shifted_signal = padded_IFFT(ref shifted);
 
 		for (int i = 0; i < envelope.Length; ++i) {
-			// todo: why not the magnitude
+			// TODO: why not the magnitude?
 			envelope[i] = envelope[i]*envelope[i] + shifted_signal[i]*shifted_signal[i];
 		}
 

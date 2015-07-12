@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-using CommonUtils.FFT;
+using CommonUtils;
+using CommonUtils.CommonMath.FFT;
 
 public enum SynthesisType {
 	SYNTHESIS_SINE,
@@ -59,10 +60,10 @@ public class Spectrogram
 
 	public Spectrogram()
 	{
-		bandwidth = 392; // 100
+		bandwidth = 200; // 100
 		basefreq = 27.5; // 55
-		maxfreq = 22050; // 22050; 19912
-		overlap = 0.8;
+		maxfreq = 19912; // 22050; 19912
+		overlap = 0.5;
 		pixpersec = 150; // 100
 		window = Window.WINDOW_HANN;
 		intensity_axis = AxisScale.SCALE_LOGARITHMIC;
@@ -77,12 +78,13 @@ public class Spectrogram
 		DSP.clockA = Util.GetTimeTicks();
 		
 		Complex[] spectrum = SpectrogramUtils.padded_FFT(ref signal);
-
+		
 		//const size_t width = (spectrum.size()-1)*2*pixpersec/samplerate;
 		double lastSpectrumIndex = spectrum.Length - 1; // last spectrum index
 		double pixelsPerSample = (double) pixpersec/ (double) samplerate;
 		double widthDouble = lastSpectrumIndex * 2 * pixelsPerSample;
-		int width = (int) widthDouble;
+		int width = MathUtils.RoundAwayFromZero(widthDouble);
+		Console.Out.WriteLine("Width: {0}", width);
 		//int testWidt = (int) (signal.Length * pixpersec);
 
 		// transformation of frequency in hz to index in spectrum
@@ -106,7 +108,6 @@ public class Spectrogram
 			Pair<int,int> range = filterbank.GetBand(bandidx);
 			
 			// Output progress
-			//OutputBandProgress(bandidx, bands);
 			Console.Write("Processing band {0} of {1} ({2:0.00} Hz - {3:0.00} Hz = {4:0.00} Hz)\r", bandidx, bands, range.First/filterscale, range.Second/filterscale, (range.Second-range.First)/filterscale);
 			
 			/*

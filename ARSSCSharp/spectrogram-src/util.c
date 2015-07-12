@@ -335,7 +335,7 @@ inline void log_double_array(char *filename, double *array, int32_t len) {
 	
 	for (i=0;i<len;i++)
 	{
-		fprintf(file, "%d,%.9f\n", i+1, array[i]); 
+		fprintf (file, "%4d,%12f\n", i+1, array[i]);
 	}
 	fclose(file); 
 }

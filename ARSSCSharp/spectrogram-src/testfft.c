@@ -21,14 +21,17 @@ double* padded_IFFT(fftw_complex *in, int in_length);
 int main()
 {
     printf ( "%s\n", gettimestring() );
-    log_file("Starting test fft ...");
+    log_file("====================");
+	log_file("Starting testfft ...");
     //testfft();
     
     unsigned int seed = 123456789;
     int i;
     double *in;
     fftw_complex *out;
-    int n = 260;
+    int n = 260; 	// length of signal
+	int m = 0; 		// temp to calculate complexLength
+	int complexLength = 0;
     /*
     Set up an array to hold the data, and assign the data.
     */
@@ -42,9 +45,12 @@ int main()
     }
     
     out = padded_FFT(in, n);
-	log_complex_array("fft.csv", out, n);
+
+	// calculate what the complex length was
+	m = n > 256 ? padded_size(n) : n;
+    complexLength = ( m / 2 ) + 1;
 	
-	padded_IFFT(out, n/2+1); // this is wrong
+	padded_IFFT(out, complexLength);
     
     return 1;
 }
@@ -206,8 +212,8 @@ Output, double FRAND, a random value between 0 and 1.
 int smallprimes(int x)
 {
     int i;
-    int p[3] = {2, 3, 5};
-    for (i = 0; i < 3; ++i)
+    int p[2] = {2, 3};
+    for (i = 0; i < 2; ++i)
 		while (x%p[i] == 0)
 			x /= p[i];
     
@@ -251,7 +257,7 @@ fftw_complex* padded_FFT(double *in, int in_length)
     fftw_complex *out;
     
 	log_double("FFT input array length:", in_length);	
-    log_double_array("input.csv", in, in_length);
+    log_double_array("fft_input.csv", in, in_length);
     
     // n is padded size
     n = in_length > 256 ? padded_size(in_length) : in_length;
@@ -259,7 +265,7 @@ fftw_complex* padded_FFT(double *in, int in_length)
     // resize input array
     in = doubleRealloc(in, in_length, n);
     
-    log_double_array("resized.csv", in, n);
+    log_double_array("fft_input_resized.csv", in, n);
     
     /*
     Set up an array to hold the transformed data,
@@ -275,17 +281,16 @@ fftw_complex* padded_FFT(double *in, int in_length)
     plan_forward = fftw_plan_dft_r2c_1d ( n, in, out, FFTW_ESTIMATE );
     fftw_execute(plan_forward);
     
-    //log_complex_array("fft.csv", out, nc);
+    log_complex_array("fft.csv", out, nc);
     
     fftw_destroy_plan(plan_forward);
     
     // resize input array
     in = doubleRealloc(in, n, in_length);    
-    log_double_array("resized_back.csv", in, in_length);
+    log_double_array("fft_input_resized_back.csv", in, in_length);
 	
     return out;
 }
-
 
 double* padded_IFFT(fftw_complex *in, int in_length)
 {
@@ -295,7 +300,7 @@ double* padded_IFFT(fftw_complex *in, int in_length)
     fftw_plan plan_backward;
     double *out;
     
-	log_double("FFT input array length:", in_length);	
+	log_double("IFFT input array length:", in_length);	
     log_complex_array("ifft_input.csv", in, in_length);
     
 	unpadded = ( in_length - 1 ) * 2;	
