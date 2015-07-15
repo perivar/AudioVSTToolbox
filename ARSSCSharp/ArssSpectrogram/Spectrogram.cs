@@ -61,9 +61,15 @@ namespace ArssSpectrogram
 
 		public Spectrogram()
 		{
-			bandwidth = 200; // 100
+			// arss default values
+			// basefreq = 27.5;
+			// maxfreq = 20000;
+			// bandsperoctave = 12;
+			// pixpersec = 150;
+			
+			bandwidth = 201; // 100
 			basefreq = 27.5; // 55
-			maxfreq = 19912; // 22050; 19912
+			maxfreq = 20000; // 22050; 19912
 			overlap = 0.5;
 			pixpersec = 150; // 100
 			window = Window.WINDOW_HANN;
@@ -227,9 +233,84 @@ namespace ArssSpectrogram
 			return null;
 		}
 		
+		public double[] SynthetizeSine(double[][] image, int samplerate)
+		{
+			int y_Height = image.Length; 		// = image.Height
+			int x_Width = image[0].Length; 	// = image.Width
+
+			using (new DebugTimer("Spectrogram: SynthetizeSine(double[][])"))
+			{
+				int samples = x_Width * samplerate/pixpersec;
+				var spectrum = new Complex[samples/2+1];
+
+				double filterscale = ((double)spectrum.Length*2)/samplerate;
+
+				Filterbank filterbank = Filterbank.GetFilterbank(frequency_axis, filterscale, basefreq, bandwidth, overlap);
+
+				for (int bandidx = 0; bandidx < y_Height; ++bandidx) {
+					// TODO: support cancelling this process
+
+					OutputBandProgress(bandidx+1, y_Height);
+
+					//double[] envelope = EnvelopeFromSpectrogram(image, bandidx);
+					double[] envelope = image[bandidx];
+					// Find maximum number when all numbers are made positive.
+					//double max = envelope.Max((b) => Math.Abs(b));
+					//Console.WriteLine(max);
+
+					#region Frequency shifting
+					
+					// random phase between +-pi
+					double phase = SpectrogramUtils.RandomDoubleMinus1ToPlus1() * Math.PI;
+
+					var bandsignal = new double[envelope.Length*2];
+					for (int j = 0; j < 4; ++j) {
+						double sine = Math.Cos(j * Math.PI/2 + phase);
+						for (int i = j; i < bandsignal.Length; i += 4) {
+							bandsignal[i] = envelope[i/2] * sine;
+						}
+					}
+					#endregion
+					
+					// FFT of the envelope
+					var filterband = SpectrogramUtils.padded_FFT(ref bandsignal);
+
+					// Windowed-Sinc Filtering (frequency-domain filter)
+					for (int i = 0; i < filterband.Length; ++i) {
+						double x = (double)i/filterband.Length;
+						
+						// normalized blackman window antiderivative
+						filterband[i] *= x - ((0.5/(2.0 * Math.PI)) * Math.Sin(2.0 * Math.PI *x) + (0.08/(4.0 * Math.PI)) * Math.Sin(4.0 * Math.PI *x) / 0.42);
+					}
+
+					//Console.Out.WriteLine("Spectrum size: {0}", spectrum.Length);
+					//std::cout << bandidx << ". filterband size: " << filterband.Length << "; start: " << filterbank->GetBand(bandidx).first <<"; end: " << filterbank->GetBand(bandidx).second << "\n";
+
+					double center = filterbank.GetCenter(bandidx);
+					double offset = Math.Max((double)0, center - filterband.Length/2);
+					
+					//Console.Out.WriteLine("Offset: {0} = {1} hz", offset, offset/filterscale);
+					
+					for (int i = 0; i < filterband.Length; ++i) {
+						int spectrumIndex = (int) (offset + i);
+						if (spectrumIndex > 0 && spectrumIndex < spectrum.Length) {
+							spectrum[spectrumIndex] += filterband[i];
+						}
+					}
+				}
+
+				double[] @out = SpectrogramUtils.padded_IFFT(ref spectrum);
+				
+				Console.Out.WriteLine("Samples: {0} -> {1}", @out.Length, samples);
+				
+				SpectrogramUtils.NormalizeSignal(ref @out);
+				return @out;
+			}
+		}
+		
 		public double[] SynthetizeSine(Bitmap image, int samplerate)
 		{
-			using (new DebugTimer("Spectrogram: SynthetizeSine()"))
+			using (new DebugTimer("Spectrogram: SynthetizeSine(Bitmap)"))
 			{
 				int samples = image.Width * samplerate/pixpersec;
 				var spectrum = new Complex[samples/2+1];
@@ -346,6 +427,7 @@ namespace ArssSpectrogram
 			Console.Write("Processing band {0} of {1}\r", x, of);
 		}
 		
+		// TODO: this method takes a long time - why?
 		public double[] EnvelopeFromSpectrogram(Bitmap image, int row)
 		{
 			var envelope = new double[image.Width];

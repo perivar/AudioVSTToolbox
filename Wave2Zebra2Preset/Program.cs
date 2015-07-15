@@ -310,7 +310,7 @@ namespace Wave2Zebra2Preset
 			int fftOverlap = fftWindowsSize / 2; // 32768:990, 16384:990, 8192:990, 4096:990
 			float fftOverlapPercentage = 94.0f; // 99.0f number between 0 and 100
 			
-			string fileName = @"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\ARSSCSharp\Ariana Grande 16bit.wav";
+			string fileName = @"C:\Users\perivar.nerseth\Documents\My Projects\AudioVSTToolbox\ARSSCSharp\Ariana Grande 32bit.wav";
 
 			var bass = BassProxy.Instance;
 			float[] wavDataBass = BassProxy.ReadMonoFromFile(fileName, sampleRate);

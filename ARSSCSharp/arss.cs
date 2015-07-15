@@ -706,15 +706,21 @@ namespace ARSS
 				
 				ImageIO.BMPWrite(fout, image, Ysize, Xsize); // Image output
 				
+				
 				/*
 				// Testing using the Spectrogram methods to synthesize and resynthesize
 				var spectrogram = new ArssSpectrogram.Spectrogram();
 				var spectrogramImage = spectrogram.ToImage(ref sound[0], samplerate);
 				spectrogramImage.Save("test2.bmp", ImageFormat.Bmp);
-				double[] soundSynth = spectrogram.SynthetizeSine(new System.Drawing.Bitmap("test2.bmp"), samplerate);
-				CommonUtils.Audio.NAudio.AudioUtilsNAudio.WriteIEEE32WaveFileMono("test2.wav", samplerate, MathUtils.DoubleToFloat(soundSynth));
+				return;
+				//double[] soundSynth = spectrogram.SynthetizeSine(new System.Drawing.Bitmap("test2.bmp"), samplerate);
+				var testImage = new BinaryFile("test2.bmp");
+				int testImageX = 0;
+				int testImageY = 0;
+				var testImageArray = ImageIO.BMPRead(testImage, ref testImageY, ref testImageX); // Image input
+				double[] soundSynth2 = spectrogram.SynthetizeSine(testImageArray, samplerate);
+				CommonUtils.Audio.NAudio.AudioUtilsNAudio.WriteIEEE32WaveFileMono("test2.wav", samplerate, MathUtils.DoubleToFloat(soundSynth2));
 				 */
-				
 			}
 			
 			if (mode == Mode.Synthesis_Sine || mode == Mode.Synthesis_Noise) {
