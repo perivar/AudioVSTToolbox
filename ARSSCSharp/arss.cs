@@ -697,8 +697,8 @@ namespace ARSS
 				Console.Write("Samplecount : {0:D}\nChannels : {1:D}\n", samplecount, channels);
 				#endif
 				
-				
 				SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, Mode.Analysis); // User settings input
+				
 				image = DSP.Analyze(ref sound[0], ref samplecount, ref samplerate, ref Xsize, ref Ysize, ref bpo, ref pixpersec, ref basefreq); // Analysis
 				if (brightness != 1.0) {
 					DSP.BrightnessControl(ref image, ref Ysize, ref Xsize, 1.0/brightness);
