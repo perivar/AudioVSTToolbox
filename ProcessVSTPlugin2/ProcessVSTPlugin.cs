@@ -46,7 +46,7 @@ namespace ProcessVSTPlugin2
 
 			if (doUpdateVstPlugin) {
 				var hcs = new HostCommandStub();
-				hcs.Directory = System.IO.Path.GetDirectoryName(pluginPath);
+				hcs.Directory = Path.GetDirectoryName(pluginPath);
 				vst = new VST();
 				
 				try
@@ -84,9 +84,9 @@ namespace ProcessVSTPlugin2
 					
 					// setup the VSTStream
 					vstStream = new VSTStream();
-					vstStream.ProcessCalled += new EventHandler<VSTStreamEventArgs>(vst_ProcessCalled);
-					vstStream.PlayingStarted += new EventHandler(vst_PlayingStarted);
-					vstStream.PlayingStopped += new EventHandler(vst_PlayingStopped);
+					vstStream.ProcessCalled += vst_ProcessCalled;
+					vstStream.PlayingStarted += vst_PlayingStarted;
+					vstStream.PlayingStopped += vst_PlayingStopped;
 					vstStream.pluginContext = vst.PluginContext;
 					
 					vstStream.SetWaveFormat(wavFileReader.WaveFormat.SampleRate, wavFileReader.WaveFormat.Channels);
@@ -191,9 +191,9 @@ namespace ProcessVSTPlugin2
 			if (doUpdateVstPlugin || doUpdateNoChannels || doUpdateSampleRate) {
 				Console.Out.WriteLine("Loading Vstplugin using samplerate {0} and {1} channels.", _sampleRate, _channels);
 				vst = UtilityAudio.LoadVST(_pluginPath, _sampleRate, _channels);
-				UtilityAudio.VstStream.ProcessCalled += new EventHandler<VSTStreamEventArgs>(vst_ProcessCalled);
-				UtilityAudio.VstStream.PlayingStarted += new EventHandler(vst_PlayingStarted);
-				UtilityAudio.VstStream.PlayingStopped += new EventHandler(vst_PlayingStopped);
+				UtilityAudio.VstStream.ProcessCalled += vst_ProcessCalled;
+				UtilityAudio.VstStream.PlayingStarted += vst_PlayingStarted;
+				UtilityAudio.VstStream.PlayingStopped += vst_PlayingStopped;
 				
 				// plugin does not support processing audio
 				if ((vst.PluginContext.PluginInfo.Flags & VstPluginFlags.CanReplacing) == 0)

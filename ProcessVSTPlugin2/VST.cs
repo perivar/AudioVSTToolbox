@@ -49,20 +49,20 @@ namespace CommonUtils.VSTPlugin
 			 * http://stackoverflow.com/questions/6474388/naudio-and-midi-file-reading
 			 */
 
-			byte[] midiData = new byte[4];
+			var midiData = new byte[4];
 			midiData[0] = Cmd;
 			midiData[1] = Val1;
 			midiData[2] = Val2;
 			midiData[3] = 0;    // Reserved, unused
 
-			VstMidiEvent vse = new VstMidiEvent(/*DeltaFrames*/ 0,
+			var vse = new VstMidiEvent(/*DeltaFrames*/ 0,
 			                                    /*NoteLength*/ 0,
 			                                    /*NoteOffset*/  0,
 			                                    midiData,
 			                                    /*Detune*/        0,
 			                                    /*NoteOffVelocity*/ 127);
 
-			VstEvent[] ve = new VstEvent[1];
+			var ve = new VstEvent[1];
 			ve[0] = vse;
 
 			PluginContext.PluginCommandStub.ProcessEvents(ve);
@@ -77,7 +77,7 @@ namespace CommonUtils.VSTPlugin
 
 		public string getPluginInfo() {
 			if (PluginContext != null) {
-				List<string> pluginInfo = new List<string>(); // Create new list of strings
+				var pluginInfo = new List<string>(); // Create new list of strings
 				
 				// plugin product
 				pluginInfo.Add("Plugin Name " +  PluginContext.PluginCommandStub.GetEffectName());
@@ -173,7 +173,7 @@ namespace CommonUtils.VSTPlugin
 				UseChunk = true;
 			}
 			
-			FXP fxp = new FXP();
+			var fxp = new FXP();
 			fxp.ReadFile(filePath);
 			if (fxp.ChunkMagic != "CcnK") {
 				// not a fxp or fxb file
@@ -227,7 +227,7 @@ namespace CommonUtils.VSTPlugin
 				UseChunk = true;
 			}
 
-			FXP fxp = new FXP();
+			var fxp = new FXP();
 			fxp.ChunkMagic = "CcnK";
 			fxp.ByteSize = 0; // will be set correctly by FXP class
 			
@@ -253,7 +253,7 @@ namespace CommonUtils.VSTPlugin
 				fxp.Name = PluginContext.PluginCommandStub.GetProgramName();
 
 				// variable no. of parameters
-				float[] parameters = new float[fxp.ParameterCount];
+				var parameters = new float[fxp.ParameterCount];
 				for (int i = 0; i < fxp.ParameterCount; i++) {
 					parameters[i] = PluginContext.PluginCommandStub.GetParameter(i);
 				}
