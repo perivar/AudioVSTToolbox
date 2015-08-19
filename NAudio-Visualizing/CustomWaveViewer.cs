@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.ComponentModel;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Data;
 using System.Windows.Forms;
-using CommonUtils.FFT;
+
+using CommonUtils.MathLib.FFT;
 using CommonUtils.Audio;
-using NAudio.Wave;
 
 namespace CommonUtils.GUI
 {

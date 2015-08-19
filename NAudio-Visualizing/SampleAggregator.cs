@@ -68,11 +68,10 @@ namespace NAudio_Visualizing
 		// windows the data in samples with a Hamming window
 		private void doWindow(Complex[] complex)
 		{
-			double[] windowArray = CommonUtils.FFT.FFTWindowFunctions.GetWindowFunction(CommonUtils.FFT.FFTWindowFunctions.HANNING, complex.Length);
+			double[] windowArray = CommonUtils.MathLib.FFT.FFTWindow.GetWindowFunction(CommonUtils.MathLib.FFT.FFTWindowType.HAMMING, complex.Length);
 			
 			for (int i = 0; i < complex.Length; i++)
 			{
-				//complex[i].X *= (float)(0.54f - 0.46f * Math.Cos(2 * Math.PI * i / (complex.Length - 1)));
 				complex[i].X *= (float) windowArray[i];
 			}
 		}
@@ -95,29 +94,6 @@ namespace NAudio_Visualizing
 				// Calculate actual intensities for the FFT results.
 				fftBuffer[i] = (float)Math.Sqrt(channelDataClone[i].X * channelDataClone[i].X + channelDataClone[i].Y * channelDataClone[i].Y);
 			}
-			
-			/*
-			// Use Lomont FFT
-			Lomont.LomontFFT fft = new Lomont.LomontFFT();
-			double[] complexSignal = new double[2*channelDataClone.Length];
-			for (int j = 0; j < channelDataClone.Length; j++)
-			{
-				complexSignal[2*j] = channelDataClone[j].X;
-				complexSignal[2*j + 1] = channelDataClone[j].Y;
-			}
-
-			// FFT transform for gathering the spectrum
-			fft.FFT(complexSignal, true);
-			
-			for (int i = 0; i < channelDataClone.Length / 2; i++)
-			{
-				double re = complexSignal[2*i] / (float) Math.Sqrt(channelDataClone.Length);
-				double img = complexSignal[2*i + 1] / (float) Math.Sqrt(channelDataClone.Length);
-
-				// Calculate actual intensities for the FFT results.
-				fftBuffer[i] = (float)Math.Sqrt(re*re + img*img) * 4;
-			}
-			 */
 		}
 
 		public float LeftMaxVolume

@@ -11,9 +11,9 @@ using System.ComponentModel;
 using System.Windows.Threading;
 
 using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
 
 using CommonUtils.Audio;
+using CommonUtils.MathLib.FFT;
 
 namespace NAudio_Visualizing
 {

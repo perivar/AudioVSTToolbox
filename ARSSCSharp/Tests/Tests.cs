@@ -5,7 +5,7 @@ using System.Linq;
 using NUnit.Framework;
 
 using CommonUtils;
-using CommonUtils.CommonMath.FFT;
+using CommonUtils.MathLib.FFT;
 
 using ArssSpectrogram;
 

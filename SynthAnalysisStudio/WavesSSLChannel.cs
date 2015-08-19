@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Globalization;
 
@@ -133,7 +132,7 @@ namespace SynthAnalysisStudio
 		}
 
 		public override string ToString() {
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			
 			sb.AppendLine(String.Format("PresetName: {0}", PresetName));
 			if (PresetGroup != null) {

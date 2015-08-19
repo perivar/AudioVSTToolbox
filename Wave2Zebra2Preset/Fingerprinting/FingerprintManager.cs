@@ -7,10 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using Wave2Zebra2Preset.Fingerprinting.MathUtils;
-
-using CommonUtils.FFT;
+using CommonUtils.MathLib.Wavelets;
+using CommonUtils.MathLib.FFT;
 using CommonUtils.Audio;
+
+using Wave2Zebra2Preset.Fingerprinting.MathUtils;
 
 namespace Wave2Zebra2Preset.Fingerprinting
 {
@@ -246,7 +247,7 @@ namespace Wave2Zebra2Preset.Fingerprinting
 			int overlap = Overlap;
 			int fftWindowsSize = WdftSize; // aka N = FFT Length
 
-			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
+			double[] windowArray = FFTWindow.GetWindowFunction(FFTWindowType.HANNING, fftWindowsSize);
 
 			int width = (samples.Length - fftWindowsSize)/overlap; /*width of the image*/
 			float[][] frames = new float[width][];
@@ -294,7 +295,7 @@ namespace Wave2Zebra2Preset.Fingerprinting
 			int overlap = Overlap;
 			int fftWindowsSize = WdftSize;
 			
-			double[] windowArray = FFTWindowFunctions.GetWindowFunction(FFTWindowFunctions.HANNING, fftWindowsSize);
+			double[] windowArray = FFTWindow.GetWindowFunction(FFTWindowType.HANNING, fftWindowsSize);
 			
 			int width = (samples.Length - fftWindowsSize)/overlap; /*width of the image*/
 			float[][] frames = new float[width][];

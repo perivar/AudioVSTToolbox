@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Drawing;
 
 using CommonUtils;
-using CommonUtils.CommonMath.FFT;
+using CommonUtils.MathLib.FFT;
 
 namespace ArssSpectrogram
 {

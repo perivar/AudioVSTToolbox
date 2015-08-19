@@ -1,12 +1,9 @@
 using System;
 using System.Windows.Forms;
 using System.Drawing;
-using System.Diagnostics;
 using System.Threading;
 
-using NAudio;
 using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
 
 using System.Collections.Generic;
 using AudioDevice = com.badlogic.audio.io.AudioDevice;

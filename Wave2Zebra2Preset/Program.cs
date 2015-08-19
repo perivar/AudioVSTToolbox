@@ -12,7 +12,8 @@ using CommonUtils.Audio;
 using Wave2Zebra2Preset.Fingerprinting;
 using Wave2Zebra2Preset.DataAccess;
 using Wave2Zebra2Preset.Model;
-using Wave2Zebra2Preset.Fingerprinting.MathUtils;
+
+using CommonUtils;
 
 using Lomont;
 
@@ -28,7 +29,7 @@ using NAudio.Wave;
 using Wave2Zebra2Preset.HermitGauges;
 
 using CommonUtils;
-using CommonUtils.FFT;
+using CommonUtils.MathLib.FFT;
 using CommonUtils.Audio.NAudio;
 
 

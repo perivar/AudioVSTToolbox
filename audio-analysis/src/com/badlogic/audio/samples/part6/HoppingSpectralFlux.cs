@@ -2,7 +2,6 @@ using System;
 using System.Drawing;
 using System.Collections.Generic;
 
-using NAudio;
 using NAudio.Wave;
 
 using SpectrumProvider = com.badlogic.audio.analysis.SpectrumProvider;

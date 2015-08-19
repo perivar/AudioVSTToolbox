@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
-
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
-using Jacobi.Vst.Core.Host;
-
 using CommonUtils.VST;
-
 using NAudio.Wave;
 
 namespace ProcessVSTPlugin
@@ -85,7 +81,7 @@ namespace ProcessVSTPlugin
 
 		private void AddProperty(string propName, string propValue)
 		{
-			ListViewItem lvItem = new ListViewItem(propName);
+			var lvItem = new ListViewItem(propName);
 			lvItem.SubItems.Add(propValue);
 
 			PluginPropertyListVw.Items.Add(lvItem);
@@ -113,7 +109,7 @@ namespace ProcessVSTPlugin
 
 		private void AddParameter(string paramName, string paramValue, string label, string shortLabel)
 		{
-			ListViewItem lvItem = new ListViewItem(paramName);
+			var lvItem = new ListViewItem(paramName);
 			lvItem.SubItems.Add(paramValue);
 			lvItem.SubItems.Add(label);
 			lvItem.SubItems.Add(shortLabel);
@@ -195,14 +191,14 @@ namespace ProcessVSTPlugin
 			int blockSize = 1024;
 
 			// wrap these in using statements to automatically call Dispose and cleanup the unmanaged memory.
-			using (VstAudioBufferManager inputMgr = new VstAudioBufferManager(inputCount, blockSize))
+			using (var inputMgr = new VstAudioBufferManager(inputCount, blockSize))
 			{
-				using (VstAudioBufferManager outputMgr = new VstAudioBufferManager(outputCount, blockSize))
+				using (var outputMgr = new VstAudioBufferManager(outputCount, blockSize))
 				{
 					foreach (VstAudioBuffer buffer in inputMgr.ToArray())
 					{
 						try {
-							Random rnd = new Random((int)DateTime.Now.Ticks);
+							var rnd = new Random((int)DateTime.Now.Ticks);
 							for (int i = 0; i < blockSize; i++)
 							{
 								// generate a value between -1.0 and 1.0
@@ -247,7 +243,7 @@ namespace ProcessVSTPlugin
 
 		private void EditorBtn_Click(object sender, EventArgs e)
 		{
-			EditorFrame dlg = new EditorFrame();
+			var dlg = new EditorFrame();
 			dlg.PluginContext = PluginContext;
 			
 			// TODO: Commenting out these disables all sound - due to Sylenth bug?
@@ -259,7 +255,7 @@ namespace ProcessVSTPlugin
 		
 		void LoadFXPBtnClick(object sender, EventArgs e)
 		{
-			OpenFileDialog dialog = new OpenFileDialog();
+			var dialog = new OpenFileDialog();
 			dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|Effect Bank Files (.fxb)|*.fxb|All Files|*.*||";
 			if (dialog.ShowDialog(this) == DialogResult.OK)
 			{
@@ -275,7 +271,7 @@ namespace ProcessVSTPlugin
 		
 		void SaveFXPBtnClick(object sender, EventArgs e)
 		{
-			SaveFileDialog dialog = new SaveFileDialog();
+			var dialog = new SaveFileDialog();
 			dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|Effect Bank Files (.fxb)|*.fxb|All Files|*.*||";
 			if (dialog.ShowDialog(this) == DialogResult.OK)
 			{
@@ -292,7 +288,7 @@ namespace ProcessVSTPlugin
 		
 		void BtnChooseWavefileClick(object sender, EventArgs e)
 		{
-			OpenFileDialog dialog = new OpenFileDialog();
+			var dialog = new OpenFileDialog();
 			dialog.Filter = "Wave files (.wav)|*.wav|All Files|*.*||";
 			if (waveInputFilePath != "") dialog.FileName = waveInputFilePath;
 			if (dialog.ShowDialog(this) == DialogResult.OK)

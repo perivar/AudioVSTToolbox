@@ -8,7 +8,7 @@ namespace ProcessVSTPlugin2
 {
 	class Program
 	{
-		static string _version = "2.0.6";
+		static string _version = "2.0.7";
 		
 		[STAThread]
 		public static void Main(string[] args)
@@ -21,7 +21,7 @@ namespace ProcessVSTPlugin2
 			bool doPlay = false;
 
 			// Command line parsing
-			Arguments CommandLine = new Arguments(args);
+			var CommandLine = new Arguments(args);
 			if(CommandLine["plugin"] != null) {
 				pluginPath = CommandLine["plugin"];
 			}
@@ -61,7 +61,7 @@ namespace ProcessVSTPlugin2
 				return;
 			}
 
-			ProcessVSTPlugin processVSTPlugin = new ProcessVSTPlugin();
+			var processVSTPlugin = new ProcessVSTPlugin();
 			if (!processVSTPlugin.Process(waveInputFilePath, waveOutputFilePath, pluginPath, fxpFilePath, volume, doPlay)) {
 				Console.WriteLine("Processing Failed!");
 
@@ -77,7 +77,7 @@ namespace ProcessVSTPlugin2
 		
 		public static void PrintUsage() {
 			Console.WriteLine("Process VST Plugin. Version {0}.", _version);
-			Console.WriteLine("Copyright (C) 2009-2012 Per Ivar Nerseth.");
+			Console.WriteLine("Copyright (C) 2009-2015 Per Ivar Nerseth.");
 			Console.WriteLine();
 			Console.WriteLine("Usage: ProcessVSTPlugin2.exe <Arguments>");
 			Console.WriteLine();

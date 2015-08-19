@@ -1383,7 +1383,7 @@ namespace PresetConverter
 		#endregion
 		
 		public override string ToString() {
-			StringBuilder buffer = new StringBuilder();
+			var buffer = new StringBuilder();
 
 			foreach (Syl1PresetContent Content in ContentArray) {
 				buffer.AppendLine("//");
@@ -2543,7 +2543,7 @@ namespace PresetConverter
 		#region Read and Write Methods
 		public bool ReadFXP(FXP fxp, string filePath="")
 		{
-			BinaryFile bFile = new BinaryFile(fxp.ChunkDataByteArray, BinaryFile.ByteOrder.LittleEndian);
+			var bFile = new BinaryFile(fxp.ChunkDataByteArray, BinaryFile.ByteOrder.LittleEndian);
 			
 			string presetType = bFile.ReadString(4);
 			int presetVersion1 = bFile.ReadInt32();

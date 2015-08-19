@@ -54,7 +54,7 @@ namespace SynthAnalysisStudio
 		/// <returns></returns>
 		public new DialogResult ShowDialog(IWin32Window owner)
 		{
-			Rectangle wndRect = new Rectangle();
+			var wndRect = new Rectangle();
 
 			this.Text = PluginContext.PluginCommandStub.GetEffectName();
 
@@ -107,7 +107,7 @@ namespace SynthAnalysisStudio
 
 		void SaveBtnClick(object sender, EventArgs e)
 		{
-			SaveFileDialog dialog = new SaveFileDialog();
+			var dialog = new SaveFileDialog();
 			dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|Effect Bank Files (.fxb)|*.fxb|All Files|*.*||";
 			if (dialog.ShowDialog(this) == DialogResult.OK)
 			{
@@ -123,7 +123,7 @@ namespace SynthAnalysisStudio
 		
 		void LoadBtnClick(object sender, EventArgs e)
 		{
-			OpenFileDialog dialog = new OpenFileDialog();
+			var dialog = new OpenFileDialog();
 			dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|Effect Bank Files (.fxb)|*.fxb|All Files|*.*||";
 			if (dialog.ShowDialog(this) == DialogResult.OK)
 			{
@@ -299,7 +299,7 @@ namespace SynthAnalysisStudio
 					byte midiVelocity = 100;
 					byte midiNote = KeyEventArgToMidiNote(e);
 					
-					System.Diagnostics.Debug.WriteLine("Key Down Event Detected: {0}, {1}, {2}", e.KeyCode, midiNote, midiVelocity);
+					Debug.WriteLine("Key Down Event Detected: {0}, {1}, {2}", e.KeyCode, midiNote, midiVelocity);
 					
 					// only bother with the keys that trigger midi notes
 					if (midiNote != 0) {
@@ -324,7 +324,7 @@ namespace SynthAnalysisStudio
 						hasNoKeyDown = false; // Set to False to disable keyboard Auto Repeat
 					}
 				} catch (Exception ex) {
-					System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+					Debug.WriteLine(ex.StackTrace);
 					MessageBox.Show(ex.Message);
 				}
 			} else {
@@ -346,7 +346,7 @@ namespace SynthAnalysisStudio
 				byte midiVelocity = 0;
 				byte midiNote = KeyEventArgToMidiNote(e);
 				
-				System.Diagnostics.Debug.WriteLine("Key Up Event Detected: {0}, {1}, {2}", e.KeyCode, midiNote, midiVelocity);
+				Debug.WriteLine("Key Up Event Detected: {0}, {1}, {2}", e.KeyCode, midiNote, midiVelocity);
 				
 				// only bother with the keys that trigger midi notes
 				if (midiNote != 0) {
@@ -369,7 +369,7 @@ namespace SynthAnalysisStudio
 		
 		void InvestigatePluginPresetFileCheckboxCheckedChanged(object sender, EventArgs e)
 		{
-			CheckBox check = (CheckBox) sender;
+			var check = (CheckBox) sender;
 			if(check.Checked)
 			{
 				((HostCommandStub) PluginContext.HostCommandStub).DoInvestigatePluginPresetFileFormat= true;
@@ -380,7 +380,7 @@ namespace SynthAnalysisStudio
 		
 		void PresetContentBtnClick(object sender, System.EventArgs e)
 		{
-			InvestigatedPluginPresetDetailsForm dlg = new InvestigatedPluginPresetDetailsForm();
+			var dlg = new InvestigatedPluginPresetDetailsForm();
 			dlg.PluginContext = this.PluginContext;
 			dlg.InvestigatedPluginPresetFileFormatList = ((HostCommandStub) PluginContext.HostCommandStub).InvestigatedPluginPresetFileFormatList;
 			
@@ -390,7 +390,7 @@ namespace SynthAnalysisStudio
 		
 		void TextDiffCheckboxCheckedChanged(object sender, EventArgs e)
 		{
-			CheckBox check = (CheckBox) sender;
+			var check = (CheckBox) sender;
 			if(check.Checked)
 			{
 				((HostCommandStub) PluginContext.HostCommandStub).InvestigatePluginPresetFileFormatDiffType = DiffType.Text;
@@ -418,7 +418,7 @@ namespace SynthAnalysisStudio
 				playback.Play();
 			}
 			
-			CheckBox check = (CheckBox) sender;
+			var check = (CheckBox) sender;
 			if(check.Checked)
 			{
 				host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
@@ -446,7 +446,7 @@ namespace SynthAnalysisStudio
 				playback.Play();
 			}
 
-			AnalyseForm dlg = new AnalyseForm();
+			var dlg = new AnalyseForm();
 			dlg.PluginContext = this.PluginContext;
 			dlg.Playback = playback;
 			
@@ -456,7 +456,7 @@ namespace SynthAnalysisStudio
 		
 		void WaveBtnClick(object sender, EventArgs e)
 		{
-			WaveDisplayForm dlg2 = new WaveDisplayForm();
+			var dlg2 = new WaveDisplayForm();
 			dlg2.PluginContext = this.PluginContext;
 			dlg2.Playback = playback;
 			
@@ -484,7 +484,7 @@ namespace SynthAnalysisStudio
 			
 			string paramDisplay = null;
 			
-			Dictionary<string, int> processedParameters = new Dictionary<string, int>();
+			var processedParameters = new Dictionary<string, int>();
 			int paramCount = PluginContext.PluginInfo.ParameterCount;
 			for (int paramIndex = 0; paramIndex < paramCount; paramIndex++)
 			{
@@ -514,7 +514,7 @@ namespace SynthAnalysisStudio
 					// and read the display back
 					paramDisplay = PluginContext.PluginCommandStub.GetParameterDisplay(paramIndex);
 					
-					System.Console.Out.WriteLine("Measuring {0}/{1} {2} at value {3:0.00} ({4}) ...", paramIndex, paramCount, paramName, paramValue, paramDisplay);
+					Console.Out.WriteLine("Measuring {0}/{1} {2} at value {3:0.00} ({4}) ...", paramIndex, paramCount, paramName, paramValue, paramDisplay);
 
 					DetectChunkChanges(previousChunkData, chunkData, paramName, paramLabel, paramDisplay, String.Format("{0:0.00}", paramValue));
 					
@@ -528,7 +528,7 @@ namespace SynthAnalysisStudio
 			
 			// store to xml file
 			//set formatting options
-			XmlWriterSettings settings = new XmlWriterSettings();
+			var settings = new XmlWriterSettings();
 			settings.Indent = true;
 			settings.IndentChars = "\t";
 			string outputFile = "\\output2.xml";

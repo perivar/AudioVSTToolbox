@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using CommonUtils.Audio;
 
+using CommonUtils.Audio;
+using CommonUtils.MathLib.FFT;
+	
 namespace NAudio_Visualizing
 {
 	/// <summary>
@@ -172,8 +173,8 @@ namespace NAudio_Visualizing
 				float foundMaxFreq, foundMaxDecibel;
 				double sampleRate = soundPlayer.SampleRate;
 				int fftWindowsSize = soundPlayer.FftDataSize;
-				CommonUtils.FFT.AudioAnalyzer.PrepareSpectrumAnalysis(channelData, sampleRate, fftWindowsSize, out mag, out freq, out foundMaxFreq, out foundMaxDecibel);
-				this.offlineBitmap = CommonUtils.FFT.AudioAnalyzer.GetSpectrumImage(ref mag, ref freq, new Size(this.Width, this.Height), MinimumFrequency, MaximumFrequency, foundMaxDecibel, foundMaxFreq);
+				AudioAnalyzer.PrepareSpectrumAnalysis(channelData, sampleRate, fftWindowsSize, out mag, out freq, out foundMaxFreq, out foundMaxDecibel);
+				this.offlineBitmap = AudioAnalyzer.GetSpectrumImage(ref mag, ref freq, new Size(this.Width, this.Height), MinimumFrequency, MaximumFrequency, foundMaxDecibel, foundMaxFreq);
 			} else {
 				double fftBucketHeight = 0f;
 				double barHeight = 0f;

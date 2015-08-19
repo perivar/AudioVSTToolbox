@@ -18,7 +18,8 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <SignAssembly>False</SignAssembly>
     <DelaySign>False</DelaySign>
-    <StartArguments>-plugin="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\TAL-Reverb-2.dll" -wavein="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\VEE2 Bassdrum 021.wav" -fxp="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\TAL-Reverb-Hall.fxp" -waveout="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\ProcessVSTPlugin\VEE2 Bassdrum 021-processed.wav"</StartArguments>
+    <StartArguments>-plugin="../../TAL-Reverb-2.dll" -wavein="../../VEE2 Bassdrum 021.wav" -waveout="../../VEE2 Bassdrum 021-processed.wav"</StartArguments>
+    <NoWin32Manifest>False</NoWin32Manifest>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -52,29 +53,32 @@
     <FileAlignment>4096</FileAlignment>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommonUtils">
+      <HintPath>..\NativeLibraries\CommonUtils.dll</HintPath>
+    </Reference>
     <Reference Include="Equin.ApplicationFramework.BindingListView">
-      <HintPath>_SharedAssemblies\Equin.ApplicationFramework.BindingListView.dll</HintPath>
+      <HintPath>..\NativeLibraries\Equin.ApplicationFramework.BindingListView.dll</HintPath>
     </Reference>
     <Reference Include="Jacobi.Vst.Core">
-      <HintPath>_SharedAssemblies\Jacobi.Vst.Core.dll</HintPath>
+      <HintPath>..\NativeLibraries\Jacobi.Vst.Core.dll</HintPath>
     </Reference>
     <Reference Include="Jacobi.Vst.Framework">
-      <HintPath>_SharedAssemblies\Jacobi.Vst.Framework.dll</HintPath>
+      <HintPath>..\NativeLibraries\Jacobi.Vst.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Jacobi.Vst.Interop">
-      <HintPath>_SharedAssemblies\Jacobi.Vst.Interop.dll</HintPath>
+      <HintPath>..\NativeLibraries\Jacobi.Vst.Interop.dll</HintPath>
     </Reference>
     <Reference Include="NAudio">
-      <HintPath>..\CommonUtils\Audio\NAudio\NAudio.dll</HintPath>
+      <HintPath>..\NativeLibraries\NAudio.dll</HintPath>
     </Reference>
     <Reference Include="NAudio.WindowsMediaFormat">
-      <HintPath>..\CommonUtils\Audio\NAudio\NAudio.WindowsMediaFormat.dll</HintPath>
+      <HintPath>..\NativeLibraries\NAudio.WindowsMediaFormat.dll</HintPath>
     </Reference>
     <Reference Include="NAudioFLAC">
-      <HintPath>..\CommonUtils\Audio\NAudio\NAudioFLAC.dll</HintPath>
+      <HintPath>..\NativeLibraries\NAudioFLAC.dll</HintPath>
     </Reference>
     <Reference Include="NAudioOggVorbis">
-      <HintPath>..\CommonUtils\Audio\NAudio\NAudioOggVorbis.dll</HintPath>
+      <HintPath>..\NativeLibraries\NAudioOggVorbis.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -88,88 +92,11 @@
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="taglib-sharp">
+      <HintPath>..\NativeLibraries\taglib-sharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\CommonUtils\Arguments.cs">
-      <Link>Arguments.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Audio\AudioUtils.cs">
-      <Link>AudioUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Audio\NAudio\AudioUtilsNAudio.cs">
-      <Link>AudioUtilsNAudio.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\BinaryFile.cs">
-      <Link>BinaryFile.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\ColorUtils.cs">
-      <Link>ColorUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\CSVWriter.cs">
-      <Link>CSVWriter.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Export.cs">
-      <Link>Export.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\ExtendedGraphics.cs">
-      <Link>ExtendedGraphics.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\AudioAnalyzer.cs">
-      <Link>AudioAnalyzer.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Complex.cs">
-      <Link>FFT\Complex.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\ComplexF.cs">
-      <Link>FFT\ComplexF.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Fourier.cs">
-      <Link>FFT\Fourier.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\FourierDirection.cs">
-      <Link>FFT\FourierDirection.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\FFTUtils.cs">
-      <Link>FFT\FFTUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\FFTWindows.cs">
-      <Link>FFT\FFTWindows.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\LomontFFT.cs">
-      <Link>FFT\LomontFFT.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FXP.cs">
-      <Link>FXP.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\GUI\FrequencyAnalyserUserControl.cs">
-      <Link>FrequencyAnalyserUserControl.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\GUI\FrequencyAnalyserUserControl.Designer.cs">
-      <Link>FrequencyAnalyserUserControl.Designer.cs</Link>
-      <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="..\CommonUtils\GUI\WaveDisplayUserControl.cs">
-      <Link>WaveDisplayUserControl.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\GUI\WaveDisplayUserControl.Designer.cs">
-      <Link>WaveDisplayUserControl.Designer.cs</Link>
-      <DependentUpon>WaveDisplayUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="..\CommonUtils\MathUtils.cs">
-      <Link>MathUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\MidiUtils.cs">
-      <Link>MidiUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\StringUtils.cs">
-      <Link>StringUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\VST\VstHost.cs">
-      <Link>VstHost.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\VST\VstPlaybackNAudio.cs">
-      <Link>VstPlaybackNAudio.cs</Link>
-    </Compile>
     <Compile Include="..\PresetConverter\Preset.cs">
       <Link>Preset.cs</Link>
     </Compile>
@@ -204,14 +131,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\CommonUtils\GUI\FrequencyAnalyserUserControl.resx">
-      <Link>FrequencyAnalyserUserControl.resx</Link>
-      <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\CommonUtils\GUI\WaveDisplayUserControl.resx">
-      <Link>WaveDisplayUserControl.resx</Link>
-      <DependentUpon>WaveDisplayUserControl.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="AnalyseForm.resx">
       <DependentUpon>AnalyseForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -233,9 +152,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="FFT" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>

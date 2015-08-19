@@ -1,25 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-
 using NAudio.Wave;
-using NAudio.Midi;
-
 using Jacobi.Vst.Interop.Host;
-
 using CommonUtils.VSTPlugin;
 
 // Copied from the microDRUM project
 // https://github.com/microDRUM
 // I think it is created by massimo.bernava@gmail.com
 // Modified by perivar@nerseth.com to support processing audio files
-namespace CommonUtils.Audio
+
+namespace CommonUtils.VSTPlugin
 {
 	public enum AudioLibrary
 	{
 		Null,
 		NAudio
 	}
+	
 	public static class UtilityAudio
 	{
 		private static AudioLibrary UsedLibrary = AudioLibrary.Null;
@@ -95,14 +92,14 @@ namespace CommonUtils.Audio
 				if (UsedLibrary == AudioLibrary.NAudio)
 				{
 					//NAUDIO
-					WaveFileReader reader = new WaveFileReader(SamplePath);
+					var reader = new WaveFileReader(SamplePath);
 					WaveStream Stream = null;
 					if (reader.WaveFormat.BitsPerSample == 16) Stream = new WaveChannel16To32(reader);
 					else if (reader.WaveFormat.BitsPerSample == 24) Stream = new WaveChannel24To32(reader);
 					else if (reader.WaveFormat.BitsPerSample == 32 && reader.WaveFormat.Encoding == WaveFormatEncoding.Pcm) Stream = new WaveChannel32To32(reader);
-					else if (reader.WaveFormat.BitsPerSample == 32 && reader.WaveFormat.Encoding == WaveFormatEncoding.IeeeFloat) { 
-						Console.Out.WriteLine("Attention!"); 
-						Stream = new WaveChannel32(new Wave32To16Stream(reader)); 
+					else if (reader.WaveFormat.BitsPerSample == 32 && reader.WaveFormat.Encoding == WaveFormatEncoding.IeeeFloat) {
+						Console.Out.WriteLine("Attention!");
+						Stream = new WaveChannel32(new Wave32To16Stream(reader));
 					}
 					if (Stream != null)
 					{
@@ -181,7 +178,7 @@ namespace CommonUtils.Audio
 
 			GeneralVST = new VST();
 
-			HostCommandStub hcs = new HostCommandStub();
+			var hcs = new HostCommandStub();
 			hcs.Directory = System.IO.Path.GetDirectoryName(VSTPath);
 
 			try
@@ -192,10 +189,10 @@ namespace CommonUtils.Audio
 				GeneralVST.PluginContext.Set("PluginPath", VSTPath);
 				GeneralVST.PluginContext.Set("HostCmdStub", hcs);
 
-				// actually open the plugin itself				
+				// actually open the plugin itself
 				GeneralVST.PluginContext.PluginCommandStub.Open();
 				
-				// Method arguments used to contain the following to allow 
+				// Method arguments used to contain the following to allow
 				// opening the vst plugin editor - not supported in this commanline processor
 				// public static VST LoadVST(string VSTPath, IntPtr hWnd)
 				// GeneralVST.pluginContext.PluginCommandStub.EditorOpen(hWnd);
@@ -203,7 +200,7 @@ namespace CommonUtils.Audio
 
 				vstStream = new VSTStream();
 				vstStream.pluginContext = GeneralVST.PluginContext;
-				vstStream.SetWaveFormat(sampleRate, channels); 
+				vstStream.SetWaveFormat(sampleRate, channels);
 				
 				Mixer32.AddInputStream(vstStream);
 
@@ -218,7 +215,7 @@ namespace CommonUtils.Audio
 
 		public static void LoadMP3(string MP3Path)
 		{
-			Mp3FileReader mp3Reader = new Mp3FileReader(MP3Path);
+			var mp3Reader = new Mp3FileReader(MP3Path);
 			WaveStream pcmStream = WaveFormatConversionStream.CreatePcmStream(mp3Reader);
 			WaveStream blockAlignedStream = new BlockAlignReductionStream(pcmStream);
 

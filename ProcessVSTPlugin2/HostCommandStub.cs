@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Jacobi.Vst.Core.Host;
 using Jacobi.Vst.Core;
 

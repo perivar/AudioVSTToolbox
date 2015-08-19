@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.IO;
-
 using NAudio.Wave;
-
 using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
-using Jacobi.Vst.Core.Host;
-
 using CommonUtils.VSTPlugin;
-using CommonUtils.Audio;
 
 namespace ProcessVSTPlugin2
 {
@@ -33,7 +28,7 @@ namespace ProcessVSTPlugin2
 		
 		public bool ProcessOffline(String waveInputFilePath, String waveOutputFilePath, String pluginPath, String fxpFilePath=null, float volume=1.0f) {
 
-			WaveFileReader wavFileReader = new WaveFileReader(waveInputFilePath);
+			var wavFileReader = new WaveFileReader(waveInputFilePath);
 
 			// reuse if batch processing
 			bool doUpdateVstPlugin = false;
@@ -50,7 +45,7 @@ namespace ProcessVSTPlugin2
 			}
 
 			if (doUpdateVstPlugin) {
-				HostCommandStub hcs = new HostCommandStub();
+				var hcs = new HostCommandStub();
 				hcs.Directory = System.IO.Path.GetDirectoryName(pluginPath);
 				vst = new VST();
 				
@@ -108,8 +103,8 @@ namespace ProcessVSTPlugin2
 			}
 			
 			// each float is 4 bytes
-			byte[] buffer = new byte[512*4];
-			using (MemoryStream ms = new MemoryStream())
+			var buffer = new byte[512*4];
+			using (var ms = new MemoryStream())
 			{
 				vstStream.SetInputWave(waveInputFilePath, volume);
 				vstStream.DoProcess = true;
@@ -146,7 +141,7 @@ namespace ProcessVSTPlugin2
 		
 		public bool ProcessRealTime(String waveInputFilePath, String waveOutputFilePath, String pluginPath, String fxpFilePath=null, float volume=1.0f)
 		{
-			WaveFileReader wavFileReader = new WaveFileReader(waveInputFilePath);
+			var wavFileReader = new WaveFileReader(waveInputFilePath);
 
 			// reuse if batch processing
 			bool doUpdateVstPlugin = false;

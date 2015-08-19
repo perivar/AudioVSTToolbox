@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
-using System.Collections.Generic;
 using System.Threading;
 
 using NAudio.Wave;
-
-using Jacobi.Vst.Core;
-using Jacobi.Vst.Core.Host;
-using Jacobi.Vst.Interop.Host;
 
 using CommonUtils;
 using CommonUtils.VST;
@@ -16,7 +11,7 @@ namespace ProcessVSTPlugin
 {
 	static class Program
 	{
-		static string _version = "1.3";
+		static string _version = "1.3.1";
 		
 		static void StartGUI() {
 			Application.EnableVisualStyles();
@@ -27,7 +22,7 @@ namespace ProcessVSTPlugin
 		static void StartVstHost(string pluginPath, string waveInputFilePath, string fxpFilePath, string waveOutputFilePath, bool doPlay) {
 
 			VstHost host = VstHost.Instance;
-			ProcessVSTPlugin.HostCommandStub hcs = new HostCommandStub();
+			var hcs = new HostCommandStub();
 			host.OpenPlugin(pluginPath, hcs);
 			host.InputWave = waveInputFilePath;
 			// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
@@ -40,7 +35,7 @@ namespace ProcessVSTPlugin
 			host.LoadFXP(fxpFilePath);
 			
 			if (doPlay) {
-				VstPlaybackNAudio playback = new VstPlaybackNAudio(host);
+				var playback = new VstPlaybackNAudio(host);
 				playback.Play();
 				
 				Console.WriteLine("Started Audio Playback");
@@ -58,7 +53,7 @@ namespace ProcessVSTPlugin
 			}			
 
 			if (waveOutputFilePath != "") {
-				VstFileWriter fileWriter = new VstFileWriter(host);
+				var fileWriter = new VstFileWriter(host);
 				fileWriter.CreateWaveFile(waveOutputFilePath);
 			}
 		}
@@ -77,7 +72,7 @@ namespace ProcessVSTPlugin
 			bool useGui = false;
 
 			// Command line parsing
-			Arguments CommandLine = new Arguments(args);
+			var CommandLine = new Arguments(args);
 			if(CommandLine["plugin"] != null) {
 				pluginPath = CommandLine["plugin"];
 			}
@@ -111,7 +106,7 @@ namespace ProcessVSTPlugin
 		
 		public static void PrintUsage() {
 			Console.WriteLine("Process VST Plugin. Version {0}.", _version);
-			Console.WriteLine("Copyright (C) 2009-2012 Per Ivar Nerseth.");
+			Console.WriteLine("Copyright (C) 2009-2015 Per Ivar Nerseth.");
 			Console.WriteLine();
 			Console.WriteLine("Usage: ProcessVSTPlugin.exe <Arguments>");
 			Console.WriteLine();

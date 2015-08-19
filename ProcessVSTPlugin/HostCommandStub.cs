@@ -1,14 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel; // for BindingList
-
 using Jacobi.Vst.Core.Host;
-using Jacobi.Vst.Interop.Host;
-
 using System.Linq;
-
-using CommonUtils;
 
 namespace ProcessVSTPlugin
 {

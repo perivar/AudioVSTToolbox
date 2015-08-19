@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
 
-using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
 
 namespace SynthAnalysisStudio
@@ -23,7 +22,7 @@ namespace SynthAnalysisStudio
 
 			foreach (VstPluginContext ctx in _plugins)
 			{
-				ListViewItem lvItem = new ListViewItem(ctx.PluginCommandStub.GetEffectName());
+				var lvItem = new ListViewItem(ctx.PluginCommandStub.GetEffectName());
 				lvItem.SubItems.Add(ctx.PluginCommandStub.GetProductString());
 				lvItem.SubItems.Add(ctx.PluginCommandStub.GetVendorString());
 				lvItem.SubItems.Add(ctx.PluginCommandStub.GetVendorVersion().ToString());
@@ -38,7 +37,7 @@ namespace SynthAnalysisStudio
 		{
 			try
 			{
-				HostCommandStub hostCmdStub = new HostCommandStub();
+				var hostCmdStub = new HostCommandStub();
 				hostCmdStub.PluginCalled += new EventHandler<PluginCalledEventArgs>(HostCmdStub_PluginCalled);
 
 				VstPluginContext ctx = VstPluginContext.Create(pluginPath, hostCmdStub);
@@ -86,7 +85,7 @@ namespace SynthAnalysisStudio
 
 		private void HostCmdStub_PluginCalled(object sender, PluginCalledEventArgs e)
 		{
-			HostCommandStub hostCmdStub = (HostCommandStub)sender;
+			var hostCmdStub = (HostCommandStub)sender;
 
 			// can be null when called from inside the plugin main entry point.
 			if (hostCmdStub.PluginContext.PluginInfo != null)
@@ -128,7 +127,7 @@ namespace SynthAnalysisStudio
 
 		private void ViewPluginBtn_Click(object sender, EventArgs e)
 		{
-			PluginForm dlg = new PluginForm();
+			var dlg = new PluginForm();
 			dlg.PluginContext = SelectedPluginContext;
 
 			dlg.ShowDialog(this);

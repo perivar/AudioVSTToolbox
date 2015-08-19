@@ -5,7 +5,6 @@ using System.Drawing;
 
 using CommonUtils;
 using CommonUtils.Audio;
-using CommonUtils.FFT;
 
 namespace Wav2Zebra2Osc
 {
@@ -14,7 +13,7 @@ namespace Wav2Zebra2Osc
 	/// </summary>
 	public partial class MainForm : Form
 	{
-		public static string VERSION = "0.5";
+		public static string VERSION = "0.5.1";
 		
 		const string iniFileName = "Wav2Zebra2.ini";
 		

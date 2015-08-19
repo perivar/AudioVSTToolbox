@@ -1,7 +1,5 @@
 using System;
-using System.Threading;
 
-using NAudio;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 

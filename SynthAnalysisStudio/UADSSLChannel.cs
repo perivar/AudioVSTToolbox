@@ -3,7 +3,6 @@ using System.Text;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml;
 using System.Xml.Linq;
 using System.Globalization;
 
@@ -174,7 +173,7 @@ namespace SynthAnalysisStudio
 		#region Read and Write Methods
 		public bool ReadFXP(FXP fxp, string filePath="")
 		{
-			BinaryFile bFile = new BinaryFile(fxp.ChunkDataByteArray, BinaryFile.ByteOrder.LittleEndian);
+			var bFile = new BinaryFile(fxp.ChunkDataByteArray, BinaryFile.ByteOrder.LittleEndian);
 
 			// Read UAD Preset Header information
 			PresetHeaderVar1 = bFile.ReadInt32();
@@ -268,8 +267,8 @@ namespace SynthAnalysisStudio
 		
 		private byte[] GetChunkData()
 		{
-			MemoryStream memStream = new MemoryStream();
-			BinaryFile bFile = new BinaryFile(memStream, BinaryFile.ByteOrder.LittleEndian);
+			var memStream = new MemoryStream();
+			var bFile = new BinaryFile(memStream, BinaryFile.ByteOrder.LittleEndian);
 			
 			// Write UAD Preset Header information
 			bFile.Write((int) PresetHeaderVar1);
@@ -322,7 +321,7 @@ namespace SynthAnalysisStudio
 		#endregion
 		
 		public override string ToString() {
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			
 			sb.AppendLine(String.Format("PresetName: {0}", PresetName));
 			sb.Append("Input:".PadRight(15)).AppendFormat(String.Format("{0:0.00}", Input).PadRight(5)).AppendFormat("= {0} ({1})\n", FindClosestDisplayText("Input", Input), "-20.0 dB -> 20.0 dB");

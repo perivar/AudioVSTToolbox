@@ -1,23 +1,15 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
 
 using System.Diagnostics; // for stopwatch
 
-using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
-using Jacobi.Vst.Core.Host;
 
 using System.Linq;
-using System.Text;
-using System.Xml;
 using System.Xml.Linq;
 
-using CommonUtils;
 using CommonUtils.VST;
-
-using NAudio.Wave;
 
 namespace SynthAnalysisStudio
 {
@@ -53,7 +45,7 @@ namespace SynthAnalysisStudio
 			InitializeComponent();
 			
 			string stringSize = "" + this.frequencyAnalyserUserControl1.FFTWindowsSize;
-			System.Diagnostics.Debug.WriteLine("stringSize: {0}", stringSize);
+			Debug.WriteLine("stringSize: {0}", stringSize);
 			WindowsSizeComboBox.Text = stringSize;
 			
 			VstHost host = VstHost.Instance;
@@ -62,7 +54,7 @@ namespace SynthAnalysisStudio
 		
 		void FFTWindowsSizeSelectedIndexChanged(object sender, EventArgs e)
 		{
-			ComboBox comboBox = (ComboBox) sender;
+			var comboBox = (ComboBox) sender;
 			string stringSize = (string) comboBox.SelectedItem;
 			int windowsSize = 4096;
 			int.TryParse(stringSize, out windowsSize);
@@ -71,7 +63,7 @@ namespace SynthAnalysisStudio
 		
 		void OnOffCheckboxCheckedChanged(object sender, EventArgs e)
 		{
-			CheckBox check = (CheckBox) sender;
+			var check = (CheckBox) sender;
 			if(check.Checked)
 			{
 				DoGUIRefresh = true;
@@ -137,7 +129,7 @@ namespace SynthAnalysisStudio
 				xmlDoc.Save(xmlFilePath);
 			} else {
 				// create xml document first
-				XDocument xmlDoc =
+				var xmlDoc =
 					new XDocument(
 						new XElement("FrequencyMeasurement",
 						             new XElement("Row",
@@ -217,7 +209,7 @@ namespace SynthAnalysisStudio
 
 				if (stopwatch.ElapsedMilliseconds > 5000) {
 					stopwatch.Stop();
-					System.Console.Out.WriteLine("AutoMeasureFreq: Playing Midi Failed!");
+					Console.Out.WriteLine("AutoMeasureFreq: Playing Midi Failed!");
 					return;
 				}
 				System.Threading.Thread.Sleep(100);
@@ -228,7 +220,7 @@ namespace SynthAnalysisStudio
 				for (float paramFilterCtlValue = 1.0f; paramFilterCtlValue >= 0.0f; paramFilterCtlValue -= 0.020f) {
 					stopwatch.Restart();
 
-					System.Console.Out.WriteLine("AutoMeasureFreq: Measuring {0} at value {1:0.00} and {2} at value {3:0.00} ...", "filterACutoff", paramFilterAValue, "filterCtlCutoff", paramFilterCtlValue);
+					Console.Out.WriteLine("AutoMeasureFreq: Measuring {0} at value {1:0.00} and {2} at value {3:0.00} ...", "filterACutoff", paramFilterAValue, "filterCtlCutoff", paramFilterCtlValue);
 
 					// set the parameters
 					PluginContext.PluginCommandStub.SetParameter(WaveDisplayForm.SYLENTH_PARAM_FILTERA_CUTOFF, paramFilterAValue);
@@ -248,7 +240,7 @@ namespace SynthAnalysisStudio
 					RetrieveFilterInfo();
 					
 					stopwatch.Stop();
-					System.Console.Out.WriteLine("AutoMeasureFreq: Used {0} ms. Found max frequency {1:00.00} at {2:00.00} dB.", stopwatch.ElapsedMilliseconds, this.foundMaxFreq, this.foundMaxDB);
+					Console.Out.WriteLine("AutoMeasureFreq: Used {0} ms. Found max frequency {1:00.00} at {2:00.00} dB.", stopwatch.ElapsedMilliseconds, this.foundMaxFreq, this.foundMaxDB);
 					
 					// store as a png
 					//string fileName = String.Format("frequency-measurement-{0}-{1}.png", StringUtils.MakeValidFileName(String.Format("{0:00.00} {1:00.00} {2:00.00}", this.foundMaxFreq, paramFilterAValue, paramFilterCtlValue)), StringUtils.GetCurrentTimestamp());

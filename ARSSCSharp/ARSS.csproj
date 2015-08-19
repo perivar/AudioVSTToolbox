@@ -101,6 +101,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>
-    <PreBuildEvent>copy "$(MSBuildProjectDirectory)\_SharedAssemblies\*.dll" "$(MSBuildProjectDirectory)\$(OutputPath)"</PreBuildEvent>
+    <PreBuildEvent>copy "$(MSBuildProjectDirectory)\..\NativeLibraries\libfft*.dll" "$(MSBuildProjectDirectory)\$(OutputPath)"</PreBuildEvent>
   </PropertyGroup>
 </Project>

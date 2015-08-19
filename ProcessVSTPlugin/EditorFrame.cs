@@ -38,7 +38,7 @@ namespace ProcessVSTPlugin
 		/// <returns></returns>
 		public new DialogResult ShowDialog(IWin32Window owner)
 		{
-			Rectangle wndRect = new Rectangle();
+			var wndRect = new Rectangle();
 
 			this.Text = PluginContext.PluginCommandStub.GetEffectName();
 
@@ -107,7 +107,7 @@ namespace ProcessVSTPlugin
 
 		void SaveBtnClick(object sender, EventArgs e)
 		{
-			SaveFileDialog dialog = new SaveFileDialog();
+			var dialog = new SaveFileDialog();
 			dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|Effect Bank Files (.fxb)|*.fxb|All Files|*.*||";
 			if (dialog.ShowDialog(this) == DialogResult.OK)
 			{
@@ -123,7 +123,7 @@ namespace ProcessVSTPlugin
 		
 		void LoadBtnClick(object sender, EventArgs e)
 		{
-			OpenFileDialog dialog = new OpenFileDialog();
+			var dialog = new OpenFileDialog();
 			dialog.Filter = "Effect Preset Files (.fxp)|*.fxp|Effect Bank Files (.fxb)|*.fxb|All Files|*.*||";
 			if (dialog.ShowDialog(this) == DialogResult.OK)
 			{
@@ -414,7 +414,7 @@ namespace ProcessVSTPlugin
 				playback.Play();
 			}
 
-			AnalyseForm dlg = new AnalyseForm();
+			var dlg = new AnalyseForm();
 			dlg.PluginContext = this.PluginContext;
 			dlg.Playback = playback;
 			
@@ -424,7 +424,7 @@ namespace ProcessVSTPlugin
 		
 		void WaveBtnClick(object sender, EventArgs e)
 		{
-			WaveDisplayForm dlg2 = new WaveDisplayForm();
+			var dlg2 = new WaveDisplayForm();
 			dlg2.PluginContext = this.PluginContext;
 			dlg2.Playback = playback;
 			

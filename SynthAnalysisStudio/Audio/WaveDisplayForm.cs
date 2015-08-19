@@ -1,23 +1,17 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
-using System.Data;
 using System.Collections.Generic;
-using System.Threading;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Xml;
 using System.Xml.Linq;
 
-using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
-using Jacobi.Vst.Core.Host;
 
 using CommonUtils;
 using CommonUtils.Audio;
 using CommonUtils.Audio.NAudio;
+using CommonUtils.MathLib.FFT;
 using CommonUtils.VST;
 
 using NAudio.Wave;
@@ -103,7 +97,7 @@ namespace SynthAnalysisStudio
 		
 		void OnOffCheckboxCheckedChanged(object sender, EventArgs e)
 		{
-			CheckBox check = (CheckBox) sender;
+			var check = (CheckBox) sender;
 			if(check.Checked)
 			{
 				DoGUIRefresh = true;
@@ -179,7 +173,7 @@ namespace SynthAnalysisStudio
 				Playback.Play();
 			}
 			
-			CheckBox check = (CheckBox) sender;
+			var check = (CheckBox) sender;
 			if(check.Checked)
 			{
 				host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);
@@ -290,7 +284,7 @@ namespace SynthAnalysisStudio
 				xmlDoc.Save(xmlFilePath);
 			} else {
 				// create xml document first
-				XDocument xmlDoc =
+				var xmlDoc =
 					new XDocument(
 						new XElement("ADSRMeasurement",
 						             new XElement("Row",
@@ -529,7 +523,7 @@ namespace SynthAnalysisStudio
 		
 		void MeasureADSRParameter(int paramName, float paramValue, string envName, bool measureRelease = false) {
 			
-			System.Console.Out.WriteLine("MeasureADSREntry: Measuring {0} at value {1:0.00}...", envName, paramValue);
+			Console.Out.WriteLine("MeasureADSREntry: Measuring {0} at value {1:0.00}...", envName, paramValue);
 			
 			VstHost host = VstHost.Instance;
 			
@@ -557,7 +551,7 @@ namespace SynthAnalysisStudio
 
 				if (stopwatch.ElapsedMilliseconds > 5000) {
 					stopwatch.Stop();
-					System.Console.Out.WriteLine("MeasureADSREntry: Playing Midi Failed!");
+					Console.Out.WriteLine("MeasureADSREntry: Playing Midi Failed!");
 					return;
 				}
 				System.Threading.Thread.Sleep(100);
@@ -575,7 +569,7 @@ namespace SynthAnalysisStudio
 			while (host.LastProcessedBufferLeftPlaying) {
 				if (stopwatch.ElapsedMilliseconds > 40000) {
 					stopwatch.Stop();
-					System.Console.Out.WriteLine("MeasureADSREntry: Playing never stopped?!");
+					Console.Out.WriteLine("MeasureADSREntry: Playing never stopped?!");
 					break;
 				}
 			}
@@ -584,7 +578,7 @@ namespace SynthAnalysisStudio
 			Playback.Stop();
 
 			stopwatch.Stop();
-			System.Console.Out.WriteLine("MeasureADSREntry: Playing stopped: {0} ms.", stopwatch.ElapsedMilliseconds);
+			Console.Out.WriteLine("MeasureADSREntry: Playing stopped: {0} ms.", stopwatch.ElapsedMilliseconds);
 			
 			// stop recording
 			host.Record = false;
@@ -604,7 +598,7 @@ namespace SynthAnalysisStudio
 			AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
 			
 			// store as a png
-			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
+			System.Drawing.Bitmap png = AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
 			string fileName = String.Format("{0}{1:0.00}s-{2}.png", envName, param, StringUtils.GetCurrentTimestamp());
 			png.Save(fileName);
 			
@@ -765,7 +759,7 @@ namespace SynthAnalysisStudio
 			MeasureLFOInit();
 			VstHost host = VstHost.Instance;
 			
-			List<string> lfoAlreadyProcessed = new List<string>();
+			var lfoAlreadyProcessed = new List<string>();
 
 			// step through the LFO steps
 			int count = 0;
@@ -804,7 +798,7 @@ namespace SynthAnalysisStudio
 					
 					if (stopwatch.ElapsedMilliseconds > 5000) {
 						stopwatch.Stop();
-						System.Console.Out.WriteLine("MeasureLFOBtnClick: Playing Midi Failed!");
+						Console.Out.WriteLine("MeasureLFOBtnClick: Playing Midi Failed!");
 						return;
 					}
 					System.Threading.Thread.Sleep(100);
@@ -821,7 +815,7 @@ namespace SynthAnalysisStudio
 				// wait until it has stopped playing
 				while (host.LastProcessedBufferLeftPlaying) {
 					if (stopwatch.ElapsedMilliseconds > 40000) {
-						System.Console.Out.WriteLine("MeasureLFOBtnClick: Playing never stopped?!");
+						Console.Out.WriteLine("MeasureLFOBtnClick: Playing never stopped?!");
 						break;
 					}
 				}
@@ -829,7 +823,7 @@ namespace SynthAnalysisStudio
 				Playback.Stop();
 
 				stopwatch.Stop();
-				System.Console.Out.WriteLine("MeasureLFOBtnClick: Playing stopped: {0} ms. {1}", stopwatch.ElapsedMilliseconds, paramDisplay);
+				Console.Out.WriteLine("MeasureLFOBtnClick: Playing stopped: {0} ms. {1}", stopwatch.ElapsedMilliseconds, paramDisplay);
 				
 				// stop recording
 				host.Record = false;
@@ -842,7 +836,7 @@ namespace SynthAnalysisStudio
 				AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
 				
 				// store as a png
-				System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
+				System.Drawing.Bitmap png = AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
 				string fileName = String.Format("audio-LFO-{0}-{1}.png", StringUtils.MakeValidFileName(paramDisplay), StringUtils.GetCurrentTimestamp());
 				png.Save(fileName);
 				

@@ -16,7 +16,7 @@ namespace SynthAnalysisStudio
 		
 		public UADSSLChannel DoConvert() {
 			
-			UADSSLChannel uadSSLChannel = new UADSSLChannel();
+			var uadSSLChannel = new UADSSLChannel();
 			uadSSLChannel.PresetName = wavesSSLChannel.PresetName;
 			
 			uadSSLChannel.CMPThresh = uadSSLChannel.FindClosestValue("CMP Thresh", wavesSSLChannel.CompThreshold);

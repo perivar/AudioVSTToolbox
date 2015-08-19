@@ -45,7 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\CommonUtils\StringUtils.cs">
+    <Compile Include="..\..\CommonUtils\Library\Source\StringUtils.cs">
       <Link>StringUtils.cs</Link>
     </Compile>
     <Compile Include="Program.cs" />

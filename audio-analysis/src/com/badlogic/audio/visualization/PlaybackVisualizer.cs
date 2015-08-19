@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Threading;
 using System.Drawing;
 
-using NAudio;
 using NAudio.Wave;
 
 using AudioDevice = com.badlogic.audio.io.AudioDevice;

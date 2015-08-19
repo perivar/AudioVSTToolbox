@@ -23,7 +23,7 @@ namespace SynthAnalysisStudio
 {
 	static class Program
 	{
-		static string _version = "1.1";
+		static string _version = "1.1.1";
 		
 		static void StartGUI() {
 			Application.EnableVisualStyles();
@@ -34,7 +34,7 @@ namespace SynthAnalysisStudio
 		static void StartAudioOutput(string pluginPath, string waveFilePath) {
 			try
 			{
-				HostCommandStub hostCmdStub = new HostCommandStub();
+				var hostCmdStub = new HostCommandStub();
 				VstPluginContext ctx = VstPluginContext.Create(pluginPath, hostCmdStub);
 				
 				// add custom data to the context
@@ -71,7 +71,7 @@ namespace SynthAnalysisStudio
 			host.LoadFXP(fxpFilePath);
 
 			if (doPlay) {
-				VstPlaybackNAudio playback = new VstPlaybackNAudio(host);
+				var playback = new VstPlaybackNAudio(host);
 				playback.Play();
 				
 				Console.WriteLine("Started Audio Playback");
@@ -89,7 +89,7 @@ namespace SynthAnalysisStudio
 			}
 			
 			if (waveOutputFilePath != "") {
-				VstFileWriter fileWriter = new VstFileWriter(host);
+				var fileWriter = new VstFileWriter(host);
 				fileWriter.CreateWaveFile(waveOutputFilePath);
 			}
 		}
@@ -483,7 +483,7 @@ namespace SynthAnalysisStudio
 			bool useGui = false;
 
 			// Command line parsing
-			Arguments CommandLine = new Arguments(args);
+			var CommandLine = new Arguments(args);
 			if(CommandLine["plugin"] != null) {
 				pluginPath = CommandLine["plugin"];
 			}
@@ -518,7 +518,7 @@ namespace SynthAnalysisStudio
 		
 		public static void PrintUsage() {
 			Console.WriteLine("Process VST Plugin. Version {0}.", _version);
-			Console.WriteLine("Copyright (C) 2009-2012 Per Ivar Nerseth.");
+			Console.WriteLine("Copyright (C) 2009-2015 Per Ivar Nerseth.");
 			Console.WriteLine();
 			Console.WriteLine("Usage: SynthAnalysisStudio.exe <Arguments>");
 			Console.WriteLine();

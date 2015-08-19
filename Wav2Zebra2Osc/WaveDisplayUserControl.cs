@@ -3,7 +3,7 @@ using System.IO;
 using System.Drawing;
 using System.Windows.Forms;
 
-using CommonUtils.FFT;
+using CommonUtils.MathLib.FFT;
 
 namespace Wav2Zebra2Osc
 {

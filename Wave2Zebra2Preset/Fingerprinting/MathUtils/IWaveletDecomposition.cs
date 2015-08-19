@@ -3,8 +3,6 @@
 // Code license: GNU General Public License v2
 // ciumac.sergiu@gmail.com
 
-using CommonUtils.FFT;
-
 namespace Wave2Zebra2Preset.Fingerprinting.MathUtils
 {
     /// <summary>

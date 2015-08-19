@@ -31,6 +31,9 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommonUtils">
+      <HintPath>..\NativeLibraries\CommonUtils.dll</HintPath>
+    </Reference>
     <Reference Include="NAudio">
       <HintPath>..\CommonUtils\Audio\NAudio\NAudio.dll</HintPath>
     </Reference>
@@ -56,48 +59,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\CommonUtils\Audio\NAudio\AudioUtilsNAudio.cs">
-      <Link>Common\AudioUtilsNAudio.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\ColorUtils.cs">
-      <Link>Common\ColorUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\ExtendedGraphics.cs">
-      <Link>Common\ExtendedGraphics.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\AudioAnalyzer.cs">
-      <Link>Common\FFT\AudioAnalyzer.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Complex.cs">
-      <Link>Common\FFT\Complex.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\ComplexF.cs">
-      <Link>Common\FFT\ComplexF.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Fourier.cs">
-      <Link>Common\FFT\Fourier.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\FourierDirection.cs">
-      <Link>Common\FFT\FourierDirection.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\FFTWindows.cs">
-      <Link>Common\FFT\FFTWindows.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\LomontFFT.cs">
-      <Link>Common\FFT\LomontFFT.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\MathUtils.cs">
-      <Link>Common\MathUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\MidiUtils.cs">
-      <Link>Common\MidiUtils.cs</Link>
-    </Compile>
     <Compile Include="CustomSpectrumAnalyzer.cs" />
     <Compile Include="CustomSpectrumAnalyzer.Designer.cs">
       <DependentUpon>CustomSpectrumAnalyzer.cs</DependentUpon>
     </Compile>
     <Compile Include="CustomWaveViewer.cs" />
-    <Compile Include="FFTDataSize.cs" />
     <Compile Include="ISoundPlayer.cs" />
     <Compile Include="ISpectrumPlayer.cs" />
     <Compile Include="IWaveformPlayer.cs" />
@@ -119,10 +85,6 @@
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Common" />
-    <Folder Include="Common\FFT" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>

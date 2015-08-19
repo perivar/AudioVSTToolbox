@@ -37,6 +37,9 @@
     <Reference Include="Bass.Net">
       <HintPath>_SharedAssemblies\Bass.Net.dll</HintPath>
     </Reference>
+    <Reference Include="CommonUtils">
+      <HintPath>..\NativeLibraries\CommonUtils.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -53,60 +56,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\CommonUtils\Audio\Bass\BassProxy.cs">
-      <Link>CommonUtils\BassProxy.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Audio\ISoundPlayer.cs">
-      <Link>CommonUtils\ISoundPlayer.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Audio\ISpectrumPlayer.cs">
-      <Link>CommonUtils\ISpectrumPlayer.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Audio\IWaveformPlayer.cs">
-      <Link>CommonUtils\IWaveformPlayer.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Audio\OscillatorGenerator.cs">
-      <Link>CommonUtils\OscillatorGenerator.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\ColorUtils.cs">
-      <Link>CommonUtils\ColorUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\CSVWriter.cs">
-      <Link>CommonUtils\CSVWriter.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Export.cs">
-      <Link>CommonUtils\Export.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\ExtendedGraphics.cs">
-      <Link>CommonUtils\ExtendedGraphics.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\AudioAnalyzer.cs">
-      <Link>CommonUtils\AudioAnalyzer.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Complex.cs">
-      <Link>CommonUtils\Complex.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\ComplexF.cs">
-      <Link>CommonUtils\ComplexF.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\FFTUtils.cs">
-      <Link>CommonUtils\FFTUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\FFTWindows.cs">
-      <Link>CommonUtils\FFTWindows.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\LomontFFT.cs">
-      <Link>LomontFFT.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\IOUtils.cs">
-      <Link>CommonUtils\IOUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\MathUtils.cs">
-      <Link>MathUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\MidiUtils.cs">
-      <Link>CommonUtils\MidiUtils.cs</Link>
-    </Compile>
     <Compile Include="CheckBoxToolStripMenuItem.cs" />
     <Compile Include="Help.cs" />
     <Compile Include="Help.Designer.cs">
@@ -141,9 +90,6 @@
     <EmbeddedResource Include="WaveFormView.resx">
       <DependentUpon>WaveFormView.cs</DependentUpon>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="CommonUtils" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>

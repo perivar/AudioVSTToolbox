@@ -1,24 +1,11 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
-using System.IO;
-using System.Data;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Xml;
-using System.Xml.Linq;
-
-using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
-using Jacobi.Vst.Core.Host;
-
 using CommonUtils;
 using CommonUtils.Audio;
 using CommonUtils.Audio.NAudio;
 using CommonUtils.VST;
-
 using NAudio.Wave;
 
 namespace ProcessVSTPlugin
@@ -146,7 +133,7 @@ namespace ProcessVSTPlugin
 				Playback.Play();
 			}
 			
-			CheckBox check = (CheckBox) sender;
+			var check = (CheckBox) sender;
 			if(check.Checked)
 			{
 				host.SendMidiNote(host.SendContinousMidiNote, host.SendContinousMidiNoteVelocity);

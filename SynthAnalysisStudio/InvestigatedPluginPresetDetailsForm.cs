@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 
@@ -7,17 +6,13 @@ using System.Globalization;
 
 using Equin.ApplicationFramework; // for BindingListView
 using System.ComponentModel; // for BindingList
-using System.Data; // for DataTable
 
 using System.Linq;
-using System.Text;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
 
-using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
-using Jacobi.Vst.Core.Host;
 
 using CommonUtils;
 
@@ -100,7 +95,7 @@ namespace SynthAnalysisStudio
 				}
 			}
 
-			using (StreamWriter MyFile = new StreamWriter(Application.StartupPath+"\\output.csv"))
+			using (var MyFile = new StreamWriter(Application.StartupPath+"\\output.csv"))
 			{
 				MyFile.Write(strValue);
 				MessageBox.Show("Information in the the table is successfully saved in the following location: \n"+Application.StartupPath+"\\output.csv", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -175,7 +170,7 @@ namespace SynthAnalysisStudio
 					// store these values in a tracking list together with the ParameterDisplay Value
 					string paramName = dataGridView1["ParameterName", nRowIndex].Value.ToString();
 					string paramValue = dataGridView1["ParameterDisplay", nRowIndex].Value.ToString().Trim();
-					InvestigatedPluginPresetFileFormat row = new InvestigatedPluginPresetFileFormat(0, 0, paramName, "", paramValue, String.Format("{0:00.0000}",f));
+					var row = new InvestigatedPluginPresetFileFormat(0, 0, paramName, "", paramValue, String.Format("{0:00.0000}",f));
 					
 					// store this in a xml ouput file.
 					string xmlFilePath = "track-chunk-dump.xml";
@@ -203,7 +198,7 @@ namespace SynthAnalysisStudio
 						}
 					} else {
 						// create xml document first
-						XDocument xmlDoc =
+						var xmlDoc =
 							new XDocument(
 								new XElement("TrackedPresetFileChanges",
 								             new XElement("Row",
@@ -221,7 +216,7 @@ namespace SynthAnalysisStudio
 		
 		void CheckBox1CheckedChanged(object sender, EventArgs e)
 		{
-			CheckBox check = (CheckBox) sender;
+			var check = (CheckBox) sender;
 			if(check.Checked)
 			{
 				((HostCommandStub) PluginContext.HostCommandStub).DoTrackPluginPresetFileFormat = true;

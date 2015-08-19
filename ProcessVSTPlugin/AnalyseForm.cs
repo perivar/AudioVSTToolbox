@@ -1,21 +1,8 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
-using System.IO;
-
-using Jacobi.Vst.Core;
 using Jacobi.Vst.Interop.Host;
-using Jacobi.Vst.Core.Host;
-
 using System.Linq;
-using System.Text;
-using System.Xml;
-using System.Xml.Linq;
-
-using CommonUtils.GUI;
 using CommonUtils.VST;
-
-using NAudio.Wave;
 
 namespace ProcessVSTPlugin
 {
@@ -45,7 +32,7 @@ namespace ProcessVSTPlugin
 		
 		void ComboBox1SelectedIndexChanged(object sender, EventArgs e)
 		{
-			ComboBox comboBox = (ComboBox) sender;
+			var comboBox = (ComboBox) sender;
 			string stringSize = (string) comboBox.SelectedItem;
 			int windowsSize = 2048;
 			int.TryParse(stringSize, out windowsSize);
@@ -54,7 +41,7 @@ namespace ProcessVSTPlugin
 		
 		void OnOffCheckboxCheckedChanged(object sender, EventArgs e)
 		{
-			CheckBox check = (CheckBox) sender;
+			var check = (CheckBox) sender;
 			if(check.Checked)
 			{
 				DoGUIRefresh = true;

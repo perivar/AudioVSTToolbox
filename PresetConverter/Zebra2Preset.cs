@@ -2004,13 +2004,13 @@ namespace PresetConverter
 			int counter = 0;
 			string line;
 			bool startSavingBinaryData = false;
-			StringBuilder uglyCompressedBinaryData = new StringBuilder();
+			var uglyCompressedBinaryData = new StringBuilder();
 			
 			TextWriter tw = new StreamWriter(outFilePath);
 			tw.WriteLine("#region Zebra2 Fields");
 			
 			// Read the file line by line.
-			StreamReader file = new StreamReader(inFilePath);
+			var file = new StreamReader(inFilePath);
 			string storedSectionName = "";
 			while((line = file.ReadLine()) != null)
 			{
@@ -2078,7 +2078,7 @@ namespace PresetConverter
 							if (comment == null) {
 								tw.WriteLine("public {0} {1}_{2} = {3};", valueType, storedSectionName, paramkey, val);
 							} else {
-								StringBuilder outWithComment = new StringBuilder();
+								var outWithComment = new StringBuilder();
 								outWithComment.Append(String.Format("public {0} {1}_{2} = {3};", valueType, storedSectionName, paramkey, val).PadRight(45)).Append(comment);
 								tw.WriteLine(outWithComment.ToString());
 							}
@@ -2113,7 +2113,7 @@ namespace PresetConverter
 			int counter = 0;
 			string line;
 			bool startSavingBinaryData = false;
-			StringBuilder uglyCompressedBinaryData = new StringBuilder();
+			var uglyCompressedBinaryData = new StringBuilder();
 			
 			TextWriter tw = new StreamWriter(outFilePath);
 			tw.WriteLine("#region Zebra2 GetPreset Method");
@@ -2122,7 +2122,7 @@ namespace PresetConverter
 			tw.WriteLine("\tStringBuilder buffer = new StringBuilder();");
 			
 			// Read the file line by line.
-			StreamReader file = new StreamReader(inFilePath);
+			var file = new StreamReader(inFilePath);
 			string storedSectionName = "";
 			while((line = file.ReadLine()) != null)
 			{
@@ -2211,7 +2211,7 @@ namespace PresetConverter
 
 		#region GetPreset Sections
 		private string GetPresetHeader() {
-			StringBuilder buffer = new StringBuilder();
+			var buffer = new StringBuilder();
 			
 			buffer.AppendLine("/*@meta");
 			if (null != PresetAuthor && PresetAuthor != "") {
@@ -2237,7 +2237,7 @@ namespace PresetConverter
 		}
 
 		private string GetModulatorReferenceTable() {
-			StringBuilder buffer = new StringBuilder();
+			var buffer = new StringBuilder();
 			buffer.AppendLine("/*");
 			buffer.AppendLine("	Modulator Reference Table");
 			buffer.AppendLine("*/");
@@ -2313,7 +2313,7 @@ namespace PresetConverter
 		                                 float envelopeK2R,
 		                                 float envelopeSlope,
 		                                 int envelopeTBase) {
-			StringBuilder buffer = new StringBuilder();
+			var buffer = new StringBuilder();
 			buffer.AppendLine();
 			buffer.AppendLine("/*");
 			buffer.AppendLine("	" + description);
@@ -2365,7 +2365,7 @@ namespace PresetConverter
 		                            float lfoDMD1,
 		                            int lfoFMS1,
 		                            float lfoFMD1) {
-			StringBuilder buffer = new StringBuilder();
+			var buffer = new StringBuilder();
 			buffer.AppendLine();
 			buffer.AppendLine("/*");
 			buffer.AppendLine("	" + description);
@@ -2431,7 +2431,7 @@ namespace PresetConverter
 		                                   int oscillatorRePhs,
 		                                   float oscillatorNorm,
 		                                   int oscillatorRend) {
-			StringBuilder buffer = new StringBuilder();
+			var buffer = new StringBuilder();
 			buffer.AppendLine();
 			buffer.AppendLine("/*");
 			buffer.AppendLine("	" + description);
@@ -2493,7 +2493,7 @@ namespace PresetConverter
 		                               int filterFS2,
 		                               float filterKeyScl) {
 
-			StringBuilder buffer = new StringBuilder();
+			var buffer = new StringBuilder();
 			buffer.AppendLine();
 			buffer.AppendLine("/*");
 			buffer.AppendLine("	" + description);
@@ -2532,7 +2532,7 @@ namespace PresetConverter
 		                              float delayPan2,
 		                              float delayPan3,
 		                              float delayPan4) {
-			StringBuilder buffer = new StringBuilder();
+			var buffer = new StringBuilder();
 			buffer.AppendLine();
 			buffer.AppendLine("/*");
 			buffer.AppendLine("	" + name);
@@ -2561,7 +2561,7 @@ namespace PresetConverter
 		}
 		
 		private string GetPresetReverb(string name) {
-			StringBuilder buffer = new StringBuilder();
+			var buffer = new StringBuilder();
 			buffer.AppendLine();
 			buffer.AppendLine("/*");
 			buffer.AppendLine("	" + name);
@@ -2599,7 +2599,7 @@ namespace PresetConverter
 		
 		#region GetPreset
 		public string GetPreset() {
-			StringBuilder buffer = new StringBuilder();
+			var buffer = new StringBuilder();
 			
 			buffer.Append(GetPresetHeader());
 			buffer.Append(GetModulatorReferenceTable());
@@ -4271,7 +4271,7 @@ namespace PresetConverter
 			}
 			
 			// determine which is closest
-			List<float> list = new List<float> { (float) value0_1s_ms, (float) value1s_ms, (float) value10s_ms };
+			var list = new List<float> { (float) value0_1s_ms, (float) value1s_ms, (float) value10s_ms };
 			float closest = MathUtils.FindClosest(list, timeInMs);
 			if (closest == (float) value0_1s_ms) {
 				lfoValue = (int) value0_1s;
@@ -4474,10 +4474,10 @@ namespace PresetConverter
 			int counter = 0;
 			string line;
 			bool startSavingBinaryData = false;
-			StringBuilder uglyCompressedBinaryData = new StringBuilder();
+			var uglyCompressedBinaryData = new StringBuilder();
 			
 			// Read the file line by line.
-			StreamReader file = new StreamReader(filePath);
+			var file = new StreamReader(filePath);
 			string storedSectionName = "";
 			while((line = file.ReadLine()) != null)
 			{

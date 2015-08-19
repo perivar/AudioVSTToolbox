@@ -43,7 +43,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bass.Net">
-      <HintPath>_SharedAssemblies\Bass.Net.dll</HintPath>
+      <HintPath>..\NativeLibraries\Bass.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonUtils">
+      <HintPath>..\NativeLibraries\CommonUtils.dll</HintPath>
     </Reference>
     <Reference Include="LibFlac">
       <HintPath>..\CommonUtils\Audio\NAudio\LibFlac.dll</HintPath>
@@ -76,69 +79,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\CommonUtils\Audio\Bass\BassProxy.cs">
-      <Link>BassProxy.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Audio\ISoundPlayer.cs">
-      <Link>ISoundPlayer.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Audio\IWaveformPlayer.cs">
-      <Link>IWaveformPlayer.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Audio\NAudio\AudioUtilsNAudio.cs">
-      <Link>AudioUtilsNAudio.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Audio\NAudio\AudioUtilsNAudioExtra.cs">
-      <Link>AudioUtilsNAudioExtra.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Audio\RiffRead.cs">
-      <Link>RiffRead.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\BinaryFile.cs">
-      <Link>BinaryFile.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\ColorUtils.cs">
-      <Link>ColorUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\CSVWriter.cs">
-      <Link>CSVWriter.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\Export.cs">
-      <Link>Export.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\ExtendedGraphics.cs">
-      <Link>ExtendedGraphics.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\AudioAnalyzer.cs">
-      <Link>AudioAnalyzer.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Complex.cs">
-      <Link>Fingerprinting\MathUtils\Complex.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\ComplexArray.cs">
-      <Link>Fingerprinting\MathUtils\ComplexArray.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\ComplexF.cs">
-      <Link>Fingerprinting\MathUtils\ComplexF.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\Fourier.cs">
-      <Link>Fingerprinting\MathUtils\Fourier.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\ExocortexDSP\FourierDirection.cs">
-      <Link>Fingerprinting\MathUtils\FourierDirection.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\FFTWindows.cs">
-      <Link>Fingerprinting\MathUtils\FFTWindows.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\FFT\LomontFFT.cs">
-      <Link>LomontFFT.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\MathUtils.cs">
-      <Link>MathUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\CommonUtils\MidiUtils.cs">
-      <Link>MidiUtils.cs</Link>
-    </Compile>
     <Compile Include="AColor.cs" />
     <Compile Include="Axis.cs" />
     <Compile Include="ChirpZTransform.cs" />
@@ -151,13 +91,13 @@
     <Compile Include="DataAccess\LocalPermutations.cs" />
     <Compile Include="DataAccess\RamStorage.cs" />
     <Compile Include="DataAccess\Repository.cs" />
+    <Compile Include="Fingerprinting\MathUtils\HaarWavelet.cs" />
+    <Compile Include="Fingerprinting\MathUtils\IWaveletDecomposition.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Fingerprinting\FingerprintManager.cs" />
     <Compile Include="Fingerprinting\IncrementalRandomStride.cs" />
     <Compile Include="Fingerprinting\IncrementalStaticStride.cs" />
     <Compile Include="Fingerprinting\IStride.cs" />
-    <Compile Include="Fingerprinting\MathUtils\HaarWavelet.cs" />
-    <Compile Include="Fingerprinting\MathUtils\IWaveletDecomposition.cs" />
     <Compile Include="Fingerprinting\MinHash.cs" />
     <Compile Include="Fingerprinting\RandomStride.cs" />
     <Compile Include="Fingerprinting\StaticStride.cs" />

@@ -7,9 +7,6 @@ using System.Drawing.Drawing2D;
 
 using System.Windows.Forms;
 
-using System.Threading;
-using System.Timers;
-
 namespace com.badlogic.audio.visualization
 {
 	/**

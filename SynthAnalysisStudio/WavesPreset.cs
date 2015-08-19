@@ -26,7 +26,7 @@ namespace SynthAnalysisStudio
 		
 		public bool Read(string filePath)
 		{
-			FXP fxp = new FXP();
+			var fxp = new FXP();
 			fxp.ReadFile(filePath);
 			byte[] chunkDataByteArray = fxp.ChunkDataByteArray;
 			return ReadChunkData(chunkDataByteArray);
@@ -70,16 +70,16 @@ namespace SynthAnalysisStudio
 		// Using generics to allow us to specify which preset type we are processing
 		private static List<T> ParseXml<T>(string xmlString) where T : WavesPreset, new() {
 
-			List<T> presetList = new List<T>();
+			var presetList = new List<T>();
 			
-			XmlDocument xml = new XmlDocument();
+			var xml = new XmlDocument();
 			try {
 				if (xmlString != null) xml.LoadXml(xmlString);
 				
 				// foreach Preset node that has a Name attribude
 				XmlNodeList presetNodeList = xml.SelectNodes("//Preset[@Name]");
 				foreach (XmlNode presetNode in presetNodeList) {
-					T preset = new T();
+					var preset = new T();
 					if (preset.ParsePresetNode(presetNode)) {
 						presetList.Add(preset);
 					}
@@ -117,7 +117,7 @@ namespace SynthAnalysisStudio
 		/// <param name="chunkDataByteArray"></param>
 		/// <returns>xml string</returns>
 		private static string ParseChunkData(byte[] chunkDataByteArray) {
-			BinaryFile bf = new BinaryFile(chunkDataByteArray, BinaryFile.ByteOrder.BigEndian);
+			var bf = new BinaryFile(chunkDataByteArray, BinaryFile.ByteOrder.BigEndian);
 			
 			int val1 = bf.ReadInt32();
 			int val2 = bf.ReadInt32();
@@ -131,7 +131,7 @@ namespace SynthAnalysisStudio
 
 			string val7 = bf.ReadString(4);
 			
-			byte[] xmlChunkBytes = new byte[chunkSize];
+			var xmlChunkBytes = new byte[chunkSize];
 			xmlChunkBytes = bf.ReadBytes(0, chunkSize, BinaryFile.ByteOrder.LittleEndian);
 			string xmlString = BinaryFile.ByteArrayToString(xmlChunkBytes);
 			
@@ -154,7 +154,7 @@ namespace SynthAnalysisStudio
 		
 		private static string GetPluginName(string xmlString) {
 			
-			XmlDocument xml = new XmlDocument();
+			var xml = new XmlDocument();
 			try {
 				if (xmlString != null) xml.LoadXml(xmlString);
 				
@@ -178,7 +178,7 @@ namespace SynthAnalysisStudio
 
 		private bool ParseXml(string xmlString, TextWriter tw) {
 
-			XmlDocument xml = new XmlDocument();
+			var xml = new XmlDocument();
 			try {
 				if (xmlString != null) xml.LoadXml(xmlString);
 				

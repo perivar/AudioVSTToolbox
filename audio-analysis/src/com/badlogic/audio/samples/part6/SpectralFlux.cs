@@ -1,9 +1,7 @@
 using System;
-using System.Windows.Forms;
 using System.Drawing;
 using System.Collections.Generic;
 
-using NAudio;
 using NAudio.Wave;
 
 using FFT = com.badlogic.audio.analysis.FFT;
