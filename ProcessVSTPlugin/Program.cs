@@ -25,11 +25,12 @@ namespace ProcessVSTPlugin
 			var hcs = new HostCommandStub();
 			host.OpenPlugin(pluginPath, hcs);
 			host.InputWave = waveInputFilePath;
+			
 			// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
 			// tblock = 0.15 makes blocksize = 6615.
-			int sampleRate = 44100;
-			int blockSize = (int) (sampleRate * 0.15f); //6615;
-			int channels = 2;
+			const int sampleRate = 44100;
+			const int blockSize = 8192;
+			const int channels = 2;
 			host.Init(blockSize, sampleRate, channels);
 			System.Diagnostics.Debug.WriteLine(host.getPluginInfo());
 			host.LoadFXP(fxpFilePath);
@@ -50,7 +51,7 @@ namespace ProcessVSTPlugin
 				playback.Stop();
 				Console.WriteLine("Stopped Audio Playback");
 				playback.Dispose();
-			}			
+			}
 
 			if (waveOutputFilePath != "") {
 				var fileWriter = new VstFileWriter(host);

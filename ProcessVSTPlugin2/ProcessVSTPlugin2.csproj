@@ -17,6 +17,7 @@
     <SignAssembly>False</SignAssembly>
     <DelaySign>False</DelaySign>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <NoWin32Manifest>False</NoWin32Manifest>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -33,7 +34,7 @@
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <StartAction>Project</StartAction>
-    <StartArguments>-plugin="../../TAL-Reverb-2.dll" -fxp="../../TAL-Reverb-Hall.fxp" -wavein="../../Sweep-48000-32f-SL-10,0s-fade.wav" -waveout="../../Sweep-Processed-Offline.wav" -volume="0.2"</StartArguments>
+    <StartArguments>-plugin="../../TAL-Reverb-2.dll" -fxp="../../TAL-Reverb-Hall.fxp" -wavein="../../Sweep-48000-32f-SL-10,0s-fade.wav" -waveout="../../Sweep-Processed-Offline.wav" -volume="0.10"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>
