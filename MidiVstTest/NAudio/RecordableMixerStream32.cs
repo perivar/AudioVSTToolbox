@@ -182,7 +182,7 @@ namespace NAudio.Wave
 		private void WriteMixStreamOut(byte[] buffer, int offset, int count)
 		{
 			// Write the data to the file
-			writer.Write(buffer, offset, count);
+			writer.WriteData(buffer, offset, count);
 		}
 
 		/// <summary>

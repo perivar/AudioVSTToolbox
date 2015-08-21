@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 using NAudio.Wave;
-
 using Jacobi.Vst.Interop.Host;
 using Jacobi.Vst.Core;
 
@@ -82,8 +78,8 @@ namespace CommonUtils.VSTPlugin
 			int inputCount = pluginContext.PluginInfo.AudioInputCount;
 			int outputCount = pluginContext.PluginInfo.AudioOutputCount;
 
-			VstAudioBufferManager inputMgr = new VstAudioBufferManager(inputCount, blockSize);
-			VstAudioBufferManager outputMgr = new VstAudioBufferManager(outputCount, blockSize);
+			var inputMgr = new VstAudioBufferManager(inputCount, blockSize);
+			var outputMgr = new VstAudioBufferManager(outputCount, blockSize);
 
 			pluginContext.PluginCommandStub.SetBlockSize(blockSize);
 			pluginContext.PluginCommandStub.SetSampleRate(WaveFormat.SampleRate);
@@ -110,7 +106,7 @@ namespace CommonUtils.VSTPlugin
 				// naudio reads an buffer of interlaced float's
 				// must take every 4th byte and convert to float
 				// Vst.Net audio buffer format (-1 to 1 floats).
-				byte[] naudioBuf = new byte[blockSize * WaveFormat.Channels * 4];
+				var naudioBuf = new byte[blockSize * WaveFormat.Channels * 4];
 				int bytesRead = wavStream.Read(naudioBuf, 0, sampleCountx4);
 				
 				// populate the inputbuffers with the incoming wave stream
@@ -186,7 +182,7 @@ namespace CommonUtils.VSTPlugin
 		
 		public override int Read(byte[] buffer, int offset, int count)
 		{
-			WaveBuffer waveBuffer = new WaveBuffer(buffer);
+			var waveBuffer = new WaveBuffer(buffer);
 			int samplesRequired = count / 4;
 			int samplesRead = Read(waveBuffer.FloatBuffer, offset / 4, samplesRequired);
 			return samplesRead * 4;

@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Windows.Forms;
-
 using NAudio.Wave;
-using NAudio.Midi;
-
 using Jacobi.Vst.Interop.Host;
 
 using CommonUtils.VSTPlugin;
@@ -27,7 +23,7 @@ namespace MidiVstTest
 		private static VST GeneralVST = null;
 		private static MixerForm mixerForm = null;
 
-		//NAUDIO
+		// NAUDIO
 		private static List<WaveStream> Samples = new List<WaveStream>();
 		private static IWavePlayer playbackDevice = null;
 		private static RecordableMixerStream32 Mixer32 = null;
@@ -46,7 +42,7 @@ namespace MidiVstTest
 
 			if (UsedLibrary == AudioLibrary.NAudio)
 			{
-				//NAUDIO
+				// NAUDIO
 				Mixer32 = new RecordableMixerStream32();
 				Mixer32.AutoStop = false;
 				
@@ -79,25 +75,25 @@ namespace MidiVstTest
 			{
 				if (UsedLibrary == AudioLibrary.NAudio)
 				{
-					//NAUDIO
-					WaveFileReader reader = new WaveFileReader(SamplePath);
+					// NAUDIO
+					var reader = new WaveFileReader(SamplePath);
 					WaveStream Stream = null;
-					//Console.WriteLine("CreatedReader");
+
 					if (reader.WaveFormat.BitsPerSample == 16) Stream = new WaveChannel16To32(reader);//Volume e Pan da aggiungere
 					else if (reader.WaveFormat.BitsPerSample == 24) Stream = new WaveChannel24To32(reader);
 					else if (reader.WaveFormat.BitsPerSample == 32 && reader.WaveFormat.Encoding == WaveFormatEncoding.Pcm) Stream = new WaveChannel32To32(reader);
 					else if (reader.WaveFormat.BitsPerSample == 32 && reader.WaveFormat.Encoding == WaveFormatEncoding.IeeeFloat) { MessageBox.Show("Attenzione"); Stream = new WaveChannel32(new Wave32To16Stream(reader)); }
-					//Console.WriteLine("CreatedChannel");
+
 					if (Stream != null)
 					{
 						if (Stream is WaveChannel16To32) ((WaveChannel16To32)Stream).Volume = 0.0f;
 						else if (Stream is WaveChannel24To32) ((WaveChannel24To32)Stream).Volume = 0.0f;
 						else if (Stream is WaveChannel32To32) ((WaveChannel32To32)Stream).Volume = 0.0f;
 						else if (Stream is WaveChannel32) ((WaveChannel32)Stream).Volume = 0.0f;
-						//Console.WriteLine("Volume");
+
 						Samples.Add(Stream);
 						Mixer32.AddInputStream(Stream);
-						//Console.WriteLine("Mixer");
+
 						return Samples.Count - 1;
 					}
 					//=============================================
@@ -130,7 +126,7 @@ namespace MidiVstTest
 
 			if (UsedLibrary == AudioLibrary.NAudio)
 			{
-				//NAUDIO
+				// NAUDIO
 				Samples.Clear();
 				if (playbackDevice != null)
 				{
@@ -167,7 +163,7 @@ namespace MidiVstTest
 
 			GeneralVST = new VST();
 
-			HostCommandStub hcs = new HostCommandStub();
+			var hcs = new HostCommandStub();
 			hcs.Directory = System.IO.Path.GetDirectoryName(VSTPath);
 
 			try
@@ -196,7 +192,7 @@ namespace MidiVstTest
 
 		public static void LoadMP3(string MP3Path)
 		{
-			Mp3FileReader mp3Reader = new Mp3FileReader(MP3Path);
+			var mp3Reader = new Mp3FileReader(MP3Path);
 			WaveStream pcmStream = WaveFormatConversionStream.CreatePcmStream(mp3Reader);
 			WaveStream blockAlignedStream = new BlockAlignReductionStream(pcmStream);
 
