@@ -48,7 +48,7 @@ namespace MidiVstTest
 
 			if (comboBoxMidiInDevices.Items.Count == 0)
 			{
-				MessageBox.Show("No MIDI input devices available");
+				//MessageBox.Show("No MIDI input devices available");
 			} else {
 				if (midiIn == null)
 				{

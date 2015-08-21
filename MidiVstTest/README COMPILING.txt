@@ -3,6 +3,12 @@ The only way I got this to work properly is to make sure the compiler is set to
 
 - Allow unsafe code
 
+Note!
+Don't use the latest VST.NET library from https://vstnet.codeplex.com/
+I only get lots of errors.
+Using the libraries from microDRUM instead.
+https://github.com/microDRUM/md-config-tool
+
 
 In theory a higher versioned framework and an .app file with the following - but the app is unstable with lots of errors
 <?xml version="1.0"?>
