@@ -27,15 +27,15 @@ namespace MidiVstTest
 			
 			vst = UtilityAudio.LoadVST(VSTPath, this.Handle);
 			this.Text = vst.pluginContext.PluginCommandStub.GetProgramName();
-			Rectangle rect = new Rectangle();
+			var rect = new Rectangle();
 			vst.pluginContext.PluginCommandStub.EditorGetRect(out rect);
 			this.SetClientSizeCore(rect.Width, rect.Height + 125);
-			vst.StreamCall += new EventHandler<VSTStreamEventArgs>(vst_StreamCall);
+			vst.StreamCall += vst_StreamCall;
 			
 			UtilityAudio.StartAudio();
 		}
 
-		void vst_StreamCall(object sender, VSTStreamEventArgs e)
+		private void vst_StreamCall(object sender, VSTStreamEventArgs e)
 		{
 			waveformPainter1.AddMax(e.MaxL);
 			waveformPainter2.AddMax(e.MaxR);
@@ -76,7 +76,7 @@ namespace MidiVstTest
 
 		private void tsbLoad_Click(object sender, EventArgs e)
 		{
-			OpenFileDialog fileDialog = new OpenFileDialog();
+			var fileDialog = new OpenFileDialog();
 			fileDialog.Title = "Select MP3 file:";
 			fileDialog.Filter = "MP3 Files (*.mp3)|*.mp3";
 			fileDialog.ShowDialog();
@@ -110,7 +110,7 @@ namespace MidiVstTest
 
 		private void tsbSave_Click(object sender, EventArgs e)
 		{
-			SaveFileDialog saveFile = new SaveFileDialog();
+			var saveFile = new SaveFileDialog();
 			saveFile.Title = "Select output file:";
 			saveFile.Filter = "WAV Files (*.wav)|*.wav";
 			saveFile.ShowDialog();

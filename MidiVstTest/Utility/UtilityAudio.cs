@@ -175,7 +175,7 @@ namespace MidiVstTest
 				GeneralVST.pluginContext.PluginCommandStub.MainsChanged(true);
 
 				vstStream = new VSTStream();
-				vstStream.ProcessCalled += new EventHandler<VSTStreamEventArgs>(GeneralVST.Stream_ProcessCalled);
+				vstStream.ProcessCalled += GeneralVST.Stream_ProcessCalled;
 				vstStream.pluginContext = GeneralVST.pluginContext;
 				vstStream.SetWaveFormat(44100, 2);
 				

@@ -84,23 +84,25 @@ namespace MidiVstTest
 			}
 			else
 			{
-				OpenFileDialog ofd = new OpenFileDialog();
+				var ofd = new OpenFileDialog();
 				ofd.Title = "Select VST:";
 				ofd.Filter = "VST Files (*.dll)|*.dll";
-				if (LastDirectoryUsed.ContainsKey("VSTDir"))
+				if (LastDirectoryUsed.ContainsKey("VSTDir")) {
 					ofd.InitialDirectory = LastDirectoryUsed["VSTDir"];
-				else
+				} else {
 					ofd.InitialDirectory = UtilityAudio.GetVSTDirectory();
+				}
 				DialogResult res = ofd.ShowDialog();
 
 				if (res != DialogResult.OK || !File.Exists(ofd.FileName)) return;
 
 				try
 				{
-					if (LastDirectoryUsed.ContainsKey("VSTDir"))
+					if (LastDirectoryUsed.ContainsKey("VSTDir")) {
 						LastDirectoryUsed["VSTDir"] = Directory.GetParent(ofd.FileName).FullName;
-					else
+					} else {
 						LastDirectoryUsed.Add("VSTDir", Directory.GetParent(ofd.FileName).FullName);
+					}
 					vstForm = new VSTForm(ofd.FileName);
 					vstForm.Show();
 
@@ -179,7 +181,7 @@ namespace MidiVstTest
 				byte[] midiData = { 0, 0, 0 };
 				if (midiEvent is NAudio.Midi.NoteEvent)
 				{
-					NAudio.Midi.NoteEvent me = (NAudio.Midi.NoteEvent) midiEvent;
+					var me = (NAudio.Midi.NoteEvent) midiEvent;
 					midiData = new byte[] {
 						0x90, 					// Cmd
 						(byte) me.NoteNumber,	// Val 1
@@ -188,7 +190,7 @@ namespace MidiVstTest
 				}
 				else if (midiEvent is NAudio.Midi.ControlChangeEvent)
 				{
-					NAudio.Midi.ControlChangeEvent cce = (NAudio.Midi.ControlChangeEvent) midiEvent;
+					var cce = (NAudio.Midi.ControlChangeEvent) midiEvent;
 					midiData = new byte[] {
 						0xB0, 						// Cmd
 						(byte)cce.Controller,		// Val 1
@@ -207,7 +209,7 @@ namespace MidiVstTest
 				}
 				progressLog1.LogMessage(Color.Chocolate, String.Format("Sending mididata 0x00{0:X2}{1:X2}{2:X2}",
 				                                                       midiData[2], midiData[1], midiData[0]));
-				VstMidiEvent vse =
+				var vse =
 					new VstMidiEvent(/*DeltaFrames*/ 0,
 					                 /*NoteLength*/ 0,
 					                 /*NoteOffset*/ 0,
@@ -215,7 +217,7 @@ namespace MidiVstTest
 					                 /*Detune*/ 0,
 					                 /*NoteOffVelocity*/ 0);
 
-				VstEvent[] ve = new VstEvent[1];
+				var ve = new VstEvent[1];
 				ve[0] = vse;
 				
 				VSTForm.vst.pluginContext.PluginCommandStub.ProcessEvents(ve);
@@ -241,7 +243,7 @@ namespace MidiVstTest
 			progressLog1.LogMessage(Color.Blue, String.Format("Key Down {0}, {1}",
 			                                                  e.KeyCode, e.KeyValue));
 			
-			byte midiVelocity = 100;
+			const byte midiVelocity = 100;
 			byte midiNote = KeyEventArgToMidiNote(e);
 			
 			// only bother with the keys that trigger midi notes
@@ -257,7 +259,7 @@ namespace MidiVstTest
 			// do you key up event, if any.
 			progressLog1.LogMessage(Color.Blue, String.Format("Key Up {0}, {1}",
 			                                                  e.KeyCode, e.KeyValue));
-			byte midiVelocity = 0;
+			const byte midiVelocity = 0;
 			byte midiNote = KeyEventArgToMidiNote(e);
 			
 			// only bother with the keys that trigger midi notes

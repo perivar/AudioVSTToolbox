@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using Jacobi.Vst.Interop.Host;
 using Jacobi.Vst.Core;
@@ -45,7 +40,7 @@ namespace MidiVstTest
 
             for (int i = 0; i < pluginContext.PluginInfo.ParameterCount; i++)
             {
-                VSTParameter param = new VSTParameter();
+                var param = new VSTParameter();
                 param.Properties = pluginContext.PluginCommandStub.GetParameterProperties(i);
                 param.Name = pluginContext.PluginCommandStub.GetParameterName(i);
                 param.Label = pluginContext.PluginCommandStub.GetParameterLabel(i);

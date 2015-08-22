@@ -47,7 +47,7 @@ namespace MidiTest
 		private void AddNoteEvent(int noteNumber)
 		{
 			int channel = 2;
-			NoteOnEvent noteOnEvent = new NoteOnEvent(0, channel, noteNumber, 100, 50);
+			var noteOnEvent = new NoteOnEvent(0, channel, noteNumber, 100, 50);
 			events.Add(noteOnEvent);
 			events.Add(noteOnEvent.OffEvent);
 		}
@@ -85,7 +85,7 @@ namespace MidiTest
 			if (midiOut == null)
 			{
 				midiOut = new MidiOut(comboBoxMidiOutDevices.SelectedIndex);
-			}			
+			}
 		}
 
 		void midiIn_ErrorReceived(object sender, MidiInMessageEventArgs e)
@@ -157,13 +157,13 @@ namespace MidiTest
 				midiOutIndex = 0;
 			}
 		}
-        
-        void CheckBoxMidiOutMessagesCheckedChanged(object sender, EventArgs e)
-        {
+		
+		void CheckBoxMidiOutMessagesCheckedChanged(object sender, EventArgs e)
+		{
 			if (midiOut == null)
 			{
 				midiOut = new MidiOut(comboBoxMidiOutDevices.SelectedIndex);
-			}			
-        }
+			}
+		}
 	}
 }
