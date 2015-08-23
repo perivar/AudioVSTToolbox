@@ -1,16 +1,18 @@
 The only way I got this to work properly is to make sure the compiler is set to 
 .NET Framework 3.5
 
-- Allow unsafe code
-
 Note!
 Don't use the latest VST.NET library from https://vstnet.codeplex.com/
-I only get lots of errors.
+I only get lots of errors. 
+(e.g. using the Sylenth plugin crashes when calling MainsChanged=True with
+"System.AccessViolationException: Attempted to read or write protected memory. 
+This is often an indication that other memory is corrupt.)"
 Using the libraries from microDRUM instead.
 https://github.com/microDRUM/md-config-tool
 
 
-In theory a higher versioned framework and an .app file with the following - but the app is unstable with lots of errors
+In theory a higher versioned framework and an .app file with the following should work,
+but the app is unstable.
 <?xml version="1.0"?>
 <configuration>
   <startup useLegacyV2RuntimeActivationPolicy="true">
