@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bass.Net">
-      <HintPath>_SharedAssemblies\Bass.Net.dll</HintPath>
+      <HintPath>..\NativeLibraries\Bass.Net.dll</HintPath>
     </Reference>
     <Reference Include="CommonUtils">
       <HintPath>..\NativeLibraries\CommonUtils.dll</HintPath>
