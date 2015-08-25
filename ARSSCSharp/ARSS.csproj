@@ -8,8 +8,7 @@
     <RootNamespace>ARSS</RootNamespace>
     <AssemblyName>ARSS</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <StartupObject>ARSS.Arss</StartupObject>
     <NoWin32Manifest>False</NoWin32Manifest>

@@ -8,8 +8,7 @@
     <RootNamespace>SynthAnalysisStudio</RootNamespace>
     <AssemblyName>SynthAnalysisStudio</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -53,8 +52,8 @@
     <FileAlignment>4096</FileAlignment>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CommonUtils">
-      <HintPath>..\NativeLibraries\CommonUtils.dll</HintPath>
+    <Reference Include="Bass.Net">
+      <HintPath>..\NativeLibraries\Bass.Net.dll</HintPath>
     </Reference>
     <Reference Include="DiffPlex">
       <HintPath>..\NativeLibraries\DiffPlex.dll</HintPath>
@@ -64,9 +63,6 @@
     </Reference>
     <Reference Include="Jacobi.Vst.Core">
       <HintPath>..\NativeLibraries\Jacobi.Vst.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Jacobi.Vst.Framework">
-      <HintPath>..\NativeLibraries\Jacobi.Vst.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Jacobi.Vst.Interop">
       <HintPath>..\NativeLibraries\Jacobi.Vst.Interop.dll</HintPath>
@@ -89,7 +85,6 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
@@ -177,6 +172,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Audio" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\CommonUtils\Library\CommonUtils.csproj">
+      <Project>{F783796B-2189-4A3E-AE6E-3E50F68FEE5C}</Project>
+      <Name>CommonUtils</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>
