@@ -174,7 +174,7 @@ namespace CommonUtils.GUI
 			
 			if (soundPlayer.WaveformData != null && soundPlayer.WaveformData.Length > 1)
 			{
-				this.offlineBitmap = AudioAnalyzer.DrawWaveform(soundPlayer.WaveformData, new Size(this.Width, this.Height), amplitude, startZoomSamplePosition, endZoomSamplePosition, soundPlayer.SampleRate, true);
+				this.offlineBitmap = AudioAnalyzer.DrawWaveformMono(soundPlayer.WaveformData, new Size(this.Width, this.Height), amplitude, startZoomSamplePosition, endZoomSamplePosition, soundPlayer.SampleRate, true);
 
 				// force redraw
 				this.Invalidate();

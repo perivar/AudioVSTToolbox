@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 using CommonUtils.Audio;
 using CommonUtils.MathLib.FFT;
-	
+
 namespace NAudio_Visualizing
 {
 	/// <summary>
@@ -125,7 +125,7 @@ namespace NAudio_Visualizing
 				Color fillColor = ColorTranslator.FromHtml("#F9C998");
 				
 				if (barShapes.Count > 0 && peakShapes.Count > 0) {
-					Pen linePen = new Pen(lineColor, 0.5f);
+					var linePen = new Pen(lineColor, 0.5f);
 					Brush fillBrush = new SolidBrush(fillColor);
 					Brush sampleBrush = new SolidBrush(sampleColor);
 					e.Graphics.FillRectangle(fillBrush, 0, 0, this.Width, this.Height);
@@ -168,6 +168,7 @@ namespace NAudio_Visualizing
 		{
 			bool allZero = true;
 			if (DoSpectrumGraph) {
+				#region Draw Spectrum Analysis Graph
 				float[] mag;
 				float[] freq;
 				float foundMaxFreq, foundMaxDecibel;
@@ -175,7 +176,9 @@ namespace NAudio_Visualizing
 				int fftWindowsSize = soundPlayer.FftDataSize;
 				AudioAnalyzer.PrepareSpectrumAnalysis(channelData, sampleRate, fftWindowsSize, out mag, out freq, out foundMaxFreq, out foundMaxDecibel);
 				this.offlineBitmap = AudioAnalyzer.GetSpectrumImage(ref mag, ref freq, new Size(this.Width, this.Height), MinimumFrequency, MaximumFrequency, foundMaxDecibel, foundMaxFreq);
+				#endregion
 			} else {
+				#region Draw Bars
 				double fftBucketHeight = 0f;
 				double barHeight = 0f;
 				double lastPeakHeight = 0f;
@@ -252,10 +255,12 @@ namespace NAudio_Visualizing
 						barIndex++;
 					}
 				}
+				#endregion
 			}
 
-			if (allZero && !soundPlayer.IsPlaying)
+			if (allZero && !soundPlayer.IsPlaying) {
 				animationTimer.Stop();
+			}
 		}
 
 		/// <summary>
@@ -263,14 +268,11 @@ namespace NAudio_Visualizing
 		/// </summary>
 		private void UpdateBarLayout()
 		{
-			if (soundPlayer == null)
-				return;
-
-			if (DoSpectrumGraph) {
-				UpdateSpectrumShapes();
+			if (soundPlayer == null) {
 				return;
 			}
 			
+			// prepare everything needed for the bar layout (not needed for the spectrum analysis)
 			barWidth = Math.Max(((double)(this.Width - (BarSpacing * (BarCount + 1))) / (double)BarCount), 1);
 			maximumFrequencyIndex = Math.Min(soundPlayer.GetFFTFrequencyIndex(MaximumFrequency) + 1, 8191);
 			minimumFrequencyIndex = Math.Min(soundPlayer.GetFFTFrequencyIndex(MinimumFrequency), 8191);
@@ -286,8 +288,8 @@ namespace NAudio_Visualizing
 
 			int indexCount = maximumFrequencyIndex - minimumFrequencyIndex;
 			int linearIndexBucketSize = (int)Math.Round((double)indexCount / (double)actualBarCount, 0);
-			List<int> maxIndexList = new List<int>();
-			List<int> maxLogScaleIndexList = new List<int>();
+			var maxIndexList = new List<int>();
+			var  maxLogScaleIndexList = new List<int>();
 			double maxLog = Math.Log(actualBarCount, actualBarCount);
 			for (int i = 1; i < actualBarCount; i++)
 			{
@@ -308,7 +310,7 @@ namespace NAudio_Visualizing
 			for (int i = 0; i < actualBarCount; i++)
 			{
 				double xCoord = BarSpacing + (barWidth * i) + (BarSpacing * i) + 1;
-				Rectangle barRectangle = new Rectangle()
+				var barRectangle = new Rectangle()
 				{
 					X = (int) xCoord,
 					Y = (int) height,
@@ -316,7 +318,7 @@ namespace NAudio_Visualizing
 					Height = 0,
 				};
 				barShapes.Add(barRectangle);
-				Rectangle peakRectangle = new Rectangle()
+				var peakRectangle = new Rectangle()
 				{
 					X = (int) xCoord,
 					Y = (int) (height - peakDotHeight),
@@ -336,8 +338,9 @@ namespace NAudio_Visualizing
 			switch (e.PropertyName)
 			{
 				case "IsPlaying":
-					if (soundPlayer.IsPlaying && !animationTimer.Enabled)
+					if (soundPlayer.IsPlaying && !animationTimer.Enabled) {
 						animationTimer.Start();
+					}
 					break;
 			}
 		}

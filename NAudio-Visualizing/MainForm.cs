@@ -103,5 +103,11 @@ namespace NAudio_Visualizing
 				}
 			}
 		}
+		
+		void CustomSpectrumAnalyzer1Click(object sender, EventArgs e)
+		{
+			customSpectrumAnalyzer1.DoSpectrumGraph = !customSpectrumAnalyzer1.DoSpectrumGraph;
+		}
+		
 	}
 }
