@@ -28,7 +28,7 @@ namespace InvestigatePresetFileDump
 			TextWriter tw = new StreamWriter(outputfilename);
 			tw.Write(PresetHeader());
 			
-			StringWriter stringWriter = new StringWriter();
+			var stringWriter = new StringWriter();
 			string enumSections = ImportXMLFileReturnEnumSections(
 				@"..\..\UAD-SSLChannel-output.xml",
 				stringWriter
@@ -55,7 +55,7 @@ namespace InvestigatePresetFileDump
 		}
 		
 		public static string PresetHeader() {
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			sb.AppendLine("//--------------------------------------");
 			sb.AppendLine("// 010 Editor Binary Template");
 			sb.AppendLine("//");
@@ -86,7 +86,7 @@ namespace InvestigatePresetFileDump
 		}
 		
 		public static string PresetFooter() {
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			
 			if (DO_FXP_WRAP) {
 				sb.AppendLine("");
@@ -107,7 +107,7 @@ namespace InvestigatePresetFileDump
 		public static string ImportXMLFileReturnEnumSectionsILHarmor(string xmlfilename, TextWriter tw)
 		{
 			#region nameMap
-			Dictionary<string, string> nameMap = new Dictionary<string, string>();
+			var nameMap = new Dictionary<string, string>();
 			
 			nameMap.Add("AStartingPhase", "A - Starting phase");
 			nameMap.Add("APhaseRandomness", "A - Phase randomness");
@@ -604,11 +604,11 @@ namespace InvestigatePresetFileDump
 			nameMap.Add("CompressionMidBand", "Compression mid band");
 			#endregion
 			
-			StringBuilder enumSections = new StringBuilder();
+			var enumSections = new StringBuilder();
 			tw.WriteLine("typedef struct {");
 			
 			XDocument xmlDoc = XDocument.Load(xmlfilename);
-			Dictionary<string, List<byte>> dictionary = new Dictionary<string, List<byte>>();
+			var dictionary = new Dictionary<string, List<byte>>();
 
 			// first sort the data
 			//http://stackoverflow.com/questions/5603284/linq-to-xml-groupby
@@ -657,9 +657,9 @@ namespace InvestigatePresetFileDump
 			// the enums dictionary
 			// the dictionary key is a pair where the key is the enum name and the value is the enum byte size
 			// the dictionary value is a list of pairs where the key is the enum param name and the value is the enum param value
-			Dictionary<KeyValuePair<string, int>, List<KeyValuePair<string, int>>> enums = new Dictionary<KeyValuePair<string, int>, List<KeyValuePair<string, int>>>();
+			var enums = new Dictionary<KeyValuePair<string, int>, List<KeyValuePair<string, int>>>();
 			string enumBeingProcessed = "";
-			KeyValuePair<string, int> enumBeingProcessedPair = new KeyValuePair<string, int>();
+			var enumBeingProcessedPair = new KeyValuePair<string, int>();
 			while ((line = manualFileReader.ReadLine()) != null) {
 				Match indexMatch = Regex.Match(line, @"(^\d+),(\d+)\s+(.+)$");
 				Match enumMatch = Regex.Match(line, @"(^[a-zA-Z0-9\s]+)\s+(\d+)$");
@@ -703,7 +703,7 @@ namespace InvestigatePresetFileDump
 			}
 			
 			// create the enum sections
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			foreach (var enumEntry in enums)
 			{
 				sb.AppendLine(String.Format("typedef enum <{0}> {{", NumberOfBytesToDataType(enumEntry.Key.Value)));
@@ -732,7 +732,7 @@ namespace InvestigatePresetFileDump
 			string prevNameFormatted = "";
 			string prevName = "";
 			bool isPrevEnum = false;
-			Dictionary<string, int> processedNames = new Dictionary<string, int>();
+			var processedNames = new Dictionary<string, int>();
 			for (int i = low; i <= high; i++) {
 				if (groupedDict.ContainsKey(i)) {
 					bool isEnum = groupedDict[i].IsEnum;
@@ -882,7 +882,7 @@ namespace InvestigatePresetFileDump
 			
 			// store to xml file
 			//set formatting options
-			XmlWriterSettings settings = new XmlWriterSettings();
+			var settings = new XmlWriterSettings();
 			settings.Indent = true;
 			settings.IndentChars = "\t";
 
@@ -1006,9 +1006,9 @@ namespace InvestigatePresetFileDump
 			               });
 			
 			// lists to store values
-			List<string> displayText = new List<string>();
-			List<float> displayNumbers = new List<float>();
-			List<float> values = new List<float>();
+			var displayText = new List<string>();
+			var displayNumbers = new List<float>();
+			var values = new List<float>();
 			
 			foreach (var entry in entries) {
 				displayText.Add(entry.DisplayText);
@@ -1029,11 +1029,11 @@ namespace InvestigatePresetFileDump
 		
 		public static string ImportXMLFileReturnEnumSections(string xmlfilename, TextWriter tw)
 		{
-			StringBuilder enumSections = new StringBuilder();
+			var enumSections = new StringBuilder();
 			tw.WriteLine("typedef struct {");
 			
 			XDocument xmlDoc = XDocument.Load(xmlfilename);
-			Dictionary<string, List<byte>> dictionary = new Dictionary<string, List<byte>>();
+			var dictionary = new Dictionary<string, List<byte>>();
 
 			// first sort the data
 			//http://stackoverflow.com/questions/5603284/linq-to-xml-groupby
@@ -1165,13 +1165,13 @@ namespace InvestigatePresetFileDump
 		
 		public static void ImportXMLFileDumpReadWriteMethods(string xmlfilename, TextWriter tw)
 		{
-			StringBuilder variables = new StringBuilder();
-			StringBuilder readMethod = new StringBuilder();
-			StringBuilder writeMethod = new StringBuilder();
-			StringBuilder toStringMethod = new StringBuilder();
+			var variables = new StringBuilder();
+			var readMethod = new StringBuilder();
+			var writeMethod = new StringBuilder();
+			var toStringMethod = new StringBuilder();
 			
 			XDocument xmlDoc = XDocument.Load(xmlfilename);
-			Dictionary<string, List<byte>> dictionary = new Dictionary<string, List<byte>>();
+			var dictionary = new Dictionary<string, List<byte>>();
 
 			// first sort the data
 			//http://stackoverflow.com/questions/5603284/linq-to-xml-groupby
@@ -1322,7 +1322,7 @@ namespace InvestigatePresetFileDump
 		public static List<string> getUniqueValues(string xmlfilename, string NameFormattedValue)
 		{
 			XDocument xmlDoc = XDocument.Load(xmlfilename);
-			List<string> uniqueList = new List<string>();
+			var uniqueList = new List<string>();
 			var listQuery = (from row in xmlDoc.Descendants("Row")
 			                 where row.Element("NameFormatted").Value == NameFormattedValue
 			                 orderby row.Element("DisplayValue").Value descending
@@ -1345,7 +1345,7 @@ namespace InvestigatePresetFileDump
 		public static string getEnumSectionXMLFormat(string xmlfilename, string NameFormattedValue)
 		{
 			XDocument xmlDoc = XDocument.Load(xmlfilename);
-			Dictionary<string, List<byte>> dictionary = new Dictionary<string, List<byte>>();
+			var dictionary = new Dictionary<string, List<byte>>();
 			
 			var listQuery = (from row in xmlDoc.Descendants("Row")
 			                 where row.Element("ParameterNameFormatted").Value == NameFormattedValue
@@ -1367,7 +1367,7 @@ namespace InvestigatePresetFileDump
 				}
 				else
 				{
-					List<byte> valueList = new List<byte>();
+					var valueList = new List<byte>();
 					valueList.Add(value);
 					dictionary.Add(key, valueList);
 				}
@@ -1375,7 +1375,7 @@ namespace InvestigatePresetFileDump
 			
 			int numberOfBytes = dictionary.First().Value.Count;
 			string datatype = NumberOfBytesToDataType(ref numberOfBytes, true);
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			sb.AppendLine(String.Format("typedef enum <{0}> {{", datatype));
 			
 			//typedef enum <uint> {
@@ -1415,7 +1415,7 @@ namespace InvestigatePresetFileDump
 			
 			// also check if there might be a engineering number there
 			// like 0.00 k or 100 m
-			Regex r1 = new Regex(@"(-?[0-9]*\.?[0-9]+)\s?([km]?)");
+			var r1 = new Regex(@"(-?[0-9]*\.?[0-9]+)\s?([km]?)");
 			Match m1 = r1.Match(value);
 			if (m1.Success) {
 				//string match1 = m1.Groups[0].Value; 	// contains the whole regexp
@@ -1449,14 +1449,14 @@ namespace InvestigatePresetFileDump
 			
 			// also check if there might be a engineering number there
 			// like 0.00 k or 100 m
-			Regex r1 = new Regex(@"(-?[0-9]*\.?[0-9]+)\s?([km]?)");
+			var r1 = new Regex(@"(-?[0-9]*\.?[0-9]+)\s?([km]?)");
 			Match m1 = r1.Match(value);
 			if (m1.Success) {
 				//string match1 = m1.Groups[0].Value;
 				string match2 = m1.Groups[1].Value;
 				string match3 = m1.Groups[2].Value;
 				
-				rootNumber = double.Parse(match2, System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture);
+				rootNumber = double.Parse(match2, NumberStyles.Any, CultureInfo.InvariantCulture);
 				
 				// did it find a metric value like k or m?
 				if (!"".Equals(match3)) {
@@ -1553,7 +1553,7 @@ namespace InvestigatePresetFileDump
 		
 		public static string ByteArrayToString(byte[] ba, int numberOfBytes)
 		{
-			StringBuilder hex = new StringBuilder(ba.Length * 2);
+			var hex = new StringBuilder(ba.Length * 2);
 			for (int i = 0; i < numberOfBytes && i < ba.Length && i < 8; i++) {
 				byte b = ba[i];
 				hex.AppendFormat("{0:X2}", b);
@@ -1564,7 +1564,7 @@ namespace InvestigatePresetFileDump
 		public static byte[] StringToByteArray(String hex)
 		{
 			int NumberChars = hex.Length;
-			byte[] bytes = new byte[NumberChars / 2];
+			var bytes = new byte[NumberChars / 2];
 			for (int i = 0; i < NumberChars; i += 2)
 				bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
 			return bytes;
