@@ -7,7 +7,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>SynthAnalysisStudio</RootNamespace>
     <AssemblyName>SynthAnalysisStudio</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
@@ -53,10 +53,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bass.Net">
-      <HintPath>..\NativeLibraries\Bass.Net.dll</HintPath>
+      <HintPath>..\..\CommonUtils\Library\NativeLibraries\Bass.x86 NET v2.0\Bass.Net.dll</HintPath>
     </Reference>
     <Reference Include="DiffPlex">
-      <HintPath>..\NativeLibraries\DiffPlex.dll</HintPath>
+      <HintPath>NativeLibraries\DiffPlex.dll</HintPath>
     </Reference>
     <Reference Include="Equin.ApplicationFramework.BindingListView">
       <HintPath>..\NativeLibraries\Equin.ApplicationFramework.BindingListView.dll</HintPath>
@@ -85,6 +85,9 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Threading">
+      <HintPath>..\..\CommonUtils\Library\NativeLibraries\TaskParallelLibrary.1.0.2856\Net35\System.Threading.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
@@ -92,6 +95,80 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\CommonUtils\Library\Source\Arguments.cs">
+      <Link>Arguments.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\Audio\AudioUtils.cs">
+      <Link>AudioUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\Audio\NAudio\AudioUtilsNAudio.cs">
+      <Link>AudioUtilsNAudio.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\BinaryFile.cs">
+      <Link>BinaryFile.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\ColorUtils.cs">
+      <Link>ColorUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\Diff\SimpleBinaryDiff.cs">
+      <Link>SimpleBinaryDiff.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\Diff\UnidiffSeqFormatter.cs">
+      <Link>UnidiffSeqFormatter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\ExtendedGraphics.cs">
+      <Link>ExtendedGraphics.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\FXP.cs">
+      <Link>FXP.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\GUI\FrequencyAnalyserUserControl.cs">
+      <Link>FrequencyAnalyserUserControl.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\GUI\FrequencyAnalyserUserControl.Designer.cs">
+      <Link>FrequencyAnalyserUserControl.Designer.cs</Link>
+      <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\GUI\WaveDisplayUserControl.cs">
+      <Link>WaveDisplayUserControl.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\GUI\WaveDisplayUserControl.Designer.cs">
+      <Link>WaveDisplayUserControl.Designer.cs</Link>
+      <DependentUpon>WaveDisplayUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\MathLib\FFT\AudioAnalyzer.cs">
+      <Link>AudioAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\MathLib\FFT\FFTDataSize.cs">
+      <Link>FFTDataSize.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\MathLib\FFT\FFTWindows.cs">
+      <Link>FFTWindows.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\MathLib\FFT\LomontFFT.cs">
+      <Link>LomontFFT.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\MathUtils.cs">
+      <Link>MathUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\MidiUtils.cs">
+      <Link>MidiUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\ObjectUtils.cs">
+      <Link>ObjectUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\StringUtils.cs">
+      <Link>StringUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\VST\AudioOutput.cs">
+      <Link>AudioOutput.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\VST\VstHost.cs">
+      <Link>VstHost.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CommonUtils\Library\Source\VST\VstPlaybackNAudio.cs">
+      <Link>VstPlaybackNAudio.cs</Link>
+    </Compile>
     <Compile Include="..\PresetConverter\Preset.cs">
       <Link>Preset.cs</Link>
     </Compile>
@@ -101,83 +178,87 @@
     <Compile Include="..\PresetConverter\Zebra2Preset.cs">
       <Link>Zebra2Preset.cs</Link>
     </Compile>
-    <Compile Include="Audio\AnalyseForm.cs" />
-    <Compile Include="Audio\AnalyseForm.Designer.cs">
+    <Compile Include="Source\AnalyseForm.cs" />
+    <Compile Include="Source\AnalyseForm.Designer.cs">
       <DependentUpon>AnalyseForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Audio\WaveDisplayForm.cs" />
-    <Compile Include="Audio\WaveDisplayForm.Designer.cs">
-      <DependentUpon>WaveDisplayForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="InvestigatedPluginPresetDetailsForm.cs" />
-    <Compile Include="InvestigatedPluginPresetDetailsForm.Designer.cs">
-      <DependentUpon>InvestigatedPluginPresetDetailsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="InvestigatedPluginPresetFileFormat.cs" />
-    <Compile Include="EditorFrame.cs">
+    <Compile Include="Source\EditorFrame.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="EditorFrame.Designer.cs">
+    <Compile Include="Source\EditorFrame.Designer.cs">
       <DependentUpon>EditorFrame.cs</DependentUpon>
     </Compile>
-    <Compile Include="HostCommandStub.cs" />
-    <Compile Include="MainForm.cs">
+    <Compile Include="Source\HostCommandStub.cs" />
+    <Compile Include="Source\InvestigatedPluginPresetDetailsForm.cs" />
+    <Compile Include="Source\InvestigatedPluginPresetDetailsForm.Designer.cs">
+      <DependentUpon>InvestigatedPluginPresetDetailsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\InvestigatedPluginPresetFileFormat.cs" />
+    <Compile Include="Source\IOUtilsSmall.cs" />
+    <Compile Include="Source\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="Source\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PluginForm.cs">
+    <Compile Include="Source\PluginForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PluginForm.Designer.cs">
+    <Compile Include="Source\PluginForm.Designer.cs">
       <DependentUpon>PluginForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
+    <Compile Include="Source\Program.cs" />
+    <Compile Include="Source\UADSSLChannel.cs" />
+    <Compile Include="Source\WaveDisplayForm.cs" />
+    <Compile Include="Source\WaveDisplayForm.Designer.cs">
+      <DependentUpon>WaveDisplayForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UADSSLChannel.cs" />
-    <Compile Include="WavesPreset.cs" />
-    <Compile Include="WavesSSLChannel.cs" />
-    <Compile Include="WavesSSLChannelToUADSSLChannelAdapter.cs" />
-    <Compile Include="WavesSSLComp.cs" />
+    <Compile Include="Source\WavesPreset.cs" />
+    <Compile Include="Source\WavesSSLChannel.cs" />
+    <Compile Include="Source\WavesSSLChannelToUADSSLChannelAdapter.cs" />
+    <Compile Include="Source\WavesSSLComp.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Audio\AnalyseForm.resx">
+    <EmbeddedResource Include="..\..\CommonUtils\Library\Source\GUI\FrequencyAnalyserUserControl.resx">
+      <Link>FrequencyAnalyserUserControl.resx</Link>
+      <DependentUpon>FrequencyAnalyserUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\CommonUtils\Library\Source\GUI\WaveDisplayUserControl.resx">
+      <Link>WaveDisplayUserControl.resx</Link>
+      <DependentUpon>WaveDisplayUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Source\AnalyseForm.resx">
       <DependentUpon>AnalyseForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Audio\WaveDisplayForm.resx">
-      <DependentUpon>WaveDisplayForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="EditorFrame.resx">
+    <EmbeddedResource Include="Source\EditorFrame.resx">
       <DependentUpon>EditorFrame.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="InvestigatedPluginPresetDetailsForm.resx">
+    <EmbeddedResource Include="Source\InvestigatedPluginPresetDetailsForm.resx">
       <DependentUpon>InvestigatedPluginPresetDetailsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
+    <EmbeddedResource Include="Source\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="PluginForm.resx">
+    <EmbeddedResource Include="Source\PluginForm.resx">
       <DependentUpon>PluginForm.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Source\WaveDisplayForm.resx">
+      <DependentUpon>WaveDisplayForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="UADSSLChannelParametersMap.xml">
+    <None Include="Source\UADSSLChannelParametersMap.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Audio" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\CommonUtils\Library\CommonUtils.csproj">
-      <Project>{F783796B-2189-4A3E-AE6E-3E50F68FEE5C}</Project>
-      <Name>CommonUtils</Name>
-    </ProjectReference>
+    <Folder Include="Linked" />
+    <Folder Include="Source" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>

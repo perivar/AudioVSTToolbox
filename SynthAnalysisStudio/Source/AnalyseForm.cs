@@ -218,7 +218,8 @@ namespace SynthAnalysisStudio
 			// step through the filter steps
 			for (float paramFilterAValue = 1.0f; paramFilterAValue >= 0.0f; paramFilterAValue -= 0.020f) {
 				for (float paramFilterCtlValue = 1.0f; paramFilterCtlValue >= 0.0f; paramFilterCtlValue -= 0.020f) {
-					stopwatch.Restart();
+					stopwatch.Stop();
+					stopwatch.Start();
 
 					Console.Out.WriteLine("AutoMeasureFreq: Measuring {0} at value {1:0.00} and {2} at value {3:0.00} ...", "filterACutoff", paramFilterAValue, "filterCtlCutoff", paramFilterCtlValue);
 

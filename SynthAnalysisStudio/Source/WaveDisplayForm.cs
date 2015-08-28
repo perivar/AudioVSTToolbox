@@ -117,15 +117,6 @@ namespace SynthAnalysisStudio
 			VstHost host = VstHost.Instance;
 			host.Record = false;
 			
-			MaxResolutionTrackBar.Maximum = (int) this.waveDisplayUserControl1.MaxResolution;
-			MaxResolutionTrackBar.TickFrequency = MaxResolutionTrackBar.Maximum / 10;
-			MaxResolutionTrackBar.Value = (int) this.waveDisplayUserControl1.MaxResolution;
-			
-			StartPositionTrackBar.Maximum = (int) this.waveDisplayUserControl1.NumberOfSamples;
-			StartPositionTrackBar.TickFrequency = StartPositionTrackBar.Maximum / 10;
-			StartPositionTrackBar.Value = 0;
-			
-			this.waveDisplayUserControl1.Resolution = (int) this.waveDisplayUserControl1.MaxResolution;
 			this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
 		}
 		
@@ -134,19 +125,9 @@ namespace SynthAnalysisStudio
 			ClearAudio();
 		}
 		
-		void MaxResolutionTrackBarScroll(object sender, EventArgs e)
-		{
-			this.waveDisplayUserControl1.Resolution = MaxResolutionTrackBar.Value;
-		}
-		
 		void AmplitudeTrackBarScroll(object sender, EventArgs e)
 		{
 			this.waveDisplayUserControl1.Amplitude = AmplitudeTrackBar.Value;
-		}
-		
-		void StartPositionTrackBarScroll(object sender, EventArgs e)
-		{
-			this.waveDisplayUserControl1.StartPosition = StartPositionTrackBar.Value;
 		}
 		
 		void CropBtnClick(object sender, EventArgs e)
@@ -164,9 +145,9 @@ namespace SynthAnalysisStudio
 			if (Playback == null) {
 				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
 				// tblock = 0.15 makes blocksize = 6615.
-				int sampleRate = 44100;
+				const int sampleRate = 44100;
 				int blockSize = (int) (sampleRate * 0.15f); //6615;
-				int channels = 2;
+				const int channels = 2;
 				host.Init(blockSize, sampleRate, channels);
 				
 				Playback = new VstPlaybackNAudio(host);
@@ -316,10 +297,6 @@ namespace SynthAnalysisStudio
 			VstHost host = VstHost.Instance;
 			host.ClearRecording();
 			
-			MaxResolutionTrackBar.Maximum = 100;
-			MaxResolutionTrackBar.TickFrequency = 10;
-
-			this.waveDisplayUserControl1.Resolution = 1;
 			this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
 		}
 		
@@ -332,15 +309,6 @@ namespace SynthAnalysisStudio
 			host.RecordedLeft.Clear();
 			host.RecordedLeft.AddRange(data);
 			
-			MaxResolutionTrackBar.Maximum = (int) this.waveDisplayUserControl1.MaxResolution;
-			MaxResolutionTrackBar.TickFrequency = MaxResolutionTrackBar.Maximum / 10;
-			MaxResolutionTrackBar.Value = (int) this.waveDisplayUserControl1.MaxResolution;
-			
-			StartPositionTrackBar.Maximum = (int) this.waveDisplayUserControl1.NumberOfSamples;
-			StartPositionTrackBar.TickFrequency = StartPositionTrackBar.Maximum / 10;
-			StartPositionTrackBar.Value = 0;
-			
-			this.waveDisplayUserControl1.Resolution = (int) this.waveDisplayUserControl1.MaxResolution;
 			this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
 		}
 		
@@ -565,7 +533,8 @@ namespace SynthAnalysisStudio
 			}
 			
 			// wait until it has stopped playing
-			stopwatch.Restart();
+			stopwatch.Stop();
+			stopwatch.Start();
 			while (host.LastProcessedBufferLeftPlaying) {
 				if (stopwatch.ElapsedMilliseconds > 40000) {
 					stopwatch.Stop();
@@ -598,7 +567,7 @@ namespace SynthAnalysisStudio
 			AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
 			
 			// store as a png
-			System.Drawing.Bitmap png = AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
+			System.Drawing.Bitmap png = AudioAnalyzer.DrawWaveformMono(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 1, host.SampleRate);
 			string fileName = String.Format("{0}{1:0.00}s-{2}.png", envName, param, StringUtils.GetCurrentTimestamp());
 			png.Save(fileName);
 			
@@ -836,7 +805,7 @@ namespace SynthAnalysisStudio
 				AudioUtilsNAudio.CreateWaveFile(host.RecordedLeft.ToArray(), wavFilePath, new WaveFormat(host.SampleRate, 1));
 				
 				// store as a png
-				System.Drawing.Bitmap png = AudioAnalyzer.DrawWaveform(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 10000, 1, 0, host.SampleRate);
+				System.Drawing.Bitmap png = AudioAnalyzer.DrawWaveformMono(host.RecordedLeft.ToArray(), new System.Drawing.Size(1000, 600), 1, host.SampleRate);
 				string fileName = String.Format("audio-LFO-{0}-{1}.png", StringUtils.MakeValidFileName(paramDisplay), StringUtils.GetCurrentTimestamp());
 				png.Save(fileName);
 				
@@ -859,7 +828,7 @@ namespace SynthAnalysisStudio
 				
 				// update while recording
 				if (host.Record) {
-					this.waveDisplayUserControl1.Resolution = (int) this.waveDisplayUserControl1.MaxResolution;
+					//this.waveDisplayUserControl1.Resolution = (int) this.waveDisplayUserControl1.MaxResolution;
 				}
 				this.waveDisplayUserControl1.SetAudioData(host.RecordedLeft.ToArray());
 			}

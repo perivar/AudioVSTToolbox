@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel; // for BindingList
@@ -332,7 +333,7 @@ namespace SynthAnalysisStudio
 			string label = PluginContext.PluginCommandStub.GetParameterLabel(index);
 			string display = PluginContext.PluginCommandStub.GetParameterDisplay(index);
 			if ("".Equals(display)) display = "" + value;
-			System.Diagnostics.Debug.WriteLine("SetParameterAutomated. Name: {0}, Label: {1}, Value: {2}", name, label, display);
+			Debug.WriteLine(string.Format("SetParameterAutomated. Name: {0}, Label: {1}, Value: {2}", name, label, display));
 			
 			if (DoInvestigatePluginPresetFileFormat) {
 				// read in the preset chunk and
@@ -342,7 +343,7 @@ namespace SynthAnalysisStudio
 				// if we are tracking a specific number of bytes from the chunk, store those
 				if (DoTrackPluginPresetFileFormat) {
 					if (TrackPluginPresetFilePosition > -1 && TrackPluginPresetFileNumberOfBytes > 0) {
-						byte[] trackedChunkData = new byte[TrackPluginPresetFileNumberOfBytes];
+						var trackedChunkData = new byte[TrackPluginPresetFileNumberOfBytes];
 						Array.Copy(chunkData, TrackPluginPresetFilePosition, trackedChunkData, 0, TrackPluginPresetFileNumberOfBytes);
 						TrackPluginPresetFileBytes = trackedChunkData;
 					}
@@ -384,7 +385,7 @@ namespace SynthAnalysisStudio
 						if (InvestigatePluginPresetFileFormatDiffType == DiffType.Binary) {
 							SimpleBinaryDiff.Diff diff = SimpleBinaryDiff.GetDiff(previousChunkData, chunkData);
 							if (diff != null) {
-								System.Diagnostics.Debug.WriteLine("BinDiff: {0}", diff);
+								Debug.WriteLine(string.Format("BinDiff: {0}", diff));
 								
 								// store each of the chunk differences in a list
 								foreach (SimpleBinaryDiff.DiffPoint point in diff.Points) {

@@ -299,7 +299,7 @@ namespace SynthAnalysisStudio
 					byte midiVelocity = 100;
 					byte midiNote = KeyEventArgToMidiNote(e);
 					
-					Debug.WriteLine("Key Down Event Detected: {0}, {1}, {2}", e.KeyCode, midiNote, midiVelocity);
+					Debug.WriteLine(string.Format("Key Down Event Detected: {0}, {1}, {2}", e.KeyCode, midiNote, midiVelocity));
 					
 					// only bother with the keys that trigger midi notes
 					if (midiNote != 0) {
@@ -346,7 +346,7 @@ namespace SynthAnalysisStudio
 				byte midiVelocity = 0;
 				byte midiNote = KeyEventArgToMidiNote(e);
 				
-				Debug.WriteLine("Key Up Event Detected: {0}, {1}, {2}", e.KeyCode, midiNote, midiVelocity);
+				Debug.WriteLine(string.Format("Key Up Event Detected: {0}, {1}, {2}", e.KeyCode, midiNote, midiVelocity));
 				
 				// only bother with the keys that trigger midi notes
 				if (midiNote != 0) {
@@ -583,7 +583,7 @@ namespace SynthAnalysisStudio
 					if (InvestigatePluginPresetFileFormatDiffType == DiffType.Binary) {
 						SimpleBinaryDiff.Diff diff = SimpleBinaryDiff.GetDiff(previousChunkData, chunkData);
 						if (diff != null) {
-							System.Diagnostics.Debug.WriteLine("BinDiff: {0}", diff);
+							Debug.WriteLine(string.Format("BinDiff: {0}", diff));
 							
 							// store each of the chunk differences in a list
 							foreach (SimpleBinaryDiff.DiffPoint point in diff.Points) {

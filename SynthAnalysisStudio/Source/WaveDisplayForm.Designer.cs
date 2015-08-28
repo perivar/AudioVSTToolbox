@@ -37,7 +37,6 @@ namespace SynthAnalysisStudio
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			this.MaxResolutionTrackBar = new System.Windows.Forms.TrackBar();
 			this.waveDisplayUserControl1 = new CommonUtils.GUI.WaveDisplayUserControl();
 			this.label2 = new System.Windows.Forms.Label();
 			this.OnOffCheckbox = new System.Windows.Forms.CheckBox();
@@ -45,7 +44,6 @@ namespace SynthAnalysisStudio
 			this.stopBtn = new System.Windows.Forms.Button();
 			this.clearBtn = new System.Windows.Forms.Button();
 			this.AmplitudeTrackBar = new System.Windows.Forms.TrackBar();
-			this.StartPositionTrackBar = new System.Windows.Forms.TrackBar();
 			this.CropBtn = new System.Windows.Forms.Button();
 			this.MidiNoteCheckbox = new System.Windows.Forms.CheckBox();
 			this.SaveWAVBtn = new System.Windows.Forms.Button();
@@ -60,36 +58,19 @@ namespace SynthAnalysisStudio
 			this.measureModABtn = new System.Windows.Forms.Button();
 			this.label5 = new System.Windows.Forms.Label();
 			this.label4 = new System.Windows.Forms.Label();
-			((System.ComponentModel.ISupportInitialize)(this.MaxResolutionTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.AmplitudeTrackBar)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.StartPositionTrackBar)).BeginInit();
 			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
-			// 
-			// MaxResolutionTrackBar
-			// 
-			this.MaxResolutionTrackBar.LargeChange = 10;
-			this.MaxResolutionTrackBar.Location = new System.Drawing.Point(688, 63);
-			this.MaxResolutionTrackBar.Margin = new System.Windows.Forms.Padding(0);
-			this.MaxResolutionTrackBar.Maximum = 1000;
-			this.MaxResolutionTrackBar.Minimum = 1;
-			this.MaxResolutionTrackBar.Name = "MaxResolutionTrackBar";
-			this.MaxResolutionTrackBar.RightToLeft = System.Windows.Forms.RightToLeft.No;
-			this.MaxResolutionTrackBar.Size = new System.Drawing.Size(70, 45);
-			this.MaxResolutionTrackBar.TabIndex = 5;
-			this.MaxResolutionTrackBar.TickFrequency = 100;
-			this.MaxResolutionTrackBar.Value = 1;
-			this.MaxResolutionTrackBar.Scroll += new System.EventHandler(this.MaxResolutionTrackBarScroll);
 			// 
 			// waveDisplayUserControl1
 			// 
 			this.waveDisplayUserControl1.Amplitude = 1;
 			this.waveDisplayUserControl1.Location = new System.Drawing.Point(51, 87);
 			this.waveDisplayUserControl1.Name = "waveDisplayUserControl1";
-			this.waveDisplayUserControl1.Resolution = 1;
 			this.waveDisplayUserControl1.SampleRate = 44100D;
 			this.waveDisplayUserControl1.Size = new System.Drawing.Size(620, 278);
-			this.waveDisplayUserControl1.StartPosition = 0;
+			this.waveDisplayUserControl1.StartZoomPosition = 0;
+			this.waveDisplayUserControl1.EndZoomPosition = 0;
 			this.waveDisplayUserControl1.TabIndex = 6;
 			// 
 			// label2
@@ -98,7 +79,7 @@ namespace SynthAnalysisStudio
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(60, 16);
 			this.label2.TabIndex = 7;
-			this.label2.Text = "Resolution";
+			this.label2.Text = "Position";
 			// 
 			// OnOffCheckbox
 			// 
@@ -155,20 +136,6 @@ namespace SynthAnalysisStudio
 			this.AmplitudeTrackBar.TabIndex = 12;
 			this.AmplitudeTrackBar.Value = 1;
 			this.AmplitudeTrackBar.Scroll += new System.EventHandler(this.AmplitudeTrackBarScroll);
-			// 
-			// StartPositionTrackBar
-			// 
-			this.StartPositionTrackBar.LargeChange = 4410;
-			this.StartPositionTrackBar.Location = new System.Drawing.Point(688, 113);
-			this.StartPositionTrackBar.Margin = new System.Windows.Forms.Padding(0);
-			this.StartPositionTrackBar.Maximum = 441000;
-			this.StartPositionTrackBar.Name = "StartPositionTrackBar";
-			this.StartPositionTrackBar.RightToLeft = System.Windows.Forms.RightToLeft.No;
-			this.StartPositionTrackBar.Size = new System.Drawing.Size(70, 45);
-			this.StartPositionTrackBar.SmallChange = 441;
-			this.StartPositionTrackBar.TabIndex = 13;
-			this.StartPositionTrackBar.TickFrequency = 44100;
-			this.StartPositionTrackBar.Scroll += new System.EventHandler(this.StartPositionTrackBarScroll);
 			// 
 			// CropBtn
 			// 
@@ -318,7 +285,6 @@ namespace SynthAnalysisStudio
 			this.Controls.Add(this.SaveWAVBtn);
 			this.Controls.Add(this.MidiNoteCheckbox);
 			this.Controls.Add(this.CropBtn);
-			this.Controls.Add(this.StartPositionTrackBar);
 			this.Controls.Add(this.AmplitudeTrackBar);
 			this.Controls.Add(this.clearBtn);
 			this.Controls.Add(this.stopBtn);
@@ -326,15 +292,13 @@ namespace SynthAnalysisStudio
 			this.Controls.Add(this.OnOffCheckbox);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.waveDisplayUserControl1);
-			this.Controls.Add(this.MaxResolutionTrackBar);
 			this.Name = "WaveDisplayForm";
 			this.Text = "Waveform - Analysis";
-			((System.ComponentModel.ISupportInitialize)(this.MaxResolutionTrackBar)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.AmplitudeTrackBar)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.StartPositionTrackBar)).EndInit();
 			this.groupBox1.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
 		}
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.Label label5;
@@ -350,8 +314,6 @@ namespace SynthAnalysisStudio
 		private System.Windows.Forms.Button SaveWAVBtn;
 		private System.Windows.Forms.CheckBox MidiNoteCheckbox;
 		private System.Windows.Forms.Button CropBtn;
-		private System.Windows.Forms.TrackBar MaxResolutionTrackBar;
-		private System.Windows.Forms.TrackBar StartPositionTrackBar;
 		private System.Windows.Forms.TrackBar AmplitudeTrackBar;
 		private System.Windows.Forms.Button clearBtn;
 		private System.Windows.Forms.Button stopBtn;

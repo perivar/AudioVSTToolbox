@@ -112,30 +112,13 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="groupBox1.GenerateMember" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="groupBox2.GenerateMember" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="btnChooseWavefile.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADr8AAA6/ATgFUyQAAAF5SURBVDhPY2AYFODtFov/fy5zYOBfxzn/E+XAJ7P0/99c
-        aoAX31ih+x+Gry/Q/f9wURDC8ItV8v8f7in//+xIHRg/PNoIxnePtMLx7SNd/yG49/+1fV3/L9UoQAx4
-        t8Pm/9/H2f//PS9HwX9fVP1Hwc+K//9FwiD1IL0Mb3d5/v/3ZQsCf90IYb/uhRvw71UtWPM/kBwMA9WA
-        9DK82p0PdgGGjddk/v99oofAt5QhLoC5DKgHpBfsjT/ngLFw0w8F/9rC9f/XYcn/P7cK/v99XA1Mw9Vc
-        9/r/+4QGIhB/7ZQACyBjsEaYGNCAXxvFwQaBDAVjoAXwKP62iBtsAwpeyIPgr5P5/32GCIo8SA/cgDeT
-        xf//WC0CwQuV/v9YYQnWAOJ/ny/2/8ca2/8/5usg1ADFQXrgBryeYfP/+0JxsKZvExXBGKQRLAakv00S
-        hvBhYkB1ID1wA+6uqPj/rVMAFQM1gcVw0PdWlmMm8yltVf+JwUTlD2IVAQASfAUUTuMS/QAAAABJRU5E
-        rkJggg==
-</value>
+  <data name="timer1.TrayLocation" type="System.Drawing.Point, System.Drawing">
+    <value>17, 17</value>
   </data>
 </root>
