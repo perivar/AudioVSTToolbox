@@ -38,10 +38,6 @@ namespace NAudio_Visualizing
 					{
 						TagLib.Tag tag = engine.FileTag.Tag;
 					}
-					else
-					{
-						//albumArtPanel.AlbumArtImage = null;
-					}
 					break;
 				case "ChannelPosition":
 					txtTime.Text = TimeSpan.FromSeconds(engine.ChannelPosition).ToString();
@@ -56,7 +52,6 @@ namespace NAudio_Visualizing
 		
 		void BtnBrowseClick(object sender, EventArgs e)
 		{
-			//openFileDialog.Filter = "(*.mp3)|*.mp3|(*.wav)|*.wav";
 			openFileDialog.Filter = "Audio Files(*.wav;*.mp3)|*.wav;*.mp3|All files (*.*)|*.*";
 			if (openFileDialog.ShowDialog() == DialogResult.OK)
 			{
@@ -67,20 +62,23 @@ namespace NAudio_Visualizing
 		
 		void BtnPlayClick(object sender, EventArgs e)
 		{
-			if (NAudioEngine.Instance.CanPlay)
+			if (NAudioEngine.Instance.CanPlay) {
 				NAudioEngine.Instance.Play();
+			}
 		}
 		
 		void BtnPauseClick(object sender, EventArgs e)
 		{
-			if (NAudioEngine.Instance.CanPause)
+			if (NAudioEngine.Instance.CanPause) {
 				NAudioEngine.Instance.Pause();
+			}
 		}
 		
 		void BtnStopClick(object sender, EventArgs e)
 		{
-			if (NAudioEngine.Instance.CanStop)
+			if (NAudioEngine.Instance.CanStop) {
 				NAudioEngine.Instance.Stop();
+			}
 			
 			NAudioEngine.Instance.ChannelPosition = 0;
 			NAudioEngine.Instance.SelectionBegin = TimeSpan.FromMilliseconds(0);

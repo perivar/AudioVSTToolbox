@@ -38,7 +38,8 @@ namespace NAudio_Visualizing
 		/// <summary>
 		/// Add a sample value to the aggregator.
 		/// </summary>
-		/// <param name="value">The value of the sample.</param>
+		/// <param name="leftValue">The value of the left sample</param>
+		/// <param name="rightValue">The value of the right sample</param>
 		public void Add(float leftValue, float rightValue)
 		{
 			if (channelDataPosition == 0)
@@ -82,7 +83,7 @@ namespace NAudio_Visualizing
 		/// <param name="fftBuffer">A buffer where the FFT data will be stored.</param>
 		public void GetFFTResults(float[] fftBuffer)
 		{
-			Complex[] channelDataClone = new Complex[bufferSize];
+			var channelDataClone = new Complex[bufferSize];
 			channelData.CopyTo(channelDataClone, 0);
 			
 			doWindow(channelDataClone);

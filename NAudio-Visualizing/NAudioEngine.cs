@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Threading;
+using System.IO;
 
 using NAudio.Wave;
 
@@ -74,7 +75,7 @@ namespace NAudio_Visualizing
 		#region Constructor
 		private NAudioEngine()
 		{
-			positionTimer.Interval = 50; //TimeSpan.FromMilliseconds(50);
+			positionTimer.Interval = 50;
 			positionTimer.Tick += positionTimer_Tick;
 
 			waveformGenerateWorker.DoWork += waveformGenerateWorker_DoWork;
@@ -251,7 +252,7 @@ namespace NAudio_Visualizing
 
 		private void waveformGenerateWorker_DoWork(object sender, DoWorkEventArgs e)
 		{
-			WaveformGenerationParams waveformParams = e.Argument as WaveformGenerationParams;
+			var waveformParams = e.Argument as WaveformGenerationParams;
 
 			/*
 			float[] audio = CommonUtils.Audio.NAudio.AudioUtilsNAudio.ReadMonoFromFile(waveformParams.Path, 44100, 0, 0);
@@ -263,18 +264,17 @@ namespace NAudio_Visualizing
 			 */
 			
 			ISampleProvider sampleProvider = new AudioFileReader(waveformParams.Path);
-			WaveStream fileWaveStream = (WaveStream) sampleProvider;
-			WaveChannel32 waveformInputStream = new WaveChannel32(fileWaveStream);
+			var fileWaveStream = (WaveStream) sampleProvider;
+			var waveformInputStream = new WaveChannel32(fileWaveStream);
 			waveformInputStream.PadWithZeroes = false;
 			waveformInputStream.Sample += waveStream_Sample;
 			
 			int frameLength = fftDataSize;
 			int frameCount = (int)((double)waveformInputStream.Length / (double)frameLength);
 			int waveformLength = frameCount * 2;
-			float[] samples = new float[frameLength];
-			List<float> floatList = new List<float>();
-			while(sampleProvider.Read(samples, 0, samples.Length) > 0)
-			{
+			var samples = new float[frameLength];
+			var floatList = new List<float>();
+			while(sampleProvider.Read(samples, 0, samples.Length) > 0) {
 				if (waveformInputStream.WaveFormat.Channels == 1) {
 					floatList.AddRange(samples);
 				} else if (waveformInputStream.WaveFormat.Channels == 2) {
@@ -305,8 +305,7 @@ namespace NAudio_Visualizing
 					}
 				}
 
-				if (waveformGenerateWorker.CancellationPending)
-				{
+				if (waveformGenerateWorker.CancellationPending) {
 					e.Cancel = true;
 					break;
 				}
@@ -326,19 +325,16 @@ namespace NAudio_Visualizing
 		#region Private Utility Methods
 		private void StopAndCloseStream()
 		{
-			if (waveOutDevice != null)
-			{
+			if (waveOutDevice != null) {
 				waveOutDevice.Stop();
 			}
-			if (activeStream != null)
-			{
+			if (activeStream != null) {
 				activeStream.Close();
 				activeStream = null;
 				//inputStream.Close();
 				//inputStream = null;
 			}
-			if (waveOutDevice != null)
-			{
+			if (waveOutDevice != null) {
 				waveOutDevice.Dispose();
 				waveOutDevice = null;
 			}
@@ -348,8 +344,7 @@ namespace NAudio_Visualizing
 		#region Public Methods
 		public void Stop()
 		{
-			if (waveOutDevice != null)
-			{
+			if (waveOutDevice != null) {
 				waveOutDevice.Stop();
 			}
 			IsPlaying = false;
@@ -360,8 +355,7 @@ namespace NAudio_Visualizing
 
 		public void Pause()
 		{
-			if (IsPlaying && CanPause)
-			{
+			if (IsPlaying && CanPause) {
 				waveOutDevice.Pause();
 				IsPlaying = false;
 				CanPlay = true;
@@ -371,8 +365,7 @@ namespace NAudio_Visualizing
 
 		public void Play()
 		{
-			if (CanPlay)
-			{
+			if (CanPlay) {
 				waveOutDevice.Play();
 				IsPlaying = true;
 				CanPause = true;
@@ -385,8 +378,7 @@ namespace NAudio_Visualizing
 		{
 			Stop();
 
-			if (ActiveStream != null)
-			{
+			if (ActiveStream != null) {
 				SelectionBegin = TimeSpan.Zero;
 				SelectionEnd = TimeSpan.Zero;
 				ChannelPosition = 0;
@@ -394,10 +386,8 @@ namespace NAudio_Visualizing
 			
 			StopAndCloseStream();
 
-			if (System.IO.File.Exists(path))
-			{
-				try
-				{
+			if (File.Exists(path)) {
+				try {
 					waveOutDevice = new WaveOut()
 					{
 						DesiredLatency = 100
@@ -493,17 +483,18 @@ namespace NAudio_Visualizing
 				if (oldValue != isPlaying)
 					NotifyPropertyChanged("IsPlaying");
 				
-				//positionTimer.IsEnabled = value;
 				positionTimer.Enabled = value;
 			}
 		}
 		
 		public int SampleRate {
 			get {
-				if (ActiveStream != null)
+				if (ActiveStream != null) {
 					return ActiveStream.WaveFormat.SampleRate;
-				else
-					return 44100; // Assume a default 44.1 kHz sample rate.
+				} else {
+					// Assume a default 44.1 kHz sample rate.
+					return 44100;
+				}
 			}
 		}
 		
@@ -529,8 +520,7 @@ namespace NAudio_Visualizing
 			sampleAggregator.Add(e.Left, e.Right);
 			long repeatStartPosition = (long)((SelectionBegin.TotalSeconds / ActiveStream.TotalTime.TotalSeconds) * ActiveStream.Length);
 			long repeatStopPosition = (long)((SelectionEnd.TotalSeconds / ActiveStream.TotalTime.TotalSeconds) * ActiveStream.Length);
-			if (((SelectionEnd - SelectionBegin) >= TimeSpan.FromMilliseconds(repeatThreshold)) && ActiveStream.Position >= repeatStopPosition)
-			{
+			if (((SelectionEnd - SelectionBegin) >= TimeSpan.FromMilliseconds(repeatThreshold)) && ActiveStream.Position >= repeatStopPosition) {
 				sampleAggregator.Clear();
 				ActiveStream.Position = repeatStartPosition;
 			}
