@@ -18,7 +18,7 @@
     <NoStdLib>False</NoStdLib>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <StartArguments>-in="C:\Users\perivar.nerseth\SkyDrive\Audio\Presets\Lennardigital Sylenth Presets\Class.A.Samples.Top.100.DJs.Sylenth.Presets.WAV.Sylenth1.Presets\Top 100 DJs Sylenth Presets.fxb" -out="C:\Program Files (x86)\VstPlugins\SkyDrive\Synth\Zebra\Zebra2.data\Presets\Zebra2\10 Converted" -debug -text</StartArguments>
+    <StartArguments>-in="C:\Users\perivar.nerseth\OneDrive\Audio\Presets\Lennardigital Sylenth Presets\Class.A.Samples.Top.100.DJs.Sylenth.Presets.WAV.Sylenth1.Presets\Top 100 DJs Sylenth Presets.fxb" -out="C:\Users\perivar.nerseth\OneDrive\Audio\VstPlugins (x86)\Synth\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets TEMP" -debug -text</StartArguments>
     <RunCodeAnalysis>False</RunCodeAnalysis>
     <RunSourceAnalysis>False</RunSourceAnalysis>
     <NoWin32Manifest>False</NoWin32Manifest>
@@ -73,6 +73,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(MSBuildProjectDirectory)\_SharedResources\*.*" "$(MSBuildProjectDirectory)\$(OutputPath)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(MSBuildProjectDirectory)\Resources\*.*" "$(MSBuildProjectDirectory)\$(OutputPath)"</PostBuildEvent>
   </PropertyGroup>
 </Project>
