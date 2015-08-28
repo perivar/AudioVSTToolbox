@@ -697,7 +697,7 @@ namespace ARSS
 				Console.Write("Samplecount : {0:D}\nChannels : {1:D}\n", samplecount, channels);
 				#endif
 				
-				/*
+				
 				SettingsInput(ref Ysize, ref samplecount, ref samplerate, ref basefreq, ref maxfreq, ref pixpersec, ref bpo, ref Xsize, Mode.Analysis); // User settings input
 				
 				image = DSP.Analyze(ref sound[0], ref samplecount, ref samplerate, ref Xsize, ref Ysize, ref bpo, ref pixpersec, ref basefreq); // Analysis
@@ -706,7 +706,9 @@ namespace ARSS
 				}
 				
 				ImageIO.BMPWrite(fout, image, Ysize, Xsize); // Image output
-				 */
+				
+				
+				/*
 				var audio2Midi = new CommonUtils.MathLib.FFT.Audio2Midi();
 				
 				string fileNameSine = @"C:\Users\perivar.nerseth\Documents\My Projects\CommonUtils\Library\Tests\Passacaglia, Handel-Sine-86bmp.wav";
@@ -715,8 +717,8 @@ namespace ARSS
 				
 				//string fileName = @"C:\\Users\\perivar.nerseth\\Documents\\Processing\\spectrotune\\music\\piano.wav";
 				
-				int frames = audio2Midi.OpenAudioFile(fileNameSine);								
-				
+				int frames = audio2Midi.OpenAudioFile(fileNameSine);
+				 */
 				/*
 				// Testing using the Spectrogram methods to synthesize and resynthesize
 				var spectrogram = new ArssSpectrogram.Spectrogram();
