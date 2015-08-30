@@ -135,24 +135,31 @@ namespace SynthAnalysisStudio
 			CropAudio();
 		}
 		
+		void InitPlayback() {
+
+			// if first keypress setup audio
+			if (Playback == null) {
+				VstHost host = VstHost.Instance;
+
+				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
+				// tblock = 0.15 makes blocksize = 6615.
+				const int sampleRate = 44100;
+				const int blockSize = 6615;
+				const int channels = 2;
+				host.Init(blockSize, sampleRate, channels);
+				
+				Playback = new VstPlaybackNAudio(host);
+			}
+		}
+		
 		void MidiNoteCheckboxCheckedChanged(object sender, EventArgs e)
 		{
 			VstHost host = VstHost.Instance;
 			host.PluginContext = this.PluginContext;
 			host.doPluginOpen();
 			
-			// if first keypress setup audio
-			if (Playback == null) {
-				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
-				// tblock = 0.15 makes blocksize = 6615.
-				const int sampleRate = 44100;
-				int blockSize = (int) (sampleRate * 0.15f); //6615;
-				const int channels = 2;
-				host.Init(blockSize, sampleRate, channels);
-				
-				Playback = new VstPlaybackNAudio(host);
-				Playback.Play();
-			}
+			InitPlayback();
+			Playback.Play();
 			
 			var check = (CheckBox) sender;
 			if(check.Checked)
@@ -183,18 +190,8 @@ namespace SynthAnalysisStudio
 			host.PluginContext = this.PluginContext;
 			host.doPluginOpen();
 			
-			// if first keypress setup audio
-			if (Playback == null) {
-				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
-				// tblock = 0.15 makes blocksize = 6615.
-				int sampleRate = 44100;
-				int blockSize = (int) (sampleRate * 0.15f); //6615;
-				int channels = 2;
-				host.Init(blockSize, sampleRate, channels);
-				
-				Playback = new VstPlaybackNAudio(host);
-				Playback.Play();
-			}
+			InitPlayback();
+			Playback.Play();
 			
 			// time how long this took
 			Stopwatch stopwatch = Stopwatch.StartNew();
@@ -235,7 +232,7 @@ namespace SynthAnalysisStudio
 			string durationInMilliseconds = String.Format("{0:0.00}", durationMilliseconds);
 			
 			// store this in a xml ouput file.
-			string xmlFilePath = "ADSR-measurement.xml";
+			const string xmlFilePath = "ADSR-measurement.xml";
 			if (File.Exists(xmlFilePath)) {
 				// add to existing xml document
 				XDocument xmlDoc = XDocument.Load(xmlFilePath);
@@ -313,17 +310,7 @@ namespace SynthAnalysisStudio
 		}
 		
 		private void SetupAudio(VstHost host) {
-			// if first keypress setup audio
-			if (Playback == null) {
-				// with iblock=1...Nblocks and blocksize = Fs * tblock. Fs = 44100 and
-				// tblock = 0.15 makes blocksize = 6615.
-				int sampleRate = 44100;
-				int blockSize = (int) (sampleRate * 0.15f); //6615;
-				int channels = 2;
-				host.Init(blockSize, sampleRate, channels);
-				
-				Playback = new VstPlaybackNAudio(host);
-			}
+			InitPlayback();
 		}
 		
 
