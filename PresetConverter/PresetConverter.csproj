@@ -17,11 +17,12 @@
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <StartArguments>-in="C:\Users\perivar.nerseth\OneDrive\Audio\Presets\Lennardigital Sylenth Presets\Class.A.Samples.Top.100.DJs.Sylenth.Presets.WAV.Sylenth1.Presets\Top 100 DJs Sylenth Presets.fxb" -out="C:\Users\perivar.nerseth\OneDrive\Audio\VstPlugins (x86)\Synth\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets TEMP" -debug -text</StartArguments>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <StartArguments>-in="G:\SkyDrive\Audio\Presets\Lennardigital Sylenth Presets\Class.A.Samples.Top.100.DJs.Sylenth.Presets.WAV.Sylenth1.Presets\Top 100 DJs Sylenth Presets.fxb" -out="G:\SkyDrive\Audio\VstPlugins (x86)\Synth\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets TEMP" -debug -text</StartArguments>
     <RunCodeAnalysis>False</RunCodeAnalysis>
     <RunSourceAnalysis>False</RunSourceAnalysis>
     <NoWin32Manifest>False</NoWin32Manifest>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -38,6 +39,7 @@
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <StartAction>Project</StartAction>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -46,6 +48,7 @@
     <Optimize>True</Optimize>
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
     <DefineConstants>TRACE</DefineConstants>
+    <StartAction>Project</StartAction>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommonUtils">

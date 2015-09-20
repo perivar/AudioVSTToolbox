@@ -52,6 +52,20 @@ namespace PresetConverter
 			Wedge = 3
 		}
 
+		public enum DistortionType : int {
+			TubeClassA = 0,
+			TubeClassAB = 1,
+			Tube2Stage = 2,
+			HardClip = 3,
+			Rectify = 4,
+			Foldback = 5
+		}
+		
+		public enum DistortionPostFilter : int {
+			DualBandShelf = 0,
+			GuitarCab4x1 = 1
+		}
+
 		public enum ModFXType : int {
 			Chorus = 0,
 			Phorus = 1,
@@ -683,6 +697,9 @@ namespace PresetConverter
 		public int PCore_PagesOn = 0;                // Display PAGES (PagesOn=0)
 		public int PCore_CoreN = 3;                  // binary data for CoreN (CoreN=3)
 		public int PCore_Slice = 4;                  // binary data for Slice (Slice=4)
+		public int PCore_UI_op = 1;					 // GUI opens
+		public int PCore_MidiA = 5;					 // binary data for Midi A param
+		public int PCore_MidiP = 6;					 // binary data for Midi P param
 
 		// Section: LFOG (#cm=LFOG)
 		public int LFOG_Sync = 4;                    // Sync (Sync=4)
@@ -1659,6 +1676,28 @@ namespace PresetConverter
 		public int SB2_MMSrc = 0;                    // MModSource (MMSrc=0)
 		public float SB2_MMDpt = 00.00f;             // MModDepth (MMDpt=0.00)
 
+		// Section: Distortion (#cm=Dist1)
+		public int Dist1_Type = 0;					 // Type=Tube Class A, Tube Class AB, Tube 2 Stages, Hard Clip, Rectify, Foldback
+		public float Dist1_Input = 0.00f;			 // Input
+		public float Dist1_Output = 0.00f;			 // Output
+		public float Dist1_PreTilt = 0.00f;			 // Pre Tilt
+		public float Dist1_PstTilt = 0.00f;			 // Post Tilt
+		public float Dist1_CntFreq = 100.00f;		 // Center Freq
+		public float Dist1_Low = 0.00f;				 // Low
+		public float Dist1_High = 18.00f;			 // High
+		public int Dist1_PostFlt=0;					 // Post Filter=Dual-Band Shelf, Guitar Cab 4x12
+		
+		// Section: Distortion (#cm=Dist2)
+		public int Dist2_Type = 0;					 // Type=Tube Class A, Tube Class AB, Tube 2 Stages, Hard Clip, Rectify, Foldback
+		public float Dist2_Input = 0.00f;			 // Input
+		public float Dist2_Output = 0.00f;			 // Output
+		public float Dist2_PreTilt = 0.00f;			 // Pre Tilt
+		public float Dist2_PstTilt = 0.00f;			 // Post Tilt
+		public float Dist2_CntFreq = 100.00f;		 // Center Freq
+		public float Dist2_Low = 0.00f;				 // Low
+		public float Dist2_High = 18.00f;			 // High
+		public int Dist2_PostFlt=0;					 // Post Filter=Dual-Band Shelf, Guitar Cab 4x12
+		
 		// Section: VCA1 (#cm=VCA1)
 		public float VCA1_Pan1 = 00.00f;             // Pan1 (Pan1=0.00)
 		public int VCA1_PanMS1 = 0;                  // Pan Mod Src1 (PanMS1=0)
@@ -1948,6 +1987,28 @@ namespace PresetConverter
 		public int XMF3_Rout = 0;                    // Routing (Rout=0)
 		public int XMF3_Typ2 = -1;                   // Type2 (Typ2=-1)
 
+		// Section: Distortion (#cm=Dist3)
+		public int Dist3_Type = 0;					 // Type=Tube Class A, Tube Class AB, Tube 2 Stages, Hard Clip, Rectify, Foldback
+		public float Dist3_Input = 0.00f;			 // Input
+		public float Dist3_Output = 0.00f;			 // Output
+		public float Dist3_PreTilt = 0.00f;			 // Pre Tilt
+		public float Dist3_PstTilt = 0.00f;			 // Post Tilt
+		public float Dist3_CntFreq = 100.00f;		 // Center Freq
+		public float Dist3_Low = 0.00f;				 // Low
+		public float Dist3_High = 18.00f;			 // High
+		public int Dist3_PostFlt=0;					 // Post Filter=Dual-Band Shelf, Guitar Cab 4x12
+		
+		// Section: Distortion (#cm=Dist4)
+		public int Dist4_Type = 0;					 // Type=Tube Class A, Tube Class AB, Tube 2 Stages, Hard Clip, Rectify, Foldback
+		public float Dist4_Input = 0.00f;			 // Input
+		public float Dist4_Output = 0.00f;			 // Output
+		public float Dist4_PreTilt = 0.00f;			 // Pre Tilt
+		public float Dist4_PstTilt = 0.00f;			 // Post Tilt
+		public float Dist4_CntFreq = 100.00f;		 // Center Freq
+		public float Dist4_Low = 0.00f;				 // Low
+		public float Dist4_High = 18.00f;			 // High
+		public int Dist4_PostFlt=0;					 // Post Filter=Dual-Band Shelf, Guitar Cab 4x12
+		
 		// Section: ZMas (#cm=ZMas)
 		public float ZMas_Ret1 = 100.00f;            // Return1 (Ret1=100.00)
 		public float ZMas_Ret2 = 00.00f;             // Return2 (Ret2=0.00)
@@ -4137,7 +4198,29 @@ namespace PresetConverter
 			buffer.Append(String.Format("Drv={0}", XMF3_Drv).PadRight(20)).AppendLine("// Driver");
 			buffer.Append(String.Format("Rout={0}", XMF3_Rout).PadRight(20)).AppendLine("// Routing");
 			buffer.Append(String.Format("Typ2={0}", XMF3_Typ2).PadRight(20)).AppendLine("// Type2");
-
+			
+			buffer.AppendLine("\n#cm=Dist3");
+			buffer.Append(String.Format("Type={0}", Dist3_Type).PadRight(20)).AppendLine("// Type");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Input={0:0.00}", Dist3_Input).PadRight(20)).AppendLine("// Input");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Output={0:0.00}", Dist3_Output).PadRight(20)).AppendLine("// Output");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "PreTilt={0:0.00}", Dist3_PreTilt).PadRight(20)).AppendLine("// Pre Tilt");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "PstTilt={0:0.00}", Dist3_PostFlt).PadRight(20)).AppendLine("// Post Tilt");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "CntFreq={0:0.00}", Dist3_CntFreq).PadRight(20)).AppendLine("// Center Freq");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Low={0:0.00}", Dist3_Low).PadRight(20)).AppendLine("// Low");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "High={0:0.00}", Dist3_High).PadRight(20)).AppendLine("// High");
+			buffer.Append(String.Format("PostFlt={0}", Dist3_PostFlt).PadRight(20)).AppendLine("// Post Filter");
+			
+			buffer.AppendLine("\n#cm=Dist4");
+			buffer.Append(String.Format("Type={0}", Dist4_Type).PadRight(20)).AppendLine("// Type");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Input={0:0.00}", Dist4_Input).PadRight(20)).AppendLine("// Input");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Output={0:0.00}", Dist4_Output).PadRight(20)).AppendLine("// Output");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "PreTilt={0:0.00}", Dist4_PreTilt).PadRight(20)).AppendLine("// Pre Tilt");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "PstTilt={0:0.00}", Dist4_PostFlt).PadRight(20)).AppendLine("// Post Tilt");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "CntFreq={0:0.00}", Dist4_CntFreq).PadRight(20)).AppendLine("// Center Freq");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Low={0:0.00}", Dist4_Low).PadRight(20)).AppendLine("// Low");
+			buffer.Append(String.Format(CultureInfo.InvariantCulture, "High={0:0.00}", Dist4_High).PadRight(20)).AppendLine("// High");
+			buffer.Append(String.Format("PostFlt={0}", Dist4_PostFlt).PadRight(20)).AppendLine("// Post Filter");
+			
 			buffer.AppendLine("\n#cm=ZMas");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Ret1={0:0.00}", ZMas_Ret1).PadRight(20)).AppendLine("// Return1");
 			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Ret2={0:0.00}", ZMas_Ret2).PadRight(20)).AppendLine("// Return2");

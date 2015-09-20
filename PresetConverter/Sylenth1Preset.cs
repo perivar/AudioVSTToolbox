@@ -2625,6 +2625,7 @@ namespace PresetConverter
 			return MathUtils.ConvertAndMainainRatio(sylenthDisplayValue, displaySylenthMin, displaySylenthMax, zebraMin, zebraMax);
 		}
 
+		// TODO: modulation depth for pitch gets wrong when using a LFO that has too much amp
 		private static float ConvertSylenthModDepthPitchValueToZebra(float storedSylenthValue) {
 			// Pitch depth table:
 			// Sylenth Display Value	Sylenth Stored Value	Zebra Value
@@ -3165,9 +3166,9 @@ namespace PresetConverter
 						if (filterCtlWarmDrive == ONOFF.On) {
 							// LP Xcite: 24dB lowpass, with a frequency-dependent exciter as Drive, adding high frequencies.
 							//zebraFilter = Zebra2Preset.FilterType.LP_Xcite;
-							//zebraFilter = Zebra2Preset.FilterType.LP_TN6SVF;
+							zebraFilter = Zebra2Preset.FilterType.LP_TN6SVF;
 							//zebraFilter = Zebra2Preset.FilterType.LP_Allround;
-							zebraFilter = Zebra2Preset.FilterType.LP_OldDrive;
+							//zebraFilter = Zebra2Preset.FilterType.LP_OldDrive;
 						} else {
 							// LP Vintage:  CPU-friendly analogue-modeled transistor ladder with 24dB rolloff. Sounds nice and old
 							// LP Vintage2: More CPU-intensive version of LP Vintage, capable of self-oscillation.
@@ -3487,10 +3488,10 @@ namespace PresetConverter
 				List<ZebraModulationPair> modPairs = new List<ZebraModulationPair>();
 
 				// Filters have real range is -150 to 150)
-				// TODO: Filter min and max are probably not good?
-				// I think these should be exponential rather than linear?!
-				float cutOffMin = -150; // -120
-				float cutOffMax = 150;  // 120
+				// Increase the Cutoff modulation depth values slightly (20% seem to work better)
+				//float CutoffModDepthValue = (float) (ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150) * 1.20);
+				float CutoffModDepthValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
+				
 				switch (sylenthModDestination) {
 					case YMODDEST.None:
 						// should never get here
@@ -3727,7 +3728,7 @@ namespace PresetConverter
 							zebraModDepthFieldName = "VCF1_FM2";
 						}
 						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, cutOffMin, cutOffMax);
+						zebraModDepthFieldValue = CutoffModDepthValue;
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -3740,7 +3741,7 @@ namespace PresetConverter
 							zebraModDepthFieldName = "VCF2_FM2";
 						}
 						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, cutOffMin, cutOffMax);
+						zebraModDepthFieldValue = CutoffModDepthValue;
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -3753,7 +3754,7 @@ namespace PresetConverter
 							zebraModDepthFieldName = "VCF1_FM2";
 						}
 						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, cutOffMin, cutOffMax);
+						zebraModDepthFieldValue = CutoffModDepthValue;
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 
 						zebraModSourceFieldName = "VCF2_FS1";
@@ -3764,7 +3765,7 @@ namespace PresetConverter
 							zebraModDepthFieldName = "VCF2_FM2";
 						}
 						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, cutOffMin, cutOffMax);
+						zebraModDepthFieldValue = CutoffModDepthValue;
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
 						
 						break;
@@ -3897,12 +3898,15 @@ namespace PresetConverter
 					case YMODDEST.DistAmnt:
 						// DMSrc = D_ModSrc=none
 						// DMDpt = D_ModDepth
+						
+						// V2: Changed from using Shape3 to Dist3 and Dist3 doesn't have Modulation sources directly, have to use the matrix
+						/*
 						zebraModSourceFieldName = "Shape3_DMSrc";
 						zebraModSourceFieldValue = (int) zebraModSource;
 						zebraModDepthFieldName = "Shape3_DMDpt";
 						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
 						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
+						*/
 						break;
 				}
 
@@ -4140,7 +4144,8 @@ namespace PresetConverter
 						zebraNumberOfSlotsUsed = 1;
 						break;
 					case YMODDEST.DistAmnt:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "Shape3:Depth", zebraUsedModMatrixSlots);
+						// V2: Changed from using Shape3 to Dist3 and Dist3 doesn't have Modulation sources directly, have to use the matrix
+						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "Dist3:Depth", zebraUsedModMatrixSlots);
 						zebraNumberOfSlotsUsed = 1;
 						break;
 				}
@@ -4244,7 +4249,7 @@ namespace PresetConverter
 				zebraUsedModSources.Clear(); // reset the list that keeps track of the used mod sources for a preset
 				convertCounter++;
 				
-				//if (convertCounter == 200) break;
+				if (convertCounter == 100) break;
 				
 				// Skip if the Preset Name is Init
 				if (!doProcessInitPresets && (Content.PresetName == "Init" || Content.PresetName == "Default")) { //  || !Content.PresetName.StartsWith("SEQ Afrodiseq"
@@ -4620,6 +4625,7 @@ namespace PresetConverter
 					}
 					#endregion
 					
+					/*
 					#region Distortion = Shaper 3
 					if (Content.XSwDistOnOff == ONOFF.On) {
 						// get how hard to distort
@@ -4664,7 +4670,73 @@ namespace PresetConverter
 						zebra2Preset.Shape3_HiOut = 00.00f;          // HiOut (HiOut=0.00)
 					}
 					#endregion
+					 */
 
+					#region Distortion = Distortion 3
+					if (Content.XSwDistOnOff == ONOFF.On) {
+						// get how hard to distort
+						float distortionAmount = ConvertSylenthValueToZebra(Content.DistortAmount, 0, 10, -12, 48);
+						
+						// regulate using the dry / wet percentage
+						float distortDryWet = ConvertSylenthValueToZebra(Content.DistortDryWet, 0, 10, 0, 100);
+						
+						zebra2Preset.Dist3_Input = distortionAmount * distortDryWet / 100;
+						zebra2Preset.Dist3_Output = 5;
+						
+						zebra2Preset.Dist3_PreTilt = 0.00f;			// Pre Tilt
+						zebra2Preset.Dist3_PstTilt = 0.00f;			// Post Tilt
+						zebra2Preset.Dist3_CntFreq = 100.00f;		// Center Freq
+						zebra2Preset.Dist3_Low = 0.00f;				// Low
+						zebra2Preset.Dist3_High = 18.00f;			// High
+						zebra2Preset.Dist3_PostFlt = (int) Zebra2Preset.DistortionPostFilter.DualBandShelf;	// Post Filter=Dual-Band Shelf
+						
+						switch(Content.DistortType) {
+							case DISTORTTYPE.OverDrv:
+								zebra2Preset.Dist3_Type = (int) Zebra2Preset.DistortionType.TubeClassAB;
+								
+								// increase output when using overdrive
+								zebra2Preset.Dist3_Output = 10;
+								break;
+							case DISTORTTYPE.Clip:
+								zebra2Preset.Dist3_Type = (int) Zebra2Preset.DistortionType.HardClip;
+								break;
+							case DISTORTTYPE.Decimate:
+								zebra2Preset.Dist3_Type = (int) Zebra2Preset.DistortionType.Rectify;
+								
+								// increase output when using decimate
+								zebra2Preset.Dist3_Output = 20;
+								
+								// and reduce highs
+								zebra2Preset.Dist3_High = 0.00f;
+								break;
+							case DISTORTTYPE.BitCrush:
+								zebra2Preset.Dist3_Type = (int)Zebra2Preset.DistortionType.Rectify;
+								
+								// increase output when using bitcrush
+								zebra2Preset.Dist3_Output = 20;
+								
+								// and reduce highs
+								zebra2Preset.Dist3_High = 0.00f;
+								break;
+							case DISTORTTYPE.FoldBack:
+								zebra2Preset.Dist3_Type = (int) Zebra2Preset.DistortionType.Foldback;
+								break;
+						}
+					} else {
+						// set everything to zero?
+						zebra2Preset.Shape3_Type = (int) Zebra2Preset.DistortionType.TubeClassA; // Type (Type=0)
+						zebra2Preset.Dist3_Input = 0;
+						zebra2Preset.Dist3_Output = 0;
+						
+						zebra2Preset.Dist3_PreTilt = 0.00f;			// Pre Tilt
+						zebra2Preset.Dist3_PstTilt = 0.00f;			// Post Tilt
+						zebra2Preset.Dist3_CntFreq = 100.00f;		// Center Freq
+						zebra2Preset.Dist3_Low = 0.00f;				// Low
+						zebra2Preset.Dist3_High = 0.00f;			// High
+						zebra2Preset.Dist3_PostFlt = (int) Zebra2Preset.DistortionPostFilter.DualBandShelf;	// Post Filter=Dual-Band Shelf
+					}
+					#endregion
+					
 					#region Phaser
 					if (Content.XSwPhaserOnOff == ONOFF.On) {
 						// Mode Phaser: classic phaser unit
