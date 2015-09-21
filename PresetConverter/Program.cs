@@ -14,7 +14,7 @@ namespace PresetConverter
 		// define the log file
 		static FileInfo outputStatusLog = new FileInfo("preset_converter_log.txt");
 		
-		static string _version = "1.3";
+		const string _version = "1.3.1";
 		
 		public static void Main(string[] args)
 		{
@@ -25,12 +25,13 @@ namespace PresetConverter
 			bool doProcessInitPresets = false;
 			bool doOutputSylenthPresetTextDump = false;
 			bool doDebug = false;
+			int skipAfterCounter = -1;
 			
 			// Command line parsing
 			string presetInputFileOrDirectory = "";
 			string presetOutputFileDirectoryPath = "";
 			
-			Arguments CommandLine = new Arguments(args);
+			var CommandLine = new Arguments(args);
 			if(CommandLine["in"] != null) {
 				presetInputFileOrDirectory = CommandLine["in"];
 			}
@@ -42,6 +43,12 @@ namespace PresetConverter
 			}
 			if(CommandLine["text"] != null) {
 				doOutputSylenthPresetTextDump = true;
+			}
+			if(CommandLine["skipafter"] != null) {
+				int skipafterResult = -1;
+				if (int.TryParse(CommandLine["skipafter"], out skipafterResult)) {
+					skipAfterCounter = skipafterResult;
+				}
 			}
 			if(CommandLine["debug"] != null) {
 				doDebug = true;
@@ -65,19 +72,19 @@ namespace PresetConverter
 			}
 			
 			// define default sylenth template for Zebra2
-			string zebra2_Sylenth1_PresetTemplate = @"Zebra2-Default Sylenth1 Template.h2p";
+			const string zebra2_Sylenth1_PresetTemplate = @"Zebra2-Default Sylenth1 Template.h2p";
 			
 			IEnumerable<FileInfo> presetFiles;
 			if (processDirectory) {
 				// process directory
-				DirectoryInfo sylenthPresetDir = new DirectoryInfo(sylenthPresetDirString);
+				var sylenthPresetDir = new DirectoryInfo(sylenthPresetDirString);
 				presetFiles = sylenthPresetDir.GetFilesByExtensions(".fxb", ".fxp");
 				
 				Console.WriteLine("Processing {0} files in directory: '{1}' ...", presetFiles.Count(), sylenthPresetDir.Name);
 				IOUtils.LogMessageToFile(outputStatusLog, String.Format("Processing {0} files in directory: '{1}' ...", presetFiles.Count(), sylenthPresetDir.Name));
 			} else {
 				// process single preset
-				FileInfo sylenthPresetFile = new FileInfo(sylenthPreset);
+				var sylenthPresetFile = new FileInfo(sylenthPreset);
 				presetFiles = new FileInfo[] { sylenthPresetFile };
 
 				Console.WriteLine("Processing preset file '{0}' ...", sylenthPresetFile.Name);
@@ -86,8 +93,8 @@ namespace PresetConverter
 			
 			foreach (FileInfo presetFile in presetFiles) {
 				// read preset file
-				Sylenth1Preset sylenth1 = new Sylenth1Preset();
-				if (doDebug) sylenth1.logLevel = Sylenth1Preset.LogLevel.Debug;
+				var sylenth1 = new Sylenth1Preset();
+				if (doDebug) Logger.logLevel = Logger.LogLevel.Debug;
 				
 				if (sylenth1.Read(presetFile.FullName)) {
 					
@@ -111,7 +118,8 @@ namespace PresetConverter
 					}
 					
 					// and convert to zebra 2
-					List<Zebra2Preset> zebra2ConvertedList = sylenth1.ToZebra2Preset(zebra2_Sylenth1_PresetTemplate, doProcessInitPresets);
+					var zebraAdapter = new Sylenth1ToZebra2PresetAdapter(sylenth1);
+					List<Zebra2Preset> zebra2ConvertedList = zebraAdapter.ToZebra2Preset(zebra2_Sylenth1_PresetTemplate, doProcessInitPresets, skipAfterCounter);
 					int count = 1;
 					foreach (Zebra2Preset zebra2Converted in zebra2ConvertedList) {
 						string presetName = StringUtils.MakeValidFileName(zebra2Converted.PresetName);
@@ -125,7 +133,7 @@ namespace PresetConverter
 		
 		public static void PrintUsage() {
 			Console.WriteLine("Preset Converter. Version {0}.", _version);
-			Console.WriteLine("Copyright (C) 2010-2013 Per Ivar Nerseth.");
+			Console.WriteLine("Copyright (C) 2010-2015 Per Ivar Nerseth.");
 			Console.WriteLine("NOTE! This version only supports Sylenth1 to Zebra2 preset conversion");
 			Console.WriteLine();
 			Console.WriteLine("Usage: PresetConverter.exe <Arguments>");
@@ -137,6 +145,7 @@ namespace PresetConverter
 			Console.WriteLine("Optional Arguments:");
 			Console.WriteLine("\t-init <Do process presets with name 'init'. Default = disabled>");
 			Console.WriteLine("\t-text <Dump the Sylenth1 Presets to text files. Default = disabled>");
+			Console.WriteLine("\t-skipafter=number <skip presets after this item. Default = include all>");
 			Console.WriteLine("\t-debug <Output debug information to the log file>");
 			Console.WriteLine();
 		}

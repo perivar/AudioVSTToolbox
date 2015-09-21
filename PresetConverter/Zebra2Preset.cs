@@ -11,16 +11,10 @@ using CommonUtils.Audio;
 namespace PresetConverter
 {
 	/// <summary>
-	/// Description of Zebra2Preset.
+	/// U-he Zebra2 Preset format
 	/// </summary>
 	public class Zebra2Preset : Preset
 	{
-		// define the log file
-		static FileInfo outputStatusLog = new FileInfo("preset_converter_log.txt");
-
-		// define the error log file
-		static FileInfo outputErrorLog = new FileInfo("preset_converter_error_log.txt");
-		
 		private int bankIndex;
 		public int BankIndex {
 			get {
@@ -4306,16 +4300,14 @@ namespace PresetConverter
 			
 			if (float.IsNaN(timeInMs) || float.IsInfinity(timeInMs)) {
 				Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0:0.##} ms.)", timeInMs);
-				//IOUtils.LogMessageToFile(outputStatusLog, String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0:0.##} ms.)", timeInMs));
-				Sylenth1Preset.DoError(String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0:0.##} ms.)", timeInMs));
+				Logger.DoError(String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support non number LFO values! (Value: {0:0.##} ms.)", timeInMs));
 				lfoValue = 0;
 				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
 				return;
 			}
 			if (timeInMs < 12.5) {
 				Console.Out.WriteLine("MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0:0.##} ms.)", timeInMs);
-				//IOUtils.LogMessageToFile(outputStatusLog, String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0:0.##} ms.)", timeInMs));
-				Sylenth1Preset.DoError(String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0:0.##} ms.)", timeInMs));
+				Logger.DoError(String.Format("Warning! MillisecondsToLFOSyncAndValue failed. Zebra2 does not support LFO values lower than 12.5 ms! (Value: {0:0.##} ms.)", timeInMs));
 				lfoValue = 200;
 				lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
 				return;
@@ -4626,7 +4618,7 @@ namespace PresetConverter
 								field.SetValue(this, val);
 							} catch (Exception) {
 								Console.Out.WriteLine("Warning! Could not find field {0} and store {1} {2}!", fieldName, valueType, val);
-								IOUtils.LogMessageToFile(outputStatusLog, String.Format("Warning! Could not find field {0} and store {1} {2}!", fieldName, valueType, val));
+								Logger.DoDebug(String.Format("Warning! Could not find field {0} and store {1} {2}!", fieldName, valueType, val));
 							}
 						}
 					}
@@ -4662,7 +4654,7 @@ namespace PresetConverter
 			tw.Close();
 			
 			Console.Out.WriteLine("Finished writing preset file: {0} ...", filePath);
-			IOUtils.LogMessageToFile(outputStatusLog, String.Format("Finished writing preset file: {0} ...", filePath));
+			Logger.DoDebug(String.Format("Finished writing preset file: {0} ...", filePath));
 			return true;
 		}
 		#endregion

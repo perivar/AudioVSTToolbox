@@ -4,32 +4,17 @@ using System.IO;
 using System.Collections.Generic;
 
 using CommonUtils;
-using CommonUtils.Audio;
 
 namespace PresetConverter
 {
 	/// <summary>
-	/// Description of Sylenth1Preset.
+	/// Lennart Digital Sylenth 1 Preset format
 	/// </summary>
 	public class Sylenth1Preset : Preset
 	{
-		public enum LogLevel {
-			Debug,
-			Normal
-		}
-		
-		// define the log file
-		static FileInfo outputStatusLog = new FileInfo("preset_converter_log.txt");
-
-		// define the error log file
-		static FileInfo outputErrorLog = new FileInfo("preset_converter_error_log.txt");
-		
 		// define whether we should try to fix a sylenth preset file that has non exact enums?
-		static bool DO_TRY_FIX_INCONSISTENT_ENUMS = true;
-		
-		// define the log level
-		public LogLevel logLevel = LogLevel.Normal;
-		
+		const bool DO_TRY_FIX_INCONSISTENT_ENUMS = true;
+
 		#region Sylenth1 Enums
 		public enum FloatToHz {
 			DelayLowCut,
@@ -41,56 +26,198 @@ namespace PresetConverter
 		}
 		
 		public enum ARPMODE : uint {
-			Up         = 0x00000000,
-			Chord      = 0x3F800000,
-			Down       = 0x3DE38E39,
-			Up_Down    = 0x3E638E39,
-			Up_Down2   = 0x3EAAAAAB,
-			Down_Up    = 0x3EE38E39,
-			Down_Up2   = 0x3F0E38E4,
-			Random     = 0x3F2AAAAB,
-			Ordered    = 0x3F471C72,
-			Step       = 0x3F638E39
+			Up         = 0x00000000,	// 0.000000
+			Down       = 0x3DE38E39,	// 0.111111
+			Up_Down    = 0x3E638E39,	// 0.222222
+			Up_Down2   = 0x3EAAAAAB,	// 0.333333
+			Down_Up    = 0x3EE38E39,	// 0.444444
+			Down_Up2   = 0x3F0E38E4,	// 0.555556
+			Random     = 0x3F2AAAAB,	// 0.666667
+			Ordered    = 0x3F471C72,	// 0.777778
+			Step       = 0x3F638E39,	// 0.888889
+			Chord      = 0x3F800000		// 1.000000
 		}
 
 		public enum ARPVELO : uint {
-			VEL_Hold       = 0x3E800000,
-			VEL_Key        = 0x00000000,
-			VEL_Step       = 0x3F000000,
-			VEL_StepHold   = 0x3F800000,
-			VEL_StepKey    = 0x3F400000
+			VEL_Key        = 0x00000000,	// 0.000000
+			VEL_Hold       = 0x3E800000,	// 0.250000
+			VEL_Step       = 0x3F000000,	// 0.500000
+			VEL_StepKey    = 0x3F400000,	// 0.750000
+			VEL_StepHold   = 0x3F800000		// 1.000000
 		}
 		
 		public enum ARPOCTAVE : uint {
-			OCTAVE_1 = 0x00000000,
-			OCTAVE_2 = 0x3EAAAAAB,
-			OCTAVE_3 = 0x3F2AAAAB,
-			OCTAVE_4 = 0x3F800000
+			OCTAVE_1 = 0x00000000,  // 0.000000
+			OCTAVE_2 = 0x3EAAAAAB,  // 0.333333
+			OCTAVE_3 = 0x3F2AAAAB,  // 0.666667
+			OCTAVE_4 = 0x3F800000	// 1.000000
 		}
 		
 		public enum ARPWRAP : uint {
-			WRAP_0 = 0x00000000,
-			WRAP_1 = 0x3D800000,
-			WRAP_2 = 0x3E000000,
-			WRAP_3 = 0x3E400000,
-			WRAP_4 = 0x3E800000,
-			WRAP_5 = 0x3EA00000,
-			WRAP_6 = 0x3EC00000,
-			WRAP_7 = 0x3EE00000,
-			WRAP_8 = 0x3F000000,
-			WRAP_9 = 0x3F100000,
-			WRAP_10 = 0x3F200000,
-			WRAP_11 = 0x3F300000,
-			WRAP_12 = 0x3F400000,
-			WRAP_13 = 0x3F500000,
-			WRAP_14 = 0x3F600000,
-			WRAP_15 = 0x3F700000,
-			WRAP_16 = 0x3F800000
+			WRAP_0 = 0x00000000,	// 0.000000
+			WRAP_1 = 0x3D800000,	// 0.062500
+			WRAP_2 = 0x3E000000,	// 0.125000
+			WRAP_3 = 0x3E400000,	// 0.187500
+			WRAP_4 = 0x3E800000,	// 0.250000
+			WRAP_5 = 0x3EA00000,	// 0.312500
+			WRAP_6 = 0x3EC00000,	// 0.375000
+			WRAP_7 = 0x3EE00000,	// 0.437500
+			WRAP_8 = 0x3F000000,	// 0.500000
+			WRAP_9 = 0x3F100000,	// 0.562500
+			WRAP_10 = 0x3F200000,	// 0.625000
+			WRAP_11 = 0x3F300000,	// 0.687500
+			WRAP_12 = 0x3F400000,	// 0.750000
+			WRAP_13 = 0x3F500000,	// 0.812500
+			WRAP_14 = 0x3F600000,	// 0.875000
+			WRAP_15 = 0x3F700000,	// 0.937500
+			WRAP_16 = 0x3F800000	// 1.000000
 		}
 
 		public enum CHORUSMODE : uint {
-			Dual    = 0x3F800000,
-			Single  = 0x00000000
+			Single  = 0x00000000,	// 0.000000
+			//Dual = 0x3F000000, 	// 0.5 sometimes this value is stored to mean dual
+			Dual    = 0x3F800000	// 1.000000
+		}
+
+		public enum DISTORTTYPE : uint {
+			OverDrv = 0x00000000,  // 0.000000
+			BitCrush= 0x3F800000,  // 1.000000
+			Clip    = 0x3F000000,  // 0.500000
+			Decimate= 0x3F400000,  // 0.750000
+			FoldBack= 0x3E800000
+		}
+
+		public enum FILTERAINPUT : uint {
+			FILTER_A     = 0x00000000,  // 0.000000
+			FILTER_A_B   = 0x3F000000,  // 0.500000
+			FILTER_None  = 0x3F800000	// 1.000000
+		}
+
+		public enum FILTERBINPUT : uint {
+			FILTER_B     = 0x00000000,  // 0.000000
+			FILTER_B_A   = 0x3F000000,  // 0.500000
+			FILTER_None  = 0x3F800000	// 1.000000
+		}
+		
+		public enum FILTERTYPE : uint {
+			Bypass  = 0x00000000,	// 0.000000
+			Lowpass = 0x3EAAAAAB,	// 0.333333
+			Bandpass= 0x3F2AAAAB,	// 0.666667
+			Highpass= 0x3F800000,	// 1.000000
+		}
+		
+		public enum FILTERDB : uint {
+			DB24  = 0x00000000,	// 0.000000
+			DB12  = 0x3F800000	// 1.000000
+		}
+
+		public enum LFOWAVE : uint {
+			LFO_Sine      = 0x00000000,	// 0.000000
+			LFO_Saw       = 0x3DCCCCCD,	// 0.100000
+			LFO_Ramp      = 0x3E4CCCCD,	// 0.200000
+			LFO_Triangle  = 0x3E99999A,	// 0.300000
+			LFO_Pulse     = 0x3ECCCCCD,	// 0.400000
+			LFO_HPulse    = 0x3F000000,	// 0.500000
+			LFO_QPulse    = 0x3F19999A,	// 0.600000
+			LFO_TriSaw    = 0x3F333333,	// 0.700000
+			LFO_Lorenz    = 0x3F4CCCCD,	// 0.800000
+			LFO_SmpHold   = 0x3F666666,	// 0.900000
+			LFO_Random    = 0x3F800000	// 1.000000
+		}
+
+		public enum OSCWAVE : uint {
+			OSC_Sine     = 0x00000000,	// 0.000000
+			OSC_Saw      = 0x3E124925,	// 0.142857
+			OSC_Triangle = 0x3E924925,	// 0.285714
+			OSC_Pulse    = 0x3EDB6DB7,	// 0.428571
+			OSC_QPulse   = 0x3F36DB6E,	// 0.714286
+			OSC_HPulse   = 0x3F124925,	// 0.571429
+			OSC_TriSaw   = 0x3F5B6DB7,	// 0.857143
+			OSC_Noise    = 0x3F800000	// 1.000000
+		}
+
+		public enum PORTAMODE : uint {
+			Slide    = 0x00000000,  // 0.000000
+			Normal   = 0x3F800000	// 1.000000
+		}
+
+		public enum ONOFF : uint {
+			Off = 0x00000000,	// 0.000000
+			On  = 0x3F800000	// 1.000000
+		}
+
+		public enum XMODSOURCE : uint {
+			SOURCE_None     = 0x00000000,	// 0.000000
+			SOURCE_Velocity = 0x3DBA2E8C,	// 0.090909
+			SOURCE_ModWheel = 0x3E3A2E8C,	// 0.181818
+			SOURCE_KeyTrack = 0x3E8BA2E9,	// 0.272727
+			SOURCE_AmpEnv_A = 0x3EBA2E8C,	// 0.363636
+			SOURCE_AmpEnv_B = 0x3EE8BA2F,	// 0.454545
+			SOURCE_ModEnv_1 = 0x3F0BA2E9,	// 0.545455
+			SOURCE_ModEnv_2 = 0x3F22E8BA,	// 0.636364
+			SOURCE_LFO_1    = 0x3F3A2E8C,	// 0.727273
+			SOURCE_LFO_2    = 0x3F51745D,	// 0.818182
+			SOURCE_Aftertch = 0x3F68BA2F,	// 0.909091
+			SOURCE_StepVlty = 0x3F800000,	// 1.000000
+		}
+
+		public enum YMODDEST : uint {
+			None        = 0x00000000,  // 0.000000
+
+			// Oscillators
+			Volume_A    = 0x3D000000,	// 0.031250
+			Volume_B    = 0x3D800000,	// 0.062500
+			VolumeAB    = 0x3DC00000,	// 0.093750
+			Pitch_A     = 0x3E000000,	// 0.125000
+			Pitch_B     = 0x3E200000,	// 0.156250
+			Pitch_AB    = 0x3E400000,  	// 0.187500
+			Phase_A     = 0x3E600000,	// 0.218750
+			Phase_B     = 0x3E800000,  	// 0.250000
+			Phase_AB    = 0x3E900000,	// 0.281250
+			Pan_A       = 0x3EA00000,  	// 0.312500
+			Pan_B       = 0x3EB00000,	// 0.343750
+			Pan_AB      = 0x3EC00000,  	// 0.375000
+
+			// Filters
+			Cutoff_A    = 0x3ED00000,	// 0.406250
+			Cutoff_B    = 0x3EE00000,	// 0.437500
+			CutoffAB    = 0x3EF00000,	// 0.468750
+			Reso_A      = 0x3F000000,	// 0.500000
+			Reso_B      = 0x3F080000,	// 0.531250
+			Reso_AB     = 0x3F100000,	// 0.562500
+
+			// Misc
+			PhsrFreq    = 0x3F180000,	// 0.593750
+			Mix_A       = 0x3F200000,	// 0.625000
+			Mix_B       = 0x3F280000,	// 0.656250
+			Mix_AB      = 0x3F300000,	// 0.687500
+			LFO1Rate    = 0x3F380000,	// 0.718750
+			LFO1Gain    = 0x3F400000,	// 0.750000
+			LFO2Rate    = 0x3F480000,	// 0.781250
+			LFO2Gain    = 0x3F500000,	// 0.812500
+			DistAmnt    = 0x3F580000	// 0.843750
+		}
+
+		public enum YPARTSELECT : uint {
+			Part_A = 0x00000000,	// 0.000000
+			Part_B = 0x3F800000		// 1.000000
+		}
+
+		public enum ZEQMODE : uint {
+			MODE_1_Pole = 0x00000000,	// 0.000000
+			MODE_2_Pole = 0x3F800000	// 1.000000
+		}
+		
+		public enum VOICES : uint {
+			VOICES_0       = 0x00000000,	// 0.000000
+			VOICES_1       = 0x3E000000,	// 0.125000
+			VOICES_2       = 0x3E800000,	// 0.250000
+			VOICES_3       = 0x3EC00000,	// 0.375000
+			VOICES_4       = 0x3F000000,	// 0.500000
+			VOICES_5       = 0x3F200000,	// 0.625000
+			VOICES_6       = 0x3F400000,	// 0.750000
+			VOICES_7       = 0x3F600000,	// 0.875000
+			VOICES_8       = 0x3F800000		// 1.000000
 		}
 
 		public enum COMPRATIO : int {
@@ -286,149 +413,7 @@ namespace PresetConverter
 			RATIO_67_96_TO_ONE,
 			RATIO_100_TO_ONE
 		}
-
-		public enum DISTORTTYPE : uint {
-			OverDrv = 0x00000000,
-			BitCrush= 0x3F800000,
-			Clip    = 0x3F000000,
-			Decimate= 0x3F400000,
-			FoldBack= 0x3E800000
-		}
-
-		public enum FILTERAINPUT : uint {
-			FILTER_A     = 0x00000000,
-			FILTER_A_B   = 0x3F000000,
-			FILTER_None  = 0x3F800000
-		}
-
-		public enum FILTERBINPUT : uint {
-			FILTER_B     = 0x00000000,
-			FILTER_B_A   = 0x3F000000,
-			FILTER_None  = 0x3F800000
-		}
 		
-		public enum FILTERTYPE : uint {
-			Highpass= 0x3F800000,
-			Bandpass= 0x3F2AAAAB,
-			Lowpass = 0x3EAAAAAB,
-			Bypass  = 0x00000000
-		}
-		
-		public enum FILTERDB : uint {
-			DB12  = 0x3F800000,
-			DB24  = 0x00000000
-		}
-
-		public enum LFOWAVE : uint {
-			LFO_HPulse    = 0x3F000000,
-			LFO_Lorenz    = 0x3F4CCCCD,
-			LFO_Pulse     = 0x3ECCCCCD,
-			LFO_QPulse    = 0x3F19999A,
-			LFO_Ramp      = 0x3E4CCCCD,
-			LFO_Ramp2     = 0xCCCD3E4C,
-			LFO_Random    = 0x3F800000,
-			LFO_Saw       = 0x3DCCCCCD,
-			LFO_Sine      = 0x00000000,
-			LFO_SmpHold   = 0x3F666666,
-			LFO_Triangle  = 0x3E99999A,
-			LFO_TriSaw    = 0x3F333333
-		}
-
-		public enum OSCWAVE : uint {
-			OSC_HPulse   = 0x3F124925,
-			OSC_Noise    = 0x3F800000,
-			OSC_Pulse    = 0x3EDB6DB7,
-			OSC_QPulse   = 0x3F36DB6E,
-			OSC_Saw      = 0x3E124925,
-			OSC_Sine     = 0x00000000,
-			OSC_Triangle = 0x3E924925,
-			OSC_TriSaw   = 0x3F5B6DB7
-		}
-
-		public enum PORTAMODE : uint {
-			Normal   = 0x3F800000,
-			Slide    = 0x00000000
-		}
-
-		public enum ONOFF : uint {
-			Off = 0x00000000,
-			On  = 0x3F800000
-		}
-
-		public enum XMODSOURCE : uint {
-			SOURCE_None     = 0x00000000,
-			SOURCE_Velocity = 0x3DBA2E8C,
-			SOURCE_ModWheel = 0x3E3A2E8C,
-			SOURCE_KeyTrack = 0x3E8BA2E9,
-			SOURCE_AmpEnv_A = 0x3EBA2E8C,
-			SOURCE_AmpEnv_B = 0x3EE8BA2F,
-			SOURCE_ModEnv_1 = 0x3F0BA2E9,
-			SOURCE_ModEnv_2 = 0x3F22E8BA,
-			SOURCE_LFO_1    = 0x3F3A2E8C,
-			SOURCE_LFO_2    = 0x3F51745D,
-			SOURCE_Aftertch = 0x3F68BA2F,
-			SOURCE_StepVlty = 0x3F800000,
-		}
-
-		public enum YMODDEST : uint {
-			None        = 0x00000000,
-
-			// Oscillators
-			Volume_A    = 0x3D000000,
-			Volume_B    = 0x3D800000,
-			VolumeAB    = 0x3DC00000,
-			Pitch_A     = 0x3E000000,
-			Pitch_B     = 0x3E200000,
-			Pitch_AB    = 0x3E400000,
-			Phase_A     = 0x3E600000,
-			Phase_B     = 0x3E800000,
-			Phase_AB    = 0x3E900000,
-			Pan_A       = 0x3EA00000,
-			Pan_B       = 0x3EB00000,
-			Pan_AB      = 0x3EC00000,
-
-			// Filters
-			Cutoff_A    = 0x3ED00000,
-			Cutoff_B    = 0x3EE00000,
-			CutoffAB    = 0x3EF00000,
-			Reso_A      = 0x3F000000,
-			Reso_B      = 0x3F080000,
-			Reso_AB     = 0x3F100000,
-
-			// Misc
-			PhsrFreq    = 0x3F180000,
-			Mix_A       = 0x3F200000,
-			Mix_B       = 0x3F280000,
-			Mix_AB      = 0x3F300000,
-			LFO1Rate    = 0x3F380000,
-			LFO1Gain    = 0x3F400000,
-			LFO2Rate    = 0x3F480000,
-			LFO2Gain    = 0x3F500000,
-			DistAmnt    = 0x3F580000
-		}
-
-		public enum YPARTSELECT : uint {
-			Part_A = 0x00000000,
-			Part_B = 0x3F800000
-		}
-
-		public enum ZEQMODE : uint {
-			MODE_1_Pole = 0x00000000,
-			MODE_2_Pole = 0x3F800000
-		}
-		
-		public enum VOICES : uint {
-			VOICES_0       = 0x00000000,
-			VOICES_1       = 0x3E000000,
-			VOICES_2       = 0x3E800000,
-			VOICES_3       = 0x3EC00000,
-			VOICES_4       = 0x3F000000,
-			VOICES_5       = 0x3F200000,
-			VOICES_6       = 0x3F400000,
-			VOICES_7       = 0x3F600000,
-			VOICES_8       = 0x3F800000
-		}
-
 		public enum ARPTRANSPOSE {
 			MINUS_24 = -24,
 			MINUS_23 = -23,
@@ -568,16 +553,6 @@ namespace PresetConverter
 		public Syl1PresetContent[] ContentArray { set; get; }
 		public string FilePath { set; get; }
 		
-		#region ZEBRA specific variables
-		private static bool useXMFFilter = false; // specificy whether to use VCF or XMF filters
-		
-		// keep track of nextFreeMatrixSlot
-		private int _zebraNextFreeModMatrixSlot = 1;
-		
-		// keep track of used ModSources
-		public List<string> zebraUsedModSources = new List<string>();
-		#endregion
-
 		#region Constructors
 		public Sylenth1Preset()
 		{
@@ -595,7 +570,26 @@ namespace PresetConverter
 		}
 
 		#region Value to Enums or String
-		private static ARPTRANSPOSE ArpeggiatorTransposeFloatToEnum(float value) {
+		
+		// ensure we read the sylenth values correctly
+		// everything equal and above 0.5 is dual mode
+		private static CHORUSMODE ConvertChorusFloatToEnum(float value) {
+			if (value >= 0.5) {
+				return CHORUSMODE.Dual;
+			} else {
+				return CHORUSMODE.Single;
+			}
+		}
+		
+		private static ONOFF ConvertOnOffFloatToEnum(float value) {
+			if (value >= 0.5) {
+				return ONOFF.On;
+			} else {
+				return ONOFF.Off;
+			}
+		}
+		
+		public static ARPTRANSPOSE ArpeggiatorTransposeFloatToEnum(float value) {
 			float x = value;
 			ARPTRANSPOSE transpose = ARPTRANSPOSE.ZERO;
 
@@ -701,7 +695,7 @@ namespace PresetConverter
 			return transpose;
 		}
 
-		private static ARPSYNCTIMING ArpeggiatorSyncTimeFloatToEnum(float value) {
+		public static ARPSYNCTIMING ArpeggiatorSyncTimeFloatToEnum(float value) {
 			float x = value;
 			ARPSYNCTIMING timing = ARPSYNCTIMING.ARPSYNC_UNKNOWN;
 
@@ -747,7 +741,7 @@ namespace PresetConverter
 			return timing;
 		}
 		
-		private static DELAYTIMING DelayTimeFloatToEnum(float value) {
+		public static DELAYTIMING DelayTimeFloatToEnum(float value) {
 			// the rule for finding the Delay timing float ranges in a Sylenth presets
 			// seems to be:
 			// 
@@ -799,7 +793,7 @@ namespace PresetConverter
 			return timing;
 		}
 
-		private static LFOTIMING LFOTimeFloatToEnum(float value) {
+		public static LFOTIMING LFOTimeFloatToEnum(float value) {
 			// the rule for finding the LFO timing float ranges in a Sylenth presets
 			// seems to be:
 			// 
@@ -890,7 +884,7 @@ namespace PresetConverter
 			return timing;
 		}
 		
-		private static COMPRATIO CompRatioFloatToEnum(float value) {
+		public static COMPRATIO CompRatioFloatToEnum(float value) {
 			// there is a very exponential curve going on but
 			// i did not manage to find out the calculation
 			
@@ -1310,6 +1304,35 @@ namespace PresetConverter
 			}
 		}
 		
+		public static float ConvertSylenthFrequencyToHertz(float filterFrequency, float filterControlFrequency, Sylenth1Preset.FloatToHz mode) {
+			
+			if (mode != FloatToHz.FilterCutoff) {
+				throw new NotImplementedException();
+			}
+			
+			// Determine a commont filter frequency based on
+			// two filter values:
+			// i.e.
+			// Sylenth Filter A = 590,00 Hz (0,64)
+			// +
+			// Sylenth FilterControl = 24,30 Hz (0,32)
+			// = 1100 Hz
+			// Gives Zebra Cutoff = ?
+			
+			// Excel:
+			// =IF($J$1*EXP($K$1*[@[Both Filters]])>22028,47;22028,47;$J$1*EXP($K$1*[@[Both Filters]]))
+			// J: 0,064749088	K: 10,152717
+			
+			double bothFilters = filterControlFrequency + filterFrequency;
+			
+			float actualFrequencyHertz = (float) (0.064749088 * Math.Exp(10.152717 * bothFilters));
+			if (actualFrequencyHertz > 22028.47f) {
+				actualFrequencyHertz = 22028.47f;
+			}
+			
+			return actualFrequencyHertz;
+		}
+
 		public static float EnvelopePresetFileValueToMilliseconds(float oldValue) {
 			
 			// Could not find a proper function for the correct slope,
@@ -1390,7 +1413,7 @@ namespace PresetConverter
 				buffer.AppendLine("// Sylenth1 Preset Content");
 				buffer.AppendLine("//");
 				buffer.AppendLine("// Dump generated by PresetConverter, Copyleft Per Ivar Nerseth");
-				buffer.AppendLine("// 2009-2013");
+				buffer.AppendLine("// 2009-2015");
 				buffer.AppendFormat("// Date: {0:G}\n", System.DateTime.Now);
 				buffer.AppendLine("//");
 				buffer.AppendFormat("// FilePath: {0}\n", FilePath);
@@ -1920,7 +1943,7 @@ namespace PresetConverter
 			public YMODDEST YModMisc2BDest2;        // index 982:983
 			public YPARTSELECT YPartSelect;         // index 986:987
 			public ZEQMODE ZEQMode;                 // index 990:991
-
+			
 			public Syl1PresetContent(BinaryFile bFile, bool newPresetVersion = true) {
 				this.AmpEnvAAttack = bFile.ReadSingle();              // index 20:23 (value range 0 -> 10)
 				this.AmpEnvADecay = bFile.ReadSingle();               // index 24:27 (value range 0 -> 10)
@@ -1940,7 +1963,7 @@ namespace PresetConverter
 				this.ChorusDepth = bFile.ReadSingle();                // index 80:83 (value range 0 -> 100)
 				this.ChorusDry_Wet = bFile.ReadSingle();              // index 84:87 (value range 0 -> 100)
 				this.ChorusFeedback = bFile.ReadSingle();             // index 88:91 (value range 0 -> 100)
-				this.ChorusMode = (CHORUSMODE) bFile.ReadUInt32();    // index 94:95
+				this.ChorusMode = ConvertChorusFloatToEnum(bFile.ReadSingle());    // index 94:95
 				this.ChorusRate = bFile.ReadSingle();                 // index 96:99 (value range 0,01 -> 27,5)
 				this.ChorusWidth = bFile.ReadSingle();                // index 100:103 (value range 0 -> 100)
 				this.CompAttack = bFile.ReadSingle();                 // index 104:107 (value range 0,1 -> 300)
@@ -1951,7 +1974,7 @@ namespace PresetConverter
 				this.DelayFeedback = bFile.ReadSingle();              // index 124:127 (value range 0 -> 100)
 				this.DelayHighCut = bFile.ReadSingle();               // index 128:131 (value range 82,5 -> 21120)
 				this.DelayLowCut = bFile.ReadSingle();                // index 132:135 (value range 3,23 -> 26483,12)
-				this.DelayPingPong = (ONOFF) bFile.ReadUInt32();      // index 138:139
+				this.DelayPingPong = ConvertOnOffFloatToEnum(bFile.ReadSingle());      // index 138:139
 				this.DelaySmear = bFile.ReadSingle();                 // index 140:143 (value range 0 -> 10)
 				this.DelaySpread = bFile.ReadSingle();                // index 144:147 (value range 0 -> 100)
 				this.DelayTimeLeft = bFile.ReadSingle();              // index 148:151 (value range 1/64 -> 1/2)
@@ -1979,13 +2002,13 @@ namespace PresetConverter
 				this.FilterCtlCutoff = bFile.ReadSingle();            // index 236:239 (value range 1 -> 21341,28)
 				this.FilterCtlKeyTrk = bFile.ReadSingle();            // index 240:243 (value range 0 -> 10)
 				this.FilterCtlReso = bFile.ReadSingle();              // index 244:247 (value range 0 -> 10)
-				this.FilterCtlWarmDrive = (ONOFF) bFile.ReadUInt32();         // index 250:251
-				this.LFO1Free = (ONOFF) bFile.ReadUInt32();                   // index 254:255
+				this.FilterCtlWarmDrive = ConvertOnOffFloatToEnum(bFile.ReadSingle());         // index 250:251
+				this.LFO1Free = ConvertOnOffFloatToEnum(bFile.ReadSingle());                   // index 254:255
 				this.LFO1Gain = bFile.ReadSingle();                   // index 256:259 (value range 0 -> 10)
 				this.LFO1Offset = bFile.ReadSingle();                 // index 260:263 (value range -10 -> 10)
 				this.LFO1Rate = bFile.ReadSingle();                   // index 264:267 (value range 8/1D -> 1/256T)
-				this.LFO1Wave = (LFOWAVE) bFile.ReadUInt32();                 // index 268:271
-				this.LFO2Free = (ONOFF) bFile.ReadUInt32();                   // index 274:275
+				this.LFO1Wave = (LFOWAVE) bFile.ReadUInt32();                 	// index 268:271
+				this.LFO2Free = ConvertOnOffFloatToEnum(bFile.ReadSingle()); 	// index 274:275
 				this.LFO2Gain = bFile.ReadSingle();                   // index 276:279 (value range 0 -> 10)
 				this.LFO2Offset = bFile.ReadSingle();                 // index 280:283 (value range -10 -> 10)
 				this.LFO2Rate = bFile.ReadSingle();                   // index 284:287 (value range 8/1D -> 1/256T)
@@ -2002,51 +2025,51 @@ namespace PresetConverter
 				this.ModEnv2Release = bFile.ReadSingle();             // index 328:331 (value range 0 -> 10)
 				this.ModEnv2Sustain = bFile.ReadSingle();             // index 332:335 (value range 0 -> 10)
 				this.ModWheel = bFile.ReadSingle();                   // index 336:339 (value range 0 -> 10)
-				this.MonoLegato = (ONOFF) bFile.ReadUInt32();                 // index 342:343
+				this.MonoLegato = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 342:343
 				this.OscA1Detune = bFile.ReadSingle();                // index 344:347 (value range 0 -> 10)
 				this.OscA1Fine = bFile.ReadSingle();                  // index 348:351 (value range -1 -> 1)
-				this.OscA1Invert = (ONOFF) bFile.ReadUInt32();                // index 354:355
+				this.OscA1Invert = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 354:355
 				this.OscA1Note = bFile.ReadSingle();                  // index 356:359 (value range -7 -> 7)
 				this.OscA1Octave = bFile.ReadSingle();                // index 360:363 (value range -3 -> 3)
 				this.OscA1Pan = bFile.ReadSingle();                   // index 364:367 (value range -10 -> 10)
 				this.OscA1Phase = bFile.ReadSingle();                 // index 368:371 (value range 0 -> 360)
-				this.OscA1Retrig = (ONOFF) bFile.ReadUInt32();                // index 374:375
+				this.OscA1Retrig = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 374:375
 				this.OscA1Stereo = bFile.ReadSingle();                // index 376:379 (value range 0 -> 10)
 				this.OscA1Voices = (VOICES) bFile.ReadUInt32();                // index 382:383 (value range 0 -> 8)
 				this.OscA1Volume = bFile.ReadSingle();                // index 384:387 (value range 0 -> 10)
 				this.OscA1Wave = (OSCWAVE) bFile.ReadUInt32();                // index 388:391
 				this.OscA2Detune = bFile.ReadSingle();                // index 392:395 (value range 0 -> 10)
 				this.OscA2Fine = bFile.ReadSingle();                  // index 396:399 (value range -1 -> 1)
-				this.OscA2Invert = (ONOFF) bFile.ReadUInt32();                // index 402:403
+				this.OscA2Invert = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 402:403
 				this.OscA2Note = bFile.ReadSingle();                  // index 404:407 (value range -7 -> 7)
 				this.OscA2Octave = bFile.ReadSingle();                // index 408:411 (value range -3 -> 3)
 				this.OscA2Pan = bFile.ReadSingle();                   // index 412:415 (value range -10 -> 10)
 				this.OscA2Phase = bFile.ReadSingle();                 // index 416:419 (value range 0 -> 360)
-				this.OscA2Retrig = (ONOFF) bFile.ReadUInt32();                // index 422:423
+				this.OscA2Retrig = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 422:423
 				this.OscA2Stereo = bFile.ReadSingle();                // index 424:427 (value range 0 -> 10)
 				this.OscA2Voices = (VOICES) bFile.ReadUInt32();                // index 430:431 (value range 0 -> 8)
 				this.OscA2Volume = bFile.ReadSingle();                // index 432:435 (value range 0 -> 10)
 				this.OscA2Wave = (OSCWAVE) bFile.ReadUInt32();                // index 436:439
 				this.OscB1Detune = bFile.ReadSingle();                // index 440:443 (value range 0 -> 10)
 				this.OscB1Fine = bFile.ReadSingle();                  // index 444:447 (value range -1 -> 1)
-				this.OscB1Invert = (ONOFF) bFile.ReadUInt32();                // index 450:451
+				this.OscB1Invert = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 450:451
 				this.OscB1Note = bFile.ReadSingle();                  // index 452:455 (value range -7 -> 7)
 				this.OscB1Octave = bFile.ReadSingle();                // index 456:459 (value range -3 -> 3)
 				this.OscB1Pan = bFile.ReadSingle();                   // index 460:463 (value range -10 -> 10)
 				this.OscB1Phase = bFile.ReadSingle();                 // index 464:467 (value range 0 -> 360)
-				this.OscB1Retrig = (ONOFF) bFile.ReadUInt32();                // index 470:471
+				this.OscB1Retrig = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 470:471
 				this.OscB1Stereo = bFile.ReadSingle();                // index 472:475 (value range 0 -> 10)
 				this.OscB1Voices = (VOICES) bFile.ReadUInt32();                // index 478:479 (value range 0 -> 8)
 				this.OscB1Volume = bFile.ReadSingle();                // index 480:483 (value range 0 -> 10)
 				this.OscB1Wave = (OSCWAVE) bFile.ReadUInt32();                // index 484:487
 				this.OscB2Detune = bFile.ReadSingle();                // index 488:491 (value range 0 -> 10)
 				this.OscB2Fine = bFile.ReadSingle();                  // index 492:495 (value range -1 -> 1)
-				this.OscB2Invert = (ONOFF) bFile.ReadUInt32();                // index 498:499
+				this.OscB2Invert = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 498:499
 				this.OscB2Note = bFile.ReadSingle();                  // index 500:503 (value range -7 -> 7)
 				this.OscB2Octave = bFile.ReadSingle();                // index 504:507 (value range -3 -> 3)
 				this.OscB2Pan = bFile.ReadSingle();                   // index 508:511 (value range -10 -> 10)
 				this.OscB2Phase = bFile.ReadSingle();                 // index 512:515 (value range 0 -> 360)
-				this.OscB2Retrig = (ONOFF) bFile.ReadUInt32();                // index 518:519
+				this.OscB2Retrig = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 518:519
 				this.OscB2Stereo = bFile.ReadSingle();                // index 520:523 (value range 0 -> 10)
 				this.OscB2Voices = (VOICES) bFile.ReadUInt32();                // index 526:527 (value range 0 -> 8)
 				this.OscB2Volume = bFile.ReadSingle();                // index 528:531 (value range 0 -> 10)
@@ -2069,24 +2092,24 @@ namespace PresetConverter
 				this.ReverbPredelay = bFile.ReadSingle();             // index 596:599 (value range 0 -> 200)
 				this.ReverbSize = bFile.ReadSingle();                 // index 600:603 (value range 0 -> 10)
 				this.ReverbWidth = bFile.ReadSingle();                // index 604:607 (value range 0 -> 100)
-				this.Solo = (ONOFF) bFile.ReadUInt32();                       // index 610:611
-				this.Sync = (ONOFF) bFile.ReadUInt32();                       // index 614:615
-				this.XArpHold01 = (ONOFF) bFile.ReadUInt32();                 // index 618:619
-				this.XArpHold02 = (ONOFF) bFile.ReadUInt32();                 // index 622:623
-				this.XArpHold03 = (ONOFF) bFile.ReadUInt32();                 // index 626:627
-				this.XArpHold04 = (ONOFF) bFile.ReadUInt32();                 // index 630:631
-				this.XArpHold05 = (ONOFF) bFile.ReadUInt32();                 // index 634:635
-				this.XArpHold06 = (ONOFF) bFile.ReadUInt32();                 // index 638:639
-				this.XArpHold07 = (ONOFF) bFile.ReadUInt32();                 // index 642:643
-				this.XArpHold08 = (ONOFF) bFile.ReadUInt32();                 // index 646:647
-				this.XArpHold09 = (ONOFF) bFile.ReadUInt32();                 // index 650:651
-				this.XArpHold10 = (ONOFF) bFile.ReadUInt32();                 // index 654:655
-				this.XArpHold11 = (ONOFF) bFile.ReadUInt32();                 // index 658:659
-				this.XArpHold12 = (ONOFF) bFile.ReadUInt32();                 // index 662:663
-				this.XArpHold13 = (ONOFF) bFile.ReadUInt32();                 // index 666:667
-				this.XArpHold14 = (ONOFF) bFile.ReadUInt32();                 // index 670:671
-				this.XArpHold15 = (ONOFF) bFile.ReadUInt32();                 // index 674:675
-				this.XArpHold16 = (ONOFF) bFile.ReadUInt32();                 // index 678:679
+				this.Solo = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 610:611
+				this.Sync = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 614:615
+				this.XArpHold01 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 618:619
+				this.XArpHold02 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 622:623
+				this.XArpHold03 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 626:627
+				this.XArpHold04 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 630:631
+				this.XArpHold05 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 634:635
+				this.XArpHold06 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 638:639
+				this.XArpHold07 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 642:643
+				this.XArpHold08 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 646:647
+				this.XArpHold09 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 650:651
+				this.XArpHold10 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 654:655
+				this.XArpHold11 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 658:659
+				this.XArpHold12 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 662:663
+				this.XArpHold13 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 666:667
+				this.XArpHold14 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 670:671
+				this.XArpHold15 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 674:675
+				this.XArpHold16 = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 678:679
 				this.XArpTransp01 = bFile.ReadSingle();               // index 680:684 (value range -24 -> 24)
 				this.XArpTransp02 = bFile.ReadSingle();               // (value range -24 -> 24)
 				this.XArpTransp03 = bFile.ReadSingle();               // (value range -24 -> 24)
@@ -2139,14 +2162,14 @@ namespace PresetConverter
 				this.XModMisc2BDest1Am = bFile.ReadSingle();          // index 876:879 (value range -10 -> 10)
 				this.XModMisc2BDest2Am = bFile.ReadSingle();          // index 880:883 (value range -10 -> 10)
 				this.XModMisc2BSource = (XMODSOURCE) bFile.ReadUInt32();      // index 884:887
-				this.XSwArpOnOff = (ONOFF) bFile.ReadUInt32();                // index 890:891
-				this.XSwChorusOnOff = (ONOFF) bFile.ReadUInt32();             // index 894:895
-				this.XSwCompOnOff = (ONOFF) bFile.ReadUInt32();               // index 898:899
-				this.XSwDelayOnOff = (ONOFF) bFile.ReadUInt32();              // index 902:903
-				this.XSwDistOnOff = (ONOFF) bFile.ReadUInt32();               // index 906:907
-				this.XSwEQOnOff = (ONOFF) bFile.ReadUInt32();                 // index 910:911
-				this.XSwPhaserOnOff = (ONOFF) bFile.ReadUInt32();             // index 914:915
-				this.XSwReverbOnOff = (ONOFF) bFile.ReadUInt32();             // index 918:919
+				this.XSwArpOnOff = ConvertOnOffFloatToEnum(bFile.ReadSingle());		// index 890:891
+				this.XSwChorusOnOff = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 894:895
+				this.XSwCompOnOff = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 898:899
+				this.XSwDelayOnOff = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 902:903
+				this.XSwDistOnOff = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 906:907
+				this.XSwEQOnOff = ConvertOnOffFloatToEnum(bFile.ReadSingle());		// index 910:911
+				this.XSwPhaserOnOff = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 914:915
+				this.XSwReverbOnOff = ConvertOnOffFloatToEnum(bFile.ReadSingle());	// index 918:919
 				this.YModEnv1Dest1 = (YMODDEST) bFile.ReadUInt32();           // index 922:923
 				this.YModEnv1Dest2 = (YMODDEST) bFile.ReadUInt32();           // index 926:927
 				this.YModEnv2Dest1 = (YMODDEST) bFile.ReadUInt32();           // index 930:931
@@ -2173,23 +2196,6 @@ namespace PresetConverter
 				this.PresetName = StringUtils.RemoveInvalidCharactersAllowSpace(BinaryFile.ByteArrayToString(presetNameArray));
 			}
 		}
-		
-		#region Logging (Debug or Error)
-		public static void DoLog(string logMsg) {
-			Console.Out.WriteLine(logMsg);
-			IOUtils.LogMessageToFile(outputStatusLog, logMsg);
-		}
-		
-		public void DoDebug(string debugMsg) {
-			if (logLevel == LogLevel.Debug) IOUtils.LogMessageToFile(outputStatusLog, debugMsg);
-		}
-
-		public static void DoError(string errorMsg) {
-			Console.Out.WriteLine(errorMsg);
-			IOUtils.LogMessageToFile(outputStatusLog, errorMsg);
-			IOUtils.LogMessageToFile(outputErrorLog, errorMsg);
-		}
-		#endregion
 		
 		#region Sylenth Preset Consistency Verification
 		
@@ -2247,7 +2253,7 @@ namespace PresetConverter
 				if (!doTryToFix) {
 					errorMsg += FindClosestEnumText<T>(enumValue);
 				}
-				DoError(errorMsg);
+				Logger.DoError(errorMsg);
 				return false;
 			}
 			return true;
@@ -2263,11 +2269,11 @@ namespace PresetConverter
 					var field = type.GetField(fieldName);
 					field.SetValue(presetContent, enumFound);
 				} catch (Exception) {
-					DoError(String.Format("Warning! Could not find field {0} and store {1}!", fieldName, enumFound));
+					Logger.DoError(String.Format("Warning! Could not find field {0} and store {1}!", fieldName, enumFound));
 					return false;
 				}
 				
-				DoLog(String.Format("Stored closest match for {0}: {1} {2}", typeof(ARPMODE), enumFound.ToString(), EnumToLongText(enumFound)));
+				Logger.DoLog(String.Format("Stored closest match for {0}: {1} {2}", typeof(T), enumFound.ToString(), EnumToLongText(enumFound)));
 			}
 			return true;
 		}
@@ -2551,7 +2557,7 @@ namespace PresetConverter
 			int numProgramsUnused = bFile.ReadInt32();
 			int presetVersion2 = bFile.ReadInt32();
 			
-			DoLog(String.Format("Preset Type: '{0}', Preset Version1: '{1}', fxVersion: '{2}',  numProgramsUnused: '{3}', presetVersion2: '{4}'", presetType, presetVersion1, fxVersion, numProgramsUnused, presetVersion2));
+			Logger.DoLog(String.Format("Preset Type: '{0}', Preset Version1: '{1}', fxVersion: '{2}',  numProgramsUnused: '{3}', presetVersion2: '{4}'", presetType, presetVersion1, fxVersion, numProgramsUnused, presetVersion2));
 			
 			// if Sylenth 1 preset format
 			if (presetType == "1lys") { // '1lys' = 'syl1' backwards
@@ -2562,38 +2568,38 @@ namespace PresetConverter
 					
 					// use numberOfPrograms to read in an array of Sylenth Presets
 					int numPrograms = fxp.ProgramCount;
-					List<Sylenth1Preset.Syl1PresetContent> contentList = new List<Sylenth1Preset.Syl1PresetContent>();
+					var contentList = new List<Sylenth1Preset.Syl1PresetContent>();
 					int i = 0;
 					try {
 						Sylenth1Preset.Syl1PresetContent presetContent = null;
 						for (i = 0; i < numPrograms; i++) {
 							presetContent = new Sylenth1Preset.Syl1PresetContent(bFile, (presetVersion1==2202 || presetVersion1 == 2211));
-							DoLog(String.Format("Start processing {0} '{1}' ...", i, presetContent.PresetName));
+							Logger.DoLog(String.Format("Start processing {0} '{1}' ...", i, presetContent.PresetName));
 							if (IsConsistent(presetContent, DO_TRY_FIX_INCONSISTENT_ENUMS)) {
 								contentList.Add(presetContent);
 							} else {
-								DoError(String.Format("Error! The loaded preset failed the consistency check! {0} '{1}' ({2})", i, presetContent.PresetName, filePath));
+								Logger.DoError(String.Format("Error! The loaded preset failed the consistency check! {0} '{1}' ({2})", i, presetContent.PresetName, filePath));
 							}
 						}
 					} catch(EndOfStreamException eose) {
-						DoError(String.Format("Error! Failed reading presets from bank {0}. Read {1} presets. (Expected {2}) Msg: {3}!", filePath, i, numPrograms, eose.Message));
+						Logger.DoError(String.Format("Error! Failed reading presets from bank {0}. Read {1} presets. (Expected {2}) Msg: {3}!", filePath, i, numPrograms, eose.Message));
 						return false;
 					}
 
 					// store list as array
 					this.ContentArray = contentList.ToArray();
-					DoLog(String.Format("Finished reading {0} presets from bank {1} ...", numPrograms, filePath));
+					Logger.DoLog(String.Format("Finished reading {0} presets from bank {1} ...", numPrograms, filePath));
 					return true;
 				} else if (fxp.FxMagic == "FPCh") {
 					// single preset file
 					this.ContentArray = new Syl1PresetContent[1];
 					this.ContentArray[0] = new Sylenth1Preset.Syl1PresetContent(bFile, presetVersion1==2202);
 
-					DoLog(String.Format("Finished reading preset file {0} ...", filePath));
+					Logger.DoLog(String.Format("Finished reading preset file {0} ...", filePath));
 					return true;
 				}
 			} else {
-				DoError(String.Format("Error! The preset file is not a valid Sylenth1 Preset! ({0}). If you are sure it is a Sylenth preset, try to open it in Sylenth and resave (Tip! init full bank before loading and resaving)", filePath));
+				Logger.DoError(String.Format("Error! The preset file is not a valid Sylenth1 Preset! ({0}). If you are sure it is a Sylenth preset, try to open it in Sylenth and resave (Tip! init full bank before loading and resaving)", filePath));
 				return false;
 			}
 			return false;
@@ -2604,7 +2610,7 @@ namespace PresetConverter
 			// store filepath
 			FilePath = filePath;
 			
-			FXP fxp = new FXP();
+			var fxp = new FXP();
 			fxp.ReadFile(filePath);
 			
 			if (!ReadFXP(fxp, filePath)) {
@@ -2616,2406 +2622,6 @@ namespace PresetConverter
 		public bool Write(string filePath)
 		{
 			throw new NotImplementedException();
-		}
-		#endregion
-		
-		#region Sylenth to Zebra conversion methods
-		private static float ConvertSylenthValueToZebra(float storedSylenthValue, float displaySylenthMin, float displaySylenthMax, float zebraMin, float zebraMax) {
-			float sylenthDisplayValue = MathUtils.ConvertAndMainainRatio(storedSylenthValue, 0, 1, displaySylenthMin, displaySylenthMax);
-			return MathUtils.ConvertAndMainainRatio(sylenthDisplayValue, displaySylenthMin, displaySylenthMax, zebraMin, zebraMax);
-		}
-
-		// TODO: modulation depth for pitch gets wrong when using a LFO that has too much amp
-		private static float ConvertSylenthModDepthPitchValueToZebra(float storedSylenthValue) {
-			// Pitch depth table:
-			// Sylenth Display Value	Sylenth Stored Value	Zebra Value
-			// -4						0,3						-48
-			// -3						0,35					-36
-			// -2						0,4						-24
-			// -1						0,45					-12
-			// 0						0,5						0
-			// 1						0,55					12
-			// 2						0,6						24
-			// 3						0,65					36
-			// 4						0,7						48
-			
-			// The formula for pitch depth is
-			// 240x -120 where x is stored Sylenth value
-			return (float) (240 * storedSylenthValue - 120);
-		}
-		
-		private static void SetZebraEnvelopeFromSylenth(Zebra2Preset z2, float storedSylenthValue, string timeBaseFieldName, string envelopeFieldName) {
-			float displaySylenthValue = MathUtils.ConvertAndMainainRatio(storedSylenthValue, 0, 1, 0, 10);
-			float sylenthEnvelopeMs = EnvelopePresetFileValueToMilliseconds(storedSylenthValue);
-			
-			Zebra2Preset.EnvelopeTimeBase timebase = Zebra2Preset.EnvelopeTimeBase.TIMEBASE_8sX;
-			//double envValue = 0.0;
-			//Zebra2Preset.MillisecondsToEnvTypeAndValue(sylenthEnvelopeMs, out timebase, out envValue);
-			
-			int envValue = (int) Zebra2Preset.MillisecondsToEnvValue(sylenthEnvelopeMs, timebase);
-			
-			ObjectUtils.SetField(z2, timeBaseFieldName, (int) timebase);
-			ObjectUtils.SetField(z2, envelopeFieldName, (float) envValue);
-		}
-		
-		private static void SetZebraArpeggiatorNoteFromSylenth(Zebra2Preset z2, float storedSylenthArpGateValue, ONOFF arpHoldValue, float storedSylenthArpTransposeValue, float storedSylenthArpVelocityValue, int index) {
-			
-			// TODO: use storedSylenthArpGateValue for something?
-			// range: 0% - 100%
-			float arpGatePercentage = MathUtils.ConvertAndMainainRatio(storedSylenthArpGateValue, 0, 1, 0, 100);
-
-			// TODO: use storedSylenthArpVelocityValue for something?
-			// range = 0 - 127
-			float arpGateVelocity = MathUtils.ConvertAndMainainRatio(storedSylenthArpVelocityValue, 0, 1, 0, 127);
-			
-			string arpGateFieldName = "VCC_Agte" + index;
-			// Gate range: 0 - 5 (2 = Default)
-			int arpGateFieldValue = 2;
-			if (arpHoldValue == ONOFF.On) {
-				arpGateFieldValue = 5;
-			}
-			// If the velocity is 0 - use the voices to "zero" this note
-			// set voices to 0 as well
-			if (arpGateVelocity == 0) {
-				arpGateFieldValue = 0;
-			}
-			ObjectUtils.SetField(z2, arpGateFieldName, arpGateFieldValue);
-			
-			string arpTransposeFieldName = "VCC_Atrp" + index;
-			// Transpose range: -12 - 0 - 12 (0 = Default)
-			int arpTransposeFieldValue = 0;
-			ARPTRANSPOSE transpose = ArpeggiatorTransposeFloatToEnum(storedSylenthArpTransposeValue);
-			switch (transpose) {
-				case ARPTRANSPOSE.MINUS_24:
-					arpTransposeFieldValue = -12;
-					break;
-				case ARPTRANSPOSE.MINUS_23:
-					arpTransposeFieldValue = -11;
-					break;
-				case ARPTRANSPOSE.MINUS_22:
-					arpTransposeFieldValue = -10;
-					break;
-				case ARPTRANSPOSE.MINUS_21:
-					arpTransposeFieldValue = -9;
-					break;
-				case ARPTRANSPOSE.MINUS_20:
-					arpTransposeFieldValue = -8;
-					break;
-				case ARPTRANSPOSE.MINUS_19:
-					arpTransposeFieldValue = -7;
-					break;
-				case ARPTRANSPOSE.MINUS_18:
-					arpTransposeFieldValue = -6;
-					break;
-				case ARPTRANSPOSE.MINUS_17:
-					arpTransposeFieldValue = -5;
-					break;
-				case ARPTRANSPOSE.MINUS_16:
-					arpTransposeFieldValue = -4;
-					break;
-				case ARPTRANSPOSE.MINUS_15:
-					arpTransposeFieldValue = -3;
-					break;
-				case ARPTRANSPOSE.MINUS_14:
-					arpTransposeFieldValue = -2;
-					break;
-				case ARPTRANSPOSE.MINUS_13:
-					arpTransposeFieldValue = -1;
-					break;
-				case ARPTRANSPOSE.MINUS_12:
-					arpTransposeFieldValue = -12;
-					break;
-				case ARPTRANSPOSE.MINUS_11:
-					arpTransposeFieldValue = -11;
-					break;
-				case ARPTRANSPOSE.MINUS_10:
-					arpTransposeFieldValue = -10;
-					break;
-				case ARPTRANSPOSE.MINUS_9:
-					arpTransposeFieldValue = -9;
-					break;
-				case ARPTRANSPOSE.MINUS_8:
-					arpTransposeFieldValue = -8;
-					break;
-				case ARPTRANSPOSE.MINUS_7:
-					arpTransposeFieldValue = -7;
-					break;
-				case ARPTRANSPOSE.MINUS_6:
-					arpTransposeFieldValue = -6;
-					break;
-				case ARPTRANSPOSE.MINUS_5:
-					arpTransposeFieldValue = -5;
-					break;
-				case ARPTRANSPOSE.MINUS_4:
-					arpTransposeFieldValue = -4;
-					break;
-				case ARPTRANSPOSE.MINUS_3:
-					arpTransposeFieldValue = -3;
-					break;
-				case ARPTRANSPOSE.MINUS_2:
-					arpTransposeFieldValue = -2;
-					break;
-				case ARPTRANSPOSE.MINUS_1:
-					arpTransposeFieldValue = -1;
-					break;
-				case ARPTRANSPOSE.ZERO:
-					arpTransposeFieldValue = 0;
-					break;
-				case ARPTRANSPOSE.PLUSS_1:
-					arpTransposeFieldValue = 1;
-					break;
-				case ARPTRANSPOSE.PLUSS_2:
-					arpTransposeFieldValue = 2;
-					break;
-				case ARPTRANSPOSE.PLUSS_3:
-					arpTransposeFieldValue = 3;
-					break;
-				case ARPTRANSPOSE.PLUSS_4:
-					arpTransposeFieldValue = 4;
-					break;
-				case ARPTRANSPOSE.PLUSS_5:
-					arpTransposeFieldValue = 5;
-					break;
-				case ARPTRANSPOSE.PLUSS_6:
-					arpTransposeFieldValue = 6;
-					break;
-				case ARPTRANSPOSE.PLUSS_7:
-					arpTransposeFieldValue = 7;
-					break;
-				case ARPTRANSPOSE.PLUSS_8:
-					arpTransposeFieldValue = 8;
-					break;
-				case ARPTRANSPOSE.PLUSS_9:
-					arpTransposeFieldValue = 9;
-					break;
-				case ARPTRANSPOSE.PLUSS_10:
-					arpTransposeFieldValue = 10;
-					break;
-				case ARPTRANSPOSE.PLUSS_11:
-					arpTransposeFieldValue = 11;
-					break;
-				case ARPTRANSPOSE.PLUSS_12:
-					arpTransposeFieldValue = 12;
-					break;
-				case ARPTRANSPOSE.PLUSS_13:
-					arpTransposeFieldValue = 1;
-					break;
-				case ARPTRANSPOSE.PLUSS_14:
-					arpTransposeFieldValue = 2;
-					break;
-				case ARPTRANSPOSE.PLUSS_15:
-					arpTransposeFieldValue = 3;
-					break;
-				case ARPTRANSPOSE.PLUSS_16:
-					arpTransposeFieldValue = 4;
-					break;
-				case ARPTRANSPOSE.PLUSS_17:
-					arpTransposeFieldValue = 5;
-					break;
-				case ARPTRANSPOSE.PLUSS_18:
-					arpTransposeFieldValue = 6;
-					break;
-				case ARPTRANSPOSE.PLUSS_19:
-					arpTransposeFieldValue = 7;
-					break;
-				case ARPTRANSPOSE.PLUSS_20:
-					arpTransposeFieldValue = 8;
-					break;
-				case ARPTRANSPOSE.PLUSS_21:
-					arpTransposeFieldValue = 9;
-					break;
-				case ARPTRANSPOSE.PLUSS_22:
-					arpTransposeFieldValue = 10;
-					break;
-				case ARPTRANSPOSE.PLUSS_23:
-					arpTransposeFieldValue = 11;
-					break;
-				case ARPTRANSPOSE.PLUSS_24:
-					arpTransposeFieldValue = 12;
-					break;
-			}
-			
-			ObjectUtils.SetField(z2, arpTransposeFieldName, arpTransposeFieldValue);
-			
-			string arpVoicesFieldName = "VCC_Avoc" + index;
-			// Voices range: 0 - 6 (1 = Default)
-			int arpVoicesFieldValue = 6;
-			// If the velocity is 0 - use the voices to "zero" this note
-			if (arpGateVelocity == 0) {
-				arpVoicesFieldValue = 0;
-			}
-			ObjectUtils.SetField(z2, arpVoicesFieldName, arpVoicesFieldValue);
-			
-			string arpDurationFieldName = "VCC_Amul" + index;
-			// Duration range: 1 - 4 (1 = Default)
-			// 4 = quarter
-			// 3 = eigth dotted
-			// 2 = eigth
-			// 1 = sixteenth
-			int arpDurationFieldValue = (int) Zebra2Preset.ArpNoteDuration.Sixteenth;
-			ObjectUtils.SetField(z2, arpDurationFieldName, arpDurationFieldValue);
-			
-			string arpStepControlFieldName = "VCC_Amod" + index;
-			// Step range:
-			// Next = 0,
-			// Same = 1,
-			// First = 2,
-			// Last = 3
-			int arpStepControlFieldValue = (int) Zebra2Preset.ArpNoteStep.Next;
-			ObjectUtils.SetField(z2, arpStepControlFieldName, arpStepControlFieldValue);
-
-			string arpStepModAFieldName = "VCC_AMDpt" + index;
-			float arpStepModAFieldValue = 00.00f;
-			ObjectUtils.SetField(z2, arpStepModAFieldName, arpStepModAFieldValue);
-			
-			string arpStepModBFieldName = "VCC_AMDpB" + index;
-			float arpStepModBFieldValue = 00.00f;
-			ObjectUtils.SetField(z2, arpStepModBFieldName, arpStepModBFieldValue);
-		}
-		
-		private static int ConvertSylenthVoicesToZebra(VOICES numberOfVoices) {
-			int zebraVoices = (int) Zebra2Preset.OscillatorPoly.single;
-			
-			switch (numberOfVoices) {
-				case VOICES.VOICES_1:
-					zebraVoices = (int) Zebra2Preset.OscillatorPoly.single;
-					break;
-				case VOICES.VOICES_2:
-				case VOICES.VOICES_3:
-					zebraVoices = (int) Zebra2Preset.OscillatorPoly.dual;
-					break;
-				case VOICES.VOICES_4:
-				case VOICES.VOICES_5:
-				case VOICES.VOICES_6:
-					zebraVoices = (int) Zebra2Preset.OscillatorPoly.quad;
-					break;
-				case VOICES.VOICES_7:
-				case VOICES.VOICES_8:
-					zebraVoices = (int) Zebra2Preset.OscillatorPoly.eleven;
-					break;
-			}
-			return zebraVoices;
-		}
-		
-		private static int ConvertSylenthWaveToZebra(OSCWAVE wave, ONOFF invert) {
-			
-			int zebraWave = 1;
-			
-			switch (wave) {
-				case OSCWAVE.OSC_Sine:
-					zebraWave = 1;
-					break;
-				case OSCWAVE.OSC_Saw:
-					if (invert == ONOFF.On) {
-						zebraWave = 3;
-					} else {
-						zebraWave = 2;
-					}
-					break;
-				case OSCWAVE.OSC_Triangle:
-					zebraWave = 4;
-					break;
-				case OSCWAVE.OSC_Pulse:
-					zebraWave = 5;
-					break;
-				case OSCWAVE.OSC_HPulse:
-					zebraWave = 6;
-					break;
-				case OSCWAVE.OSC_QPulse:
-					zebraWave = 7;
-					break;
-				case OSCWAVE.OSC_TriSaw:
-					zebraWave = 8;
-					break;
-				case OSCWAVE.OSC_Noise:
-					// TODO: special case - noise is not a waveform in zebra but a seperate unit
-					zebraWave = 1;
-					break;
-			}
-			return zebraWave;
-		}
-
-		private static float ConvertSylenthTuneToZebra(float octave, float note, float fine) {
-			
-			// sylenth octave + note + fine makes up a zebra Tune?
-			float osc_oct = MathUtils.ConvertAndMainainRatio(octave, 0, 1, -3, 3);
-			int osc_octave = (int) Math.Floor(osc_oct);
-			float osc_note = MathUtils.ConvertAndMainainRatio(note, 0, 1, -7, 7);
-			float osc_fine = MathUtils.ConvertAndMainainRatio(fine, 0, 1, -1, 1);
-			float osc_tune = (12 * osc_octave) + osc_note + osc_fine;
-			return osc_tune;
-		}
-
-		private static float ConvertSylenthDetuneToZebra(float osc_detune) {
-			// in sylenth detune goes from 0 - 10 where 0 is no detune at all.
-			// in zebra detune goes from -50 to 50 where 0 (middle) is no detune at all.
-			return ConvertSylenthValueToZebra(osc_detune, 0, 5, 0, 50);
-		}
-
-		public static float ConvertSylenthFrequencyToHertz(float filterFrequency, float filterControlFrequency, FloatToHz mode) {
-			
-			if (mode != FloatToHz.FilterCutoff) {
-				throw new NotImplementedException();
-			}
-			
-			// Determine a commont filter frequency based on
-			// two filter values:
-			// i.e.
-			// Sylenth Filter A = 590,00 Hz (0,64)
-			// +
-			// Sylenth FilterControl = 24,30 Hz (0,32)
-			// = 1100 Hz
-			// Gives Zebra Cutoff = ?
-			
-			// Excel:
-			// =IF($J$1*EXP($K$1*[@[Both Filters]])>22028,47;22028,47;$J$1*EXP($K$1*[@[Both Filters]]))
-			// J: 0,064749088	K: 10,152717
-			
-			double bothFilters = filterControlFrequency + filterFrequency;
-			
-			float actualFrequencyHertz = (float) (0.064749088 * Math.Exp(10.152717 * bothFilters));
-			if (actualFrequencyHertz > 22028.47f) {
-				actualFrequencyHertz = 22028.47f;
-			}
-			
-			return actualFrequencyHertz;
-		}
-		
-		public static float ConvertSylenthFrequencyToZebra(float filterFrequency, float filterControlFrequency, FloatToHz mode) {
-			float actualFrequencyHertz = ConvertSylenthFrequencyToHertz(filterFrequency, filterControlFrequency, mode);
-			int midiNote = Zebra2Preset.FilterFrequencyToMidiNote(actualFrequencyHertz);
-			// TODO: adjust with two to be on the safe side?!
-			return midiNote + 2;
-		}
-		
-		private static int ConvertSylenthDelayTimingsToZebra(float delayTime) {
-			DELAYTIMING delayTiming = DelayTimeFloatToEnum(delayTime);
-			
-			Zebra2Preset.DelaySync delaySync = Zebra2Preset.DelaySync.Delay_1_4;
-			switch(delayTiming) {
-				case DELAYTIMING.DELAY_1_64:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_64;
-					break;
-				case DELAYTIMING.DELAY_1_32T:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_32;
-					break;
-				case DELAYTIMING.DELAY_1_64D:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_64;
-					break;
-				case DELAYTIMING.DELAY_1_32:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_32;
-					break;
-				case DELAYTIMING.DELAY_1_16T:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_16_trip;
-					break;
-				case DELAYTIMING.DELAY_1_32D:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_32_dot;
-					break;
-				case DELAYTIMING.DELAY_1_16:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_16;
-					break;
-				case DELAYTIMING.DELAY_1_8T:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_8_trip;
-					break;
-				case DELAYTIMING.DELAY_1_16D:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_16_dot;
-					break;
-				case DELAYTIMING.DELAY_1_8:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_8;
-					break;
-				case DELAYTIMING.DELAY_1_4T:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_4_trip;
-					break;
-				case DELAYTIMING.DELAY_1_8D:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_8_dot;
-					break;
-				case DELAYTIMING.DELAY_1_4:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_4;
-					break;
-				case DELAYTIMING.DELAY_1_2T:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_2_trip;
-					break;
-				case DELAYTIMING.DELAY_1_4D:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_4_trip;
-					break;
-				case DELAYTIMING.DELAY_1_2:
-					delaySync = Zebra2Preset.DelaySync.Delay_1_2;
-					break;
-			}
-			return (int) delaySync;
-		}
-
-		private static int ConvertSylenthArpSyncTimingsToZebra(float arpSyncTime) {
-			ARPSYNCTIMING arpSyncTiming = ArpeggiatorSyncTimeFloatToEnum(arpSyncTime);
-			
-			Zebra2Preset.ArpSync arpSync = Zebra2Preset.ArpSync.Sync_1_4;
-			switch(arpSyncTiming) {
-				case ARPSYNCTIMING.ARPSYNC_1_64:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_64;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_32T:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_32;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_64D:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_64;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_32:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_32;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_16T:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_16_trip;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_32D:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_32_dot;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_16:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_16;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_8T:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_8_trip;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_16D:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_16_dot;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_8:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_8;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_4T:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_4_trip;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_8D:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_8_dot;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_4:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_4;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_2T:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_2_trip;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_4D:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_4_dot;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_2:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_2;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_1T:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_1_trip;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_2D:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_2_dot;
-					break;
-				case ARPSYNCTIMING.ARPSYNC_1_1:
-					arpSync = Zebra2Preset.ArpSync.Sync_1_1;
-					break;
-			}
-			return (int) arpSync;
-		}
-		
-		private static Zebra2Preset.ModulationSource ConvertSylenthModSourceToZebra(XMODSOURCE sylenthModSource) {
-			Zebra2Preset.ModulationSource zebraModSource = Zebra2Preset.ModulationSource.ModWhl;
-			switch (sylenthModSource) {
-				case XMODSOURCE.SOURCE_None:
-					// should never get here
-					break;
-				case XMODSOURCE.SOURCE_Velocity:
-					zebraModSource = Zebra2Preset.ModulationSource.Velocity;
-					break;
-				case XMODSOURCE.SOURCE_ModWheel:
-					zebraModSource = Zebra2Preset.ModulationSource.ModWhl;
-					break;
-				case XMODSOURCE.SOURCE_KeyTrack:
-					zebraModSource = Zebra2Preset.ModulationSource.KeyFol;
-					break;
-				case XMODSOURCE.SOURCE_AmpEnv_A:
-					zebraModSource = Zebra2Preset.ModulationSource.Env1;
-					break;
-				case XMODSOURCE.SOURCE_AmpEnv_B:
-					zebraModSource = Zebra2Preset.ModulationSource.Env2;
-					break;
-				case XMODSOURCE.SOURCE_ModEnv_1:
-					zebraModSource = Zebra2Preset.ModulationSource.Env3;
-					break;
-				case XMODSOURCE.SOURCE_ModEnv_2:
-					zebraModSource = Zebra2Preset.ModulationSource.Env4;
-					break;
-				case XMODSOURCE.SOURCE_LFO_1:
-					zebraModSource = Zebra2Preset.ModulationSource.Lfo1;
-					break;
-				case XMODSOURCE.SOURCE_LFO_2:
-					zebraModSource = Zebra2Preset.ModulationSource.Lfo2;
-					break;
-				case XMODSOURCE.SOURCE_Aftertch:
-					zebraModSource = Zebra2Preset.ModulationSource.ATouch;
-					break;
-				case XMODSOURCE.SOURCE_StepVlty:
-					zebraModSource = Zebra2Preset.ModulationSource.Xpress;
-					break;
-			}
-			return zebraModSource;
-		}
-		
-		private static Zebra2Preset.FilterType ConvertSylenthFilterToZebra(FILTERTYPE filterType, FILTERDB filterDb, ONOFF filterCtlWarmDrive) {
-			Zebra2Preset.FilterType zebraFilter = Zebra2Preset.FilterType.LP_12dB;
-			switch (filterType) {
-				case FILTERTYPE.Lowpass:
-					if (filterDb == FILTERDB.DB12) {
-						// LP 12dB:     A 12dB version of LP Allround
-						// LP Allround: CPU-friendly 24dB lowpass, with a strong resonance and smooth coloration via Drive.
-						zebraFilter = Zebra2Preset.FilterType.LP_12dB;
-					} else {
-						if (filterCtlWarmDrive == ONOFF.On) {
-							// LP Xcite: 24dB lowpass, with a frequency-dependent exciter as Drive, adding high frequencies.
-							//zebraFilter = Zebra2Preset.FilterType.LP_Xcite;
-							zebraFilter = Zebra2Preset.FilterType.LP_TN6SVF;
-							//zebraFilter = Zebra2Preset.FilterType.LP_Allround;
-							//zebraFilter = Zebra2Preset.FilterType.LP_OldDrive;
-						} else {
-							// LP Vintage:  CPU-friendly analogue-modeled transistor ladder with 24dB rolloff. Sounds nice and old
-							// LP Vintage2: More CPU-intensive version of LP Vintage, capable of self-oscillation.
-							//zebraFilter = Zebra2Preset.FilterType.LP_Vintage2;
-							zebraFilter = Zebra2Preset.FilterType.LP_Vintage;
-						}
-					}
-					break;
-				case FILTERTYPE.Highpass:
-					if (filterDb == FILTERDB.DB12) {
-						// HP 12dB: 12dB version of the HP 24dB Resonant 24dB highpass
-						zebraFilter = Zebra2Preset.FilterType.HP_12dB;
-					} else {
-						// HP 24dB: Resonant 24dB highpass
-						zebraFilter = Zebra2Preset.FilterType.HP_24dB;
-					}
-					break;
-				case FILTERTYPE.Bandpass:
-					if (filterDb == FILTERDB.DB12) {
-						// BP RezBand: A resonant 12dB bandpass model
-						zebraFilter = Zebra2Preset.FilterType.BP_RezBand;
-					} else {
-						// BP QBand Another resonant bandpass, with a different character
-						//zebraFilter = Zebra2Preset.FilterType.BP_QBand;
-						zebraFilter = Zebra2Preset.FilterType.BP_RezBand;
-					}
-					break;
-			}
-			return zebraFilter;
-		}
-		
-		private static void SetZebraLFOFromSylenth(Zebra2Preset z2, LFOWAVE sylenthLFOWave, ONOFF sylenthLFOFree, float sylenthLFORate, float sylenthLFOGain,
-		                                           string LFOWaveFieldName,
-		                                           string LFOSyncFieldName,
-		                                           string LFORateFieldName,
-		                                           string LFOTrigFieldName,
-		                                           string LFOPhseFieldName,
-		                                           string LFOAmpFieldName,
-		                                           string LFOSlewFieldName,
-		                                           int bpm=120) {
-
-			Zebra2Preset.LFOWave zebraLFOWave = Zebra2Preset.LFOWave.sine;
-			switch (sylenthLFOWave) {
-				case LFOWAVE.LFO_HPulse:
-					zebraLFOWave = Zebra2Preset.LFOWave.sqr_hi_lo;
-					break;
-				case LFOWAVE.LFO_Lorenz:
-					zebraLFOWave = Zebra2Preset.LFOWave.sine;
-					break;
-				case LFOWAVE.LFO_Pulse:
-					zebraLFOWave = Zebra2Preset.LFOWave.sqr_hi_lo;
-					break;
-				case LFOWAVE.LFO_QPulse:
-					zebraLFOWave = Zebra2Preset.LFOWave.sqr_hi_lo;
-					break;
-				case LFOWAVE.LFO_Ramp:
-					zebraLFOWave = Zebra2Preset.LFOWave.saw_down;
-					break;
-				case LFOWAVE.LFO_Ramp2:
-					zebraLFOWave = Zebra2Preset.LFOWave.saw_down;
-					break;
-				case LFOWAVE.LFO_Random:
-					zebraLFOWave = Zebra2Preset.LFOWave.rand_glide;
-					break;
-				case LFOWAVE.LFO_Saw:
-					zebraLFOWave = Zebra2Preset.LFOWave.saw_down;
-					break;
-				case LFOWAVE.LFO_Sine:
-					zebraLFOWave = Zebra2Preset.LFOWave.sine;
-					break;
-				case LFOWAVE.LFO_SmpHold:
-					zebraLFOWave = Zebra2Preset.LFOWave.rand_hold;
-					break;
-				case LFOWAVE.LFO_Triangle:
-					zebraLFOWave = Zebra2Preset.LFOWave.triangle;
-					break;
-				case LFOWAVE.LFO_TriSaw:
-					zebraLFOWave = Zebra2Preset.LFOWave.saw_up;
-					break;
-			}
-			ObjectUtils.SetField(z2, LFOWaveFieldName, (int) zebraLFOWave);
-			
-			if (sylenthLFOFree == ONOFF.On) {
-				// use free LFO = hz (0.04 - 192 Hz)
-				float lfo1RateHz = ValueToHz( sylenthLFORate, FloatToHz.LFORateFree);
-				
-				// hz = 1 / s
-				float msValue = (float) 1 / lfo1RateHz * 1000;
-				
-				Zebra2Preset.LFOSync lfoSync = Zebra2Preset.LFOSync.SYNC_0_1s;
-				int lfoValue = 0;
-				Zebra2Preset.MillisecondsToLFOSyncAndValue(msValue, out lfoSync, out lfoValue);
-				
-				ObjectUtils.SetField(z2, LFOSyncFieldName, (int) lfoSync);
-				ObjectUtils.SetField(z2, LFORateFieldName, lfoValue);
-			} else {
-				// use LFO preset
-				LFOTIMING timing = LFOTimeFloatToEnum( sylenthLFORate );
-				
-				// Rate (0.00 - 200.00)
-				float rateNormal = 100.00f;
-				float rateDotted = 87.00f;  // =8*((50/I15)^3) (87 is the closest)
-				float rateTriple = 114.00f; // =8*((50/I13)^3) (114 is the closest)
-				
-				float zebraLFORate = rateNormal;
-				double msValue = 0;
-				int rate = 0;
-				Zebra2Preset.LFOSync zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_4;
-				switch (timing) {
-					case LFOTIMING.LFO_UNKNOWN:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_4;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_8_1D:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_8_1;
-						zebraLFORate = rateDotted;
-						break;
-					case LFOTIMING.LFO_8_1:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_8_1;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_4_1D:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_4_1;
-						zebraLFORate = rateDotted;
-						break;
-					case LFOTIMING.LFO_8_1T:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_8_1;
-						zebraLFORate = rateTriple;
-						break;
-					case LFOTIMING.LFO_4_1:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_4_1;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_2_1D:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_2_1;
-						zebraLFORate = rateDotted;
-						break;
-					case LFOTIMING.LFO_4_1T:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_4_1;
-						zebraLFORate = rateTriple;
-						break;
-					case LFOTIMING.LFO_2_1:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_2_1;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_1D:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_1;
-						zebraLFORate = rateDotted;
-						break;
-					case LFOTIMING.LFO_2_1T:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_2_1;
-						zebraLFORate = rateTriple;
-						break;
-					case LFOTIMING.LFO_1_1:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_1;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_2D:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_2_dot;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_1T:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_1_trip;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_2:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_2;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_4D:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_4_dot;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_2T:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_2_trip;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_4:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_4;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_8D:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_8_dot;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_4T:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_4_trip;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_8:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_8;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_16D:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_16_dot;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_8T:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_8_trip;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_16:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_16;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_32D:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_32_dot;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_16T:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_16_trip;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_32:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_32;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_64D:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_64;
-						zebraLFORate = rateDotted;
-						break;
-					case LFOTIMING.LFO_1_32T:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_32;
-						zebraLFORate = rateTriple;
-						break;
-					case LFOTIMING.LFO_1_64:
-						zebraLFOSync = Zebra2Preset.LFOSync.SYNC_1_64;
-						zebraLFORate = rateNormal;
-						break;
-					case LFOTIMING.LFO_1_128D:
-						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_128D, bpm);
-						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
-						zebraLFORate = rate;
-						break;
-					case LFOTIMING.LFO_1_64T:
-						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_64T, bpm);
-						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
-						zebraLFORate = rate;
-						break;
-					case LFOTIMING.LFO_1_128:
-						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_128, bpm);
-						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
-						zebraLFORate = rate;
-						break;
-						
-						// Zebra 2 does not support values lower than 12.5 ms
-					case LFOTIMING.LFO_1_256D:
-						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_256D, bpm);
-						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
-						zebraLFORate = rate;
-						break;
-					case LFOTIMING.LFO_1_128T:
-						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_128T, bpm);
-						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
-						zebraLFORate = rate;
-						break;
-					case LFOTIMING.LFO_1_256:
-						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_256, bpm);
-						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
-						zebraLFORate = rate;
-						break;
-					case LFOTIMING.LFO_1_256T:
-						msValue = AudioUtils.LFOOrDelayToMilliseconds(AudioUtils.LFOTIMING.LFO_1_256T, bpm);
-						Zebra2Preset.MillisecondsToLFOSyncAndValue((float)msValue, out zebraLFOSync, out rate);
-						zebraLFORate = rate;
-						break;
-				}
-				
-				ObjectUtils.SetField(z2, LFOSyncFieldName, (int) zebraLFOSync);
-				ObjectUtils.SetField(z2, LFORateFieldName, zebraLFORate);
-			}
-			
-			ObjectUtils.SetField(z2, LFOTrigFieldName, (int) Zebra2Preset.LFOGlobalTriggering.Trig_off);
-			//ObjectUtils.SetField(z2, LFOPhseFieldName, ConvertSylenthValueToZebra(Content.LFO1Offset, -10, 10, 0, 100));
-			ObjectUtils.SetField(z2, LFOPhseFieldName, 0.0f);
-			// TODO: Amp value can never be zero - add a little (5 too much? 3 seems best)
-			ObjectUtils.SetField(z2, LFOAmpFieldName, ConvertSylenthValueToZebra(sylenthLFOGain, 0, 10, 3, 100));
-			ObjectUtils.SetField(z2, LFOSlewFieldName, (int) Zebra2Preset.LFOSlew.fast);	// LFO Slew (Slew=1)
-		}
-		#endregion
-
-		#region Zebra Modulation Methods
-		private class ZebraModulationPair {
-			public string ZebraModSourceFieldName { set; get; }
-			public Object ZebraModSourceFieldValue { set; get; }
-			public string ZebraModDepthFieldName { set; get; }
-			public Object ZebraModDepthFieldValue { set; get; }
-			public bool DoForceModMatrix { set; get; }
-
-			public ZebraModulationPair(string zebraModSourceFieldName,
-			                           Object zebraModSourceFieldValue,
-			                           string zebraModDepthFieldName,
-			                           Object zebraModDepthFieldValue,
-			                           bool doForceModMatrix = false) {
-				this.ZebraModSourceFieldName = zebraModSourceFieldName;
-				this.ZebraModSourceFieldValue = zebraModSourceFieldValue;
-				this.ZebraModDepthFieldName = zebraModDepthFieldName;
-				this.ZebraModDepthFieldValue = zebraModDepthFieldValue;
-				this.DoForceModMatrix = doForceModMatrix;
-			}
-		}
-		
-		private void SetZebraModSourcesFromSylenth(Syl1PresetContent s1, Zebra2Preset z2, XMODSOURCE sylenthModSource, YMODDEST sylenthModDestination, float sylenthXModDestAm,
-		                                           Dictionary<string,List<string>> processedModulationSourceAndDest) {
-			
-			if (sylenthModSource != XMODSOURCE.SOURCE_None && sylenthModDestination != YMODDEST.None) {
-				DoDebug(String.Format("Processing Sylenth1 Modulation Source: {0}, Destination: {1}, Preset-file Depth: {2}", sylenthModSource, sylenthModDestination, sylenthXModDestAm));
-				
-				Zebra2Preset.ModulationSource zebraModSource = ConvertSylenthModSourceToZebra(sylenthModSource);
-				
-				string zebraModSourceFieldName = null;
-				Object zebraModSourceFieldValue = null;
-				string zebraModDepthFieldName = null;
-				Object zebraModDepthFieldValue = null;
-				
-				// use List to store modulation pairs
-				List<ZebraModulationPair> modPairs = new List<ZebraModulationPair>();
-
-				// Filters have real range is -150 to 150)
-				// Increase the Cutoff modulation depth values slightly (20% seem to work better)
-				//float CutoffModDepthValue = (float) (ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150) * 1.20);
-				float CutoffModDepthValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-				
-				switch (sylenthModDestination) {
-					case YMODDEST.None:
-						// should never get here
-						break;
-						
-						// Oscillators
-					case YMODDEST.Volume_A:
-						// Volume A:
-						zebraModSourceFieldName = "OSC1_VolSc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC1_VolDt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "OSC2_VolSc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC2_VolDt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						break;
-					case YMODDEST.Volume_B:
-						// Volume B:
-						zebraModSourceFieldName = "OSC3_VolSc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC3_VolDt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "OSC4_VolSc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC4_VolDt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-					case YMODDEST.VolumeAB:
-						// Volume A:
-						zebraModSourceFieldName = "OSC1_VolSc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC1_VolDt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "OSC2_VolSc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC2_VolDt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						// Volume B:
-						zebraModSourceFieldName = "OSC3_VolSc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC3_VolDt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "OSC4_VolSc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC4_VolDt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						break;
-					case YMODDEST.Pitch_A:
-						// TMSrc = Tune Modulation Source
-						// TMDpt = Tune Modulation Depth
-						zebraModSourceFieldValue = (int) zebraModSource;
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -48, 48);			// TuneModDepth
-						zebraModDepthFieldValue = ConvertSylenthModDepthPitchValueToZebra(sylenthXModDestAm);
-
-						zebraModSourceFieldName = "OSC1_TMSrc";
-						zebraModDepthFieldName = "OSC1_TMDpt";
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "OSC2_TMSrc";
-						zebraModDepthFieldName = "OSC2_TMDpt";
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-					case YMODDEST.Pitch_B:
-						// TMSrc = Tune Modulation Source
-						// TMDpt = Tune Modulation Depth
-						zebraModSourceFieldValue = (int) zebraModSource;
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -48, 48);			// TuneModDepth
-						zebraModDepthFieldValue = ConvertSylenthModDepthPitchValueToZebra(sylenthXModDestAm);
-
-						zebraModSourceFieldName = "OSC3_TMSrc";
-						zebraModDepthFieldName = "OSC3_TMDpt";
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "OSC4_TMSrc";
-						zebraModDepthFieldName = "OSC4_TMDpt";
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-					case YMODDEST.Pitch_AB:
-						// TODO 006 Bass Klass Depth.
-						// Sylenth Display Value 4.00 = Zebra 48 (Range -48 to 48)
-						// Sylenth Display Value 3.05 = Zebra 36 (Range -48 to 48)
-						// Sylenth Display Value 2.00 = Zebra 24 (Range -48 to 48)
-						// Sylenth Display Value 1.05 = Zebra 12 (Range -48 to 48)
-						
-						zebraModSourceFieldValue = (int) zebraModSource;
-						//zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -48, 48);			// TuneModDepth
-						zebraModDepthFieldValue = ConvertSylenthModDepthPitchValueToZebra(sylenthXModDestAm);
-						
-						zebraModSourceFieldName = "OSC1_TMSrc";
-						zebraModDepthFieldName = "OSC1_TMDpt";
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "OSC2_TMSrc";
-						zebraModDepthFieldName = "OSC2_TMDpt";
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "OSC3_TMSrc";
-						zebraModDepthFieldName = "OSC3_TMDpt";
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "OSC4_TMSrc";
-						zebraModDepthFieldName = "OSC4_TMDpt";
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-					case YMODDEST.Phase_A:
-						// PhsMSrc = PhaseModSrc
-						// PhsMDpt = PhaseModDepth
-						zebraModSourceFieldName = "OSC1_PhsMSrc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC1_PhsMDpt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -50, 50);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "OSC2_PhsMSrc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC2_PhsMDpt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -50, 50);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-					case YMODDEST.Phase_B:
-						// PhsMSrc = PhaseModSrc
-						// PhsMDpt = PhaseModDepth
-						zebraModSourceFieldName = "OSC3_PhsMSrc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC3_PhsMDpt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -50, 50);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "OSC4_PhsMSrc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC4_PhsMDpt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -50, 50);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-					case YMODDEST.Phase_AB:
-						// PhsMSrc = PhaseModSrc
-						// PhsMDpt = PhaseModDepth
-						zebraModSourceFieldName = "OSC1_PhsMSrc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC1_PhsMDpt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -50, 50);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "OSC2_PhsMSrc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC2_PhsMDpt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -50, 50);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "OSC3_PhsMSrc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC3_PhsMDpt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -50, 50);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "OSC4_PhsMSrc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "OSC4_PhsMDpt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -50, 50);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-					case YMODDEST.Pan_A:
-						// Pan A:
-						zebraModSourceFieldName = "VCA1_PanMS1";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCA1_PanMD1";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);			// Pan Mod Dpt1
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-					case YMODDEST.Pan_B:
-						// Pan B:
-						zebraModSourceFieldName = "VCA1_PanMS2";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCA1_PanMD2";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);			// Pan Mod Dpt2
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-					case YMODDEST.Pan_AB:
-						// Pan A and B:
-						zebraModSourceFieldName = "VCA1_PanMS1";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCA1_PanMD1";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);			// Pan Mod Dpt1
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						zebraModSourceFieldName = "VCA1_PanMS2";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCA1_PanMD2";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);			// Pan Mod Dpt2
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-
-						// Filters
-						// The target for a ‘…’ knob is usually the parameter to its immediate left.
-						// The two filter modules (VCF and XMF) are exceptions to the above rule.
-						// By all appearances, the two unlabeled knobs should affect Resonance
-						// – in fact they both modulate Cutoff.
-						// FS1 = Modsource1
-						// FM1 = ModDepth1 (-150 - 150)
-						// FS2 = Modsource2
-						// FM2 = ModDepth2 (-150 - 150)
-					case YMODDEST.Cutoff_A:
-						zebraModSourceFieldName = "VCF1_FS1";
-						zebraModDepthFieldName = "VCF1_FM1";
-						if (zebraUsedModSources.Contains(zebraModSourceFieldName)) {
-							// already used the first cutoff knob
-							zebraModSourceFieldName = "VCF1_FS2";
-							zebraModDepthFieldName = "VCF1_FM2";
-						}
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldValue = CutoffModDepthValue;
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-					case YMODDEST.Cutoff_B:
-						zebraModSourceFieldName = "VCF2_FS1";
-						zebraModDepthFieldName = "VCF2_FM1";
-						if (zebraUsedModSources.Contains(zebraModSourceFieldName)) {
-							// already used the first cutoff knob
-							zebraModSourceFieldName = "VCF2_FS2";
-							zebraModDepthFieldName = "VCF2_FM2";
-						}
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldValue = CutoffModDepthValue;
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-					case YMODDEST.CutoffAB:
-						zebraModSourceFieldName = "VCF1_FS1";
-						zebraModDepthFieldName = "VCF1_FM1";
-						if (zebraUsedModSources.Contains(zebraModSourceFieldName)) {
-							// already used the first cutoff knob
-							zebraModSourceFieldName = "VCF1_FS2";
-							zebraModDepthFieldName = "VCF1_FM2";
-						}
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldValue = CutoffModDepthValue;
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-
-						zebraModSourceFieldName = "VCF2_FS1";
-						zebraModDepthFieldName = "VCF2_FM1";
-						if (zebraUsedModSources.Contains(zebraModSourceFieldName)) {
-							// already used the first cutoff knob
-							zebraModSourceFieldName = "VCF2_FS2";
-							zebraModDepthFieldName = "VCF2_FM2";
-						}
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldValue = CutoffModDepthValue;
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-					case YMODDEST.Reso_A:
-						zebraModSourceFieldName = "VCF1_FS2";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCF1_FM2";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						// Have to use mod matrix to modulate resonance!
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue, true));
-
-						break;
-					case YMODDEST.Reso_B:
-						zebraModSourceFieldName = "VCF2_FS2";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCF2_FM2";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						// Have to use mod matrix to modulate resonance!
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue, true));
-
-						break;
-					case YMODDEST.Reso_AB:
-						zebraModSourceFieldName = "VCF1_FS2";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCF1_FM2";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						// Have to use mod matrix to modulate resonance!
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue, true));
-
-						zebraModSourceFieldName = "VCF2_FS2";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCF2_FM2";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						// Have to use mod matrix to modulate resonance!
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue, true));
-
-						break;
-						
-						// Misc
-					case YMODDEST.PhsrFreq:
-						zebraModSourceFieldName = "ModFX1_Sped";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "DUMMY";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -150, 150);
-						// Have to use mod matrix to modulate resonance!
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue, true));
-						
-						break;
-						
-					case YMODDEST.Mix_A:
-						// Volume A:
-						zebraModSourceFieldName = "VCA1_ModSrc1";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCA1_ModDpt1";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						zebraUsedModSources.Add(zebraModSourceFieldName); // force using the matrix
-						
-						break;
-					case YMODDEST.Mix_B:
-						// Volume B:
-						zebraModSourceFieldName = "VCA1_ModSrc2";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCA1_ModDpt2";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);			// Mod Depth2
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						zebraUsedModSources.Add(zebraModSourceFieldName); // force using the matrix
-						
-						break;
-					case YMODDEST.Mix_AB:
-						// Volume A and B:
-						zebraModSourceFieldName = "VCA1_ModSrc1";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCA1_ModDpt1";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);			// Mod Depth1
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						zebraUsedModSources.Add(zebraModSourceFieldName); // force using the matrix
-
-						zebraModSourceFieldName = "VCA1_ModSrc2";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "VCA1_ModDpt2";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);			// Mod Depth2
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						zebraUsedModSources.Add(zebraModSourceFieldName); // force using the matrix
-
-						break;
-
-					case YMODDEST.LFO1Rate:
-						// FMS = FreqMod Src1=none
-						// FMD = FreqMod Dpt (-100.00 - 100.00)
-						zebraModSourceFieldName = "LFO1_FMS1";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "LFO1_FMD1";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						// Force LFO Mod Matrix since e.g. LFO1 rate or gain cannot be modulated by any other LFO
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue, true));
-						
-						break;
-					case YMODDEST.LFO1Gain:
-						// DMS = DepthMod Src1=none
-						// DMD = DepthMod Dpt1 (0.00 - 100.00)
-						zebraModSourceFieldName = "LFO1_DMS1";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "LFO1_DMD1";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, 0, 100);
-						// Force LFO Mod Matrix since e.g. LFO1 rate or gain cannot be modulated by any other LFO
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue, true));
-						
-						break;
-					case YMODDEST.LFO2Rate:
-						// FMS = FreqMod Src1=none
-						// FMD = FreqMod Dpt (-100.00 - 100.00)
-						zebraModSourceFieldName = "LFO2_FMS1";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "LFO2_FMD1";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-					case YMODDEST.LFO2Gain:
-						// DMS = DepthMod Src1=none
-						// DMD = DepthMod Dpt1 (0.00 - 100.00)
-						zebraModSourceFieldName = "LFO2_DMS1";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "LFO2_DMD1";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, 0, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						
-						break;
-					case YMODDEST.DistAmnt:
-						// DMSrc = D_ModSrc=none
-						// DMDpt = D_ModDepth
-						
-						// V2: Changed from using Shape3 to Dist3 and Dist3 doesn't have Modulation sources directly, have to use the matrix
-						/*
-						zebraModSourceFieldName = "Shape3_DMSrc";
-						zebraModSourceFieldValue = (int) zebraModSource;
-						zebraModDepthFieldName = "Shape3_DMDpt";
-						zebraModDepthFieldValue = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-						modPairs.Add(new ZebraModulationPair(zebraModSourceFieldName, zebraModSourceFieldValue, zebraModDepthFieldName, zebraModDepthFieldValue));
-						*/
-						break;
-				}
-
-				// Use var keyword to enumerate dictionary
-				foreach (ZebraModulationPair modElement in modPairs)
-				{
-					SetZebraModSourceFromSylenth(s1, z2, modElement.ZebraModSourceFieldName, modElement.ZebraModSourceFieldValue, modElement.ZebraModDepthFieldName, modElement.ZebraModDepthFieldValue, modElement.DoForceModMatrix, sylenthModSource, sylenthModDestination, sylenthXModDestAm, processedModulationSourceAndDest);
-				}
-			}
-		}
-		
-		private void SetZebraModSourceFromSylenth(Syl1PresetContent s1,
-		                                          Zebra2Preset z2,
-		                                          string zebraModSourceFieldName,
-		                                          Object zebraModSourceFieldValue,
-		                                          string zebraModDepthFieldName,
-		                                          Object zebraModDepthFieldValue,
-		                                          bool doForceModMatrix,
-		                                          XMODSOURCE sylenthModSource,
-		                                          YMODDEST sylenthModDestination,
-		                                          float sylenthXModDestAm,
-		                                          Dictionary<string,List<string>> processedModulationSourceAndDest) {
-			
-			if (zebraModSourceFieldName == null || zebraModDepthFieldName == null) {
-				return;
-			}
-			
-			if (!doForceModMatrix && !zebraUsedModSources.Contains(zebraModSourceFieldName)) {
-				// setting modulation source directly on the source (not via the mod matrix)
-				DoDebug(String.Format("Using the Zebra2 Modulation Source Slot: {0}={1} {2}={3}", zebraModSourceFieldName, Enum.GetName(typeof(Zebra2Preset.ModulationSource), zebraModSourceFieldValue), zebraModDepthFieldName, zebraModDepthFieldValue));
-				zebraUsedModSources.Add(zebraModSourceFieldName);
-				ObjectUtils.SetField(z2, zebraModSourceFieldName, zebraModSourceFieldValue);
-				ObjectUtils.SetField(z2, zebraModDepthFieldName, zebraModDepthFieldValue);
-			} else {
-				if (doForceModMatrix) {
-					// Force use mod matrix
-					DoDebug(String.Format("Forcing the usage of the mod matrix. {0}={1} {2}={3}", zebraModSourceFieldName, Enum.GetName(typeof(Zebra2Preset.ModulationSource), zebraModSourceFieldValue), zebraModDepthFieldName, zebraModDepthFieldValue));
-				} else {
-					// Already used the mod source, must revert to using the mod matrix
-					DoDebug(String.Format("Already used up the Zebra2 Modulation Source Slot ({0}). Trying to use the Mod Matrix instead. {0}={1} {2}={3}", zebraModSourceFieldName, Enum.GetName(typeof(Zebra2Preset.ModulationSource), zebraModSourceFieldValue), zebraModDepthFieldName, zebraModDepthFieldValue));
-				}
-				
-				SetZebraModMatrixFromSylenth(s1,
-				                             z2,
-				                             sylenthModSource,
-				                             sylenthModDestination,
-				                             sylenthXModDestAm,
-				                             processedModulationSourceAndDest);
-			}
-		}
-		
-		private void SetZebraModMatrixFromSylenth(Syl1PresetContent s1,
-		                                          Zebra2Preset z2,
-		                                          XMODSOURCE sylenthModSource,
-		                                          YMODDEST sylenthModDestination,
-		                                          float sylenthXModDestAm,
-		                                          Dictionary<string,List<string>> processedModulationSourceAndDest) {
-
-			// check if we have already processed this exact XMODSOURCE and YMODDEST
-			string currentSylenthModSourceAndDest = String.Format("{0}_{1}", sylenthModSource, sylenthModDestination);
-			List<string> zebraUsedModMatrixSlots = new List<string>();
-			if (processedModulationSourceAndDest.ContainsKey(currentSylenthModSourceAndDest)) {
-				// TODO: Sometimes "double booking" of source and destination is used to increase the effect of a destination
-				// so increase the depth ?!
-				// example: 4 BASS Fidget from "Adam Van Baker Sylenth1 Soundset Part 2.fxb"
-				if ( (s1.YModLFO1Dest1 != YMODDEST.None && s1.YModLFO1Dest1 == s1.YModLFO1Dest2)
-				    || (s1.YModLFO2Dest1 != YMODDEST.None && s1.YModLFO2Dest1 == s1.YModLFO2Dest2)
-				    || (s1.YModEnv1Dest1 != YMODDEST.None && s1.YModEnv1Dest1 == s1.YModEnv1Dest2)
-				    || (s1.YModEnv2Dest1 != YMODDEST.None && s1.YModEnv2Dest1 == s1.YModEnv2Dest2)
-				   ) {
-					DoDebug(String.Format("It seems like two modulation sources are duplicated. Increasing the zebra modulation depth to encompass this."));
-					
-					List<string> myList = processedModulationSourceAndDest[currentSylenthModSourceAndDest];
-					foreach(string fieldName in myList)
-					{
-						if(fieldName.StartsWith("PCore_MMD"))
-						{
-							// increase the value
-							ObjectUtils.SetField(z2, fieldName, ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, 90, 90));
-						}
-					}
-					return;
-				} else {
-					DoDebug(String.Format("Sylenth1 Modulation Source has already been set in the Mod Matrix. Skipping! {0}_{1}!", sylenthModSource, sylenthModDestination));
-					return;
-				}
-			} else {
-				processedModulationSourceAndDest.Add(currentSylenthModSourceAndDest, zebraUsedModMatrixSlots);
-			}
-			
-			// use the _zebraNextFreeModMatrixSlot to keep track of the slot usage
-			if (_zebraNextFreeModMatrixSlot > 12) return;
-			
-			int zebraNumberOfSlotsUsed = 0;
-			if (sylenthModSource != XMODSOURCE.SOURCE_None && sylenthModDestination != YMODDEST.None) {
-				string zebraModMatrixDepthPrefix  = "PCore_MMD";
-				string zebraModMatrixSourcePrefix = "PCore_MMS";
-				string zebraModMatrixTargetPrefix = "PCore_MMT";
-				//string zebraModMatrixViaSourcePrefix = "PCore_MMVS";
-				//string zebraModMatrixViaSourceDepthPrefix = "PCore_MMVD";
-
-				switch (sylenthModDestination) {
-					case YMODDEST.None:
-						// should never get here
-						break;
-						
-						// Oscillators
-					case YMODDEST.Volume_A:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "OSC1:Vol", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "OSC2:Vol", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 2;
-						break;
-					case YMODDEST.Volume_B:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "OSC3:Vol", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "OSC4:Vol", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 2;
-						break;
-					case YMODDEST.VolumeAB:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "OSC1:Vol", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "OSC2:Vol", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 3, "OSC3:Vol", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 4, "OSC4:Vol", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 4;
-						break;
-					case YMODDEST.Pitch_A:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "OSC1:Tune", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "OSC2:Tune", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 2;
-						break;
-					case YMODDEST.Pitch_B:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "OSC3:Tune", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "OSC4:Tune", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 2;
-						break;
-					case YMODDEST.Pitch_AB:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "OSC1:Tune", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "OSC2:Tune", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 3, "OSC3:Tune", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 4, "OSC4:Tune", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 4;
-						break;
-					case YMODDEST.Phase_A:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "OSC1:Phse", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "OSC2:Phse", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 2;
-						break;
-					case YMODDEST.Phase_B:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "OSC3:Phse", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "OSC4:Phse", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 2;
-						break;
-					case YMODDEST.Phase_AB:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "OSC1:Phse", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "OSC2:Phse", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 3, "OSC3:Phse", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 4, "OSC4:Phse", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 4;
-						break;
-					case YMODDEST.Pan_A:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCA1:Pan1", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 1;
-						break;
-					case YMODDEST.Pan_B:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCA1:Pan2", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 1;
-						break;
-					case YMODDEST.Pan_AB:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCA1:Pan1", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "VCA1:Pan2", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 2;
-						break;
-
-						// Filters
-					case YMODDEST.Cutoff_A:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCF1:Cut", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 1;
-						break;
-					case YMODDEST.Cutoff_B:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCF2:Cut", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 1;
-						break;
-					case YMODDEST.CutoffAB:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCF1:Cut", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "VCF2:Cut", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 2;
-						break;
-					case YMODDEST.Reso_A:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCF1:Res", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 1;
-						break;
-					case YMODDEST.Reso_B:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCF2:Res", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 1;
-						break;
-					case YMODDEST.Reso_AB:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCF1:Res", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "VCF2:Res", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 2;
-						break;
-
-						// Misc
-					case YMODDEST.PhsrFreq:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "ModFX1:Sped", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 1;
-						break;
-
-					case YMODDEST.Mix_A:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCA1:Vol1", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 1;
-						break;
-					case YMODDEST.Mix_B:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCA1:Vol2", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 1;
-						break;
-					case YMODDEST.Mix_AB:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "VCA1:Vol1", zebraUsedModMatrixSlots);
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 2, "VCA1:Vol2", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 2;
-						break;
-
-					case YMODDEST.LFO1Rate:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "LFO1:Rate", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 1;
-						break;
-					case YMODDEST.LFO1Gain:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "LFO1:Amp", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 1;
-						break;
-					case YMODDEST.LFO2Rate:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "LFO2:Rate", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 1;
-						break;
-					case YMODDEST.LFO2Gain:
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "LFO2:Amp", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 1;
-						break;
-					case YMODDEST.DistAmnt:
-						// V2: Changed from using Shape3 to Dist3 and Dist3 doesn't have Modulation sources directly, have to use the matrix
-						SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixTargetPrefix, _zebraNextFreeModMatrixSlot, 1, "Dist3:Depth", zebraUsedModMatrixSlots);
-						zebraNumberOfSlotsUsed = 1;
-						break;
-				}
-
-				
-				for (int i = 1; i <= zebraNumberOfSlotsUsed; i++) {
-					switch (sylenthModSource) {
-						case XMODSOURCE.SOURCE_None:
-							// should never get here
-							break;
-						case XMODSOURCE.SOURCE_Velocity:
-							SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Velocity, zebraUsedModMatrixSlots);
-							break;
-						case XMODSOURCE.SOURCE_ModWheel:
-							SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.ModWhl, zebraUsedModMatrixSlots);
-							break;
-						case XMODSOURCE.SOURCE_KeyTrack:
-							SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.KeyFol, zebraUsedModMatrixSlots);
-							break;
-						case XMODSOURCE.SOURCE_AmpEnv_A:
-							SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env1, zebraUsedModMatrixSlots);
-							break;
-						case XMODSOURCE.SOURCE_AmpEnv_B:
-							SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env2, zebraUsedModMatrixSlots);
-							break;
-						case XMODSOURCE.SOURCE_ModEnv_1:
-							SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env3, zebraUsedModMatrixSlots);
-							break;
-						case XMODSOURCE.SOURCE_ModEnv_2:
-							SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Env4, zebraUsedModMatrixSlots);
-							break;
-						case XMODSOURCE.SOURCE_LFO_1:
-							SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Lfo1, zebraUsedModMatrixSlots);
-							break;
-						case XMODSOURCE.SOURCE_LFO_2:
-							SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Lfo2, zebraUsedModMatrixSlots);
-							break;
-						case XMODSOURCE.SOURCE_Aftertch:
-							SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.ATouch, zebraUsedModMatrixSlots);
-							break;
-						case XMODSOURCE.SOURCE_StepVlty:
-							//SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Xpress);
-							SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixSourcePrefix, _zebraNextFreeModMatrixSlot, i, (int) Zebra2Preset.ModulationSource.Velocity, zebraUsedModMatrixSlots);
-							break;
-					}
-					
-					// set the modulation depth amount
-					// have to constrain the amount due to too high converstion (real zebra range is 0 - 100)
-					//SetZebraModMatrixElementFromSylenth(z2, sylenthModSource, sylenthModDestination, zebraModMatrixDepthPrefix, _zebraNextFreeModMatrixSlot, i, ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100));
-					//float matrixDepth = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -35, 35);
-					float matrixDepth = ConvertSylenthValueToZebra(sylenthXModDestAm, -10, 10, -100, 100);
-					SetZebraModMatrixElementFromSylenth(z2,
-					                                    sylenthModSource,
-					                                    sylenthModDestination,
-					                                    zebraModMatrixDepthPrefix,
-					                                    _zebraNextFreeModMatrixSlot,
-					                                    i,
-					                                    matrixDepth,
-					                                    zebraUsedModMatrixSlots
-					                                   );
-				}
-				_zebraNextFreeModMatrixSlot += zebraNumberOfSlotsUsed;
-			}
-		}
-		
-		private void SetZebraModMatrixElementFromSylenth(Zebra2Preset z2, XMODSOURCE sylenthModSource, YMODDEST sylenthModDestination,
-		                                                 string fieldNamePrefix, int startMatrixSlot, int slotIndex, Object fieldValue,
-		                                                 List<string> zebraUsedModMatrixSlots) {
-			
-			int fieldIndex = startMatrixSlot + slotIndex -1;
-			string fieldName = String.Format("{0}{1}", fieldNamePrefix,  fieldIndex);
-			if (fieldIndex > 12) {
-				Console.Out.WriteLine("Warning! Not enough matrix slots available. Discarding matrix slot: {0}={1} !", fieldName, fieldValue);
-				IOUtils.LogMessageToFile(outputStatusLog, String.Format("Warning! Not enough matrix slots available. Discarding matrix slot: {0}={1} !", fieldName, fieldValue));
-				return;
-			}
-			DoDebug(String.Format("Setting Zebra2 Mod Matrix Element: {0}->{1} {2}={3}" , sylenthModSource, sylenthModDestination, fieldName, fieldValue));
-			ObjectUtils.SetField(z2, fieldName, fieldValue);
-			
-			// store Zebra mod matrix field information
-			zebraUsedModMatrixSlots.Add(fieldName);
-		}
-		#endregion
-		
-		#region ToZebra2Preset
-		public List<Zebra2Preset> ToZebra2Preset(string defaultZebra2PresetFile, bool doProcessInitPresets) {
-			List<Zebra2Preset> zebra2PresetList = new List<Zebra2Preset>();
-
-			// TODO: problems that should be fixed
-			// Using Adam Van Baker Sylenth1 Soundset Part 2:
-			// BP freq problem : 64 FX Uprise 3, 135 Arp clean state
-			// Reverb problem: 170 Key Stone Valley
-			// Alot wrong:
-			// 175 Arab flute
-			// 236 Dr Crush Kick
-			// +++
-			
-			int convertCounter = 0;
-			foreach (Syl1PresetContent Content in ContentArray) {
-				_zebraNextFreeModMatrixSlot = 1; // reset the index that keeps track of the used matrix slots for a preset
-				zebraUsedModSources.Clear(); // reset the list that keeps track of the used mod sources for a preset
-				convertCounter++;
-				
-				if (convertCounter == 100) break;
-				
-				// Skip if the Preset Name is Init
-				if (!doProcessInitPresets && (Content.PresetName == "Init" || Content.PresetName == "Default")) { //  || !Content.PresetName.StartsWith("SEQ Afrodiseq"
-					// skipping
-					Console.Out.WriteLine("Skipping Sylenth preset number {0} - {1} ...", convertCounter, Content.PresetName);
-					IOUtils.LogMessageToFile(outputStatusLog, String.Format("*** Skipping preset number {0} - {1}! ***", convertCounter, Content.PresetName));
-				} else {
-					Console.Out.WriteLine("Converting Sylenth preset number {0} - {1} ...", convertCounter, Content.PresetName);
-					IOUtils.LogMessageToFile(outputStatusLog, String.Format("**** Converting preset number {0} - {1} ***", convertCounter, Content.PresetName));
-					
-					// Load a default preset file and modify this one
-					Zebra2Preset zebra2Preset = new Zebra2Preset();
-					zebra2Preset.BankIndex = convertCounter;
-					zebra2Preset.Read(defaultZebra2PresetFile, true);
-					
-					// add to list
-					zebra2PresetList.Add(zebra2Preset);
-					
-					// set name
-					zebra2Preset.PresetName = Content.PresetName;
-					
-					// set master volume (50?)
-					zebra2Preset.Main_CcOp = ConvertSylenthValueToZebra(Content.MainVolume, 0, 10, 0, 80); // restrict the limit from 100 - x
-					zebra2Preset.ZMas_Mast = 80;
-					
-					// set mix volume
-					zebra2Preset.VCA1_Vol1 = ConvertSylenthValueToZebra(Content.MixA, 0, 10, 0, 100); // the range is 0, 100, but using 0 - x i get a more correct conversion
-					zebra2Preset.VCA1_Vol2 = ConvertSylenthValueToZebra(Content.MixB, 0, 10, 0, 100); // the range is 0, 100, but using 0 - x i get a more correct conversion
-					
-					// set portamento
-					zebra2Preset.VCC_Porta = ConvertSylenthValueToZebra(Content.PortaTime, 0, 10, 0, 60); // the range is 0, 100, but using 0 - 40 i get a more correct conversion
-					
-					// set mode (mono legato etc)
-					if (Content.MonoLegato == ONOFF.On) {
-						zebra2Preset.VCC_Mode = (int) Zebra2Preset.VoiceMode.legato;
-					} else {
-						zebra2Preset.VCC_Mode = (int) Zebra2Preset.VoiceMode.poly;
-					}
-					
-					#region Oscillators
-					// OscA1
-					if (Content.OscA1Voices != VOICES.VOICES_0) {
-						if (Content.OscA1Wave != OSCWAVE.OSC_Noise) {
-							zebra2Preset.OSC1_WNum = ConvertSylenthWaveToZebra(Content.OscA1Wave, Content.OscA1Invert);
-							zebra2Preset.OSC1_Vol = ConvertSylenthValueToZebra(Content.OscA1Volume, 0, 10, 0, 200);
-
-							// cannot let the volume be 0?!
-							if (zebra2Preset.OSC1_Vol == 0) zebra2Preset.OSC1_Vol = 100;
-
-							// turn the volume on Noise1 down
-							zebra2Preset.Noise1_Vol = 0;
-						} else {
-							// turn the volume on OSC1 all the way down
-							zebra2Preset.OSC1_Vol = 0;
-							
-							// turn the volume on Noise1 up
-							zebra2Preset.Noise1_Vol = ConvertSylenthValueToZebra(Content.OscA1Volume, 0, 10, 0, 200);
-							zebra2Preset.Noise1_PolW = ConvertSylenthValueToZebra(Content.OscA1Stereo, 0, 10, 0, 100);
-							zebra2Preset.Noise1_Pan = ConvertSylenthValueToZebra(Content.OscA1Pan, -10, 10, -100, 100);
-						}
-						zebra2Preset.OSC1_Tune = ConvertSylenthTuneToZebra(Content.OscA1Octave, Content.OscA1Note, Content.OscA1Fine);
-						zebra2Preset.OSC1_Poly = ConvertSylenthVoicesToZebra(Content.OscA1Voices);
-						zebra2Preset.OSC1_Dtun = ConvertSylenthDetuneToZebra(Content.OscA1Detune);
-						zebra2Preset.OSC1_Pan = ConvertSylenthValueToZebra(Content.OscA1Pan, -10, 10, -100, 100);
-						zebra2Preset.OSC1_PolW = ConvertSylenthValueToZebra(Content.OscA1Stereo, 0, 10, 0, 100);
-						zebra2Preset.OSC1_RePhs = (Content.OscA1Retrig == ONOFF.On ? 1 : 0);
-						zebra2Preset.OSC1_Phse = ConvertSylenthValueToZebra(Content.OscA1Phase, 0, 360, 0, 100);
-					} else {
-						// set volume to zero?
-						zebra2Preset.OSC1_Vol = 0;
-					}
-
-					// OscA2
-					if (Content.OscA2Voices != VOICES.VOICES_0) {
-						if (Content.OscA2Wave != OSCWAVE.OSC_Noise) {
-							zebra2Preset.OSC2_WNum = ConvertSylenthWaveToZebra(Content.OscA2Wave, Content.OscA2Invert);
-							zebra2Preset.OSC2_Vol = ConvertSylenthValueToZebra(Content.OscA2Volume, 0, 10, 0, 200);
-
-							// cannot let the volume be 0?!
-							if (zebra2Preset.OSC2_Vol == 0) zebra2Preset.OSC2_Vol = 100;
-
-							// turn the volume on Noise1 down
-							zebra2Preset.Noise1_Vol = 0;
-						} else {
-							// turn the volume on OSC1 all the way down
-							zebra2Preset.OSC2_Vol = 0;
-							
-							// turn the volume on Noise1 up
-							zebra2Preset.Noise1_Vol = ConvertSylenthValueToZebra(Content.OscA2Volume, 0, 10, 0, 200);
-							zebra2Preset.Noise1_PolW = ConvertSylenthValueToZebra(Content.OscA2Stereo, 0, 10, 0, 100);
-							zebra2Preset.Noise1_Pan = ConvertSylenthValueToZebra(Content.OscA2Pan, -10, 10, -100, 100);
-						}
-						zebra2Preset.OSC2_Tune = ConvertSylenthTuneToZebra(Content.OscA2Octave, Content.OscA2Note, Content.OscA2Fine);
-						zebra2Preset.OSC2_Poly = ConvertSylenthVoicesToZebra(Content.OscA2Voices);
-						zebra2Preset.OSC2_Dtun = ConvertSylenthDetuneToZebra(Content.OscA2Detune);
-						zebra2Preset.OSC2_Pan = ConvertSylenthValueToZebra(Content.OscA2Pan, -10, 10, -100, 100);
-						zebra2Preset.OSC2_PolW = ConvertSylenthValueToZebra(Content.OscA2Stereo, 0, 10, 0, 100);
-						zebra2Preset.OSC2_RePhs = (Content.OscA2Retrig == ONOFF.On ? 1 : 0);
-						zebra2Preset.OSC2_Phse = ConvertSylenthValueToZebra(Content.OscA2Phase, 0, 360, 0, 100);
-					} else {
-						// set volume to zero?
-						zebra2Preset.OSC2_Vol = 0;
-					}
-					
-					// OscB1
-					if (Content.OscB1Voices != VOICES.VOICES_0) {
-						if (Content.OscB1Wave != OSCWAVE.OSC_Noise) {
-							zebra2Preset.OSC3_WNum = ConvertSylenthWaveToZebra(Content.OscB1Wave, Content.OscB1Invert);
-							zebra2Preset.OSC3_Vol = ConvertSylenthValueToZebra(Content.OscB1Volume, 0, 10, 0, 200);
-
-							// cannot let the volume be 0?!
-							if (zebra2Preset.OSC3_Vol == 0) zebra2Preset.OSC3_Vol = 100;
-
-							// turn the volume on Noise2 down
-							zebra2Preset.Noise2_Vol = 0;
-						} else {
-							// turn the volume on OSC1 all the way down
-							zebra2Preset.OSC3_Vol = 0;
-							
-							// turn the volume on Noise2 up
-							zebra2Preset.Noise2_Vol = ConvertSylenthValueToZebra(Content.OscB1Volume, 0, 10, 0, 200);
-							zebra2Preset.Noise2_PolW = ConvertSylenthValueToZebra(Content.OscB1Stereo, 0, 10, 0, 100);
-							zebra2Preset.Noise2_Pan = ConvertSylenthValueToZebra(Content.OscB1Pan, -10, 10, -100, 100);
-						}
-						zebra2Preset.OSC3_Tune = ConvertSylenthTuneToZebra(Content.OscB1Octave, Content.OscB1Note, Content.OscB1Fine);
-						zebra2Preset.OSC3_Poly = ConvertSylenthVoicesToZebra(Content.OscB1Voices);
-						zebra2Preset.OSC3_Dtun = ConvertSylenthDetuneToZebra(Content.OscB1Detune);
-						zebra2Preset.OSC3_Pan = ConvertSylenthValueToZebra(Content.OscB1Pan, -10, 10, -100, 100);
-						zebra2Preset.OSC3_PolW = ConvertSylenthValueToZebra(Content.OscB1Stereo, 0, 10, 0, 100);
-						zebra2Preset.OSC3_RePhs = (Content.OscB1Retrig == ONOFF.On ? 1 : 0);
-						zebra2Preset.OSC3_Phse = ConvertSylenthValueToZebra(Content.OscB1Phase, 0, 360, 0, 100);
-					} else {
-						// set volume to zero?
-						zebra2Preset.OSC3_Vol = 0;
-					}
-
-					// OscB2
-					if (Content.OscB2Voices != VOICES.VOICES_0) {
-						if (Content.OscB2Wave != OSCWAVE.OSC_Noise) {
-							zebra2Preset.OSC4_WNum = ConvertSylenthWaveToZebra(Content.OscB2Wave, Content.OscB2Invert);
-							zebra2Preset.OSC4_Vol = ConvertSylenthValueToZebra(Content.OscB2Volume, 0, 10, 0, 200);
-
-							// cannot let the volume be 0?!
-							if (zebra2Preset.OSC4_Vol == 0) zebra2Preset.OSC4_Vol = 100;
-
-							// turn the volume on Noise2 down
-							zebra2Preset.Noise2_Vol = 0;
-						} else {
-							// turn the volume on OSC1 all the way down
-							zebra2Preset.OSC4_Vol = 0;
-							
-							// turn the volume on Noise2 up
-							zebra2Preset.Noise2_Vol = ConvertSylenthValueToZebra(Content.OscB2Volume, 0, 10, 0, 200);
-							zebra2Preset.Noise2_PolW = ConvertSylenthValueToZebra(Content.OscB2Stereo, 0, 10, 0, 100);
-							zebra2Preset.Noise2_Pan = ConvertSylenthValueToZebra(Content.OscB2Pan, -10, 10, -100, 100);
-						}
-						zebra2Preset.OSC4_Tune = ConvertSylenthTuneToZebra(Content.OscB2Octave, Content.OscB2Note, Content.OscB2Fine);
-						zebra2Preset.OSC4_Poly = ConvertSylenthVoicesToZebra(Content.OscB2Voices);
-						zebra2Preset.OSC4_Dtun = ConvertSylenthDetuneToZebra(Content.OscB2Detune);
-						zebra2Preset.OSC4_Pan = ConvertSylenthValueToZebra(Content.OscB2Pan, -10, 10, -100, 100);
-						zebra2Preset.OSC4_PolW = ConvertSylenthValueToZebra(Content.OscB2Stereo, 0, 10, 0, 100);
-						zebra2Preset.OSC4_RePhs = (Content.OscB2Retrig == ONOFF.On ? 1 : 0);
-						zebra2Preset.OSC4_Phse = ConvertSylenthValueToZebra(Content.OscB2Phase, 0, 360, 0, 100);
-					} else {
-						// set volume to zero?
-						zebra2Preset.OSC4_Vol = 0;
-					}
-					#endregion
-
-					#region Filters
-					// The filter control knob values are added to the knob values of both filter A and B.
-					// The frequency scale is logarithmic though, so the cutoff values are added
-					// on a logarithmic scale.
-
-					// FilterA
-					if (Content.FilterAType != FILTERTYPE.Bypass) {
-						if (Content.FilterAInput == FILTERAINPUT.FILTER_A) {
-							zebra2Preset.VCF1_Cut = ConvertSylenthFrequencyToZebra(Content.FilterACutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
-							zebra2Preset.VCF1_Drv = ConvertSylenthValueToZebra(Content.FilterADrive, 0, 10, 0, 100);
-							//zebra2Preset.VCF1_Res = ConvertSylenthValueToZebra(Content.FilterAReso, 0, 10, 0, 100);
-							zebra2Preset.VCF1_Res = ConvertSylenthFrequencyToZebra(Content.FilterAReso, Content.FilterCtlReso, FloatToHz.FilterCutoff);
-							zebra2Preset.VCF1_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterAType, Content.FilterADB, Content.FilterCtlWarmDrive);
-						} else if (Content.FilterAInput == FILTERAINPUT.FILTER_A_B) {
-							zebra2Preset.VCF1_Cut = ConvertSylenthFrequencyToZebra(Content.FilterACutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
-							zebra2Preset.VCF1_Drv = ConvertSylenthValueToZebra(Content.FilterADrive, 0, 10, 0, 100);
-							//zebra2Preset.VCF1_Res = ConvertSylenthValueToZebra(Content.FilterAReso, 0, 10, 0, 100);
-							zebra2Preset.VCF1_Res = ConvertSylenthFrequencyToZebra(Content.FilterAReso, Content.FilterCtlReso, FloatToHz.FilterCutoff);
-							zebra2Preset.VCF1_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterAType, Content.FilterADB, Content.FilterCtlWarmDrive);
-							
-							zebra2Preset.VCF2_Cut = ConvertSylenthFrequencyToZebra(Content.FilterACutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
-							zebra2Preset.VCF2_Drv = ConvertSylenthValueToZebra(Content.FilterADrive, 0, 10, 0, 100);
-							//zebra2Preset.VCF2_Res = ConvertSylenthValueToZebra(Content.FilterAReso, 0, 10, 0, 100);
-							zebra2Preset.VCF2_Res = ConvertSylenthFrequencyToZebra(Content.FilterAReso, Content.FilterCtlReso, FloatToHz.FilterCutoff);
-							zebra2Preset.VCF2_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterAType, Content.FilterADB, Content.FilterCtlWarmDrive);
-						}
-					}
-
-					// FilterB
-					if (Content.FilterBType != FILTERTYPE.Bypass) {
-						if (Content.FilterBInput == FILTERBINPUT.FILTER_B) {
-							zebra2Preset.VCF2_Cut = ConvertSylenthFrequencyToZebra(Content.FilterBCutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
-							zebra2Preset.VCF2_Drv = ConvertSylenthValueToZebra(Content.FilterBDrive, 0, 10, 0, 100);
-							//zebra2Preset.VCF2_Res = ConvertSylenthValueToZebra(Content.FilterBReso, 0, 10, 0, 100);
-							zebra2Preset.VCF2_Res = ConvertSylenthFrequencyToZebra(Content.FilterBReso, Content.FilterCtlReso, FloatToHz.FilterCutoff);
-							zebra2Preset.VCF2_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterBType, Content.FilterBDB, Content.FilterCtlWarmDrive);
-						} else if (Content.FilterBInput == FILTERBINPUT.FILTER_B_A) {
-							zebra2Preset.VCF2_Cut = ConvertSylenthFrequencyToZebra(Content.FilterBCutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
-							zebra2Preset.VCF2_Drv = ConvertSylenthValueToZebra(Content.FilterBDrive, 0, 10, 0, 100);
-							//zebra2Preset.VCF2_Res = ConvertSylenthValueToZebra(Content.FilterBReso, 0, 10, 0, 100);
-							zebra2Preset.VCF2_Res = ConvertSylenthFrequencyToZebra(Content.FilterBReso, Content.FilterCtlReso, FloatToHz.FilterCutoff);
-							zebra2Preset.VCF2_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterBType, Content.FilterBDB, Content.FilterCtlWarmDrive);
-
-							zebra2Preset.VCF1_Cut = ConvertSylenthFrequencyToZebra(Content.FilterBCutoff, Content.FilterCtlCutoff, FloatToHz.FilterCutoff);
-							zebra2Preset.VCF1_Drv = ConvertSylenthValueToZebra(Content.FilterBDrive, 0, 10, 0, 100);
-							//zebra2Preset.VCF1_Res = ConvertSylenthValueToZebra(Content.FilterBReso, 0, 10, 0, 100);
-							zebra2Preset.VCF1_Res = ConvertSylenthFrequencyToZebra(Content.FilterBReso, Content.FilterCtlReso, FloatToHz.FilterCutoff);
-							zebra2Preset.VCF1_Typ = (int) ConvertSylenthFilterToZebra(Content.FilterBType, Content.FilterBDB, Content.FilterCtlWarmDrive);
-						}
-					}
-					#endregion
-					
-					#region LFOs
-					// LFO1 is used for something
-					if (Content.YModLFO1Dest1 != YMODDEST.None || Content.YModLFO1Dest2 != YMODDEST.None ) {
-						SetZebraLFOFromSylenth(zebra2Preset, Content.LFO1Wave, Content.LFO1Free, Content.LFO1Rate, Content.LFO1Gain,
-						                       "LFO1_Wave",
-						                       "LFO1_Sync",
-						                       "LFO1_Rate",
-						                       "LFO1_Trig",
-						                       "LFO1_Phse",
-						                       "LFO1_Amp",
-						                       "LFO1_Slew");
-					}
-
-					// LFO2 is used for something
-					if (Content.YModLFO2Dest1 != YMODDEST.None || Content.YModLFO2Dest2 != YMODDEST.None ) {
-						SetZebraLFOFromSylenth(zebra2Preset, Content.LFO2Wave, Content.LFO2Free, Content.LFO2Rate, Content.LFO2Gain,
-						                       "LFO2_Wave",
-						                       "LFO2_Sync",
-						                       "LFO2_Rate",
-						                       "LFO2_Trig",
-						                       "LFO2_Phse",
-						                       "LFO2_Amp",
-						                       "LFO2_Slew");
-					}
-					#endregion
-					
-					#region Effects
-					
-					#region Arpeggiator
-					if (Content.XSwArpOnOff == ONOFF.On) {
-						
-						// Set correct voice mode
-						zebra2Preset.VCC_Mode = (int) Zebra2Preset.VoiceMode.arpeggiator;
-
-						// ArpSync (0=1:64, 1=1:32, 2=1:16, 3=1:8, 4=1:4, 5=1:2, 6=1:1, 7=1:32 dot, 8=1:16 dot, 9=1:8 dot, 10=1:4 dot, 11=1:2 dot, 12=1:16 trip, 13=1:8 trip, 14=1:4 trip, 15=1:2 trip, 16=1:1 trip)
-						zebra2Preset.VCC_ArSc = ConvertSylenthArpSyncTimingsToZebra(Content.ArpTime);
-						
-						// ArpOrder (0 = By Note, 1 = As Played)
-						zebra2Preset.VCC_ArOrd = (int) Zebra2Preset.ArpOrder.By_Note;
-						
-						// ArpLoop (0 = Forward F-->, 1 = Backward B <--, 2 = ForwardBackward FB <->, 3 = BackwardForward BF >-<)
-						switch (Content.ArpMode) {
-							case ARPMODE.Up:
-							case ARPMODE.Chord:
-							case ARPMODE.Random:
-							case ARPMODE.Ordered:
-							case ARPMODE.Step:
-								zebra2Preset.VCC_ArLp = (int) Zebra2Preset.ArpLoop.Forward;
-								break;
-							case ARPMODE.Down:
-								zebra2Preset.VCC_ArLp = (int) Zebra2Preset.ArpLoop.Backward;
-								break;
-							case ARPMODE.Up_Down:
-							case ARPMODE.Up_Down2:
-								zebra2Preset.VCC_ArLp = (int) Zebra2Preset.ArpLoop.ForwardBackward;
-								break;
-							case ARPMODE.Down_Up:
-							case ARPMODE.Down_Up2:
-								zebra2Preset.VCC_ArLp = (int) Zebra2Preset.ArpLoop.BackwardForward;
-								break;
-						}
-
-						// ArpOctave (0, 1, 2)
-						switch (Content.ArpOctave) {
-							case ARPOCTAVE.OCTAVE_1:
-								zebra2Preset.VCC_ArOct = 0;
-								break;
-							case ARPOCTAVE.OCTAVE_2:
-								zebra2Preset.VCC_ArOct = 1;
-								break;
-							case ARPOCTAVE.OCTAVE_3:
-							case ARPOCTAVE.OCTAVE_4:
-								zebra2Preset.VCC_ArOct = 2;
-								break;
-						}
-
-						// ArpLoopLength (1 - 16)
-						switch (Content.ArpWrap) {
-							case ARPWRAP.WRAP_0:
-								zebra2Preset.VCC_ArLL = 16;
-								break;
-							case ARPWRAP.WRAP_1:
-								zebra2Preset.VCC_ArLL = 1;
-								break;
-							case ARPWRAP.WRAP_2:
-								zebra2Preset.VCC_ArLL = 2;
-								break;
-							case ARPWRAP.WRAP_3:
-								zebra2Preset.VCC_ArLL = 3;
-								break;
-							case ARPWRAP.WRAP_4:
-								zebra2Preset.VCC_ArLL = 4;
-								break;
-							case ARPWRAP.WRAP_5:
-								zebra2Preset.VCC_ArLL = 5;
-								break;
-							case ARPWRAP.WRAP_6:
-								zebra2Preset.VCC_ArLL = 6;
-								break;
-							case ARPWRAP.WRAP_7:
-								zebra2Preset.VCC_ArLL = 7;
-								break;
-							case ARPWRAP.WRAP_8:
-								zebra2Preset.VCC_ArLL = 8;
-								break;
-							case ARPWRAP.WRAP_9:
-								zebra2Preset.VCC_ArLL = 9;
-								break;
-							case ARPWRAP.WRAP_10:
-								zebra2Preset.VCC_ArLL = 10;
-								break;
-							case ARPWRAP.WRAP_11:
-								zebra2Preset.VCC_ArLL = 11;
-								break;
-							case ARPWRAP.WRAP_12:
-								zebra2Preset.VCC_ArLL = 12;
-								break;
-							case ARPWRAP.WRAP_13:
-								zebra2Preset.VCC_ArLL = 13;
-								break;
-							case ARPWRAP.WRAP_14:
-								zebra2Preset.VCC_ArLL = 14;
-								break;
-							case ARPWRAP.WRAP_15:
-								zebra2Preset.VCC_ArLL = 15;
-								break;
-							case ARPWRAP.WRAP_16:
-								zebra2Preset.VCC_ArLL = 16;
-								break;
-						}
-						
-						// ArpPortamento ( 0 = Off, 1 = On)
-						zebra2Preset.VCC_ArTr = (int) Zebra2Preset.ArpPortamento.On;
-						
-						// Set each of the 16 arp notes
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold01, Content.XArpTransp01, Content.XArpVelo01, 1);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold02, Content.XArpTransp02, Content.XArpVelo02, 2);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold03, Content.XArpTransp03, Content.XArpVelo03, 3);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold04, Content.XArpTransp04, Content.XArpVelo04, 4);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold05, Content.XArpTransp05, Content.XArpVelo05, 5);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold06, Content.XArpTransp06, Content.XArpVelo06, 6);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold07, Content.XArpTransp07, Content.XArpVelo07, 7);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold08, Content.XArpTransp08, Content.XArpVelo08, 8);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold09, Content.XArpTransp09, Content.XArpVelo09, 9);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold10, Content.XArpTransp10, Content.XArpVelo10, 10);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold11, Content.XArpTransp11, Content.XArpVelo11, 11);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold12, Content.XArpTransp12, Content.XArpVelo12, 12);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold13, Content.XArpTransp13, Content.XArpVelo13, 13);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold14, Content.XArpTransp14, Content.XArpVelo14, 14);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold15, Content.XArpTransp15, Content.XArpVelo15, 15);
-						SetZebraArpeggiatorNoteFromSylenth(zebra2Preset, Content.ArpGate, Content.XArpHold16, Content.XArpTransp16, Content.XArpVelo16, 16);
-					}
-					#endregion
-					
-					/*
-					#region Distortion = Shaper 3
-					if (Content.XSwDistOnOff == ONOFF.On) {
-						// get how hard to distort
-						float distortionAmount = ConvertSylenthValueToZebra(Content.DistortAmount, 0, 10, 0, 100);
-						
-						// regulate using the dry / wet percentage
-						float distortDryWet = ConvertSylenthValueToZebra(Content.DistortDryWet, 0, 10, 0, 100);
-						
-						zebra2Preset.Shape3_Depth = distortionAmount * distortDryWet / 100;
-						zebra2Preset.Shape3_Edge = distortionAmount * distortDryWet / 100;
-						
-						zebra2Preset.Shape3_Input = 13;
-						zebra2Preset.Shape3_Output = 13;
-						zebra2Preset.Shape3_HiOut = 16;
-						
-						switch(Content.DistortType) {
-							case DISTORTTYPE.OverDrv:
-								zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.T_Drive;
-								break;
-							case DISTORTTYPE.Clip:
-							case DISTORTTYPE.Decimate:
-							case DISTORTTYPE.BitCrush:
-								zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.Crush;
-								// increase depth when using crush
-								zebra2Preset.Shape3_Depth = ( zebra2Preset.Shape3_Depth + 50 > 100 ? 100 : zebra2Preset.Shape3_Depth + 50);
-								break;
-							case DISTORTTYPE.FoldBack:
-								zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.Shape;
-								break;
-						}
-					} else {
-						// set everything to zero?
-						zebra2Preset.Shape3_Type = (int) Zebra2Preset.ShaperType.Shape; // Type (Type=0)
-						zebra2Preset.Shape3_Depth = 00.00f;          // Depth (Depth=0.00)
-						zebra2Preset.Shape3_DMSrc = 0;               // D_ModSrc (DMSrc=0)
-						zebra2Preset.Shape3_DMDpt = 00.00f;          // D_ModDepth (DMDpt=0.00)
-						zebra2Preset.Shape3_Edge = 0.00f;            // Edge (Edge=0.00)
-						zebra2Preset.Shape3_EMSrc = 0;               // Edge ModSrc (EMSrc=0)
-						zebra2Preset.Shape3_EMDpt = 00.00f;          // Edge ModDepth (EMDpt=0.00)
-						zebra2Preset.Shape3_Input = 00.00f;          // Input (Input=0.00)
-						zebra2Preset.Shape3_Output = 00.00f;         // Output (Output=0.00)
-						zebra2Preset.Shape3_HiOut = 00.00f;          // HiOut (HiOut=0.00)
-					}
-					#endregion
-					 */
-
-					#region Distortion = Distortion 3
-					if (Content.XSwDistOnOff == ONOFF.On) {
-						// get how hard to distort
-						float distortionAmount = ConvertSylenthValueToZebra(Content.DistortAmount, 0, 10, -12, 48);
-						
-						// regulate using the dry / wet percentage
-						float distortDryWet = ConvertSylenthValueToZebra(Content.DistortDryWet, 0, 10, 0, 100);
-						
-						zebra2Preset.Dist3_Input = distortionAmount * distortDryWet / 100;
-						zebra2Preset.Dist3_Output = 5;
-						
-						zebra2Preset.Dist3_PreTilt = 0.00f;			// Pre Tilt
-						zebra2Preset.Dist3_PstTilt = 0.00f;			// Post Tilt
-						zebra2Preset.Dist3_CntFreq = 100.00f;		// Center Freq
-						zebra2Preset.Dist3_Low = 0.00f;				// Low
-						zebra2Preset.Dist3_High = 18.00f;			// High
-						zebra2Preset.Dist3_PostFlt = (int) Zebra2Preset.DistortionPostFilter.DualBandShelf;	// Post Filter=Dual-Band Shelf
-						
-						switch(Content.DistortType) {
-							case DISTORTTYPE.OverDrv:
-								zebra2Preset.Dist3_Type = (int) Zebra2Preset.DistortionType.TubeClassAB;
-								
-								// increase output when using overdrive
-								zebra2Preset.Dist3_Output = 10;
-								break;
-							case DISTORTTYPE.Clip:
-								zebra2Preset.Dist3_Type = (int) Zebra2Preset.DistortionType.HardClip;
-								break;
-							case DISTORTTYPE.Decimate:
-								zebra2Preset.Dist3_Type = (int) Zebra2Preset.DistortionType.Rectify;
-								
-								// increase output when using decimate
-								zebra2Preset.Dist3_Output = 20;
-								
-								// and reduce highs
-								zebra2Preset.Dist3_High = 0.00f;
-								break;
-							case DISTORTTYPE.BitCrush:
-								zebra2Preset.Dist3_Type = (int)Zebra2Preset.DistortionType.Rectify;
-								
-								// increase output when using bitcrush
-								zebra2Preset.Dist3_Output = 20;
-								
-								// and reduce highs
-								zebra2Preset.Dist3_High = 0.00f;
-								break;
-							case DISTORTTYPE.FoldBack:
-								zebra2Preset.Dist3_Type = (int) Zebra2Preset.DistortionType.Foldback;
-								break;
-						}
-					} else {
-						// set everything to zero?
-						zebra2Preset.Shape3_Type = (int) Zebra2Preset.DistortionType.TubeClassA; // Type (Type=0)
-						zebra2Preset.Dist3_Input = 0;
-						zebra2Preset.Dist3_Output = 0;
-						
-						zebra2Preset.Dist3_PreTilt = 0.00f;			// Pre Tilt
-						zebra2Preset.Dist3_PstTilt = 0.00f;			// Post Tilt
-						zebra2Preset.Dist3_CntFreq = 100.00f;		// Center Freq
-						zebra2Preset.Dist3_Low = 0.00f;				// Low
-						zebra2Preset.Dist3_High = 0.00f;			// High
-						zebra2Preset.Dist3_PostFlt = (int) Zebra2Preset.DistortionPostFilter.DualBandShelf;	// Post Filter=Dual-Band Shelf
-					}
-					#endregion
-					
-					#region Phaser
-					if (Content.XSwPhaserOnOff == ONOFF.On) {
-						// Mode Phaser: classic phaser unit
-						zebra2Preset.ModFX1_Mode = (int) Zebra2Preset.ModFXType.Phaser;
-						// Center, Nominal delay time / allpass cutoff, i.e. before modulation.
-						zebra2Preset.ModFX1_Cent = ConvertSylenthValueToZebra(Content.PhaserCenterFreq, 0, 10, 0, 100);
-						// Speed, The rate of the ModFX module’s own LFO (from 0.001Hz to 1Hz).
-						zebra2Preset.ModFX1_Sped = ConvertSylenthValueToZebra(Content.PhaserLFORate, 0, 10, 0, 100);
-						// Depth, Amount of LFO modulation.
-						zebra2Preset.ModFX1_Dpth = ConvertSylenthValueToZebra(Content.PhaserLFOGain, 0, 10, 0, 100);
-						// Feedbk, Bipolar feedback control for ‘flanger’ type resonances – especially at extreme values.
-						zebra2Preset.ModFX2_FeeB = ConvertSylenthValueToZebra(Content.PhaserLFOGain, 0, 100, -100, 100);
-						// Mix, Balance between dry and wet signal.
-						zebra2Preset.ModFX1_Mix = ConvertSylenthValueToZebra(Content.PhaserDry_Wet, 0, 100, 0, 100);
-						// Stereo, LFO phase offset between the two stereo channels. Note that 50% is often more ‘stereo’ than 100%.
-						zebra2Preset.ModFX1_PhOff = ConvertSylenthValueToZebra(Content.PhaserSpread, 0, 10, 0, 100);
-						// Quad, The volume of an additional chorus effect, with independant LFO.
-						zebra2Preset.ModFX1_Quad = 0.00f;			// Quad
-						// Q-Phase, Modulation LFO phase offset (see Stereo above) for the Quad effect.
-						zebra2Preset.ModFX1_Qphs = 25.00f;			// QuadPhase
-						
-						// Equalizer
-						// This unique feature can e.g. preserve the stereo image of bass frequencies via low cut,
-						// while at the same time making the chorus effect sound less harsh via high cut.
-						// EQ: switches ModFX equalization on/off
-						// LowFreq: low crossover frequency
-						// HiFreq: high crossover frequency
-						// Boost: cut/boost controls for the two frequencie ranges
-						zebra2Preset.ModFX1_LCut = 0.00f;			// LowCut Freq
-						zebra2Preset.ModFX1_Leq = 0.00f;			// Low Boost dB
-						zebra2Preset.ModFX1_HCut = 100.00f;			// HiCut Freq
-						zebra2Preset.ModFX1_Heq = 0.00f;			// High Boost dB
-						zebra2Preset.ModFX1_Q1 = 0.00f;				// Q1
-						zebra2Preset.ModFX1_Q2 = 0.00f;				// Q2
-						zebra2Preset.ModFX1_EQon = 1;				// EQ
-					} else {
-						zebra2Preset.ModFX1_Mode = (int) Zebra2Preset.ModFXType.Phaser;	// Mode=Chorus
-						zebra2Preset.ModFX1_Cent = 20.00f;			// Center
-						zebra2Preset.ModFX1_Sped = 50.00f;			// Speed
-						zebra2Preset.ModFX1_PhOff = 50.00f;			// Stereo
-						zebra2Preset.ModFX1_Dpth = 50.00f;			// Depth
-						zebra2Preset.ModFX1_FeeB = 0.00f;			// Feedback
-						zebra2Preset.ModFX1_Mix = 0.00f;			// Mix
-						zebra2Preset.ModFX1_Quad = 0.00f;			// Quad
-						zebra2Preset.ModFX1_Qphs = 25.00f;			// QuadPhase
-						zebra2Preset.ModFX1_LCut = 0.00f;			// LowCut Freq
-						zebra2Preset.ModFX1_Leq = 0.00f;			// Low Boost dB
-						zebra2Preset.ModFX1_HCut = 100.00f;			// HiCut Freq
-						zebra2Preset.ModFX1_Heq = 0.00f;			// High Boost dB
-						zebra2Preset.ModFX1_Q1 = 0.00f;				// Q1
-						zebra2Preset.ModFX1_Q2 = 0.00f;				// Q2
-						zebra2Preset.ModFX1_EQon = 1;				// EQ
-					}
-					#endregion
-					
-					#region Chorus
-					if (Content.XSwChorusOnOff == ONOFF.On) {
-						// Mode Chorus: chorus / flanger using short delay lines
-						zebra2Preset.ModFX2_Mode = (int) Zebra2Preset.ModFXType.Chorus;
-						// Center, Nominal delay time / allpass cutoff, i.e. before modulation.
-						zebra2Preset.ModFX2_Cent = ConvertSylenthValueToZebra(Content.ChorusDelay, 1, 40, 0, 100);
-						// Speed, The rate of the ModFX module’s own LFO (from 0.001Hz to 1Hz).
-						zebra2Preset.ModFX2_Sped = ConvertSylenthValueToZebra(Content.ChorusRate, 0.01f, 27.5f, 0, 100);
-						// Stereo, LFO phase offset between the two stereo channels. Note that 50% is often more ‘stereo’ than 100%.
-						zebra2Preset.ModFX2_PhOff = ConvertSylenthValueToZebra(Content.ChorusWidth, 0, 100, 0, 100); // Stereo
-						// Depth, Amount of LFO modulation.
-						zebra2Preset.ModFX2_Dpth = ConvertSylenthValueToZebra(Content.ChorusDepth, 0, 100, 0, 100);
-						// Feedbk, Bipolar feedback control for ‘flanger’ type resonances – especially at extreme values.
-						zebra2Preset.ModFX2_FeeB = ConvertSylenthValueToZebra(Content.ChorusFeedback, 0, 100, 0, 100);
-						// Mix, Balance between dry and wet signal.
-						zebra2Preset.ModFX2_Mix = ConvertSylenthValueToZebra(Content.ChorusDry_Wet, 0, 100, 0, 100);
-						// Quad, The volume of an additional chorus effect, with independant LFO.
-						if (Content.ChorusMode == CHORUSMODE.Dual) {
-							zebra2Preset.ModFX2_Quad = 100.00f;			// Quad
-						} else {
-							zebra2Preset.ModFX2_Quad = 0.00f;			// Quad
-						}
-						// Q-Phase, Modulation LFO phase offset (see Stereo above) for the Quad effect.
-						zebra2Preset.ModFX2_Qphs = 25.00f;			// QuadPhase
-						// Equalizer
-						// This unique feature can e.g. preserve the stereo image of bass frequencies via low cut,
-						// while at the same time making the chorus effect sound less harsh via high cut.
-						// EQ: switches ModFX equalization on/off
-						// LowFreq: low crossover frequency
-						// HiFreq: high crossover frequency
-						// Boost: cut/boost controls for the two frequencie ranges
-						zebra2Preset.ModFX2_LCut = 0.00f;			// LowCut Freq
-						zebra2Preset.ModFX2_Leq = 0.00f;			// Low Boost dB
-						zebra2Preset.ModFX2_HCut = 100.00f;			// HiCut Freq
-						zebra2Preset.ModFX2_Heq = 0.00f;			// High Boost dB
-						zebra2Preset.ModFX2_Q1 = 0.00f;				// Q1
-						zebra2Preset.ModFX2_Q2 = 0.00f;				// Q2
-						zebra2Preset.ModFX2_EQon = 1;				// EQ
-					} else {
-						zebra2Preset.ModFX2_Mode = (int) Zebra2Preset.ModFXType.Chorus;	// Mode=Chorus
-						zebra2Preset.ModFX2_Cent = 20.00f;			// Center
-						zebra2Preset.ModFX2_Sped = 50.00f;			// Speed
-						zebra2Preset.ModFX2_PhOff = 50.00f;			// Stereo
-						zebra2Preset.ModFX2_Dpth = 50.00f;			// Depth
-						zebra2Preset.ModFX2_FeeB = 0.00f;			// Feedback
-						zebra2Preset.ModFX2_Mix = 0.00f;			// Mix
-						zebra2Preset.ModFX2_Quad = 0.00f;			// Quad
-						zebra2Preset.ModFX2_Qphs = 25.00f;			// QuadPhase
-						zebra2Preset.ModFX2_LCut = 0.00f;			// LowCut Freq
-						zebra2Preset.ModFX2_Leq = 0.00f;			// Low Boost dB
-						zebra2Preset.ModFX2_HCut = 100.00f;			// HiCut Freq
-						zebra2Preset.ModFX2_Heq = 0.00f;			// High Boost dB
-						zebra2Preset.ModFX2_Q1 = 0.00f;				// Q1
-						zebra2Preset.ModFX2_Q2 = 0.00f;				// Q2
-						zebra2Preset.ModFX2_EQon = 1;				// EQ
-					}
-					#endregion
-					
-					#region Equaliser on MasterBus
-					if (Content.XSwEQOnOff == ONOFF.On) {
-						float eqBassFreq = ValueToHz(Content.EQBassFreq, FloatToHz.EQBassFreq); // 13.75f, 880.0f
-						float eqTrebleFreq = ValueToHz(Content.EQTrebleFreq, FloatToHz.EQTrebleFreq); // 440, 28160
-						// the Sylenth eq only works upwards even though zebra has the range -24 -> 24
-						zebra2Preset.EQ1_Fc1 = Zebra2Preset.EqualiserHzToFreqValue(eqBassFreq);
-						zebra2Preset.EQ1_Gain1 = ConvertSylenthValueToZebra(Content.EQBass, 0, 15, 0, 15);
-						zebra2Preset.EQ1_Res1 = 25.00f;
-						zebra2Preset.EQ1_Fc4 = Zebra2Preset.EqualiserHzToFreqValue(eqTrebleFreq);
-						zebra2Preset.EQ1_Gain4 = ConvertSylenthValueToZebra(Content.EQTreble, 0, 15, 0, 15);
-						zebra2Preset.EQ1_Res4 = 25.00f;
-					} else {
-						zebra2Preset.EQ1_Fc1 = 20.00f;               // Freq LowShelf (fc1=20.00)
-						zebra2Preset.EQ1_Res1 = 25.00f;              // Q LowShelf (res1=25.00)
-						zebra2Preset.EQ1_Gain1 = 00.00f;             // Gain LowShelf (gain1=0.00)
-						zebra2Preset.EQ1_Fc2 = 40.00f;               // Freq Mid1 (fc2=40.00)
-						zebra2Preset.EQ1_Res2 = 25.00f;              // Q Mid1 (res2=25.00)
-						zebra2Preset.EQ1_Gain2 = 00.00f;             // Gain Mid1 (gain2=0.00)
-						zebra2Preset.EQ1_Fc3 = 60.00f;               // Freq Mid2 (fc3=60.00)
-						zebra2Preset.EQ1_Res3 = 25.00f;              // Q Mid2 (res3=25.00)
-						zebra2Preset.EQ1_Gain3 = 00.00f;             // Gain Mid2 (gain3=0.00)
-						zebra2Preset.EQ1_Fc4 = 80.00f;               // Freq HiShelf (fc4=80.00)
-						zebra2Preset.EQ1_Res4 = 25.00f;              // Q HiShelf (res4=25.00)
-						zebra2Preset.EQ1_Gain4 = 00.00f;             // Gain HiShelf (gain4=0.00)
-					}
-					#endregion
-					
-					#region Delay
-					if (Content.XSwDelayOnOff == ONOFF.On) {
-
-						zebra2Preset.Delay1_Mix = ConvertSylenthValueToZebra(Content.DelayDry_Wet, 0, 100, 0, 50); // the range is 0, 100, but using 0 - x i get a more correct volume
-						
-						// Feedback
-						//zebra2Preset.Delay1_FB = ConvertSylenthValueToZebra(Content.DelayFeedback, 0, 100, 0, 50);
-						zebra2Preset.Delay1_CB = ConvertSylenthValueToZebra(Content.DelayFeedback, 0, 100, 0, 50);
-						zebra2Preset.Delay1_FB = 0;
-						
-						// If ping pong, use X-back and serial 2
-						if (Content.DelayPingPong == ONOFF.On) {
-							zebra2Preset.Delay1_Mode = (int) Zebra2Preset.DelayMode.serial_2;
-							zebra2Preset.Delay1_CB = 50;
-							zebra2Preset.Delay1_FB = 0;
-						} else {
-							zebra2Preset.Delay1_Mode = (int) Zebra2Preset.DelayMode.stereo_2;
-						}
-						
-						// high pass == low cut and low pass == high cut
-						// these does not work since zebra delay freq has a range of 0 - 100 not 0 - 150 like the rest ?
-						// ConvertSylenthFrequencyToZebra(Content.DelayLowCut, FloatToHz.DelayLowCut);
-						// ConvertSylenthFrequencyToZebra(Content.DelayHighCut, FloatToHz.DelayHighCut);
-						zebra2Preset.Delay1_HP = 0;
-						zebra2Preset.Delay1_LP = 60; // 35 - 60 sounds more like the default sylenth delay settings
-						
-						zebra2Preset.Delay1_Sync1 = ConvertSylenthDelayTimingsToZebra(Content.DelayTimeLeft);
-						zebra2Preset.Delay1_Pan1 = -80;
-						zebra2Preset.Delay1_Sync2 = ConvertSylenthDelayTimingsToZebra(Content.DelayTimeRight);
-						zebra2Preset.Delay1_Pan2 = 80;
-					} else {
-						// set volume to zero?
-						zebra2Preset.Delay1_Mix = 0;
-					}
-					#endregion
-
-					#region Reverb
-					if (Content.XSwReverbOnOff == ONOFF.On) {
-						zebra2Preset.Rev1_Damp = ConvertSylenthValueToZebra(Content.ReverbDamp, 0, 10, 0, 100);
-						
-						// sylenth dry/wet slider makes up two zebra2 sliders (dry and wet)
-						zebra2Preset.Rev1_Dry = 80;
-						// reduce the range to limit wetness (80 is better than 100)
-						zebra2Preset.Rev1_Wet = ConvertSylenthValueToZebra(Content.ReverbDry_Wet, 0, 100, 0, 80);
-						
-						// sylenth stores the predelay in ms (0 - 200)
-						zebra2Preset.Rev1_Pre = ConvertSylenthValueToZebra(Content.ReverbPredelay, 0, 200, 0, 100);
-						
-						zebra2Preset.Rev1_Size = ConvertSylenthValueToZebra(Content.ReverbSize, 0, 10, 0, 100);
-					} else {
-						// set volume to zero?
-						zebra2Preset.Rev1_Wet = 0;
-						zebra2Preset.Rev1_Dry = 100;
-					}
-					#endregion
-					
-					#region Compression
-					if (Content.XSwCompOnOff == ONOFF.On) {
-						zebra2Preset.Comp1_Att = ConvertSylenthValueToZebra(Content.CompAttack, 0.1f, 300, 0, 100);
-						zebra2Preset.Comp1_Rel = ConvertSylenthValueToZebra(Content.CompRelease, 1, 500, 0, 100);
-						zebra2Preset.Comp1_Thres = ConvertSylenthValueToZebra(Content.CompThreshold, -30, 0, -96, 0);
-						zebra2Preset.Comp1_Rat = MathUtils.ConvertAndMainainRatio(Content.CompRatio, 0, 1, 0, 100);
-					}
-					#endregion
-					#endregion
-					
-					#region Envelopes
-					float envelopeMin = 0;
-					float envelopeMax = 120;
-					// Set correct Envelope Slope (v-slope)
-					int envelopeMode = (int) Zebra2Preset.EnvelopeMode.v_slope;
-					float envelopeSlope = -70.00f;
-					// Envelope 1 - Used as Amp Envelope
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvAAttack, "ENV1_TBase", "ENV1_Atk");
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvADecay, "ENV1_TBase", "ENV1_Dec");
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvARelease, "ENV1_TBase", "ENV1_Rel");
-					zebra2Preset.ENV1_Sus = ConvertSylenthValueToZebra(Content.AmpEnvASustain, 0, 10, envelopeMin, envelopeMax);
-					zebra2Preset.ENV1_Vel = 70;
-					zebra2Preset.ENV1_Mode = envelopeMode;
-					zebra2Preset.ENV1_Slope = envelopeSlope;
-					
-					// Envelope 2 - Used as Amp Envelope
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBAttack, "ENV2_TBase", "ENV2_Atk");
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBDecay, "ENV2_TBase", "ENV2_Dec");
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.AmpEnvBRelease, "ENV2_TBase", "ENV2_Rel");
-					zebra2Preset.ENV2_Sus = ConvertSylenthValueToZebra(Content.AmpEnvBSustain, 0, 10, envelopeMin, envelopeMax);
-					zebra2Preset.ENV2_Vel = 70;
-					zebra2Preset.ENV2_Mode = envelopeMode;
-					zebra2Preset.ENV2_Slope = envelopeSlope;
-					
-					// Envelope 3 - Used as Mod Envelope
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Attack, "ENV3_TBase", "ENV3_Atk");
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Decay, "ENV3_TBase", "ENV3_Dec");
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv1Release, "ENV3_TBase", "ENV3_Rel");
-					zebra2Preset.ENV3_Sus = ConvertSylenthValueToZebra(Content.ModEnv1Sustain, 0, 10, envelopeMin, envelopeMax);
-					zebra2Preset.ENV3_Vel = 70;
-					zebra2Preset.ENV3_Mode = envelopeMode;
-					zebra2Preset.ENV3_Slope = envelopeSlope;
-
-					// Envelope 4 - Used as Mod Envelope
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Attack, "ENV4_TBase", "ENV4_Atk");
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Decay, "ENV4_TBase", "ENV4_Dec");
-					SetZebraEnvelopeFromSylenth(zebra2Preset, Content.ModEnv2Release, "ENV4_TBase", "ENV4_Rel");
-					zebra2Preset.ENV4_Sus = ConvertSylenthValueToZebra(Content.ModEnv2Sustain, 0, 10, envelopeMin, envelopeMax);
-					zebra2Preset.ENV4_Vel = 70;
-					zebra2Preset.ENV4_Mode = envelopeMode;
-					zebra2Preset.ENV4_Slope = envelopeSlope;
-					#endregion
-					
-					#region Modulation
-					// Store what we have processed already
-					Dictionary<string,List<string>> processedModulationSourceAndDest = new Dictionary<string, List<string>>();
-					
-					// See if the mod envelopes are used
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, XMODSOURCE.SOURCE_ModEnv_1, Content.YModEnv1Dest1, Content.XModEnv1Dest1Am, processedModulationSourceAndDest);
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, XMODSOURCE.SOURCE_ModEnv_1, Content.YModEnv1Dest2, Content.XModEnv1Dest2Am, processedModulationSourceAndDest);
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, XMODSOURCE.SOURCE_ModEnv_2, Content.YModEnv2Dest1, Content.XModEnv2Dest1Am, processedModulationSourceAndDest);
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, XMODSOURCE.SOURCE_ModEnv_2, Content.YModEnv2Dest2, Content.XModEnv2Dest2Am, processedModulationSourceAndDest);
-
-					// See if the LFOs are used
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, XMODSOURCE.SOURCE_LFO_1, Content.YModLFO1Dest1, Content.XModLFO1Dest1Am, processedModulationSourceAndDest);
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, XMODSOURCE.SOURCE_LFO_1, Content.YModLFO1Dest2, Content.XModLFO1Dest2Am, processedModulationSourceAndDest);
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, XMODSOURCE.SOURCE_LFO_2, Content.YModLFO2Dest1, Content.XModLFO2Dest1Am, processedModulationSourceAndDest);
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, XMODSOURCE.SOURCE_LFO_2, Content.YModLFO2Dest2, Content.XModLFO2Dest2Am, processedModulationSourceAndDest);
-
-					// Set the matrix slots
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest1, Content.XModMisc1ADest1Am, processedModulationSourceAndDest);
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, Content.XModMisc1ASource, Content.YModMisc1ADest2, Content.XModMisc1ADest2Am, processedModulationSourceAndDest);
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, Content.XModMisc1BSource, Content.YModMisc1BDest1, Content.XModMisc1BDest1Am, processedModulationSourceAndDest);
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, Content.XModMisc1BSource, Content.YModMisc1BDest2, Content.XModMisc1BDest2Am, processedModulationSourceAndDest);
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, Content.XModMisc2ASource, Content.YModMisc2ADest1, Content.XModMisc2ADest1Am, processedModulationSourceAndDest);
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, Content.XModMisc2ASource, Content.YModMisc2ADest2, Content.XModMisc2ADest2Am, processedModulationSourceAndDest);
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, Content.XModMisc2BSource, Content.YModMisc2BDest1, Content.XModMisc2BDest1Am, processedModulationSourceAndDest);
-					SetZebraModSourcesFromSylenth(Content, zebra2Preset, Content.XModMisc2BSource, Content.YModMisc2BDest2, Content.XModMisc2BDest2Am, processedModulationSourceAndDest);
-					#endregion
-					
-				}
-			}
-			return zebra2PresetList;
 		}
 		#endregion
 	}
