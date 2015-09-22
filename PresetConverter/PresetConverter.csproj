@@ -18,7 +18,7 @@
     <NoStdLib>False</NoStdLib>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
-    <StartArguments>-in="C:\Users\perivar.nerseth\OneDrive\Audio\Presets\Lennardigital Sylenth Presets\Class.A.Samples.Top.100.DJs.Sylenth.Presets.WAV.Sylenth1.Presets\Top 100 DJs Sylenth Presets.fxb" -out="C:\Users\perivar.nerseth\OneDrive\Audio\VstPlugins (x86)\Synth\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets TEMP" -skipafter=20</StartArguments>
+    <StartArguments>-in="G:\SkyDrive\Audio\Presets\Lennardigital Sylenth Presets\Class.A.Samples.Top.100.DJs.Sylenth.Presets.WAV.Sylenth1.Presets\Top 100 DJs Sylenth Presets.fxb" -out="G:\SkyDrive\Audio\VstPlugins (x86)\Synth\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets TEMP"</StartArguments>
     <RunCodeAnalysis>False</RunCodeAnalysis>
     <RunSourceAnalysis>False</RunSourceAnalysis>
     <NoWin32Manifest>False</NoWin32Manifest>

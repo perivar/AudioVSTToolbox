@@ -827,8 +827,15 @@ namespace PresetConverter
 			
 			ObjectUtils.SetField(z2, LFOTrigFieldName, (int) Zebra2Preset.LFOGlobalTriggering.Trig_off);
 			ObjectUtils.SetField(z2, LFOPhseFieldName, 0.0f);
-			// TODO: Amp value can never be zero - add a little (5 too much? 3 seems best)
-			ObjectUtils.SetField(z2, LFOAmpFieldName, ConvertSylenthValueToZebra(sylenthLFOGain, 0, 10, 3, 100));
+			
+			// Get LFO Amp/Gain
+			float lfoAmpGain = ConvertSylenthValueToZebra(sylenthLFOGain, 0, 10, 0, 100);
+
+			// TODO: Amp value can never be zero - add a little (2.5 seems best for some sounds like 006 Hardwell from 'Top 100 DJs Sylenth Presets.fxb')
+			if (lfoAmpGain == 0) lfoAmpGain = 2.5f;
+			
+			ObjectUtils.SetField(z2, LFOAmpFieldName, lfoAmpGain);
+			
 			ObjectUtils.SetField(z2, LFOSlewFieldName, (int) Zebra2Preset.LFOSlew.fast);	// LFO Slew (Slew=1)
 		}
 		#endregion
@@ -1630,10 +1637,9 @@ namespace PresetConverter
 			// Using Adam Van Baker Sylenth1 Soundset Part 2:
 			// BP freq problem : 64 FX Uprise 3, 135 Arp clean state
 			// Reverb problem: 170 Key Stone Valley
+			
 			// Alot wrong:
-			// 175 Arab flute
-			// 236 Dr Crush Kick
-			// +++
+			// 176 LD Arab flute (Top 100 DJs Sylenth Presets.fxb)
 			
 			int convertCounter = 0;
 			foreach (Sylenth1Preset.Syl1PresetContent sylenthPresetContent in _sylenth1Preset.ContentArray) {
@@ -1683,6 +1689,11 @@ namespace PresetConverter
 					} else {
 						zebra2Preset.VCC_Mode = (int) Zebra2Preset.VoiceMode.poly;
 					}
+					
+					// set pitch bend up and down
+					float pitchBendRange = ConvertSylenthValueToZebra(sylenthPresetContent.PitchBendRange, 1, 24, 1, 24);
+					zebra2Preset.VCC_PB = (int) pitchBendRange;
+					zebra2Preset.VCC_PBD = (int) pitchBendRange;
 					
 					#region Oscillators
 					// OscA1
