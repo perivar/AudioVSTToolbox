@@ -169,6 +169,9 @@
     <Compile Include="..\..\CommonUtils\Library\Source\VST\VstPlaybackNAudio.cs">
       <Link>VstPlaybackNAudio.cs</Link>
     </Compile>
+    <Compile Include="..\PresetConverter\Logger.cs">
+      <Link>Logger.cs</Link>
+    </Compile>
     <Compile Include="..\PresetConverter\Preset.cs">
       <Link>Preset.cs</Link>
     </Compile>
