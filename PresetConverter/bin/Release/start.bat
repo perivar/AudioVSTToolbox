@@ -1,1 +1,0 @@
-PresetConverter.exe -in="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\PresetConverter" -out="C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\SynthAnalysisStudio\Zebra2.data\Presets\Zebra2"

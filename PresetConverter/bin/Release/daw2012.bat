@@ -1,1 +1,1 @@
-PresetConverter.exe -in="G:\SkyDrive\Audio\Presets\Lennardigital Sylenth Presets" -out="G:\SkyDrive\Audio\VstPlugins (x86)\Synth\Zebra\Zebra2.data\Presets\Zebra2\0 Converted" -text
+PresetConverter.exe -in="G:\SkyDrive\Audio\Presets\Lennardigital Sylenth Presets" -out="G:\SkyDrive\Audio\VstPlugins (x86)\Synth\Zebra\Zebra2.data\Presets\Zebra2\Converted Sylenth1 Presets"
