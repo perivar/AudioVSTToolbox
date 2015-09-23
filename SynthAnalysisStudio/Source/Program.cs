@@ -346,75 +346,11 @@ namespace SynthAnalysisStudio
 			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavData, new System.Drawing.Size(1000, 600), 5, 1, 0, 44100);
 			string fileName = String.Format("wave-{0}.png", 1);
 			png.Save(fileName);
-
-			return;
-			
-			for (int i = 0; i < 128; i++ ) {
-				float freq = MidiUtils.MidiNoteToPitch(i);
-				int note = 0;
-				int cents = 0;
-				MidiUtils.PitchToMidiNote(freq, out note, out cents);
-				string noteName = MidiUtils.GetNoteName(note, false, true);
 				
-				Console.Out.WriteLine("Midi Key: {0}, Frequency: {1:0.0000} (note: {2} {3} cents - {4})", i, freq, note, cents, noteName);
-			}
-			
 			Console.ReadKey();
 			return;
-			 */
-			
-			/*
-			float[] wavData = new float[] { 0.001f, -0.8f, 0.05f, -0.05f, 0.2f, 0.4f, 1.0f };
-			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavData, new System.Drawing.Size(1000, 600), 1, 1, 0, 44100);
-			string fileName = String.Format("wave-small-dataset-{0}.png", 1);
-			png.Save(fileName);
 
-			float[] wavDataCropped = AudioUtils.CropAudioAtSilence(wavData, 0.0001, false, 0);
-			png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavDataCropped, new System.Drawing.Size(1000, 600), 1, 1, 0, 44100);
-			fileName = String.Format("wave-small-dataset-cropped{0}.png", 1);
-			png.Save(fileName);
-
-			//string wavFilePath = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
-			string wavFilePath = @"C:\Users\perivar.nerseth\Music\Per Ivar Samples\Rihanna - Who's That Chick (Prod. By David Guetta) (Synth and Bass).wav";
-			//string wavFilePath = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\SynthAnalysisStudio\3.wav";
-			BassProxy bassAudio = new BassProxy();
-			//wavData = bassAudio.ReadMonoFromFile(wavFilePath, 44100, 3*1000, 0*1000 );
-			float[] wavData = bassAudio.ReadMonoFromFile(wavFilePath, 44100, 0, 0);
-
-			System.Drawing.Bitmap png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavData, new System.Drawing.Size(1000, 600), 2000, 1, 0, 44100);
-			string fileName = String.Format("wave-big-dataset-{0}.png", 1);
-			png.Save(fileName);
-
-			wavData = AudioUtils.ReadMonoFromFile(wavFilePath, 44100, 0, 0);
-
-			png = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavData, new System.Drawing.Size(1000, 600), 2000, 1, 0, 44100);
-			fileName = String.Format("wave-big-dataset-{0}.png", 2);
-			png.Save(fileName);
-
-			return;
-			 */
-			
-			/*
-			// read audio
-			//string wavFilePath = @"C:\Users\perivar.nerseth\Music\Sine-500hz-60sec.wav";
-			//string wavFilePath = @"C:\Users\perivar.nerseth\Music\Per Ivar Samples\Rihanna - Who's That Chick (Prod. By David Guetta) (Synth and Bass).wav";
-			string wavFilePath = @"C:\Users\perivar.nerseth\My Projects\AudioVSTToolbox\SynthAnalysisStudio\3.wav";
-			BassProxy bassAudio = new BassProxy();
-			//float[] wavData = bassAudio.ReadMonoFromFile(wavFilePath, 44100, 3*1000, 0*1000 );
-			float[] wavData = bassAudio.ReadMonoFromFile(wavFilePath, 44100, 0, 0);
-			//float[] wavData = null;
-			
-			float[] wavDataCropped = AudioUtils.CropAudioAtSilence(wavData, 0.0001, false, 0);
-			
-			System.Drawing.Bitmap png4 = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavData, new System.Drawing.Size(1000, 600), 10000, 1, 0, 44100);
-			string fileName4 = String.Format("wave-sine-{0}.png", 4);
-			png4.Save(fileName4);
-
-			System.Drawing.Bitmap png5 = CommonUtils.FFT.AudioAnalyzer.DrawWaveform(wavDataCropped, new System.Drawing.Size(1000, 600), 10000, 1, 0, 44100);
-			string fileName5 = String.Format("wave-sine-{0}.png", 5);
-			png5.Save(fileName5);
-
-			
+						
 			using (WaveFileWriter writer = new WaveFileWriter("wav1.wav", new WaveFormat(44100, 1)))
 			{
 				writer.WriteSamples(wavData, 0, wavData.Length);
