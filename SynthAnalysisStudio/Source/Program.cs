@@ -44,7 +44,7 @@ namespace SynthAnalysisStudio
 				// actually open the plugin itself
 				ctx.PluginCommandStub.Open();
 				
-				AudioOutput audioOut = new AudioOutput(
+				var audioOut = new AudioOutput(
 					new List<IVstPluginCommandStub>() {ctx.PluginCommandStub},
 					waveFilePath);
 				Thread.Sleep(100);

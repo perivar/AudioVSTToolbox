@@ -17,6 +17,7 @@ namespace MidiVstTest
 		Null,
 		NAudio
 	}
+	
 	public static class UtilityAudio
 	{
 		private static AudioLibrary UsedLibrary = AudioLibrary.Null;
@@ -34,11 +35,11 @@ namespace MidiVstTest
 		
 		//=============================================
 
-		public static bool OpenAudio(AudioLibrary AL)
+		public static bool OpenAudio(AudioLibrary audioLibrary, string asioDevice)
 		{
 			if (UsedLibrary != AudioLibrary.Null ||(playbackDevice != null && playbackDevice.PlaybackState == PlaybackState.Playing)) return false;
 
-			UsedLibrary = AL;
+			UsedLibrary = audioLibrary;
 
 			if (UsedLibrary == AudioLibrary.NAudio)
 			{
@@ -47,7 +48,9 @@ namespace MidiVstTest
 				Mixer32.AutoStop = false;
 				
 				// try asio
-				playbackDevice = new AsioOut(0);
+				if (asioDevice != null) {
+					playbackDevice = new AsioOut(asioDevice);
+				}
 				
 				// if failed, try normal wave out
 				if (playbackDevice == null) playbackDevice = new WaveOut();

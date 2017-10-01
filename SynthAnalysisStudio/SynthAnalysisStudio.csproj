@@ -7,8 +7,9 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>SynthAnalysisStudio</RootNamespace>
     <AssemblyName>SynthAnalysisStudio</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -66,6 +67,9 @@
     </Reference>
     <Reference Include="Jacobi.Vst.Interop">
       <HintPath>..\NativeLibraries\Jacobi.Vst.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="NAudio">
       <HintPath>..\NativeLibraries\NAudio.dll</HintPath>
@@ -260,7 +264,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Linked" />
     <Folder Include="Source" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />

@@ -42,6 +42,8 @@ namespace MidiVstTest
 			this.comboBoxMidiInDevices = new System.Windows.Forms.ToolStripComboBox();
 			this.selectMIDIOUTToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.comboBoxMidiOutDevices = new System.Windows.Forms.ToolStripComboBox();
+			this.selectAudioOutputDeviceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.comboBoxAudioOutDevices = new System.Windows.Forms.ToolStripComboBox();
 			this.vSTToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -54,8 +56,8 @@ namespace MidiVstTest
 			// menuStrip1
 			// 
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.setupToolStripMenuItem,
-									this.vSTToolStripMenuItem});
+			this.setupToolStripMenuItem,
+			this.vSTToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(505, 24);
@@ -65,10 +67,12 @@ namespace MidiVstTest
 			// setupToolStripMenuItem
 			// 
 			this.setupToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.selectMIDIINToolStripMenuItem,
-									this.comboBoxMidiInDevices,
-									this.selectMIDIOUTToolStripMenuItem,
-									this.comboBoxMidiOutDevices});
+			this.selectMIDIINToolStripMenuItem,
+			this.comboBoxMidiInDevices,
+			this.selectMIDIOUTToolStripMenuItem,
+			this.comboBoxMidiOutDevices,
+			this.selectAudioOutputDeviceToolStripMenuItem,
+			this.comboBoxAudioOutDevices});
 			this.setupToolStripMenuItem.Name = "setupToolStripMenuItem";
 			this.setupToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
 			this.setupToolStripMenuItem.Text = "Setup";
@@ -77,7 +81,7 @@ namespace MidiVstTest
 			// 
 			this.selectMIDIINToolStripMenuItem.CheckOnClick = true;
 			this.selectMIDIINToolStripMenuItem.Name = "selectMIDIINToolStripMenuItem";
-			this.selectMIDIINToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+			this.selectMIDIINToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
 			this.selectMIDIINToolStripMenuItem.Text = "Select MIDI IN...";
 			this.selectMIDIINToolStripMenuItem.CheckedChanged += new System.EventHandler(this.SelectMIDIINToolStripMenuItemCheckedChanged);
 			// 
@@ -92,7 +96,7 @@ namespace MidiVstTest
 			// 
 			this.selectMIDIOUTToolStripMenuItem.CheckOnClick = true;
 			this.selectMIDIOUTToolStripMenuItem.Name = "selectMIDIOUTToolStripMenuItem";
-			this.selectMIDIOUTToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+			this.selectMIDIOUTToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
 			this.selectMIDIOUTToolStripMenuItem.Text = "Select MIDI OUT...";
 			this.selectMIDIOUTToolStripMenuItem.CheckedChanged += new System.EventHandler(this.SelectMIDIOUTToolStripMenuItemCheckedChanged);
 			// 
@@ -103,12 +107,27 @@ namespace MidiVstTest
 			this.comboBoxMidiOutDevices.Size = new System.Drawing.Size(121, 23);
 			this.comboBoxMidiOutDevices.SelectedIndexChanged += new System.EventHandler(this.TscMIDIOUTSelectedIndexChanged);
 			// 
+			// selectAudioOutputDeviceToolStripMenuItem
+			// 
+			this.selectAudioOutputDeviceToolStripMenuItem.CheckOnClick = true;
+			this.selectAudioOutputDeviceToolStripMenuItem.Name = "selectAudioOutputDeviceToolStripMenuItem";
+			this.selectAudioOutputDeviceToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+			this.selectAudioOutputDeviceToolStripMenuItem.Text = "Select AUDIO OUT ...";
+			this.selectAudioOutputDeviceToolStripMenuItem.CheckedChanged += new System.EventHandler(this.SelectAudioOutputDeviceToolStripMenuItemCheckedChanged);
+			// 
+			// comboBoxAudioOutDevices
+			// 
+			this.comboBoxAudioOutDevices.Enabled = false;
+			this.comboBoxAudioOutDevices.Name = "comboBoxAudioOutDevices";
+			this.comboBoxAudioOutDevices.Size = new System.Drawing.Size(121, 23);
+			this.comboBoxAudioOutDevices.SelectedIndexChanged += new System.EventHandler(this.TscASIOOutSelectedIndexChanged);
+			// 
 			// vSTToolStripMenuItem
 			// 
 			this.vSTToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.loadToolStripMenuItem,
-									this.showToolStripMenuItem,
-									this.editParametersToolStripMenuItem});
+			this.loadToolStripMenuItem,
+			this.showToolStripMenuItem,
+			this.editParametersToolStripMenuItem});
 			this.vSTToolStripMenuItem.Name = "vSTToolStripMenuItem";
 			this.vSTToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
 			this.vSTToolStripMenuItem.Text = "VST";
@@ -139,8 +158,8 @@ namespace MidiVstTest
 			// progressLog1
 			// 
 			this.progressLog1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left) 
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.progressLog1.BackColor = System.Drawing.SystemColors.ControlDarkDark;
 			this.progressLog1.Location = new System.Drawing.Point(10, 59);
 			this.progressLog1.Name = "progressLog1";
@@ -177,6 +196,7 @@ namespace MidiVstTest
 			this.menuStrip1.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
 		}
 		private System.Windows.Forms.Button buttonClearLog;
 		private NAudio.Utils.ProgressLog progressLog1;
@@ -190,5 +210,7 @@ namespace MidiVstTest
 		private System.Windows.Forms.ToolStripMenuItem vSTToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem setupToolStripMenuItem;
 		private System.Windows.Forms.MenuStrip menuStrip1;
+		private System.Windows.Forms.ToolStripMenuItem selectAudioOutputDeviceToolStripMenuItem;
+		private System.Windows.Forms.ToolStripComboBox comboBoxAudioOutDevices;
 	}
 }

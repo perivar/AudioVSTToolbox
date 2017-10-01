@@ -1,3 +1,6 @@
+UPDATED: For VSTi's except sylenth it looks like the latest version of Vst.Net and Naudio works well!
+
+
 The only way I got this to work properly is to make sure the compiler is set to 
 .NET Framework 3.5
 
@@ -19,3 +22,4 @@ but the app is unstable.
     <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.0"/>
   </startup>
 </configuration>
+

@@ -12,16 +12,16 @@ namespace MidiVstTest
 {
 	public partial class VSTForm : Form
 	{
-		public static VSTForm Singleton = null;
+		public static VSTForm vstFormSingleton = null;
 		public static VST vst = null;
 
 		public bool doGUIRefresh = true;
 		EditParametersForm edit = new EditParametersForm();
 
-		public VSTForm(string VSTPath)
+		public VSTForm(string VSTPath, string asioDevice)
 		{
-			Singleton = this;
-			UtilityAudio.OpenAudio(AudioLibrary.NAudio);
+			vstFormSingleton = this;
+			UtilityAudio.OpenAudio(AudioLibrary.NAudio, asioDevice);
 
 			InitializeComponent();
 			
@@ -47,12 +47,12 @@ namespace MidiVstTest
 			vst = null;
 			base.Dispose();
 
-			Singleton = null;
+			vstFormSingleton = null;
 		}
 
 		private void VSTForm_FormClosed(object sender, FormClosedEventArgs e)
 		{
-			Singleton = null;
+			vstFormSingleton = null;
 		}
 
 		internal void ShowEditParameters()
@@ -63,8 +63,12 @@ namespace MidiVstTest
 
 		private void VSTForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			e.Cancel = true;
-			Visible = false;
+			base.OnClosing(e);
+
+            if (e.Cancel == false)
+            {
+                vst.pluginContext.PluginCommandStub.EditorClose();
+            }
 		}
 		
 		private void tsbPlay_Click(object sender, EventArgs e)
@@ -147,7 +151,7 @@ namespace MidiVstTest
 			
 			// In fact all I had to call was  Jacobi.Vst.Core.Host.IVstPluginCommandStub.EditorIdle()
 			// which I do every 100 ms.  This works great ;)
-			if (vst != null && doGUIRefresh) {
+			if (vst != null && doGUIRefresh && Visible) {
 				vst.pluginContext.PluginCommandStub.EditorIdle();
 			}
 

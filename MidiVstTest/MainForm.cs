@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.IO;
 
 using NAudio.Midi;
+using NAudio.Wave;
 
 using Jacobi.Vst.Core;
 
@@ -48,7 +49,7 @@ namespace MidiVstTest
 
 			if (comboBoxMidiInDevices.Items.Count == 0)
 			{
-				//MessageBox.Show("No MIDI input devices available");
+				MessageBox.Show("No MIDI input devices available");
 			} else {
 				if (midiIn == null)
 				{
@@ -68,6 +69,23 @@ namespace MidiVstTest
 				{
 					midiOut = new MidiOut(comboBoxMidiOutDevices.SelectedIndex);
 				}
+			}
+			
+			// Add Audio Output Types
+			InitialiseAsioControls();
+		}
+		
+		private void InitialiseAsioControls()
+		{
+			// Just fill the comboBox AsioDriver with available driver names
+			var asioDriverNames = AsioOut.GetDriverNames();
+			foreach (string driverName in asioDriverNames)
+			{
+				comboBoxAudioOutDevices.Items.Add(driverName);
+			}
+			if (comboBoxAudioOutDevices.Items.Count > 0)
+			{
+				comboBoxAudioOutDevices.SelectedIndex = 0;
 			}
 		}
 		
@@ -103,7 +121,7 @@ namespace MidiVstTest
 					} else {
 						LastDirectoryUsed.Add("VSTDir", Directory.GetParent(ofd.FileName).FullName);
 					}
-					vstForm = new VSTForm(ofd.FileName);
+					vstForm = new VSTForm(ofd.FileName, comboBoxAudioOutDevices.Text);
 					vstForm.Show();
 
 					showToolStripMenuItem.Enabled = true;
@@ -156,11 +174,25 @@ namespace MidiVstTest
 			}
 		}
 		
+		void SelectAudioOutputDeviceToolStripMenuItemCheckedChanged(object sender, EventArgs e)
+		{
+			if (selectAudioOutputDeviceToolStripMenuItem.Checked)
+				comboBoxAudioOutDevices.Enabled = true;
+			else
+			{
+				comboBoxAudioOutDevices.Enabled = false;
+			}
+		}
+		
 		void TscMIDIINSelectedIndexChanged(object sender, EventArgs e)
 		{
 		}
 		
 		void TscMIDIOUTSelectedIndexChanged(object sender, EventArgs e)
+		{
+		}
+		
+		void TscASIOOutSelectedIndexChanged(object sender, EventArgs e)
 		{
 		}
 		
@@ -175,32 +207,31 @@ namespace MidiVstTest
 			progressLog1.LogMessage(Color.Blue, String.Format("Time {0} Message 0x{1:X8} Event {2}",
 			                                                  e.Timestamp, e.RawMessage, e.MidiEvent));
 
-			//SendMidiOutMessage(e.MidiEvent);
 			if (VSTForm.vst != null) {
 				MidiEvent midiEvent = e.MidiEvent;
 				byte[] midiData = { 0, 0, 0 };
-				if (midiEvent is NAudio.Midi.NoteEvent)
+				if (midiEvent is NoteEvent)
 				{
-					var me = (NAudio.Midi.NoteEvent) midiEvent;
+					var me = (NoteEvent) midiEvent;
 					midiData = new byte[] {
-						0x90, 					// Cmd
+						(byte) me.CommandCode, 	// Cmd
 						(byte) me.NoteNumber,	// Val 1
 						(byte) me.Velocity,		// Val 2
 					};
 				}
-				else if (midiEvent is NAudio.Midi.ControlChangeEvent)
+				else if (midiEvent is ControlChangeEvent)
 				{
-					var cce = (NAudio.Midi.ControlChangeEvent) midiEvent;
+					var cce = (ControlChangeEvent) midiEvent;
 					midiData = new byte[] {
 						0xB0, 						// Cmd
-						(byte)cce.Controller,		// Val 1
-						(byte)cce.ControllerValue,	// Val 2
+						(byte) cce.Controller,		// Val 1
+						(byte) cce.ControllerValue,	// Val 2
 					};
 				}
-				else if (midiEvent is NAudio.Midi.PitchWheelChangeEvent)
+				else if (midiEvent is PitchWheelChangeEvent)
 				{
 					// Pitch Wheel Value 0 is minimum, 0x2000 (8192) is default, 0x4000 (16384) is maximum
-					NAudio.Midi.PitchWheelChangeEvent pe = (PitchWheelChangeEvent) midiEvent;
+					var pe = (PitchWheelChangeEvent) midiEvent;
 					midiData = new byte[] {
 						0xE0, 							// Cmd
 						(byte)(pe.Pitch & 0x7f),		// Val 1
@@ -430,5 +461,6 @@ namespace MidiVstTest
 			}
 			UtilityAudio.Dispose();
 		}
+		
 	}
 }

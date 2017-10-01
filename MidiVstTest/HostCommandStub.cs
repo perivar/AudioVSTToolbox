@@ -8,163 +8,228 @@ namespace MidiVstTest
 	{
 		public string Directory;
 
-		#region IVstHostCommandStub Members
+		/// <summary>
+		/// Raised when one of the methods is called.
+		/// </summary>
+		public event EventHandler<PluginCalledEventArgs> PluginCalled;
 
+		private void RaisePluginCalled(string message)
+		{
+			EventHandler<PluginCalledEventArgs> handler = PluginCalled;
+
+			if(handler != null)
+			{
+				handler(this, new PluginCalledEventArgs(message));
+			}
+		}
+
+		#region IVstHostCommandsStub Members
+
+		/// <inheritdoc />
 		public IVstPluginContext PluginContext { get; set; }
-
+		
 		#endregion
 
 		#region IVstHostCommands20 Members
 
+		/// <inheritdoc />
 		public bool BeginEdit(int index)
 		{
+			RaisePluginCalled("BeginEdit(" + index + ")");
+
 			return false;
 		}
 
-		public VstCanDoResult CanDo(VstHostCanDo cando)
+		/// <inheritdoc />
+		public Jacobi.Vst.Core.VstCanDoResult CanDo(string cando)
 		{
-			return VstCanDoResult.Unknown;
+			RaisePluginCalled("CanDo(" + cando + ")");
+			return Jacobi.Vst.Core.VstCanDoResult.Unknown;
 		}
 
-		public bool CloseFileSelector(VstFileSelect fileSelect)
+		/// <inheritdoc />
+		public bool CloseFileSelector(Jacobi.Vst.Core.VstFileSelect fileSelect)
 		{
-			throw new NotImplementedException();
+			RaisePluginCalled("CloseFileSelector(" + fileSelect.Command + ")");
+			return false;
 		}
 
+		/// <inheritdoc />
 		public bool EndEdit(int index)
 		{
+			RaisePluginCalled("EndEdit(" + index + ")");
 			return false;
 		}
 
-		public VstAutomationStates GetAutomationState()
+		/// <inheritdoc />
+		public Jacobi.Vst.Core.VstAutomationStates GetAutomationState()
 		{
-			throw new NotImplementedException();
+			RaisePluginCalled("GetAutomationState()");
+			return Jacobi.Vst.Core.VstAutomationStates.Off;
 		}
 
+		/// <inheritdoc />
 		public int GetBlockSize()
 		{
-			return 512;
+			RaisePluginCalled("GetBlockSize()");
+			return 1024;
 		}
 
+		/// <inheritdoc />
 		public string GetDirectory()
 		{
+			RaisePluginCalled("GetDirectory()");
 			return Directory;
 		}
 
+		/// <inheritdoc />
 		public int GetInputLatency()
 		{
+			RaisePluginCalled("GetInputLatency()");
 			return 0;
 		}
 
-		public VstHostLanguage GetLanguage()
+		/// <inheritdoc />
+		public Jacobi.Vst.Core.VstHostLanguage GetLanguage()
 		{
-			throw new NotImplementedException();
+			RaisePluginCalled("GetLanguage()");
+			return Jacobi.Vst.Core.VstHostLanguage.NotSupported;
 		}
 
+		/// <inheritdoc />
 		public int GetOutputLatency()
 		{
+			RaisePluginCalled("GetOutputLatency()");
 			return 0;
 		}
 
-		public VstProcessLevels GetProcessLevel()
+		/// <inheritdoc />
+		public Jacobi.Vst.Core.VstProcessLevels GetProcessLevel()
 		{
+			RaisePluginCalled("GetProcessLevel()");
 			return Jacobi.Vst.Core.VstProcessLevels.Unknown;
 		}
 
+		/// <inheritdoc />
 		public string GetProductString()
 		{
-			return "ProductString";
+			RaisePluginCalled("GetProductString()");
+			return "VST.NET";
 		}
 
+		/// <inheritdoc />
 		public float GetSampleRate()
 		{
-			return 44100f;
+			RaisePluginCalled("GetSampleRate()");
+			return 44.8f;
 		}
 
-		Jacobi.Vst.Core.VstTimeInfo vstTimeInfo = new Jacobi.Vst.Core.VstTimeInfo();
-		public VstTimeInfo GetTimeInfo(VstTimeInfoFlags filterFlags)
+		/// <inheritdoc />
+		public Jacobi.Vst.Core.VstTimeInfo GetTimeInfo(Jacobi.Vst.Core.VstTimeInfoFlags filterFlags)
 		{
-			vstTimeInfo.SamplePosition = 0.0;
-			vstTimeInfo.SampleRate = 44100;
-			vstTimeInfo.NanoSeconds = 0.0;
-			vstTimeInfo.PpqPosition = 0.0;
-			vstTimeInfo.Tempo = 120.0;
-			vstTimeInfo.BarStartPosition = 0.0;
-			vstTimeInfo.CycleStartPosition = 0.0;
-			vstTimeInfo.CycleEndPosition = 0.0;
-			vstTimeInfo.TimeSignatureNumerator = 4;
-			vstTimeInfo.TimeSignatureDenominator = 4;
-			vstTimeInfo.SmpteOffset = 0;
-			vstTimeInfo.SmpteFrameRate = new Jacobi.Vst.Core.VstSmpteFrameRate();
-			vstTimeInfo.SamplesToNearestClock = 0;
-			vstTimeInfo.Flags = 0;
-
-			return vstTimeInfo;
+			RaisePluginCalled("GetTimeInfo(" + filterFlags + ")");
+			return null;
 		}
 
+		/// <inheritdoc />
 		public string GetVendorString()
 		{
-			return "VendorString";
+			RaisePluginCalled("GetVendorString()");
+			return "Jacobi Software";
 		}
 
+		/// <inheritdoc />
 		public int GetVendorVersion()
 		{
-			return 2400;
+			RaisePluginCalled("GetVendorVersion()");
+			return 1000;
 		}
 
+		/// <inheritdoc />
 		public bool IoChanged()
 		{
-			throw new NotImplementedException();
-		}
-
-		public bool OpenFileSelector(VstFileSelect fileSelect)
-		{
-			throw new NotImplementedException();
-		}
-
-		public bool ProcessEvents(VstEvent[] events)
-		{
+			RaisePluginCalled("IoChanged()");
 			return false;
 		}
 
-		public bool SizeWindow(int width, int height)
+		/// <inheritdoc />
+		public bool OpenFileSelector(Jacobi.Vst.Core.VstFileSelect fileSelect)
 		{
-			throw new NotImplementedException();
+			RaisePluginCalled("OpenFileSelector(" + fileSelect.Command + ")");
+			return false;
 		}
 
+		/// <inheritdoc />
+		public bool ProcessEvents(Jacobi.Vst.Core.VstEvent[] events)
+		{
+			RaisePluginCalled("ProcessEvents(" + events.Length + ")");
+			return false;
+		}
+
+		/// <inheritdoc />
+		public bool SizeWindow(int width, int height)
+		{
+			RaisePluginCalled("SizeWindow(" + width + ", " + height + ")");
+			return false;
+		}
+
+		/// <inheritdoc />
 		public bool UpdateDisplay()
 		{
-			return true;
+			RaisePluginCalled("UpdateDisplay()");
+			return false;
 		}
 
 		#endregion
 
 		#region IVstHostCommands10 Members
 
+		/// <inheritdoc />
 		public int GetCurrentPluginID()
 		{
+			RaisePluginCalled("GetCurrentPluginID()");
 			return PluginContext.PluginInfo.PluginID;
 		}
 
+		/// <inheritdoc />
 		public int GetVersion()
 		{
-			return 2400;
+			RaisePluginCalled("GetVersion()");
+			return 1000;
 		}
 
+		/// <inheritdoc />
 		public void ProcessIdle()
 		{
-			return;
+			RaisePluginCalled("ProcessIdle()");
 		}
 
+		/// <inheritdoc />
 		public void SetParameterAutomated(int index, float value)
 		{
-		}
-
-		public VstCanDoResult CanDo(string cando)
-		{
-			return VstCanDoResult.Unknown;
+			RaisePluginCalled("SetParameterAutomated(" + index + ", " + value + ")");
 		}
 
 		#endregion
+	}
+
+	/// <summary>
+	/// Event arguments used when one of the mehtods is called.
+	/// </summary>
+	class PluginCalledEventArgs : EventArgs
+	{
+		/// <summary>
+		/// Constructs a new instance with a <paramref name="message"/>.
+		/// </summary>
+		/// <param name="message"></param>
+		public PluginCalledEventArgs(string message)
+		{
+			Message = message;
+		}
+
+		/// <summary>
+		/// Gets the message.
+		/// </summary>
+		public string Message { get; private set; }
 	}
 }

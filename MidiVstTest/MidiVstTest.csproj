@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
     <ProjectGuid>{E341738C-DF27-4A50-9D1E-B0CCF3D63631}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -7,8 +7,9 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>MidiVstTest</RootNamespace>
     <AssemblyName>MidiVstTest</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
@@ -45,6 +46,9 @@
     <Reference Include="Jacobi.Vst.Interop">
       <HintPath>..\NativeLibraries\Jacobi.Vst.Interop.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
     <Reference Include="NAudio">
       <HintPath>..\NativeLibraries\NAudio.dll</HintPath>
     </Reference>
@@ -77,10 +81,6 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MidiInPanel.cs" />
-    <Compile Include="MidiInPanel.Designer.cs">
-      <DependentUpon>MidiInPanel.cs</DependentUpon>
-    </Compile>
     <Compile Include="NAudio\RecordableMixerStream32.cs" />
     <Compile Include="NAudio\VSTStream.cs" />
     <Compile Include="NAudio\Wave24To16Stream.cs" />
@@ -108,9 +108,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MidiInPanel.resx">
-      <DependentUpon>MidiInPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VSTForm.resx">
       <DependentUpon>VSTForm.cs</DependentUpon>

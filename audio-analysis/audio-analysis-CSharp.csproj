@@ -7,8 +7,9 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>audio_analysis_CSharp</RootNamespace>
     <AssemblyName>audio-analysis-CSharp</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <StartupObject>com.badlogic.audio.samples.part7.MultiBandThreshold</StartupObject>
   </PropertyGroup>
@@ -34,9 +35,6 @@
   <ItemGroup>
     <Reference Include="NAudio">
       <HintPath>..\NativeLibraries\NAudio.dll</HintPath>
-    </Reference>
-    <Reference Include="NAudio.WindowsMediaFormat">
-      <HintPath>..\NativeLibraries\NAudio.WindowsMediaFormat.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -111,6 +109,9 @@
     <EmbeddedResource Include="src\com\badlogic\audio\visualization\Plot.resx">
       <DependentUpon>Plot.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>
