@@ -173,6 +173,8 @@ namespace SynthAnalysisStudio
 		#region Read and Write Methods
 		public bool ReadFXP(FXP fxp, string filePath="")
 		{
+			if (fxp == null || fxp.ChunkDataByteArray == null) return false;
+			
 			var bFile = new BinaryFile(fxp.ChunkDataByteArray, BinaryFile.ByteOrder.LittleEndian);
 
 			// Read UAD Preset Header information
@@ -218,7 +220,7 @@ namespace SynthAnalysisStudio
 			EQType = bFile.ReadSingle();
 			Power = bFile.ReadSingle();
 			
-			return false;
+			return true;
 		}
 		
 		public bool WriteFXP(string filePath) {

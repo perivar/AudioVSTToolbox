@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 using CommonUtils;
 using CommonUtils.Audio;
@@ -219,41 +220,6 @@ namespace PresetConverter
 			MSEG4 = 21
 		}
 		
-		public enum ModulationSource : int {
-			none = 0,
-			ModWhl = 1,
-			PitchW = 2,
-			Breath = 3,
-			Xpress = 4,
-			LfoG1 = 5,
-			LfoG2 = 6,
-			Gate = 7,
-			KeyFol = 8,
-			KeyFol2 = 9,
-			Velocity = 10,
-			ATouch = 11,
-			ArpMod = 12,
-			ArpMd2 = 13,
-			Env1 = 14,
-			Env2 = 15,
-			Env3 = 16,
-			Env4 = 17,
-			MSEG1 = 18,
-			MSEG2 = 19,
-			MSEG3 = 20,
-			MSEG4 = 21,
-			Lfo1 = 22,
-			Lfo2 = 23,
-			Lfo3 = 24,
-			Lfo4 = 25,
-			MMap1 = 26,
-			MMap2 = 27,
-			MMix1 = 28,
-			MMix2 = 29,
-			MMix3 = 30,
-			MMix4 = 31
-		}
-
 		public enum OscillatorEffect : int {
 			none = 0,
 			Fundamental = 1,
@@ -403,6 +369,10 @@ namespace PresetConverter
 		
 		#region Zebra2 Fields
 
+		// Internal Variables to keep track
+		public int NumberOfModulationSources = 0;
+		public List<String> ModulationSources = new List<string>();
+		
 		// Section Meta Header
 		public string PresetName {set; get;}
 		public string PresetAuthor {set; get;}
@@ -2040,6 +2010,13 @@ namespace PresetConverter
 		public string UglyCompressedBinaryData = ""; // uglyCompressedBinaryData
 		#endregion
 		
+		#region Helper Methods
+
+		public string GetModulationSource(int index) {
+			return ModulationSources[index];
+		}
+		#endregion
+		
 		#region Constructors
 		public Zebra2Preset()
 		{
@@ -2367,40 +2344,72 @@ namespace PresetConverter
 		                                 float envelopeK2S2,
 		                                 float envelopeK2R,
 		                                 float envelopeSlope,
-		                                 int envelopeTBase) {
+		                                 int envelopeTBase,
+		                                 bool doHumanReadable=false) {
 			var buffer = new StringBuilder();
 			buffer.AppendLine();
 			buffer.AppendLine("/*");
 			buffer.AppendLine("	" + description);
 			buffer.AppendLine("*/");
-			buffer.AppendLine("#cm=" + name.ToUpper());
-			buffer.Append(String.Format("Mode={0}", envelopeMode).PadRight(20)).AppendFormat("// Mode={0} (0 = quadric, 1 = linear, 2 = v-slope)\n", (EnvelopeMode) envelopeMode);
-			buffer.Append(String.Format("iMode={0}", envelopeIMode).PadRight(20)).AppendFormat("// InitMode={0} (0 = none,  1 = Init, 2 = Delay)\n", (EnvelopeInitMode) envelopeIMode);
-			buffer.Append(String.Format("sMode={0}", envelopeSMode).PadRight(20)).AppendFormat("// SustainMode={0} (0 = none, 1 = Sust2, 2 = LoopA, 3 = LoopD, 4 = LoopS, 5 = Rel25, 6 = Rel50, 7 = Rel75, 8 = Re100)\n", (EnvelopeSustainMode) envelopeSMode);
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "init={0:0.00}", envelopeInit).PadRight(20)).AppendLine("// Init");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Atk={0:0.00}", envelopeAtk).PadRight(20)).AppendLine("// Attack (0 - 100)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Dec={0:0.00}", envelopeDec).PadRight(20)).AppendLine("// Decay (0 - 100)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Sus={0:0.00}", envelopeSus).PadRight(20)).AppendLine("// Sustain (0 - 100)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "SusT={0:0.00}", envelopeSusT).PadRight(20)).AppendLine("// Fall/Rise (-100 - 0 - 100)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Sus2={0:0.00}", envelopeSus2).PadRight(20)).AppendLine("// Sustain2");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Rel={0:0.00}", envelopeRel).PadRight(20)).AppendLine("// Release (0 - 100)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Vel={0:0.00}", envelopeVel).PadRight(20)).AppendLine("// Velocity");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "V2I={0:0.00}", envelopeV2I).PadRight(20)).AppendLine("// Vel2I");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "V2A={0:0.00}", envelopeV2A).PadRight(20)).AppendLine("// Vel2A");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "V2D={0:0.00}", envelopeV2D).PadRight(20)).AppendLine("// Vel2D");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "V2S={0:0.00}", envelopeV2S).PadRight(20)).AppendLine("// Vel2S");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "V2FR={0:0.00}", envelopeV2FR).PadRight(20)).AppendLine("// Vel2FR");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "V2S2={0:0.00}", envelopeV2S2).PadRight(20)).AppendLine("// Vel2S2");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "V2R={0:0.00}", envelopeV2R).PadRight(20)).AppendLine("// Vel2R");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "K2I={0:0.00}", envelopeK2I).PadRight(20)).AppendLine("// Key2I");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "K2A={0:0.00}", envelopeK2A).PadRight(20)).AppendLine("// Key2A");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "K2D={0:0.00}", envelopeK2D).PadRight(20)).AppendLine("// Key2D");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "K2S={0:0.00}", envelopeK2S).PadRight(20)).AppendLine("// Key2S");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "K2FR={0:0.00}", envelopeK2FR).PadRight(20)).AppendLine("// Key2FR");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "K2S2={0:0.00}", envelopeK2S2).PadRight(20)).AppendLine("// Key2S2");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "K2R={0:0.00}", envelopeK2R).PadRight(20)).AppendLine("// Key2R");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Slope={0:0.00}", envelopeSlope).PadRight(20)).AppendLine("// Slope (v-slope -100 - 0 - 100)");
-			buffer.Append(String.Format("TBase={0}", envelopeTBase).PadRight(20)).AppendFormat("// Timebase={0} (0 = 8sX, 1 = 16sX, 2 = 10s, 3 = 1/4, 4 = 1/1, 5 = 4/1)\n", (EnvelopeTimeBase) envelopeTBase);
+			if (doHumanReadable) {
+				buffer.Append(String.Format("Name={0}\n", name));
+				buffer.Append(String.Format("Mode={0}", (EnvelopeMode) envelopeMode).PadRight(25)).AppendFormat("// (0 = quadric, 1 = linear, 2 = v-slope)\n");
+				buffer.Append(String.Format("InitMode={0}", (EnvelopeInitMode) envelopeIMode).PadRight(25)).AppendFormat("// (0 = none,  1 = Init, 2 = Delay)\n");
+				buffer.Append(String.Format("SustainMode={0}", (EnvelopeSustainMode) envelopeSMode).PadRight(25)).AppendFormat("// (0 = none, 1 = Sust2, 2 = LoopA, 3 = LoopD, 4 = LoopS, 5 = Rel25, 6 = Rel50, 7 = Rel75, 8 = Re100)\n");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Init={0:0.00}", envelopeInit).PadRight(25)).AppendLine("// Init");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Attack={0:0.00}", envelopeAtk).PadRight(25)).AppendFormat(CultureInfo.InvariantCulture, "// (0 - 100) = {0:0.00} ms\n", EnvTypeAndValueToMilliseconds((EnvelopeTimeBase) envelopeTBase, envelopeAtk));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Decay={0:0.00}", envelopeDec).PadRight(25)).AppendFormat(CultureInfo.InvariantCulture, "// (0 - 100) = {0:0.00} ms\n", EnvTypeAndValueToMilliseconds((EnvelopeTimeBase) envelopeTBase, envelopeDec));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Sustain={0:0.00}", envelopeSus).PadRight(25)).AppendFormat(CultureInfo.InvariantCulture, "// (0 - 100) = {0:0.00} ms\n", EnvTypeAndValueToMilliseconds((EnvelopeTimeBase) envelopeTBase, envelopeSus));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "SusT={0:0.00}", envelopeSusT).PadRight(25)).AppendLine("// Fall/Rise (-100 - 0 - 100)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Sus2={0:0.00}", envelopeSus2).PadRight(25)).AppendLine("// Sustain2");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Release={0:0.00}", envelopeRel).PadRight(25)).AppendFormat(CultureInfo.InvariantCulture, "// (0 - 100) = {0:0.00} ms\n", EnvTypeAndValueToMilliseconds((EnvelopeTimeBase) envelopeTBase, envelopeRel));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Velocity={0:0.00}", envelopeVel).PadRight(25)).AppendLine("// Velocity");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Vel2I={0:0.00}", envelopeV2I).PadRight(25)).AppendLine("// Velocity Scale I");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Vel2A={0:0.00}", envelopeV2A).PadRight(25)).AppendLine("// Velocity Scale Attack");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Vel2D={0:0.00}", envelopeV2D).PadRight(25)).AppendLine("// Velocity Scale Decay");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Vel2S={0:0.00}", envelopeV2S).PadRight(25)).AppendLine("// Velocity Scale Sustain");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Vel2FR={0:0.00}", envelopeV2FR).PadRight(25)).AppendLine("// Velocity Scale FR");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Vel2S2={0:0.00}", envelopeV2S2).PadRight(25)).AppendLine("// Velocity Scale S2");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Vel2R={0:0.00}", envelopeV2R).PadRight(25)).AppendLine("// Velocity Scale Release");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Key2I={0:0.00}", envelopeK2I).PadRight(25)).AppendLine("// Key Scale I");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Key2A={0:0.00}", envelopeK2A).PadRight(25)).AppendLine("// Key Scale Attack");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Key2D={0:0.00}", envelopeK2D).PadRight(25)).AppendLine("// Key Scale Decay");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Key2S={0:0.00}", envelopeK2S).PadRight(25)).AppendLine("// Key Scale Sustain");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Key2FR={0:0.00}", envelopeK2FR).PadRight(25)).AppendLine("// Key Scale FR");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Key2S2={0:0.00}", envelopeK2S2).PadRight(25)).AppendLine("// Key Scale S2");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Key2R={0:0.00}", envelopeK2R).PadRight(25)).AppendLine("// Key Scale Release");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Slope={0:0.00}", envelopeSlope).PadRight(25)).AppendLine("// (v-slope -100 - 0 - 100)");
+				buffer.Append(String.Format("Timebase={0}", (EnvelopeTimeBase) envelopeTBase).PadRight(25)).AppendLine("// (0 = 8sX, 1 = 16sX, 2 = 10s, 3 = 1/4, 4 = 1/1, 5 = 4/1)");
+			} else {
+				buffer.AppendLine("#cm=" + name.ToUpper());
+				buffer.Append(String.Format("Mode={0}", envelopeMode).PadRight(20)).AppendFormat("// Mode={0} (0 = quadric, 1 = linear, 2 = v-slope)\n", (EnvelopeMode) envelopeMode);
+				buffer.Append(String.Format("iMode={0}", envelopeIMode).PadRight(20)).AppendFormat("// InitMode={0} (0 = none,  1 = Init, 2 = Delay)\n", (EnvelopeInitMode) envelopeIMode);
+				buffer.Append(String.Format("sMode={0}", envelopeSMode).PadRight(20)).AppendFormat("// SustainMode={0} (0 = none, 1 = Sust2, 2 = LoopA, 3 = LoopD, 4 = LoopS, 5 = Rel25, 6 = Rel50, 7 = Rel75, 8 = Re100)\n", (EnvelopeSustainMode) envelopeSMode);
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "init={0:0.00}", envelopeInit).PadRight(20)).AppendLine("// Init");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Atk={0:0.00}", envelopeAtk).PadRight(20)).AppendFormat(CultureInfo.InvariantCulture, "// Attack (0 - 100) = {0:0.00} ms\n", EnvTypeAndValueToMilliseconds((EnvelopeTimeBase) envelopeTBase, envelopeAtk));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Dec={0:0.00}", envelopeDec).PadRight(20)).AppendFormat(CultureInfo.InvariantCulture, "// Decay (0 - 100) = {0:0.00} ms\n", EnvTypeAndValueToMilliseconds((EnvelopeTimeBase) envelopeTBase, envelopeDec));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Sus={0:0.00}", envelopeSus).PadRight(20)).AppendFormat(CultureInfo.InvariantCulture, "// Sustain (0 - 100) = {0:0.00} ms\n", EnvTypeAndValueToMilliseconds((EnvelopeTimeBase) envelopeTBase, envelopeSus));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "SusT={0:0.00}", envelopeSusT).PadRight(20)).AppendLine("// Fall/Rise (-100 - 0 - 100)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Sus2={0:0.00}", envelopeSus2).PadRight(20)).AppendLine("// Sustain2");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Rel={0:0.00}", envelopeRel).PadRight(20)).AppendFormat(CultureInfo.InvariantCulture, "// Release (0 - 100) = {0:0.00} ms\n", EnvTypeAndValueToMilliseconds((EnvelopeTimeBase) envelopeTBase, envelopeRel));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Vel={0:0.00}", envelopeVel).PadRight(20)).AppendLine("// Velocity");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "V2I={0:0.00}", envelopeV2I).PadRight(20)).AppendLine("// Vel2I");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "V2A={0:0.00}", envelopeV2A).PadRight(20)).AppendLine("// Vel2A");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "V2D={0:0.00}", envelopeV2D).PadRight(20)).AppendLine("// Vel2D");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "V2S={0:0.00}", envelopeV2S).PadRight(20)).AppendLine("// Vel2S");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "V2FR={0:0.00}", envelopeV2FR).PadRight(20)).AppendLine("// Vel2FR");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "V2S2={0:0.00}", envelopeV2S2).PadRight(20)).AppendLine("// Vel2S2");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "V2R={0:0.00}", envelopeV2R).PadRight(20)).AppendLine("// Vel2R");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "K2I={0:0.00}", envelopeK2I).PadRight(20)).AppendLine("// Key2I");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "K2A={0:0.00}", envelopeK2A).PadRight(20)).AppendLine("// Key2A");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "K2D={0:0.00}", envelopeK2D).PadRight(20)).AppendLine("// Key2D");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "K2S={0:0.00}", envelopeK2S).PadRight(20)).AppendLine("// Key2S");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "K2FR={0:0.00}", envelopeK2FR).PadRight(20)).AppendLine("// Key2FR");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "K2S2={0:0.00}", envelopeK2S2).PadRight(20)).AppendLine("// Key2S2");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "K2R={0:0.00}", envelopeK2R).PadRight(20)).AppendLine("// Key2R");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Slope={0:0.00}", envelopeSlope).PadRight(20)).AppendLine("// Slope (v-slope -100 - 0 - 100)");
+				buffer.Append(String.Format("TBase={0}", envelopeTBase).PadRight(20)).AppendFormat("// Timebase={0} (0 = 8sX, 1 = 16sX, 2 = 10s, 3 = 1/4, 4 = 1/1, 5 = 4/1)\n", (EnvelopeTimeBase) envelopeTBase);
+			}
 			return buffer.ToString();
 		}
 		
@@ -2419,28 +2428,49 @@ namespace PresetConverter
 		                            int lfoDMS1,
 		                            float lfoDMD1,
 		                            int lfoFMS1,
-		                            float lfoFMD1) {
+		                            float lfoFMD1,
+		                            bool doHumanReadable=false) {
 			var buffer = new StringBuilder();
 			buffer.AppendLine();
 			buffer.AppendLine("/*");
 			buffer.AppendLine("	" + description);
 			buffer.AppendLine("*/");
-			buffer.AppendLine("#cm=" + name.ToUpper());
-			buffer.Append(String.Format("Sync={0}", lfoSync).PadRight(20)).AppendFormat("// Sync={0}\n", (LFOSync) lfoSync);
-			buffer.Append(String.Format("Trig={0}", lfoTrig).PadRight(20)).AppendFormat("// Restart={0} (0 = free, 1 = gate)\n", (LFOTriggering) lfoTrig);
-			buffer.Append(String.Format("Wave={0}", lfoWave).PadRight(20)).AppendFormat("// Waveform={0}\n", (LFOWave) lfoWave);
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Phse={0:0.00}", lfoPhse).PadRight(20)).AppendLine("// Phase (0 - 100)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Rate={0:0.00}", lfoRate).PadRight(20)).AppendLine("// Rate (0 - 200)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Amp={0:0.00}", lfoAmp).PadRight(20)).AppendLine("// Amplitude (0 - 100)");
-			buffer.Append(String.Format("Slew={0}", lfoSlew).PadRight(20)).AppendFormat("// Slew={0} (0 = off, 1 = fast, 2 = slow)\n", (LFOSlew) lfoSlew);
-			buffer.Append(String.Format("Nstp={0}", lfoNstp).PadRight(20)).AppendLine("// Num Steps");
-			buffer.Append(String.Format("Stps={0}", lfoStps).PadRight(20)).AppendLine("// binary data for Steps");
-			buffer.Append(String.Format("UWv={0}", lfoUWv).PadRight(20)).AppendLine("// User Wave Mode");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Dly={0:0.00}", lfoDly).PadRight(20)).AppendLine("// Delay ( 0 - 100)");
-			buffer.Append(String.Format("DMS1={0}", lfoDMS1).PadRight(20)).AppendFormat("// DepthMod Src1={0}\n", (LFOModulationSource) lfoDMS1);
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "DMD1={0:0.00}", lfoDMD1).PadRight(20)).AppendLine("// DepthMod Dpt1 (0 - 100)");
-			buffer.Append(String.Format("FMS1={0}", lfoFMS1).PadRight(20)).AppendFormat("// FreqMod Src1={0}\n", (LFOModulationSource) lfoFMS1);
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FMD1={0:0.00}", lfoFMD1).PadRight(20)).AppendLine("// FreqMod Dpt (-100 - 100)");
+			if (doHumanReadable) {
+				buffer.Append(String.Format("Name={0}\n", name));
+				buffer.Append(String.Format("Sync={0}\n", (LFOSync) lfoSync));
+				buffer.Append(String.Format("Trigger={0}", (LFOTriggering) lfoTrig).PadRight(25)).AppendLine("// Restart (0 = free, 1 = gate)");
+				buffer.Append(String.Format("Waveform={0}\n", (LFOWave) lfoWave));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Phase={0:0.00}", lfoPhse).PadRight(25)).AppendLine("// (0 - 100)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Rate={0:0.00}", lfoRate).PadRight(25)).AppendFormat("// (0 - 200) = {0:0.00} ms\n", LFOSyncAndValueToMilliseconds((LFOSync) lfoSync, (int) lfoRate));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Amplitude={0:0.00}", lfoAmp).PadRight(25)).AppendLine("// (0 - 100)");
+				buffer.Append(String.Format("Slew={0}", (LFOSlew) lfoSlew).PadRight(25)).AppendLine("// (0 = off, 1 = fast, 2 = slow)");
+				buffer.Append(String.Format("Num Steps={0}\n", lfoNstp));
+				buffer.Append(String.Format("Binary data for Steps={0}\n", lfoStps));
+				buffer.Append(String.Format("User Wave Mode={0}\n", lfoUWv));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Delay={0:0.00}", lfoDly).PadRight(25)).AppendLine("// ( 0 - 100)");
+				buffer.Append(String.Format("DepthMod Src1={0}\n", (LFOModulationSource) lfoDMS1));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "DepthMod Depth={0:0.00}", lfoDMD1).PadRight(25)).AppendLine("// (0 - 100)");
+				buffer.Append(String.Format("FreqMod Src1={0}\n", (LFOModulationSource) lfoFMS1));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "FreqMod Depth={0:0.00}", lfoFMD1).PadRight(25)).AppendLine("// (-100 - 100)");
+			} else {
+				buffer.AppendLine("#cm=" + name.ToUpper());
+				buffer.Append(String.Format("Sync={0}", lfoSync).PadRight(20)).AppendFormat("// Sync={0}\n", (LFOSync) lfoSync);
+				buffer.Append(String.Format("Trig={0}", lfoTrig).PadRight(20)).AppendFormat("// Restart={0} (0 = free, 1 = gate)\n", (LFOTriggering) lfoTrig);
+				buffer.Append(String.Format("Wave={0}", lfoWave).PadRight(20)).AppendFormat("// Waveform={0}\n", (LFOWave) lfoWave);
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Phse={0:0.00}", lfoPhse).PadRight(20)).AppendLine("// Phase (0 - 100)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Rate={0:0.00}", lfoRate).PadRight(20)).AppendFormat("// Rate (0 - 200) = {0:0.00} ms\n", LFOSyncAndValueToMilliseconds((LFOSync) lfoSync, (int) lfoRate));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Amp={0:0.00}", lfoAmp).PadRight(20)).AppendLine("// Amplitude (0 - 100)");
+				buffer.Append(String.Format("Slew={0}", lfoSlew).PadRight(20)).AppendFormat("// Slew={0} (0 = off, 1 = fast, 2 = slow)\n", (LFOSlew) lfoSlew);
+				buffer.Append(String.Format("Nstp={0}", lfoNstp).PadRight(20)).AppendLine("// Num Steps");
+				buffer.Append(String.Format("Stps={0}", lfoStps).PadRight(20)).AppendLine("// binary data for Steps");
+				buffer.Append(String.Format("UWv={0}", lfoUWv).PadRight(20)).AppendLine("// User Wave Mode");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Dly={0:0.00}", lfoDly).PadRight(20)).AppendLine("// Delay ( 0 - 100)");
+				buffer.Append(String.Format("DMS1={0}", lfoDMS1).PadRight(20)).AppendFormat("// DepthMod Src1={0}\n", (LFOModulationSource) lfoDMS1);
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "DMD1={0:0.00}", lfoDMD1).PadRight(20)).AppendLine("// DepthMod Dpt1 (0 - 100)");
+				buffer.Append(String.Format("FMS1={0}", lfoFMS1).PadRight(20)).AppendFormat("// FreqMod Src1={0}\n", (LFOModulationSource) lfoFMS1);
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "FMD1={0:0.00}", lfoFMD1).PadRight(20)).AppendLine("// FreqMod Dpt (-100 - 100)");
+			}
+			
 			return buffer.ToString();
 		}
 		
@@ -2485,54 +2515,101 @@ namespace PresetConverter
 		                                   int oscillatorWaTb,
 		                                   int oscillatorRePhs,
 		                                   float oscillatorNorm,
-		                                   int oscillatorRend) {
+		                                   int oscillatorRend,
+		                                   bool doHumanReadable=false) {
 			var buffer = new StringBuilder();
 			buffer.AppendLine();
 			buffer.AppendLine("/*");
 			buffer.AppendLine("	" + description);
 			buffer.AppendLine("*/");
-			buffer.AppendLine("#cm=" + name.ToUpper());
-			buffer.Append(String.Format("Wave={0}", oscillatorWave).PadRight(20)).AppendLine("// WaveForm");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Tune={0:0.00}", oscillatorTune).PadRight(20)).AppendLine("// Tune (-48.00 - 48.00)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "KeyScl={0:0.00}", oscillatorKeyScl).PadRight(20)).AppendLine("// key scale");
-			buffer.Append(String.Format("TMSrc={0}", oscillatorTMSrc).PadRight(20)).AppendLine("// TuneModSrc");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "TMDpt={0:0.00}", oscillatorTMDpt).PadRight(20)).AppendLine("// TuneModDepth (-48.00 - 48.00)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Phse={0:0.00}", oscillatorPhse).PadRight(20)).AppendLine("// Phase (0.00 - 100.00)");
-			buffer.Append(String.Format("PhsMSrc={0}", oscillatorPhsMSrc).PadRight(20)).AppendLine("// PhaseModSrc");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "PhsMDpt={0:0.00}", oscillatorPhsMDpt).PadRight(20)).AppendLine("// PhaseModDepth (-50.00 - 50.00)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "WNum={0:0.00}", oscillatorWNum).PadRight(20)).AppendLine("// WaveWarp (1.00 - 16.00)");
-			buffer.Append(String.Format("WPSrc={0}", oscillatorWPSrc).PadRight(20)).AppendLine("// WarpModSrc");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "WPDpt={0:0.00}", oscillatorWPDpt).PadRight(20)).AppendLine("// WarpModDepth (-16.00 - 16.00)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "VtoD={0:0.00}", oscillatorVtoD).PadRight(20)).AppendLine("// Vibrato (0.00 - 100.00)");
-			buffer.Append(String.Format("Curve={0}", oscillatorCurve).PadRight(20)).AppendLine("// binary data for Curve");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Prec={0:0.00}", oscillatorPrec).PadRight(20)).AppendLine("// Resolution");
-			buffer.Append(String.Format("FX1Tp={0}", oscillatorFX1Tp).PadRight(20)).AppendFormat("// SpectraFX1 Type={0}\n", (OscillatorEffect) oscillatorFX1Tp);
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "SFX1={0:0.00}", oscillatorSFX1).PadRight(20)).AppendLine("// SpectraFX1 Val (-100.00 - 100.00)");
-			buffer.Append(String.Format("FX1Sc={0}", oscillatorFX1Sc).PadRight(20)).AppendFormat("// SFX1ModSrc={0}\n", (ModulationSource) oscillatorFX1Sc);
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FX1Dt={0:0.00}", oscillatorFX1Dt).PadRight(20)).AppendLine("// SFX1ModDepth (-100.00 - 100.00)");
-			buffer.Append(String.Format("FX2Tp={0}", oscillatorFX2Tp).PadRight(20)).AppendFormat("// SpectraFX2 Type={0}\n", (OscillatorEffect) oscillatorFX2Tp);
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "SFX2={0:0.00}", oscillatorSFX2).PadRight(20)).AppendLine("// SpectraFX2 Val (-100.00 - 100.00)");
-			buffer.Append(String.Format("FX2Sc={0}", oscillatorFX2Sc).PadRight(20)).AppendFormat("// SFX2ModSrc={0}\n", (ModulationSource) oscillatorFX2Sc);
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FX2Dt={0:0.00}", oscillatorFX2Dt).PadRight(20)).AppendLine("// SFX2ModDepth (-100.00 - 100.00)");
-			buffer.Append(String.Format("Poly={0}", oscillatorPoly).PadRight(20)).AppendLine("// PolyWave (0 = single, 1 = dual, 2 = quad, 3 = eleven)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Dtun={0:0.00}", oscillatorDtun).PadRight(20)).AppendLine("// Detune (-50.00 - 50.00)");
-			buffer.Append(String.Format("KVsc={0}", oscillatorKVsc).PadRight(20)).AppendLine("// binary data for KeyVelZones");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Vol={0:0.00}", oscillatorVol).PadRight(20)).AppendLine("// Volume (0.00 - 200.00)");
-			buffer.Append(String.Format("VolSc={0}", oscillatorVolSc).PadRight(20)).AppendFormat("// VolumeModSrc={0}\n", (ModulationSource) oscillatorVolSc);
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "VolDt={0:0.00}", oscillatorVolDt).PadRight(20)).AppendLine("// VolumeModDepth (-100.00 - 100.00)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan={0:0.00}", oscillatorPan).PadRight(20)).AppendLine("// Pan (-100.00 - 100.00)");
-			buffer.Append(String.Format("PanSc={0}", oscillatorPanSc).PadRight(20)).AppendFormat("// PanModSrc={0}\n", (ModulationSource) oscillatorPanSc);
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "PanDt={0:0.00}", oscillatorPanDt).PadRight(20)).AppendLine("// PanModDepth (-100.00 - 100.00)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Sync={0:0.00}", oscillatorSync).PadRight(20)).AppendLine("// SyncTune (0.00 - 36.00)");
-			buffer.Append(String.Format("SncSc={0}", oscillatorSncSc).PadRight(20)).AppendLine("// SyncModSrc");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "SncDt={0:0.00}", oscillatorSncDt).PadRight(20)).AppendLine("// SyncModDepth (-36.00 - 36.00)");
-			buffer.Append(String.Format("SncOn={0}", oscillatorSncOn).PadRight(20)).AppendLine("// Sync Active");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "PolW={0:0.00}", oscillatorPolW).PadRight(20)).AppendLine("// Poly Width (0.00 - 100.00)");
-			buffer.Append(String.Format("PwmOn={0}", oscillatorPwmOn).PadRight(20)).AppendLine("// PWM Mode");
-			buffer.Append(String.Format("WaTb={0}", oscillatorWaTb).PadRight(20)).AppendLine("// binary data for WaveTable");
-			buffer.Append(String.Format("RePhs={0}", oscillatorRePhs).PadRight(20)).AppendLine("// Reset Phase");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Norm={0:0.00}", oscillatorNorm).PadRight(20)).AppendLine("// Normalize");
-			buffer.Append(String.Format("Rend={0}", oscillatorRend).PadRight(20)).AppendLine("// Renderer");
+			if (doHumanReadable) {
+				buffer.Append(String.Format("Name={0}\n", name));
+				buffer.Append(String.Format("WaveForm={0}\n", oscillatorWave));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Tune={0:0.00}", oscillatorTune).PadRight(25)).AppendLine("// (-48.00 - 48.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "KeyScale={0:0.00}\n", oscillatorKeyScl));
+				buffer.Append(String.Format("TuneModSrc={0}", oscillatorTMSrc).PadRight(25)).AppendFormat("// TuneModSrc={0}\n", GetModulationSource(oscillatorTMSrc));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "TuneModDepth={0:0.00}", oscillatorTMDpt).PadRight(25)).AppendLine("// (-48.00 - 48.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Phase={0:0.00}", oscillatorPhse).PadRight(25)).AppendLine("// (0.00 - 100.00)");
+				buffer.Append(String.Format("PhaseModSrc={0}", oscillatorPhsMSrc).PadRight(25)).AppendFormat("// PhaseModSrc={0}\n", GetModulationSource(oscillatorPhsMSrc));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "PhaseModDepth={0:0.00}", oscillatorPhsMDpt).PadRight(25)).AppendLine("// (-50.00 - 50.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "WaveWarp={0:0.00}", oscillatorWNum).PadRight(25)).AppendLine("// (1.00 - 16.00)");
+				buffer.Append(String.Format("WarpModSrc={0}", oscillatorWPSrc).PadRight(25)).AppendFormat("// WarpModSrc={0}\n", GetModulationSource(oscillatorWPSrc));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "WarpModDepth={0:0.00}", oscillatorWPDpt).PadRight(25)).AppendLine("// (-16.00 - 16.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Vibrato={0:0.00}", oscillatorVtoD).PadRight(25)).AppendLine("// (0.00 - 100.00)");
+				buffer.Append(String.Format("Curve={0}", oscillatorCurve).PadRight(25)).AppendLine("// Binary data for Curve");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Resolution={0:0.00}\n", oscillatorPrec));
+				buffer.Append(String.Format("SpectraFX1 Type={0}", oscillatorFX1Tp).PadRight(25)).AppendFormat("// SpectraFX1 Type={0}\n", (OscillatorEffect) oscillatorFX1Tp);
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "SpectraFX1 Val={0:0.00}", oscillatorSFX1).PadRight(25)).AppendLine("// (-100.00 - 100.00)");
+				buffer.Append(String.Format("SFX1ModSrc={0}", oscillatorFX1Sc).PadRight(25)).AppendFormat("// SFX1ModSrc={0}\n", GetModulationSource(oscillatorFX1Sc));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "SFX1ModDepth={0:0.00}", oscillatorFX1Dt).PadRight(25)).AppendLine("// (-100.00 - 100.00)");
+				buffer.Append(String.Format("SpectraFX2 Type={0}", oscillatorFX2Tp).PadRight(25)).AppendFormat("// SpectraFX2 Type={0}\n", (OscillatorEffect) oscillatorFX2Tp);
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "SpectraFX2 Val={0:0.00}", oscillatorSFX2).PadRight(25)).AppendLine("// (-100.00 - 100.00)");
+				buffer.Append(String.Format("SFX2ModSrc={0}", oscillatorFX2Sc).PadRight(25)).AppendFormat("// SFX2ModSrc={0}\n", GetModulationSource(oscillatorFX2Sc));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "SFX2ModDepth={0:0.00}", oscillatorFX2Dt).PadRight(25)).AppendLine("// (-100.00 - 100.00)");
+				buffer.Append(String.Format("PolyWave={0}", (OscillatorPoly) oscillatorPoly).PadRight(25)).AppendLine("// (0 = single, 1 = dual, 2 = quad, 3 = eleven)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Detune={0:0.00}", oscillatorDtun).PadRight(25)).AppendLine("// (-50.00 - 50.00)");
+				buffer.Append(String.Format("KVsc={0}", oscillatorKVsc).PadRight(25)).AppendLine("// Binary data for KeyVelZones");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Vol={0:0.00}", oscillatorVol).PadRight(25)).AppendLine("// Volume (0.00 - 200.00)");
+				buffer.Append(String.Format("VolumeModSrc={0}", oscillatorVolSc).PadRight(25)).AppendFormat("// VolumeModSrc={0}\n", GetModulationSource(oscillatorVolSc));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "VolumeModDepth={0:0.00}", oscillatorVolDt).PadRight(25)).AppendLine("// (-100.00 - 100.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan={0:0.00}", oscillatorPan).PadRight(25)).AppendLine("// (-100.00 - 100.00)");
+				buffer.Append(String.Format("PanModSrc={0}", oscillatorPanSc).PadRight(25)).AppendFormat("// PanModSrc={0}\n", GetModulationSource(oscillatorPanSc));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "PanModDepth={0:0.00}", oscillatorPanDt).PadRight(25)).AppendLine("// (-100.00 - 100.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "SyncTune={0:0.00}", oscillatorSync).PadRight(25)).AppendLine("// (0.00 - 36.00)");
+				buffer.Append(String.Format("SyncModSrc={0}", oscillatorSncSc).PadRight(25)).AppendFormat("// SyncModSrc={0}\n", GetModulationSource(oscillatorSncSc));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "SyncModDepth={0:0.00}", oscillatorSncDt).PadRight(25)).AppendLine("// (-36.00 - 36.00)");
+				buffer.Append(String.Format("SyncOn={0}", oscillatorSncOn).PadRight(25)).AppendLine("// Sync Active");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Poly Width={0:0.00}", oscillatorPolW).PadRight(25)).AppendLine("// (0.00 - 100.00)");
+				buffer.Append(String.Format("PwmOn={0}", oscillatorPwmOn).PadRight(25)).AppendLine("// PWM Mode");
+				buffer.Append(String.Format("WaveTable={0}", oscillatorWaTb).PadRight(25)).AppendLine("// Binary data for WaveTable");
+				buffer.Append(String.Format("Reset Phase={0}\n", oscillatorRePhs));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Normalize={0:0.00}\n", oscillatorNorm));
+				buffer.Append(String.Format("Renderer={0}\n", oscillatorRend));
+			} else {
+				buffer.AppendLine("#cm=" + name.ToUpper());
+				buffer.Append(String.Format("Wave={0}", oscillatorWave).PadRight(20)).AppendLine("// WaveForm");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Tune={0:0.00}", oscillatorTune).PadRight(20)).AppendLine("// Tune (-48.00 - 48.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "KeyScl={0:0.00}", oscillatorKeyScl).PadRight(20)).AppendLine("// key scale");
+				buffer.Append(String.Format("TMSrc={0}", oscillatorTMSrc).PadRight(20)).AppendLine("// TuneModSrc");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "TMDpt={0:0.00}", oscillatorTMDpt).PadRight(20)).AppendLine("// TuneModDepth (-48.00 - 48.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Phse={0:0.00}", oscillatorPhse).PadRight(20)).AppendLine("// Phase (0.00 - 100.00)");
+				buffer.Append(String.Format("PhsMSrc={0}", oscillatorPhsMSrc).PadRight(20)).AppendLine("// PhaseModSrc");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "PhsMDpt={0:0.00}", oscillatorPhsMDpt).PadRight(20)).AppendLine("// PhaseModDepth (-50.00 - 50.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "WNum={0:0.00}", oscillatorWNum).PadRight(20)).AppendLine("// WaveWarp (1.00 - 16.00)");
+				buffer.Append(String.Format("WPSrc={0}", oscillatorWPSrc).PadRight(20)).AppendLine("// WarpModSrc");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "WPDpt={0:0.00}", oscillatorWPDpt).PadRight(20)).AppendLine("// WarpModDepth (-16.00 - 16.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "VtoD={0:0.00}", oscillatorVtoD).PadRight(20)).AppendLine("// Vibrato (0.00 - 100.00)");
+				buffer.Append(String.Format("Curve={0}", oscillatorCurve).PadRight(20)).AppendLine("// binary data for Curve");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Prec={0:0.00}", oscillatorPrec).PadRight(20)).AppendLine("// Resolution");
+				buffer.Append(String.Format("FX1Tp={0}", oscillatorFX1Tp).PadRight(20)).AppendFormat("// SpectraFX1 Type={0}\n", (OscillatorEffect) oscillatorFX1Tp);
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "SFX1={0:0.00}", oscillatorSFX1).PadRight(20)).AppendLine("// SpectraFX1 Val (-100.00 - 100.00)");
+				buffer.Append(String.Format("FX1Sc={0}", oscillatorFX1Sc).PadRight(20)).AppendFormat("// SFX1ModSrc={0}\n", GetModulationSource(oscillatorFX1Sc));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "FX1Dt={0:0.00}", oscillatorFX1Dt).PadRight(20)).AppendLine("// SFX1ModDepth (-100.00 - 100.00)");
+				buffer.Append(String.Format("FX2Tp={0}", oscillatorFX2Tp).PadRight(20)).AppendFormat("// SpectraFX2 Type={0}\n", (OscillatorEffect) oscillatorFX2Tp);
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "SFX2={0:0.00}", oscillatorSFX2).PadRight(20)).AppendLine("// SpectraFX2 Val (-100.00 - 100.00)");
+				buffer.Append(String.Format("FX2Sc={0}", oscillatorFX2Sc).PadRight(20)).AppendFormat("// SFX2ModSrc={0}\n", GetModulationSource(oscillatorFX2Sc));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "FX2Dt={0:0.00}", oscillatorFX2Dt).PadRight(20)).AppendLine("// SFX2ModDepth (-100.00 - 100.00)");
+				buffer.Append(String.Format("Poly={0}", oscillatorPoly).PadRight(20)).AppendLine("// PolyWave (0 = single, 1 = dual, 2 = quad, 3 = eleven)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Dtun={0:0.00}", oscillatorDtun).PadRight(20)).AppendLine("// Detune (-50.00 - 50.00)");
+				buffer.Append(String.Format("KVsc={0}", oscillatorKVsc).PadRight(20)).AppendLine("// binary data for KeyVelZones");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Vol={0:0.00}", oscillatorVol).PadRight(20)).AppendLine("// Volume (0.00 - 200.00)");
+				buffer.Append(String.Format("VolSc={0}", oscillatorVolSc).PadRight(20)).AppendFormat("// VolumeModSrc={0}\n", GetModulationSource(oscillatorVolSc));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "VolDt={0:0.00}", oscillatorVolDt).PadRight(20)).AppendLine("// VolumeModDepth (-100.00 - 100.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Pan={0:0.00}", oscillatorPan).PadRight(20)).AppendLine("// Pan (-100.00 - 100.00)");
+				buffer.Append(String.Format("PanSc={0}", oscillatorPanSc).PadRight(20)).AppendFormat("// PanModSrc={0}\n", GetModulationSource(oscillatorPanSc));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "PanDt={0:0.00}", oscillatorPanDt).PadRight(20)).AppendLine("// PanModDepth (-100.00 - 100.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Sync={0:0.00}", oscillatorSync).PadRight(20)).AppendLine("// SyncTune (0.00 - 36.00)");
+				buffer.Append(String.Format("SncSc={0}", oscillatorSncSc).PadRight(20)).AppendLine("// SyncModSrc");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "SncDt={0:0.00}", oscillatorSncDt).PadRight(20)).AppendLine("// SyncModDepth (-36.00 - 36.00)");
+				buffer.Append(String.Format("SncOn={0}", oscillatorSncOn).PadRight(20)).AppendLine("// Sync Active");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "PolW={0:0.00}", oscillatorPolW).PadRight(20)).AppendLine("// Poly Width (0.00 - 100.00)");
+				buffer.Append(String.Format("PwmOn={0}", oscillatorPwmOn).PadRight(20)).AppendLine("// PWM Mode");
+				buffer.Append(String.Format("WaTb={0}", oscillatorWaTb).PadRight(20)).AppendLine("// binary data for WaveTable");
+				buffer.Append(String.Format("RePhs={0}", oscillatorRePhs).PadRight(20)).AppendLine("// Reset Phase");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Norm={0:0.00}", oscillatorNorm).PadRight(20)).AppendLine("// Normalize");
+				buffer.Append(String.Format("Rend={0}", oscillatorRend).PadRight(20)).AppendLine("// Renderer");
+			}
+			
 			return buffer.ToString();
 		}
 		
@@ -2546,24 +2623,40 @@ namespace PresetConverter
 		                               int filterFS1,
 		                               float filterFM2,
 		                               int filterFS2,
-		                               float filterKeyScl) {
+		                               float filterKeyScl,
+		                               bool doHumanReadable=false) {
 
 			var buffer = new StringBuilder();
 			buffer.AppendLine();
 			buffer.AppendLine("/*");
 			buffer.AppendLine("	" + description);
 			buffer.AppendLine("*/");
-			buffer.AppendLine("#cm=" + name.ToUpper());
-			buffer.Append(String.Format("Typ={0}", filterType).PadRight(20)).AppendFormat("// Type={0}\n", (FilterType) filterType);
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Cut={0:0.00}", filterCut).PadRight(20)).AppendFormat("// Cutoff={0:0.00} Hz (0.00 - 150.00)\n", MidiNoteToFilterFrequency((int)filterCut));
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Res={0:0.00}", filterRes).PadRight(20)).AppendLine("// Resonance (0.00 - 100.00)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Drv={0:0.00}", filterDrv).PadRight(20)).AppendLine("// Drive (0.00 - 100.00)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "Gain={0:0.00}", filterGain).PadRight(20)).AppendLine("// Gain (for the EQs) (-24.00 - 24.00)");
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FM1={0:0.00}", filterFM1).PadRight(20)).AppendLine("// ModDepth1 (-150.00 - 150.00)");
-			buffer.Append(String.Format("FS1={0}", filterFS1).PadRight(20)).AppendFormat("// Modsource1={0}\n", (ModulationSource)filterFS1);
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "FM2={0:0.00}", filterFM2).PadRight(20)).AppendLine("// ModDepth2 (-150.00 - 150.00)");
-			buffer.Append(String.Format("FS2={0}", filterFS2).PadRight(20)).AppendFormat("// Modsource2={0}\n", (ModulationSource)filterFS2);
-			buffer.Append(String.Format(CultureInfo.InvariantCulture, "KeyScl={0:0.00}", filterKeyScl).PadRight(20)).AppendLine("// KeyFollow (0.00 - 100.00)");
+			if (doHumanReadable) {
+				buffer.Append(String.Format("Name={0}\n", name));
+				buffer.Append(String.Format("Type={0}\n", (FilterType) filterType));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Cutoff={0:0.00}", filterCut).PadRight(25)).AppendFormat("// (0.00 - 150.00) = {0:0.00} Hz\n", MidiNoteToFilterFrequency((int)filterCut));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Resonance={0:0.00}", filterRes).PadRight(25)).AppendLine("// (0.00 - 100.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Drive={0:0.00}", filterDrv).PadRight(25)).AppendLine("// (0.00 - 100.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Gain={0:0.00}", filterGain).PadRight(25)).AppendLine("// Gain (for the EQs) (-24.00 - 24.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "ModDepth1={0:0.00}", filterFM1).PadRight(25)).AppendLine("// (-150.00 - 150.00)");
+				buffer.Append(String.Format("Modsource1={0}\n", GetModulationSource(filterFS1)));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "ModDepth2={0:0.00}", filterFM2).PadRight(25)).AppendLine("// (-150.00 - 150.00)");
+				buffer.Append(String.Format("Modsource2={0}\n", GetModulationSource(filterFS2)));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "KeyFollow={0:0.00}", filterKeyScl).PadRight(25)).AppendLine("// KeyScale (0.00 - 100.00)");
+			} else {
+				buffer.AppendLine("#cm=" + name.ToUpper());
+				buffer.Append(String.Format("Typ={0}", filterType).PadRight(20)).AppendFormat("// Type={0}\n", (FilterType) filterType);
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Cut={0:0.00}", filterCut).PadRight(20)).AppendFormat("// Cutoff={0:0.00} Hz (0.00 - 150.00)\n", MidiNoteToFilterFrequency((int)filterCut));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Res={0:0.00}", filterRes).PadRight(20)).AppendLine("// Resonance (0.00 - 100.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Drv={0:0.00}", filterDrv).PadRight(20)).AppendLine("// Drive (0.00 - 100.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "Gain={0:0.00}", filterGain).PadRight(20)).AppendLine("// Gain (for the EQs) (-24.00 - 24.00)");
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "FM1={0:0.00}", filterFM1).PadRight(20)).AppendLine("// ModDepth1 (-150.00 - 150.00)");
+				buffer.Append(String.Format("FS1={0}", filterFS1).PadRight(20)).AppendFormat("// Modsource1={0}\n", GetModulationSource(filterFS1));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "FM2={0:0.00}", filterFM2).PadRight(20)).AppendLine("// ModDepth2 (-150.00 - 150.00)");
+				buffer.Append(String.Format("FS2={0}", filterFS2).PadRight(20)).AppendFormat("// Modsource2={0}\n", GetModulationSource(filterFS2));
+				buffer.Append(String.Format(CultureInfo.InvariantCulture, "KeyScl={0:0.00}", filterKeyScl).PadRight(20)).AppendLine("// KeyFollow (0.00 - 100.00)");
+			}
+			
 			return buffer.ToString();
 		}
 		
@@ -4265,6 +4358,453 @@ namespace PresetConverter
 		}
 		#endregion
 		
+		#region Human Readable Outputs
+		public string GetReadableOscillatorInfo() {
+			var buffer = new StringBuilder();
+			
+			buffer.Append(GetPresetOscillator("Oscillator1", "Osc1",
+			                                  OSC1_Wave,
+			                                  OSC1_Tune,
+			                                  OSC1_KeyScl,
+			                                  OSC1_TMSrc,
+			                                  OSC1_TMDpt,
+			                                  OSC1_Phse,
+			                                  OSC1_PhsMSrc,
+			                                  OSC1_PhsMDpt,
+			                                  OSC1_WNum,
+			                                  OSC1_WPSrc,
+			                                  OSC1_WPDpt,
+			                                  OSC1_VtoD,
+			                                  OSC1_Curve,
+			                                  OSC1_Prec,
+			                                  OSC1_FX1Tp,
+			                                  OSC1_SFX1,
+			                                  OSC1_FX1Sc,
+			                                  OSC1_FX1Dt,
+			                                  OSC1_FX2Tp,
+			                                  OSC1_SFX2,
+			                                  OSC1_FX2Sc,
+			                                  OSC1_FX2Dt,
+			                                  OSC1_Poly,
+			                                  OSC1_Dtun,
+			                                  OSC1_KVsc,
+			                                  OSC1_Vol,
+			                                  OSC1_VolSc,
+			                                  OSC1_VolDt,
+			                                  OSC1_Pan,
+			                                  OSC1_PanSc,
+			                                  OSC1_PanDt,
+			                                  OSC1_Sync,
+			                                  OSC1_SncSc,
+			                                  OSC1_SncDt,
+			                                  OSC1_SncOn,
+			                                  OSC1_PolW,
+			                                  OSC1_PwmOn,
+			                                  OSC1_WaTb,
+			                                  OSC1_RePhs,
+			                                  OSC1_Norm,
+			                                  OSC1_Rend,
+			                                  true));
+
+			buffer.Append(GetPresetOscillator("Oscillator2", "Osc2",
+			                                  OSC2_Wave,
+			                                  OSC2_Tune,
+			                                  OSC2_KeyScl,
+			                                  OSC2_TMSrc,
+			                                  OSC2_TMDpt,
+			                                  OSC2_Phse,
+			                                  OSC2_PhsMSrc,
+			                                  OSC2_PhsMDpt,
+			                                  OSC2_WNum,
+			                                  OSC2_WPSrc,
+			                                  OSC2_WPDpt,
+			                                  OSC2_VtoD,
+			                                  OSC2_Curve,
+			                                  OSC2_Prec,
+			                                  OSC2_FX1Tp,
+			                                  OSC2_SFX1,
+			                                  OSC2_FX1Sc,
+			                                  OSC2_FX1Dt,
+			                                  OSC2_FX2Tp,
+			                                  OSC2_SFX2,
+			                                  OSC2_FX2Sc,
+			                                  OSC2_FX2Dt,
+			                                  OSC2_Poly,
+			                                  OSC2_Dtun,
+			                                  OSC2_KVsc,
+			                                  OSC2_Vol,
+			                                  OSC2_VolSc,
+			                                  OSC2_VolDt,
+			                                  OSC2_Pan,
+			                                  OSC2_PanSc,
+			                                  OSC2_PanDt,
+			                                  OSC2_Sync,
+			                                  OSC2_SncSc,
+			                                  OSC2_SncDt,
+			                                  OSC2_SncOn,
+			                                  OSC2_PolW,
+			                                  OSC2_PwmOn,
+			                                  OSC2_WaTb,
+			                                  OSC2_RePhs,
+			                                  OSC2_Norm,
+			                                  OSC2_Rend,
+			                                  true));
+			
+			buffer.Append(GetPresetOscillator("Oscillator3", "Osc3",
+			                                  OSC3_Wave,
+			                                  OSC3_Tune,
+			                                  OSC3_KeyScl,
+			                                  OSC3_TMSrc,
+			                                  OSC3_TMDpt,
+			                                  OSC3_Phse,
+			                                  OSC3_PhsMSrc,
+			                                  OSC3_PhsMDpt,
+			                                  OSC3_WNum,
+			                                  OSC3_WPSrc,
+			                                  OSC3_WPDpt,
+			                                  OSC3_VtoD,
+			                                  OSC3_Curve,
+			                                  OSC3_Prec,
+			                                  OSC3_FX1Tp,
+			                                  OSC3_SFX1,
+			                                  OSC3_FX1Sc,
+			                                  OSC3_FX1Dt,
+			                                  OSC3_FX2Tp,
+			                                  OSC3_SFX2,
+			                                  OSC3_FX2Sc,
+			                                  OSC3_FX2Dt,
+			                                  OSC3_Poly,
+			                                  OSC3_Dtun,
+			                                  OSC3_KVsc,
+			                                  OSC3_Vol,
+			                                  OSC3_VolSc,
+			                                  OSC3_VolDt,
+			                                  OSC3_Pan,
+			                                  OSC3_PanSc,
+			                                  OSC3_PanDt,
+			                                  OSC3_Sync,
+			                                  OSC3_SncSc,
+			                                  OSC3_SncDt,
+			                                  OSC3_SncOn,
+			                                  OSC3_PolW,
+			                                  OSC3_PwmOn,
+			                                  OSC3_WaTb,
+			                                  OSC3_RePhs,
+			                                  OSC3_Norm,
+			                                  OSC3_Rend,
+			                                  true));
+
+			buffer.Append(GetPresetOscillator("Oscillator4", "Osc4",
+			                                  OSC4_Wave,
+			                                  OSC4_Tune,
+			                                  OSC4_KeyScl,
+			                                  OSC4_TMSrc,
+			                                  OSC4_TMDpt,
+			                                  OSC4_Phse,
+			                                  OSC4_PhsMSrc,
+			                                  OSC4_PhsMDpt,
+			                                  OSC4_WNum,
+			                                  OSC4_WPSrc,
+			                                  OSC4_WPDpt,
+			                                  OSC4_VtoD,
+			                                  OSC4_Curve,
+			                                  OSC4_Prec,
+			                                  OSC4_FX1Tp,
+			                                  OSC4_SFX1,
+			                                  OSC4_FX1Sc,
+			                                  OSC4_FX1Dt,
+			                                  OSC4_FX2Tp,
+			                                  OSC4_SFX2,
+			                                  OSC4_FX2Sc,
+			                                  OSC4_FX2Dt,
+			                                  OSC4_Poly,
+			                                  OSC4_Dtun,
+			                                  OSC4_KVsc,
+			                                  OSC4_Vol,
+			                                  OSC4_VolSc,
+			                                  OSC4_VolDt,
+			                                  OSC4_Pan,
+			                                  OSC4_PanSc,
+			                                  OSC4_PanDt,
+			                                  OSC4_Sync,
+			                                  OSC4_SncSc,
+			                                  OSC4_SncDt,
+			                                  OSC4_SncOn,
+			                                  OSC4_PolW,
+			                                  OSC4_PwmOn,
+			                                  OSC4_WaTb,
+			                                  OSC4_RePhs,
+			                                  OSC4_Norm,
+			                                  OSC4_Rend,
+			                                  true));
+			
+			return buffer.ToString();
+		}
+		
+		public string GetReadableEnvelopeInfo() {
+			var buffer = new StringBuilder();
+			
+			buffer.Append(GetPresetEnvelope("Envelope1", "Env1",
+			                                ENV1_Mode,
+			                                ENV1_IMode,
+			                                ENV1_SMode,
+			                                ENV1_Init,
+			                                ENV1_Atk,
+			                                ENV1_Dec,
+			                                ENV1_Sus,
+			                                ENV1_SusT,
+			                                ENV1_Sus2,
+			                                ENV1_Rel,
+			                                ENV1_Vel,
+			                                ENV1_V2I,
+			                                ENV1_V2A,
+			                                ENV1_V2D,
+			                                ENV1_V2S,
+			                                ENV1_V2FR,
+			                                ENV1_V2S2,
+			                                ENV1_V2R,
+			                                ENV1_K2I,
+			                                ENV1_K2A,
+			                                ENV1_K2D,
+			                                ENV1_K2S,
+			                                ENV1_K2FR,
+			                                ENV1_K2S2,
+			                                ENV1_K2R,
+			                                ENV1_Slope,
+			                                ENV1_TBase,
+			                                true));
+
+			buffer.Append(GetPresetEnvelope("Envelope2", "Env2",
+			                                ENV2_Mode,
+			                                ENV2_IMode,
+			                                ENV2_SMode,
+			                                ENV2_Init,
+			                                ENV2_Atk,
+			                                ENV2_Dec,
+			                                ENV2_Sus,
+			                                ENV2_SusT,
+			                                ENV2_Sus2,
+			                                ENV2_Rel,
+			                                ENV2_Vel,
+			                                ENV2_V2I,
+			                                ENV2_V2A,
+			                                ENV2_V2D,
+			                                ENV2_V2S,
+			                                ENV2_V2FR,
+			                                ENV2_V2S2,
+			                                ENV2_V2R,
+			                                ENV2_K2I,
+			                                ENV2_K2A,
+			                                ENV2_K2D,
+			                                ENV2_K2S,
+			                                ENV2_K2FR,
+			                                ENV2_K2S2,
+			                                ENV2_K2R,
+			                                ENV2_Slope,
+			                                ENV2_TBase,
+			                                true));
+
+			buffer.Append(GetPresetEnvelope("Envelope3", "Env3",
+			                                ENV3_Mode,
+			                                ENV3_IMode,
+			                                ENV3_SMode,
+			                                ENV3_Init,
+			                                ENV3_Atk,
+			                                ENV3_Dec,
+			                                ENV3_Sus,
+			                                ENV3_SusT,
+			                                ENV3_Sus2,
+			                                ENV3_Rel,
+			                                ENV3_Vel,
+			                                ENV3_V2I,
+			                                ENV3_V2A,
+			                                ENV3_V2D,
+			                                ENV3_V2S,
+			                                ENV3_V2FR,
+			                                ENV3_V2S2,
+			                                ENV3_V2R,
+			                                ENV3_K2I,
+			                                ENV3_K2A,
+			                                ENV3_K2D,
+			                                ENV3_K2S,
+			                                ENV3_K2FR,
+			                                ENV3_K2S2,
+			                                ENV3_K2R,
+			                                ENV3_Slope,
+			                                ENV3_TBase,
+			                                true));
+
+			buffer.Append(GetPresetEnvelope("Envelope4", "Env4",
+			                                ENV4_Mode,
+			                                ENV4_IMode,
+			                                ENV4_SMode,
+			                                ENV4_Init,
+			                                ENV4_Atk,
+			                                ENV4_Dec,
+			                                ENV4_Sus,
+			                                ENV4_SusT,
+			                                ENV4_Sus2,
+			                                ENV4_Rel,
+			                                ENV4_Vel,
+			                                ENV4_V2I,
+			                                ENV4_V2A,
+			                                ENV4_V2D,
+			                                ENV4_V2S,
+			                                ENV4_V2FR,
+			                                ENV4_V2S2,
+			                                ENV4_V2R,
+			                                ENV4_K2I,
+			                                ENV4_K2A,
+			                                ENV4_K2D,
+			                                ENV4_K2S,
+			                                ENV4_K2FR,
+			                                ENV4_K2S2,
+			                                ENV4_K2R,
+			                                ENV4_Slope,
+			                                ENV4_TBase,
+			                                true));
+			
+			return buffer.ToString();
+		}
+		
+		public string GetReadableLFOInfo() {
+			var buffer = new StringBuilder();
+			
+			buffer.Append(GetPresetLFO("Lfo 1", "LFO1",
+			                           LFO1_Sync,
+			                           LFO1_Trig,
+			                           LFO1_Wave,
+			                           LFO1_Phse,
+			                           LFO1_Rate,
+			                           LFO1_Amp,
+			                           LFO1_Slew,
+			                           LFO1_Nstp,
+			                           LFO1_Stps,
+			                           LFO1_UWv,
+			                           LFO1_Dly,
+			                           LFO1_DMS1,
+			                           LFO1_DMD1,
+			                           LFO1_FMS1,
+			                           LFO1_FMD1,
+			                           true));
+			
+			buffer.Append(GetPresetLFO("Lfo 2", "LFO2",
+			                           LFO2_Sync,
+			                           LFO2_Trig,
+			                           LFO2_Wave,
+			                           LFO2_Phse,
+			                           LFO2_Rate,
+			                           LFO2_Amp,
+			                           LFO2_Slew,
+			                           LFO2_Nstp,
+			                           LFO2_Stps,
+			                           LFO2_UWv,
+			                           LFO2_Dly,
+			                           LFO2_DMS1,
+			                           LFO2_DMD1,
+			                           LFO2_FMS1,
+			                           LFO2_FMD1,
+			                           true));
+
+			buffer.Append(GetPresetLFO("Lfo 3", "LFO3",
+			                           LFO3_Sync,
+			                           LFO3_Trig,
+			                           LFO3_Wave,
+			                           LFO3_Phse,
+			                           LFO3_Rate,
+			                           LFO3_Amp,
+			                           LFO3_Slew,
+			                           LFO3_Nstp,
+			                           LFO3_Stps,
+			                           LFO3_UWv,
+			                           LFO3_Dly,
+			                           LFO3_DMS1,
+			                           LFO3_DMD1,
+			                           LFO3_FMS1,
+			                           LFO3_FMD1,
+			                           true));
+
+			buffer.Append(GetPresetLFO("Lfo 4", "LFO4",
+			                           LFO4_Sync,
+			                           LFO4_Trig,
+			                           LFO4_Wave,
+			                           LFO4_Phse,
+			                           LFO4_Rate,
+			                           LFO4_Amp,
+			                           LFO4_Slew,
+			                           LFO4_Nstp,
+			                           LFO4_Stps,
+			                           LFO4_UWv,
+			                           LFO4_Dly,
+			                           LFO4_DMS1,
+			                           LFO4_DMD1,
+			                           LFO4_FMS1,
+			                           LFO4_FMD1,
+			                           true));
+			
+			return buffer.ToString();
+		}
+		
+		public string GetReadableFilterInfo() {
+			var buffer = new StringBuilder();
+			
+			buffer.Append(GetPresetFilter("Filter1", "VCF1",
+			                              VCF1_Typ,
+			                              VCF1_Cut,
+			                              VCF1_Res,
+			                              VCF1_Drv,
+			                              VCF1_Gain,
+			                              VCF1_FM1,
+			                              VCF1_FS1,
+			                              VCF1_FM2,
+			                              VCF1_FS2,
+			                              VCF1_KeyScl,
+			                              true));
+			
+			buffer.Append(GetPresetFilter("Filter2", "VCF2",
+			                              VCF2_Typ,
+			                              VCF2_Cut,
+			                              VCF2_Res,
+			                              VCF2_Drv,
+			                              VCF2_Gain,
+			                              VCF2_FM1,
+			                              VCF2_FS1,
+			                              VCF2_FM2,
+			                              VCF2_FS2,
+			                              VCF2_KeyScl,
+			                              true));
+
+			buffer.Append(GetPresetFilter("Filter3", "VCF3",
+			                              VCF3_Typ,
+			                              VCF3_Cut,
+			                              VCF3_Res,
+			                              VCF3_Drv,
+			                              VCF3_Gain,
+			                              VCF3_FM1,
+			                              VCF3_FS1,
+			                              VCF3_FM2,
+			                              VCF3_FS2,
+			                              VCF3_KeyScl,
+			                              true));
+
+			buffer.Append(GetPresetFilter("Filter4", "VCF4",
+			                              VCF4_Typ,
+			                              VCF4_Cut,
+			                              VCF4_Res,
+			                              VCF4_Drv,
+			                              VCF4_Gain,
+			                              VCF4_FM1,
+			                              VCF4_FS1,
+			                              VCF4_FM2,
+			                              VCF4_FS2,
+			                              VCF4_KeyScl,
+			                              true));
+			
+			return buffer.ToString();
+		}
+		
+		#endregion
+		
 		#region Conversion Methods
 		public static float MidiNoteToFilterFrequency(int midiNote) {
 			// Formula: =440 * 2^((midiNote-69)/12) / 2
@@ -4565,8 +5105,29 @@ namespace PresetConverter
 						var section = line.Split( new string[] { "=",  "//" }, StringSplitOptions.None );
 						var sectionpair = new KeyValuePair<string, string>(section[0], section[1]);
 						storedSectionName = StringUtils.ConvertCaseString(sectionpair.Value, StringUtils.Case.PascalCase);
+					} else if(line.StartsWith("#nm")) {
+						// store number of modulation sources
+						Match match = Regex.Match(line , @"(\d+)");
+						if (match.Success) {
+							NumberOfModulationSources = int.Parse(match.Groups[1].Value);
+						}
+					} else if(line.StartsWith("#ms")) {
+						// store modulation source
+						// #ms=PitchW
+						Match match = Regex.Match(line , @"\#ms=(.*)");
+						if (match.Success) {
+							string modSource = match.Groups[1].Value;
+							ModulationSources.Add(modSource);
+						}
 					} else {
+						// only process if we have detected a section
 						if (storedSectionName != "") {
+							// do a quick check that the modulation sources and the number match
+							if (NumberOfModulationSources != ModulationSources.Count) {
+								Console.Out.WriteLine("Warning! Number of modulation sources read does not match preset header! {0} != {1}", ModulationSources.Count, NumberOfModulationSources);
+								Logger.DoDebug(String.Format("Warning! Number of modulation sources read does not match preset header! {0} != {1}", ModulationSources.Count, NumberOfModulationSources));
+							}
+							
 							var parameters = line.Split( new string[] { "=",  "//" }, StringSplitOptions.None );
 							var parameter = new KeyValuePair<string, string>(parameters[0], parameters[1]);
 
